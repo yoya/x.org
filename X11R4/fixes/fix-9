@@ -1,0 +1,1420 @@
+This patch is a continuation of fix-8.  See the directions there on how to
+apply it.
+
+*** /tmp/,RCSt1a23771	Wed Mar 28 17:17:59 1990
+--- mit/clients/twm/list.c	Tue Mar 13 15:28:53 1990
+***************
+*** 28,34 ****
+  
+  /**********************************************************************
+   *
+!  * $XConsortium: list.c,v 1.17 89/12/10 17:46:13 jim Exp $
+   *
+   * TWM code to deal with the name lists for the NoTitle list and
+   * the AutoRaise list
+--- 28,34 ----
+  
+  /**********************************************************************
+   *
+!  * $XConsortium: list.c,v 1.18 90/03/13 15:28:51 jim Exp $
+   *
+   * TWM code to deal with the name lists for the NoTitle list and
+   * the AutoRaise list
+***************
+*** 37,46 ****
+   *
+   **********************************************************************/
+  
+! #ifndef lint
+  static char RCSinfo[]=
+! "$XConsortium: list.c,v 1.17 89/12/10 17:46:13 jim Exp $";
+! #endif /* lint */
+  
+  #include <stdio.h>
+  #include "twm.h"
+--- 37,46 ----
+   *
+   **********************************************************************/
+  
+! #if !defined(lint) && !defined(SABER)
+  static char RCSinfo[]=
+! "$XConsortium: list.c,v 1.18 90/03/13 15:28:51 jim Exp $";
+! #endif
+  
+  #include <stdio.h>
+  #include "twm.h"
+*** /tmp/,RCSt1a23785	Wed Mar 28 17:18:12 1990
+--- mit/clients/twm/menus.c	Tue Mar 27 13:48:13 1990
+***************
+*** 28,34 ****
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: menus.c,v 1.139 89/12/14 17:14:58 jim Exp $
+   *
+   * twm menu code
+   *
+--- 28,34 ----
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: menus.c,v 1.156 90/03/23 13:30:49 jim Exp $
+   *
+   * twm menu code
+   *
+***************
+*** 36,44 ****
+   *
+   ***********************************************************************/
+  
+! #ifndef lint
+  static char RCSinfo[] =
+! "$XConsortium: menus.c,v 1.139 89/12/14 17:14:58 jim Exp $";
+  #endif
+  
+  #include <stdio.h>
+--- 36,44 ----
+   *
+   ***********************************************************************/
+  
+! #if !defined(lint) && !defined(SABER)
+  static char RCSinfo[] =
+! "$XConsortium: menus.c,v 1.156 90/03/23 13:30:49 jim Exp $";
+  #endif
+  
+  #include <stdio.h>
+***************
+*** 58,67 ****
+  
+  extern XEvent Event;
+  
+- #if defined(SYSV) && !defined(hpux)
+- #define vfork fork
+- #endif
+- 
+  int RootFunction = NULL;
+  MenuRoot *ActiveMenu = NULL;		/* the active menu */
+  MenuItem *ActiveItem = NULL;		/* the active menu item */
+--- 58,63 ----
+***************
+*** 781,789 ****
+  		attributes.save_under = True;
+  	    }
+  	    mr->shadow = XCreateWindow (dpy, Scr->Root, 0, 0,
+! 					mr->width, mr->height, 0,
+! 					CopyFromParent, CopyFromParent,
+! 					CopyFromParent,
+  					valuemask, &attributes);
+  	}
+  
+--- 777,788 ----
+  		attributes.save_under = True;
+  	    }
+  	    mr->shadow = XCreateWindow (dpy, Scr->Root, 0, 0,
+! 					(unsigned int) mr->width, 
+! 					(unsigned int) mr->height,
+! 					(unsigned int)0,
+! 					CopyFromParent, 
+! 					(unsigned int) CopyFromParent,
+! 					(Visual *) CopyFromParent,
+  					valuemask, &attributes);
+  	}
+  
+***************
+*** 799,806 ****
+  	    valuemask |= CWBackingStore;
+  	    attributes.backing_store = Always;
+  	}
+! 	mr->w = XCreateWindow (dpy, Scr->Root, 0, 0, mr->width, mr->height, 1,
+! 			       CopyFromParent, CopyFromParent, CopyFromParent,
+  			       valuemask, &attributes);
+  
+  
+--- 798,807 ----
+  	    valuemask |= CWBackingStore;
+  	    attributes.backing_store = Always;
+  	}
+! 	mr->w = XCreateWindow (dpy, Scr->Root, 0, 0, (unsigned int) mr->width,
+! 			       (unsigned int) mr->height, (unsigned int) 1,
+! 			       CopyFromParent, (unsigned int) CopyFromParent,
+! 			       (Visual *) CopyFromParent,
+  			       valuemask, &attributes);
+  
+  
+***************
+*** 813,831 ****
+      /* get the default colors into the menus */
+      for (tmp = mr->first; tmp != NULL; tmp = tmp->next)
+      {
+! 	if (tmp->user_colors)
+! 	    continue;
+! 
+! 	if (tmp->func != F_TITLE)
+! 	{
+! 	    tmp->fore = Scr->MenuC.fore;
+! 	    tmp->back = Scr->MenuC.back;
+  	}
+- 	else
+- 	{
+- 	    tmp->fore = Scr->MenuTitleC.fore;
+- 	    tmp->back = Scr->MenuTitleC.back;
+- 	}
+  
+  	if (mr->hi_fore != -1)
+  	{
+--- 814,828 ----
+      /* get the default colors into the menus */
+      for (tmp = mr->first; tmp != NULL; tmp = tmp->next)
+      {
+! 	if (!tmp->user_colors) {
+! 	    if (tmp->func != F_TITLE) {
+! 		tmp->fore = Scr->MenuC.fore;
+! 		tmp->back = Scr->MenuC.back;
+! 	    } else {
+! 		tmp->fore = Scr->MenuTitleC.fore;
+! 		tmp->back = Scr->MenuTitleC.back;
+! 	    }
+  	}
+  
+  	if (mr->hi_fore != -1)
+  	{
+***************
+*** 912,933 ****
+  	}
+  	start = end;
+      }
+- 
+-     /* now redo the highlight colors
+-      */
+-     for (cur = mr->first; cur != NULL; cur = cur->next)
+-     {
+- 	if (mr->hi_fore != -1)
+- 	{
+- 	    cur->hi_fore = mr->hi_fore;
+- 	    cur->hi_back = mr->hi_back;
+- 	}
+- 	else
+- 	{
+- 	    cur->hi_fore = cur->back;
+- 	    cur->hi_back = cur->fore;
+- 	}
+-     }
+  }
+  
+  /***********************************************************************
+--- 909,914 ----
+***************
+*** 1062,1071 ****
+  	}
+  	XUnmapWindow(dpy, tmp->w);
+  	tmp->mapped = UNMAPPED;
+      }
+  
+-     UninstallRootColormap();
+- 
+      XFlush(dpy);
+      ActiveMenu = NULL;
+      ActiveItem = NULL;
+--- 1043,1051 ----
+  	}
+  	XUnmapWindow(dpy, tmp->w);
+  	tmp->mapped = UNMAPPED;
++ 	UninstallRootColormap();
+      }
+  
+      XFlush(dpy);
+      ActiveMenu = NULL;
+      ActiveItem = NULL;
+***************
+*** 1189,1195 ****
+  	XSync (dpy, 0);
+  	Reborder ();
+  	XSync (dpy, 0);
+! 	execvp(*Argv, Argv, Environ);
+  	fprintf (stderr, "%s:  unable to restart:  %s\n", ProgramName, *Argv);
+  	break;
+  
+--- 1169,1175 ----
+  	XSync (dpy, 0);
+  	Reborder ();
+  	XSync (dpy, 0);
+! 	execvp(*Argv, Argv);
+  	fprintf (stderr, "%s:  unable to restart:  %s\n", ProgramName, *Argv);
+  	break;
+  
+***************
+*** 1374,1379 ****
+--- 1354,1361 ----
+  
+  	origX = eventp->xbutton.x_root;
+  	origY = eventp->xbutton.y_root;
++ 	CurrentDragX = origDragX;
++ 	CurrentDragY = origDragY;
+  
+  	/*
+  	 * only do the constrained move if timer is set; need to check it
+***************
+*** 1432,1437 ****
+--- 1414,1423 ----
+  		{
+  		    MoveOutline(rootw, 0, 0, 0, 0, 0, 0);
+  		    done = TRUE;
++ 		    if (moving_icon &&
++ 			((CurrentDragX != origDragX ||
++ 			  CurrentDragY != origDragY)))
++ 		      tmp_win->icon_moved = TRUE;
+  		    break;
+  		}
+  	    }
+***************
+*** 1454,1459 ****
+--- 1440,1448 ----
+  	    WindowMoved = TRUE;
+  	    DragWindow = w;
+  
++ 	    if (!Scr->NoRaiseMove && Scr->OpaqueMove)	/* can't restore... */
++ 	      XRaiseWindow(dpy, DragWindow);
++ 
+  	    if (ConstMove)
+  	    {
+  		switch (ConstMoveDir)
+***************
+*** 1504,1509 ****
+--- 1493,1500 ----
+  			if (yb > Scr->MyDisplayHeight)
+  			    yt = Scr->MyDisplayHeight - h;
+  		    }
++ 		    CurrentDragX = xl;
++ 		    CurrentDragY = yt;
+  		    if (Scr->OpaqueMove)
+  			XMoveWindow(dpy, DragWindow, xl, yt);
+  		    else
+***************
+*** 1537,1542 ****
+--- 1528,1535 ----
+  			yt = Scr->MyDisplayHeight - h;
+  		}
+  
++ 		CurrentDragX = xl;
++ 		CurrentDragY = yt;
+  		if (Scr->OpaqueMove)
+  		    XMoveWindow(dpy, DragWindow, xl, yt);
+  		else
+***************
+*** 1699,1704 ****
+--- 1692,1702 ----
+  	break;
+  
+      case F_EXEC:
++ 	PopDownMenu();
++ 	if (!Scr->NoGrabServer) {
++ 	    XUngrabServer (dpy);
++ 	    XSync (dpy, 0);
++ 	}
+  	Execute(action);
+  	break;
+  
+***************
+*** 1773,1789 ****
+  	    len = strlen(action);
+  
+  	    for (t = Scr->TwmRoot.next; t != NULL; t = t->next) {
+! 		/* match only the first portion of WINDOW the name */
+! 		if (!strncmp(action, t->name, len)) {
+! 		    if (Scr->WarpUnmapped || t->mapped) {
+! 			if (!t->mapped) DeIconify (t);
+! 			XRaiseWindow (dpy, t->frame);
+! 			WarpToWindow (t);
+! 			break;
+  		    }
+  		}
+  	    }
+! 	    if (!t) XBell (dpy, 0);
+  	}
+  	break;
+  
+--- 1771,1798 ----
+  	    len = strlen(action);
+  
+  	    for (t = Scr->TwmRoot.next; t != NULL; t = t->next) {
+! 		if (!strncmp(action, t->name, len)) break;
+! 	    }
+! 	    if (!t) {
+! 		for (t = Scr->TwmRoot.next; t != NULL; t = t->next) {
+! 		    if (!strncmp(action, t->class.res_name, len)) break;
+! 		}
+! 		if (!t) {
+! 		    for (t = Scr->TwmRoot.next; t != NULL; t = t->next) {
+! 			if (!strncmp(action, t->class.res_class, len)) break;
+  		    }
+  		}
+  	    }
+! 
+! 	    if (t) {
+! 		if (Scr->WarpUnmapped || t->mapped) {
+! 		    if (!t->mapped) DeIconify (t);
+! 		    XRaiseWindow (dpy, t->frame);
+! 		    WarpToWindow (t);
+! 		}
+! 	    } else {
+! 		XBell (dpy, 0);
+! 	    }
+  	}
+  	break;
+  
+***************
+*** 1864,1872 ****
+  	    attributes.background_pixel = Scr->Black;
+  	    attributes.backing_store = NotUseful;
+  	    attributes.save_under = False;
+! 	    w = XCreateWindow (dpy, Scr->Root, 0, 0, Scr->MyDisplayWidth,
+! 			       Scr->MyDisplayHeight, 0, CopyFromParent,
+! 			       CopyFromParent, CopyFromParent, valuemask,
+  			       &attributes);
+  	    XMapWindow (dpy, w);
+  	    XDestroyWindow (dpy, w);
+--- 1873,1884 ----
+  	    attributes.background_pixel = Scr->Black;
+  	    attributes.backing_store = NotUseful;
+  	    attributes.save_under = False;
+! 	    w = XCreateWindow (dpy, Scr->Root, 0, 0,
+! 			       (unsigned int) Scr->MyDisplayWidth,
+! 			       (unsigned int) Scr->MyDisplayHeight,
+! 			       (unsigned int) 0,
+! 			       CopyFromParent, (unsigned int) CopyFromParent,
+! 			       (Visual *) CopyFromParent, valuemask,
+  			       &attributes);
+  	    XMapWindow (dpy, w);
+  	    XDestroyWindow (dpy, w);
+***************
+*** 2013,2025 ****
+  Execute(s)
+      char *s;
+  {
+-     int status, pid, w;
+-     SigProc istat, qstat;
+      static char buf[256];
+      char *ds = DisplayString (dpy);
+      char *colon, *dot1;
+      char oldDisplay[256];
+      char *doisplay;
+  
+      oldDisplay[0] = '\0';
+      doisplay=getenv("DISPLAY");
+--- 2025,2036 ----
+  Execute(s)
+      char *s;
+  {
+      static char buf[256];
+      char *ds = DisplayString (dpy);
+      char *colon, *dot1;
+      char oldDisplay[256];
+      char *doisplay;
++     int restorevar = 0;
+  
+      oldDisplay[0] = '\0';
+      doisplay=getenv("DISPLAY");
+***************
+*** 2041,2069 ****
+  	if (!dot1) dot1 = colon + strlen (colon);  /* if not there, append */
+  	(void) sprintf (dot1, ".%d", Scr->screen);
+  	putenv (buf);
+      }
+  
+!     if ((pid = vfork()) == 0)
+!     {
+! 	(void) signal(SIGINT, SIG_DFL);
+! 	(void) signal(SIGQUIT, SIG_DFL);
+! 	(void) signal(SIGHUP, SIG_DFL);
+! #ifdef macII
+! 	setpgrp();
+! #endif
+! 	execl("/bin/sh", "sh", "-c", s, 0);
+! 	_exit(127);
+!     }
+!     istat = signal(SIGINT, SIG_IGN);
+!     qstat = signal(SIGQUIT, SIG_IGN);
+!     while ((w = wait(&status)) != pid && w != -1);
+!     if (w == -1)
+! 	status = -1;
+!     signal(SIGINT, istat);
+!     signal(SIGQUIT, qstat);
+  
+!     (void) sprintf (buf, "DISPLAY=%s", oldDisplay);
+!     putenv (buf);
+  }
+  
+  /***********************************************************************
+--- 2052,2066 ----
+  	if (!dot1) dot1 = colon + strlen (colon);  /* if not there, append */
+  	(void) sprintf (dot1, ".%d", Scr->screen);
+  	putenv (buf);
++ 	restorevar = 1;
+      }
+  
+!     (void) system (s);
+  
+!     if (restorevar) {		/* why bother? */
+! 	(void) sprintf (buf, "DISPLAY=%s", oldDisplay);
+! 	putenv (buf);
+!     }
+  }
+  
+  /***********************************************************************
+***************
+*** 2118,2124 ****
+  		    XUnmapWindow(dpy, t->icon_w);
+  		    IconDown (t);
+  		}
+! 		XUnmapWindow(dpy, t->list->icon);
+  		t->icon = FALSE;
+  		t->icon_on = FALSE;
+  	    }
+--- 2115,2121 ----
+  		    XUnmapWindow(dpy, t->icon_w);
+  		    IconDown (t);
+  		}
+! 		if (t->list) XUnmapWindow(dpy, t->list->icon);
+  		t->icon = FALSE;
+  		t->icon_on = FALSE;
+  	    }
+***************
+*** 2164,2169 ****
+--- 2161,2167 ----
+        WarpToWindow (tmp_win);
+      tmp_win->icon = FALSE;
+      tmp_win->icon_on = FALSE;
++     XSync (dpy, 0);
+  }
+  
+  Iconify(tmp_win, def_x, def_y)
+***************
+*** 2224,2230 ****
+  		    Scr->Focus = NULL;
+  		    Scr->FocusRoot = TRUE;
+  		}
+! 		XMapWindow(dpy, t->list->icon);
+  		t->icon = TRUE;
+  		t->icon_on = FALSE;
+  	    }
+--- 2222,2228 ----
+  		    Scr->Focus = NULL;
+  		    Scr->FocusRoot = TRUE;
+  		}
+! 		if (t->list) XMapWindow(dpy, t->list->icon);
+  		t->icon = TRUE;
+  		t->icon_on = FALSE;
+  	    }
+***************
+*** 2257,2262 ****
+--- 2255,2261 ----
+  	tmp_win->icon_on = TRUE;
+      else
+  	tmp_win->icon_on = FALSE;
++     XSync (dpy, 0);
+  }
+  
+  static void Identify (t)
+***************
+*** 2439,2446 ****
+  	    tmp->cmaps.cwins = cwins;
+  
+  	    if (tmp->cmaps.number_cwins > 1)
+! 		bzero(tmp->cmaps.scoreboard,
+! 		      tmp->cmaps.number_cwins*(tmp->cmaps.number_cwins-1)/2);
+  
+  	    if (previously_installed)
+  		InstallWindowColormaps(PropertyNotify, (TwmWindow *) NULL);
+--- 2438,2445 ----
+  	    tmp->cmaps.cwins = cwins;
+  
+  	    if (tmp->cmaps.number_cwins > 1)
+! 		bzero (tmp->cmaps.scoreboard, 
+! 		       ColormapsScoreboardLength(&tmp->cmaps));
+  
+  	    if (previously_installed)
+  		InstallWindowColormaps(PropertyNotify, (TwmWindow *) NULL);
+***************
+*** 2465,2474 ****
+      Bool onoroff;
+  {
+      if (tmp->highlight) {
+! 	Pixmap pix = onoroff ? tmp->border : tmp->gray;
+! 
+! 	XSetWindowBorderPixmap (dpy, tmp->frame, pix);
+! 	if (tmp->title_w) XSetWindowBorderPixmap (dpy, tmp->title_w, pix);
+      }
+  }
+  
+--- 2464,2478 ----
+      Bool onoroff;
+  {
+      if (tmp->highlight) {
+! 	if (onoroff) {
+! 	    XSetWindowBorder (dpy, tmp->frame, tmp->border);
+! 	    if (tmp->title_w) 
+! 	      XSetWindowBorder (dpy, tmp->title_w, tmp->border);
+! 	} else {
+! 	    XSetWindowBorderPixmap (dpy, tmp->frame, tmp->gray);
+! 	    if (tmp->title_w) 
+! 	      XSetWindowBorderPixmap (dpy, tmp->title_w, tmp->gray);
+! 	}
+      }
+  }
+  
+*** /tmp/,RCSt1a23799	Wed Mar 28 17:18:20 1990
+--- mit/clients/twm/parse.c	Thu Mar 15 14:23:05 1990
+***************
+*** 28,34 ****
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: parse.c,v 1.39 89/12/14 14:51:30 jim Exp $
+   *
+   * parse the .twmrc file
+   *
+--- 28,34 ----
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: parse.c,v 1.45 90/03/15 14:23:02 jim Exp $
+   *
+   * parse the .twmrc file
+   *
+***************
+*** 36,44 ****
+   *
+   ***********************************************************************/
+  
+! #ifndef lint
+  static char RCSinfo[]=
+! "$XConsortium: parse.c,v 1.39 89/12/14 14:51:30 jim Exp $";
+  #endif
+  
+  #include <stdio.h>
+--- 36,44 ----
+   *
+   ***********************************************************************/
+  
+! #if !defined(lint) && !defined(SABER)
+  static char RCSinfo[]=
+! "$XConsortium: parse.c,v 1.45 90/03/15 14:23:02 jim Exp $";
+  #endif
+  
+  #include <stdio.h>
+***************
+*** 51,57 ****
+--- 51,59 ----
+  #include "gram.h"
+  #include "parse.h"
+  
++ #ifndef SYSTEM_INIT_FILE
+  #define SYSTEM_INIT_FILE "/usr/lib/X11/twm/system.twmrc"
++ #endif
+  #define BUF_LEN 300
+  
+  static FILE *twmrc;
+***************
+*** 473,480 ****
+--- 475,484 ----
+      { "iconregion",		ICON_REGION, 0 },
+      { "icons",			ICONS, 0 },
+      { "interpolatemenucolors",	KEYWORD, kw0_InterpolateMenuColors },
++     { "l",			LOCK, 0 },
+      { "left",			JKEYWORD, J_LEFT },
+      { "lefttitlebutton",	LEFT_TITLEBUTTON, 0 },
++     { "lock",			LOCK, 0 },
+      { "m",			META, 0 },
+      { "maketitle",		MAKE_TITLE, 0 },
+      { "maxwindowsize",		SKEYWORD, kws_MaxWindowSize },
+***************
+*** 485,490 ****
+--- 489,496 ----
+      { "menushadowcolor",	CKEYWORD, kwc_MenuShadowColor },
+      { "menutitlebackground",	CKEYWORD, kwc_MenuTitleBackground },
+      { "menutitleforeground",	CKEYWORD, kwc_MenuTitleForeground },
++     { "meta",			META, 0 },
++     { "mod",			META, 0 },  /* fake it */
+      { "monochrome",		MONOCHROME, 0 },
+      { "move",			MOVE, 0 },
+      { "movedelta",		NKEYWORD, kwn_MoveDelta },
+***************
+*** 501,506 ****
+--- 507,513 ----
+      { "noraiseonwarp",		KEYWORD, kw0_NoRaiseOnWarp },
+      { "north",			DKEYWORD, D_NORTH },
+      { "nosaveunders",		KEYWORD, kw0_NoSaveUnders },
++     { "nostackmode",		NO_STACKMODE, 0 },
+      { "notitle",		NO_TITLE, 0 },
+      { "notitlefocus",		KEYWORD, kw0_NoTitleFocus },
+      { "notitlehighlight",	NO_TITLE_HILITE, 0 },
+*** /tmp/,RCSt1a23813	Wed Mar 28 17:18:28 1990
+--- mit/clients/twm/resize.c	Tue Mar 27 11:55:06 1990
+***************
+*** 28,34 ****
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: resize.c,v 1.63 89/12/14 14:52:00 jim Exp $
+   *
+   * window resizing borrowed from the "wm" window manager
+   *
+--- 28,34 ----
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: resize.c,v 1.69 90/03/27 11:55:03 jim Exp $
+   *
+   * window resizing borrowed from the "wm" window manager
+   *
+***************
+*** 36,44 ****
+   *
+   ***********************************************************************/
+  
+! #ifndef lint
+  static char RCSinfo[]=
+! "$XConsortium: resize.c,v 1.63 89/12/14 14:52:00 jim Exp $";
+  #endif
+  
+  #include <stdio.h>
+--- 36,44 ----
+   *
+   ***********************************************************************/
+  
+! #if !defined(lint) && !defined(SABER)
+  static char RCSinfo[]=
+! "$XConsortium: resize.c,v 1.69 90/03/27 11:55:03 jim Exp $";
+  #endif
+  
+  #include <stdio.h>
+***************
+*** 417,424 ****
+      fprintf(stderr, "EndResize\n");
+  #endif
+  
+-     XUnmapWindow(dpy, Scr->SizeWindow);
+      MoveOutline(Scr->Root, 0, 0, 0, 0, 0, 0);
+  
+      XFindContext(dpy, ResizeWindow, TwmContext, (caddr_t *)&tmp_win);
+  
+--- 417,424 ----
+      fprintf(stderr, "EndResize\n");
+  #endif
+  
+      MoveOutline(Scr->Root, 0, 0, 0, 0, 0, 0);
++     XUnmapWindow(dpy, Scr->SizeWindow);
+  
+      XFindContext(dpy, ResizeWindow, TwmContext, (caddr_t *)&tmp_win);
+  
+***************
+*** 625,635 ****
+      TwmWindow *tmp_win;
+      int x, y, w, h, bw;
+  {
+      XEvent client_event;
+      XWindowChanges frame_wc, xwc;
+      unsigned long frame_mask, xwcm;
+!     int title_width;
+!     int sendEvent;
+  #ifdef SHAPE
+      int reShape;
+  #endif
+--- 625,642 ----
+      TwmWindow *tmp_win;
+      int x, y, w, h, bw;
+  {
++     SetupFrame (tmp_win, x, y, w, h, bw, False);
++ }
++ 
++ void SetupFrame (tmp_win, x, y, w, h, bw, sendEvent)
++     TwmWindow *tmp_win;
++     int x, y, w, h, bw;
++     Bool sendEvent;			/* whether or not to force a send */
++ {
+      XEvent client_event;
+      XWindowChanges frame_wc, xwc;
+      unsigned long frame_mask, xwcm;
+!     int title_width, title_height;
+  #ifdef SHAPE
+      int reShape;
+  #endif
+***************
+*** 660,670 ****
+  	 (w == tmp_win->frame_width && h == tmp_win->frame_height)) ||
+  	(bw != tmp_win->frame_bw))
+        sendEvent = TRUE;
+-     else
+-       sendEvent = FALSE;
+  
+      xwcm = CWWidth;
+      title_width = xwc.width = w;
+  
+      ComputeWindowTitleOffsets (tmp_win, xwc.width, True);
+  
+--- 667,676 ----
+  	 (w == tmp_win->frame_width && h == tmp_win->frame_height)) ||
+  	(bw != tmp_win->frame_bw))
+        sendEvent = TRUE;
+  
+      xwcm = CWWidth;
+      title_width = xwc.width = w;
++     title_height = Scr->TitleHeight + bw;
+  
+      ComputeWindowTitleOffsets (tmp_win, xwc.width, True);
+  
+***************
+*** 678,683 ****
+--- 684,690 ----
+  	    xwc.width = title_width;
+  	    if (tmp_win->frame_height != h ||
+  	    	tmp_win->frame_width != w ||
++ 		tmp_win->frame_bw != bw ||
+  	    	title_width != tmp_win->title_width)
+  	    	reShape = TRUE;
+  	}
+***************
+*** 690,697 ****
+  #endif
+  
+      tmp_win->title_width = title_width;
+!     if (tmp_win->title_w)
+  	XConfigureWindow(dpy, tmp_win->title_w, xwcm, &xwc);
+  
+      tmp_win->attr.width = w;
+      tmp_win->attr.height = h - tmp_win->title_height;
+--- 697,714 ----
+  #endif
+  
+      tmp_win->title_width = title_width;
+!     if (tmp_win->title_height) tmp_win->title_height = title_height;
+! 
+!     if (tmp_win->title_w) {
+! 	if (bw != tmp_win->frame_bw) {
+! 	    xwc.border_width = bw;
+! 	    tmp_win->title_x = xwc.x = -bw;
+! 	    tmp_win->title_y = xwc.y = -bw;
+! 	    xwcm |= (CWX | CWY | CWBorderWidth);
+! 	}
+! 	
+  	XConfigureWindow(dpy, tmp_win->title_w, xwcm, &xwc);
++     }
+  
+      tmp_win->attr.width = w;
+      tmp_win->attr.height = h - tmp_win->title_height;
+***************
+*** 700,706 ****
+  		       w, h - tmp_win->title_height);
+  
+      /* 
+!      * fix up frame
+       */
+      frame_mask = 0;
+      if (bw != tmp_win->frame_bw) {
+--- 717,723 ----
+  		       w, h - tmp_win->title_height);
+  
+      /* 
+!      * fix up frame and assign size/location values in tmp_win
+       */
+      frame_mask = 0;
+      if (bw != tmp_win->frame_bw) {
+***************
+*** 744,755 ****
+          client_event.xconfigure.display = dpy;
+          client_event.xconfigure.event = tmp_win->w;
+          client_event.xconfigure.window = tmp_win->w;
+!         client_event.xconfigure.x = x;
+!         client_event.xconfigure.y = y + tmp_win->title_height;
+          client_event.xconfigure.width = tmp_win->frame_width;
+          client_event.xconfigure.height = tmp_win->frame_height -
+                  tmp_win->title_height;
+!         client_event.xconfigure.border_width = 0;
+          /* Real ConfigureNotify events say we're above title window, so ... */
+  	/* what if we don't have a title ????? */
+          client_event.xconfigure.above = tmp_win->frame;
+--- 761,773 ----
+          client_event.xconfigure.display = dpy;
+          client_event.xconfigure.event = tmp_win->w;
+          client_event.xconfigure.window = tmp_win->w;
+!         client_event.xconfigure.x = (x + tmp_win->frame_bw - tmp_win->old_bw);
+!         client_event.xconfigure.y = (y + tmp_win->frame_bw +
+! 				     tmp_win->title_height - tmp_win->old_bw);
+          client_event.xconfigure.width = tmp_win->frame_width;
+          client_event.xconfigure.height = tmp_win->frame_height -
+                  tmp_win->title_height;
+!         client_event.xconfigure.border_width = tmp_win->old_bw;
+          /* Real ConfigureNotify events say we're above title window, so ... */
+  	/* what if we don't have a title ????? */
+          client_event.xconfigure.above = tmp_win->frame;
+***************
+*** 957,962 ****
+--- 975,985 ----
+  	    newClip[1].height = tmp->attr.height;
+  	    XShapeCombineRectangles (dpy, tmp->frame, ShapeClip, 0, 0,
+  				     newClip, 2, ShapeSet, YXBanded);
++ 	} else {
++ 	    (void) XShapeCombineMask (dpy, tmp->frame, ShapeBounding, 0, 0,
++  				      None, ShapeSet);
++ 	    (void) XShapeCombineMask (dpy, tmp->frame, ShapeClip, 0, 0,
++ 				      None, ShapeSet);
+  	}
+      }
+  }
+*** /tmp/,RCSt1a23820	Wed Mar 28 17:18:30 1990
+--- mit/clients/twm/resize.h	Fri Mar 23 11:42:33 1990
+***************
+*** 28,34 ****
+  
+  /**********************************************************************
+   *
+!  * $XConsortium: resize.h,v 1.6 89/10/27 14:01:35 jim Exp $
+   *
+   * resize function externs
+   *
+--- 28,34 ----
+  
+  /**********************************************************************
+   *
+!  * $XConsortium: resize.h,v 1.7 90/03/23 11:42:32 jim Exp $
+   *
+   * resize function externs
+   *
+***************
+*** 46,51 ****
+--- 46,52 ----
+  extern void EndResize();
+  extern void AddEndResize();
+  extern void SetupWindow();
++ extern void SetupFrame();
+  
+  #endif /* _RESIZE_ */
+  
+*** /tmp/,RCSt1a23827	Wed Mar 28 17:18:33 1990
+--- mit/clients/twm/screen.h	Thu Mar 15 14:23:07 1990
+***************
+*** 21,27 ****
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: screen.h,v 1.60 89/12/14 14:52:26 jim Exp $
+   *
+   * twm per-screen data include file
+   *
+--- 21,27 ----
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: screen.h,v 1.61 90/03/15 14:23:04 jim Exp $
+   *
+   * twm per-screen data include file
+   *
+***************
+*** 159,164 ****
+--- 159,165 ----
+      name_list *AutoRaise;	/* list of window names to auto-raise */
+      name_list *IconNames;	/* list of window names and icon names */
+      name_list *NoHighlight;	/* list of windows to not highlight */
++     name_list *NoStackModeL;	/* windows to ignore stack mode requests */
+      name_list *NoTitleHighlight;/* list of windows to not highlight the TB*/
+      name_list *DontIconify;	/* don't iconify by unmapping */
+      name_list *IconMgrNoShow;	/* don't show in the icon manager */
+***************
+*** 225,230 ****
+--- 226,232 ----
+      short RandomPlacement;	/* randomly place windows that no give hints */
+      short OpaqueMove;		/* move the window rather than outline */
+      short Highlight;		/* should we highlight the window borders */
++     short StackMode;		/* should we honor stack mode requests */
+      short TitleHighlight;	/* should we highlight the titlebar */
+      short MoveDelta;		/* number of pixels before f.move starts */
+      short ZoomCount;		/* zoom outline count */
+*** /tmp/,RCSt1a23848	Wed Mar 28 17:18:41 1990
+--- mit/clients/twm/twm.c	Fri Mar 23 13:23:35 1990
+***************
+*** 28,34 ****
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: twm.c,v 1.104 89/12/14 14:52:20 jim Exp $
+   *
+   * twm - "Tom's Window Manager"
+   *
+--- 28,34 ----
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: twm.c,v 1.111 90/03/23 13:23:34 jim Exp $
+   *
+   * twm - "Tom's Window Manager"
+   *
+***************
+*** 36,44 ****
+   *
+   ***********************************************************************/
+  
+! #ifndef lint
+  static char RCSinfo[] =
+! "$XConsortium: twm.c,v 1.104 89/12/14 14:52:20 jim Exp $";
+  #endif
+  
+  #include <stdio.h>
+--- 36,44 ----
+   *
+   ***********************************************************************/
+  
+! #if !defined(lint) && !defined(SABER)
+  static char RCSinfo[] =
+! "$XConsortium: twm.c,v 1.111 90/03/23 13:23:34 jim Exp $";
+  #endif
+  
+  #include <stdio.h>
+***************
+*** 244,250 ****
+  	XSelectInput(dpy, RootWindow (dpy, scrnum),
+  	    ColormapChangeMask | EnterWindowMask | PropertyChangeMask | 
+  	    SubstructureRedirectMask | KeyPressMask |
+! 	    ButtonPressMask | ButtonReleaseMask | ExposureMask);
+  	XSync(dpy, 0);
+  	XSetErrorHandler(TwmErrorHandler);
+  
+--- 244,250 ----
+  	XSelectInput(dpy, RootWindow (dpy, scrnum),
+  	    ColormapChangeMask | EnterWindowMask | PropertyChangeMask | 
+  	    SubstructureRedirectMask | KeyPressMask |
+! 	    ButtonPressMask | ButtonReleaseMask);
+  	XSync(dpy, 0);
+  	XSetErrorHandler(TwmErrorHandler);
+  
+***************
+*** 281,286 ****
+--- 281,287 ----
+  	Scr->AutoRaise = NULL;
+  	Scr->IconNames = NULL;
+  	Scr->NoHighlight = NULL;
++ 	Scr->NoStackModeL = NULL;
+  	Scr->NoTitleHighlight = NULL;
+  	Scr->DontIconify = NULL;
+  	Scr->IconMgrNoShow = NULL;
+***************
+*** 466,473 ****
+  	attributes.cursor = XCreateFontCursor (dpy, XC_hand2);
+  	valuemask = (CWBorderPixel | CWBackPixel | CWEventMask | 
+  		     CWBackingStore | CWCursor);
+! 	Scr->InfoWindow = XCreateWindow (dpy, Scr->Root, 0, 0, 5, 5, BW, 0,
+! 					 CopyFromParent, CopyFromParent,
+  					 valuemask, &attributes);
+  
+  	Scr->SizeStringWidth = XTextWidth (Scr->SizeFont.font,
+--- 467,477 ----
+  	attributes.cursor = XCreateFontCursor (dpy, XC_hand2);
+  	valuemask = (CWBorderPixel | CWBackPixel | CWEventMask | 
+  		     CWBackingStore | CWCursor);
+! 	Scr->InfoWindow = XCreateWindow (dpy, Scr->Root, 0, 0, 
+! 					 (unsigned int) 5, (unsigned int) 5,
+! 					 (unsigned int) BW, 0,
+! 					 (unsigned int) CopyFromParent,
+! 					 (Visual *) CopyFromParent,
+  					 valuemask, &attributes);
+  
+  	Scr->SizeStringWidth = XTextWidth (Scr->SizeFont.font,
+***************
+*** 475,483 ****
+  	valuemask = (CWBorderPixel | CWBackPixel | CWBitGravity);
+  	attributes.bit_gravity = NorthWestGravity;
+  	Scr->SizeWindow = XCreateWindow (dpy, Scr->Root, 0, 0, 
+! 					 Scr->SizeStringWidth,
+! 					 Scr->SizeFont.height + SIZE_VINDENT*2,
+! 					 BW, 0, CopyFromParent, CopyFromParent,
+  					 valuemask, &attributes);
+  
+  	XUngrabServer(dpy);
+--- 479,490 ----
+  	valuemask = (CWBorderPixel | CWBackPixel | CWBitGravity);
+  	attributes.bit_gravity = NorthWestGravity;
+  	Scr->SizeWindow = XCreateWindow (dpy, Scr->Root, 0, 0, 
+! 					 (unsigned int) Scr->SizeStringWidth,
+! 					 (unsigned int) (Scr->SizeFont.height +
+! 							 SIZE_VINDENT*2),
+! 					 (unsigned int) BW, 0,
+! 					 (unsigned int) CopyFromParent,
+! 					 (Visual *) CopyFromParent,
+  					 valuemask, &attributes);
+  
+  	XUngrabServer(dpy);
+***************
+*** 525,530 ****
+--- 532,538 ----
+      FreeList(&Scr->AutoRaise);
+      FreeList(&Scr->IconNames);
+      FreeList(&Scr->NoHighlight);
++     FreeList(&Scr->NoStackModeL);
+      FreeList(&Scr->NoTitleHighlight);
+      FreeList(&Scr->DontIconify);
+      FreeList(&Scr->IconMgrNoShow);
+***************
+*** 604,609 ****
+--- 612,618 ----
+      Scr->RandomPlacement = FALSE;
+      Scr->OpaqueMove = FALSE;
+      Scr->Highlight = TRUE;
++     Scr->StackMode = TRUE;
+      Scr->TitleHighlight = TRUE;
+      Scr->MoveDelta = 0;
+      Scr->ZoomCount = 8;
+***************
+*** 733,738 ****
+--- 742,748 ----
+  	if ((Scr = ScreenList[scrnum]) == NULL)
+  	    continue;
+  
++ 	InstallWindowColormaps (0, &Scr->TwmRoot);	/* force reinstall */
+  	for (tmp = Scr->TwmRoot.next; tmp != NULL; tmp = tmp->next)
+  	{
+  	    RestoreWithdrawnLocation (tmp);
+*** /tmp/,RCSt1a23855	Wed Mar 28 17:18:46 1990
+--- mit/clients/twm/twm.h	Thu Mar 22 09:39:10 1990
+***************
+*** 28,34 ****
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: twm.h,v 1.57 89/12/14 14:51:27 jim Exp $
+   *
+   * twm include file
+   *
+--- 28,34 ----
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: twm.h,v 1.62 90/03/22 09:39:08 jim Exp $
+   *
+   * twm include file
+   *
+***************
+*** 62,72 ****
+  #define BW 2			/* border width */
+  #define BW2 4			/* border width  * 2 */
+  
+- /* directory to look for bitmaps if the file is not found in the current
+-  * directory 
+-  */
+- #define BITMAPS "/usr/include/X11/bitmaps"
+- 
+  #ifndef TRUE
+  #define TRUE	1
+  #define FALSE	0
+--- 62,67 ----
+***************
+*** 195,200 ****
+--- 190,198 ----
+      char *scoreboard;		/* conflicts between installable colortables */
+  } Colormaps;
+  
++ #define ColormapsScoreboardLength(cm) ((cm)->number_cwins * \
++ 				       ((cm)->number_cwins - 1) / 2)
++ 
+  /* for each window that is on the display, one of these structures
+   * is allocated and linked into a list 
+   */
+***************
+*** 251,257 ****
+--- 249,258 ----
+      short mapped;		/* is the window mapped ? */
+      short auto_raise;		/* should we auto-raise this window ? */
+      short forced;		/* has had an icon forced upon it */
++     short icon_not_ours;	/* icon pixmap or window supplied to us */
++     short icon_moved;		/* user explicitly moved the icon */
+      short highlight;		/* should highlight this window */
++     short stackmode;		/* honor stackmode requests */
+      short iconify_by_unmapping;	/* unmap window to iconify it */
+      short iconmgr;		/* this is an icon manager window */
+      short transient;		/* this is a transient window */
+*** /tmp/,RCSt1a23866	Wed Mar 28 17:18:53 1990
+--- mit/clients/twm/twm.man	Thu Mar 15 14:22:51 1990
+***************
+*** 14,22 ****
+  .ta .3i .6i .9i 1.2i 1.5i 1.8i
+  .TH TWM 1 "Release 4" "X Version 11"
+  .SH NAME
+- .PP
+  twm - Tab Window Manager for the X Window System
+- .PP
+  .SH SYNTAX
+  .PP
+  \fBtwm \fP[-display \fIdpy\fP] [-s] [-f \fIinitfile\fP] [-v]
+--- 14,20 ----
+***************
+*** 88,95 ****
+  .TP 8
+  .B \-f \fIfilename\fP
+  This option specifies the name of the startup file to use.  By default,
+! \fItwm\fP will look in the user's home directory for files named 
+! \fI.twmrc.num\fP (where \fInum\fP is a screen number) or \fI.twmrc\fP.
+  .TP 8
+  .B \-v
+  This option indicates that \fItwm\fP should print error messages whenever
+--- 86,93 ----
+  .TP 8
+  .B \-f \fIfilename\fP
+  This option specifies the name of the startup file to use.  By default,
+! \fItwm\fP will look in the user's home directory for files 
+! named \fI.twmrc.num\fP (where \fInum\fP is a screen number) or \fI.twmrc\fP.
+  .TP 8
+  .B \-v
+  This option indicates that \fItwm\fP should print error messages whenever
+***************
+*** 599,604 ****
+--- 597,607 ----
+  This variable indicates that menus should not request save-unders to minimize
+  window repainting following menu selection.  It is typically used with displays
+  that can repaint faster than they can handle save-unders.
++ .IP "\fBNoStackMode\fP [{ \fIwin-list\fP }]" 8
++ This variable indicates that client window requests to change stacking order 
++ should be ignored.  If the optional \fIwin-list\fP is given, only requests on 
++ those windows will be ignored.  This is typically used to prevent applications
++ from relentlessly popping themselves to the front of the window stack.
+  .IP "\fBNoTitle\fP [{ \fIwin-list\fP }] " 8
+  This variable indicates that windows should not have titlebars.  If the 
+  optional \fIwin-list\fP is given, only those windows will not have titlebars.
+***************
+*** 808,815 ****
+  \fBButton1\fP	= \fImodlist\fP : \fIcontext\fP : \fIfunction\fP
+  .EE
+  The \fImodlist\fP is any combination of the modifier names \fBshift\fP,
+! \fBcontrol\fP, and \fBmeta\fP (which may be abbreviated as 
+! \fBs\fP, \fBc\fP, and \fBm\fP respectively) separated by a vertical bar (\(or).
+  Similarly, the \fIcontext\fP is any combination of 
+  \fBwindow\fP,
+  \fBtitle\fP,
+--- 811,820 ----
+  \fBButton1\fP	= \fImodlist\fP : \fIcontext\fP : \fIfunction\fP
+  .EE
+  The \fImodlist\fP is any combination of the modifier names \fBshift\fP,
+! \fBcontrol\fP, \fBlock\fP, \fBmeta\fP, \fBmod1\fP, \fBmod2\fP, \fBmod3\fP,
+! \fBmod4\fP, or \fBmod1\fP (which may be abbreviated as 
+! \fBs\fP, \fBc\fP, \fBl\fP, \fBm\fP, \fBm1\fP, \fBm2\fP, \fBm3\fP, \fBm4\fP, 
+! \fBm5\fP, respectively) separated by a vertical bar (\(or).
+  Similarly, the \fIcontext\fP is any combination of 
+  \fBwindow\fP,
+  \fBtitle\fP,
+***************
+*** 1141,1149 ****
+  use of screen space as well as the ability to navigate among windows from
+  the keyboard.
+  .PP
+- Neither client-supplied icon windows nor dynamic setting of the
+- icon pixmap are supported (icon name changes will be updated automatically).
+- .PP
+  An icon manager is a window that contains names of selected or all
+  windows currently on the display.  In addition to the window name,
+  a small button using the default iconify symbol will be displayed to the 
+--- 1146,1151 ----
+***************
+*** 1160,1169 ****
+  \fBf.righticonmgr\fP functions,
+  the input focus can be changed between windows directly from the keyboard.
+  .SH BUGS
+- Lock and Mod2-5 cannot be specified as modifier contexts.  The right fix is to
+- add lock, l, mod1 (for completeness), mod2, mod3, mod4, mod5 to the parse and 
+- grammar tables, and add a number as a valid key type (so long as it is 1-5).
+- .PP
+  The resource manager should have been used instead of all of the window
+  lists.
+  .PP
+--- 1162,1167 ----
+*** /tmp/,RCSt1a23875	Wed Mar 28 17:18:58 1990
+--- mit/clients/twm/util.c	Fri Mar 16 12:06:50 1990
+***************
+*** 28,34 ****
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: util.c,v 1.36 89/12/14 14:52:06 jim Exp $
+   *
+   * utility routines for twm
+   *
+--- 28,34 ----
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: util.c,v 1.39 90/03/16 12:06:46 jim Exp $
+   *
+   * utility routines for twm
+   *
+***************
+*** 36,44 ****
+   *
+   ***********************************************************************/
+  
+! #ifndef lint
+  static char RCSinfo[]=
+! "$XConsortium: util.c,v 1.36 89/12/14 14:52:06 jim Exp $";
+  #endif
+  
+  #include <stdio.h>
+--- 36,44 ----
+   *
+   ***********************************************************************/
+  
+! #if !defined(lint) && !defined(SABER)
+  static char RCSinfo[]=
+! "$XConsortium: util.c,v 1.39 90/03/16 12:06:46 jim Exp $";
+  #endif
+  
+  #include <stdio.h>
+***************
+*** 46,51 ****
+--- 46,52 ----
+  #include "util.h"
+  #include "gram.h"
+  #include "screen.h"
++ #include <X11/Xos.h>
+  #include <X11/Xatom.h>
+  #include <X11/Xmu/Drawing.h>
+  #include <X11/Xmu/CharSet.h>
+***************
+*** 202,303 ****
+  Zoom(wf, wt)
+      Window wf, wt;
+  {
+!     int fx, fy, tx, ty;
+!     unsigned int fw, fh, tw, th;
+!     int xl, yt, xr, yb;
+!     int dx, dy, dw, dh;
+!     int w, h, i;
+!     XSegment	outline[4];
+  
+!     if (!Scr->DoZoom)
+! 	return;
+  
+      if (wf == None || wt == None) return;
+  
+!     XGetGeometry(dpy, wf, &JunkRoot, &fx, &fy, &fw, &fh, &JunkBW, &JunkDepth);
+!     XGetGeometry(dpy, wt, &JunkRoot, &tx, &ty, &tw, &th, &JunkBW, &JunkDepth);
+  
+!     dx = (tx - fx) / Scr->ZoomCount;
+!     dy = (ty - fy) / Scr->ZoomCount;
+!     dw = (tw - fw) / Scr->ZoomCount;
+!     dh = (th - fh) / Scr->ZoomCount;
+  
+!     xl = fx;
+!     yt = fy;
+!     xr = fx + fw;
+!     yb = fy + fh;
+!     w = fw;
+!     h = fh;
+  
+!     for (i = 0; i < Scr->ZoomCount; i++)
+!     {
+! 	outline[0].x1 = xl;
+! 	outline[0].y1 = yt;
+! 	outline[0].x2 = xr;
+! 	outline[0].y2 = yt;
+! 
+! 	outline[1].x1 = xr;
+! 	outline[1].y1 = yt;
+! 	outline[1].x2 = xr;
+! 	outline[1].y2 = yb;
+! 
+! 	outline[2].x1 = xr;
+! 	outline[2].y1 = yb;
+! 	outline[2].x2 = xl;
+! 	outline[2].y2 = yb;
+! 
+! 	outline[3].x1 = xl;
+! 	outline[3].y1 = yb;
+! 	outline[3].x2 = xl;
+! 	outline[3].y2 = yt;
+! 
+! 	XDrawSegments(dpy, Scr->Root, Scr->DrawGC, outline, 4);
+! 
+! 	w += dw;
+! 	h += dh;
+! 	xl += dx;
+! 	yt += dy;
+! 	xr = xl + w;
+! 	yb = yt + h;
+!     }
+! 
+!     xl = fx;
+!     yt = fy;
+!     xr = fx + fw;
+!     yb = fy + fh;
+!     w = fw;
+!     h = fh;
+! 
+!     for (i = 0; i < Scr->ZoomCount; i++)
+!     {
+! 	outline[0].x1 = xl;
+! 	outline[0].y1 = yt;
+! 	outline[0].x2 = xr;
+! 	outline[0].y2 = yt;
+! 
+! 	outline[1].x1 = xr;
+! 	outline[1].y1 = yt;
+! 	outline[1].x2 = xr;
+! 	outline[1].y2 = yb;
+! 
+! 	outline[2].x1 = xr;
+! 	outline[2].y1 = yb;
+! 	outline[2].x2 = xl;
+! 	outline[2].y2 = yb;
+! 
+! 	outline[3].x1 = xl;
+! 	outline[3].y1 = yb;
+! 	outline[3].x2 = xl;
+! 	outline[3].y2 = yt;
+! 
+! 	XDrawSegments(dpy, Scr->Root, Scr->DrawGC, outline, 4);
+! 
+! 	w += dw;
+! 	h += dh;
+! 	xl += dx;
+! 	yt += dy;
+! 	xr = xl + w;
+! 	yb = yt + h;
+      }
+  }
+  
+--- 203,241 ----
+  Zoom(wf, wt)
+      Window wf, wt;
+  {
+!     int fx, fy, tx, ty;			/* from, to */
+!     unsigned int fw, fh, tw, th;	/* from, to */
+!     long dx, dy, dw, dh;
+!     long z;
+!     int j;
+  
+!     if (!Scr->DoZoom || Scr->ZoomCount < 1) return;
+  
+      if (wf == None || wt == None) return;
+  
+!     XGetGeometry (dpy, wf, &JunkRoot, &fx, &fy, &fw, &fh, &JunkBW, &JunkDepth);
+!     XGetGeometry (dpy, wt, &JunkRoot, &tx, &ty, &tw, &th, &JunkBW, &JunkDepth);
+  
+!     dx = ((long) (tx - fx));	/* going from -> to */
+!     dy = ((long) (ty - fy));	/* going from -> to */
+!     dw = ((long) (tw - fw));	/* going from -> to */
+!     dh = ((long) (th - fh));	/* going from -> to */
+!     z = (long) (Scr->ZoomCount + 1);
+  
+!     for (j = 0; j < 2; j++) {
+! 	long i;
+  
+! 	XDrawRectangle (dpy, Scr->Root, Scr->DrawGC, fx, fy, fw, fh);
+! 	for (i = 1; i < z; i++) {
+! 	    int x = fx + (int) ((dx * i) / z);
+! 	    int y = fy + (int) ((dy * i) / z);
+! 	    unsigned width = (unsigned) (((long) fw) + (dw * i) / z);
+! 	    unsigned height = (unsigned) (((long) fh) + (dh * i) / z);
+! 	
+! 	    XDrawRectangle (dpy, Scr->Root, Scr->DrawGC,
+! 			    x, y, width, height);
+! 	}
+! 	XDrawRectangle (dpy, Scr->Root, Scr->DrawGC, tx, ty, tw, th);
+      }
+  }
+  
+

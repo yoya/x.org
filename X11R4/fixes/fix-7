@@ -1,0 +1,911 @@
+This patch fixes the following problems:
+
+	make XtVaAppInitialize work with shared library
+	core-dumping bugs in Xt varargs code to get full resource list
+	Paned widget has backwards test in geometry manager
+	StripChart deallocates a GC incorrectly
+	SmeBSB mishandles the bitmap widths
+	SmeLine deallocates a GC incorrectly
+	occasional server coredump when thawing events
+	some servers can dump core in ListFontsWithInfo
+	server memory leak tickled by andrew console program
+
+cd to the top of the X tree and apply with "patch -p0".
+
+*** /tmp/,RCSt1a27056	Mon Mar  5 17:38:13 1990
+--- mit/lib/Xt/sharedlib.c	Mon Mar  5 17:37:23 1990
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: sharedlib.c,v 1.7 89/10/09 14:31:16 jim Exp $
+   * 
+   * Copyright 1989 Massachusetts Institute of Technology
+   *
+--- 1,5 ----
+  /*
+!  * $XConsortium: sharedlib.c,v 1.8 90/03/05 17:34:01 kit Exp $
+   * 
+   * Copyright 1989 Massachusetts Institute of Technology
+   *
+***************
+*** 10,15 ****
+--- 10,16 ----
+  
+  #if defined(SUNSHLIB) && !defined(SHAREDCODE)
+  #include "IntrinsicI.h"
++ #include "VarargsI.h"
+  
+  /*
+   * _XtInherit needs to be statically linked since it is compared against as
+***************
+*** 60,65 ****
+--- 61,95 ----
+      return _XtAppInitialize (app_context_return, application_class, options,
+  			     num_options, argc_in_out, argv_in_out, 
+  			     fallback_resources, args_in, num_args_in);
++ }
++ 
++ #if NeedFunctionPrototypes
++ Widget
++ XtVaAppInitialize(XtAppContext *app_context_return, String application_class,
++ 		  XrmOptionDescList options, Cardinal num_options,
++ 		  Cardinal *argc_in_out, String *argv_in_out,
++ 		  String *fallback_resources, ...)
++ #else
++ Widget XtVaAppInitialize(app_context_return, application_class, options,
++ 			 num_options, argc_in_out, argv_in_out,
++ 			 fallback_resources, va_alist)
++     XtAppContext *app_context_return;
++     String application_class;
++     XrmOptionDescList options;
++     Cardinal num_options;
++     Cardinal *argc_in_out;
++     String *argv_in_out;
++     String *fallback_resources;
++     va_dcl
++ #endif
++ {
++     va_list	var;
++     extern Widget _XtVaAppInitialize();
++ 
++     Va_start(var, fallback_resources);    
++     return _XtVaAppInitialize(app_context_return, application_class, options,
++ 			      num_options, argc_in_out, argv_in_out,
++ 			      fallback_resources, var);
+  }
+  
+  #else
+
+*** /tmp/,RCSt1a06575	Fri Mar 23 17:05:33 1990
+--- mit/lib/Xt/VarCreate.c	Tue Mar  6 13:21:03 1990
+***************
+*** 1,6 ****
+  #ifndef lint
+  static char Xrcsid[] =
+!     "$XConsortium: VarCreate.c,v 1.9 89/12/13 15:29:11 swick Exp $";
+  #endif
+  
+  /*
+--- 1,6 ----
+  #ifndef lint
+  static char Xrcsid[] =
+!     "$XConsortium: VarCreate.c,v 1.11 90/03/06 13:20:41 kit Exp $";
+  #endif
+  
+  /*
+***************
+*** 255,269 ****
+  
+  #if NeedFunctionPrototypes
+  Widget
+! XtVaAppInitialize(XtAppContext *app_context_return, String application_class,
+  		  XrmOptionDescList options, Cardinal num_options,
+  		  Cardinal *argc_in_out, String *argv_in_out,
+! 		  String *fallback_resources, ...)
+  #else
+  /*VARARGS7*/
+! Widget XtVaAppInitialize(app_context_return, application_class, options,
+! 			 num_options, argc_in_out, argv_in_out,
+! 			 fallback_resources, va_alist)
+      XtAppContext *app_context_return;
+      String application_class;
+      XrmOptionDescList options;
+--- 255,269 ----
+  
+  #if NeedFunctionPrototypes
+  Widget
+! _XtVaAppInitialize(XtAppContext *app_context_return, String application_class,
+  		  XrmOptionDescList options, Cardinal num_options,
+  		  Cardinal *argc_in_out, String *argv_in_out,
+! 		  String *fallback_resources, va_list var_args)
+  #else
+  /*VARARGS7*/
+! Widget _XtVaAppInitialize(app_context_return, application_class, options,
+! 			  num_options, argc_in_out, argv_in_out,
+! 			  fallback_resources, var_args)
+      XtAppContext *app_context_return;
+      String application_class;
+      XrmOptionDescList options;
+***************
+*** 271,285 ****
+      Cardinal *argc_in_out;
+      String *argv_in_out;
+      String *fallback_resources;
+!     va_dcl
+  #endif
+  {
+      XtAppContext app_con;
+      Display * dpy;
+      String *saved_argv;
+      register int i, saved_argc = *argc_in_out;
+      Widget root;
+-     va_list var;
+      String attr;
+      int count = 0;
+      XtTypedArgList typed_args;
+--- 271,285 ----
+      Cardinal *argc_in_out;
+      String *argv_in_out;
+      String *fallback_resources;
+!     va_list var_args;
+  #endif
+  {
++     va_list var;
+      XtAppContext app_con;
+      Display * dpy;
+      String *saved_argv;
+      register int i, saved_argc = *argc_in_out;
+      Widget root;
+      String attr;
+      int count = 0;
+      XtTypedArgList typed_args;
+***************
+*** 310,316 ****
+  	XtErrorMsg("invalidDisplay","xtInitialize","XtToolkitError",
+                     "Can't Open display", (String *) NULL, (Cardinal *)NULL);
+  
+!     Va_start(var, fallback_resources);
+      for(attr = va_arg(var,String); attr != NULL; attr = va_arg(var,String)) {
+          ++count;
+          if (strcmp(attr, XtVaTypedArg) == 0) {
+--- 310,316 ----
+  	XtErrorMsg("invalidDisplay","xtInitialize","XtToolkitError",
+                     "Can't Open display", (String *) NULL, (Cardinal *)NULL);
+  
+!     var = var_args;
+      for(attr = va_arg(var,String); attr != NULL; attr = va_arg(var,String)) {
+          ++count;
+          if (strcmp(attr, XtVaTypedArg) == 0) {
+***************
+*** 324,333 ****
+      }
+      va_end(var);
+  
+!     Va_start(var, fallback_resources);
+      typed_args = _XtVaCreateTypedArgList(var, count);
+      va_end(var);
+!     
+      root =
+  	XtVaAppCreateShell( NULL, application_class, 
+  			    applicationShellWidgetClass, dpy,
+--- 324,333 ----
+      }
+      va_end(var);
+  
+!     var = var_args;
+      typed_args = _XtVaCreateTypedArgList(var, count);
+      va_end(var);
+! 
+      root =
+  	XtVaAppCreateShell( NULL, application_class, 
+  			    applicationShellWidgetClass, dpy,
+***************
+*** 344,347 ****
+--- 344,384 ----
+      DEALLOCATE_LOCAL((XtPointer)saved_argv);
+      return(root);
+  }
++ 
++ #if !(defined(SUNSHLIB) && defined(SHAREDCODE))
++ 
++ /*
++  * If not used as a shared library, we still need a front end to 
++  * _XtVaAppInitialize.
++  */
++ 
++ #if NeedFunctionPrototypes
++ Widget
++ XtVaAppInitialize(XtAppContext *app_context_return, String application_class,
++ 		  XrmOptionDescList options, Cardinal num_options,
++ 		  Cardinal *argc_in_out, String *argv_in_out,
++ 		  String *fallback_resources, ...)
++ #else
++ Widget XtVaAppInitialize(app_context_return, application_class, options,
++ 			 num_options, argc_in_out, argv_in_out,
++ 			 fallback_resources, va_alist)
++     XtAppContext *app_context_return;
++     String application_class;
++     XrmOptionDescList options;
++     Cardinal num_options;
++     Cardinal *argc_in_out;
++     String *argv_in_out;
++     String *fallback_resources;
++     va_dcl
++ #endif
++ {
++     va_list	var;
++ 
++     Va_start(var, fallback_resources);    
++     return _XtVaAppInitialize(app_context_return, application_class, options,
++ 			      num_options, argc_in_out, argv_in_out,
++ 			      fallback_resources, var);
++ }
++ 
++ #endif /* !(SUNSHLIB && SHAREDCODE) */
+  
+
+*** /tmp/,RCSt1a02175	Wed Mar 14 16:45:20 1990
+--- mit/lib/Xt/Varargs.c	Tue Mar 13 18:24:46 1990
+***************
+*** 1,6 ****
+  #ifndef lint
+  static char Xrcsid[] =
+!     "$XConsortium: Varargs.c,v 1.14 90/02/13 13:32:54 kit Exp $";
+  #endif
+  /*
+  
+--- 1,6 ----
+  #ifndef lint
+  static char Xrcsid[] =
+!     "$XConsortium: Varargs.c,v 1.16 90/03/13 18:24:15 kit Exp $";
+  #endif
+  /*
+  
+***************
+*** 394,416 ****
+      XtGetResourceList(XtClass(widget), res_list, number);
+      
+      if ((parent != NULL) && (XtIsConstraint(parent))) {
+! 	int i;
+! 	XtResourceList constraint;
+  	Cardinal num_constraint;
+  
+- 	XtInitializeWidgetClass(XtClass(parent));
+- 	
+  	XtGetConstraintResourceList(XtClass(parent), &constraint, 
+  				    &num_constraint);
+  
+! 	*res_list = (XtResourceList) XtRealloc(*res_list, sizeof(XtResource) * 
+! 					       (*number + num_constraint));
+  
+! 	for (i = 0; i < num_constraint; i++)
+! 	    (*res_list)[*number + i] = constraint[i];
+  
+  	*number += num_constraint;
+! 	XtFree( (XtPointer) constraint);
+      }
+  }
+  
+--- 394,415 ----
+      XtGetResourceList(XtClass(widget), res_list, number);
+      
+      if ((parent != NULL) && (XtIsConstraint(parent))) {
+! 	XtResourceList res, constraint, cons_top;
+  	Cardinal num_constraint;
+  
+  	XtGetConstraintResourceList(XtClass(parent), &constraint, 
+  				    &num_constraint);
+  
+! 	cons_top = constraint;
+! 	*res_list = (XtResourceList) XtRealloc(*res_list, 
+! 					       ((*number + num_constraint) * 
+! 						sizeof(XtResource)));
+  
+! 	for (res = *res_list + *number ; num_constraint; num_constraint--)
+! 	    *res++ = *constraint++;
+  
+  	*number += num_constraint;
+! 	XtFree( (XtPointer) cons_top);
+      }
+  }
+  
+	
+
+
+*** /tmp/,RCSt1a14272	Wed Mar  7 11:24:22 1990
+--- mit/lib/Xaw/Paned.c	Thu Mar  1 10:48:57 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Paned.c,v 1.12 89/10/09 16:20:50 jim Exp $";
+  #endif /* lint */
+  
+  
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Paned.c,v 1.13 90/03/01 10:48:51 jim Exp $";
+  #endif /* lint */
+  
+  
+***************
+*** 298,304 ****
+  	  *off_size_ret = off_size;
+  	  return;
+        }
+!       if (*result_ret == XtGeometryAlmost) {
+  	  *on_size_ret = GetRequestInfo( &request, IsVert(pw) );
+        	  *off_size_ret = GetRequestInfo( &request, !IsVert(pw) );
+  	  return;
+--- 298,304 ----
+  	  *off_size_ret = off_size;
+  	  return;
+        }
+!       if (*result_ret != XtGeometryAlmost) {
+  	  *on_size_ret = GetRequestInfo( &request, IsVert(pw) );
+        	  *off_size_ret = GetRequestInfo( &request, !IsVert(pw) );
+  	  return;
+
+
+
+*** /tmp/,RCSt1a21048	Fri Mar  9 13:16:58 1990
+--- mit/lib/Xaw/StripChart.c	Thu Feb  8 13:49:41 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: StripChart.c,v 1.13 89/12/12 18:17:17 keith Exp $";
+  #endif
+  
+  /***********************************************************
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: StripChart.c,v 1.14 90/02/08 13:49:39 jim Exp $";
+  #endif
+  
+  /***********************************************************
+***************
+*** 152,158 ****
+  unsigned int which;
+  {
+    if (which & FOREGROUND) 
+!     XFreeGC( XtDisplay((Widget) w), w->strip_chart.fgGC);
+  
+    if (which & HIGHLIGHT) 
+      XtReleaseGC((Widget) w, w->strip_chart.hiGC);
+--- 152,158 ----
+  unsigned int which;
+  {
+    if (which & FOREGROUND) 
+!     XtReleaseGC((Widget) w, w->strip_chart.fgGC);
+  
+    if (which & HIGHLIGHT) 
+      XtReleaseGC((Widget) w, w->strip_chart.hiGC);
+
+
+*** /tmp/,RCSt1a14260	Wed Mar  7 11:23:42 1990
+--- mit/lib/Xaw/SmeBSB.c	Thu Feb 15 13:58:45 1990
+***************
+*** 1,5 ****
+  #if ( !defined(lint) && !defined(SABER) )
+! static char Xrcsid[] = "$XConsortium: SmeBSB.c,v 1.9 89/12/13 15:42:48 kit Exp $";
+  #endif 
+  
+  /*
+--- 1,5 ----
+  #if ( !defined(lint) && !defined(SABER) )
+! static char Xrcsid[] = "$XConsortium: SmeBSB.c,v 1.12 90/02/15 13:57:53 kit Exp $";
+  #endif 
+  
+  /*
+***************
+*** 53,63 ****
+       offset(label), XtRString, NULL},
+    {XtNvertSpace,  XtCVertSpace, XtRInt, sizeof(int),
+       offset(vert_space), XtRImmediate, (caddr_t) 25},
+!   {XtNleftBitmap, XtCLeftBitmap, XtRPixmap, sizeof(Pixmap),
+       offset(left_bitmap), XtRImmediate, (caddr_t)None},
+    {XtNjustify, XtCJustify, XtRJustify, sizeof(XtJustify),
+       offset(justify), XtRImmediate, (caddr_t) XtJustifyLeft},
+!   {XtNrightBitmap, XtCRightBitmap, XtRPixmap, sizeof(Pixmap),
+       offset(right_bitmap), XtRImmediate, (caddr_t)None},
+    {XtNleftMargin,  XtCHorizontalMargins, XtRDimension, sizeof(Dimension),
+       offset(left_margin), XtRImmediate, (caddr_t) 4},
+--- 53,63 ----
+       offset(label), XtRString, NULL},
+    {XtNvertSpace,  XtCVertSpace, XtRInt, sizeof(int),
+       offset(vert_space), XtRImmediate, (caddr_t) 25},
+!   {XtNleftBitmap, XtCLeftBitmap, XtRBitmap, sizeof(Pixmap),
+       offset(left_bitmap), XtRImmediate, (caddr_t)None},
+    {XtNjustify, XtCJustify, XtRJustify, sizeof(XtJustify),
+       offset(justify), XtRImmediate, (caddr_t) XtJustifyLeft},
+!   {XtNrightBitmap, XtCRightBitmap, XtRBitmap, sizeof(Pixmap),
+       offset(right_bitmap), XtRImmediate, (caddr_t)None},
+    {XtNleftMargin,  XtCHorizontalMargins, XtRDimension, sizeof(Dimension),
+       offset(left_margin), XtRImmediate, (caddr_t) 4},
+***************
+*** 178,183 ****
+--- 178,189 ----
+  
+      GetDefaultSize(new, &(entry->rectangle.width), &(entry->rectangle.height));
+      CreateGCs(new);
++ 
++     entry->sme_bsb.left_bitmap_width = entry->sme_bsb.left_bitmap_height = 0;
++     entry->sme_bsb.right_bitmap_width = entry->sme_bsb.right_bitmap_height = 0;
++ 
++     GetBitmapInfo(new, TRUE);	/* Left Bitmap Info */
++     GetBitmapInfo(new, FALSE);	/* Right Bitmap Info */
+  }
+  
+  /*      Function Name: Destroy
+***************
+*** 448,456 ****
+      if ( (entry->sme_bsb.left_bitmap == None) && 
+  	 (entry->sme_bsb.right_bitmap == None) ) return;
+  
+-     y_loc = entry->rectangle.y + (entry->rectangle.height -
+- 				  entry->sme_bsb.left_bitmap_height) / 2;
+- 
+  /*
+   * Draw Left Bitmap.
+   */
+--- 454,459 ----
+***************
+*** 458,463 ****
+--- 461,470 ----
+    if (entry->sme_bsb.left_bitmap != None) {
+      x_loc = (entry->sme_bsb.left_margin - 
+  	     entry->sme_bsb.left_bitmap_width) / 2;
++ 
++     y_loc = entry->rectangle.y + (entry->rectangle.height -
++ 				  entry->sme_bsb.left_bitmap_height) / 2;
++ 
+      XCopyPlane(XtDisplayOfObject(w), entry->sme_bsb.left_bitmap,
+  	       XtWindowOfObject(w), gc, 0, 0, 
+  	       entry->sme_bsb.left_bitmap_width,
+***************
+*** 468,476 ****
+   * Draw Right Bitmap.
+   */
+  
+    if (entry->sme_bsb.right_bitmap != None) {
+!     x_loc = entry->rectangle.width - (entry->sme_bsb.right_margin - 
+  				      entry->sme_bsb.right_bitmap_width) / 2;
+      XCopyPlane(XtDisplayOfObject(w), entry->sme_bsb.right_bitmap,
+  	       XtWindowOfObject(w), gc, 0, 0, 
+  	       entry->sme_bsb.right_bitmap_width,
+--- 475,488 ----
+   * Draw Right Bitmap.
+   */
+  
++ 
+    if (entry->sme_bsb.right_bitmap != None) {
+!     x_loc = entry->rectangle.width - (entry->sme_bsb.right_margin +
+  				      entry->sme_bsb.right_bitmap_width) / 2;
++ 
++     y_loc = entry->rectangle.y + (entry->rectangle.height -
++ 				  entry->sme_bsb.right_bitmap_height) / 2;
++ 
+      XCopyPlane(XtDisplayOfObject(w), entry->sme_bsb.right_bitmap,
+  	       XtWindowOfObject(w), gc, 0, 0, 
+  	       entry->sme_bsb.right_bitmap_width,
+
+
+
+*** /tmp/,RCSt1a03584	Wed Mar 14 15:52:02 1990
+--- mit/lib/Xaw/SmeLine.c	Thu Feb  8 13:50:14 1990
+***************
+*** 1,5 ****
+  #if ( !defined(lint) && !defined(SABER) )
+! static char Xrcsid[] = "$XConsortium: SmeLine.c,v 1.7 89/12/11 15:20:17 kit Exp $";
+  #endif 
+  
+  /*
+--- 1,5 ----
+  #if ( !defined(lint) && !defined(SABER) )
+! static char Xrcsid[] = "$XConsortium: SmeLine.c,v 1.8 90/02/08 13:50:13 jim Exp $";
+  #endif 
+  
+  /*
+***************
+*** 207,213 ****
+  {
+      SmeLineObject entry = (SmeLineObject) w;
+  
+!     if (entry->sme_line.stipple == XtUnspecifiedPixmap) 
+  	XFreeGC(XtDisplayOfObject(w), entry->sme_line.gc);
+      else
+  	XtReleaseGC(w, entry->sme_line.gc);
+--- 207,213 ----
+  {
+      SmeLineObject entry = (SmeLineObject) w;
+  
+!     if (entry->sme_line.stipple != XtUnspecifiedPixmap) 
+  	XFreeGC(XtDisplayOfObject(w), entry->sme_line.gc);
+      else
+  	XtReleaseGC(w, entry->sme_line.gc);
+
+*** /tmp/,RCSt1a05890	Thu Mar  8 11:31:10 1990
+--- mit/server/dix/events.c	Thu Mar  8 11:27:47 1990
+***************
+*** 23,29 ****
+  ********************************************************/
+  
+  
+! /* $XConsortium: events.c,v 5.21 90/01/20 11:45:34 rws Exp $ */
+  
+  #include "X.h"
+  #include "misc.h"
+--- 23,29 ----
+  ********************************************************/
+  
+  
+! /* $XConsortium: events.c,v 5.22 90/03/08 11:27:15 rws Exp $ */
+  
+  #include "X.h"
+  #include "misc.h"
+***************
+*** 528,534 ****
+  	if (!qe->device->sync.frozen)
+  	{
+  	    *prev = qe->next;
+! 	    if (!qe->next)
+  		syncEvents.pendtail = prev;
+  	    if (qe->event->u.u.type == MotionNotify)
+  		CheckVirtualMotion(qe, NullWindow);
+--- 528,534 ----
+  	if (!qe->device->sync.frozen)
+  	{
+  	    *prev = qe->next;
+! 	    if (*syncEvents.pendtail == *prev)
+  		syncEvents.pendtail = prev;
+  	    if (qe->event->u.u.type == MotionNotify)
+  		CheckVirtualMotion(qe, NullWindow);
+
+*** /tmp/,RCSt1a17451	Tue Mar 20 11:57:25 1990
+--- mit/server/dix/dispatch.c	Tue Mar 20 11:57:16 1990
+***************
+*** 1,4 ****
+! /* $XConsortium: dispatch.c,v 5.17 89/12/20 20:55:09 rws Exp $ */
+  /************************************************************
+  Copyright 1987, 1989 by Digital Equipment Corporation, Maynard, Massachusetts,
+  and the Massachusetts Institute of Technology, Cambridge, Massachusetts.
+--- 1,4 ----
+! /* $XConsortium: dispatch.c,v 5.18 90/03/20 11:56:53 keith Exp $ */
+  /************************************************************
+  Copyright 1987, 1989 by Digital Equipment Corporation, Maynard, Massachusetts,
+  and the Massachusetts Institute of Technology, Cambridge, Massachusetts.
+***************
+*** 1244,1252 ****
+  		    + finfo.nProps * sizeof(xFontProp);
+  	if (rlength > curlength)
+  	{
+! 	    nreply = (xListFontsWithInfoReply *)xrealloc(reply, rlength);
+  	    if (nreply)
+  	    {
+  		reply = nreply;
+  		curlength = rlength;
+  	    }
+--- 1244,1253 ----
+  		    + finfo.nProps * sizeof(xFontProp);
+  	if (rlength > curlength)
+  	{
+! 	    nreply = (xListFontsWithInfoReply *) xalloc(rlength);
+  	    if (nreply)
+  	    {
++ 		xfree (reply);
+  		reply = nreply;
+  		curlength = rlength;
+  	    }
+***************
+*** 1262,1268 ****
+  		reply->nReplies = n;
+  		WriteReplyToClient(client, rlength, reply);
+  		(void)WriteToClient(client, *length, *path);
+- 		DEALLOCATE_LOCAL(reply);
+  	}
+  	xfree(font.pFP);
+      }
+--- 1263,1268 ----
+
+*** /tmp/,RCSt1a03549	Wed Mar 21 10:20:49 1990
+--- mit/server/ddx/mfb/mfbgc.c	Tue Mar 20 14:49:16 1990
+***************
+*** 21,27 ****
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: mfbgc.c,v 5.18 89/11/29 19:53:27 rws Exp $ */
+  #include "X.h"
+  #include "Xmd.h"
+  #include "Xproto.h"
+--- 21,27 ----
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: mfbgc.c,v 5.19 90/03/20 14:48:59 rws Exp $ */
+  #include "X.h"
+  #include "Xmd.h"
+  #include "Xproto.h"
+***************
+*** 420,441 ****
+      Mask 	changes;
+      GCPtr	pGCDst;
+  {
+!     RegionPtr		pClip;
+! 
+!     if(changes & GCClipMask)
+!     {
+! 	if(pGCDst->clientClipType == CT_PIXMAP)
+! 	{
+! 	    ((PixmapPtr)pGCDst->clientClip)->refcnt++;
+! 	}
+! 	else if(pGCDst->clientClipType == CT_REGION)
+! 	{
+! 	    pClip = (RegionPtr) pGCDst->clientClip;
+! 	    pGCDst->clientClip =
+! 	        (pointer)(* pGCDst->pScreen->RegionCreate)(NULL, 1);
+! 	    (* pGCDst->pScreen->RegionCopy)(pGCDst->clientClip, pClip);
+! 	}
+!     }
+  }
+  
+  void
+--- 420,426 ----
+      Mask 	changes;
+      GCPtr	pGCDst;
+  {
+!     return;
+  }
+  
+  void
+
+*** /tmp/,RCSt1a03563	Wed Mar 21 10:21:35 1990
+--- mit/server/ddx/cfb/cfbgc.c	Wed Mar 21 10:21:38 1990
+***************
+*** 22,28 ****
+  
+  ******************************************************************/
+  
+! /* $XConsortium: cfbgc.c,v 5.32 89/11/29 19:53:03 rws Exp $ */
+  
+  #include "X.h"
+  #include "Xmd.h"
+--- 22,28 ----
+  
+  ******************************************************************/
+  
+! /* $XConsortium: cfbgc.c,v 5.32.1.1 90/03/21 10:16:47 rws Exp $ */
+  
+  #include "X.h"
+  #include "Xmd.h"
+***************
+*** 798,824 ****
+      Mask 	changes;
+      GCPtr	pGCDst;
+  {
+!     RegionPtr		pClip;
+! 
+!     if(changes & GCClipMask)
+!     {
+! 	if(pGCDst->clientClipType == CT_PIXMAP)
+! 	{
+! 	    ((PixmapPtr)pGCDst->clientClip)->refcnt++;
+! 	}
+! 	else if(pGCDst->clientClipType == CT_REGION)
+! 	{
+! 	    BoxRec pixbounds;
+! 
+! 	    pixbounds.x1 = 0;
+! 	    pixbounds.y1 = 0;
+! 	    pixbounds.x2 = 0;
+! 	    pixbounds.y2 = 0;
+! 
+! 	    pClip = (RegionPtr) pGCDst->clientClip;
+! 	    pGCDst->clientClip =
+! 	        (pointer)(* pGCDst->pScreen->RegionCreate)(&pixbounds, 1);
+! 	    (* pGCDst->pScreen->RegionCopy)(pGCDst->clientClip, pClip);
+! 	}
+!     }
+  }
+--- 798,802 ----
+      Mask 	changes;
+      GCPtr	pGCDst;
+  {
+!     return;
+  }
+
+*** /tmp/,RCSt1a03579	Wed Mar 21 10:23:04 1990
+--- mit/server/ddx/apollo/apc/apcgc.c	Wed Mar 21 09:59:01 1990
+***************
+*** 25,31 ****
+  University of California.
+  ******************************************************************/
+  
+! /* $XConsortium: apcgc.c,v 1.3 90/02/22 10:43:29 rws Exp $ */
+  
+  #include "apc.h"
+  #include "Xmd.h"
+--- 25,31 ----
+  University of California.
+  ******************************************************************/
+  
+! /* $XConsortium: apcgc.c,v 1.4 90/03/21 09:58:39 rws Exp $ */
+  
+  #include "apc.h"
+  #include "Xmd.h"
+***************
+*** 132,138 ****
+  
+  /*
+   * apcCopyGC -- DDX interface (GC "funcs")
+!  *      Copy client clip info when copying a GC.
+   */
+  static void
+  apcCopyGC (pGCSrc, changes, pGCDst)
+--- 132,138 ----
+  
+  /*
+   * apcCopyGC -- DDX interface (GC "funcs")
+!  *	Nothing to do.
+   */
+  static void
+  apcCopyGC (pGCSrc, changes, pGCDst)
+***************
+*** 140,160 ****
+      Mask    changes;
+      GCPtr   pGCDst;
+  {
+-     RegionPtr   pClip;
+- 
+-     if (changes & GCClipMask)
+-     {
+-         if (pGCDst->clientClipType == CT_PIXMAP)
+-         {
+-             ((PixmapPtr)pGCDst->clientClip)->refcnt++;
+-         }
+-         else if (pGCDst->clientClipType == CT_REGION)
+-         {
+-             pClip = (RegionPtr) pGCDst->clientClip;
+-             pGCDst->clientClip = (pointer)(* pGCDst->pScreen->RegionCreate)(NULL, 1);
+-             (* pGCDst->pScreen->RegionCopy)(pGCDst->clientClip, pClip);
+-         }
+-     }
+  }
+  
+  /*
+--- 140,145 ----
+
+*** /tmp/,RCSt1a03598	Wed Mar 21 10:24:21 1990
+--- mit/server/ddx/dec/qdss/qdgc.c	Wed Mar 21 10:03:20 1990
+***************
+*** 358,375 ****
+      int                 maskQ;
+      GCPtr		pgcSrc;
+  {
+! #ifdef X11R4
+!     if (maskQ & GCClipMask) {
+! 	if (pgcDst->clientClipType == CT_PIXMAP)
+! 	    ((PixmapPtr)pgcDst->clientClip)->refcnt++;
+! 	else if (pgcDst->clientClipType == CT_REGION) {
+! 	    RegionPtr pClip = (RegionPtr) pgcDst->clientClip;
+! 	    pgcDst->clientClip =
+! 		(pointer)(* pgcDst->pScreen->RegionCreate)(NULL, 1);
+! 	    (* pgcDst->pScreen->RegionCopy)(pgcDst->clientClip, pClip);
+! 	}
+!     }
+! #else
+      RegionPtr		pregionsrc = (RegionPtr) pgcSrc->clientClip;
+  
+      if ( ! (maskQ & GCClipMask)
+--- 358,364 ----
+      int                 maskQ;
+      GCPtr		pgcSrc;
+  {
+! #ifndef X11R4
+      RegionPtr		pregionsrc = (RegionPtr) pgcSrc->clientClip;
+  
+      if ( ! (maskQ & GCClipMask)
+
+*** /tmp/,RCSt1a03602	Wed Nov 29 16:33:34 1989
+--- mit/server/ddx/ibm/aed/aedGC.c	Wed Mar 21 09:55:11 1990
+***************
+*** 43,49 ****
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $Header: /afs/testers.athena.mit.edu/src/x11r4/src/mit/server/ddx/ibm/aed/RCS/aedGC.c,v 1.3 89/11/29 16:26:40 jfc Exp Locker: jfc $ */
+  #include "X.h"
+  #include "Xproto.h"
+  #include "Xmd.h"
+--- 43,49 ----
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: aedGC.c,v 1.4 90/03/21 09:54:58 rws Exp $ */
+  #include "X.h"
+  #include "Xproto.h"
+  #include "Xmd.h"
+***************
+*** 267,288 ****
+      Mask 	changes;
+      GCPtr	pGCDst;
+  {
+!     RegionPtr		pClip;
+! 
+!     if(changes & GCClipMask)
+!     {
+! 	if(pGCDst->clientClipType == CT_PIXMAP)
+! 	{
+! 	    ((PixmapPtr)pGCDst->clientClip)->refcnt++;
+! 	}
+! 	else if(pGCDst->clientClipType == CT_REGION)
+! 	{
+! 	    pClip = (RegionPtr) pGCDst->clientClip;
+! 	    pGCDst->clientClip =
+! 	        (pointer)(* pGCDst->pScreen->RegionCreate)(NULL, 1);
+! 	    (* pGCDst->pScreen->RegionCopy)(pGCDst->clientClip, pClip);
+! 	}
+!     }
+  }
+  
+  struct commonOps {
+--- 267,273 ----
+      Mask 	changes;
+      GCPtr	pGCDst;
+  {
+!     return;
+  }
+  
+  struct commonOps {
+
+*** /tmp/,RCSt1a03623	Wed Mar 21 10:26:47 1990
+--- mit/server/ddx/ibm/apa16/apa16GC.c	Wed Mar 21 09:50:35 1990
+***************
+*** 66,72 ****
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: apa16GC.c,v 1.2 90/03/05 13:53:33 swick Exp $ */
+  #include "X.h"
+  #include "Xmd.h"
+  #include "Xproto.h"
+--- 66,72 ----
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: apa16GC.c,v 1.3 90/03/21 09:50:21 rws Exp $ */
+  #include "X.h"
+  #include "Xmd.h"
+  #include "Xproto.h"
+***************
+*** 411,432 ****
+      Mask 	changes;
+      GCPtr	pGCDst;
+  {
+!     RegionPtr		pClip;
+! 
+!     if(changes & GCClipMask)
+!     {
+! 	if(pGCDst->clientClipType == CT_PIXMAP)
+! 	{
+! 	    ((PixmapPtr)pGCDst->clientClip)->refcnt++;
+! 	}
+! 	else if(pGCDst->clientClipType == CT_REGION)
+! 	{
+! 	    pClip = (RegionPtr) pGCDst->clientClip;
+! 	    pGCDst->clientClip =
+! 	        (pointer)(* pGCDst->pScreen->RegionCreate)(NULL, 1);
+! 	    (* pGCDst->pScreen->RegionCopy)(pGCDst->clientClip, pClip);
+! 	}
+!     }
+  }
+  
+  static void
+--- 411,417 ----
+      Mask 	changes;
+      GCPtr	pGCDst;
+  {
+!     return;
+  }
+  
+  static void
+

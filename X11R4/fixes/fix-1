@@ -1,0 +1,2207 @@
+This patch fixes the following problems:
+
+	multiple display bug in Xlib context manager
+	XGetDefault arguments reversed when using function prototypes
+	bug with Xt varargs XtTypedArg
+	XtRemoveInput bug causes core dump
+	narrow oval buttons corrupted
+	compatibility mode bugs in Xaw Text widget
+	font compiler bug corrupts lucida typewriter fonts
+	document bc option to xset
+	xterm fails with utmpInhibit
+	xpr -rv doesn't work
+	scrolling in xman leaves dregs
+	zero-width CopyArea paints bits
+	CopyPlane sometimes mis-fetches source
+	stippled rectangle bug on sparc
+	support additional broken R3 clients under server bc mode
+	monochrome PMAX server dumps core
+	GC validation bug on QDSS
+	closed wide polyline doesn't join correctly
+	zero-length wide line misses a round cap
+	xbiff with shaped window could cause server to dump core
+	cursor dregs sometimes left on screen (software cursors)
+	cursor colors sometimes wrong (software cursors)
+	backwards zero-width horzontal/vertical lines draw wrong pixel
+	missing files for Xt manual
+
+*** /tmp/,RCSt1a16895	Wed Jan 10 20:00:27 1990
+--- mit/lib/X/Context.c	Wed Jan 10 19:57:53 1990
+***************
+*** 1,4 ****
+! /* $XConsortium: Context.c,v 1.7 89/12/11 19:08:22 rws Exp $ */
+  /* static char *sccsid = "@(#)Context.c	1.5	2/24/87"; */
+  
+  
+--- 1,4 ----
+! /* $XConsortium: Context.c,v 1.8 90/01/10 19:54:30 converse Exp $ */
+  /* static char *sccsid = "@(#)Context.c	1.5	2/24/87"; */
+  
+  
+***************
+*** 136,144 ****
+      for (i=0 ; i<numDsp ; i++)
+  	if (DspArray[i]->display == display) return DspArray[i];
+  
+!     if (DspArray == NULL)
+  	if (! (DspArray = (Dsp *) Xmalloc(sizeof(Dsp))))
+  	    return (Dsp) NULL;
+      else {
+  	Dsp *tmp;
+  	if (! (tmp = (Dsp *) Xrealloc((char *) DspArray,
+--- 136,145 ----
+      for (i=0 ; i<numDsp ; i++)
+  	if (DspArray[i]->display == display) return DspArray[i];
+  
+!     if (DspArray == NULL) {
+  	if (! (DspArray = (Dsp *) Xmalloc(sizeof(Dsp))))
+  	    return (Dsp) NULL;
++     }
+      else {
+  	Dsp *tmp;
+  	if (! (tmp = (Dsp *) Xrealloc((char *) DspArray,
+
+
+*** /tmp/,RCSt1a14451	Mon Jan 22 18:34:42 1990
+--- mit/lib/X/XGetDflt.c	Mon Jan 22 09:08:36 1990
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: XGetDflt.c,v 1.19 89/12/11 19:09:21 rws Exp $
+   */
+  
+  /***********************************************************
+--- 1,5 ----
+  /*
+!  * $XConsortium: XGetDflt.c,v 1.20 90/01/22 09:08:17 rws Exp $
+   */
+  
+  /***********************************************************
+***************
+*** 115,127 ****
+  #if NeedFunctionPrototypes
+  char *XGetDefault(
+  	Display *dpy,			/* display for defaults.... */
+! 	register const char *name,	/* name of option program wants */
+! 	char const *prog)		/* name of program for option	*/
+  #else
+  char *XGetDefault(dpy, prog, name)
+  	Display *dpy;			/* display for defaults.... */
+- 	register char *name;		/* name of option program wants */
+  	char *prog;			/* name of program for option	*/
+  #endif
+  {					/* to get, for example, "font"  */
+  	XrmName names[3];
+--- 115,127 ----
+  #if NeedFunctionPrototypes
+  char *XGetDefault(
+  	Display *dpy,			/* display for defaults.... */
+! 	char const *prog,		/* name of program for option	*/
+! 	register const char *name)	/* name of option program wants */
+  #else
+  char *XGetDefault(dpy, prog, name)
+  	Display *dpy;			/* display for defaults.... */
+  	char *prog;			/* name of program for option	*/
++ 	register char *name;		/* name of option program wants */
+  #endif
+  {					/* to get, for example, "font"  */
+  	XrmName names[3];
+
+
+*** old/lib/Xt/Create.c
+--- mit/lib/Xt/Create.c
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Create.c,v 1.66 89/11/14 14:18:56 swick Exp $";
+  /* $oHeader: Create.c,v 1.5 88/09/01 11:26:22 asente Exp $ */
+  #endif /*lint*/
+  
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Create.c,v 1.67 90/01/23 11:29:41 swick Exp $";
+  /* $oHeader: Create.c,v 1.5 88/09/01 11:26:22 asente Exp $ */
+  #endif /*lint*/
+  
+***************
+*** 241,262 ****
+      bcopy ((char *) widget, (char *) req_widget, (int) size);
+      CallInitialize (XtClass(widget), req_widget, widget, args, num_args);
+  
+!     if (typed_args != NULL && num_typed_args > 0) {
+  	
+! 	/* in GetResources we may have dynamically alloc'ed store to hold a */
+! 	/* copy of a resource which was larger then sizeof(XtARrgVal) .... */
+! 	/* we must free this store now in order to prevent a memory leak... */
+! 	/* a typed arg that has a converted value in dynamic store has a */
+! 	/* negated size field */
+  
+! 	for (i = 0; i < num_typed_args; i++) {
+! 		if (typed_args[i].size < 0) { /* we alloc`ed store dynamically */
+! 			XtFree((XtPointer)typed_args[i].value);
+! 			typed_args[i].size = -(typed_args[i].size);
+  		}
+  	}
+  
+! 	DEALLOCATE_LOCAL((XtPointer)args);
+      }
+  
+      if (parent_constraint_class != NULL) {
+--- 241,263 ----
+      bcopy ((char *) widget, (char *) req_widget, (int) size);
+      CallInitialize (XtClass(widget), req_widget, widget, args, num_args);
+  
+!     if (typed_args != NULL) {
+! 	while (num_typed_args-- > 0) {
+  	
+! 	    /* In GetResources we may have dynamically alloc'd store to hold */
+! 	    /* a copy of a resource which was larger then sizeof(XtArgVal). */
+! 	    /* We must free this store now in order to prevent a memory leak */
+! 	    /* A typed arg that has a converted value in dynamic store has a */
+! 	    /* negated size field. */
+  
+! 	    if (typed_args->type != NULL && typed_args->size < 0) {
+! 		XtFree((char*)typed_args->value);
+! 		typed_args->size = -(typed_args->size);
+  	    }
++ 	    typed_args++;
+  	}
+  
+! 	DEALLOCATE_LOCAL((char*)args);
+      }
+  
+      if (parent_constraint_class != NULL) {
+***************
+*** 464,470 ****
+  		       num_typed_args, (ConstraintWidgetClass)NULL);
+  
+      parent->core.popup_list =
+! 	(WidgetList) XtRealloc((XtPointer) parent->core.popup_list,
+                 (unsigned) (parent->core.num_popups+1) * sizeof(Widget));
+      parent->core.popup_list[parent->core.num_popups++] = widget;
+      XtAddCallback(
+--- 465,471 ----
+  		       num_typed_args, (ConstraintWidgetClass)NULL);
+  
+      parent->core.popup_list =
+! 	(WidgetList) XtRealloc((char*) parent->core.popup_list,
+                 (unsigned) (parent->core.num_popups+1) * sizeof(Widget));
+      parent->core.popup_list[parent->core.num_popups++] = widget;
+      XtAddCallback(
+
+
+*** /tmp/,RCSt1a12364	Wed Jan 24 08:29:32 1990
+--- mit/lib/Xt/NextEvent.c	Tue Jan 23 11:45:25 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: NextEvent.c,v 1.78 89/12/15 21:11:55 swick Exp $";
+  /* $oHeader: NextEvent.c,v 1.4 88/09/01 11:43:27 asente Exp $ */
+  #endif /* lint */
+  
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: NextEvent.c,v 1.80 90/01/23 11:44:47 swick Exp $";
+  /* $oHeader: NextEvent.c,v 1.4 88/09/01 11:43:27 asente Exp $ */
+  #endif /* lint */
+  
+***************
+*** 61,81 ****
+  	    (dest).tv_sec --;(dest).tv_usec += 1000000; } } }
+  
+  
+- #ifdef CRAY
+- 
+- /* apparently gettimeofday() is broken and doesn't clear high-order bits */
+  #define TIMEDELTA(dest, src1, src2) { \
+- 	if(((dest).tv_usec = ((src1).tv_usec & 0xffff) - (src2).tv_usec) < 0) {\
+- 	      (dest).tv_usec += 1000000;\
+- 	      (dest).tv_sec = (src1).tv_sec - (src2).tv_sec - 1;\
+- 	} else 	(dest).tv_sec = (src1).tv_sec - (src2).tv_sec;  }
+- 
+- #define IS_AFTER(t1, t2) (((t2).tv_sec > (t1).tv_sec) \
+- 	|| (((t2).tv_sec == (t1).tv_sec)&& ((t2).tv_usec > ((t1).tv_usec & 0xffff))))
+- 
+- #else /*!CRAY*/
+- 
+- #define TIMEDELTA(dest, src1, src2) { \
+  	if(((dest).tv_usec = (src1).tv_usec - (src2).tv_usec) < 0) {\
+  	      (dest).tv_usec += 1000000;\
+  	      (dest).tv_sec = (src1).tv_sec - (src2).tv_sec - 1;\
+--- 61,67 ----
+***************
+*** 84,91 ****
+  #define IS_AFTER(t1, t2) (((t2).tv_sec > (t1).tv_sec) \
+  	|| (((t2).tv_sec == (t1).tv_sec)&& ((t2).tv_usec > (t1).tv_usec)))
+  
+- #endif /*!CRAY*/
+- 
+  static void QueueTimerEvent(app, ptr)
+      XtAppContext app;
+      TimerEventRec *ptr;
+--- 70,75 ----
+***************
+*** 525,543 ****
+  }
+  
+  void XtRemoveInput( id )
+! 	XtInputId  id;
+  {
+!   	register InputEvent *sptr, *lptr, *iid = (InputEvent *) id;
+! 	XtAppContext app = iid->app;
+! 	register source;
+! 	
+! 	source = iid->ie_source;
+  	app->fds.count--;
+  
+  	sptr = app->outstandingQueue;
+  	lptr = NULL;
+  	for (; sptr != NULL; sptr = sptr->ie_oq) {
+! 	    if (sptr == iid) {
+  		if (lptr == NULL) app->outstandingQueue = sptr->ie_oq;
+  		else lptr->ie_oq = sptr->ie_oq;
+  	    }
+--- 509,525 ----
+  }
+  
+  void XtRemoveInput( id )
+! 	register XtInputId  id;
+  {
+!   	register InputEvent *sptr, *lptr;
+! 	XtAppContext app = ((InputEvent *)id)->app;
+! 	register int source = ((InputEvent *)id)->ie_source;
+  	app->fds.count--;
+  
+  	sptr = app->outstandingQueue;
+  	lptr = NULL;
+  	for (; sptr != NULL; sptr = sptr->ie_oq) {
+! 	    if (sptr == (InputEvent *)id) {
+  		if (lptr == NULL) app->outstandingQueue = sptr->ie_oq;
+  		else lptr->ie_oq = sptr->ie_oq;
+  	    }
+***************
+*** 544,550 ****
+  	    lptr = sptr;
+  	}
+  
+! 	if((sptr = app->selectRqueue[source]) != NULL) {
+  		for( lptr = NULL ; sptr; sptr = sptr->ie_next ){
+  			if(sptr == (InputEvent *) id) {
+  				if(lptr == NULL) {
+--- 526,532 ----
+  	    lptr = sptr;
+  	}
+  
+! 	if(app->selectRqueue && (sptr = app->selectRqueue[source]) != NULL) {
+  		for( lptr = NULL ; sptr; sptr = sptr->ie_next ){
+  			if(sptr == (InputEvent *) id) {
+  				if(lptr == NULL) {
+***************
+*** 559,565 ****
+  			lptr = sptr;	      
+  		}
+  	}
+! 	if((sptr = app->selectWqueue[source]) != NULL) {
+  		for(lptr = NULL;sptr; sptr = sptr->ie_next){
+  			if ( sptr ==  (InputEvent *) id) {
+  				if(lptr == NULL){
+--- 541,547 ----
+  			lptr = sptr;	      
+  		}
+  	}
+! 	if(app->selectWqueue && (sptr = app->selectWqueue[source]) != NULL) {
+  		for(lptr = NULL;sptr; sptr = sptr->ie_next){
+  			if ( sptr ==  (InputEvent *) id) {
+  				if(lptr == NULL){
+***************
+*** 575,581 ****
+  		}
+  	    
+  	}
+! 	if((sptr = app->selectEqueue[source]) != NULL) {
+  		for(lptr = NULL;sptr; sptr = sptr->ie_next){
+  			if ( sptr ==  (InputEvent *) id) {
+  				if(lptr == NULL){
+--- 557,563 ----
+  		}
+  	    
+  	}
+! 	if(app->selectEqueue && (sptr = app->selectEqueue[source]) != NULL) {
+  		for(lptr = NULL;sptr; sptr = sptr->ie_next){
+  			if ( sptr ==  (InputEvent *) id) {
+  				if(lptr == NULL){
+
+
+*** /tmp/,RCSt1a14477	Mon Jan 22 18:36:08 1990
+--- mit/lib/Xmu/ShapeWidg.c	Sat Jan 20 15:17:32 1990
+***************
+*** 1,5 ****
+  static char rcsid[] =
+! 	"$XConsortium: ShapeWidg.c,v 1.2 89/10/08 13:42:38 rws Exp $";
+  
+  /* 
+   * Copyright 1988 by the Massachusetts Institute of Technology
+--- 1,5 ----
+  static char rcsid[] =
+! 	"$XConsortium: ShapeWidg.c,v 1.3 90/01/20 15:16:56 rws Exp $";
+  
+  /* 
+   * Copyright 1988 by the Massachusetts Institute of Technology
+***************
+*** 87,132 ****
+      Pixmap p = XCreatePixmap( dpy, XtWindow(w), width, height, 1 );
+      XGCValues values;
+      GC gc;
+!     unsigned int diam, x2, y2;
+  
+      values.foreground = 0;
+      values.background = 1;
+      values.cap_style = CapRound;
+!     if (width < height) {
+! 	diam = width;
+! 	x2 = diam>>1;
+! 	y2 = height - x2 - 1;	/* can't explain the off-by-one */
+!     } else {
+! 	diam = height;
+! 	y2 = diam>>1;
+! 	x2 = width - y2 - 1;
+!     }
+!     values.line_width = diam;
+      gc = XCreateGC (dpy, p,
+  		    GCForeground | GCBackground | GCLineWidth | GCCapStyle,
+  		    &values);
+      XFillRectangle( dpy, p, gc, 0, 0, width, height );
+      XSetForeground( dpy, gc, 1 );
+!     XDrawLine( dpy, p, gc, diam>>1, diam>>1, x2, y2 );
+      XShapeCombineMask( dpy, XtWindow(w), ShapeBounding, 
+  		       -(w->core.border_width), -(w->core.border_width),
+  		       p, ShapeSet );
+!     XSetForeground( dpy, gc, 0 );
+!     XFillRectangle( dpy, p, gc, 0, 0, width, height );
+!     if (w->core.width < w->core.height) {
+! 	diam = w->core.width;
+! 	x2 = diam>>1;
+! 	y2 = w->core.height - x2 - 1;
+      } else {
+! 	diam = w->core.height;
+! 	y2 = diam>>1;
+! 	x2 = w->core.width - y2 - 1;
+      }
+-     values.line_width = diam;
+-     values.foreground = 1;
+-     XChangeGC (dpy, gc, GCLineWidth|GCForeground, &values);
+-     XDrawLine( dpy, p, gc, diam>>1, diam>>1, x2, y2 );
+-     XShapeCombineMask( dpy, XtWindow(w), ShapeClip, 0, 0, p, ShapeSet );
+      XFreePixmap( dpy, p );
+      XFreeGC (dpy, gc );
+  }
+--- 87,133 ----
+      Pixmap p = XCreatePixmap( dpy, XtWindow(w), width, height, 1 );
+      XGCValues values;
+      GC gc;
+!     int rad;
+  
+      values.foreground = 0;
+      values.background = 1;
+      values.cap_style = CapRound;
+!     values.line_width = height;
+      gc = XCreateGC (dpy, p,
+  		    GCForeground | GCBackground | GCLineWidth | GCCapStyle,
+  		    &values);
+      XFillRectangle( dpy, p, gc, 0, 0, width, height );
+      XSetForeground( dpy, gc, 1 );
+!     if (width <= height) {
+! 	/* cannot be oval, fall back to ellipse */
+! 	XFillArc( dpy, p, gc, 0, 0, width, height, 0, 360*64 );
+!     } else {
+! 	rad = height >> 1;
+! 	XDrawLine( dpy, p, gc, rad, rad, (int)width - rad - 1, rad );
+!     }
+      XShapeCombineMask( dpy, XtWindow(w), ShapeBounding, 
+  		       -(w->core.border_width), -(w->core.border_width),
+  		       p, ShapeSet );
+!     if (w->core.border_width) {
+! 	XSetForeground( dpy, gc, 0 );
+! 	XFillRectangle( dpy, p, gc, 0, 0, width, height );
+! 	values.line_width = w->core.height;
+! 	values.foreground = 1;
+! 	XChangeGC (dpy, gc, GCLineWidth|GCForeground, &values);
+! 	if (w->core.width <= w->core.height) {
+! 	    /* cannot be oval, fall back to ellipse */
+! 	    XFillArc( dpy, p, gc, 0, 0, w->core.width, w->core.height,
+! 		      0, 360*64 );
+! 	} else {
+! 	    rad = w->core.height >> 1;
+! 	    XDrawLine( dpy, p, gc, rad, rad,
+! 		       (int)w->core.width - rad - 1, rad );
+! 	}
+! 	XShapeCombineMask( dpy, XtWindow(w), ShapeClip, 0, 0, p, ShapeSet );
+      } else {
+! 	XShapeCombineMask( XtDisplay(w), XtWindow(w),
+! 			  ShapeClip, 0, 0, None, ShapeSet );
+      }
+      XFreePixmap( dpy, p );
+      XFreeGC (dpy, gc );
+  }
+***************
+*** 149,170 ****
+      XFillRectangle( dpy, p, gc, 0, 0, width, height );
+      XSetForeground (dpy, gc, 1);
+      if (!ellipse)
+! 	XmuFillRoundedRectangle( dpy, p, gc, 0, 0, width, height, ew, eh );
+      else
+  	XFillArc( dpy, p, gc, 0, 0, width, height, 0, 360*64 );
+      XShapeCombineMask( dpy, XtWindow(w), ShapeBounding, 
+  		       -(w->core.border_width), -(w->core.border_width),
+  		       p, ShapeSet );
+!     XSetForeground (dpy, gc, 0);
+!     XFillRectangle( dpy, p, gc, 0, 0, width, height );
+!     XSetForeground (dpy, gc, 1);
+!     if (!ellipse)
+! 	XmuFillRoundedRectangle( dpy, p, gc, 0, 0,
+! 				 w->core.width, w->core.height,
+! 				 ew, eh );
+!     else
+! 	XFillArc( dpy, p, gc, 0, 0, w->core.width, w->core.height, 0, 360*64 );
+!     XShapeCombineMask( dpy, XtWindow(w), ShapeClip, 0, 0, p, ShapeSet );
+      XFreePixmap( dpy, p );
+      XFreeGC (dpy, gc);
+  }
+--- 150,178 ----
+      XFillRectangle( dpy, p, gc, 0, 0, width, height );
+      XSetForeground (dpy, gc, 1);
+      if (!ellipse)
+! 	XmuFillRoundedRectangle( dpy, p, gc, 0, 0, (int)width, (int)height,
+! 				 ew, eh );
+      else
+  	XFillArc( dpy, p, gc, 0, 0, width, height, 0, 360*64 );
+      XShapeCombineMask( dpy, XtWindow(w), ShapeBounding, 
+  		       -(w->core.border_width), -(w->core.border_width),
+  		       p, ShapeSet );
+!     if (w->core.border_width) {
+! 	XSetForeground (dpy, gc, 0);
+! 	XFillRectangle( dpy, p, gc, 0, 0, width, height );
+! 	XSetForeground (dpy, gc, 1);
+! 	if (!ellipse)
+! 	    XmuFillRoundedRectangle( dpy, p, gc, 0, 0,
+! 				     (int)w->core.width, (int)w->core.height,
+! 				     ew, eh );
+! 	else
+! 	    XFillArc( dpy, p, gc, 0, 0, w->core.width, w->core.height,
+! 		      0, 360*64 );
+! 	XShapeCombineMask( dpy, XtWindow(w), ShapeClip, 0, 0, p, ShapeSet );
+!     } else {
+! 	XShapeCombineMask( XtDisplay(w), XtWindow(w),
+! 			   ShapeClip, 0, 0, None, ShapeSet );
+!     }
+      XFreePixmap( dpy, p );
+      XFreeGC (dpy, gc);
+  }
+
+
+*** /tmp/,RCSt1a01391	Wed Jan 10 16:50:27 1990
+--- mit/lib/Xaw/AsciiSink.h	Wed Jan 10 16:49:03 1990
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: AsciiSink.h,v 1.3 89/11/01 17:33:17 kit Exp $
+   */
+  
+  /***********************************************************
+--- 1,5 ----
+  /*
+!  * $XConsortium: AsciiSink.h,v 1.4 90/01/10 16:48:48 kit Exp $
+   */
+  
+  /***********************************************************
+***************
+*** 66,72 ****
+  
+  #ifdef XAW_BC
+  /************************************************************
+!  *  For Compatability Only.
+  
+  #define XtAsciiSinkCreate          XawAsciiSinkCreate
+  #define XtAsciiSinkDestroy         XawAsciiSinkDestroy
+--- 66,72 ----
+  
+  #ifdef XAW_BC
+  /************************************************************
+!  *  For Compatability Only.                                 */
+  
+  #define XtAsciiSinkCreate          XawAsciiSinkCreate
+  #define XtAsciiSinkDestroy         XawAsciiSinkDestroy
+
+
+
+*** /tmp/,RCSt1a08901	Fri Jan 12 14:06:51 1990
+--- mit/lib/Xaw/AsciiSrc.c	Thu Jan 11 14:09:09 1990
+***************
+*** 1,5 ****
+  #if ( !defined(lint) && !defined(SABER) )
+! static char Xrcsid[] = "$XConsortium: AsciiSrc.c,v 1.26 89/12/07 18:35:14 kit Exp $";
+  #endif 
+  
+  /*
+--- 1,5 ----
+  #if ( !defined(lint) && !defined(SABER) )
+! static char Xrcsid[] = "$XConsortium: AsciiSrc.c,v 1.28 90/01/10 14:25:21 kit Exp $";
+  #endif 
+  
+  /*
+***************
+*** 1299,1312 ****
+    register int i;
+  
+    XtSetArg(temp[0], XtNtype, XawAsciiFile);
+-   ascii_args = XtMergeArgLists(temp, ONE, args, num_args);
+  
+    for (i = 0; i < num_args; i++) 
+      if (streq(args[i].name, XtNfile) || streq(args[i].name, XtCFile)) 
+        args[i].name = XtNstring;
+  
+    src = XtCreateWidget("genericAsciiDisk", asciiSrcObjectClass, parent,
+! 		       ascii_args, num_args + TWO);
+    XtFree(ascii_args);
+    return(src);
+  }
+--- 1299,1312 ----
+    register int i;
+  
+    XtSetArg(temp[0], XtNtype, XawAsciiFile);
+  
+    for (i = 0; i < num_args; i++) 
+      if (streq(args[i].name, XtNfile) || streq(args[i].name, XtCFile)) 
+        args[i].name = XtNstring;
+  
++   ascii_args = XtMergeArgLists(temp, ONE, args, num_args);
+    src = XtCreateWidget("genericAsciiDisk", asciiSrcObjectClass, parent,
+! 		       ascii_args, num_args + ONE);
+    XtFree(ascii_args);
+    return(src);
+  }
+
+
+*** /tmp/,RCSt1a03922	Wed Jan 10 17:16:37 1990
+--- mit/fonts/bdftosnf/fontutil.c	Thu Jan  4 15:09:30 1990
+***************
+*** 407,413 ****
+  	bzero (newglyph, width * (ascent + descent));
+  	in_line = oldglyphs + pCI->byteOffset;
+  	out_line = newglyph + dy * width;
+! 	inwidth = GLWIDTHBYTESPADDED (pCI->metrics.characterWidth, glyphPad);
+  	for (y = 0; y < pCI->metrics.ascent + pCI->metrics.descent; y++) {
+  		for (x = 0;
+  		     x < pCI->metrics.rightSideBearing - pCI->metrics.leftSideBearing;
+--- 407,414 ----
+  	bzero (newglyph, width * (ascent + descent));
+  	in_line = oldglyphs + pCI->byteOffset;
+  	out_line = newglyph + dy * width;
+! 	inwidth = GLWIDTHBYTESPADDED (pCI->metrics.rightSideBearing -
+! 				      pCI->metrics.leftSideBearing, glyphPad);
+  	for (y = 0; y < pCI->metrics.ascent + pCI->metrics.descent; y++) {
+  		for (x = 0;
+  		     x < pCI->metrics.rightSideBearing - pCI->metrics.leftSideBearing;
+
+
+*** /tmp/,RCSt1a14603	Mon Jan 22 19:08:20 1990
+--- mit/clients/xset/xset.man	Mon Jan 22 19:08:08 1990
+***************
+*** 5,10 ****
+--- 5,11 ----
+  .B xset
+  [-display \fIdisplay\fP]
+  [-b] [b on/off] [b [\fIvolume\fP [\fIpitch\fP [\fIduration\fP]]]
++ [[-]bc]
+  [-c] [c on/off] [c [\fIvolume\fP]]
+  [[-+]fp[-+=] \fIpath\fP[,\fIpath\fP[,...]]] [fp default] [fp rehash]
+  [[-]led [\fIinteger\fP]] [led on/off]
+***************
+*** 24,30 ****
+  .PP
+  .TP 8
+  .B b
+! the \fBb\fP option controls bell volume, pitch and duration.
+  This option accepts up to three numerical parameters, a preceding
+  dash(-), or a 'on/off' flag.  If no parameters are
+  given, or the 'on' flag is used, the system defaults will be used.
+--- 25,31 ----
+  .PP
+  .TP 8
+  .B b
+! The \fBb\fP option controls bell volume, pitch and duration.
+  This option accepts up to three numerical parameters, a preceding
+  dash(-), or a 'on/off' flag.  If no parameters are
+  given, or the 'on' flag is used, the system defaults will be used.
+***************
+*** 40,45 ****
+--- 41,59 ----
+  the characteristics of the bell as closely as it can to the user's
+  specifications.
+  .PP
++ .TP 8
++ .B bc
++ The \fBbc\fP option controls \fIbug compatibility\fP mode in the server,
++ if possible; a preceding dash(-) disables the mode, otherwise the mode
++ is enabled.  Various pre-R4 clients pass illegal values in some
++ protocol requests, and pre-R4 servers did not correctly generate
++ errors in these cases.  Such clients, when run against an R4 server,
++ will terminate abnormally or otherwise fail operate correctly.
++ Bug compatibility mode explicitly reintroduces certain bugs into the
++ X server, so that many such clients can still be run.  This mode should be
++ used with care; new application development should be done with this mode
++ disabled.  The server must support the MIT-SUNDRY-NONSTANDARD
++ protocol extension in order for this option to work.
+  .TP 8
+  .B c
+  The \fBc\fP option controls key click.
+
+
+*** /tmp/,RCSt1a15616	Tue Jan 23 13:45:13 1990
+--- mit/clients/xterm/main.c	Thu Jan 11 14:22:37 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char rcs_id[] = "$XConsortium: main.c,v 1.144 89/12/20 21:39:07 jim Exp $";
+  #endif	/* lint */
+  
+  /*
+--- 1,5 ----
+  #ifndef lint
+! static char rcs_id[] = "$XConsortium: main.c,v 1.145 90/01/11 14:22:31 jim Exp $";
+  #endif	/* lint */
+  
+  /*
+***************
+*** 1781,1788 ****
+  		tslot = ttyslot();
+  		added_utmp_entry = False;
+  		{
+! 			if (!resource.utmpInhibit &&
+! 			    (pw = getpwuid(screen->uid)) &&
+  			    (i = open(etc_utmp, O_WRONLY)) >= 0) {
+  				bzero((char *)&utmp, sizeof(struct utmp));
+  				(void) strncpy(utmp.ut_line,
+--- 1781,1788 ----
+  		tslot = ttyslot();
+  		added_utmp_entry = False;
+  		{
+! 			if ((pw = getpwuid(screen->uid)) &&
+! 			    !resource.utmpInhibit &&
+  			    (i = open(etc_utmp, O_WRONLY)) >= 0) {
+  				bzero((char *)&utmp, sizeof(struct utmp));
+  				(void) strncpy(utmp.ut_line,
+***************
+*** 1852,1858 ****
+  
+  		(void) setgid (screen->gid);
+  #ifdef HAS_BSD_GROUPS
+! 		if (geteuid() == 0)
+  		  initgroups (pw->pw_name, pw->pw_gid);
+  #endif
+  		(void) setuid (screen->uid);
+--- 1852,1858 ----
+  
+  		(void) setgid (screen->gid);
+  #ifdef HAS_BSD_GROUPS
+! 		if (geteuid() == 0 && pw)
+  		  initgroups (pw->pw_name, pw->pw_gid);
+  #endif
+  		(void) setuid (screen->uid);
+
+
+*** /tmp/,RCSt1a05911	Thu Jan 11 10:49:50 1990
+--- mit/clients/xpr/xpr.c	Thu Jan 11 10:49:06 1990
+***************
+*** 45,51 ****
+   */
+  
+  #ifndef lint
+! static char *rcsid_xpr_c = "$XConsortium: xpr.c,v 1.45 89/12/07 20:07:58 kit Exp $";
+  #endif
+  
+  #include <X11/Xos.h>
+--- 45,51 ----
+   */
+  
+  #ifndef lint
+! static char *rcsid_xpr_c = "$XConsortium: xpr.c,v 1.46 90/01/11 10:48:34 rws Exp $";
+  #endif
+  
+  #include <X11/Xos.h>
+***************
+*** 531,537 ****
+  		*flags |= F_INVERT;
+  	    } else if (len <= 3) {
+  		usage();
+! 	    } if (!bcmp(*argv, "-render", len)) {
+  		argc--; argv++;
+  		if (argc == 0) usage();
+  		*render = atoi(*argv);
+--- 531,537 ----
+  		*flags |= F_INVERT;
+  	    } else if (len <= 3) {
+  		usage();
+! 	    } else if (!bcmp(*argv, "-render", len)) {
+  		argc--; argv++;
+  		if (argc == 0) usage();
+  		*render = atoi(*argv);
+
+
+*** /tmp/,RCSt1a07748	Fri Jan 12 13:41:47 1990
+--- mit/clients/xman/ScrollByL.c	Thu Jan 11 20:09:07 1990
+***************
+*** 1,8 ****
+  /*
+   * xman - X window system manual page display program.
+   *
+!  * $XConsortium: ScrollByL.c,v 1.12 89/12/18 15:29:50 rws Exp $
+!  * $Header: ScrollByL.c,v 1.12 89/12/18 15:29:50 rws Exp $
+   *
+   * Copyright 1987, 1988 Massachusetts Institute of Technology
+   *
+--- 1,8 ----
+  /*
+   * xman - X window system manual page display program.
+   *
+!  * $XConsortium: ScrollByL.c,v 1.13 90/01/11 20:09:00 keith Exp $
+!  * $Header: ScrollByL.c,v 1.13 90/01/11 20:09:00 keith Exp $
+   *
+   * Copyright 1987, 1988 Massachusetts Institute of Technology
+   *
+***************
+*** 260,281 ****
+  int y_loc, height;
+  {
+    ScrollByLineWidget sblw = (ScrollByLineWidget) w;
+!   int start_line, num_lines, location;
+  
+!   start_line = y_loc / sblw->scroll.font_height + sblw->scroll.line_pointer;
+  
+    if (start_line >= sblw->scroll.lines)
+      return;
+    
+!   num_lines = height / sblw->scroll.font_height + 1;
+  
+! /*
+!  * Only integer arithmetic makes this possible. 
+!  */
+  
+!   location =  y_loc / sblw->scroll.font_height * sblw->scroll.font_height;
+! 
+!   PrintText(w, start_line, num_lines, location);
+  } 
+  
+  /*	Function Name: Page
+--- 260,297 ----
+  int y_loc, height;
+  {
+    ScrollByLineWidget sblw = (ScrollByLineWidget) w;
+!   int start_line, end_line, num_lines, location;
+  
+!   start_line = y_loc / sblw->scroll.font_height;
+!   /*
+!    * check overlap of previous line descenders
+!    */
+!   if (start_line &&
+!       start_line * sblw->scroll.font_height +
+! 	sblw->scroll.normal_font->max_bounds.descent -
+! 	sblw->scroll.normal_font->descent > y_loc)
+!   {
+!     start_line--;
+!   }
+  
+    if (start_line >= sblw->scroll.lines)
+      return;
+    
+!   end_line = (y_loc + height) / sblw->scroll.font_height;
+!   /*
+!    * check overlap of next line ascenders
+!    */
+!   if (end_line * sblw->scroll.font_height +
+! 	sblw->scroll.normal_font->ascent -
+! 	sblw->scroll.normal_font->max_bounds.ascent < y_loc + height)
+!   {
+!     end_line++;
+!   }
+!   num_lines = end_line - start_line + 1;
+  
+!   location = start_line * sblw->scroll.font_height;
+  
+!   PrintText(w, start_line + sblw->scroll.line_pointer, num_lines, location);
+  } 
+  
+  /*	Function Name: Page
+***************
+*** 372,378 ****
+  Boolean force_redisp;
+  {
+    ScrollByLineWidget sblw = (ScrollByLineWidget) w;
+!   int num_lines = w->core.height / sblw->scroll.font_height + 1;
+    int max_lines, old_line;
+    Boolean move_thumb = FALSE;
+  
+--- 388,394 ----
+  Boolean force_redisp;
+  {
+    ScrollByLineWidget sblw = (ScrollByLineWidget) w;
+!   int num_lines = w->core.height / sblw->scroll.font_height;
+    int max_lines, old_line;
+    Boolean move_thumb = FALSE;
+  
+***************
+*** 444,450 ****
+  int old_y, new_y, height;
+  {
+    ScrollByLineWidget sblw = (ScrollByLineWidget) w;
+!   int from_left = sblw->scroll.indent + sblw->scroll.offset;
+    int y_clear;
+  
+    old_y *= sblw->scroll.font_height;
+--- 460,467 ----
+  int old_y, new_y, height;
+  {
+    ScrollByLineWidget sblw = (ScrollByLineWidget) w;
+!   int from_left = sblw->scroll.indent + sblw->scroll.offset +
+! 		  sblw->scroll.normal_font->min_bounds.lbearing;
+    int y_clear;
+  
+    old_y *= sblw->scroll.font_height;
+***************
+*** 474,482 ****
+  	    (unsigned int) w->core.width - from_left, (unsigned int) height,
+  	    from_left, new_y);
+  
+-   height -= sblw->scroll.font_height/2;	/* clear 1/2 font of extra space,
+- 					   to make sure we don't lose or
+- 					   gain decenders. */
+    if (old_y > new_y)
+      y_clear = height;
+    else
+--- 491,496 ----
+***************
+*** 601,608 ****
+    LoadFile(new);
+    sblw->scroll.bar = (Widget) NULL;
+  
+!   sblw->scroll.font_height = (sblw->scroll.normal_font->max_bounds.ascent + 
+! 			      sblw->scroll.normal_font->max_bounds.descent); 
+  } /* Initialize. */
+  
+  /*	Function Name: CreateGCs
+--- 615,622 ----
+    LoadFile(new);
+    sblw->scroll.bar = (Widget) NULL;
+  
+!   sblw->scroll.font_height = (sblw->scroll.normal_font->ascent + 
+! 			      sblw->scroll.normal_font->descent); 
+  } /* Initialize. */
+  
+  /*	Function Name: CreateGCs
+***************
+*** 907,913 ****
+   * to the ScollByLine position reference.
+   */
+  
+!   y_loc = location + sblw->scroll.normal_font->max_bounds.ascent;
+  
+  /*
+   * Ok, here's the more than mildly heuristic man page formatter.
+--- 921,927 ----
+   * to the ScollByLine position reference.
+   */
+  
+!   y_loc = location + sblw->scroll.normal_font->ascent;
+  
+  /*
+   * Ok, here's the more than mildly heuristic man page formatter.
+
+
+*** /tmp/,RCSt1a22483	Tue Jan 23 16:14:43 1990
+--- mit/server/ddx/cfb/cfbbitblt.c	Wed Jan 10 19:52:01 1990
+***************
+*** 18,24 ****
+  Author: Keith Packard
+  
+  */
+! /* $XConsortium: cfbbitblt.c,v 5.24 89/12/07 20:35:26 keith Exp $ */
+  
+  #include	"X.h"
+  #include	"Xmd.h"
+--- 18,24 ----
+  Author: Keith Packard
+  
+  */
+! /* $XConsortium: cfbbitblt.c,v 5.26 90/01/10 19:51:35 keith Exp $ */
+  
+  #include	"X.h"
+  #include	"Xmd.h"
+***************
+*** 891,897 ****
+  
+      /* Do bit blitting */
+      numRects = REGION_NUM_RECTS(&rgnDst);
+!     if (numRects)
+      {
+  	if(!(pptSrc = (DDXPointPtr)ALLOCATE_LOCAL(numRects *
+  						  sizeof(DDXPointRec))))
+--- 891,897 ----
+  
+      /* Do bit blitting */
+      numRects = REGION_NUM_RECTS(&rgnDst);
+!     if (numRects && width && height)
+      {
+  	if(!(pptSrc = (DDXPointPtr)ALLOCATE_LOCAL(numRects *
+  						  sizeof(DDXPointRec))))
+***************
+*** 1054,1063 ****
+  			 * need a more cautious test for partialmask
+  			 * case...
+  			 */
+! 		    	if (firstoff > 28)
+  		    	{
+  			    bits = *psrc++;
+! 			    tmp |= BitRight (bits, secondoff);
+  		    	}
+  		    }
+  		    *pdst = *pdst & ~startmask | GetFourPixels(tmp) & startmask;
+--- 1054,1064 ----
+  			 * need a more cautious test for partialmask
+  			 * case...
+  			 */
+! 		    	if (firstoff >= 28)
+  		    	{
+  			    bits = *psrc++;
+! 			    if (firstoff != 28)
+! 				tmp |= BitRight (bits, secondoff);
+  		    	}
+  		    }
+  		    *pdst = *pdst & ~startmask | GetFourPixels(tmp) & startmask;
+
+
+*** /tmp/,RCSt1a22937	Tue Jan 23 16:55:29 1990
+--- mit/server/ddx/cfb/cfbrctstp8.c	Tue Jan 23 16:54:23 1990
+***************
+*** 18,24 ****
+  
+  */
+  
+! /* $XConsortium: cfbrctstp8.c,v 1.9 89/11/19 15:42:35 rws Exp $ */
+  
+  #include "X.h"
+  #include "Xmd.h"
+--- 18,24 ----
+  
+  */
+  
+! /* $XConsortium: cfbrctstp8.c,v 1.10 90/01/23 16:54:13 keith Exp $ */
+  
+  #include "X.h"
+  #include "Xmd.h"
+***************
+*** 291,298 ****
+  			     ((short *) (dst))[0] = (fg);)
+  	    	    break;
+  	    	case 14:
+! 	    	    BitLoop (((char *) (dst))[2] = (fg);)
+! 	    	    ((short *) (dst))[0] = (fg);
+  	    	    break;
+  	    	case 15:
+  	    	    BitLoop (((long *) (dst))[0] = (fg);)
+--- 291,298 ----
+  			     ((short *) (dst))[0] = (fg);)
+  	    	    break;
+  	    	case 14:
+! 	    	    BitLoop (((char *) (dst))[2] = (fg);
+! 			     ((short *) (dst))[0] = (fg);)
+  	    	    break;
+  	    	case 15:
+  	    	    BitLoop (((long *) (dst))[0] = (fg);)
+
+
+*** /tmp/,RCSt1a12586	Sat Jan 20 11:46:40 1990
+--- mit/server/dix/events.c	Sat Jan 20 11:46:10 1990
+***************
+*** 23,29 ****
+  ********************************************************/
+  
+  
+! /* $XConsortium: events.c,v 5.20 89/12/18 18:53:37 rws Exp $ */
+  
+  #include "X.h"
+  #include "misc.h"
+--- 23,29 ----
+  ********************************************************/
+  
+  
+! /* $XConsortium: events.c,v 5.21 90/01/20 11:45:34 rws Exp $ */
+  
+  #include "X.h"
+  #include "misc.h"
+***************
+*** 2648,2654 ****
+      TimeStamp time;
+  
+      REQUEST_SIZE_MATCH(xChangeActivePointerGrabReq);
+!     if (stuff->eventMask & ~PointerGrabMask)
+      {
+  	client->errorValue = stuff->eventMask;
+          return BadValue;
+--- 2648,2654 ----
+      TimeStamp time;
+  
+      REQUEST_SIZE_MATCH(xChangeActivePointerGrabReq);
+!     if ((stuff->eventMask & ~PointerGrabMask) && !permitOldBugs)
+      {
+  	client->errorValue = stuff->eventMask;
+          return BadValue;
+
+
+*** /tmp/,RCSt1a21350	Fri Jan 19 14:57:02 1990
+--- mit/server/ddx/dec/mfbpmax/mfbpmax_io.c	Fri Jan 19 14:56:48 1990
+***************
+*** 22,28 ****
+  
+  ******************************************************************/
+  
+! /* $XConsortium: mfbpmax_io.c,v 1.12 89/11/30 15:35:34 keith Exp $ */
+  
+  #include <stdio.h>
+  #include <sys/types.h>
+--- 22,28 ----
+  
+  ******************************************************************/
+  
+! /* $XConsortium: mfbpmax_io.c,v 1.13 90/01/19 14:56:36 keith Exp $ */
+  
+  #include <stdio.h>
+  #include <sys/types.h>
+***************
+*** 627,633 ****
+  	motion.u.keyButtonPointer.rootY = newy;
+  	motion.u.keyButtonPointer.time = currentTime.milliseconds;
+  	motion.u.u.type = MotionNotify;
+! 	(*pmPointer->processInputProc) (&motion, pmPointer);
+      }
+  
+      return TRUE;
+--- 627,633 ----
+  	motion.u.keyButtonPointer.rootY = newy;
+  	motion.u.keyButtonPointer.time = currentTime.milliseconds;
+  	motion.u.u.type = MotionNotify;
+! 	(*pmPointer->processInputProc) (&motion, pmPointer, 1);
+      }
+  
+      return TRUE;
+
+
+
+*** /tmp/,RCSt1a14661	Mon Jan 22 19:22:18 1990
+--- mit/server/ddx/dec/qdss/qdgc.c	Mon Jan 22 18:44:59 1990
+***************
+*** 800,806 ****
+  		    ops->PolySegment = miPolySegment;
+  		}
+  		else if ((fillStyle < FillSolid )
+! 		  || (pDrawable->type != DRAWABLE_WINDOW))
+  		    ops->Polylines = miZeroLine;
+  		    ops->PolySegment = miPolySegment;
+  		}
+--- 800,806 ----
+  		    ops->PolySegment = miPolySegment;
+  		}
+  		else if ((fillStyle < FillSolid )
+! 		  || (pDrawable->type != DRAWABLE_WINDOW)) {
+  		    ops->Polylines = miZeroLine;
+  		    ops->PolySegment = miPolySegment;
+  		}
+***************
+*** 1099,1107 ****
+  	    vdone |= 1L<<(*plvec);	/* indicate valid done */
+  	  }	/* for changed vectors */
+  	}	/* for GC + devPriv changed fields */
+-     }
+  
+  #endif /* !X11R4 */
+  
+  #ifndef X11R4
+      /*
+--- 1099,1107 ----
+  	    vdone |= 1L<<(*plvec);	/* indicate valid done */
+  	  }	/* for changed vectors */
+  	}	/* for GC + devPriv changed fields */
+  
+  #endif /* !X11R4 */
++     }
+  
+  #ifndef X11R4
+      /*
+
+
+*** /tmp/,RCSt1a22730	Tue Jan 23 16:34:50 1990
+--- mit/server/ddx/mi/miwideline.c	Tue Jan 23 15:36:36 1990
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: miwideline.c,v 1.25 89/11/25 12:11:01 rws Exp $
+   *
+   * Copyright 1988 Massachusetts Institute of Technology
+   *
+--- 1,5 ----
+  /*
+!  * $XConsortium: miwideline.c,v 1.27 90/01/23 15:36:25 keith Exp $
+   *
+   * Copyright 1988 Massachusetts Institute of Technology
+   *
+***************
+*** 1266,1275 ****
+      unsigned long   pixel;
+      Bool	    projectLeft, projectRight;
+      LineFaceRec	    leftFace, rightFace, prevRightFace;
+      register int    first;
+      Bool	    somethingDrawn = FALSE;
+  
+!     if (npt == 0)
+  	return;
+  
+      spanData = miSetupSpanData (pGC, &spanDataRec, npt);
+--- 1266,1277 ----
+      unsigned long   pixel;
+      Bool	    projectLeft, projectRight;
+      LineFaceRec	    leftFace, rightFace, prevRightFace;
++     LineFaceRec	    firstFace;
+      register int    first;
+      Bool	    somethingDrawn = FALSE;
++     Bool	    selfJoin;
+  
+!     if (npt <= 1)
+  	return;
+  
+      spanData = miSetupSpanData (pGC, &spanDataRec, npt);
+***************
+*** 1277,1283 ****
+      x2 = pPts->x;
+      y2 = pPts->y;
+      first = TRUE;
+!     projectLeft = pGC->capStyle == CapProjecting;
+      projectRight = FALSE;
+      while (--npt)
+      {
+--- 1279,1290 ----
+      x2 = pPts->x;
+      y2 = pPts->y;
+      first = TRUE;
+!     selfJoin = FALSE;
+!     if (x2 == pPts[npt-1].x && y2 == pPts[npt-1].y)
+!     {
+! 	selfJoin = TRUE;
+!     }
+!     projectLeft = pGC->capStyle == CapProjecting && !selfJoin;
+      projectRight = FALSE;
+      while (--npt)
+      {
+***************
+*** 1294,1306 ****
+  	if (x1 == x2 && y1 == y2)
+  	    continue;
+  	somethingDrawn = TRUE;
+! 	if (npt == 1 && pGC->capStyle == CapProjecting)
+  	    projectRight = TRUE;
+  	miWideSegment (pDrawable, pGC, pixel, spanData, x1, y1, x2, y2,
+  		       projectLeft, projectRight, &leftFace, &rightFace);
+  	if (first)
+  	{
+! 	    if (pGC->capStyle == CapRound)
+  		miLineArc (pDrawable, pGC, pixel, spanData,
+  			   &leftFace, (LineFacePtr) NULL,
+   			   (double)0.0, (double)0.0,
+--- 1301,1315 ----
+  	if (x1 == x2 && y1 == y2)
+  	    continue;
+  	somethingDrawn = TRUE;
+! 	if (npt == 1 && pGC->capStyle == CapProjecting && !selfJoin)
+  	    projectRight = TRUE;
+  	miWideSegment (pDrawable, pGC, pixel, spanData, x1, y1, x2, y2,
+  		       projectLeft, projectRight, &leftFace, &rightFace);
+  	if (first)
+  	{
+! 	    if (selfJoin)
+! 		firstFace = leftFace;
+! 	    else if (pGC->capStyle == CapRound)
+  		miLineArc (pDrawable, pGC, pixel, spanData,
+  			   &leftFace, (LineFacePtr) NULL,
+   			   (double)0.0, (double)0.0,
+***************
+*** 1311,1321 ****
+  	    miLineJoin (pDrawable, pGC, pixel, spanData, &leftFace,
+  		        &prevRightFace);
+  	}
+! 	if (npt == 1 && pGC->capStyle == CapRound)
+! 	    miLineArc (pDrawable, pGC, pixel, spanData,
+! 		       (LineFacePtr) NULL, &rightFace,
+!  		       (double)0.0, (double)0.0,
+! 		       TRUE);
+  	prevRightFace = rightFace;
+  	first = FALSE;
+  	projectLeft = FALSE;
+--- 1320,1336 ----
+  	    miLineJoin (pDrawable, pGC, pixel, spanData, &leftFace,
+  		        &prevRightFace);
+  	}
+! 	if (npt == 1)
+!  	{
+! 	    if (selfJoin)
+! 		miLineJoin (pDrawable, pGC, pixel, spanData, &firstFace,
+! 			    &rightFace);
+! 	    else if (pGC->capStyle == CapRound)
+! 		miLineArc (pDrawable, pGC, pixel, spanData,
+! 			   (LineFacePtr) NULL, &rightFace,
+! 			   (double)0.0, (double)0.0,
+! 			   TRUE);
+! 	}
+  	prevRightFace = rightFace;
+  	first = FALSE;
+  	projectLeft = FALSE;
+***************
+*** 1333,1338 ****
+--- 1348,1354 ----
+  		       &leftFace, (LineFacePtr) NULL,
+  		       (double)0.0, (double)0.0,
+  		       TRUE);
++ 	    rightFace.dx = -1;	/* sleezy hack to make it work */
+  	    miLineArc (pDrawable, pGC, pixel, spanData,
+  		       (LineFacePtr) NULL, &rightFace,
+   		       (double)0.0, (double)0.0,
+
+
+*** /tmp/,RCSt1a15357	Tue Jan 23 10:59:46 1990
+--- mit/extensions/server/shape.c	Tue Jan 23 10:49:32 1990
+***************
+*** 24,30 ****
+  
+  ********************************************************/
+  
+! /* $XConsortium: shape.c,v 5.10 89/12/13 15:26:57 keith Exp $ */
+  #define NEED_REPLIES
+  #define NEED_EVENTS
+  #include <stdio.h>
+--- 24,30 ----
+  
+  ********************************************************/
+  
+! /* $XConsortium: shape.c,v 5.11 90/01/23 10:49:17 rws Exp $ */
+  #define NEED_REPLIES
+  #define NEED_EVENTS
+  #include <stdio.h>
+***************
+*** 115,121 ****
+  {
+      ScreenPtr	pScreen = pWin->drawable.pScreen;
+  
+!     if (xoff || yoff)
+  	(*pScreen->TranslateRegion) (srcRgn, xoff, yoff);
+      if (!pWin->parent)
+      {
+--- 115,121 ----
+  {
+      ScreenPtr	pScreen = pWin->drawable.pScreen;
+  
+!     if (srcRgn && (xoff || yoff))
+  	(*pScreen->TranslateRegion) (srcRgn, xoff, yoff);
+      if (!pWin->parent)
+      {
+
+
+*** /tmp/,RCSt1a15393	Tue Jan 23 11:03:10 1990
+--- mit/server/include/colormap.h	Sat Jan 13 17:30:18 1990
+***************
+*** 21,27 ****
+  SOFTWARE.
+  
+  */
+! /* $XConsortium: colormap.h,v 1.21 89/03/12 16:32:08 rws Exp $ */
+  #ifndef CMAP_H
+  #define CMAP_H 1
+  
+--- 21,27 ----
+  SOFTWARE.
+  
+  */
+! /* $XConsortium: colormap.h,v 1.22 90/01/13 17:30:13 rws Exp $ */
+  #ifndef CMAP_H
+  #define CMAP_H 1
+  
+***************
+*** 34,39 ****
+--- 34,40 ----
+  #define BLUEMAP 2
+  #define PSEUDOMAP 3
+  #define AllocPrivate (-1)
++ #define AllocTemporary (-2)
+  #define DynamicClass  1
+  
+  #ifdef notdef
+
+
+*** /tmp/,RCSt1a22657	Tue Jan 23 16:30:13 1990
+--- mit/server/dix/colormap.c	Tue Jan 23 13:35:48 1990
+***************
+*** 22,28 ****
+  
+  ******************************************************************/
+  
+! /* $XConsortium: colormap.c,v 5.6 89/10/06 17:46:25 rws Exp $ */
+  
+  #include "X.h"
+  #define NEED_EVENTS
+--- 22,28 ----
+  
+  ******************************************************************/
+  
+! /* $XConsortium: colormap.c,v 5.9 90/01/23 13:35:31 rws Exp $ */
+  
+  #include "X.h"
+  #define NEED_EVENTS
+***************
+*** 755,760 ****
+--- 755,761 ----
+      return (Success);
+  }
+  
++ #ifndef hpux
+  /*
+   * FakeAllocColor -- fake an AllocColor request by
+   * returning a free pixel if availible, otherwise returning
+***************
+*** 763,768 ****
+--- 764,860 ----
+   * is that this routine will never return failure.
+   */
+  
++ FakeAllocColor (pmap, item)
++     register ColormapPtr pmap;
++     register xColorItem  *item;
++ {
++     Pixel	pixR, pixG, pixB;
++     int		entries;
++     xrgb	rgb;
++     int		class;
++     register VisualPtr	pVisual;
++ 
++     pVisual = pmap->pVisual;
++     rgb.red = item->red;
++     rgb.green = item->green;
++     rgb.blue = item->blue;
++     (*pmap->pScreen->ResolveColor) (&rgb.red, &rgb.green, &rgb.blue, pVisual);
++     class = pmap->class;
++     entries = pVisual->ColormapEntries;
++ 
++     switch (class) {
++     case GrayScale:
++     case PseudoColor:
++ 	if (FindColor(pmap, pmap->red, entries, &rgb, &item->pixel, PSEUDOMAP,
++ 		      -1, AllComp) == Success)
++ 	    break;
++ 	/* fall through ... */
++     case StaticColor:
++     case StaticGray:
++ 	item->pixel = FindBestPixel(pmap->red, entries, &rgb, PSEUDOMAP);
++ 	break;
++ 
++     case DirectColor:
++ 	/* Look up each component in its own map, then OR them together */
++ 	pixR = (item->pixel & pVisual->redMask) >> pVisual->offsetRed; 
++ 	pixG = (item->pixel & pVisual->greenMask) >> pVisual->offsetGreen; 
++ 	pixB = (item->pixel & pVisual->blueMask) >> pVisual->offsetBlue; 
++ 	if (FindColor(pmap, pmap->red, entries, &rgb, &pixR, REDMAP,
++ 		      -1, RedComp) != Success)
++ 	    pixR = FindBestPixel(pmap->red, entries, &rgb, REDMAP);
++ 	if (FindColor(pmap, pmap->green, entries, &rgb, &pixG, GREENMAP,
++ 		      -1, GreenComp) != Success)
++ 	    pixG = FindBestPixel(pmap->green, entries, &rgb, GREENMAP);
++ 	if (FindColor(pmap, pmap->blue, entries, &rgb, &pixB, BLUEMAP,
++ 		      -1, BlueComp) != Success)
++ 	    pixB = FindBestPixel(pmap->blue, entries, &rgb, BLUEMAP);
++ 	item->pixel = (pixR << pVisual->offsetRed) |
++ 		      (pixG << pVisual->offsetGreen) |
++ 		      (pixB << pVisual->offsetBlue);
++ 	break;
++ 
++     case TrueColor:
++ 	/* Look up each component in its own map, then OR them together */
++ 	pixR = FindBestPixel(pmap->red, entries, &rgb, REDMAP);
++ 	pixG = FindBestPixel(pmap->green, entries, &rgb, GREENMAP);
++ 	pixB = FindBestPixel(pmap->blue, entries, &rgb, BLUEMAP);
++ 	item->pixel = (pixR << pVisual->offsetRed) |
++ 		      (pixG << pVisual->offsetGreen) |
++ 		      (pixB << pVisual->offsetBlue);
++ 	break;
++     }
++ }
++ 
++ /* free a pixel value obtained from FakeAllocColor */
++ FakeFreeColor(pmap, pixel)
++     register ColormapPtr pmap;
++     Pixel pixel;
++ {
++     register VisualPtr pVisual;
++     Pixel pixR, pixG, pixB;
++ 
++     switch (pmap->class) {
++     case GrayScale:
++     case PseudoColor:
++ 	if (pmap->red[pixel].refcnt == AllocTemporary)
++ 	    pmap->red[pixel].refcnt = 0;
++ 	break;
++     case DirectColor:
++ 	pVisual = pmap->pVisual;
++ 	pixR = (pixel & pVisual->redMask) >> pVisual->offsetRed; 
++ 	pixG = (pixel & pVisual->greenMask) >> pVisual->offsetGreen; 
++ 	pixB = (pixel & pVisual->blueMask) >> pVisual->offsetBlue; 
++ 	if (pmap->red[pixR].refcnt == AllocTemporary)
++ 	    pmap->red[pixR].refcnt = 0;
++ 	if (pmap->green[pixG].refcnt == AllocTemporary)
++ 	    pmap->green[pixG].refcnt = 0;
++ 	if (pmap->blue[pixB].refcnt == AllocTemporary)
++ 	    pmap->blue[pixB].refcnt = 0;
++ 	break;
++     }
++ }
++ #else
++ /* XXX for now preserve buggy R4 code for HP ddx binary compatibility */
+  FakeAllocColor (pmap, pred, pgreen, pblue, pPix, read_only)
+      ColormapPtr		pmap;
+      unsigned short 	*pred, *pgreen, *pblue;
+***************
+*** 774,781 ****
+      xrgb	rgb;
+      int		class;
+      VisualPtr	pVisual;
+  
+- 
+      pVisual = pmap->pVisual;
+      (*pmap->pScreen->ResolveColor) (pred, pgreen, pblue, pVisual);
+      rgb.red = *pred;
+--- 866,873 ----
+      xrgb	rgb;
+      int		class;
+      VisualPtr	pVisual;
++     static Pixel lastPix = 0;
+  
+      pVisual = pmap->pVisual;
+      (*pmap->pScreen->ResolveColor) (pred, pgreen, pblue, pVisual);
+      rgb.red = *pred;
+***************
+*** 783,788 ****
+--- 875,886 ----
+      rgb.blue = *pblue;
+      class = pmap->class;
+      entries = pVisual->ColormapEntries;
++     /* kludge to avoid duplicate allocations most of the time */
++     lastPix++;
++     if (lastPix >= entries)
++ 	lastPix = 0;
++     *pPix = lastPix;
++     
+  
+      /* If this is one of the static storage classes, and we're not initializing
+       * it, the best we can do is to find the closest color entry to the
+***************
+*** 835,840 ****
+--- 933,939 ----
+  	break;
+      }
+  }
++ #endif
+  
+  static Pixel
+  FindBestPixel(pentFirst, size, prgb, channel)
+***************
+*** 962,969 ****
+--- 1061,1073 ----
+  	return (BadAlloc);
+      pent = pentFirst + Free;
+      pent->fShared = FALSE;
++ #ifndef hpux
++     pent->refcnt = (client >= 0) ? 1 : AllocTemporary;
++ #else
++     /* XXX for now preserve buggy R4 code for HP ddx binary compatibility */
+      if (client != -1)
+  	pent->refcnt = 1;
++ #endif
+  
+      def.flags = 0;
+      switch (channel)
+***************
+*** 983,989 ****
+          pent->co.local.red = prgb->red;
+          def.red = prgb->red;
+  	def.flags |= DoRed;
+! 	pmap->freeRed--;
+  	def.pixel = (channel == PSEUDOMAP) ? Free
+  					   : Free << pmap->pVisual->offsetRed;
+  	break;
+--- 1087,1094 ----
+          pent->co.local.red = prgb->red;
+          def.red = prgb->red;
+  	def.flags |= DoRed;
+! 	if (client >= 0)
+! 	    pmap->freeRed--;
+  	def.pixel = (channel == PSEUDOMAP) ? Free
+  					   : Free << pmap->pVisual->offsetRed;
+  	break;
+***************
+*** 992,998 ****
+  	pent->co.local.green = prgb->green;
+          def.green = prgb->green;
+  	def.flags |= DoGreen;
+! 	pmap->freeGreen--;
+  	def.pixel = Free << pmap->pVisual->offsetGreen;
+  	break;
+  
+--- 1097,1104 ----
+  	pent->co.local.green = prgb->green;
+          def.green = prgb->green;
+  	def.flags |= DoGreen;
+! 	if (client >= 0)
+! 	    pmap->freeGreen--;
+  	def.pixel = Free << pmap->pVisual->offsetGreen;
+  	break;
+  
+***************
+*** 1000,1006 ****
+  	pent->co.local.blue = prgb->blue;
+  	def.blue = prgb->blue;
+  	def.flags |= DoBlue;
+! 	pmap->freeBlue--;
+  	def.pixel = Free << pmap->pVisual->offsetBlue;
+  	break;
+      }
+--- 1106,1113 ----
+  	pent->co.local.blue = prgb->blue;
+  	def.blue = prgb->blue;
+  	def.flags |= DoBlue;
+! 	if (client >= 0)
+! 	    pmap->freeBlue--;
+  	def.pixel = Free << pmap->pVisual->offsetBlue;
+  	break;
+      }
+
+
+*** /tmp/,RCSt1a22681	Tue Jan 23 16:31:54 1990
+--- mit/server/ddx/mi/misprite.c	Sat Jan 13 17:33:49 1990
+***************
+*** 4,10 ****
+   * machine independent software sprite routines
+   */
+  
+! /* $XConsortium: misprite.c,v 5.26 89/12/08 18:27:46 keith Exp $ */
+  
+  /*
+  Copyright 1989 by the Massachusetts Institute of Technology
+--- 4,10 ----
+   * machine independent software sprite routines
+   */
+  
+! /* $XConsortium: misprite.c,v 5.28 90/01/13 17:33:32 rws Exp $ */
+  
+  /*
+  Copyright 1989 by the Massachusetts Institute of Technology
+***************
+*** 529,536 ****
+  			    pScreen->devPrivates[miSpriteScreenIndex].ptr;
+      CursorPtr		pCursor;
+      xColorItem		*sourceColor, *maskColor;
+-     unsigned short	red, green, blue;
+-     Bool		read_only;
+  
+      pCursor = pScreenPriv->pCursor;
+      sourceColor = &pScreenPriv->colors[SOURCE_COLOR];
+--- 529,534 ----
+***************
+*** 544,559 ****
+  	 pScreenPriv->pColormap != pScreenPriv->pInstalledMap)
+      {
+  	pScreenPriv->pColormap = pScreenPriv->pInstalledMap;
+! 	red = sourceColor->red = pCursor->foreRed;
+! 	green = sourceColor->green = pCursor->foreGreen;
+! 	blue = sourceColor->blue = pCursor->foreBlue;
+! 	FakeAllocColor (pScreenPriv->pColormap, &red, &green, &blue,
+! 			&sourceColor->pixel, &read_only);
+! 	red = maskColor->red = pCursor->backRed;
+! 	green = maskColor->green = pCursor->backGreen;
+! 	blue = maskColor->blue = pCursor->backBlue;
+! 	FakeAllocColor (pScreenPriv->pColormap, &red, &green, &blue,
+! 			&maskColor->pixel, &read_only);
+      }
+      pScreenPriv->checkPixels = FALSE;
+  }
+--- 542,558 ----
+  	 pScreenPriv->pColormap != pScreenPriv->pInstalledMap)
+      {
+  	pScreenPriv->pColormap = pScreenPriv->pInstalledMap;
+! 	sourceColor->red = pCursor->foreRed;
+! 	sourceColor->green = pCursor->foreGreen;
+! 	sourceColor->blue = pCursor->foreBlue;
+! 	FakeAllocColor (pScreenPriv->pColormap, sourceColor);
+! 	maskColor->red = pCursor->backRed;
+! 	maskColor->green = pCursor->backGreen;
+! 	maskColor->blue = pCursor->backBlue;
+! 	FakeAllocColor (pScreenPriv->pColormap, maskColor);
+! 	/* "free" the pixels right away, don't let this confuse you */
+! 	FakeFreeColor(pScreenPriv->pColormap, sourceColor->pixel);
+! 	FakeFreeColor(pScreenPriv->pColormap, maskColor->pixel);
+      }
+      pScreenPriv->checkPixels = FALSE;
+  }
+***************
+*** 1781,1786 ****
+--- 1780,1787 ----
+   * miPointer interface routines
+   */
+  
++ #define SPRITE_PAD  8
++ 
+  static Bool
+  miSpriteRealizeCursor (pScreen, pCursor)
+      ScreenPtr	pScreen;
+***************
+*** 1841,1848 ****
+  	    sx < pScreenPriv->saved.x2 &&
+  	    sy + (int) pCursor->bits->height >= pScreenPriv->saved.y1 &&
+  	    sy < pScreenPriv->saved.y2 &&
+! 	    pCursor->bits->width <= pScreenPriv->saved.x2 - pScreenPriv->saved.x1 &&
+! 	    pCursor->bits->height<= pScreenPriv->saved.y2 - pScreenPriv->saved.y1
+  	    )
+  	{
+  	    pScreenPriv->isUp = FALSE;
+--- 1842,1851 ----
+  	    sx < pScreenPriv->saved.x2 &&
+  	    sy + (int) pCursor->bits->height >= pScreenPriv->saved.y1 &&
+  	    sy < pScreenPriv->saved.y2 &&
+! 	    (int) pCursor->bits->width + (2 * SPRITE_PAD) ==
+! 		pScreenPriv->saved.x2 - pScreenPriv->saved.x1 &&
+! 	    (int) pCursor->bits->height + (2 * SPRITE_PAD) ==
+! 		pScreenPriv->saved.y2 - pScreenPriv->saved.y1
+  	    )
+  	{
+  	    pScreenPriv->isUp = FALSE;
+***************
+*** 1855,1862 ****
+  
+  		oldx1 = pScreenPriv->saved.x1;
+  		oldy1 = pScreenPriv->saved.y1;
+! 		dx = oldx1 - (sx - 8);
+! 		dy = oldy1 - (sy - 8);
+  		pScreenPriv->saved.x1 -= dx;
+  		pScreenPriv->saved.y1 -= dy;
+  		pScreenPriv->saved.x2 -= dx;
+--- 1858,1865 ----
+  
+  		oldx1 = pScreenPriv->saved.x1;
+  		oldy1 = pScreenPriv->saved.y1;
+! 		dx = oldx1 - (sx - SPRITE_PAD);
+! 		dy = oldy1 - (sy - SPRITE_PAD);
+  		pScreenPriv->saved.x1 -= dx;
+  		pScreenPriv->saved.y1 -= dy;
+  		pScreenPriv->saved.x2 -= dx;
+***************
+*** 1976,1983 ****
+      y = pScreenPriv->y - (int)pCursor->bits->yhot;
+      w = pCursor->bits->width;
+      h = pCursor->bits->height;
+!     wpad = 8;
+!     hpad = 8;
+      pScreenPriv->saved.x1 = x - wpad;
+      pScreenPriv->saved.y1 = y - hpad;
+      pScreenPriv->saved.x2 = pScreenPriv->saved.x1 + w + wpad * 2;
+--- 1979,1986 ----
+      y = pScreenPriv->y - (int)pCursor->bits->yhot;
+      w = pCursor->bits->width;
+      h = pCursor->bits->height;
+!     wpad = SPRITE_PAD;
+!     hpad = SPRITE_PAD;
+      pScreenPriv->saved.x1 = x - wpad;
+      pScreenPriv->saved.y1 = y - hpad;
+      pScreenPriv->saved.x2 = pScreenPriv->saved.x1 + w + wpad * 2;
+
+
+*** /tmp/,RCSt1a16363	Tue Jan 23 15:55:44 1990
+--- mit/server/ddx/mfb/mfbline.c	Tue Jan 23 15:14:44 1990
+***************
+*** 21,27 ****
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: mfbline.c,v 5.9 89/11/24 18:05:53 rws Exp $ */
+  #include "X.h"
+  
+  #include "gcstruct.h"
+--- 21,27 ----
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: mfbline.c,v 5.10 90/01/23 15:14:37 keith Exp $ */
+  #include "X.h"
+  
+  #include "gcstruct.h"
+***************
+*** 206,214 ****
+  		tmp = y2;
+  		y2 = y1 + 1;
+  		y1 = tmp + 1;
+  	    }
+  #ifdef POLYSEGMENT
+! 	    if (pGC->capStyle != CapNotLast)
+  		y2++;
+  #endif
+  	    /* get to first band that might contain part of line */
+--- 206,218 ----
+  		tmp = y2;
+  		y2 = y1 + 1;
+  		y1 = tmp + 1;
++ #ifdef POLYSEGMENT
++ 		if (pGC->capStyle != CapNotLast)
++ 		    y1--;
++ #endif
+  	    }
+  #ifdef POLYSEGMENT
+! 	    else if (pGC->capStyle != CapNotLast)
+  		y2++;
+  #endif
+  	    /* get to first band that might contain part of line */
+***************
+*** 256,264 ****
+  		tmp = x2;
+  		x2 = x1 + 1;
+  		x1 = tmp + 1;
+  	    }
+  #ifdef POLYSEGMENT
+! 	    if (pGC->capStyle != CapNotLast)
+  		x2++;
+  #endif
+  
+--- 260,272 ----
+  		tmp = x2;
+  		x2 = x1 + 1;
+  		x1 = tmp + 1;
++ #ifdef POLYSEGMENT
++ 		if (pGC->capStyle != CapNotLast)
++ 		    x1--;
++ #endif
+  	    }
+  #ifdef POLYSEGMENT
+! 	    else if (pGC->capStyle != CapNotLast)
+  		x2++;
+  #endif
+  
+
+*** /tmp/,RCSt1a16370	Tue Jan 23 15:55:59 1990
+--- mit/server/ddx/cfb/cfbline.c	Tue Jan 23 15:14:32 1990
+***************
+*** 21,27 ****
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: cfbline.c,v 1.12 89/11/19 16:16:05 rws Exp $ */
+  #include "X.h"
+  
+  #include "gcstruct.h"
+--- 21,27 ----
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: cfbline.c,v 1.13 90/01/23 15:14:21 keith Exp $ */
+  #include "X.h"
+  
+  #include "gcstruct.h"
+***************
+*** 212,220 ****
+  		tmp = y2;
+  		y2 = y1 + 1;
+  		y1 = tmp + 1;
+  	    }
+  #ifdef POLYSEGMENT
+! 	    if (pGC->capStyle != CapNotLast)
+  		y2++;
+  #endif
+  	    /* get to first band that might contain part of line */
+--- 212,224 ----
+  		tmp = y2;
+  		y2 = y1 + 1;
+  		y1 = tmp + 1;
++ #ifdef POLYSEGMENT
++ 		if (pGC->capStyle != CapNotLast)
++ 		    y1--;
++ #endif
+  	    }
+  #ifdef POLYSEGMENT
+! 	    else if (pGC->capStyle != CapNotLast)
+  		y2++;
+  #endif
+  	    /* get to first band that might contain part of line */
+***************
+*** 262,270 ****
+  		tmp = x2;
+  		x2 = x1 + 1;
+  		x1 = tmp + 1;
+  	    }
+  #ifdef POLYSEGMENT
+! 	    if (pGC->capStyle != CapNotLast)
+  		x2++;
+  #endif
+  
+--- 266,278 ----
+  		tmp = x2;
+  		x2 = x1 + 1;
+  		x1 = tmp + 1;
++ #ifdef POLYSEGMENT
++ 		if (pGC->capStyle != CapNotLast)
++ 		    x1--;
++ #endif
+  	    }
+  #ifdef POLYSEGMENT
+! 	    else if (pGC->capStyle != CapNotLast)
+  		x2++;
+  #endif
+  
+
+*** /dev/null
+--- mit/doc/Xt/Xtk.intr.front
+***************
+*** 0 ****
+--- 1,262 ----
++ .\" MIT header page and copyright notice
++ .\" MIT page header and footers
++ .\"
++ .EH ''''
++ .OH ''''
++ .EF ''''
++ .OF ''''
++ .ps 11
++ .nr PS 11
++ \&
++ .sp 8
++ .ce 4
++ \s+2\fB\*(xT\fP\s-2
++ 
++ \s+1\fBX Window System\fP\s-1
++ 
++ \s+1\fBX Version 11, Release \*(Rn\fP\s-1
++ .sp 6
++ .ce 4
++ \s-1Joel McCormack
++ .sp 6p
++ Digital Equipment Corporation
++ Western Software Laboratory
++ .sp 2
++ .ce 4
++ Paul Asente
++ .sp 6p
++ Digital Equipment Corporation
++ Western Software Laboratory
++ .sp 2
++ .ce 4
++ Ralph R. Swick
++ .sp 6p
++ Digital Equipment Corporation
++ External Research Group
++ MIT Project Athena\s+1
++ .bp
++ \&
++ .ps 9
++ .nr PS 9
++ .sp 8
++ .LP
++ The X Window System is a trademark of MIT.
++ .LP
++ Copyright \(co 1985, 1986, 1987, 1988
++ Massachusetts Institute of Technology, Cambridge, Massachusetts,
++ and Digital Equipment Corporation, Maynard, Massachusetts.
++ .LP
++ Permission to use, copy, modify and distribute this documentation for any
++ purpose and without fee is hereby granted, provided that the above copyright
++ notice appears in all copies and that both that copyright notice and this
++ permission notice appear in supporting documentation, and that the name of
++ M.I.T. or Digital not be used in in advertising or publicity pertaining
++ to distribution of the software without specific, written prior permission.
++ M.I.T and Digital makes no representations about the suitability of the
++ software described herein for any purpose.
++ It is provided ``as is'' without express or implied warranty.
++ .ps 11
++ .nr PS 11
++ .bp iii
++ .XS iii
++ Acknowledgments
++ .XE
++ \&
++ .sp 1
++ .ce 3
++ \s+1\fBAcknowledgments\fP\s-1
++ .sp 2
++ .na
++ .LP
++ The design of the X11 Intrinsics was done primarily 
++ by Joel McCormack of Digital WSL. 
++ Major contributions to the design and implementation also
++ were done by Charles Haynes, Mike Chow, and Paul Asente of Digital WSL.
++ Additional contributors to the design and/or implementation were:
++ .LP
++ .Ds
++ Loretta Guarino-Reid (Digital WSL)
++ Rich Hyde (Digital WSL)
++ Susan Angebranndt (Digital WSL)
++ Terry Weissman (Digital WSL)
++ Mary Larson (Digital UEG)
++ Mark Manasse (Digital SRC)
++ Jim Gettys  (Digital SRC)
++ Ralph Swick (Project Athena and Digital ERP) 
++ Leo Treggiari  (Digital SDT)
++ Ron Newman (Project Athena)
++ Mark Ackerman (Project Athena)
++ Bob Scheifler (MIT LCS)
++ .De
++ .LP
++ The contributors to the X10 toolkit also deserve mention.
++ Although the X11 Intrinsics present an entirely different programming style, 
++ they borrow heavily from the implicit and explicit concepts in the X10 
++ toolkit.
++ .LP
++ The design and implementation of the X10 Intrinsics were done by:
++ .LP
++ .Ds
++ Terry Weissman (Digital WSL)
++ Smokey Wallace (Digital WSL)
++ Phil Karlton (Digital WSL)
++ Charles Haynes (Digital WSL)
++ Frank Hall (HP)
++ .De
++ .LP
++ The design and implementation of the X10 toolkit's sample widgets were 
++ by the above, as well as by:
++ .LP
++ .Ds
++ Ram Rao (Digital UEG)
++ Mary Larson (Digital UEG)
++ Mike Gancarz (Digital UEG)
++ Kathleen Langone  (Digital UEG)
++ .De
++ These widgets provided a checklist of requirements that we
++ had to address in the X11 intrinsics.
++ .LP
++ Thanks go to Al Mento of Digital's UEG Documentation Group for 
++ formatting and generally improving this document
++ and to John Ousterhout of Berkeley for extensively reviewing 
++ early drafts of it.
++ .LP
++ Finally, a special thanks to Mike Chow,
++ whose extensive performance analysis of the X10 toolkit provided
++ the justification to redesign it entirely for X11.
++ .LP
++ .sp
++ .Ds 0
++ Joel McCormack
++ Western Software Laboratory
++ Digital Equipment Corporation
++ 
++ March, 1988
++ .De
++ .bp
++ .LP
++ The current design of the \*(xI has benefited greatly from the
++ input of several dedicated reviewers in the membership of the
++ X Consortium.
++ In addition to those already mentioned,
++ the following individuals have dedicated significant time
++ to suggesting improvements to the \*(xI:
++ .LP
++ .Ds
++ Steve Pitschke (Stellar)
++ C. Doug Blewett (AT&T)
++ Bob Miller (HP)
++ David Schiferl (Tektronix)
++ Fred Taft (HP)
++ Michael Squires (Sequent)
++ Marcel Meth (AT&T)
++ Jim Fulton (MIT)
++ Kerry Kimbrough (Texas Instruments)
++ Mike Collins (Digital)
++ Scott McGregor (Digital)
++ Phil Karlton (Digital)
++ Julian Payne (ESS)
++ Jacques Davy (Bull)
++ Gabriel Beged-Dov (HP)
++ Glenn Widener (Tektronix)
++ .De
++ .LP
++ Thanks go to each of them for the countless hours spent
++ reviewing drafts and code.
++ .LP
++ .sp
++ .Ds 0
++ Ralph R. Swick
++ External Research Group
++ Digital Equipment Corporation
++ MIT Project Athena
++ 
++ June, 1988
++ .sp
++ .LP
++ From Release 3 to Release 4, several new members joined the design
++ team.  We greatly appreciate the thoughtful comments, suggestions,
++ lengthy discussions, and in some cases implementation code contributed by each
++ of the following:
++ .LP
++ .Ds
++ Don Alecci (AT&T)
++ Ellis Cohen (OSF)
++ Donna Converse (MIT)
++ Clive Feather (IXI)
++ Nayeem Islam (Sun)
++ Dana Laursen (HP)
++ Keith Packard (MIT)
++ Chris Peterson (MIT)
++ Richard Probst (Sun)
++ Larry Cable (Sun)
++ .De
++ .sp
++ .Ds 0
++ Ralph R. Swick
++ 
++ December, 1989
++ .De
++ .bp iv
++ .XS iv
++ About This Manual
++ .XE
++ \&
++ .sp 1
++ .ce 3
++ \s+1\fBAbout This Manual\fP\s-1
++ .sp 2
++ .na
++ .LP
++ \fI\*(xT\fP is intended to be read by both application programmers who will
++ use one or more of the many widget sets built with the \*(xI 
++ and by widget programmers who will use the \*(xI to build widgets 
++ for one of the widget sets.
++ Not all the information in this manual, however, applies to both audiences.
++ That is, because the application programmer is likely to use only a number of
++ the \*(xI functions in writing an application and because the widget programmer
++ is is likely to use many more, if not all, of the \*(xI functions in building 
++ a widget,
++ an attempt has been made to highlight those areas of information that are
++ deemed to be of special interest for the application programmer.
++ (It is assumed the widget programmer will have to be familiar with all 
++ the information.)
++ Therefore, all entries in the table of contents that are printed in \fBbold\fP 
++ indicate the information that should be of special interest to an 
++ application programmer.
++ .LP
++ It is also assumed that as application programmers become more familiar with the
++ concepts discussed in this manual they will find it more convenient to implement
++ portions of their applications as special-purpose or custom widgets.
++ It is possible, none the less, to use widgets without knowing how to build them.
++ .SH
++ Conventions Used in this Manual
++ .LP
++ This document uses the following conventions:
++ .IP \(bu 5
++ Global symbols are printed in
++ .PN this
++ .PN special
++ .PN font .
++ These can be either function names,
++ symbols defined in include files, data types, or structure names.
++ Arguments to functions, procedures, or macros are printed in \fIitalics\fP.
++ .IP \(bu 5
++ Each function is introduced by a general discussion that
++ distinguishes it from other functions.
++ The function declaration itself follows,
++ and each argument is specifically explained.
++ General discussion of the function, if any is required,
++ follows the arguments.
++ .IP \(bu 5
++ To eliminate any ambiguity between those arguments that you pass and those that
++ a function returns to you,
++ the explanations for all arguments that you pass start with the word
++ \fIspecifies\fP or, in the case of multiple arguments, the word \fIspecify\fP.
++ The explanations for all arguments that are returned to you start with the
++ word \fIreturns\fP or, in the case of multiple arguments, the word \fIreturn\^\fP.
++ .bp 1
++ .EH '\fBX Toolkit Intrinsics\fP''\fBX11 Release 4, Dec. 1989\fP'
++ .OH '\fBX Toolkit Intrinsics\fP''\fBX11 Release 4, Dec. 1989\fP'
++ .EF ''\fB % \fP''
++ .OF ''\fB % \fP''
+
+
+*** /dev/null
+--- mit/doc/Xt/intr.idxmac.t
+***************
+*** 0 ****
+--- 1,46 ----
++ . \" Macros for the index
++ .de Ib	\" blank major entry
++ .br
++ .ne 2v
++ \\$1:
++ ..
++ .de I>	\" major entry
++ .br
++ \\$1, \\$2
++ ..
++ .de I<  \" minor entry
++ .br
++    \\$2, \\$3
++ ..
++ .de LB	\" new letter starts here
++ .di DT	\" start diverted text
++ .sp
++ .sz +2
++ .b
++ \\$1
++ .r
++ .sz -2
++ .sp
++ .di	\" end diverted text
++ .ne \\n(dnu+1v	\" get enough space for it
++ .DT		\" output it
++ ..
++ .\" set up various parameters for the right evironment.
++ .\" Your taste may be different.
++ .eh '\fBX Toolkit Intrinsics\fP''\fBX11 Release 4, Dec. 1989\fP'
++ .oh '\fBX Toolkit Intrinsics\fP''\fBX11 Release 4, Dec. 1989\fP'
++ .ef ''\fB % \fP''
++ .of ''\fB % \fP''
++ .\" Set the page number for the index properly.
++ .pn 199
++ .++ A
++ .po 1.0i	\" physical offset
++ .ta 5iR		\" right alignment tab
++ .lp		\" initialize -me
++ .ce
++ .sz 18
++ Index
++ .sp 1
++ .sz 10
++ .2c		\" 2 column mode
++ .sp 3
+
+
+*** /dev/null
+--- mit/doc/Xt/strings.mit
+***************
+*** 0 ****
+--- 1,10 ----
++ .ds tk X Toolkit
++ .ds xT X Toolkit Intrinsics \- C Language Interface
++ .ds xI Intrinsics
++ .ds xW X Toolkit Athena Widgets \- C Language Interface
++ .ds xL Xlib \- C Language X Interface
++ .ds xC Inter-Client Communication Conventions Manual
++ .ds Rn 4
++ .ds Vn 2.2
++ .hw XtMake-Geometry-Request XtQuery-Geometry wid-get Composite-Part \
++ Rect-Obj-Rec XtIsOverrideShell
+
+

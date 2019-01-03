@@ -1,0 +1,555 @@
+This patch fixes the following Apollo-specific problems:
+
+	correct buggy configuration settings
+	remove obsolete comments in README and Xapollo.man
+	explain UDS non-support in Xapollo.man
+	motion events may be emitted in wrong order
+	support 4/5 button mice
+	return correct screen size in millimeters
+	bugs in GC validation
+	bitmap window shapes sometimes don't work
+
+cd to the top of the X tree and apply with "patch -p0".
+
+Please note that this patch changes OSName and OSMinorVersion in apollo.cf
+to set the OS to SR10.2.  If you are still running SR10.1, you will need to
+reset this after applying the patch.
+
+
+*** /tmp/,RCSt1a01106	Fri Feb 23 11:34:33 1990
+--- mit/config/apollo.cf	Thu Feb 22 11:01:27 1990
+***************
+*** 6,14 ****
+   * Note that pre-SR10.1 releases are not supported.
+   */
+  
+! #define OSName            Domain/OS SR10.1
+  #define OSMajorVersion    10
+! #define OSMinorVersion    1
+  
+  #define CCompilerMajorVersion   6
+  #define CCompilerMinorVersion   0
+--- 6,14 ----
+   * Note that pre-SR10.1 releases are not supported.
+   */
+  
+! #define OSName            Domain/OS SR10.2
+  #define OSMajorVersion    10
+! #define OSMinorVersion    2
+  
+  #define CCompilerMajorVersion   6
+  #define CCompilerMinorVersion   0
+***************
+*** 18,31 ****
+  
+  #define XapolloServer     Xapollo
+  
+-             PAS = /com/pas
+- 
+- #define HasNdbm YES
+- 
+  #define HasVoidSignalReturn NO
+  
+  
+! /**/# platform:  $XConsortium: apollo.cf,v 1.19 89/12/18 14:24:55 rws Exp $
+  /**/# operating system:  OSName
+  
+  /*****************************************************************************
+--- 18,27 ----
+  
+  #define XapolloServer     Xapollo
+  
+  #define HasVoidSignalReturn NO
+  
+  
+! /**/# platform:  $XConsortium: apollo.cf,v 1.20 90/02/22 11:00:53 keith Exp $
+  /**/# operating system:  OSName
+  
+  /*****************************************************************************
+***************
+*** 41,47 ****
+  #define ConnectionFlags -DTCPCONN -DNO_TCP_H
+  #define OSReleaseDefines -DPRE_SR10_2
+  #else
+! #define ConnectionFlags -DTCPCONN -DUNIXCONN
+  #define OSReleaseDefines /* as nothing */
+  #endif
+  
+--- 37,43 ----
+  #define ConnectionFlags -DTCPCONN -DNO_TCP_H
+  #define OSReleaseDefines -DPRE_SR10_2
+  #else
+! #define ConnectionFlags -DTCPCONN
+  #define OSReleaseDefines /* as nothing */
+  #endif
+  
+***************
+*** 50,54 ****
+--- 46,52 ----
+  #define ExtensionDefines -DSHAPE -DMULTIBUFFER -DMITMISC
+  
+  #define ServerDefines StandardDefines ExtensionDefines -DXDMCP miOptChoices OSReleaseDefines
++ 
+  #define FontDefines	-DFONT_SNF -DFONT_BDF
++ #define FontFilters BDFTOSNFFILT SHELLPATH
+  
+*** /tmp/,RCSt1a01114	Fri Feb 23 11:35:17 1990
+--- mit/server/ddx/apollo/README	Thu Feb 22 10:57:31 1990
+***************
+*** 46,66 ****
+  NOTES ON BUILDING X11 SOFTWARE:
+  
+      --  Please note that the X software must be built in a "bsd4.3" environment.
+- 
+-     --  Since most MIT servers do not provide the capability of individual
+-         control over autorepeat on each key, and provide only control of the
+-         autorepeat state of the keyboard as a whole, they ignore the default
+-         autorepeat key set (whose value as distributed from MIT is the null
+-         set).  This default value is probably not what you want.  We suggest
+-         that you change the definition of DEFAULT_AUTOREPEATS in the file
+-         server/include/site.h to be as follows:
+- 
+- #define DEFAULT_AUTOREPEATS	{\
+- 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,\
+- 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,\
+- 	0x00, 0xA8, 0x02, 0x00, 0xF8, 0xFF, 0x1D, 0xC0,\
+- 	0xFF, 0x27, 0xFE, 0x5F, 0xFE, 0x1F, 0xFF, 0x7F }
+- 
+-         This will put all the "printing" white keys and keypad keys, plus
+-         Backspace, Delete, and the four plain arrow keys, into the default
+-         autorepeat set.
+--- 46,48 ----
+
+*** /tmp/,RCSt1a01131	Fri Feb 23 11:38:35 1990
+--- mit/server/ddx/apollo/Xapollo.man	Thu Feb 22 10:58:44 1990
+***************
+*** 1,4 ****
+! .\" $XConsortium: Xapollo.man,v 1.1 89/12/21 10:07:38 rws Exp $
+  .TH XAPOLLO 1 "Release 4" "X Version 11"
+  .SH NAME
+  Xapollo \- Apollo server for X Version 11
+--- 1,4 ----
+! .\" $XConsortium: Xapollo.man,v 1.2 90/02/22 10:58:19 rws Exp $
+  .TH XAPOLLO 1 "Release 4" "X Version 11"
+  .SH NAME
+  Xapollo \- Apollo server for X Version 11
+***************
+*** 70,75 ****
+--- 70,95 ----
+  .PP
+  In the absence of any \fB-D\fP options, the server will use the GPR driver
+  on all available screens, at full depth.
++ .SH CONNECTION TYPES SUPPORTED
++ By default, Xapollo and the Apollo Xlib are built to use TCP/IP
++ as the only IPC transport for client/server communication.
++ This means that the standard display string for local connections,
++ ``:0'', will use TCP/IP.
++ This is done because there are bugs in the UDS (Unix Domain Sockets)
++ implementation for SR10.1,
++ and also because the local case of TCP/IP has been extensively optimized
++ to substantially outperform UDS.
++ .PP
++ If you should really want to use UDS for some reason,
++ you can build the X distribution to include UDS support
++ by redefining the symbol ConnectionFlags, in
++ .I config/site.def,
++ to add the option ``-DUNIXCONN''.
++ You should then do a full build, or rebuild, of the X software.
++ See
++ .I config/apollo.cf
++ for the original definition of ConnectionFlags,
++ which depends on what release of Domain/OS you are building on.
+  .SH KEYBOARDS
+  There are four types of keyboards on Apollo systems.
+  Keyboard 1 is the very old, thick one that has no mouse.
+***************
+*** 135,154 ****
+  You can use the
+  .I xset (1)
+  program to control this.
+  The key labeled Repeat has no special behavior;
+  it is just another key on the keyboard.
+- .PP
+- (Since most MIT servers do not provide individual autorepeat key support,
+- the fact that the default MIT autorepeat keyset is the null set does not
+- cause trouble for them.
+- However, for a server which does have individual autorepeat key support,
+- this is a poor choice for the default value of this set.
+- Please see the file
+- .I server/ddx/apollo/README
+- in the MIT distribution for directions on how to change this default
+- when building the
+- .I Xapollo
+- server.)
+  .PP
+  Because of its hardware limitations, keyboard 2 will transmit faked
+  modifier transitions for the white keys.
+--- 155,165 ----
+  You can use the
+  .I xset (1)
+  program to control this.
++ The default autorepeat key set includes all the "printing" white keys
++ and numeric keypad keys,
++ plus Backspace, Delete, and the four plain arrow keys.
+  The key labeled Repeat has no special behavior;
+  it is just another key on the keyboard.
+  .PP
+  Because of its hardware limitations, keyboard 2 will transmit faked
+  modifier transitions for the white keys.
+
+*** /tmp/,RCSt1a01123	Fri Feb 23 11:36:08 1990
+--- mit/server/ddx/apollo/apc/apcclip.c	Thu Feb 22 10:46:56 1990
+***************
+*** 25,30 ****
+--- 25,32 ----
+  University of California.
+  ******************************************************************/
+  
++ /* $XConsortium: apcclip.c,v 1.1 90/02/22 10:46:11 rws Exp $ */
++ 
+  #include "apc.h"
+  #include "apcmskbits.h"
+  
+***************
+*** 70,76 ****
+      unsigned       *pw, w;
+      int             ib;
+      int             width, h, base, rx1, crects;
+!     unsigned int   *pwLineStart;
+      int             irectPrevStart, irectLineStart;
+      BoxPtr          prectO, prectN;
+      BoxPtr          FirstRect, rects, prectLineStart;
+--- 72,78 ----
+      unsigned       *pw, w;
+      int             ib;
+      int             width, h, base, rx1, crects;
+!     unsigned int   *pwLineEnd;
+      int             irectPrevStart, irectLineStart;
+      BoxPtr          prectO, prectN;
+      BoxPtr          FirstRect, rects, prectLineStart;
+***************
+*** 90,96 ****
+      for(h = 0; h < ((int)pPix->drawable.height); h++)
+      {
+          irectLineStart = rects - FirstRect;
+-         pwLineStart = pw;
+          /* If the Screen left most bit of the word is set, we're starting in
+           * a box */
+          if(*pw & mask0)
+--- 92,97 ----
+***************
+*** 101,118 ****
+          else
+              fInBox = FALSE;
+          /* Process all words which are fully in the pixmap */
+!         while(pw  < pwLineStart + width/32)
+          {
+-             base = (pw - pwLineStart) * 32;
+              w = *pw++;
+              if (fInBox)
+              {
+!                 if (w == 0xFFFFFFFF)
+                      continue;
+              }
+              else
+              {
+!                 if (w == 0)
+                      continue;
+              }
+              for(ib = 0; ib < 32; ib++)
+--- 102,119 ----
+          else
+              fInBox = FALSE;
+          /* Process all words which are fully in the pixmap */
+!         pwLineEnd = pw + (width >> 5);
+!         for (base = 0; pw < pwLineEnd; base += 32)
+          {
+              w = *pw++;
+              if (fInBox)
+              {
+!                 if (!~w)
+                      continue;
+              }
+              else
+              {
+!                 if (!w)
+                      continue;
+              }
+              for(ib = 0; ib < 32; ib++)
+***************
+*** 145,151 ****
+          if(width & 0x1F)
+          {
+              /* Process final partial word on line */
+-             base = (pw - pwLineStart) * 32;
+              w = *pw++;
+              for(ib = 0; ib < (width & 0x1F); ib++)
+              {
+--- 146,151 ----
+***************
+*** 177,183 ****
+          /* If scanline ended with last bit set, end the box */
+          if(fInBox)
+          {
+!             ADDRECT(pReg, rects, FirstRect, rx1, h, base + ib, h + 1);
+          }
+          /* if all rectangles on this line have the same x-coords as
+           * those on the previous line, then add 1 to all the previous  y2s and
+--- 177,184 ----
+          /* If scanline ended with last bit set, end the box */
+          if(fInBox)
+          {
+!             ADDRECT(pReg, rects, FirstRect,
+!                     rx1, h, base + (width & 0x1f), h + 1);
+          }
+          /* if all rectangles on this line have the same x-coords as
+           * those on the previous line, then add 1 to all the previous  y2s and
+
+*** /tmp/,RCSt1a01018	Fri Feb 23 11:08:19 1990
+--- mit/server/ddx/apollo/ap_input.c	Thu Feb 22 10:36:54 1990
+***************
+*** 25,30 ****
+--- 25,32 ----
+  University of California.
+  ******************************************************************/
+  
++ /* $XConsortium: ap_input.c,v 1.2 90/02/22 10:36:19 rws Exp $ */
++ 
+  /*
+   * Functions implementing Apollo-device-independent parts of the driver
+   * having to do with input handling.
+***************
+*** 234,242 ****
+--- 236,248 ----
+      lib_$add_to_set (keyset, 256, 'A');
+      lib_$add_to_set (keyset, 256, 'B');
+      lib_$add_to_set (keyset, 256, 'C');
++     lib_$add_to_set (keyset, 256, 'D');
++     lib_$add_to_set (keyset, 256, 'E');
+      lib_$add_to_set (keyset, 256, 'a');
+      lib_$add_to_set (keyset, 256, 'b');
+      lib_$add_to_set (keyset, 256, 'c');
++     lib_$add_to_set (keyset, 256, 'd');
++     lib_$add_to_set (keyset, 256, 'e');
+      gpr_$enable_input (gpr_$buttons, keyset, &status);
+      gpr_$enable_input (gpr_$locator_stop, keyset, &status);
+      gpr_$enable_input (gpr_$locator_update, keyset, &status);
+***************
+*** 253,259 ****
+      int         argc;
+      char       *argv[];
+  {
+!     BYTE            map[4];
+      apPrivPointrPtr pPrivP;
+      status_$t       status;
+      Bool            retval;
+--- 259,265 ----
+      int         argc;
+      char       *argv[];
+  {
+!     BYTE            map[6];
+      apPrivPointrPtr pPrivP;
+      status_$t       status;
+      Bool            retval;
+***************
+*** 274,281 ****
+              map[1] = 1;
+              map[2] = 2;
+              map[3] = 3;
+  
+!             retval = InitPointerDeviceStruct (apPointer, map, 3,
+                           apGetMotionEvents, apChangePointerControl, 0);
+              if (!retval)
+              {
+--- 280,289 ----
+              map[1] = 1;
+              map[2] = 2;
+              map[3] = 3;
++             map[4] = 4;
++             map[5] = 5;
+  
+!             retval = InitPointerDeviceStruct (apPointer, map, 5,
+                           apGetMotionEvents, apChangePointerControl, 0);
+              if (!retval)
+              {
+***************
+*** 538,543 ****
+--- 546,557 ----
+                  cursory = pPrivP->y;
+                  break;
+              case gpr_$buttons:
++                 if (cursorMoved)
++                 {
++                     miPointerMoveCursor (screenInfo.screens[pPrivP->numCurScreen],
++                                          cursorx, cursory, TRUE);
++                     cursorMoved = FALSE;
++                 }
+                  xE.u.keyButtonPointer.time = lastEventTime;
+                  xE.u.keyButtonPointer.rootX = apEventPosition.x_coord;
+                  xE.u.keyButtonPointer.rootY = apEventPosition.y_coord;
+***************
+*** 548,553 ****
+--- 562,573 ----
+  #else
+              case gpr_$physical_keys:
+  #endif
++                 if (cursorMoved)
++                 {
++                     miPointerMoveCursor (screenInfo.screens[pPrivP->numCurScreen],
++                                          cursorx, cursory, TRUE);
++                     cursorMoved = FALSE;
++                 }
+                  xE.u.keyButtonPointer.time = lastEventTime;
+                  xE.u.keyButtonPointer.rootX = apEventPosition.x_coord;
+                  xE.u.keyButtonPointer.rootY = apEventPosition.y_coord;
+
+*** /tmp/,RCSt1a01048	Fri Feb 23 11:10:16 1990
+--- mit/server/ddx/apollo/apc/apcscrinit.c	Thu Feb 22 10:39:01 1990
+***************
+*** 25,30 ****
+--- 25,32 ----
+  University of California.
+  ******************************************************************/
+  
++ /* $XConsortium: apcscrinit.c,v 1.3 90/02/22 10:38:44 rws Exp $ */
++ 
+  #include "apc.h"
+  #include "Xmd.h"
+  #include "servermd.h"
+***************
+*** 195,202 ****
+  
+      pScreen->width = pDisp->display_char.x_visible_size;
+      pScreen->height = pDisp->display_char.y_visible_size;
+!     pScreen->mmWidth = (pScreen->width * 10) / pDisp->x_pixels_per_cm;
+!     pScreen->mmHeight = (pScreen->height * 10) / pDisp->y_pixels_per_cm;
+  
+      pScreen->backingStoreSupport = Always;
+      pScreen->saveUnderSupport = NotUseful;
+--- 197,204 ----
+  
+      pScreen->width = pDisp->display_char.x_visible_size;
+      pScreen->height = pDisp->display_char.y_visible_size;
+!     pScreen->mmWidth = (pScreen->width * 10) / pDisp->display_char.x_pixels_per_cm;
+!     pScreen->mmHeight = (pScreen->height * 10) / pDisp->display_char.y_pixels_per_cm;
+  
+      pScreen->backingStoreSupport = Always;
+      pScreen->saveUnderSupport = NotUseful;
+
+*** /tmp/,RCSt1a01076	Fri Feb 23 11:16:13 1990
+--- mit/server/ddx/apollo/apc/apcgc.c	Thu Feb 22 10:43:58 1990
+***************
+*** 25,30 ****
+--- 25,32 ----
+  University of California.
+  ******************************************************************/
+  
++ /* $XConsortium: apcgc.c,v 1.3 90/02/22 10:43:29 rws Exp $ */
++ 
+  #include "apc.h"
+  #include "Xmd.h"
+  #include "dixfontstr.h"
+***************
+*** 1033,1048 ****
+  
+                  if (pGC->fillStyle == FillTiled)
+                  {
+-                     if (pPrivGC->gprTile == gpr_$nil_bitmap_desc)
+-                     {
+-                         int             totalsize;
+-                         unsigned char  *pdata;
+- 
+                          bitm_depth = pGC->depth;
+                          if (bitm_depth == 1)
+                              /* no single-plane tiles, lest GPR stipple */
+                              bitm_depth = 2;
+  
+                          totalsize = PixmapBytePad(TILE_SIZE, 1) * TILE_SIZE * bitm_depth;
+                          pPrivGC->pdataTile = (unsigned char *) xalloc (totalsize);
+                          if (pPrivGC->pdataTile)
+--- 1035,1050 ----
+  
+                  if (pGC->fillStyle == FillTiled)
+                  {
+                          bitm_depth = pGC->depth;
+                          if (bitm_depth == 1)
+                              /* no single-plane tiles, lest GPR stipple */
+                              bitm_depth = 2;
+  
++                     if (pPrivGC->gprTile == gpr_$nil_bitmap_desc)
++                     {
++                         int             totalsize;
++                         unsigned char  *pdata;
++ 
+                          totalsize = PixmapBytePad(TILE_SIZE, 1) * TILE_SIZE * bitm_depth;
+                          pPrivGC->pdataTile = (unsigned char *) xalloc (totalsize);
+                          if (pPrivGC->pdataTile)
+***************
+*** 1057,1069 ****
+                  }
+                  else /* stipple */
+                  {
+                      if (pPrivGC->gprOpaqueStipple == gpr_$nil_bitmap_desc)
+                      {
+                          int             totalsize;
+                          unsigned char  *pdata;
+  
+-                         bitm_depth = 1;
+- 
+                          totalsize = PixmapBytePad(TILE_SIZE, 1) * TILE_SIZE;
+                          pPrivGC->pdataOpaqueStipple = (unsigned char *) xalloc (totalsize);
+                          if (pPrivGC->pdataOpaqueStipple)
+--- 1059,1071 ----
+                  }
+                  else /* stipple */
+                  {
++                     bitm_depth = 1;
++ 
+                      if (pPrivGC->gprOpaqueStipple == gpr_$nil_bitmap_desc)
+                      {
+                          int             totalsize;
+                          unsigned char  *pdata;
+  
+                          totalsize = PixmapBytePad(TILE_SIZE, 1) * TILE_SIZE;
+                          pPrivGC->pdataOpaqueStipple = (unsigned char *) xalloc (totalsize);
+                          if (pPrivGC->pdataOpaqueStipple)
+***************
+*** 1083,1091 ****
+                  yalign = (-yorg) % pPM->height;
+                  /* HACK ALERT require sign of remainder is sign of divisor */
+                  if (xalign < 0)
+!                     xalign += pPM->height;
+                  if (yalign < 0)
+!                     yalign += pPM->width;
+  
+                  SET_BITMAP (gprTileStip, pPrivScreen);
+                  SET_CLIPPING_ACTIVE (false, pPrivScreen);
+--- 1085,1093 ----
+                  yalign = (-yorg) % pPM->height;
+                  /* HACK ALERT require sign of remainder is sign of divisor */
+                  if (xalign < 0)
+!                     xalign += pPM->width;
+                  if (yalign < 0)
+!                     yalign += pPM->height;
+  
+                  SET_BITMAP (gprTileStip, pPrivScreen);
+                  SET_CLIPPING_ACTIVE (false, pPrivScreen);
+***************
+*** 1100,1106 ****
+  
+                  pPrivGC->reqContext.fill_pattern = gprTileStip;
+  
+!                 /* force a reload, since we have changed contents but not necessarily the
+                     identity of the tile/stipple bitmap */
+                  pPrivScreen->curContext.fill_pattern = gpr_$nil_bitmap_desc;
+  
+--- 1102,1109 ----
+  
+                  pPrivGC->reqContext.fill_pattern = gprTileStip;
+  
+!                 if (pPrivScreen->curContext.fill_pattern == gprTileStip)
+!                     /* force a reload, since we have changed the contents but not the
+                     identity of the tile/stipple bitmap */
+                  pPrivScreen->curContext.fill_pattern = gpr_$nil_bitmap_desc;
+  
+

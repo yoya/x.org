@@ -1,0 +1,1648 @@
+You must apply fix-14 at the same time you apply this patch.
+
+This patch, together with fix-14, fixes the following Xt problems:
+
+    Make accelerator resources shareable
+    Re-register key and button grabs when translation tables are modified
+    Allow translation tables to include new-lines in action parameters
+    Make XtAugmentTranslations really augment after fix #12
+    Allow an input callback to be registered for more than one condition
+    Allow both DebugLibXt and ProfileLibXt to be YES in site.def
+    Include DESTDIR in the default for XFILESEARCHPATH
+    Small reductions in memory usage
+    Performance improvements in resource conversion cache lookup
+    Configure windows and change XSetWMSizeHints in correct order for old wm's
+    Keep geometry hints in WM_SIZE_HINTS updated for old wm's
+    Fix some portability problems
+
+cd to the top of the X tree and apply with "patch -p0".
+
+*** /tmp/,RCSt1a29150
+--- mit/lib/Xt/Convert.c
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Convert.c,v 1.38 89/12/20 16:30:54 swick Exp $";
+  /* $oHeader: Convert.c,v 1.4 88/09/01 11:10:44 asente Exp $ */
+  #endif /*lint*/
+  /*LINTLIBRARY*/
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Convert.c,v 1.40 90/06/04 15:06:37 kit Exp $";
+  /* $oHeader: Convert.c,v 1.4 88/09/01 11:10:44 asente Exp $ */
+  #endif /*lint*/
+  /*LINTLIBRARY*/
+***************
+*** 38,45 ****
+  
+  /* Conversion procedure hash 	table */
+  
+- typedef struct _ConverterRec *ConverterPtr;
+- 
+  typedef struct _ConverterRec {
+      ConverterPtr	next;
+      XrmRepresentation	from, to;
+--- 38,43 ----
+***************
+*** 51,60 ****
+      XtCacheType		cache_type;
+  } ConverterRec;
+  
+- #define CONVERTHASHSIZE	((unsigned)512)
+- #define CONVERTHASHMASK	511
+- #define ProcHash(from_type, to_type) (2 * (from_type) + to_type)
+- 
+  /* used for old-style type converter cache only */
+  static Heap globalHeap = {NULL, NULL, 0};
+  
+--- 49,54 ----
+***************
+*** 144,149 ****
+--- 138,144 ----
+      XtDestructor nullProc = NULL;
+  
+      pHashEntry= &table[ProcHash(from_type, to_type) & CONVERTHASHMASK];
++  
+      for (p = *pHashEntry; p != NULL; p = p->next) {
+  	if (p->from == from_type && p->to == to_type) break;
+      }
+***************
+*** 483,489 ****
+  		params[0]=
+                    XrmQuarkToString((XrmQuark) convert_args[i].address_id);
+                 XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 		    "invalidResourceName","computeArgs","XtToolkitError",
+  		    "Cannot find resource name %s as argument to conversion",
+                       params,&num_params);
+  		offset = 0;
+--- 478,484 ----
+  		params[0]=
+                    XrmQuarkToString((XrmQuark) convert_args[i].address_id);
+                 XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 		    "invalidResourceName","computeArgs",XtCXtToolkitError,
+  		    "Cannot find resource name %s as argument to conversion",
+                       params,&num_params);
+  		offset = 0;
+***************
+*** 497,503 ****
+  	default:
+  	    params[0] = XtName(widget);
+  	    XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 		"invalidAddressMode", "computeArgs", "XtToolkitError",
+  		"Conversion arguments for widget '%s' contain an unsupported address mode",
+  			params,&num_params);
+  	    args[i].addr = NULL;
+--- 492,498 ----
+  	default:
+  	    params[0] = XtName(widget);
+  	    XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 		"invalidAddressMode", "computeArgs", XtCXtToolkitError,
+  		"Conversion arguments for widget '%s' contain an unsupported address mode",
+  			params,&num_params);
+  	    args[i].addr = NULL;
+***************
+*** 583,595 ****
+      XrmValuePtr     to;
+      XtCacheRef	    *cache_ref_return;
+  {
+      register CachePtr   p;
+      register int	hash;
+      register Cardinal   i;
+-     register ConverterPtr cP;
+      XtDestructor nullProc = NULL; /* some compilers broken */
+  
+-     cP = GetConverterEntry( XtDisplayToApplicationContext(dpy), converter );
+      if (cP == NULL
+       || ((cP->cache_type == XtCacheNone) && (cP->destructor == nullProc))) {
+  	char* closure;
+--- 578,608 ----
+      XrmValuePtr     to;
+      XtCacheRef	    *cache_ref_return;
+  {
++     ConverterPtr cP;
++     Boolean _XtCallConverter();
++ 
++     cP = GetConverterEntry( XtDisplayToApplicationContext(dpy), converter );
++     return _XtCallConverter(dpy, converter, args, num_args, from, to, 
++ 			    cache_ref_return, cP);
++ }
++ 
++ Boolean
++ _XtCallConverter(dpy, converter,
++ 		 args, num_args, from, to, cache_ref_return, cP)
++     Display*	    dpy;
++     XtTypeConverter converter;
++     XrmValuePtr     args;
++     Cardinal	    num_args;
++     register XrmValuePtr from;
++     XrmValuePtr     to;
++     XtCacheRef	    *cache_ref_return;
++     register ConverterPtr cP;
++ {
+      register CachePtr   p;
+      register int	hash;
+      register Cardinal   i;
+      XtDestructor nullProc = NULL; /* some compilers broken */
+  
+      if (cP == NULL
+       || ((cP->cache_type == XtCacheNone) && (cP->destructor == nullProc))) {
+  	char* closure;
+***************
+*** 700,708 ****
+  	    } else args = NULL;
+  	    if (p->new_style) {
+  		retval =
+! 		    XtCallConverter(XtDisplayOfObject(widget),
+! 				    p->converter, args, num_args,
+! 				    from, to, cache_ref_return);
+  	    }
+  	    else { /* is old-style (non-app) converter */
+  		XrmValue tempTo;
+--- 713,721 ----
+  	    } else args = NULL;
+  	    if (p->new_style) {
+  		retval =
+! 		    _XtCallConverter(XtDisplayOfObject(widget),
+! 				     p->converter, args, num_args,
+! 				     from, to, cache_ref_return, p);
+  	    }
+  	    else { /* is old-style (non-app) converter */
+  		XrmValue tempTo;
+***************
+*** 735,741 ****
+  	Cardinal num_params = 2;
+  	params[0] = XrmRepresentationToString(from_type);
+  	params[1] = XrmRepresentationToString(to_type);
+! 	XtAppWarningMsg(app, "typeConversionError", "noConverter", "XtToolkitError",
+  	     "No type converter registered for '%s' to '%s' conversion.",
+               params, &num_params);
+      }
+--- 748,754 ----
+  	Cardinal num_params = 2;
+  	params[0] = XrmRepresentationToString(from_type);
+  	params[1] = XrmRepresentationToString(to_type);
+! 	XtAppWarningMsg(app, "typeConversionError", "noConverter", XtCXtToolkitError,
+  	     "No type converter registered for '%s' to '%s' conversion.",
+               params, &num_params);
+      }
+*** /tmp/,RCSt1a29168
+--- mit/lib/Xt/ConvertI.h
+***************
+*** 1,4 ****
+! /* $XConsortium: ConvertI.h,v 1.8 89/07/21 12:06:41 swick Exp $ */
+  /* $oHeader: ConvertI.h,v 1.3 88/08/31 16:11:04 asente Exp $ */
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+--- 1,4 ----
+! /* $XConsortium: ConvertI.h,v 1.9 90/06/04 15:06:49 kit Exp $ */
+  /* $oHeader: ConvertI.h,v 1.3 88/08/31 16:11:04 asente Exp $ */
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+***************
+*** 49,51 ****
+--- 49,58 ----
+      /* XrmValue             *from;          */
+      /* XrmRepresentation    to_type;        */
+      /* XrmValue             *to;            */  /* RETURN */
++ 
++ typedef struct _ConverterRec *ConverterPtr;
++ 
++ #define CONVERTHASHSIZE	((unsigned)512)
++ #define CONVERTHASHMASK	511
++ 
++ #define ProcHash(from_type, to_type) (2 * (from_type) + to_type)
+*** /tmp/,RCSt1a29186
+--- mit/lib/Xt/Core.c
+***************
+*** 1,7 ****
+! #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Core.c,v 1.37 90/04/13 20:14:01 swick Exp $";
+! /* $oHeader: Core.c,v 1.2 88/08/18 15:37:59 asente Exp $ */
+! #endif /* lint */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+--- 1,4 ----
+! /* $XConsortium: Core.c,v 1.41 90/07/12 17:49:14 swick Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+***************
+*** 28,33 ****
+--- 25,31 ----
+  ******************************************************************/
+  
+  #define _XT_CORE_C
++ 
+  #include "IntrinsicP.h"
+  #include "EventI.h"
+  #include "TranslateI.h"
+***************
+*** 166,172 ****
+   * Start of Core methods
+   */
+  
+- 
+  static void CoreClassPartInitialize(wc)
+      register WidgetClass wc;
+  {
+--- 164,169 ----
+***************
+*** 189,194 ****
+--- 186,192 ----
+  	wc->core_class.display_accelerator = 
+  		super->core_class.display_accelerator;
+      }
++ 
+      if (wc->core_class.tm_table == (char *) XtInheritTranslations) {
+  	wc->core_class.tm_table =
+  		wc->core_class.superclass->core_class.tm_table;
+***************
+*** 196,201 ****
+--- 194,200 ----
+  	wc->core_class.tm_table =
+  	      (String)XtParseTranslationTable(wc->core_class.tm_table);
+      }
++ 
+      if (wc->core_class.actions != NULL) {
+  	/* Compile the action table into a more efficient form */
+          wc->core_class.actions = (XtActionList) _CompileActionTable(
+***************
+*** 220,226 ****
+      new_widget->core.tm.translations =
+  	(XtTranslations)new_widget->core.widget_class->core_class.tm_table;
+      if (save!= NULL) {
+!         switch ((int)(save->operation)) {
+                 case XtTableReplace:
+                    new_widget->core.tm.translations = save;
+                    break;
+--- 219,225 ----
+      new_widget->core.tm.translations =
+  	(XtTranslations)new_widget->core.widget_class->core_class.tm_table;
+      if (save!= NULL) {
+!         switch ((int)(save->stateTable->operation)) {
+                 case XtTableReplace:
+                    new_widget->core.tm.translations = save;
+                    break;
+***************
+*** 247,255 ****
+  static void CoreDestroy (widget)
+       Widget    widget;
+  {
+-     XtFree((char *) (widget->core.name));
+      _XtFreeEventTable(&widget->core.event_table);
+      XtFree((char *) widget->core.tm.proc_table);
+      _XtUnregisterWindow(widget->core.window, widget);
+  
+      if (widget->core.popup_list != NULL)
+--- 246,257 ----
+  static void CoreDestroy (widget)
+       Widget    widget;
+  {
+      _XtFreeEventTable(&widget->core.event_table);
+      XtFree((char *) widget->core.tm.proc_table);
++     if (widget->core.tm.translations &&
++         widget->core.tm.translations->accProcTbl) {
++ 	  XtFree( (char*)widget->core.tm.translations );
++     }
+      _XtUnregisterWindow(widget->core.window, widget);
+  
+      if (widget->core.popup_list != NULL)
+***************
+*** 268,274 ****
+  
+      redisplay = FALSE;
+      if  (old->core.tm.translations != new->core.tm.translations) {
+!         switch (new->core.tm.translations->operation) {
+              case XtTableAugment:
+                  save = new->core.tm.translations;
+                  new->core.tm.translations = old->core.tm.translations;
+--- 270,276 ----
+  
+      redisplay = FALSE;
+      if  (old->core.tm.translations != new->core.tm.translations) {
+!         switch (new->core.tm.translations->stateTable->operation) {
+              case XtTableAugment:
+                  save = new->core.tm.translations;
+                  new->core.tm.translations = old->core.tm.translations;
+***************
+*** 350,355 ****
+--- 352,358 ----
+  	    new->core.tm.translations = translations;
+  	    _XtBindActions(new, &new->core.tm);
+  	    _XtInstallTranslations((Widget) new, new->core.tm.translations);
++ 	    _XtRegisterGrabs(new, False);
+  	}
+      } /* if realized */
+  
+*** /tmp/,RCSt1a29213
+--- mit/lib/Xt/Create.c
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Create.c,v 1.73 90/06/25 12:05:51 swick Exp $";
+  #endif /*lint*/
+  
+  /***********************************************************
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Create.c,v 1.74 90/07/02 16:47:25 swick Exp $";
+  #endif /*lint*/
+  
+  /***********************************************************
+***************
+*** 208,214 ****
+      else
+  	widget->core.constraints = NULL;
+      if (XtIsWidget(widget)) {
+! 	widget->core.name = XtNewString((name != NULL) ? name : "");
+          widget->core.screen = default_screen;
+          widget->core.tm.translations = NULL;
+      };
+--- 208,214 ----
+      else
+  	widget->core.constraints = NULL;
+      if (XtIsWidget(widget)) {
+! 	widget->core.name = XrmNameToString(widget->core.xrm_name);
+          widget->core.screen = default_screen;
+          widget->core.tm.translations = NULL;
+      };
+*** /tmp/,RCSt1a29241
+--- mit/lib/Xt/Display.c
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Display.c,v 1.45 90/06/22 17:09:28 swick Exp $";
+  /* $oHeader: Display.c,v 1.9 88/09/01 11:28:47 asente Exp $ */
+  #endif /*lint*/
+  
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Display.c,v 1.46 90/07/15 21:39:36 swick Exp $";
+  /* $oHeader: Display.c,v 1.9 88/09/01 11:28:47 asente Exp $ */
+  #endif /*lint*/
+  
+***************
+*** 271,279 ****
+  	app->count = app->max = app->last = 0;
+  	app->timerQueue = NULL;
+  	app->workQueue = NULL;
+! 	app->selectRqueue = NULL;
+! 	app->selectWqueue = NULL;
+! 	app->selectEqueue = NULL;
+  	app->outstandingQueue = NULL;
+  	app->errorDB = NULL;
+  	_XtSetDefaultErrorHandlers(&app->errorMsgHandler, 
+--- 271,277 ----
+  	app->count = app->max = app->last = 0;
+  	app->timerQueue = NULL;
+  	app->workQueue = NULL;
+! 	app->input_list = NULL;
+  	app->outstandingQueue = NULL;
+  	app->errorDB = NULL;
+  	_XtSetDefaultErrorHandlers(&app->errorMsgHandler, 
+*** /tmp/,RCSt1a29345
+--- mit/lib/Xt/GetValues.c
+***************
+*** 1,7 ****
+! #ifndef lint
+! static char Xrcsid[] =
+!     "$XConsortium: GetValues.c,v 1.3 90/06/25 12:23:55 swick Exp $";
+! #endif /*lint*/
+  /*LINTLIBRARY*/
+  
+  /***********************************************************
+--- 1,4 ----
+! /* $XConsortium: GetValues.c,v 1.4 90/07/03 17:27:06 swick Exp $ */
+  /*LINTLIBRARY*/
+  
+  /***********************************************************
+***************
+*** 45,53 ****
+      register int 		i;
+      register XrmName		argName;
+      register XrmResourceList*   xrmres;
+!     register XrmQuark		QCallback = XrmStringToQuark(XtRCallback);
+      extern XtCallbackList	_XtGetCallbackList();
+  
+      /* Resource lists should be in compiled form already  */
+  
+      for (arg = args ; num_args != 0; num_args--, arg++) {
+--- 42,55 ----
+      register int 		i;
+      register XrmName		argName;
+      register XrmResourceList*   xrmres;
+!     static XrmQuark QCallback = NULLQUARK, QTranslations;
+      extern XtCallbackList	_XtGetCallbackList();
+  
++     if (QCallback == NULLQUARK) {
++ 	QCallback = XrmStringToQuark(XtRCallback);
++ 	QTranslations = XrmStringToRepresentation(XtRTranslationTable);
++     }
++ 
+      /* Resource lists should be in compiled form already  */
+  
+      for (arg = args ; num_args != 0; num_args--, arg++) {
+***************
+*** 54,69 ****
+  	argName = StringToName(arg->name);
+  	for (xrmres = res, i = 0; i < num_resources; i++, xrmres++) {
+  	    if (argName == (*xrmres)->xrm_name) {
+  		if ((*xrmres)->xrm_type == QCallback) {
+- 		    /* hack; do this here instead of a get_values_hook
+- 		     * because get_values_hook looses info as to
+- 		     * whether arg->value == NULL for _XtCopyToArg.
+- 		     * It helps performance, too...
+- 		     */
+  		    XtCallbackList callback = _XtGetCallbackList(
+  			      base - (*xrmres)->xrm_offset - 1);
+  		    _XtCopyToArg(
+  			      (char*)&callback, &arg->value,
+  			      (*xrmres)->xrm_size);
+  		}
+  		else {
+--- 56,79 ----
+  	argName = StringToName(arg->name);
+  	for (xrmres = res, i = 0; i < num_resources; i++, xrmres++) {
+  	    if (argName == (*xrmres)->xrm_name) {
++ 		/* hack; do special cases here instead of a get_values_hook
++ 		 * because get_values_hook looses info as to
++ 		 * whether arg->value == NULL for ancient compatibility
++ 		 * mode in _XtCopyToArg.  It helps performance, too...
++ 		 */
+  		if ((*xrmres)->xrm_type == QCallback) {
+  		    XtCallbackList callback = _XtGetCallbackList(
+  			      base - (*xrmres)->xrm_offset - 1);
+  		    _XtCopyToArg(
+  			      (char*)&callback, &arg->value,
++ 			      (*xrmres)->xrm_size);
++ 		}
++ 		else if ((*xrmres)->xrm_type == QTranslations) {
++ 		    XtTranslations translations =
++ 			_XtCondCopyTranslations(
++ 			     *(XtTranslations*)(base-(*xrmres)->xrm_offset-1));
++ 		    _XtCopyToArg(
++ 			      (char*)&translations, &arg->value,
+  			      (*xrmres)->xrm_size);
+  		}
+  		else {
+*** /tmp/,RCSt1a29354
+--- mit/lib/Xt/Imakefile
+***************
+*** 10,15 ****
+--- 10,18 ----
+          DEFINES = AllocateLocalDefines $(ALIGN_DEFINES)
+      APP_DEFINES = -DXAPPLOADDIR=\"$(XAPPLOADDIR)$(PATHSEP)\"
+       DB_DEFINES = -DERRORDB=\"$(LIBDIR)/XtErrorDB\"
++    SRCH_DEFINES = \
++ -DXFILESEARCHPATHDEFAULT=\"$(LIBDIR)/%L/%T/%N%S:$(LIBDIR)/%l/%T/%N%S:$(LIBDIR)/%T/%N%S\"
++ 
+     INSTALLFLAGS = $(INSTINCFLAGS)
+         LINTLIBS = $(LINTXLIB)
+  
+***************
+*** 136,145 ****
+  # if DebugLibXt
+  SharedAndDebuggedLibraryObjectRule()
+  SpecialSharedAndDebuggedObjectRule(Initialize.o,$(ICONFIGFILES),$(APP_DEFINES))
+! SpecialSharedDebuggedObjectRule(Error.o,$(ICONFIGFILES),$(DB_DEFINES))
+  # else
+  SharedLibraryObjectRule()
+  SpecialSharedObjectRule(Initialize.o,$(ICONFIGFILES),$(APP_DEFINES))
+  SpecialSharedObjectRule(Error.o,$(ICONFIGFILES),$(DB_DEFINES))
+  # endif
+  #else
+--- 139,150 ----
+  # if DebugLibXt
+  SharedAndDebuggedLibraryObjectRule()
+  SpecialSharedAndDebuggedObjectRule(Initialize.o,$(ICONFIGFILES),$(APP_DEFINES))
+! SpecialSharedAndDebuggedObjectRule(Intrinsic.o,$(ICONFIGFILES),$(SRCH_DEFINES))
+! SpecialSharedAndDebuggedObjectRule(Error.o,$(ICONFIGFILES),$(DB_DEFINES))
+  # else
+  SharedLibraryObjectRule()
+  SpecialSharedObjectRule(Initialize.o,$(ICONFIGFILES),$(APP_DEFINES))
++ SpecialSharedObjectRule(Intrinsic.o,$(ICONFIGFILES),$(SRCH_DEFINES))
+  SpecialSharedObjectRule(Error.o,$(ICONFIGFILES),$(DB_DEFINES))
+  # endif
+  #else
+***************
+*** 146,165 ****
+--- 151,174 ----
+  # if DebugLibXt && ProfileLibXt
+  DebuggedAndProfiledLibraryObjectRule()
+  SpecialDebuggedAndProfiledObjectRule(Initialize.o,$(ICONFIGFILES),$(APP_DEFINES))
++ SpecialDebuggedAndProfiledObjectRule(Intrinsic.o,$(ICONFIGFILES),$(SRCH_DEFINES))
+  SpecialDebuggedAndProfiledObjectRule(Error.o,$(ICONFIGFILES),$(DB_DEFINES))
+  # else
+  #  if DebugLibXt
+  DebuggedLibraryObjectRule()
+  SpecialDebuggedObjectRule(Initialize.o,$(ICONFIGFILES),$(APP_DEFINES))
++ SpecialDebuggedObjectRule(Intrinsic.o,$(ICONFIGFILES),$(SRCH_DEFINES))
+  SpecialDebuggedObjectRule(Error.o,$(ICONFIGFILES),$(DB_DEFINES))
+  #  else
+  #   if ProfileLibXt
+  ProfiledLibraryObjectRule()
+  SpecialProfiledObjectRule(Initialize.o,$(ICONFIGFILES),$(APP_DEFINES))
++ SpecialProfiledObjectRule(Intrinsic.o,$(ICONFIGFILES),$(SRCH_DEFINES))
+  SpecialProfiledObjectRule(Error.o,$(ICONFIGFILES),$(DB_DEFINES))
+  #   else
+  NormalLibraryObjectRule()
+  SpecialObjectRule(Initialize.o,$(ICONFIGFILES),$(APP_DEFINES))
++ SpecialObjectRule(Intrinsic.o,$(ICONFIGFILES),$(SRCH_DEFINES))
+  SpecialObjectRule(Error.o,$(ICONFIGFILES),$(DB_DEFINES))
+  #   endif
+  #  endif
+*** /tmp/,RCSt1a29363
+--- mit/lib/Xt/InitialI.h
+***************
+*** 1,4 ****
+! /* $XConsortium: InitialI.h,v 1.31 90/06/22 16:47:34 swick Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+--- 1,4 ----
+! /* $XConsortium: InitialI.h,v 1.32 90/07/15 21:40:45 swick Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+***************
+*** 58,67 ****
+  typedef struct _InputEvent {
+  	XtInputCallbackProc   ie_proc;
+  	XtPointer	      ie_closure;
+! 	struct	_InputEvent   *ie_next;
+! 	struct  _InputEvent   *ie_oq;
+  	XtAppContext	      app;
+  	int		      ie_source;
+  } InputEvent;
+  
+  typedef struct _WorkProcRec {
+--- 58,68 ----
+  typedef struct _InputEvent {
+  	XtInputCallbackProc   ie_proc;
+  	XtPointer	      ie_closure;
+! 	struct _InputEvent    *ie_next;
+! 	struct _InputEvent    *ie_oq;
+  	XtAppContext	      app;
+  	int		      ie_source;
++ 	XtInputMask	      ie_condition;
+  } InputEvent;
+  
+  typedef struct _WorkProcRec {
+***************
+*** 100,108 ****
+      Display **list;
+      TimerEventRec *timerQueue;
+      WorkProcRec *workQueue;
+!     InputEvent **selectRqueue;
+!     InputEvent **selectWqueue;
+!     InputEvent **selectEqueue;
+      InputEvent *outstandingQueue;
+      XrmDatabase errorDB;
+      XtErrorMsgHandler errorMsgHandler, warningMsgHandler;
+--- 101,107 ----
+      Display **list;
+      TimerEventRec *timerQueue;
+      WorkProcRec *workQueue;
+!     InputEvent **input_list;
+      InputEvent *outstandingQueue;
+      XrmDatabase errorDB;
+      XtErrorMsgHandler errorMsgHandler, warningMsgHandler;
+*** /tmp/,RCSt1a29382
+--- mit/lib/Xt/Intrinsic.c
+***************
+*** 1,7 ****
+! #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Intrinsic.c,v 1.149 90/04/13 20:17:34 swick Exp $";
+! /* $oHeader: Intrinsic.c,v 1.4 88/08/18 15:40:35 asente Exp $ */
+! #endif /* lint */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+--- 1,4 ----
+! /* $XConsortium: Intrinsic.c,v 1.150 90/07/12 17:50:41 swick Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+***************
+*** 218,224 ****
+  #ifdef notdef
+      _XtRegisterAsyncHandlers(widget);
+  #endif
+!     _XtRegisterGrabs(widget,&widget->core.tm);
+      _XtRegisterWindow (window, widget);
+  
+      if (XtIsComposite (widget)) {
+--- 215,221 ----
+  #ifdef notdef
+      _XtRegisterAsyncHandlers(widget);
+  #endif
+!     _XtRegisterGrabs(widget, False);
+      _XtRegisterWindow (window, widget);
+  
+      if (XtIsComposite (widget)) {
+*** /tmp/,RCSt1a29436
+--- mit/lib/Xt/NextEvent.c
+***************
+*** 1,7 ****
+! #ifndef lint
+! static char Xrcsid[] = "$XConsortium: NextEvent.c,v 1.83 90/04/05 11:43:46 swick Exp $";
+! /* $oHeader: NextEvent.c,v 1.4 88/09/01 11:43:27 asente Exp $ */
+! #endif /* lint */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+--- 1,4 ----
+! /* $XConsortium: NextEvent.c,v 1.84 90/07/15 21:44:05 swick Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+***************
+*** 315,320 ****
+--- 312,318 ----
+  	Boolean found_input = False;
+  
+  	for (i = 0; i < app->fds.nfds && nfound > 0; i++) {
++ 	    XtInputMask condition = 0;
+  	    if (FD_ISSET (i, &rmaskfd)) {
+  		nfound--;
+  		if (!ignoreEvents) {
+***************
+*** 337,357 ****
+  			}
+  		    }
+  		}
+! 
+! 		app->selectRqueue[i]->ie_oq = app->outstandingQueue;
+! 		app->outstandingQueue = app->selectRqueue[i];
+! 		found_input = True;
+  	    }
+  	    if (FD_ISSET (i, &wmaskfd)) {
+! 		app->selectWqueue[i]->ie_oq = app->outstandingQueue;
+! 		app->outstandingQueue = app->selectWqueue[i];
+  		nfound--;
+- 		found_input = True;
+  	    }
+  	    if (FD_ISSET (i, &emaskfd)) {
+! 		app->selectEqueue[i]->ie_oq = app->outstandingQueue;
+! 		app->outstandingQueue = app->selectEqueue[i];
+  		nfound--;
+  		found_input = True;
+  	    }
+  ENDILOOP:   ;
+--- 335,358 ----
+  			}
+  		    }
+  		}
+! 		condition = XtInputReadMask;
+  	    }
+  	    if (FD_ISSET (i, &wmaskfd)) {
+! 		condition |= XtInputWriteMask;
+  		nfound--;
+  	    }
+  	    if (FD_ISSET (i, &emaskfd)) {
+! 		condition |= XtInputExceptMask;
+  		nfound--;
++ 	    }
++ 	    if (condition) {
++ 		InputEvent *ep;
++ 		for (ep = app->input_list[i]; ep; ep = ep->ie_next) {
++ 		    if (condition & ep->ie_condition) {
++ 			ep->ie_oq = app->outstandingQueue;
++ 			app->outstandingQueue = ep;
++ 		    }
++ 		}
+  		found_input = True;
+  	    }
+  ENDILOOP:   ;
+***************
+*** 362,382 ****
+  	}
+  }
+  
+! static void IeCallProc(ptr)
+! 	InputEvent *ptr;
+! {
+!     while (ptr != NULL) {
+! 	InputEvent *next = ptr->ie_next;
+! 	(*ptr->ie_proc)(ptr->ie_closure, &ptr->ie_source, (XtInputId*)&ptr);
+! 	ptr = next;
+!     }
+! }
+  
+! static void TeCallProc(ptr)
+! 	TimerEventRec *ptr;
+! {
+! 	(* (ptr->te_proc))( ptr->te_closure, (XtIntervalId*)&ptr);
+! }
+  
+  /*
+   * Public Routines
+--- 363,373 ----
+  	}
+  }
+  
+! #define IeCallProc(ptr) \
+!     (*ptr->ie_proc) (ptr->ie_closure, &ptr->ie_source, (XtInputId*)&ptr);
+  
+! #define TeCallProc(ptr) \
+!     (*ptr->te_proc) (ptr->te_closure, (XtIntervalId*)&ptr);
+  
+  /*
+   * Public Routines
+***************
+*** 504,545 ****
+  	XtInputCallbackProc proc;
+  	XtPointer closure;
+  {
+! 	InputEvent *sptr;
+  	XtInputMask condition = (XtInputMask) Condition;
+  	
+! #define CondAllocateQueue(queue) \
+! 	if (queue == NULL) { \
+! 	    queue = (InputEvent**) \
+! 		_XtHeapAlloc(&app->heap,(Cardinal)NOFILE*sizeof(InputEvent*));\
+! 	    bzero( (char*)queue, (unsigned)NOFILE*sizeof(InputEvent*) ); \
+! 	}
+  
+  	sptr = XtNew(InputEvent);
+- 	if(condition == XtInputReadMask){
+- 	    CondAllocateQueue(app->selectRqueue);
+- 	    sptr->ie_next = app->selectRqueue[source];
+- 	    app->selectRqueue[source] = sptr;
+- 	    FD_SET(source, &app->fds.rmask);
+- 	} else if(condition == XtInputWriteMask) {
+- 	    CondAllocateQueue(app->selectWqueue);
+- 	    sptr->ie_next = app->selectWqueue[source];
+- 	    app->selectWqueue[source] = sptr;
+- 	    FD_SET(source, &app->fds.wmask);
+- 	} else if(condition == XtInputExceptMask) {
+- 	    CondAllocateQueue(app->selectEqueue);
+- 	    sptr->ie_next = app->selectEqueue[source];
+- 	    app->selectEqueue[source] = sptr;
+- 	    FD_SET(source, &app->fds.emask);
+- 	} else
+- 	  XtAppErrorMsg(app, "invalidParameter","xtAddInput",XtCXtToolkitError,
+-                   "invalid condition passed to XtAddInput",
+-                    (String *)NULL, (Cardinal *)NULL);
+  	sptr->ie_proc = proc;
+! 	sptr->ie_closure =closure;
+  	sptr->app = app;
+  	sptr->ie_oq = NULL;
+  	sptr->ie_source = source;
+! 	
+  	if (app->fds.nfds < (source+1)) app->fds.nfds = source+1;
+  	app->fds.count++;
+  	return((XtInputId)sptr);
+--- 495,528 ----
+  	XtInputCallbackProc proc;
+  	XtPointer closure;
+  {
+! 	InputEvent* sptr;
+  	XtInputMask condition = (XtInputMask) Condition;
+  	
+! 	if (!condition ||
+! 	    condition & ~(XtInputReadMask|XtInputWriteMask|XtInputExceptMask))
+! 	    XtAppErrorMsg(app,"invalidParameter","xtAddInput",XtCXtToolkitError,
+! 			  "invalid condition passed to XtAppAddInput",
+! 			  (String *)NULL, (Cardinal *)NULL);
+  
++ 	if (app->input_list == NULL) {
++ 	    app->input_list = (InputEvent**)
++ 		_XtHeapAlloc(&app->heap,(Cardinal)NOFILE*sizeof(InputEvent*));
++ 	    bzero((char*)app->input_list,(unsigned)NOFILE*sizeof(InputEvent*));
++ 	}
+  	sptr = XtNew(InputEvent);
+  	sptr->ie_proc = proc;
+! 	sptr->ie_closure = closure;
+  	sptr->app = app;
+  	sptr->ie_oq = NULL;
+  	sptr->ie_source = source;
+! 	sptr->ie_condition = condition;
+! 	sptr->ie_next = app->input_list[source];
+! 	app->input_list[source] = sptr;
+! 
+! 	if (condition & XtInputReadMask)   FD_SET(source, &app->fds.rmask);
+! 	if (condition & XtInputWriteMask)  FD_SET(source, &app->fds.wmask);
+! 	if (condition & XtInputExceptMask) FD_SET(source, &app->fds.emask);
+! 
+  	if (app->fds.nfds < (source+1)) app->fds.nfds = source+1;
+  	app->fds.count++;
+  	return((XtInputId)sptr);
+***************
+*** 552,558 ****
+    	register InputEvent *sptr, *lptr;
+  	XtAppContext app = ((InputEvent *)id)->app;
+  	register int source = ((InputEvent *)id)->ie_source;
+! 	app->fds.count--;
+  
+  	sptr = app->outstandingQueue;
+  	lptr = NULL;
+--- 535,541 ----
+    	register InputEvent *sptr, *lptr;
+  	XtAppContext app = ((InputEvent *)id)->app;
+  	register int source = ((InputEvent *)id)->ie_source;
+! 	Boolean found = False;
+  
+  	sptr = app->outstandingQueue;
+  	lptr = NULL;
+***************
+*** 564,620 ****
+  	    lptr = sptr;
+  	}
+  
+! 	if(app->selectRqueue && (sptr = app->selectRqueue[source]) != NULL) {
+  		for( lptr = NULL ; sptr; sptr = sptr->ie_next ){
+  			if(sptr == (InputEvent *) id) {
+  				if(lptr == NULL) {
+! 					app->selectRqueue[source] = sptr->ie_next;
+  					FD_CLR(source, &app->fds.rmask);
+  				} else {
+  					lptr->ie_next = sptr->ie_next;
+  				}
+  				XtFree((char *) sptr);
+! 				return;
+  			}
+  			lptr = sptr;	      
+  		}
+  	}
+! 	if(app->selectWqueue && (sptr = app->selectWqueue[source]) != NULL) {
+! 		for(lptr = NULL;sptr; sptr = sptr->ie_next){
+! 			if ( sptr ==  (InputEvent *) id) {
+! 				if(lptr == NULL){
+! 					app->selectWqueue[source] = sptr->ie_next;
+! 					FD_CLR(source, &app->fds.wmask);
+! 				}else {
+! 					lptr->ie_next = sptr->ie_next;
+! 				}
+! 				XtFree((char *) sptr);
+! 				return;
+! 			}
+! 			lptr = sptr;
+! 		}
+! 	    
+! 	}
+! 	if(app->selectEqueue && (sptr = app->selectEqueue[source]) != NULL) {
+! 		for(lptr = NULL;sptr; sptr = sptr->ie_next){
+! 			if ( sptr ==  (InputEvent *) id) {
+! 				if(lptr == NULL){
+! 					app->selectEqueue[source] = sptr->ie_next;
+! 					FD_CLR(source, &app->fds.emask);
+! 				}else {
+! 					lptr->ie_next = sptr->ie_next;
+! 				}
+! 				XtFree((char *) sptr);
+! 				return;
+! 			}
+! 			lptr = sptr;
+! 		}
+! 	    
+! 	}
+  	XtAppWarningMsg(app, "invalidProcedure","inputHandler",XtCXtToolkitError,
+                     "XtRemoveInput: Input handler not found",
+  		   (String *)NULL, (Cardinal *)NULL);
+- 	app->fds.count++;	/* Didn't remove it after all */
+  }
+  
+  /* Do alternate input and timer callbacks if there are any */
+--- 547,575 ----
+  	    lptr = sptr;
+  	}
+  
+! 	if(app->input_list && (sptr = app->input_list[source]) != NULL) {
+  		for( lptr = NULL ; sptr; sptr = sptr->ie_next ){
+  			if(sptr == (InputEvent *) id) {
+  				if(lptr == NULL) {
+! 					app->input_list[source] = sptr->ie_next;
+  					FD_CLR(source, &app->fds.rmask);
+  				} else {
+  					lptr->ie_next = sptr->ie_next;
+  				}
+  				XtFree((char *) sptr);
+! 				found = True;
+! 				break;
+  			}
+  			lptr = sptr;	      
+  		}
+  	}
+! 
+!     if (found)
+! 	app->fds.count--;
+!     else
+  	XtAppWarningMsg(app, "invalidProcedure","inputHandler",XtCXtToolkitError,
+                     "XtRemoveInput: Input handler not found",
+  		   (String *)NULL, (Cardinal *)NULL);
+  }
+  
+  /* Do alternate input and timer callbacks if there are any */
+***************
+*** 622,629 ****
+  static void DoOtherSources(app)
+  	XtAppContext app;
+  {
+! 	register TimerEventRec *te_ptr;
+! 	register InputEvent *ie_ptr;
+  	struct timeval  cur_time;
+  	struct timezone cur_timezone;
+  
+--- 577,584 ----
+  static void DoOtherSources(app)
+  	XtAppContext app;
+  {
+! 	TimerEventRec *te_ptr;
+! 	InputEvent *ie_ptr;
+  	struct timeval  cur_time;
+  	struct timezone cur_timezone;
+  
+***************
+*** 760,767 ****
+  	XtAppContext app;
+  	XtInputMask mask;
+  {
+- 	InputEvent *ie_ptr;
+- 	TimerEventRec *te_ptr;
+  	int i, d;
+  	XEvent event;
+  	struct timeval cur_time;
+--- 715,720 ----
+***************
+*** 774,780 ****
+  		(void) gettimeofday (&cur_time, &curzone);
+  		FIXUP_TIMEVAL(cur_time);
+  		if (IS_AFTER(app->timerQueue->te_timer_value, cur_time)) {
+! 		    te_ptr = app->timerQueue;
+  		    app->timerQueue = app->timerQueue->te_next;
+  		    te_ptr->te_next = NULL;
+                      if (te_ptr->te_proc != 0)
+--- 727,733 ----
+  		(void) gettimeofday (&cur_time, &curzone);
+  		FIXUP_TIMEVAL(cur_time);
+  		if (IS_AFTER(app->timerQueue->te_timer_value, cur_time)) {
+! 		    TimerEventRec *te_ptr = app->timerQueue;
+  		    app->timerQueue = app->timerQueue->te_next;
+  		    te_ptr->te_next = NULL;
+                      if (te_ptr->te_proc != 0)
+***************
+*** 792,798 ****
+  			    (unsigned long *)NULL, app);
+  		}
+  		if (app->outstandingQueue != NULL) {
+! 		    ie_ptr = app->outstandingQueue;
+  		    app->outstandingQueue = ie_ptr->ie_oq;
+  		    ie_ptr->ie_oq = NULL;
+  		    IeCallProc(ie_ptr);
+--- 745,751 ----
+  			    (unsigned long *)NULL, app);
+  		}
+  		if (app->outstandingQueue != NULL) {
+! 		    InputEvent *ie_ptr = app->outstandingQueue;
+  		    app->outstandingQueue = ie_ptr->ie_oq;
+  		    ie_ptr->ie_oq = NULL;
+  		    IeCallProc(ie_ptr);
+*** /tmp/,RCSt1a00749
+--- mit/lib/Xt/SetValues.c
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: SetValues.c,v 1.8 90/06/25 12:15:52 swick Exp $";
+  #endif /* lint */
+  
+  /***********************************************************
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: SetValues.c,v 1.10 90/07/19 10:48:55 swick Exp $";
+  #endif /* lint */
+  
+  /***********************************************************
+***************
+*** 163,171 ****
+  
+      /* assert: !XtIsShell(w) => (XtParent(w) != NULL) */
+      hasConstraints = (!XtIsShell(w) && XtIsConstraint(XtParent(w)));
+      if (hasConstraints) {
+  	cwc = (ConstraintWidgetClass) XtClass(w->core.parent);
+! 	constraintSize = cwc->constraint_class.constraint_size;
+      } else constraintSize = 0;
+  	
+      if (constraintSize) {
+--- 163,176 ----
+  
+      /* assert: !XtIsShell(w) => (XtParent(w) != NULL) */
+      hasConstraints = (!XtIsShell(w) && XtIsConstraint(XtParent(w)));
++ 
++     /* Some widget sets apparently do ugly things by freeing the
++      * constraints on some children, thus the extra test here */
+      if (hasConstraints) {
+  	cwc = (ConstraintWidgetClass) XtClass(w->core.parent);
+! 	if (w->core.constraints)
+! 	    constraintSize = cwc->constraint_class.constraint_size;
+! 	else constraintSize = 0;
+      } else constraintSize = 0;
+  	
+      if (constraintSize) {
+*** /tmp/,RCSt1a29649
+--- mit/lib/Xt/Shell.c
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Shell.c,v 1.87 90/04/05 17:07:10 swick Exp $";
+  /* $oHeader: Shell.c,v 1.7 88/09/01 11:57:00 asente Exp $ */
+  #endif /* lint */
+  
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Shell.c,v 1.91 90/06/26 11:36:17 swick Exp $";
+  /* $oHeader: Shell.c,v 1.7 88/09/01 11:57:00 asente Exp $ */
+  #endif /* lint */
+  
+***************
+*** 1534,1540 ****
+  		    q->done = TRUE;
+  		    return TRUE;
+  		}
+- 	    return FALSE;
+  	}
+  	else if (event->type == ConfigureNotify ||
+  		 (event->type == ClientMessage &&
+--- 1534,1539 ----
+***************
+*** 1541,1547 ****
+  		  (event->xclient.message_type == WM_CONFIGURE_DENIED(w) ||
+  		   event->xclient.message_type == WM_MOVED(w))))
+  	    return TRUE;	/* flush old events */
+! 	else if (event->type == ReparentNotify
+  		 && event->xreparent.window == XtWindow(w)) {
+  	    /* we might get ahead of this event, so just in case someone
+  	     * asks for coordinates before this event is dispatched...
+--- 1540,1546 ----
+  		  (event->xclient.message_type == WM_CONFIGURE_DENIED(w) ||
+  		   event->xclient.message_type == WM_MOVED(w))))
+  	    return TRUE;	/* flush old events */
+! 	if (event->type == ReparentNotify
+  		 && event->xreparent.window == XtWindow(w)) {
+  	    /* we might get ahead of this event, so just in case someone
+  	     * asks for coordinates before this event is dispatched...
+***************
+*** 1608,1617 ****
+      if (XtIsWMShell(gw)) {
+  	wm = True;
+  	hintp = &((WMShellWidget)w)->wm.size_hints;
+      } else
+  	wm = False;
+      
+- 
+      oldx = w->core.x;
+      oldy = w->core.y;
+      oldwidth = w->core.width;
+--- 1607,1621 ----
+      if (XtIsWMShell(gw)) {
+  	wm = True;
+  	hintp = &((WMShellWidget)w)->wm.size_hints;
++ 	/* for draft-ICCCM wm's, need to make sure hints reflect
++ 	   (current) reality so client can move and size separately. */
++   	hintp->x = w->core.x;
++   	hintp->y = w->core.y;
++   	hintp->width = w->core.width;
++    	hintp->height = w->core.height;
+      } else
+  	wm = False;
+      
+      oldx = w->core.x;
+      oldy = w->core.y;
+      oldwidth = w->core.width;
+***************
+*** 1685,1698 ****
+  
+      if (!XtIsRealized((Widget)w)) return XtGeometryYes;
+  
+      if (wm && !w->shell.override_redirect
+  	&& mask & (CWX | CWY | CWWidth | CWHeight | CWBorderWidth)) {
+  	_SetWMSizeHints((WMShellWidget)w);
+      }
+  
+-     request_num = NextRequest(XtDisplay(w));
+-     XConfigureWindow(XtDisplay((Widget)w), XtWindow((Widget)w), mask, &values);
+- 
+      if (w->shell.override_redirect) return XtGeometryDone;
+  
+      /* If no non-stacking bits are set, there's no way to tell whether
+--- 1689,1702 ----
+  
+      if (!XtIsRealized((Widget)w)) return XtGeometryYes;
+  
++     request_num = NextRequest(XtDisplay(w));
++     XConfigureWindow(XtDisplay((Widget)w), XtWindow((Widget)w), mask,&values);
++ 
+      if (wm && !w->shell.override_redirect
+  	&& mask & (CWX | CWY | CWWidth | CWHeight | CWBorderWidth)) {
+  	_SetWMSizeHints((WMShellWidget)w);
+      }
+  
+      if (w->shell.override_redirect) return XtGeometryDone;
+  
+      /* If no non-stacking bits are set, there's no way to tell whether
+***************
+*** 1901,1907 ****
+      } else
+  	name_changed = False;
+  
+!     if (XtIsRealized(newW) && !new->shell.override_redirect) {
+  	if (new->topLevel.iconic != old->topLevel.iconic) {
+  	    if (new->topLevel.iconic)
+  		XIconifyWindow(XtDisplay(newW),
+--- 1905,1911 ----
+      } else
+  	name_changed = False;
+  
+!     if (XtIsRealized(newW)) {
+  	if (new->topLevel.iconic != old->topLevel.iconic) {
+  	    if (new->topLevel.iconic)
+  		XIconifyWindow(XtDisplay(newW),
+***************
+*** 1912,1920 ****
+  		XtPopup(newW, XtGrabNone);
+  	}
+  
+! 	if (name_changed ||
+! 	    (old->topLevel.icon_name_encoding
+! 	     != new->topLevel.icon_name_encoding)) {
+  
+  	    XTextProperty icon_name;
+  	    icon_name.value = (unsigned char *)new->topLevel.icon_name;
+--- 1916,1925 ----
+  		XtPopup(newW, XtGrabNone);
+  	}
+  
+! 	if (!new->shell.override_redirect &&
+! 	    (name_changed ||
+! 	     (old->topLevel.icon_name_encoding
+! 	      != new->topLevel.icon_name_encoding))) {
+  
+  	    XTextProperty icon_name;
+  	    icon_name.value = (unsigned char *)new->topLevel.icon_name;
+*** /tmp/,RCSt1a29694
+--- mit/lib/Xt/TMparse.c
+***************
+*** 1,7 ****
+! #ifndef lint
+! static char Xrcsid[] = "$XConsortium: TMparse.c,v 1.89 90/01/22 17:08:54 swick Exp $";
+! /* $oHeader: TMparse.c,v 1.4 88/09/01 17:30:39 asente Exp $ */
+! #endif /*lint*/
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+--- 1,4 ----
+! /* $XConsortium: TMparse.c,v 1.95 90/07/12 17:47:39 swick Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+***************
+*** 49,54 ****
+--- 46,53 ----
+  # define CACHED XtCacheNone
+  #endif
+  
++ static String XtNtranslationParseError = "translationParseError";
++ 
+  /* Private definitions. */
+  #define LF 0x0a
+  #define BSLASH '\\'
+***************
+*** 64,69 ****
+--- 63,69 ----
+      /* Boolean* error */
+  
+  typedef void (*ModifierProc)(); 
++ typedef int Value;
+  
+  typedef struct _ModifierRec {
+      char*      name;
+***************
+*** 79,84 ****
+--- 79,91 ----
+      ParseProc	parseDetail;
+      Opaque	closure;
+  }EventKey, *EventKeys;
++ 
++ typedef struct {
++     char	*name;
++     XrmQuark	signature;
++     Value	value;
++ } NameValueRec, *NameValueTable;
++ 
+  static void ParseModImmed();
+  static void ParseModSym();
+  static String PanicModeRecovery();
+***************
+*** 141,146 ****
+--- 148,154 ----
+      {NULL, NULL, NULL},
+  };
+  
++ #if 0
+  static NameValueRec notifyDetail[] = {
+      {"Ancestor",	    0,	NotifyAncestor},
+      {"Virtual",		    0,	NotifyVirtual},
+***************
+*** 171,176 ****
+--- 179,185 ----
+      {"Delete",      0,	PropertyDelete},
+      {NULL, NULL, NULL},
+  };
++ #endif /*0*/
+  
+  static NameValueRec mappingNotify[] = {
+      {"Modifier",	0,	MappingModifier},
+***************
+*** 404,410 ****
+      numChars += strlen(str1);
+      message[numChars] = '\0';
+      params[0] = message;
+!   XtWarningMsg("translationParseError","parseError","XtToolkitError",
+              "translation table syntax error: %s",params,&num_params);
+  }
+  
+--- 413,419 ----
+      numChars += strlen(str1);
+      message[numChars] = '\0';
+      params[0] = message;
+!   XtWarningMsg(XtNtranslationParseError,"parseError",XtCXtToolkitError,
+              "translation table syntax error: %s",params,&num_params);
+  }
+  
+***************
+*** 488,494 ****
+              temp[count].pair = FALSE;
+              temp[count++].keysym = keysymR;
+          }
+!         temp[count].knot = NULL;
+          temp[count].keysym = NULL;
+      }
+      
+--- 497,503 ----
+              temp[count].pair = FALSE;
+              temp[count++].keysym = keysymR;
+          }
+!         temp[count].knot = FALSE;
+          temp[count].keysym = NULL;
+      }
+      
+***************
+*** 574,579 ****
+--- 583,589 ----
+      while (*str == ' ' || *str == '\t') str++;
+      return str;
+  }
++ 
+  static String FetchModifierToken(str,modStr)
+      String str,modStr;
+  {
+***************
+*** 771,777 ****
+  
+      k = XStringToKeysym(str);
+      if (k != NoSymbol) return k;
+- 
+      if ('0' <= *str && *str <= '9') return (KeySym) StrToNum(str);
+  
+  #ifdef NOTASCII
+--- 781,786 ----
+***************
+*** 906,921 ****
+      if (*error) {
+  	if (keySymName[0] == '<') {
+  	    /* special case for common error */
+! 	    XtWarningMsg("translationParseError", "missingComma",
+! 			 "XtToolkitError",
+  		     "... possibly due to missing ',' in event sequence.",
+  		     (String*)NULL, (Cardinal*)NULL);
+  	}
+  	return PanicModeRecovery(str);
+      }
+!     if (event->event.standard) event->event.matchEvent = 
+!         _XtMatchUsingStandardMods;
+!     else event->event.matchEvent = _XtMatchUsingDontCareMods;
+      return str;
+  }
+  
+--- 915,932 ----
+      if (*error) {
+  	if (keySymName[0] == '<') {
+  	    /* special case for common error */
+! 	    XtWarningMsg(XtNtranslationParseError, "missingComma",
+! 			 XtCXtToolkitError,
+  		     "... possibly due to missing ',' in event sequence.",
+  		     (String*)NULL, (Cardinal*)NULL);
+  	}
+  	return PanicModeRecovery(str);
+      }
+!     if (event->event.standard)
+! 	event->event.matchEvent = _XtMatchUsingStandardMods;
+!     else
+! 	event->event.matchEvent = _XtMatchUsingDontCareMods;
+! 
+      return str;
+  }
+  
+***************
+*** 1469,1476 ****
+                  event->actions = NULL;
+  		str = ParseQuotedStringEvent(str, event,error);
+  		if (*error) {
+! 		    XtWarningMsg("translationParseError", "nonLatin1",
+! 			"XtToolkitError",
+  			"... probably due to non-Latin1 character in quoted string",
+  			(String*)NULL, (Cardinal*)NULL);
+  		    return PanicModeRecovery(str);
+--- 1480,1487 ----
+                  event->actions = NULL;
+  		str = ParseQuotedStringEvent(str, event,error);
+  		if (*error) {
+! 		    XtWarningMsg(XtNtranslationParseError, "nonLatin1",
+! 			XtCXtToolkitError,
+  			"... probably due to non-Latin1 character in quoted string",
+  			(String*)NULL, (Cardinal*)NULL);
+  		    return PanicModeRecovery(str);
+***************
+*** 1550,1561 ****
+      if (*str == '"') {
+  	str++;
+  	start = str;
+! 	while (*str != '"' && *str != '\0' && *str != '\n') str++;
+  	*strP = strncpy(XtMalloc((unsigned)(str-start+1)), start, str-start);
+  	(*strP)[str-start] = '\0';
+  	if (*str == '"') str++; else
+!             XtWarningMsg("translationParseError","parseString",
+!                       "XtToolkitError","Missing '\"'.",
+  		      (String *)NULL, (Cardinal *)NULL);
+      } else {
+  	/* scan non-quoted string, stop on whitespace, ',' or ')' */
+--- 1561,1572 ----
+      if (*str == '"') {
+  	str++;
+  	start = str;
+! 	while (*str != '"' && *str != '\0') str++;
+  	*strP = strncpy(XtMalloc((unsigned)(str-start+1)), start, str-start);
+  	(*strP)[str-start] = '\0';
+  	if (*str == '"') str++; else
+!             XtWarningMsg(XtNtranslationParseError,"parseString",
+!                       XtCXtToolkitError,"Missing '\"'.",
+  		      (String *)NULL, (Cardinal *)NULL);
+      } else {
+  	/* scan non-quoted string, stop on whitespace, ',' or ')' */
+***************
+*** 1606,1614 ****
+      }
+  
+      if (num_params != 0) {
+! 	String *paramP =
+! 	    *paramSeqP = (String *)
+  		XtMalloc( (unsigned)(num_params+1) * sizeof(String) );
+  	*paramNumP = num_params;
+  	paramP += num_params; /* list is LIFO right now */
+  	*paramP-- = NULL;
+--- 1617,1625 ----
+      }
+  
+      if (num_params != 0) {
+! 	String *paramP = (String *)
+  		XtMalloc( (unsigned)(num_params+1) * sizeof(String) );
++ 	*paramSeqP = paramP;
+  	*paramNumP = num_params;
+  	paramP += num_params; /* list is LIFO right now */
+  	*paramP-- = NULL;
+***************
+*** 1654,1660 ****
+  
+  
+  static String ParseActionSeq(stateTable,str, actionsP,acc,error)
+!     XtTranslations stateTable;
+      String str;
+      ActionPtr *actionsP;
+      Bool acc;
+--- 1665,1671 ----
+  
+  
+  static String ParseActionSeq(stateTable,str, actionsP,acc,error)
+!     StateTablePtr stateTable;
+      String str;
+      ActionPtr *actionsP;
+      Bool acc;
+***************
+*** 1663,1670 ****
+      ActionPtr *nextActionP = actionsP;
+      int index;
+      Boolean found;
+-     *actionsP = NULL;
+  
+      while (*str != '\0' && *str != '\n') {
+  	register ActionPtr	action;
+  	XrmQuark quark;
+--- 1674,1681 ----
+      ActionPtr *nextActionP = actionsP;
+      int index;
+      Boolean found;
+  
++     *actionsP = NULL;
+      while (*str != '\0' && *str != '\n') {
+  	register ActionPtr	action;
+  	XrmQuark quark;
+***************
+*** 1731,1737 ****
+      else production[499] = '\0'; /* just in case */
+  
+      params[0] = production;
+!     XtWarningMsg("translationParseError", "showLine", "XtToolkitError",
+  		 "... found while parsing '%s'", params, &num_params);
+  }
+  
+--- 1742,1748 ----
+      else production[499] = '\0'; /* just in case */
+  
+      params[0] = production;
+!     XtWarningMsg(XtNtranslationParseError, "showLine", XtCXtToolkitError,
+  		 "... found while parsing '%s'", params, &num_params);
+  }
+  
+***************
+*** 1740,1747 ****
+   * Parses one line of event bindings.
+   ***********************************************************************/
+  
+! static String ParseTranslationTableProduction(stateTable, str,acc)
+!   XtTranslations stateTable;
+    register String str;
+    Boolean acc;
+  {
+--- 1751,1758 ----
+   * Parses one line of event bindings.
+   ***********************************************************************/
+  
+! static String ParseTranslationTableProduction(translateData, str,acc)
+!   XtTranslations translateData;
+    register String str;
+    Boolean acc;
+  {
+***************
+*** 1749,1754 ****
+--- 1760,1766 ----
+      ActionPtr	*actionsP;
+      Boolean error = FALSE;
+      String	production = str;
++     StateTablePtr stateTable = translateData->stateTable;
+  
+      str = ParseEventSeq(str, &eventSeq, &actionsP,&error);
+      if (error == TRUE) {
+***************
+*** 1764,1771 ****
+          return (str);
+      }
+  
+!     _XtAddEventSeqToStateTable(eventSeq, stateTable);
+! 
+      FreeEventSeq(eventSeq);
+      return (str);
+  }
+--- 1776,1782 ----
+          return (str);
+      }
+  
+!     _XtAddEventSeqToStateTable(eventSeq, translateData);
+      FreeEventSeq(eventSeq);
+      return (str);
+  }
+***************
+*** 1782,1788 ****
+  
+      if (*num_args != 0)
+          XtAppWarningMsg(XtDisplayToApplicationContext(dpy),
+! 	  "invalidParameters","compileAccelerators","XtToolkitError",
+            "String to TranslationTable needs no extra arguments",
+  	  (String *)NULL, (Cardinal *)NULL);
+       str = (String)(from->addr);
+--- 1793,1799 ----
+  
+      if (*num_args != 0)
+          XtAppWarningMsg(XtDisplayToApplicationContext(dpy),
+! 	  "invalidParameters","compileAccelerators",XtCXtToolkitError,
+            "String to TranslationTable needs no extra arguments",
+  	  (String *)NULL, (Cardinal *)NULL);
+       str = (String)(from->addr);
+***************
+*** 1806,1817 ****
+  }
+  
+  
+! static String CheckForPoundSign(stateTable,str)
+!     XtTranslations stateTable;
+      String str;
+  {
+      String start;
+      char operation[20];
+      if (*str == '#') {
+         str++;
+         start = str;
+--- 1817,1830 ----
+  }
+  
+  
+! static String CheckForPoundSign(translateData,str)
+!     XtTranslations translateData;
+      String str;
+  {
+      String start;
+      char operation[20];
++     StateTablePtr stateTable = translateData->stateTable;
++ 
+      if (*str == '#') {
+         str++;
+         start = str;
+***************
+*** 1827,1834 ****
+         else  stateTable->operation = XtTableReplace;
+         str = ScanWhitespace(str);
+         if (*str == '\n') {
+!    	    str++;
+! 	    str = ScanWhitespace(str);
+         }
+      }
+      else stateTable->operation = XtTableReplace;
+--- 1840,1847 ----
+         else  stateTable->operation = XtTableReplace;
+         str = ScanWhitespace(str);
+         if (*str == '\n') {
+! 	   str++;
+! 	   str = ScanWhitespace(str);
+         }
+      }
+      else stateTable->operation = XtTableReplace;
+***************
+*** 1848,1854 ****
+  
+      if (*num_args != 0)
+  	XtAppWarningMsg(XtDisplayToApplicationContext(dpy),
+! 	  "invalidParameters","compileTranslations","XtToolkitError",
+            "String to TranslationTable conversion needs no extra arguments",
+  	  (String *)NULL, (Cardinal *)NULL);
+       str = (String)(from->addr);
+--- 1861,1867 ----
+  
+      if (*num_args != 0)
+  	XtAppWarningMsg(XtDisplayToApplicationContext(dpy),
+! 	  "invalidParameters","compileTranslations",XtCXtToolkitError,
+            "String to TranslationTable conversion needs no extra arguments",
+  	  (String *)NULL, (Cardinal *)NULL);
+       str = (String)(from->addr);
+***************
+*** 1915,1921 ****
+  {
+      if (initialized) {
+  	XtWarningMsg("translationError","xtTranslateInitialize",
+!                   "XtToolkitError","Intializing Translation manager twice.",
+                      (String *)NULL, (Cardinal *)NULL);
+  	return;
+      }
+--- 1928,1934 ----
+  {
+      if (initialized) {
+  	XtWarningMsg("translationError","xtTranslateInitialize",
+!                   XtCXtToolkitError,"Intializing Translation manager twice.",
+                      (String *)NULL, (Cardinal *)NULL);
+  	return;
+      }
+***************
+*** 1927,1936 ****
+--- 1940,1951 ----
+      CompileNameValueTable( buttonNames );
+      CompileNameValueTable( notifyModes );
+      CompileNameValueTable( motionDetails );
++ #if 0
+      CompileNameValueTable( notifyDetail );
+      CompileNameValueTable( visibilityNotify );
+      CompileNameValueTable( circulation );
+      CompileNameValueTable( propertyChanged );
++ #endif
+      CompileNameValueTable( mappingNotify );
+  }
+  
+***************
+*** 1948,1956 ****
+       _XtTableAddConverter(table, q,
+  	     XrmStringToRepresentation(XtRAcceleratorTable),
+   	     CvtStringToAccelerators, (XtConvertArgList) NULL,
+! 	     (Cardinal)0, True, XtCacheNone,(XtDestructor)_XtFreeTranslations);
+       _XtTableAddConverter(table,
+! 	     XrmStringToRepresentation( "_XtTranslationTablePair" ),
+  	     XrmStringToRepresentation(XtRTranslationTable), 
+   	     _XtCvtMergeTranslations, (XtConvertArgList) NULL,
+  	     (Cardinal)0, True, CACHED, _XtFreeTranslations);
+--- 1963,1971 ----
+       _XtTableAddConverter(table, q,
+  	     XrmStringToRepresentation(XtRAcceleratorTable),
+   	     CvtStringToAccelerators, (XtConvertArgList) NULL,
+! 	     (Cardinal)0, True, CACHED, _XtFreeTranslations);
+       _XtTableAddConverter(table,
+! 	     XrmStringToRepresentation( _XtRStateTablePair ),
+  	     XrmStringToRepresentation(XtRTranslationTable), 
+   	     _XtCvtMergeTranslations, (XtConvertArgList) NULL,
+  	     (Cardinal)0, True, CACHED, _XtFreeTranslations);

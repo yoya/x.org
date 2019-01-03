@@ -1,0 +1,1560 @@
+This patch is a continuation of fix-10.  You must apply it at the same time
+as fix-10.
+
+cd to the top of the X tree and apply with "patch -p0".
+
+*** /tmp/,RCSt1a04091	Thu Apr 19 19:46:39 1990
+--- mit/lib/Xt/Keyboard.c	Thu Apr 19 19:46:40 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Keyboard.c,v 1.11 89/12/17 16:38:52 rws Exp $";
+  #endif
+  
+  /********************************************************
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Keyboard.c,v 1.14 90/04/03 17:03:54 swick Exp $";
+  #endif
+  
+  /********************************************************
+***************
+*** 101,126 ****
+      
+  
+  
+! static Widget _FindFocusWidget(widget, trace, traceDepth, activeCheck)
+      Widget 	widget;
+      Widget	*trace;
+!     Cardinal	traceDepth;
+      Boolean	activeCheck;
+  {
+-     int i;
+      int src;
+      Widget dst;
+!     XtPerWidgetInput	pwi;
+!     Boolean	isAncestor;
+      
+      /* For each ancestor, starting at the top, see if it's forwarded */
+  
+  
+      /* first check the trace list till done or we go to branch */
+!     isAncestor = TRUE;
+!     for (src = traceDepth-1, dst = widget;
+! 	 ((src > 0) && isAncestor);
+! 	 )
+        {
+  	  if (pwi = _XtGetPerWidgetInput(trace[src], FALSE))
+  	    {
+--- 101,122 ----
+      
+  
+  
+! static Widget _FindFocusWidget(widget, trace, traceDepth, activeCheck, isTarget)
+      Widget 	widget;
+      Widget	*trace;
+!     int		traceDepth;
+      Boolean	activeCheck;
++     Boolean	*isTarget;
+  {
+      int src;
+      Widget dst;
+!     XtPerWidgetInput	pwi = NULL;
+      
+      /* For each ancestor, starting at the top, see if it's forwarded */
+  
+  
+      /* first check the trace list till done or we go to branch */
+!     for (src = traceDepth-1, dst = widget; src > 0;)
+        {
+  	  if (pwi = _XtGetPerWidgetInput(trace[src], FALSE))
+  	    {
+***************
+*** 127,147 ****
+  		if (pwi->focusKid)
+  		  {
+  		      dst = pwi->focusKid;
+! 		      for (i = src-1; i >= 0 && trace[i] != dst; i--) {}
+! 		      
+! 		      if (i < 0) 
+! 			isAncestor = FALSE;
+! 		      else
+! 			src = i;
+  		  }
+  		else dst = trace[--src];
+  	    }
+  	  else dst = trace[--src];
+!       }	
+  
+      if (!activeCheck)
+!       while (XtIsWidget(dst) && (pwi = _XtGetPerWidgetInput(dst, FALSE)) && pwi->focusKid)
+  	dst = pwi->focusKid;
+      return dst;
+  }
+  
+--- 123,148 ----
+  		if (pwi->focusKid)
+  		  {
+  		      dst = pwi->focusKid;
+! 		      for (src--; src > 0 && trace[src] != dst; src--) {}
+  		  }
+  		else dst = trace[--src];
+  	    }
+  	  else dst = trace[--src];
+!       }
+  
++     if (isTarget) {
++ 	if (pwi && pwi->focusKid == widget)
++ 	    *isTarget = TRUE;
++ 	else
++ 	    *isTarget = FALSE;
++     }
++ 
+      if (!activeCheck)
+!       while (XtIsWidget(dst)
+! 	     && (pwi = _XtGetPerWidgetInput(dst, FALSE))
+! 	     && pwi->focusKid)
+  	dst = pwi->focusKid;
++ 
+      return dst;
+  }
+  
+***************
+*** 153,159 ****
+      if (pdi->focusWidget) 
+        return  pdi->focusWidget;
+      else
+!       return _FindFocusWidget(widget, pdi->trace, pdi->traceDepth, FALSE);
+  }
+  
+  
+--- 154,160 ----
+      if (pdi->focusWidget) 
+        return  pdi->focusWidget;
+      else
+!       return _FindFocusWidget(widget, pdi->trace, pdi->traceDepth, FALSE, NULL);
+  }
+  
+  
+***************
+*** 285,291 ****
+  			  IsAnyGrab(devGrabType) && 
+  			  (devGrab->ownerEvents)
+  #else
+! 			  (!event->type == KeyPress)
+  #endif /* OWNER_EVENTS_FIX */
+  			  )
+  			dspWidget = focusWidget;
+--- 286,292 ----
+  			  IsAnyGrab(devGrabType) && 
+  			  (devGrab->ownerEvents)
+  #else
+! 			  (event->type != KeyPress)
+  #endif /* OWNER_EVENTS_FIX */
+  			  )
+  			dspWidget = focusWidget;
+***************
+*** 421,427 ****
+   * Check that widget really has Xt focus due to it having recieved an
+   * event 
+   */
+! static Boolean InActiveSubtree(widget)
+      Widget	widget;
+  {
+      static Widget	*pathTrace = NULL;
+--- 422,429 ----
+   * Check that widget really has Xt focus due to it having recieved an
+   * event 
+   */
+! typedef enum {NotActive = 0, IsActive, IsTarget} ActiveType;
+! static ActiveType InActiveSubtree(widget)
+      Widget	widget;
+  {
+      static Widget	*pathTrace = NULL;
+***************
+*** 428,433 ****
+--- 430,436 ----
+      static Cardinal     pathTraceDepth = 0;
+      static Cardinal	pathTraceMax = 0;
+      static Display	*display = NULL;
++     Boolean		isTarget;
+      
+      if (!pathTraceDepth || 
+  	!(display == XtDisplay(widget)) ||
+***************
+*** 443,452 ****
+      if (widget == _FindFocusWidget(widget, 
+  				   pathTrace,
+  				   pathTraceDepth, 
+! 				   TRUE))
+!       return TRUE;
+      else
+!       return FALSE;
+  }
+  
+  
+--- 446,456 ----
+      if (widget == _FindFocusWidget(widget, 
+  				   pathTrace,
+  				   pathTraceDepth, 
+! 				   TRUE,
+! 				   &isTarget))
+!       return isTarget ? IsTarget : IsActive;
+      else
+!       return NotActive;
+  }
+  
+  
+***************
+*** 488,496 ****
+--- 492,502 ----
+  		  case XtMyAncestor:
+  		    if (event->type == LeaveNotify)
+  		      newFocalPoint = XtUnrelated;
++ 		    break;
+  		  case XtUnrelated:
+  		    if (event->type == EnterNotify)
+  		      newFocalPoint = XtMyAncestor;
++ 		    break;
+  		  case XtMySelf:
+  		    break;
+  		  case XtMyDescendant:
+***************
+*** 580,586 ****
+  {
+      XtPerWidgetInput	psi;
+      Widget		shell;
+!     EventMask	 	eventMask;
+      Widget		target;
+  
+      /*
+--- 586,592 ----
+  {
+      XtPerWidgetInput	psi;
+      Widget		shell;
+!     EventMask	 	eventMask, targetEventMask;
+      Widget		target;
+  
+      /*
+***************
+*** 597,603 ****
+       * by reparenting window managers. !!!
+       */
+      target = descendant ? _GetWindowedAncestor(descendant) : NULL;
+!     eventMask = XtBuildEventMask(target) & (KeyPressMask | KeyReleaseMask);
+      eventMask |= FocusChangeMask | EnterWindowMask | LeaveWindowMask;
+  
+      if (oldEventMask) {
+--- 603,610 ----
+       * by reparenting window managers. !!!
+       */
+      target = descendant ? _GetWindowedAncestor(descendant) : NULL;
+!     targetEventMask = XtBuildEventMask(target);
+!     eventMask = targetEventMask & (KeyPressMask | KeyReleaseMask);
+      eventMask |= FocusChangeMask | EnterWindowMask | LeaveWindowMask;
+  
+      if (oldEventMask) {
+***************
+*** 613,663 ****
+  	XtAddEventHandler(widget, eventMask, False, 
+  			  _XtHandleFocus, (XtPointer)pwi);
+  
+!     if (!pwi->haveFocus) {
+  	if (psi->haveFocus) {
+  	    Window root, child;
+! 	    int root_x, root_y, win_x, win_y, shellX, shellY;
+  	    int left, right, top, bottom;
+  	    unsigned int modMask;
+! 	    Widget 	w = widget;
+! 	    Boolean	maybe = FALSE;
+  
+- 
+  	    /*
+! 	     * if the pointer is outside the shell or inside
+! 	     * the window try to see if it would recieve the
+! 	     * focus 
+  	     */
+- 	    XtTranslateCoords(shell, 0, 0, &shellX, &shellY);
+- 	    /* We need to take borders into consideration */
+- 	    left = top = -((int) shell->core.border_width);
+- 	    right = (int) (shell->core.width + (shell->core.border_width << 1));
+- 	    bottom = (int) (shell->core.height + (shell->core.border_width << 1));
+  
+! 	    XQueryPointer(XtDisplay(w), XtWindow(w), &root, &child,
+! 			  &root_x, &root_y, &win_x, &win_y, &modMask );
+  
+! 	    if (root_x >= left && root_x < right &&
+! 		root_y >= top && root_y < bottom) {
+  
+! 		/* We need to take borders into consideration */
+! 		left = top = -((int) w->core.border_width);
+! 		right = (int) (w->core.width + (w->core.border_width << 1));
+! 		bottom = (int) (w->core.height + (w->core.border_width << 1));
+! 
+! 		if (win_x >= left && win_x < right &&
+! 		    win_y >= top && win_y < bottom)
+! 		  maybe = TRUE;
+  	    }
+- 	    else maybe = TRUE;
+- 
+- 	    /*
+- 	     * if the hierarchy has the focus and the widget
+- 	     * is a focus candidate, then see if it is a
+- 	     * descendant of the focus path
+- 	     */
+- 	    if (maybe && (InActiveSubtree(w)))
+- 		pwi->haveFocus = TRUE;
+  	}
+      }
+      if (pwi->haveFocus) {
+--- 620,674 ----
+  	XtAddEventHandler(widget, eventMask, False, 
+  			  _XtHandleFocus, (XtPointer)pwi);
+  
+!     /* What follows is too much grief to go through if the
+!      * target doesn't actually care about focus change events,
+!      * so just invalidate the focus cache & refill it when
+!      * the next input event actually arrives.
+!      */
+! 
+!     if (!(targetEventMask & FocusChangeMask)) {
+! 	pdi->focusWidget = NULL;
+! 	return;
+!     }
+! 
+!     if (XtIsRealized(widget) && !pwi->haveFocus) {
+  	if (psi->haveFocus) {
+  	    Window root, child;
+! 	    int root_x, root_y, win_x, win_y;
+  	    int left, right, top, bottom;
+  	    unsigned int modMask;
+! 	    ActiveType act;
+  
+  	    /*
+! 	     * If the shell has the focus but the source widget
+! 	     * doesn't, it may only be because the source widget
+! 	     * wasn't previously tracking focus or crossing events.
+! 	     * If the target wants focus events, we have to
+! 	     * now determine whether the source has the focus.
+  	     */
+  
+! 	    if ((act = InActiveSubtree(widget)) == IsTarget)
+! 		pwi->haveFocus = TRUE;
+! 	    else if (act == IsActive) {
+! 		/*
+! 		 * An ancestor contains the focus, so if source
+! 		 * contains the pointer, then source has the focus.
+! 		 */
+  
+! 		if (XQueryPointer(XtDisplay(widget), XtWindow(widget),
+! 				  &root, &child,
+! 				  &root_x, &root_y, &win_x, &win_y, &modMask))
+! 		{
+! 		    /* We need to take borders into consideration */
+! 		    left = top = -((int) widget->core.border_width);
+! 		    right = (int) (widget->core.width + (widget->core.border_width << 1));
+! 		    bottom = (int) (widget->core.height + (widget->core.border_width << 1));
+  
+! 		    if (win_x >= left && win_x < right &&
+! 			win_y >= top && win_y < bottom)
+! 			pwi->haveFocus = TRUE;
+! 		}
+  	    }
+  	}
+      }
+      if (pwi->haveFocus) {
+***************
+*** 683,691 ****
+      XtPerWidgetInput pwi = _XtGetPerWidgetInput(ancestor, FALSE);
+      Widget target = pwi->queryEventDescendant;
+  
+!     /* This is non-standard hackery for broken Motif mis-use only;
+!      * focus can go to non-widget
+!      */
+      if (pwi && (pwi->focusKid == target)) {
+  	XtPerDisplayInput pdi = _XtGetPerDisplayInput(XtDisplay(ancestor));
+  	AddFocusHandler(ancestor, target, pwi, pdi, (EventMask)0);
+--- 694,700 ----
+      XtPerWidgetInput pwi = _XtGetPerWidgetInput(ancestor, FALSE);
+      Widget target = pwi->queryEventDescendant;
+  
+!     /* use of 'target' is non-standard hackery; allows focus to non-widget */
+      if (pwi && (pwi->focusKid == target)) {
+  	XtPerDisplayInput pdi = _XtGetPerDisplayInput(XtDisplay(ancestor));
+  	AddFocusHandler(ancestor, target, pwi, pdi, (EventMask)0);
+***************
+*** 714,719 ****
+--- 723,730 ----
+      Widget oldDesc = pwi->focusKid;
+      Widget oldTarget, target;
+      
++     if (descendant == widget) descendant = (Widget)None;
++ 
+      target = descendant ? _GetWindowedAncestor(descendant) : NULL;
+      oldTarget = oldDesc ? _GetWindowedAncestor(oldDesc) : NULL;
+      
+***************
+*** 749,764 ****
+  	     * If there was a forward path then remove the handler if
+  	     * the path is being set to null and it isn't a shell.
+  	     * shells always have a handler for tracking focus for the
+! 	     * hierarchy. 
+  	     */
+! 	    if (!XtIsShell(widget) && !descendant)
+  	      XtRemoveEventHandler(widget, XtAllEvents, True, 
+  				   _XtHandleFocus, (XtPointer)pwi);
+  	}
+  	
+! 	if (!descendant)
+! 	  pwi->haveFocus = FALSE;
+! 	else {
+  	    XtAddCallback (descendant, XtNdestroyCallback, 
+  			   FocusDestroyCallback, (XtPointer) widget);
+  
+--- 760,778 ----
+  	     * If there was a forward path then remove the handler if
+  	     * the path is being set to null and it isn't a shell.
+  	     * shells always have a handler for tracking focus for the
+! 	     * hierarchy.
+! 	     *
+! 	     * Keep the pwi record on the assumption that the client
+! 	     * will continue to dynamically assign focus for this widget.
+  	     */
+! 	    if (!XtIsShell(widget) && !descendant) {
+  	      XtRemoveEventHandler(widget, XtAllEvents, True, 
+  				   _XtHandleFocus, (XtPointer)pwi);
++ 	      pwi->haveFocus = FALSE;
++ 	  }
+  	}
+  	
+! 	if (descendant) {
+  	    XtAddCallback (descendant, XtNdestroyCallback, 
+  			   FocusDestroyCallback, (XtPointer) widget);
+  
+
+*** /tmp/,RCSt1a04140	Thu Apr 19 19:47:10 1990
+--- mit/lib/Xt/PassivGrab.c	Thu Apr 19 19:47:11 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: PassivGrab.c,v 1.9 90/01/25 09:44:18 swick Exp $";
+  #endif
+  
+  /********************************************************
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: PassivGrab.c,v 1.11 90/04/03 20:14:33 swick Exp $";
+  #endif
+  
+  /********************************************************
+***************
+*** 571,581 ****
+   */
+  
+  /*ARGSUSED*/
+! static void  ActiveHandler (widget, pdi, event)
+      Widget 		widget;
+!     XtPerDisplayInput	pdi;
+      XEvent 		*event;
+! 
+  {
+      
+  }
+--- 571,581 ----
+   */
+  
+  /*ARGSUSED*/
+! static void  ActiveHandler (widget, pdi, event, cont)
+      Widget 		widget;
+!     XtPointer		pdi;
+      XEvent 		*event;
+!     Boolean		*cont;
+  {
+      
+  }
+***************
+*** 660,675 ****
+   */
+  
+  /*ARGSUSED*/
+! static void  RealizeHandler (widget, pwi, event)
+      Widget 		widget;
+!     XtPerWidgetInput	pwi;
+      XEvent 		*event;	/* unused */
+! 
+  {
+!     XtPerDisplayInput	pdi;
+      
+-     pdi = _XtGetPerDisplayInput(XtDisplay(widget));
+-     
+      MakeGrabs(&pwi->keyList, KEYBOARD, pdi);
+      MakeGrabs(&pwi->ptrList, POINTER, pdi);
+   
+--- 660,674 ----
+   */
+  
+  /*ARGSUSED*/
+! static void  RealizeHandler (widget, closure, event, cont)
+      Widget 		widget;
+!     XtPointer		closure;
+      XEvent 		*event;	/* unused */
+!     Boolean		*cont;	/* unused */
+  {
+!     XtPerWidgetInput	pwi = (XtPerWidgetInput)closure;
+!     XtPerDisplayInput	pdi = _XtGetPerDisplayInput(XtDisplay(widget));
+      
+      MakeGrabs(&pwi->keyList, KEYBOARD, pdi);
+      MakeGrabs(&pwi->ptrList, POINTER, pdi);
+   
+***************
+*** 811,817 ****
+  			     &tempGrab);
+  }
+  
+- 
+  void  XtGrabKey (widget, keycode, modifiers, owner_events,
+  		 pointer_mode, keyboard_mode)
+      Widget	widget;
+--- 810,815 ----
+***************
+*** 820,835 ****
+      Boolean	owner_events;
+      int 	pointer_mode;
+      int 	keyboard_mode;
+-     
+  {
+!     GrabKeyOrButton(widget, keycode, modifiers, owner_events,
+  		    pointer_mode, keyboard_mode, 
+  		    (Mask)0, (Window)None, (Cursor)None, KEYBOARD);
+  }
+  
+  void  XtGrabButton(widget, button, modifiers, owner_events,
+! 		   pointer_mode, keyboard_mode,
+! 		   event_mask, confine_to, cursor)
+      Widget	widget;
+      int		button;
+      Modifiers	modifiers;
+--- 818,832 ----
+      Boolean	owner_events;
+      int 	pointer_mode;
+      int 	keyboard_mode;
+  {
+!     GrabKeyOrButton(widget, (KeyCode)keycode, modifiers, owner_events,
+  		    pointer_mode, keyboard_mode, 
+  		    (Mask)0, (Window)None, (Cursor)None, KEYBOARD);
+  }
+  
+  void  XtGrabButton(widget, button, modifiers, owner_events,
+! 		   event_mask, pointer_mode, keyboard_mode,
+! 		   confine_to, cursor)
+      Widget	widget;
+      int		button;
+      Modifiers	modifiers;
+***************
+*** 862,868 ****
+  
+  void   XtUngrabButton (widget, button, modifiers)
+      Widget	widget;
+!     int		button;
+      Modifiers	modifiers;
+  {
+  
+--- 859,865 ----
+  
+  void   XtUngrabButton (widget, button, modifiers)
+      Widget	widget;
+!     unsigned int button;
+      Modifiers	modifiers;
+  {
+  
+
+*** /tmp/,RCSt1a04189	Thu Apr 19 19:47:29 1990
+--- mit/lib/Xt/RectObjP.h	Thu Apr 19 19:47:31 1990
+***************
+*** 1,4 ****
+! /* $XConsortium: RectObjP.h,v 1.10 89/10/04 12:22:46 swick Exp $ */
+  /* $oHeader: RectObjP.h,v 1.2 88/08/18 15:55:52 asente Exp $ */
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+--- 1,4 ----
+! /* $XConsortium: RectObjP.h,v 1.11 90/03/19 12:52:48 swick Exp $ */
+  /* $oHeader: RectObjP.h,v 1.2 88/08/18 15:55:52 asente Exp $ */
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+***************
+*** 72,78 ****
+      XtInitProc      initialize;         /* initialize subclass fields       */
+      XtArgsProc      initialize_hook;    /* notify that initialize called    */
+      XtProc          rect1;		/* NULL                             */
+!     XtProc          rect2;              /* NULL                             */
+      Cardinal        rect3;              /* NULL                             */
+      XtResourceList  resources;          /* resources for subclass fields    */
+      Cardinal        num_resources;      /* number of entries in resources   */
+--- 72,78 ----
+      XtInitProc      initialize;         /* initialize subclass fields       */
+      XtArgsProc      initialize_hook;    /* notify that initialize called    */
+      XtProc          rect1;		/* NULL                             */
+!     XtPointer       rect2;              /* NULL                             */
+      Cardinal        rect3;              /* NULL                             */
+      XtResourceList  resources;          /* resources for subclass fields    */
+      Cardinal        num_resources;      /* number of entries in resources   */
+
+*** /tmp/,RCSt1a04217	Thu Apr 19 19:47:49 1990
+--- mit/lib/Xt/SelectionI.h	Thu Apr 19 19:47:49 1990
+***************
+*** 1,4 ****
+! /* $XConsortium: SelectionI.h,v 1.22 90/02/01 15:08:04 keith Exp $ */
+  /* $oHeader: SelectionI.h,v 1.3 88/08/19 14:02:44 asente Exp $ */
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+--- 1,4 ----
+! /* $XConsortium: SelectionI.h,v 1.24 90/04/03 16:17:53 swick Exp $ */
+  /* $oHeader: SelectionI.h,v 1.3 88/08/19 14:02:44 asente Exp $ */
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+***************
+*** 44,50 ****
+     Atom type;
+     int format;
+     char *value;
+!    int bytelength;
+     int offset;
+     XtIntervalId timeout;
+     XSelectionRequestEvent event; /* for XtGetSelectionRequest */
+--- 44,50 ----
+     Atom type;
+     int format;
+     char *value;
+!    unsigned long bytelength;
+     int offset;
+     XtIntervalId timeout;
+     XSelectionRequestEvent event; /* for XtGetSelectionRequest */
+***************
+*** 112,117 ****
+--- 112,118 ----
+  
+  #define MATCH_SELECT(event, info) ((event->time == info->time) && \
+  	    (event->requestor == XtWindow(info->widget)) && \
++ 	    (event->selection == info->ctx->selection) && \
+  	    ((event->target == *info->target) || \
+  	     ((event->target == info->ctx->prop_list->incremental_atom) && \
+  	      (event->property == info->property))))
+
+*** /tmp/,RCSt1a04231	Thu Apr 19 19:47:54 1990
+--- mit/lib/Xt/SetValues.c	Thu Apr 19 19:47:56 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: SetValues.c,v 1.4 90/02/26 16:25:04 kit Exp $";
+  #endif /* lint */
+  
+  /***********************************************************
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: SetValues.c,v 1.6 90/04/03 17:11:55 swick Exp $";
+  #endif /* lint */
+  
+  /***********************************************************
+***************
+*** 133,139 ****
+      double	    oldwCache[100], reqwCache[100];
+      double	    oldcCache[20], reqcCache[20];
+      Cardinal	    widgetSize, constraintSize;
+!     Boolean	    redisplay, cleared_rect_obj, reconfigured = False;
+      XtGeometryResult result;
+      XtWidgetGeometry geoReq, geoReply;
+      WidgetClass     wc = XtClass(w);
+--- 133,139 ----
+      double	    oldwCache[100], reqwCache[100];
+      double	    oldcCache[20], reqcCache[20];
+      Cardinal	    widgetSize, constraintSize;
+!     Boolean	    redisplay, cleared_rect_obj = False, reconfigured = False;
+      XtGeometryResult result;
+      XtWidgetGeometry geoReq, geoReply;
+      WidgetClass     wc = XtClass(w);
+***************
+*** 242,257 ****
+  		(*(wc->core_class.resize))(w);
+  	    }
+  	}
+! 	/* Redisplay if needed */
+          if (XtIsWidget(w)) {
+              /* widgets can distinguish between redisplay and resize, since
+               the server will cause an expose on resize */
+!             if (redisplay && XtIsRealized(w))
+                  XClearArea (XtDisplay(w), XtWindow(w), 0, 0, 0, 0, TRUE);
+          } else { /*non-window object */
+  	  if (redisplay && ! cleared_rect_obj ) {
+  	      Widget pw = _XtWindowedAncestor(w);
+! 	      if (XtIsRealized(pw)) {
+  		  RectObj r = (RectObj)w;
+  		  int bw2 = r->rectangle.border_width << 1;
+  		  XClearArea (XtDisplay (pw), XtWindow (pw),
+--- 242,259 ----
+  		(*(wc->core_class.resize))(w);
+  	    }
+  	}
+! 	/* Redisplay if needed.  No point in clearing if the window is
+! 	 * about to disappear, as the Expose event will just go straight
+! 	 * to the bit bucket. */
+          if (XtIsWidget(w)) {
+              /* widgets can distinguish between redisplay and resize, since
+               the server will cause an expose on resize */
+!             if (redisplay && XtIsRealized(w) && !w->core.being_destroyed)
+                  XClearArea (XtDisplay(w), XtWindow(w), 0, 0, 0, 0, TRUE);
+          } else { /*non-window object */
+  	  if (redisplay && ! cleared_rect_obj ) {
+  	      Widget pw = _XtWindowedAncestor(w);
+! 	      if (XtIsRealized(pw) && !pw->core.being_destroyed) {
+  		  RectObj r = (RectObj)w;
+  		  int bw2 = r->rectangle.border_width << 1;
+  		  XClearArea (XtDisplay (pw), XtWindow (pw),
+
+*** /tmp/,RCSt1a04245	Thu Apr 19 19:48:11 1990
+--- mit/lib/Xt/Shell.c	Thu Apr 19 19:48:13 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Shell.c,v 1.83 89/12/15 19:11:16 swick Exp $";
+  /* $oHeader: Shell.c,v 1.7 88/09/01 11:57:00 asente Exp $ */
+  #endif /* lint */
+  
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Shell.c,v 1.87 90/04/05 17:07:10 swick Exp $";
+  /* $oHeader: Shell.c,v 1.7 88/09/01 11:57:00 asente Exp $ */
+  #endif /* lint */
+  
+***************
+*** 118,123 ****
+--- 118,124 ----
+  static Boolean SetValues();
+  static void ChangeManaged(); /* XXX */
+  static XtGeometryResult GeometryManager(), RootGeometryManager();
++ static void Destroy();
+  
+  static ShellClassExtensionRec shellClassExtRec = {
+      NULL,
+***************
+*** 147,153 ****
+      /* compress_exposure  */	TRUE,
+      /* compress_enterleave*/	FALSE,
+      /* visible_interest	  */	FALSE,
+!     /* destroy		  */	NULL,
+      /* resize		  */	Resize,
+      /* expose		  */	NULL,
+      /* set_values	  */	SetValues,
+--- 148,154 ----
+      /* compress_exposure  */	TRUE,
+      /* compress_enterleave*/	FALSE,
+      /* visible_interest	  */	FALSE,
+!     /* destroy		  */	Destroy,
+      /* resize		  */	Resize,
+      /* expose		  */	NULL,
+      /* set_values	  */	SetValues,
+***************
+*** 697,703 ****
+  	    Cardinal num_params = 1;
+  	    params[0] = widget_class->core_class.class_name;
+  	    XtErrorMsg( "invalidExtension", "shellClassPartInitialize",
+! 		        "XtToolkitError",
+  		 "widget class %s has invalid ShellClassExtension record",
+  		 params, &num_params);
+  	}
+--- 698,704 ----
+  	    Cardinal num_params = 1;
+  	    params[0] = widget_class->core_class.class_name;
+  	    XtErrorMsg( "invalidExtension", "shellClassPartInitialize",
+! 		        XtCXtToolkitError,
+  		 "widget class %s has invalid ShellClassExtension record",
+  		 params, &num_params);
+  	}
+***************
+*** 943,949 ****
+  	}
+  	if (wid->core.width == 0 || wid->core.height == 0) {
+  	    Cardinal count = 1;
+! 	    XtErrorMsg("invalidDimension", "shellRealize", "XtToolkitError",
+  		       "Shell widget %s has zero width and/or height",
+  		       &wid->core.name, &count);
+  	}
+--- 944,950 ----
+  	}
+  	if (wid->core.width == 0 || wid->core.height == 0) {
+  	    Cardinal count = 1;
+! 	    XtErrorMsg("invalidDimension", "shellRealize", XtCXtToolkitError,
+  		       "Shell widget %s has zero width and/or height",
+  		       &wid->core.name, &count);
+  	}
+***************
+*** 1184,1190 ****
+  
+  	if(w->core.window != event->xany.window) {
+  		XtAppErrorMsg(XtWidgetToApplicationContext(wid),
+! 			"invalidWindow","eventHandler","XtToolkitError",
+                          "Event with wrong window",
+  			(String *)NULL, (Cardinal *)NULL);
+  		return;
+--- 1185,1191 ----
+  
+  	if(w->core.window != event->xany.window) {
+  		XtAppErrorMsg(XtWidgetToApplicationContext(wid),
+! 			"invalidWindow","eventHandler",XtCXtToolkitError,
+                          "Event with wrong window",
+  			(String *)NULL, (Cardinal *)NULL);
+  		return;
+***************
+*** 1236,1242 ****
+  		    if(wmshell->wm.wait_for_wm) {
+  			XtAppWarningMsg(XtWidgetToApplicationContext(wid),
+  				"communicationError","windowManager",
+!                                   "XtToolkitError",
+                                    "Window Manager is confused",
+  				  (String *)NULL, (Cardinal *)NULL);
+  		    }
+--- 1237,1243 ----
+  		    if(wmshell->wm.wait_for_wm) {
+  			XtAppWarningMsg(XtWidgetToApplicationContext(wid),
+  				"communicationError","windowManager",
+!                                   XtCXtToolkitError,
+                                    "Window Manager is confused",
+  				  (String *)NULL, (Cardinal *)NULL);
+  		    }
+***************
+*** 1286,1296 ****
+  	 } 
+  
+  	 if (sizechanged && 
+!                  XtClass(w)->core_class.resize != (XtWidgetProc) NULL)
+!                     (*(XtClass(w)->core_class.resize))(w);
+  
+  }
+  
+  static void WMDestroy(wid)
+  	Widget wid;
+  {
+--- 1287,1304 ----
+  	 } 
+  
+  	 if (sizechanged && 
+!                  XtClass(wid)->core_class.resize != (XtWidgetProc) NULL)
+!                     (*(XtClass(wid)->core_class.resize))(wid);
+  
+  }
+  
++ static void Destroy(wid)
++ 	Widget wid;
++ {
++ 	if (XtIsRealized(wid))
++ 	    XDestroyWindow( XtDisplay(wid), XtWindow(wid) );
++ }
++ 
+  static void WMDestroy(wid)
+  	Widget wid;
+  {
+***************
+*** 1386,1392 ****
+  	    params[0] = XtName(W);
+  	    params[1] = w->shell.geometry;
+  	    XtAppWarningMsg(XtWidgetToApplicationContext(W),
+!        "badGeometry", "shellRealize", "XtToolkitError",
+         "Shell widget \"%s\" has an invalid geometry specification: \"%s\"",
+  			    params, &num_params);
+  	}
+--- 1394,1400 ----
+  	    params[0] = XtName(W);
+  	    params[1] = w->shell.geometry;
+  	    XtAppWarningMsg(XtWidgetToApplicationContext(W),
+!        "badGeometry", "shellRealize", XtCXtToolkitError,
+         "Shell widget \"%s\" has an invalid geometry specification: \"%s\"",
+  			    params, &num_params);
+  	}
+***************
+*** 1585,1611 ****
+  }
+  
+  /*ARGSUSED*/
+! static XtGeometryResult RootGeometryManager(w, request, reply)
+!     Widget w;
+      XtWidgetGeometry *request, *reply;
+  {
+      XWindowChanges values;
+      unsigned int mask = request->request_mode;
+-     WMShellWidget wmshell = (WMShellWidget)w;
+      XEvent event;
+!     Boolean wm = XtIsWMShell(w);
+      register struct _OldXSizeHints *hintp;
+      int oldx, oldy, oldwidth, oldheight, oldborder_width, request_num;
+  
+!     if (wm) {
+! 	hintp = &wmshell->wm.size_hints;
+! 	oldx = w->core.x;
+! 	oldy = w->core.y;
+! 	oldwidth = w->core.width;
+! 	oldheight = w->core.height;
+! 	oldborder_width = w->core.border_width;
+!     }
+  
+  #define PutBackGeometry() \
+  	{ w->core.x = oldx; \
+  	  w->core.y = oldy; \
+--- 1593,1623 ----
+  }
+  
+  /*ARGSUSED*/
+! static XtGeometryResult RootGeometryManager(gw, request, reply)
+!     Widget gw;
+      XtWidgetGeometry *request, *reply;
+  {
++     register ShellWidget w = (ShellWidget)gw;
+      XWindowChanges values;
+      unsigned int mask = request->request_mode;
+      XEvent event;
+!     Boolean wm;
+      register struct _OldXSizeHints *hintp;
+      int oldx, oldy, oldwidth, oldheight, oldborder_width, request_num;
+  
+!     if (XtIsWMShell(gw)) {
+! 	wm = True;
+! 	hintp = &((WMShellWidget)w)->wm.size_hints;
+!     } else
+! 	wm = False;
+!     
+  
++     oldx = w->core.x;
++     oldy = w->core.y;
++     oldwidth = w->core.width;
++     oldheight = w->core.height;
++     oldborder_width = w->core.border_width;
++ 
+  #define PutBackGeometry() \
+  	{ w->core.x = oldx; \
+  	  w->core.y = oldy; \
+***************
+*** 1671,1687 ****
+  	    values.sibling = XtWindow(request->sibling);
+      }
+  
+!     if (!XtIsRealized(w)) return XtGeometryYes;
+  
+!     if (wm && !wmshell->shell.override_redirect
+  	&& mask & (CWX | CWY | CWWidth | CWHeight | CWBorderWidth)) {
+! 	_SetWMSizeHints(wmshell);
+      }
+  
+      request_num = NextRequest(XtDisplay(w));
+!     XConfigureWindow(XtDisplay(w), XtWindow(w), mask, &values);
+  
+!     if (wmshell->shell.override_redirect) return XtGeometryDone;
+  
+      /* If no non-stacking bits are set, there's no way to tell whether
+         or not this worked, so assume it did */
+--- 1683,1699 ----
+  	    values.sibling = XtWindow(request->sibling);
+      }
+  
+!     if (!XtIsRealized((Widget)w)) return XtGeometryYes;
+  
+!     if (wm && !w->shell.override_redirect
+  	&& mask & (CWX | CWY | CWWidth | CWHeight | CWBorderWidth)) {
+! 	_SetWMSizeHints((WMShellWidget)w);
+      }
+  
+      request_num = NextRequest(XtDisplay(w));
+!     XConfigureWindow(XtDisplay((Widget)w), XtWindow((Widget)w), mask, &values);
+  
+!     if (w->shell.override_redirect) return XtGeometryDone;
+  
+      /* If no non-stacking bits are set, there's no way to tell whether
+         or not this worked, so assume it did */
+***************
+*** 1688,1694 ****
+  
+      if (!(mask & ~(CWStackMode | CWSibling))) return XtGeometryDone;
+  
+!     if (wmshell->wm.wait_for_wm == FALSE) {
+  	    /* the window manager is sick
+  	     * so I will do the work and 
+  	     * say no so if a new WM starts up,
+--- 1700,1706 ----
+  
+      if (!(mask & ~(CWStackMode | CWSibling))) return XtGeometryDone;
+  
+!     if (wm && ((WMShellWidget)w)->wm.wait_for_wm == FALSE) {
+  	    /* the window manager is sick
+  	     * so I will do the work and 
+  	     * say no so if a new WM starts up,
+***************
+*** 1698,1704 ****
+  	    return XtGeometryNo;
+      }
+  
+!     if (_wait_for_response((ShellWidget)w, &event, request_num)) {
+  	/* got an event */
+  	if (event.type == ConfigureNotify) {
+  
+--- 1710,1716 ----
+  	    return XtGeometryNo;
+      }
+  
+!     if (_wait_for_response(w, &event, request_num)) {
+  	/* got an event */
+  	if (event.type == ConfigureNotify) {
+  
+***************
+*** 1725,1737 ****
+  		w->core.height = event.xconfigure.height;
+  		w->core.border_width = event.xconfigure.border_width;
+  		if (event.xany.send_event || /* ICCCM compliant synth */
+! 		    wmshell->shell.client_specified & _XtShellNotReparented) {
+  
+  		    w->core.x = event.xconfigure.x;
+  		    w->core.y = event.xconfigure.y;
+! 		    wmshell->shell.client_specified |= _XtShellPositionValid;
+  		}
+! 		else wmshell->shell.client_specified &= ~_XtShellPositionValid;
+  		return XtGeometryDone;
+  	    }
+  	} else if (!wm ||
+--- 1737,1749 ----
+  		w->core.height = event.xconfigure.height;
+  		w->core.border_width = event.xconfigure.border_width;
+  		if (event.xany.send_event || /* ICCCM compliant synth */
+! 		    w->shell.client_specified & _XtShellNotReparented) {
+  
+  		    w->core.x = event.xconfigure.x;
+  		    w->core.y = event.xconfigure.y;
+! 		    w->shell.client_specified |= _XtShellPositionValid;
+  		}
+! 		else w->shell.client_specified &= ~_XtShellPositionValid;
+  		return XtGeometryDone;
+  	    }
+  	} else if (!wm ||
+***************
+*** 1743,1756 ****
+  		    event.xclient.message_type == WM_MOVED(w)) {
+  	    w->core.x = event.xclient.data.s[0];
+  	    w->core.y = event.xclient.data.s[1];
+! 	    wmshell->shell.client_specified |= _XtShellPositionValid;
+  	    return XtGeometryDone;
+  	} else XtAppWarningMsg(XtWidgetToApplicationContext((Widget)w),
+! 			       "internalError", "shell", "XtToolkitError",
+  			       "Shell's window manager interaction is broken",
+  			       (String *)NULL, (Cardinal *)NULL);
+!     } else /* no event */ {
+! 	wmshell->wm.wait_for_wm = FALSE; /* timed out; must be broken */
+      }
+  #undef PutBackGeometry
+      return XtGeometryNo;
+--- 1755,1768 ----
+  		    event.xclient.message_type == WM_MOVED(w)) {
+  	    w->core.x = event.xclient.data.s[0];
+  	    w->core.y = event.xclient.data.s[1];
+! 	    w->shell.client_specified |= _XtShellPositionValid;
+  	    return XtGeometryDone;
+  	} else XtAppWarningMsg(XtWidgetToApplicationContext((Widget)w),
+! 			       "internalError", "shell", XtCXtToolkitError,
+  			       "Shell's window manager interaction is broken",
+  			       (String *)NULL, (Cardinal *)NULL);
+!     } else if (wm) { /* no event */ 
+! 	((WMShellWidget)w)->wm.wait_for_wm = FALSE; /* timed out; must be broken */
+      }
+  #undef PutBackGeometry
+      return XtGeometryNo;
+***************
+*** 1944,1950 ****
+  {
+      if (! XtIsWidget(widget) && XtIsRectObj(widget)) {
+  	XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 	       "invalidClass", "applicationShellInsertChild", "XtToolkitError",
+  	       "ApplicationShell does not accept RectObj children; ignored",
+  	       (String*)NULL, (Cardinal*)NULL);
+      }
+--- 1956,1962 ----
+  {
+      if (! XtIsWidget(widget) && XtIsRectObj(widget)) {
+  	XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 	       "invalidClass", "applicationShellInsertChild", XtCXtToolkitError,
+  	       "ApplicationShell does not accept RectObj children; ignored",
+  	       (String*)NULL, (Cardinal*)NULL);
+      }
+
+*** /tmp/,RCSt1a04280	Thu Apr 19 19:48:39 1990
+--- mit/lib/Xt/TMstate.c	Thu Apr 19 19:48:42 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: TMstate.c,v 1.95 89/12/09 23:02:46 rws Exp $";
+  /* $oHeader: TMstate.c,v 1.5 88/09/01 17:17:29 asente Exp $ */
+  #endif /* lint */
+  /*LINTLIBRARY*/
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: TMstate.c,v 1.98 90/04/10 15:58:55 swick Exp $";
+  /* $oHeader: TMstate.c,v 1.5 88/09/01 17:17:29 asente Exp $ */
+  #endif /* lint */
+  /*LINTLIBRARY*/
+***************
+*** 39,44 ****
+--- 39,46 ----
+  #include <stdio.h>
+  #include "IntrinsicI.h"
+  
++ static String XtNtranslationError = "translationError";
++ 
+  /* usual number of expected keycodes in XtKeysymToKeycodeList */
+  #define KEYCODE_ARRAY_SIZE 10
+  
+***************
+*** 406,412 ****
+      perDisplay = _XtGetPerDisplay(dpy);
+      if (perDisplay == NULL) {
+          XtAppWarningMsg(XtDisplayToApplicationContext(dpy),
+! 		"displayError","invalidDisplay","XtToolkitError",
+              "Can't find display structure",
+              (String *)NULL, (Cardinal *)NULL);
+           return FALSE;
+--- 408,414 ----
+      perDisplay = _XtGetPerDisplay(dpy);
+      if (perDisplay == NULL) {
+          XtAppWarningMsg(XtDisplayToApplicationContext(dpy),
+! 		"displayError","invalidDisplay",XtCXtToolkitError,
+              "Can't find display structure",
+              (String *)NULL, (Cardinal *)NULL);
+           return FALSE;
+***************
+*** 757,763 ****
+  
+  
+  /* ARGSUSED */
+! static void _XtTranslateEvent (w, closure, event, continue_to_dispatch)
+      Widget w;
+      XtPointer closure;		/* XtTM */
+      register    XEvent * event;
+--- 759,765 ----
+  
+  
+  /* ARGSUSED */
+! void _XtTranslateEvent (w, closure, event, continue_to_dispatch)
+      Widget w;
+      XtPointer closure;		/* XtTM */
+      register    XEvent * event;
+***************
+*** 787,793 ****
+  
+      if (stateTable == NULL) {
+          XtAppWarningMsg(XtWidgetToApplicationContext(w),
+! 		"translationError","nullTable","XtToolkitError",
+              "Can't translate event through NULL table",
+              (String *)NULL, (Cardinal *)NULL);
+         return ;
+--- 789,795 ----
+  
+      if (stateTable == NULL) {
+          XtAppWarningMsg(XtWidgetToApplicationContext(w),
+! 		XtNtranslationError,"nullTable",XtCXtToolkitError,
+              "Can't translate event through NULL table",
+              (String *)NULL, (Cardinal *)NULL);
+         return ;
+***************
+*** 1183,1189 ****
+  void XtUninstallTranslations(widget)
+      Widget widget;
+  {
+!     XtRemoveEventHandler(widget,(EventMask)~0L,TRUE,_XtTranslateEvent,
+                       (XtPointer)&widget->core.tm);
+      widget->core.tm.translations = NULL;
+      if (widget->core.tm.proc_table != NULL)
+--- 1185,1191 ----
+  void XtUninstallTranslations(widget)
+      Widget widget;
+  {
+!     XtRemoveEventHandler(widget, XtAllEvents, TRUE, _XtTranslateEvent,
+                       (XtPointer)&widget->core.tm);
+      widget->core.tm.translations = NULL;
+      if (widget->core.tm.proc_table != NULL)
+***************
+*** 1226,1232 ****
+      }
+      message[num_chars] = '\0';
+      if (num_unbound != 0)
+!         XtWarningMsg("translationError","unboundActions","XtToolkitError",
+                    message, (String *)NULL, (Cardinal *)NULL);
+  }
+  
+--- 1228,1234 ----
+      }
+      message[num_chars] = '\0';
+      if (num_unbound != 0)
+!         XtWarningMsg(XtNtranslationError,"unboundActions",XtCXtToolkitError,
+                    message, (String *)NULL, (Cardinal *)NULL);
+  }
+  
+***************
+*** 1471,1478 ****
+  		int len = 100;
+  		String params[1];
+  		Cardinal num_params = 1;
+! 		XtWarningMsg ("translationError","ambigiousActions", 
+!                            "XtToolkitError",
+                             "Overriding earlier translation manager actions.",
+                              (String *)NULL, (Cardinal *)NULL);
+  		str = PrintEventSeq( &buf, &len, buf, initialEvent, NULL );
+--- 1473,1480 ----
+  		int len = 100;
+  		String params[1];
+  		Cardinal num_params = 1;
+! 		XtWarningMsg (XtNtranslationError,"ambiguousActions", 
+!                            XtCXtToolkitError,
+                             "Overriding earlier translation manager actions.",
+                              (String *)NULL, (Cardinal *)NULL);
+  		str = PrintEventSeq( &buf, &len, buf, initialEvent, NULL );
+***************
+*** 1485,1495 ****
+  		*str++ = ':';
+  		(void)PrintActions( &buf, &len, str, (*state)->actions, stateTable );
+  		params[0] = buf;
+! 		XtWarningMsg ("translationError","oldActions","XtToolkitError",
+  			      "Previous entry was: %s", params, &num_params);
+  		(void)PrintActions( &buf, &len, buf, eventSeq->actions, stateTable );
+  		params[0] = buf;
+! 		XtWarningMsg ("translationError","newActions","XtToolkitError",
+  			      "New actions are:%s", params, &num_params);
+  		XtFree((XtPointer)buf);
+  		FreeActions((*state)->actions);
+--- 1487,1497 ----
+  		*str++ = ':';
+  		(void)PrintActions( &buf, &len, str, (*state)->actions, stateTable );
+  		params[0] = buf;
+! 		XtWarningMsg (XtNtranslationError,"oldActions",XtCXtToolkitError,
+  			      "Previous entry was: %s", params, &num_params);
+  		(void)PrintActions( &buf, &len, buf, eventSeq->actions, stateTable );
+  		params[0] = buf;
+! 		XtWarningMsg (XtNtranslationError,"newActions",XtCXtToolkitError,
+  			      "New actions are:%s", params, &num_params);
+  		XtFree((XtPointer)buf);
+  		FreeActions((*state)->actions);
+***************
+*** 1607,1614 ****
+  		temp->new != new->nextLevel;
+  		temp=temp->next)
+  	        if (temp == NULL)
+!                      XtErrorMsg("translationError","mergingTablesWithCycles",
+!                              "XtToolkitError",
+  "Trying to merge translation tables with cycles, and can't resolve this cycle."
+  			     , (String *)NULL, (Cardinal *)NULL);
+  	    (*old)->nextLevel = temp->old;
+--- 1609,1616 ----
+  		temp->new != new->nextLevel;
+  		temp=temp->next)
+  	        if (temp == NULL)
+!                      XtErrorMsg(XtNtranslationError,"mergingTablesWithCycles",
+!                              XtCXtToolkitError,
+  "Trying to merge translation tables with cycles, and can't resolve this cycle."
+  			     , (String *)NULL, (Cardinal *)NULL);
+  	    (*old)->nextLevel = temp->old;
+***************
+*** 1647,1653 ****
+  
+      if (new == NULL) return;
+      if (old == NULL) {
+! 	XtWarningMsg("translationError","mergingNullTable","XtToolkitError",
+              "Old translation table was null, cannot modify.",
+  	    (String *)NULL, (Cardinal *)NULL);
+  	return;
+--- 1649,1655 ----
+  
+      if (new == NULL) return;
+      if (old == NULL) {
+! 	XtWarningMsg(XtNtranslationError,"mergingNullTable",XtCXtToolkitError,
+              "Old translation table was null, cannot modify.",
+  	    (String *)NULL, (Cardinal *)NULL);
+  	return;
+***************
+*** 1768,1774 ****
+      TMkind operation;
+  
+      if (*num_args != 0)
+! 	XtWarningMsg("invalidParameters","mergeTranslations","XtToolkitError",
+               "MergeTM to TranslationTable needs no extra arguments",
+                 (String *)NULL, (Cardinal *)NULL);
+  
+--- 1770,1776 ----
+      TMkind operation;
+  
+      if (*num_args != 0)
+! 	XtWarningMsg("invalidParameters","mergeTranslations",XtCXtToolkitError,
+               "MergeTM to TranslationTable needs no extra arguments",
+                 (String *)NULL, (Cardinal *)NULL);
+  
+***************
+*** 1867,1873 ****
+  
+      if (*num_args != 0)
+  	XtAppWarningMsg(app,
+! 	  "invalidParameters","freeTranslations","XtToolkitError",
+            "Freeing XtTranslations requires no extra arguments",
+  	  (String *)NULL, (Cardinal *)NULL);
+  
+--- 1869,1875 ----
+  
+      if (*num_args != 0)
+  	XtAppWarningMsg(app,
+! 	  "invalidParameters","freeTranslations",XtCXtToolkitError,
+            "Freeing XtTranslations requires no extra arguments",
+  	  (String *)NULL, (Cardinal *)NULL);
+  
+***************
+*** 1904,1910 ****
+      XtTranslations table = (XtTranslations)closure;
+      if (table == NULL) {
+          XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 		"translation error","nullTable","XtToolkitError",
+              "Can't remove accelerators from NULL table",
+              (String *)NULL, (Cardinal *)NULL);
+          return;
+--- 1906,1912 ----
+      XtTranslations table = (XtTranslations)closure;
+      if (table == NULL) {
+          XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 		XtNtranslationError,"nullTable",XtCXtToolkitError,
+              "Can't remove accelerators from NULL table",
+              (String *)NULL, (Cardinal *)NULL);
+          return;
+***************
+*** 1911,1917 ****
+      }
+      if (table->accProcTbl == NULL) {
+          XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 		"translation error","nullTable","XtToolkitError",
+              "Tried to remove non-existant accelerators",
+              (String *)NULL, (Cardinal *)NULL);
+          return;
+--- 1913,1919 ----
+      }
+      if (table->accProcTbl == NULL) {
+          XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 		XtNtranslationError,"nullTable",XtCXtToolkitError,
+              "Tried to remove non-existant accelerators",
+              (String *)NULL, (Cardinal *)NULL);
+          return;
+***************
+*** 2295,2301 ****
+  
+      if (*num_params != 1) {
+  	XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 		      "invalidParameters","xtMenuPopupAction","XtToolkitError",
+  			"MenuPopup wants exactly one argument",
+  			(String *)NULL, (Cardinal *)NULL);
+  	return;
+--- 2297,2303 ----
+  
+      if (*num_params != 1) {
+  	XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 		      "invalidParameters","xtMenuPopupAction",XtCXtToolkitError,
+  			"MenuPopup wants exactly one argument",
+  			(String *)NULL, (Cardinal *)NULL);
+  	return;
+***************
+*** 2307,2313 ****
+  	spring_loaded = False;
+      else {
+  	XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 		"invalidPopup","unsupportedOperation","XtToolkitError",
+  "Pop-up menu creation is only supported on ButtonPress, KeyPress or EnterNotify events.",
+                    (String *)NULL, (Cardinal *)NULL);
+  	spring_loaded = False;
+--- 2309,2315 ----
+  	spring_loaded = False;
+      else {
+  	XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 		"invalidPopup","unsupportedOperation",XtCXtToolkitError,
+  "Pop-up menu creation is only supported on ButtonPress, KeyPress or EnterNotify events.",
+                    (String *)NULL, (Cardinal *)NULL);
+  	spring_loaded = False;
+***************
+*** 2316,2322 ****
+      popup_shell = _XtFindPopup(widget, params[0]);
+      if (popup_shell == NULL) {
+  	XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 			"invalidPopup","xtMenuPopup","XtToolkitError",
+  			"Can't find popup widget \"%s\" in XtMenuPopup",
+  			params, num_params);
+  	return;
+--- 2318,2324 ----
+      popup_shell = _XtFindPopup(widget, params[0]);
+      if (popup_shell == NULL) {
+  	XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 			"invalidPopup","xtMenuPopup",XtCXtToolkitError,
+  			"Can't find popup widget \"%s\" in XtMenuPopup",
+  			params, num_params);
+  	return;
+***************
+*** 2342,2348 ****
+  	popup_shell = _XtFindPopup(widget, params[0]);
+  	if (popup_shell == NULL) {
+              XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 			    "invalidPopup","xtMenuPopup","XtToolkitError",
+  			    "Can't find popup widget \"%s\" in XtMenuPopdown",
+  			    params, num_params);
+  	    return;
+--- 2344,2350 ----
+  	popup_shell = _XtFindPopup(widget, params[0]);
+  	if (popup_shell == NULL) {
+              XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 			    "invalidPopup","xtMenuPopup",XtCXtToolkitError,
+  			    "Can't find popup widget \"%s\" in XtMenuPopdown",
+  			    params, num_params);
+  	    return;
+***************
+*** 2350,2356 ****
+  	XtPopdown(popup_shell);
+      } else {
+  	XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 			"invalidParameters","xtmenuPopdown","XtToolkitError",
+  			"XtMenuPopdown called with num_params != 0 or 1",
+  			(String *)NULL, (Cardinal *)NULL);
+      }
+--- 2352,2358 ----
+  	XtPopdown(popup_shell);
+      } else {
+  	XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 			"invalidParameters","xtmenuPopdown",XtCXtToolkitError,
+  			"XtMenuPopdown called with num_params != 0 or 1",
+  			(String *)NULL, (Cardinal *)NULL);
+      }
+***************
+*** 2380,2388 ****
+  	    XtTranslateKeycode( dpy, *keycodeP, (Modifiers)0,
+  			        &modifiers_return, &keysym );
+  	    if (keysym == event->eventCode) {
+! 		XGrabKey( dpy, *keycodeP,
+  			  (unsigned)event->modifiers,
+- 			  XtWindow(widget),
+  			  grabP->owner_events,
+  			  grabP->pointer_mode,
+  			  grabP->keyboard_mode
+--- 2382,2389 ----
+  	    XtTranslateKeycode( dpy, *keycodeP, (Modifiers)0,
+  			        &modifiers_return, &keysym );
+  	    if (keysym == event->eventCode) {
+! 		XtGrabKey(widget, *keycodeP,
+  			  (unsigned)event->modifiers,
+  			  grabP->owner_events,
+  			  grabP->pointer_mode,
+  			  grabP->keyboard_mode
+***************
+*** 2398,2406 ****
+  					(Modifiers)std_mods,
+  					&modifiers_return, &keysym );
+  		    if (keysym == event->eventCode) {
+! 			XGrabKey( dpy, *keycodeP,
+  				  (unsigned)event->modifiers | std_mods,
+- 				  XtWindow(widget),
+  				  grabP->owner_events,
+  				  grabP->pointer_mode,
+  				  grabP->keyboard_mode
+--- 2399,2406 ----
+  					(Modifiers)std_mods,
+  					&modifiers_return, &keysym );
+  		    if (keysym == event->eventCode) {
+! 			XtGrabKey(widget, *keycodeP,
+  				  (unsigned)event->modifiers | std_mods,
+  				  grabP->owner_events,
+  				  grabP->pointer_mode,
+  				  grabP->keyboard_mode
+***************
+*** 2410,2418 ****
+  		}
+  	    }
+  	} else /* !event->standard */ {
+! 	    XGrabKey( dpy, *keycodeP,
+  		      (unsigned)event->modifiers,
+- 		      XtWindow(widget),
+  		      grabP->owner_events,
+  		      grabP->pointer_mode,
+  		      grabP->keyboard_mode
+--- 2410,2417 ----
+  		}
+  	    }
+  	} else /* !event->standard */ {
+! 	    XtGrabKey(widget, *keycodeP,
+  		      (unsigned)event->modifiers,
+  		      grabP->owner_events,
+  		      grabP->pointer_mode,
+  		      grabP->keyboard_mode
+***************
+*** 2458,2468 ****
+  			switch (event->eventType) {
+  			    case ButtonPress:
+  			    case ButtonRelease:
+! 				XGrabButton(
+! 				    XtDisplay(widget),
+  				    (unsigned) event->eventCode,
+  				    (unsigned) event->modifiers,
+- 				    XtWindow(widget),
+  				    grabP->owner_events,
+  				    grabP->event_mask,
+  				    grabP->pointer_mode,
+--- 2457,2466 ----
+  			switch (event->eventType) {
+  			    case ButtonPress:
+  			    case ButtonRelease:
+! 				XtGrabButton(
+! 				    widget,
+  				    (unsigned) event->eventCode,
+  				    (unsigned) event->modifiers,
+  				    grabP->owner_events,
+  				    grabP->event_mask,
+  				    grabP->pointer_mode,
+***************
+*** 2482,2488 ****
+  
+  			    default:
+                XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 		    "invalidPopup","unsupportedOperation","XtToolkitError",
+  "Pop-up menu creation is only supported on Button, Key or EnterNotify events.",
+                    (String *)NULL, (Cardinal *)NULL);
+  			    break;
+--- 2480,2486 ----
+  
+  			    default:
+                XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 		    "invalidPopup","unsupportedOperation",XtCXtToolkitError,
+  "Pop-up menu creation is only supported on Button, Key or EnterNotify events.",
+                    (String *)NULL, (Cardinal *)NULL);
+  			    break;
+***************
+*** 2750,2756 ****
+  	    || actionP->pointer_mode != pointer_mode
+  	    || actionP->keyboard_mode != keyboard_mode) {
+  	    XtWarningMsg(
+! 		"argsReplaced", "xtRegisterGrabAction", "XtToolkitError",
+  		"XtRegisterGrabAction called on same proc with different args"
+  			);
+  	}
+--- 2748,2754 ----
+  	    || actionP->pointer_mode != pointer_mode
+  	    || actionP->keyboard_mode != keyboard_mode) {
+  	    XtWarningMsg(
+! 		"argsReplaced", "xtRegisterGrabAction", XtCXtToolkitError,
+  		"XtRegisterGrabAction called on same proc with different args"
+  			);
+  	}
+***************
+*** 2908,2914 ****
+  	params[0] = action;
+  	params[1] = XtName(widget);
+  	XtAppWarningMsg(app,
+! 	    "noActionProc", "xtCallActionProc", "XtToolkitError",
+  	    "No action proc named \"%s\" is registered for widget \"%s\"",
+  	    params, &num_params
+  			);
+--- 2906,2912 ----
+  	params[0] = action;
+  	params[1] = XtName(widget);
+  	XtAppWarningMsg(app,
+! 	    "noActionProc", "xtCallActionProc", XtCXtToolkitError,
+  	    "No action proc named \"%s\" is registered for widget \"%s\"",
+  	    params, &num_params
+  			);

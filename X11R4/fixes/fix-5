@@ -1,0 +1,786 @@
+This patch fixes the following IBM-specific server problems:
+
+	apa16BBlit.c - Lack of range checking causes server to wedge
+	apa16Curs.c - Possible NULL pointer dereference problem
+	apa16FlSp.c - Unused routine removed (mfb did proper work)
+	apa16GC.c - Remove use of archaic stipple fill code. Also fix for
+		wide lines not being drawn. Setting ops for certain glyph blit
+		operations correctly.
+	apa16IGBlt.c - Inproper clipping and signed/unsigned conflicts caused
+		server wedging if viewing glyphs with sidebearings.
+	apa16Text.c - Inverted text in a partially obscured window had improper
+		bounding box. Also, only use this routine if doing GxCopy.
+	mpelData.c - Corrected screen dimensions (pixel/inch calculation)
+	mpelPolyPt.c - Incorrect translation code and no check for a
+		valid length to megalpel adapter
+
+cd to the top of the X tree and apply with "patch -p0".
+
+*** /tmp/apa16BBlt.c	Wed Nov 29 14:36:45 1989
+--- mit/server/ddx/ibm/apa16/apa16BBlt.c	Mon Mar  5 13:53:26 1990
+***************
+*** 67,73 ****
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: mfbbitblt.c,v 5.5 89/07/16 10:45:08 rws Exp $ */
+  #include "X.h"
+  #include "Xprotostr.h"
+  
+--- 67,73 ----
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: apa16BBlt.c,v 1.2 90/03/05 13:52:48 swick Exp $ */
+  #include "X.h"
+  #include "Xprotostr.h"
+  
+***************
+*** 252,258 ****
+  	w= pbox->x2-pbox->x1;\
+  	h= pbox->y2-pbox->y1;\
+  	pptSrc->x+= w;\
+! 	pptSrc->y+= h;
+  
+  #define	NEXT_RECT() \
+  	pbox++;\
+--- 252,260 ----
+  	w= pbox->x2-pbox->x1;\
+  	h= pbox->y2-pbox->y1;\
+  	pptSrc->x+= w;\
+! 	pptSrc->y+= h;\
+!         if(w == 0) w=1;\
+!         if(h == 0) h=1;
+  
+  #define	NEXT_RECT() \
+  	pbox++;\
+
+*** /tmp/apa16Curs.c	Wed Nov 29 14:36:45 1989
+--- mit/server/ddx/ibm/apa16/apa16Curs.c	Mon Mar  5 13:53:29 1990
+***************
+*** 43,53 ****
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $Header: /afs/testers.athena.mit.edu/src/x11r4/src/mit/server/ddx/ibm/apa16/RCS/apa16Curs.c,v 3.0 89/11/02 15:18:16 probe Exp $ */
+! /* $Source: /afs/testers.athena.mit.edu/src/x11r4/src/mit/server/ddx/ibm/apa16/RCS/apa16Curs.c,v $ */
+  
+  #ifndef lint
+! static char *rcsid = "$Header: /afs/testers.athena.mit.edu/src/x11r4/src/mit/server/ddx/ibm/apa16/RCS/apa16Curs.c,v 3.0 89/11/02 15:18:16 probe Exp $";
+  #endif
+  
+  #include "X.h"
+--- 43,53 ----
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $Header: apa16Curs.c,v 1.2 90/03/05 13:53:27 swick Exp $ */
+! /* $Source: /xsrc/mit/server/ddx/ibm/apa16/RCS/apa16Curs.c,v $ */
+  
+  #ifndef lint
+! static char *rcsid = "$Header: apa16Curs.c,v 1.2 90/03/05 13:53:27 swick Exp $";
+  #endif
+  
+  #include "X.h"
+***************
+*** 235,241 ****
+  
+      TRACE(("apa16ShowCursor( x= %d, y= %d )\n",x,y));
+  
+!     if ( ibmScreenState(ibmCurrentScreen)!= SCREEN_ACTIVE) {
+  	return;
+      }
+  
+--- 235,242 ----
+  
+      TRACE(("apa16ShowCursor( x= %d, y= %d )\n",x,y));
+  
+!     if (ibmScreenState(ibmCurrentScreen)!= SCREEN_ACTIVE ||
+! 	currentCursor == NULL) {
+  	return;
+      }
+  
+*** /tmp/apa16FlSp.c	Wed Nov 29 14:36:47 1989
+--- mit/server/ddx/ibm/apa16/apa16FlSp.c	Mon Mar  5 13:53:33 1990
+***************
+*** 67,73 ****
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: mfbfillsp.c,v 5.2 89/07/28 11:58:00 rws Exp $ */
+  #include "X.h"
+  #include "Xmd.h"
+  #include "gcstruct.h"
+--- 67,73 ----
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: apa16FlSp.c,v 1.2 90/03/05 13:53:30 swick Exp $ */
+  #include "X.h"
+  #include "Xmd.h"
+  #include "gcstruct.h"
+***************
+*** 191,305 ****
+      DEALLOCATE_LOCAL(pwidthFree);
+      return ;
+  }
+- 
+- 
+- 
+- void
+- apa16StippleFS(pDrawable, pGC, nInit, pptInit, pwidthInit, fSorted)
+- DrawablePtr pDrawable;
+- GC *pGC;
+- int nInit;			/* number of spans to fill */
+- DDXPointPtr pptInit;		/* pointer to list of start points */
+- int *pwidthInit;		/* pointer to list of n widths */
+- int fSorted;
+- {
+- 				/* next three parameters are post-clip */
+-     int n;			/* number of spans to fill */
+-     register DDXPointPtr ppt;	/* pointer to list of start points */
+-     register int *pwidth;	/* pointer to list of n widths */
+- 				/* pointer to start of bitmap */
+-     int nlwidth;		/* width in longwords of bitmap */
+- 				/* pointer to current longword in bitmap */
+-     register volatile unsigned int *addrl;	
+-     register int startmask;
+-     register int endmask;
+-     register int nlmiddle;
+-     int rop;			/* reduced rasterop */
+-     PixmapPtr pStipple;
+-     int *psrc;
+-     int src;
+-     int tileHeight;
+-     int *pwidthFree;		/* copies of the pointers to free */
+-     DDXPointPtr pptFree;
+- 
+-     if (!(pGC->planemask & 1))
+- 	return;
+- 
+-     rop = ((mfbPrivGC *)(pGC->devPrivates[mfbGCPrivateIndex].ptr))->rop;
+-     if (rop==RROP_NOP)	return;
+- 
+-     if (pDrawable->type!=DRAWABLE_WINDOW) {
+- 	if (rop==RROP_WHITE)
+- 	    mfbWhiteStippleFS(pDrawable,pGC,nInit,pptInit,pwidthInit,fSorted);
+- 	else if (rop==RROP_BLACK)
+- 	    mfbWhiteStippleFS(pDrawable,pGC,nInit,pptInit,pwidthInit,fSorted);
+- 	else if (rop==RROP_INVERT)
+- 	    mfbWhiteStippleFS(pDrawable,pGC,nInit,pptInit,pwidthInit,fSorted);
+- 	return;
+-     }
+- 
+-     n = nInit * miFindMaxBand(((mfbPrivGC *)
+- 	       (pGC->devPrivates[mfbGCPrivateIndex].ptr))->pCompositeClip);
+-     pwidth = (int *)ALLOCATE_LOCAL(n * sizeof(int));
+-     ppt = (DDXPointRec *)ALLOCATE_LOCAL(n * sizeof(DDXPointRec));
+-     if(!ppt || !pwidth)
+-     {
+- 	if (ppt) DEALLOCATE_LOCAL(ppt);
+- 	if (pwidth) DEALLOCATE_LOCAL(pwidth);
+- 	return;
+-     }
+-     pwidthFree = pwidth;
+-     pptFree = ppt;
+-     n = miClipSpans(((mfbPrivGC *)
+- 	      (pGC->devPrivates[mfbGCPrivateIndex].ptr))->pCompositeClip,
+- 		     pptInit, pwidthInit, nInit, 
+- 		     ppt, pwidth, fSorted);
+- 
+-     nlwidth = (int)
+- 		  (((PixmapPtr)(pDrawable->pScreen->devPrivate))->devKind) >> 2;
+- 
+-     pStipple = ((mfbPrivGC *)(pGC->devPrivates[mfbGCPrivateIndex].ptr))->pRotatedPixmap;
+-     tileHeight = pStipple->drawable.height;
+-     psrc = (int *)(pStipple->devPrivate.ptr);
+- 
+-     if		(rop == RROP_BLACK)	{ SET_MERGE_MODE(MERGE_BLACK); }
+-     else if	(rop == RROP_WHITE)	{ SET_MERGE_MODE(MERGE_WHITE); }
+-     else if	(rop == RROP_INVERT)	{ SET_MERGE_MODE(MERGE_INVERT); }
+-     else if	(rop == RROP_NOP)	return;
+-     else {
+- 	ErrorF("Unexpected rrop %d in apa16StippleFS\n",rop);
+-     }
+- 
+-     while (n--)
+-     {
+-         addrl = ((volatile unsigned int *)SCREEN_ADDR(0,ppt->y))+(ppt->x>>5);
+- 	src = psrc[ppt->y % tileHeight];
+- 
+-         /* all bits inside same longword */
+-         if ( ((ppt->x & 0x1f) + *pwidth) < 32)
+-         {
+- 	    maskpartialbits(ppt->x, *pwidth, startmask);
+- 	    *addrl = (src & startmask);
+-         }
+-         else
+-         {
+- 	    maskbits(ppt->x, *pwidth, startmask, endmask, nlmiddle);
+- 	    if (startmask)
+- 		*addrl++ = (src & startmask);
+- 	    Duff (nlmiddle, *addrl++ |= src);
+- 	    if (endmask)
+- 		*addrl = (src & endmask);
+-         }
+- 	pwidth++;
+- 	ppt++;
+-     }
+-     DEALLOCATE_LOCAL(pptFree);
+-     DEALLOCATE_LOCAL(pwidthFree);
+- 
+-     QUEUE_SET_MERGE_MODE(MERGE_COPY);
+-     return ;
+- }
+- 
+  
+  /* this works with tiles of width == 32 */
+  #define FILLSPAN32(ROP) \
+--- 191,196 ----
+
+*** /tmp/apa16GC.c	Wed Nov 29 14:36:49 1989
+--- mit/server/ddx/ibm/apa16/apa16GC.c	Mon Mar  5 13:53:37 1990
+***************
+*** 66,72 ****
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: mfbgc.c,v 5.6 89/07/19 09:30:40 rws Exp $ */
+  #include "X.h"
+  #include "Xmd.h"
+  #include "Xproto.h"
+--- 66,72 ----
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: apa16GC.c,v 1.2 90/03/05 13:53:33 swick Exp $ */
+  #include "X.h"
+  #include "Xmd.h"
+  #include "Xproto.h"
+***************
+*** 855,875 ****
+  	{
+  	    if(pGC->lineWidth == 0)
+  	    {
+! 	        if (pGC->fillStyle == FillSolid)
+  		    pGC->ops->Polylines = apa16LineSS;
+! 	        else
+  		    pGC->ops->Polylines = miZeroLine;
+  	    }
+  	    else
+  	    {
+  		pGC->ops->Polylines = miWideLine;
+  	    }
+! 	}
+! 	else
+! 	    if(pGC->lineWidth == 0)
+  	        pGC->ops->Polylines = apa16DashLine;
+  	    else
+  	        pGC->ops->Polylines = miWideDash;
+      }
+  
+      if (new_text || new_fill)
+--- 855,880 ----
+  	{
+  	    if(pGC->lineWidth == 0)
+  	    {
+! 	        if (pGC->fillStyle == FillSolid) {
+  		    pGC->ops->Polylines = apa16LineSS;
+! 		    pGC->ops->PolySegment = apa16PolySegment;
+! 	        } else {
+  		    pGC->ops->Polylines = miZeroLine;
++ 		    pGC->ops->PolySegment = miPolySegment;
++ 		}
+  	    }
+  	    else
+  	    {
+  		pGC->ops->Polylines = miWideLine;
++ 		pGC->ops->PolySegment = miPolySegment;
+  	    }
+! 	} else {
+! 	    pGC->ops->PolySegment = miPolySegment;
+! 	    if(pGC->lineWidth == 0) 
+  	        pGC->ops->Polylines = apa16DashLine;
+  	    else
+  	        pGC->ops->Polylines = miWideDash;
++ 	}
+      }
+  
+      if (new_text || new_fill)
+***************
+*** 888,896 ****
+  	}
+  	else
+  	{
+! 	    pGC->ops->PolyGlyphBlt	= apa16PolyGlyphBlt;
+! 	    pGC->ops->PolyText8		= apa16PolyText8;
+! 	    pGC->ops->PolyText16	= apa16PolyText16;
+  	}
+      }
+  
+--- 893,903 ----
+  	}
+  	else
+  	{
+! 	    pGC->ops->PolyGlyphBlt	= miPolyGlyphBlt;
+! 	    pGC->ops->PolyText8		= miPolyText8;
+! 	    pGC->ops->PolyText16	= miPolyText16;
+! 	    pGC->ops->ImageText8	= miImageText8;
+! 	    pGC->ops->ImageText16	= miImageText16;
+  	}
+      }
+  
+***************
+*** 929,937 ****
+  	    switch(devPriv->rop)
+  	    {
+  	      case RROP_WHITE:
+  	      case RROP_INVERT:
+  	      case RROP_BLACK:
+! 		pGC->ops->FillSpans = apa16StippleFS;
+  		break;
+  	      case RROP_NOP:
+  		pGC->ops->FillSpans = NoopDDA;
+--- 936,948 ----
+  	    switch(devPriv->rop)
+  	    {
+  	      case RROP_WHITE:
++ 		pGC->ops->FillSpans = mfbWhiteStippleFS;
++ 		break;
+  	      case RROP_INVERT:
++ 		pGC->ops->FillSpans = mfbInvertStippleFS;
++ 		break;
+  	      case RROP_BLACK:
+! 		pGC->ops->FillSpans = mfbBlackStippleFS;
+  		break;
+  	      case RROP_NOP:
+  		pGC->ops->FillSpans = NoopDDA;
+
+*** /tmp/apa16IGBlt.c	Wed Nov 29 14:36:51 1989
+--- mit/server/ddx/ibm/apa16/apa16IGBlt.c	Mon Mar  5 13:53:41 1990
+***************
+*** 67,77 ****
+  
+  ******************************************************************/
+  
+! /* $Header: /afs/testers.athena.mit.edu/src/x11r4/src/mit/server/ddx/ibm/apa16/RCS/apa16IGBlt.c,v 3.2 89/11/04 16:05:06 probe Exp $ */
+! /* $Source: /afs/testers.athena.mit.edu/src/x11r4/src/mit/server/ddx/ibm/apa16/RCS/apa16IGBlt.c,v $ */
+  
+  #ifndef lint
+! static char *rcsid = "$Header: /afs/testers.athena.mit.edu/src/x11r4/src/mit/server/ddx/ibm/apa16/RCS/apa16IGBlt.c,v 3.2 89/11/04 16:05:06 probe Exp $";
+  static char sccsid[] = "@(#)apa16igblt.c	2.1 88/09/19 11:55:57";
+  #endif
+  
+--- 67,77 ----
+  
+  ******************************************************************/
+  
+! /* $Header: apa16IGBlt.c,v 1.2 90/03/05 13:53:37 swick Exp $ */
+! /* $Source: /xsrc/mit/server/ddx/ibm/apa16/RCS/apa16IGBlt.c,v $ */
+  
+  #ifndef lint
+! static char *rcsid = "$Header: apa16IGBlt.c,v 1.2 90/03/05 13:53:37 swick Exp $";
+  static char sccsid[] = "@(#)apa16igblt.c	2.1 88/09/19 11:55:57";
+  #endif
+  
+***************
+*** 131,137 ****
+  {
+      ExtentInfoRec info;	/* used by QueryGlyphExtents() */
+      BoxRec bbox;	/* string's bounding box */
+!     xRectangle backrect;/* backing rectangle to paint.
+  			   in the general case, NOT necessarily
+  			   the same as the string's bounding box
+  			*/
+--- 131,137 ----
+  {
+      ExtentInfoRec info;	/* used by QueryGlyphExtents() */
+      BoxRec bbox;	/* string's bounding box */
+!     BoxRec box;		/* backing rectangle to paint.
+  			   in the general case, NOT necessarily
+  			   the same as the string's bounding box
+  			*/
+***************
+*** 161,166 ****
+--- 161,168 ----
+      int rrop;
+      CARD16	cmd;
+      CARD16	new_mode;
++     mfbPrivGC	*priv;
++     BoxPtr	pextent;
+  
+      TRACE(("apa16ImageGlyphBlt(pDrawable= 0x%x, pGC= 0x%x, x= %d, y= %d, nglyph= %d, ppci= %d, pGlyphBase= 0x%x )\n",pDrawable,pGC,x,y,nglyph,ppci,pGlyphBase));
+  
+***************
+*** 200,212 ****
+  
+      x += xorg;
+      y += yorg;
+  
+!     backrect.x = x;
+!     backrect.y = y - pGC->font->pFI->fontAscent;
+!     backrect.width = info.overallWidth;
+!     backrect.height = pGC->font->pFI->fontAscent + 
+! 		      pGC->font->pFI->fontDescent;
+!     if ((backrect.width==0)||(backrect.height==0))
+  	return;
+  
+      bbox.x1 = x + info.overallLeft;
+--- 202,219 ----
+  
+      x += xorg;
+      y += yorg;
++  
++     /* The following gross hack is because backrect.width is unsigned, 
++      * but in mfbfillarea is converted back to signed int's. This caused 
++      * problems in filling regions 65532 wide.
++      */ 
+  
+!     box.x1 = x;
+!     box.y1 = y - pGC->font->pFI->fontAscent;
+!     box.x2 = box.x1 + info.overallWidth;
+!     box.y2 = box.y1 + pGC->font->pFI->fontAscent + pGC->font->pFI->fontDescent;
+!     if ((pGC->font->pFI->fontAscent==0) ||
+! 	(pGC->font->pFI->fontAscent + pGC->font->pFI->fontDescent == 0))
+  	return;
+  
+      bbox.x1 = x + info.overallLeft;
+***************
+*** 221,228 ****
+        case rgnOUT:
+  	break;
+        case rgnIN:
+! 	FILL_RECT(cmd,backrect.x+backrect.width,backrect.y+backrect.height,
+! 				backrect.width,backrect.height);
+          pDstBase = pDstBase + (widthDst * y) + (x >> 5);
+          xchar = x & 0x1f;
+  
+--- 228,249 ----
+        case rgnOUT:
+  	break;
+        case rgnIN:
+! 	/* The following is stollen from mfbfillrct.c */
+! 	priv = (mfbPrivGC *) pGC->devPrivates[mfbGCPrivateIndex].ptr;
+! 	pextent = (*pGC->pScreen->RegionExtents)(priv->pCompositeClip);
+! 
+! 	if (box.x1 < pextent->x1)
+! 		box.x1 = pextent->x1;
+! 	if (box.y1 < pextent->y1)
+! 		box.y1 = pextent->y1;
+! 	if (box.x2 > pextent->x2)
+! 		box.x2 = pextent->x2;
+! 	if (box.y2 > pextent->y2)
+! 		box.y2 = pextent->y2;
+! 
+! 	if ((box.x1 < box.x2) && (box.y1 < box.y2)) 
+! 	    FILL_RECT(cmd, box.x2, box.y2, box.x2-box.x1, box.y2 - box.y1);
+!     
+          pDstBase = pDstBase + (widthDst * y) + (x >> 5);
+          xchar = x & 0x1f;
+  
+*** /tmp/apa16Text.c	Wed Nov 29 14:37:00 1989
+--- mit/server/ddx/ibm/apa16/apa16Text.c	Mon Mar  5 13:53:44 1990
+***************
+*** 67,77 ****
+  
+  ******************************************************************/
+  
+! /* $Header: /afs/testers.athena.mit.edu/src/x11r4/src/mit/server/ddx/ibm/apa16/RCS/apa16Text.c,v 3.1 89/11/04 16:03:08 probe Exp $ */
+! /* $Source: /afs/testers.athena.mit.edu/src/x11r4/src/mit/server/ddx/ibm/apa16/RCS/apa16Text.c,v $ */
+  
+  #ifndef lint
+! static char *rcsid = "$Header: /afs/testers.athena.mit.edu/src/x11r4/src/mit/server/ddx/ibm/apa16/RCS/apa16Text.c,v 3.1 89/11/04 16:03:08 probe Exp $";
+  static char sccsid[] = "@(#)apa16text.c	3.1 88/09/22 09:31:14";
+  #endif
+  
+--- 67,77 ----
+  
+  ******************************************************************/
+  
+! /* $Header: apa16Text.c,v 1.2 90/03/05 13:53:41 swick Exp $ */
+! /* $Source: /xsrc/mit/server/ddx/ibm/apa16/RCS/apa16Text.c,v $ */
+  
+  #ifndef lint
+! static char *rcsid = "$Header: apa16Text.c,v 1.2 90/03/05 13:53:41 swick Exp $";
+  static char sccsid[] = "@(#)apa16text.c	3.1 88/09/22 09:31:14";
+  #endif
+  
+***************
+*** 153,160 ****
+  	 *  the character as stored on the adapter....)
+  	 */
+  
+!     if ( ( ( (CARD32) font->devPriv[pDraw->pScreen->myNum] ) < 40 )
+! 	  || ( pDraw->type != DRAWABLE_WINDOW ) ) {
+  	miImageText( pDraw, pGC, x, y, count, chars, fontEncoding ) ;
+  	return;
+      }
+--- 153,161 ----
+  	 *  the character as stored on the adapter....)
+  	 */
+  
+!     if ( pGC->alu != GXcopy || 
+! 	( ( (CARD32) font->devPriv[pDraw->pScreen->myNum] ) < 40 )
+! 	|| ( pDraw->type != DRAWABLE_WINDOW ) ) {
+  	miImageText( pDraw, pGC, x, y, count, chars, fontEncoding ) ;
+  	return;
+      }
+***************
+*** 222,231 ****
+  
+  		for ( ; nbox-- ; pbox++ ) {
+  		    int	left,right,top,bottom;
+! 		    left=	MAX(pbox->x1,bbox.x1);
+! 		    right=	MIN(pbox->x2,bbox.x2);
+! 		    top=	MAX(pbox->y1,bbox.y1);
+! 		    bottom=	MIN(pbox->y2,bbox.y2);
+  		    if ((left<right)&&(top<bottom)) {
+  			FILL_RECT(rectCmd,	right,	bottom,
+  					right-left, bottom-top);
+--- 223,232 ----
+  
+  		for ( ; nbox-- ; pbox++ ) {
+  		    int	left,right,top,bottom;
+! 		    left=	MAX(pbox->x1,backbox.x1);
+! 		    right=	MIN(pbox->x2,backbox.x2);
+! 		    top=	MAX(pbox->y1,backbox.y1);
+! 		    bottom=	MIN(pbox->y2,backbox.y2);
+  		    if ((left<right)&&(top<bottom)) {
+  			FILL_RECT(rectCmd,	right,	bottom,
+  					right-left, bottom-top);
+
+*** /tmp/mpelData.c	Thu Dec  7 20:34:44 1989
+--- mit/server/ddx/ibm/mpel/mpelData.c	Mon Mar  5 14:18:07 1990
+***************
+*** 21,31 ****
+  
+  ******************************************************************/
+  
+! /* $Header: mpelData.c,v 1.2 89/12/07 20:34:28 keith Exp $ */
+  /* $Source: /xsrc/mit/server/ddx/ibm/mpel/RCS/mpelData.c,v $ */
+  
+  #ifndef lint
+! static char *rcsid = "$Header: mpelData.c,v 1.2 89/12/07 20:34:28 keith Exp $";
+  #endif
+  
+  #include "X.h"
+--- 21,31 ----
+  
+  ******************************************************************/
+  
+! /* $Header: mpelData.c,v 1.3 90/03/05 14:17:22 swick Exp $ */
+  /* $Source: /xsrc/mit/server/ddx/ibm/mpel/RCS/mpelData.c,v $ */
+  
+  #ifndef lint
+! static char *rcsid = "$Header: mpelData.c,v 1.3 90/03/05 14:17:22 swick Exp $";
+  #endif
+  
+  #include "X.h"
+***************
+*** 242,249 ****
+  	0,			/* ATOM id */
+  	MPEL_WIDTH,		/* short		width */
+  	MPEL_HEIGHT,		/* short		height */
+! 	(MPEL_WIDTH * 254)/800,	/* short		mmWidth */
+! 	(MPEL_HEIGHT*254)/800,	/* short		mmHeight */
+  	sizeof mpelDepths/sizeof (DepthRec),	/* short	numDepths */
+  	MPELMAXPLANES,		/* short		rootDepth */
+  	mpelDepths,		/* DepthPtr       	allowedDepths */
+--- 242,249 ----
+  	0,			/* ATOM id */
+  	MPEL_WIDTH,		/* short		width */
+  	MPEL_HEIGHT,		/* short		height */
+! 	(MPEL_WIDTH * 254)/880,	/* short		mmWidth */
+! 	(MPEL_HEIGHT*254)/880,	/* short		mmHeight */
+  	sizeof mpelDepths/sizeof (DepthRec),	/* short	numDepths */
+  	MPELMAXPLANES,		/* short		rootDepth */
+  	mpelDepths,		/* DepthPtr       	allowedDepths */
+
+*** /tmp/mpelPolyPt.c	Thu Nov  9 22:52:22 1989
+--- mit/server/ddx/ibm/mpel/mpelPolyPt.c	Mon Mar  5 14:18:10 1990
+***************
+*** 20,30 ****
+   * SOFTWARE.
+   *
+  */
+! /* $Header: /andrew/X11/r3src/r3plus/server/ddx/ibm/mpel/RCS/mpelPolyPt.c,v 6.9 89/05/30 20:35:20 jeff Exp $ */
+! /* $Source: /andrew/X11/r3src/r3plus/server/ddx/ibm/mpel/RCS/mpelPolyPt.c,v $ */
+  
+  #ifndef lint
+! static char *rcsid = "$Header: /andrew/X11/r3src/r3plus/server/ddx/ibm/mpel/RCS/mpelPolyPt.c,v 6.9 89/05/30 20:35:20 jeff Exp $" ;
+  #endif
+  
+  #include "X.h"
+--- 20,30 ----
+   * SOFTWARE.
+   *
+  */
+! /* $Header: mpelPolyPt.c,v 1.2 90/03/05 14:18:08 swick Exp $ */
+! /* $Source: /xsrc/mit/server/ddx/ibm/mpel/RCS/mpelPolyPt.c,v $ */
+  
+  #ifndef lint
+! static char *rcsid = "$Header: mpelPolyPt.c,v 1.2 90/03/05 14:18:08 swick Exp $" ;
+  #endif
+  
+  #include "X.h"
+***************
+*** 52,57 ****
+--- 52,60 ----
+  extern int mpelCheckCursor() ;
+  extern void mpelReplaceCursor() ;
+  
++ /* The maximum number of points in a Polymarker request. */
++ #define MAXRQPTS	(32760 / sizeof(mpelPoint))
++ 
+  void
+  mpelPolyPoint( pDrawable, pGC, mode, npt, pptInit )
+  DrawablePtr	pDrawable ;
+***************
+*** 65,74 ****
+  	register RegionPtr pRegion = devPriv->pCompositeClip ;
+  	int	cursor_saved ;
+  
+! 	TRACE( ("mpelPolyPoint(0x%x,0x%x,%d,%d,0x%x)\n",
+! 		pDrawable, pGC, mode, npt, pptInit ) ) ;
+  
+! 	if ( pGC->alu == GXnoop || REGION_NIL(pRegion) )
+  		return ;
+  
+  	if ( pDrawable->type == DRAWABLE_PIXMAP ) {
+--- 68,78 ----
+  	register RegionPtr pRegion = devPriv->pCompositeClip ;
+  	int	cursor_saved ;
+  
+! 	TRACE( ("mpelPolyPoint(0x%x,0x%x,\"%s\",%d,0x%x)\n",
+! 		pDrawable, pGC, (mode == CoordModePrevious) ?
+! 		"Relative" : "Absolute", npt, pptInit));
+  
+! 	if ( pGC->alu == GXnoop || REGION_NIL(pRegion) || npt == 0)
+  		return ;
+  
+  	if ( pDrawable->type == DRAWABLE_PIXMAP ) {
+***************
+*** 81,128 ****
+  	 * AND adjust for the Mpel's Backward Y coordinates
+  	 */
+  	{
+! 	register const int xorg = pDrawable->x ;
+! 	register const int yorg =
+! 		( MPEL_HEIGHT - 1 ) - pDrawable->y ;
+! 	register int nptTmp = npt ;
+! 	if ( mode == CoordModePrevious )
+! 		for ( ppt = pptInit ; --nptTmp ; ) {
+! 			ppt++ ;
+! 			ppt->x += (ppt-1)->x + xorg ;
+! 			ppt->y = yorg - ( ppt->y + (ppt-1)->y ) ;
+  		}
+! 	else
+  		for ( ppt = pptInit ; nptTmp-- ; ppt++ ) {
+! 			ppt->x += xorg ;
+! 			ppt->y = yorg - ppt->y ;
+  		}
+  	}
+- 
+- 	{ /* Validate & Translate the point list */
+- 		register int (* PointInRegion)() = 
+- 			pDrawable->pScreen->PointInRegion ;
+-         	register xPoint *mpt ; /* xPoint is the same as mpelPoint */
+- 		BoxRec box ; /* Scratch Space */
+- 
+- 		/* NOTE: pGC->miTranslate is always TRUE in mpel */
+- 		for ( ppt = pptInit ;
+- 		      npt-- && (* PointInRegion)( pRegion, ppt->x,
+- 						  MPEL_HEIGHT - 1 - ppt->y,
+- 						  &box ) ;
+- 		      ppt++ )
+- 			/* Do Nothing */ ;
+- 		if ( npt > 0 )
+- 			{
+- 			for ( mpt = ppt ; npt-- ; ppt++ )
+- 				if ( (* PointInRegion)( pRegion, ppt->x,
+- 							ppt->y, &box ) )
+- 					*mpt++ = *ppt ;
+- 			}
+- 
+- 		if ( !( npt = mpt - pptInit) )
+- 			return ;
+- 
+  	}
+  	/* If Cursor Is In The Way Remove It */
+  	cursor_saved = !mpelcursorSemaphore
+  		&& mpelCheckCursor(
+--- 85,133 ----
+  	 * AND adjust for the Mpel's Backward Y coordinates
+  	 */
+  	{
+! 	register const int xorg = pDrawable->x;
+! 	register const int yorg = pDrawable->y;
+! 	register int nptTmp = npt;
+! 	register xPoint *mpt = pptInit;
+! 	register int (* PointInRegion)() = pDrawable->pScreen->PointInRegion;
+! 	BoxRec box;
+! 
+! 	if ( mode == CoordModePrevious ) {
+! 		ppt = pptInit;
+! 		ppt->x += xorg;
+! 		ppt->y += yorg;
+! 		if((* PointInRegion)( pRegion, ppt->x, ppt->y, &box)) {
+! 			mpt->x = ppt->x;
+! 			mpt->y = (MPEL_HEIGHT - 1) - ppt->y;
+! 			mpt++;
+  		}
+! 		while (--nptTmp) {
+! 			ppt++;
+! 			ppt->x += xorg + (ppt-1)->x;
+! 			ppt->y = yorg + ppt->y + (ppt-1)->y;
+! 			if((* PointInRegion)( pRegion, ppt->x, ppt->y, &box)) {
+! 				mpt->x = ppt->x;
+! 				mpt->y = (MPEL_HEIGHT - 1) - ppt->y;
+! 				mpt++;
+! 			}
+! 		}
+! 		npt = mpt - pptInit;
+! 	} else {
+  		for ( ppt = pptInit ; nptTmp-- ; ppt++ ) {
+! 			ppt->x += xorg;
+! 			ppt->y += yorg;
+! 			if((* PointInRegion)( pRegion, ppt->x, ppt->y, &box)) {
+! 				mpt->x = ppt->x;
+! 				mpt->y = (MPEL_HEIGHT - 1) - ppt->y;
+! 				mpt++;
+! 			}
+  		}
++ 		npt = mpt - pptInit;
+  	}
+  	}
++ 	TRACE(("mpelPolyPoint: %d points\n", npt));
++ 	if(!npt)	/* Nothing to do */
++ 		return;
+  	/* If Cursor Is In The Way Remove It */
+  	cursor_saved = !mpelcursorSemaphore
+  		&& mpelCheckCursor(
+***************
+*** 146,153 ****
+  		MPELSetPolymarkerColor( pGC->fgPixel ) ;
+  	}
+  	MPELSetMarkerType( 1 ) ; /* Magic number for solid dots */
+! 	MPELPolymarker( npt, pptInit ) ;
+! 
+  	if ( cursor_saved )
+  		mpelReplaceCursor() ;
+  
+--- 151,164 ----
+  		MPELSetPolymarkerColor( pGC->fgPixel ) ;
+  	}
+  	MPELSetMarkerType( 1 ) ; /* Magic number for solid dots */
+! 	/* Break into bite-sized pieces */
+! 	{
+! 	  register int rem;
+! 	  /* MPELPolymarker does not evaluate any of its arguments
+! 	     more than once. */
+! 	  for(rem = npt;rem > 0;rem -= MAXRQPTS, pptInit+=MAXRQPTS)
+! 	    MPELPolymarker((rem>MAXRQPTS)?MAXRQPTS:rem, pptInit);
+! 	}
+  	if ( cursor_saved )
+  		mpelReplaceCursor() ;
+  

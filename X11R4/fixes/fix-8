@@ -1,0 +1,1771 @@
+The following files are affected by fixes 8 and 9 (you must apply them both
+before attempting to rebuild):
+
+	fix-8	Imakefile	fix installation problems
+	fix-8	add_window.c	NoStackMode, setupframe
+	fix-8	events.c	NoStackMode, colormaps, Mod2-5, icons, ring, configurenotify
+	fix-8	events.h	icons
+	fix-8	gc.c		saber
+	fix-8	gram.y		NoStackMode, Mod2-5
+	fix-8	iconmgr.c	icons, saber
+	fix-8	icons.c		icons
+	fix-9	list.c		saber
+	fix-9	menus.c		exec, saber, colors, colormaps, borders
+	fix-9	parse.c		NoStackMode, Mod2-5
+	fix-9	resize.c	configurenotify, setupframe
+	fix-9	resize.h	setupframe
+	fix-9	screen.h	NoStackMode
+	fix-9	twm.c		NoStackMode, colormaps, events, saber
+	fix-9	twm.h		NoStackMode, colormaps, icons
+	fix-9	twm.man		NoStackMode
+	fix-9	util.c		zoom
+
+To apply these patches, type 
+
+	cd $(TOPOFXSRCS)	# wherever you put R4 tape-1 (parent of ./mit)
+	patch -p0 <fix-8
+	patch -p0 <fix-9
+	cd mit/clients/twm
+	make Makefile
+	make depend
+	make clean
+	make
+
+*** /tmp/,RCSt1a23670	Wed Mar 28 17:17:09 1990
+--- mit/clients/twm/Imakefile	Fri Mar 23 14:23:06 1990
+***************
+*** 5,20 ****
+  /**/#distribute this one.
+  /**/#
+  
+- 
+- #if !HasPutenv
+-       PUTENVDEF = -DNOPUTENV
+- #endif
+- 
+           YFLAGS = -d
+          DEPLIBS = $(DEPXMULIB) $(DEPEXTENSIONLIB) $(DEPXLIB)
+  LOCAL_LIBRARIES = $(XMULIB) $(EXTENSIONLIB) $(XLIB)
+         LINTLIBS = $(LINTXMU) $(LINTEXTENSIONLIB) $(LINTXLIB)
+!         DEFINES = ExtensionDefines $(SIGNAL_DEFINES) $(PUTENVDEF)
+  
+             SRCS = gram.c lex.c deftwmrc.c add_window.c gc.c list.c twm.c \
+  		parse.c menus.c events.c resize.c util.c version.c iconmgr.c \
+--- 5,15 ----
+  /**/#distribute this one.
+  /**/#
+  
+           YFLAGS = -d
+          DEPLIBS = $(DEPXMULIB) $(DEPEXTENSIONLIB) $(DEPXLIB)
+  LOCAL_LIBRARIES = $(XMULIB) $(EXTENSIONLIB) $(XLIB)
+         LINTLIBS = $(LINTXMU) $(LINTEXTENSIONLIB) $(LINTXLIB)
+!         DEFINES = ExtensionDefines $(SIGNAL_DEFINES)
+  
+             SRCS = gram.c lex.c deftwmrc.c add_window.c gc.c list.c twm.c \
+  		parse.c menus.c events.c resize.c util.c version.c iconmgr.c \
+***************
+*** 26,34 ****
+--- 21,36 ----
+  
+  AllTarget(twm)
+  
++ SpecialObjectRule(parse.o, ,'-DSYSTEM_INIT_FILE="'$(TWMDIR)'/system.twmrc"')
++ #if !HasPutenv
++ SpecialObjectRule(util.o, ,-DNOPUTENV)
++ #endif
++ 
+  depend:: lex.c gram.c deftwmrc.c 
+  
+  ComplexProgramTarget(twm)
++ MakeDirectories(install,$(TWMDIR))
++ InstallNonExec(system.twmrc, $(TWMDIR))
+  
+  gram.h gram.c: gram.y
+  	yacc $(YFLAGS) gram.y
+*** /tmp/,RCSt1a23678	Wed Mar 28 17:17:16 1990
+--- mit/clients/twm/add_window.c	Fri Mar 23 11:42:37 1990
+***************
+*** 28,34 ****
+  
+  /**********************************************************************
+   *
+!  * $XConsortium: add_window.c,v 1.130 89/12/15 19:41:12 jim Exp $
+   *
+   * Add a new window, put the titlbar and other stuff around
+   * the window
+--- 28,34 ----
+  
+  /**********************************************************************
+   *
+!  * $XConsortium: add_window.c,v 1.140 90/03/23 11:42:33 jim Exp $
+   *
+   * Add a new window, put the titlbar and other stuff around
+   * the window
+***************
+*** 37,46 ****
+   *
+   **********************************************************************/
+  
+! #ifndef lint
+  static char RCSinfo[]=
+! "$XConsortium: add_window.c,v 1.130 89/12/15 19:41:12 jim Exp $";
+! #endif /* lint */
+  
+  #include <stdio.h>
+  #include "twm.h"
+--- 37,46 ----
+   *
+   **********************************************************************/
+  
+! #if !defined(lint) && !defined(SABER)
+  static char RCSinfo[]=
+! "$XConsortium: add_window.c,v 1.140 90/03/23 11:42:33 jim Exp $";
+! #endif
+  
+  #include <stdio.h>
+  #include "twm.h"
+***************
+*** 145,156 ****
+      Atom actual_type;
+      int actual_format;
+      unsigned long nitems, bytesafter;
+-     XWindowChanges xwc;		/* change window structure */
+-     unsigned int xwcm;		/* change window mask */
+      int ask_user;		/* don't know where to put the window */
+!     long supplied;
+      int gravx, gravy;			/* gravity signs for positioning */
+      int namelen;
+  
+  #ifdef DEBUG
+      fprintf(stderr, "AddWindow: w = 0x%x\n", w);
+--- 145,155 ----
+      Atom actual_type;
+      int actual_format;
+      unsigned long nitems, bytesafter;
+      int ask_user;		/* don't know where to put the window */
+!     long supplied = 0;
+      int gravx, gravy;			/* gravity signs for positioning */
+      int namelen;
++     int bw2;
+  
+  #ifdef DEBUG
+      fprintf(stderr, "AddWindow: w = 0x%x\n", w);
+***************
+*** 227,232 ****
+--- 226,235 ----
+  	(!(short)LookInList(Scr->NoHighlight, tmp_win->full_name, 
+  	    &tmp_win->class));
+  
++     tmp_win->stackmode = Scr->StackMode &&
++ 	(!(short)LookInList(Scr->NoStackModeL, tmp_win->full_name, 
++ 	    &tmp_win->class));
++ 
+      tmp_win->titlehighlight = Scr->TitleHighlight && 
+  	(!(short)LookInList(Scr->NoTitleHighlight, tmp_win->full_name, 
+  	    &tmp_win->class));
+***************
+*** 248,254 ****
+      if (LookInList(Scr->WindowRingL, tmp_win->full_name, &tmp_win->class)) {
+  	if (Scr->Ring) {
+  	    tmp_win->ring.next = Scr->Ring->ring.next;
+! 	    Scr->Ring->ring.next->ring.prev = tmp_win;
+  	    Scr->Ring->ring.next = tmp_win;
+  	    tmp_win->ring.prev = Scr->Ring;
+  	} else {
+--- 251,258 ----
+      if (LookInList(Scr->WindowRingL, tmp_win->full_name, &tmp_win->class)) {
+  	if (Scr->Ring) {
+  	    tmp_win->ring.next = Scr->Ring->ring.next;
+! 	    if (Scr->Ring->ring.next->ring.prev)
+! 	      Scr->Ring->ring.next->ring.prev = tmp_win;
+  	    Scr->Ring->ring.next = tmp_win;
+  	    tmp_win->ring.prev = Scr->Ring;
+  	} else {
+***************
+*** 286,291 ****
+--- 290,296 ----
+      } else {
+      	tmp_win->frame_bw = Scr->BorderWidth;
+      }
++     bw2 = tmp_win->frame_bw * 2;
+  
+      tmp_win->title_height = Scr->TitleHeight + tmp_win->frame_bw;
+      if (Scr->NoTitlebar)
+***************
+*** 400,412 ****
+  			      SIZE_VINDENT + Scr->SizeFont.font->ascent,
+  			      tmp_win->name, namelen);
+  
+! 	    AddingW = tmp_win->attr.width;
+! 	    AddingH = tmp_win->attr.height;
+  
+- 	    AddingW = tmp_win->attr.width + 2* tmp_win->frame_bw;
+- 	    AddingH = tmp_win->attr.height + tmp_win->title_height +
+- 	      2 * tmp_win->frame_bw;
+- 
+  	    while (TRUE)
+  	    {
+  		XQueryPointer(dpy, Scr->Root, &JunkRoot, &JunkChild,
+--- 405,413 ----
+  			      SIZE_VINDENT + Scr->SizeFont.font->ascent,
+  			      tmp_win->name, namelen);
+  
+! 	    AddingW = tmp_win->attr.width + bw2;
+! 	    AddingH = tmp_win->attr.height + tmp_win->title_height + bw2;
+  
+  	    while (TRUE)
+  	    {
+  		XQueryPointer(dpy, Scr->Root, &JunkRoot, &JunkChild,
+***************
+*** 442,448 ****
+  		    if (dy < HALF_AVE_CURSOR_SIZE) dy = HALF_AVE_CURSOR_SIZE;
+  #undef HALF_AVE_CURSOR_SIZE
+  		    dx += (tmp_win->frame_bw + 1);
+! 		    dy += (tmp_win->frame_bw * 2 + tmp_win->title_height + 1);
+  		    if (AddingX + dx >= Scr->MyDisplayWidth)
+  		      dx = Scr->MyDisplayWidth - AddingX - 1;
+  		    if (AddingY + dy >= Scr->MyDisplayHeight)
+--- 443,449 ----
+  		    if (dy < HALF_AVE_CURSOR_SIZE) dy = HALF_AVE_CURSOR_SIZE;
+  #undef HALF_AVE_CURSOR_SIZE
+  		    dx += (tmp_win->frame_bw + 1);
+! 		    dy += (bw2 + tmp_win->title_height + 1);
+  		    if (AddingX + dx >= Scr->MyDisplayWidth)
+  		      dx = Scr->MyDisplayWidth - AddingX - 1;
+  		    if (AddingY + dy >= Scr->MyDisplayHeight)
+***************
+*** 484,491 ****
+  	    } 
+  	    else if (event.xbutton.button == Button3)
+  	    {
+! 		int maxw = Scr->MyDisplayWidth - AddingX;
+! 		int maxh = Scr->MyDisplayHeight - AddingY;
+  
+  		/*
+  		 * Make window go to bottom of screen, and clip to right edge.
+--- 485,492 ----
+  	    } 
+  	    else if (event.xbutton.button == Button3)
+  	    {
+! 		int maxw = Scr->MyDisplayWidth - AddingX - bw2;
+! 		int maxh = Scr->MyDisplayHeight - AddingY - bw2;
+  
+  		/*
+  		 * Make window go to bottom of screen, and clip to right edge.
+***************
+*** 495,502 ****
+  		if (AddingW > maxw) AddingW = maxw;
+  		AddingH = maxh;
+  
+! 		/* includes any border */
+! 		ConstrainSize (tmp_win, &AddingW, &AddingH);
+  	    }
+  	    else
+  	    {
+--- 496,504 ----
+  		if (AddingW > maxw) AddingW = maxw;
+  		AddingH = maxh;
+  
+! 		ConstrainSize (tmp_win, &AddingW, &AddingH);  /* w/o borders */
+! 		AddingW += bw2;
+! 		AddingH += bw2;
+  	    }
+  	    else
+  	    {
+***************
+*** 510,518 ****
+  
+  	    tmp_win->attr.x = AddingX;
+  	    tmp_win->attr.y = AddingY + tmp_win->title_height;
+! 	    tmp_win->attr.width = AddingW - 2 * tmp_win->frame_bw;
+! 	    tmp_win->attr.height = AddingH - tmp_win->title_height -
+! 	      2 * tmp_win->frame_bw;
+  
+  	    XUngrabServer(dpy);
+  	}
+--- 512,519 ----
+  
+  	    tmp_win->attr.x = AddingX;
+  	    tmp_win->attr.y = AddingY + tmp_win->title_height;
+! 	    tmp_win->attr.width = AddingW - bw2;
+! 	    tmp_win->attr.height = AddingH - tmp_win->title_height - bw2;
+  
+  	    XUngrabServer(dpy);
+  	}
+***************
+*** 523,530 ****
+      }
+  
+  
+-     xwcm = CWX | CWY | CWWidth | CWHeight;
+- 
+  #ifdef DEBUG
+  	fprintf(stderr, "  position window  %d, %d  %dx%d\n", 
+  	    tmp_win->attr.x,
+--- 524,529 ----
+***************
+*** 539,559 ****
+  	tmp_win->attr.y += gravy * delta;
+      }
+  
+- 					/* set up the configure */
+-     xwc.x = tmp_win->attr.x + tmp_win->attr.border_width;
+-     xwc.y = tmp_win->attr.y + tmp_win->attr.border_width;
+-     xwc.width = tmp_win->attr.width;
+-     xwc.height = tmp_win->attr.height;
+      tmp_win->title_width = tmp_win->attr.width;
+  
+!     if (tmp_win->frame_bw)
+!     {
+! 	xwc.border_width = 0;
+!         xwcm |= CWBorderWidth;
+!     }
+  
+-     XConfigureWindow(dpy, tmp_win->w, xwcm, &xwc);
+- 
+      tmp_win->name_width = XTextWidth(Scr->TitleBarFont.font, tmp_win->name,
+  				     namelen);
+  
+--- 538,547 ----
+  	tmp_win->attr.y += gravy * delta;
+      }
+  
+      tmp_win->title_width = tmp_win->attr.width;
+  
+!     if (tmp_win->old_bw) XSetWindowBorderWidth (dpy, tmp_win->w, 0);
+  
+      tmp_win->name_width = XTextWidth(Scr->TitleBarFont.font, tmp_win->name,
+  				     namelen);
+  
+***************
+*** 637,651 ****
+      attributes.event_mask = (SubstructureRedirectMask | 
+  			     ButtonPressMask | ButtonReleaseMask |
+  			     EnterWindowMask | LeaveWindowMask);
+!     if (tmp_win->transient && tmp_win->attr.save_under && Scr->SaveUnder) {
+  	attributes.save_under = True;
+  	valuemask |= CWSaveUnder;
+      }
+  
+      tmp_win->frame = XCreateWindow (dpy, Scr->Root, tmp_win->frame_x,
+! 				    tmp_win->frame_y, tmp_win->frame_width,
+! 				    tmp_win->frame_height, tmp_win->frame_bw,
+! 				    Scr->d_depth, CopyFromParent,
+  				    Scr->d_visual, valuemask, &attributes);
+      
+      if (tmp_win->title_height)
+--- 625,642 ----
+      attributes.event_mask = (SubstructureRedirectMask | 
+  			     ButtonPressMask | ButtonReleaseMask |
+  			     EnterWindowMask | LeaveWindowMask);
+!     if (tmp_win->attr.save_under) {
+  	attributes.save_under = True;
+  	valuemask |= CWSaveUnder;
+      }
+  
+      tmp_win->frame = XCreateWindow (dpy, Scr->Root, tmp_win->frame_x,
+! 				    tmp_win->frame_y, 
+! 				    (unsigned int) tmp_win->frame_width,
+! 				    (unsigned int) tmp_win->frame_height,
+! 				    (unsigned int) tmp_win->frame_bw,
+! 				    Scr->d_depth,
+! 				    (unsigned int) CopyFromParent,
+  				    Scr->d_visual, valuemask, &attributes);
+      
+      if (tmp_win->title_height)
+***************
+*** 658,666 ****
+  	tmp_win->title_w = XCreateWindow (dpy, tmp_win->frame, 
+  					  -tmp_win->frame_bw,
+  					  -tmp_win->frame_bw,
+! 					  tmp_win->attr.width, 
+! 					  Scr->TitleHeight, tmp_win->frame_bw,
+! 					  Scr->d_depth, CopyFromParent,
+  					  Scr->d_visual, valuemask,
+  					  &attributes);
+      }
+--- 649,659 ----
+  	tmp_win->title_w = XCreateWindow (dpy, tmp_win->frame, 
+  					  -tmp_win->frame_bw,
+  					  -tmp_win->frame_bw,
+! 					  (unsigned int) tmp_win->attr.width, 
+! 					  (unsigned int) Scr->TitleHeight,
+! 					  (unsigned int) tmp_win->frame_bw,
+! 					  Scr->d_depth,
+! 					  (unsigned int) CopyFromParent,
+  					  Scr->d_visual, valuemask,
+  					  &attributes);
+      }
+***************
+*** 732,740 ****
+       */
+      tmp_win->mapped = FALSE;
+  
+!     SetupWindow (tmp_win,
+! 		 tmp_win->frame_x, tmp_win->frame_y,
+! 		 tmp_win->frame_width, tmp_win->frame_height, -1);
+  
+      /* wait until the window is iconified and the icon window is mapped
+       * before creating the icon window 
+--- 725,732 ----
+       */
+      tmp_win->mapped = FALSE;
+  
+!     SetupFrame (tmp_win, tmp_win->frame_x, tmp_win->frame_y,
+! 		tmp_win->frame_width, tmp_win->frame_height, -1, True);
+  
+      /* wait until the window is iconified and the icon window is mapped
+       * before creating the icon window 
+***************
+*** 1012,1018 ****
+      }
+  
+      w = XCreateWindow (dpy, tmp_win->title_w, 0, Scr->FramePadding,
+! 		       Scr->TBInfo.width, h, 0, Scr->d_depth, CopyFromParent,
+  		       Scr->d_visual, valuemask, &attributes);
+      if (pm) XFreePixmap (dpy, pm);
+      return w;
+--- 1004,1012 ----
+      }
+  
+      w = XCreateWindow (dpy, tmp_win->title_w, 0, Scr->FramePadding,
+! 		       (unsigned int) Scr->TBInfo.width, (unsigned int) h,
+! 		       (unsigned int) 0,
+! 		       Scr->d_depth, (unsigned int) CopyFromParent,
+  		       Scr->d_visual, valuemask, &attributes);
+      if (pm) XFreePixmap (dpy, pm);
+      return w;
+***************
+*** 1043,1049 ****
+      tmp_win->highlightx = (Scr->TBInfo.titlex + tmp_win->name_width);
+      if (tmp_win->hilite_w || Scr->TBInfo.nright > 0) 
+        tmp_win->highlightx += Scr->TitlePadding;
+!     tmp_win->rightx = width - 1 - Scr->TBInfo.rightoff;
+      if (squeeze && tmp_win->squeeze_info) {
+  	int rx = (tmp_win->highlightx + 
+  		  (tmp_win->hilite_w
+--- 1037,1043 ----
+      tmp_win->highlightx = (Scr->TBInfo.titlex + tmp_win->name_width);
+      if (tmp_win->hilite_w || Scr->TBInfo.nright > 0) 
+        tmp_win->highlightx += Scr->TitlePadding;
+!     tmp_win->rightx = width - Scr->TBInfo.rightoff;
+      if (squeeze && tmp_win->squeeze_info) {
+  	int rx = (tmp_win->highlightx + 
+  		  (tmp_win->hilite_w
+***************
+*** 1158,1164 ****
+  	} else {
+  	    TBWindow *tbw;
+  	    int boxwidth = (Scr->TBInfo.width + Scr->TBInfo.pad);
+! 	    int h = (Scr->TBInfo.width - Scr->TBInfo.border * 2);
+  
+  	    for (tb = Scr->TBInfo.head, tbw = tmp_win->titlebuttons; tb;
+  		 tb = tb->next, tbw++) {
+--- 1152,1158 ----
+  	} else {
+  	    TBWindow *tbw;
+  	    int boxwidth = (Scr->TBInfo.width + Scr->TBInfo.pad);
+! 	    unsigned int h = (Scr->TBInfo.width - Scr->TBInfo.border * 2);
+  
+  	    for (tb = Scr->TBInfo.head, tbw = tmp_win->titlebuttons; tb;
+  		 tb = tb->next, tbw++) {
+***************
+*** 1172,1180 ****
+  		    leftx += boxwidth;
+  		    attributes.win_gravity = NorthWestGravity;
+  		}
+! 		tbw->window = XCreateWindow (dpy, tmp_win->title_w, x, y,
+! 					     h, h, Scr->TBInfo.border, 0, 
+! 					     CopyFromParent, CopyFromParent,
+  					     valuemask, &attributes);
+  		tbw->info = tb;
+  	    }
+--- 1166,1175 ----
+  		    leftx += boxwidth;
+  		    attributes.win_gravity = NorthWestGravity;
+  		}
+! 		tbw->window = XCreateWindow (dpy, tmp_win->title_w, x, y, h, h,
+! 					     (unsigned int) Scr->TBInfo.border,
+! 					     0, (unsigned int) CopyFromParent,
+! 					     (Visual *) CopyFromParent,
+  					     valuemask, &attributes);
+  		tbw->info = tb;
+  	    }
+***************
+*** 1241,1246 ****
+--- 1236,1243 ----
+      }
+      cmap->c = c;
+      cmap->state = 0;
++     cmap->install_req = 0;
++     cmap->w = None;
+      cmap->refcnt = 1;
+      return (cmap);
+  }
+***************
+*** 1414,1420 ****
+      tmp->cmaps.cwins = cwins;
+      tmp->cmaps.number_cwins = number_cmap_windows;
+      if (number_cmap_windows > 1)
+! 	tmp->cmaps.scoreboard = (char *) calloc(1, number_cmap_windows);
+  		
+      if (previously_installed)
+  	InstallWindowColormaps(PropertyNotify, (TwmWindow *) NULL);
+--- 1411,1418 ----
+      tmp->cmaps.cwins = cwins;
+      tmp->cmaps.number_cwins = number_cmap_windows;
+      if (number_cmap_windows > 1)
+! 	tmp->cmaps.scoreboard = 
+! 	  (char *) calloc(1, ColormapsScoreboardLength(&tmp->cmaps));
+  		
+      if (previously_installed)
+  	InstallWindowColormaps(PropertyNotify, (TwmWindow *) NULL);
+*** /tmp/,RCSt1a23700	Wed Mar 28 17:17:34 1990
+--- mit/clients/twm/events.c	Thu Mar 22 18:52:53 1990
+***************
+*** 28,34 ****
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: events.c,v 1.125 89/12/14 14:52:09 jim Exp $
+   *
+   * twm event handling
+   *
+--- 28,34 ----
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: events.c,v 1.148 90/03/22 18:52:48 jim Exp $
+   *
+   * twm event handling
+   *
+***************
+*** 36,44 ****
+   *
+   ***********************************************************************/
+  
+! #ifndef lint
+  static char RCSinfo[]=
+! "$XConsortium: events.c,v 1.125 89/12/14 14:52:09 jim Exp $";
+  #endif
+  
+  #include <stdio.h>
+--- 36,44 ----
+   *
+   ***********************************************************************/
+  
+! #if !defined(lint) && !defined(SABER)
+  static char RCSinfo[]=
+! "$XConsortium: events.c,v 1.148 90/03/22 18:52:48 jim Exp $";
+  #endif
+  
+  #include <stdio.h>
+***************
+*** 56,61 ****
+--- 56,62 ----
+  #include "version.h"
+  
+  extern int iconifybox_width, iconifybox_height;
++ extern unsigned int mods_used;
+  
+  #define MAX_X_EVENT 256
+  event_proc EventHandler[MAX_X_EVENT]; /* event handler jump table */
+***************
+*** 73,78 ****
+--- 74,81 ----
+  int DragY;
+  int DragWidth;
+  int DragHeight;
++ int CurrentDragX;
++ int CurrentDragY;
+  
+  static int enter_flag;
+  static int ColortableThrashing;
+***************
+*** 307,313 ****
+  		    enter_flag = FALSE;
+  		}
+  	    }
+! 	    if (ColortableThrashing && !QLength(dpy)) {
+  		InstallWindowColormaps(ColormapNotify, (TwmWindow *) NULL);
+  	    }
+  	    WindowMoved = FALSE;
+--- 310,316 ----
+  		    enter_flag = FALSE;
+  		}
+  	    }
+! 	    if (ColortableThrashing && !QLength(dpy) && Scr) {
+  		InstallWindowColormaps(ColormapNotify, (TwmWindow *) NULL);
+  	    }
+  	    WindowMoved = FALSE;
+***************
+*** 422,430 ****
+  		    n = j*(j-1)/2 + i;
+  		Scr->cmapInfo.cmaps->scoreboard[n] = 1;
+  	    } else {
+- 		fprintf (stderr, 
+- 	 "%s:  client illegally changed colormap (i = %d, j = %d\n", 
+- 			 ProgramName, i, j);
+  		InstallWindowColormaps(ColormapNotify, (TwmWindow *) NULL);
+  	    }
+  	}
+--- 425,430 ----
+***************
+*** 459,464 ****
+--- 459,468 ----
+      if (XFindContext(dpy, vevent->window, ColormapContext, (caddr_t *)&cwin) == XCNOENT)
+  	return;
+      
++     /*
++      * when Saber complains about retreiving an <int> from an <unsigned int>
++      * just type "touch vevent->state" and "cont"
++      */
+      cmap = cwin->colormap;
+      if ((cmap->state & CM_INSTALLABLE) &&
+  	vevent->state != cwin->visibility &&
+***************
+*** 484,489 ****
+--- 488,494 ----
+  {
+      FuncKey *key;
+      int len;
++     unsigned int modifier;
+  
+      if (InfoLines) XUnmapWindow(dpy, Scr->InfoWindow);
+      Context = C_NO_CONTEXT;
+***************
+*** 506,515 ****
+  	    Context = C_ICONMGR;
+      }
+  
+      for (key = Scr->FuncKeyRoot.next; key != NULL; key = key->next)
+      {
+  	if (key->keycode == Event.xkey.keycode &&
+! 	    key->mods == Event.xkey.state &&
+  	    (key->cont == Context || key->cont == C_NAME))
+  	{
+  	    /* weed out the functions that don't make sense to execute
+--- 511,521 ----
+  	    Context = C_ICONMGR;
+      }
+  
++     modifier = (Event.xkey.state & mods_used);
+      for (key = Scr->FuncKeyRoot.next; key != NULL; key = key->next)
+      {
+  	if (key->keycode == Event.xkey.keycode &&
+! 	    key->mods == modifier &&
+  	    (key->cont == Context || key->cont == C_NAME))
+  	{
+  	    /* weed out the functions that don't make sense to execute
+***************
+*** 631,638 ****
+  	    }
+  	}
+  	free((char *) tmp->cmaps.cwins);
+! 	if (tmp->cmaps.number_cwins > 1)
+  	    free(tmp->cmaps.scoreboard);
+  	tmp->cmaps.number_cwins = 0;
+      }
+  }
+--- 637,646 ----
+  	    }
+  	}
+  	free((char *) tmp->cmaps.cwins);
+! 	if (tmp->cmaps.number_cwins > 1) {
+  	    free(tmp->cmaps.scoreboard);
++ 	    tmp->cmaps.scoreboard = NULL;
++ 	}
+  	tmp->cmaps.number_cwins = 0;
+      }
+  }
+***************
+*** 737,745 ****
+  	  Tmp_win->group = Tmp_win->wmhints->window_group;
+  
+  	if (!Tmp_win->forced && Tmp_win->wmhints &&
+! 	    Tmp_win->wmhints->flags & IconWindowHint)
+! 	  Tmp_win->icon_w = Tmp_win->wmhints->icon_window;
+  
+  	if (Tmp_win->icon_w && !Tmp_win->forced && Tmp_win->wmhints &&
+  	    (Tmp_win->wmhints->flags & IconPixmapHint)) {
+  	    if (!XGetGeometry (dpy, Tmp_win->wmhints->icon_pixmap, &JunkRoot,
+--- 745,804 ----
+  	  Tmp_win->group = Tmp_win->wmhints->window_group;
+  
+  	if (!Tmp_win->forced && Tmp_win->wmhints &&
+! 	    Tmp_win->wmhints->flags & IconWindowHint) {
+! 	    if (Tmp_win->icon_w) {
+! 	    	int icon_x, icon_y;
+  
++ 		/*
++ 		 * There's already an icon window.
++ 		 * Try to find out where it is; if we succeed, move the new
++ 		 * window to where the old one is.
++ 		 */
++ 		if (XGetGeometry (dpy, Tmp_win->icon_w, &JunkRoot, &icon_x,
++ 		  &icon_y, &JunkWidth, &JunkHeight, &JunkBW, &JunkDepth)) {
++ 		    /*
++ 		     * Move the new icon window to where the old one was.
++ 		     */
++ 		    XMoveWindow(dpy, Tmp_win->wmhints->icon_window, icon_x,
++ 		      icon_y);
++ 		}
++ 
++ 		/*
++ 		 * If the window is iconic, map the new icon window.
++ 		 */
++ 		if (Tmp_win->icon)
++ 		    XMapWindow(dpy, Tmp_win->wmhints->icon_window);
++ 
++ 		/*
++ 		 * Now, if the old window isn't ours, unmap it, otherwise
++ 		 * just get rid of it completely.
++ 		 */
++ 		if (Tmp_win->icon_not_ours)
++ 		    XUnmapWindow(dpy, Tmp_win->icon_w);
++ 		else
++ 		    XDestroyWindow(dpy, Tmp_win->icon_w);
++ 
++ 		/*
++ 		 * The new icon window isn't our window, so note that fact
++ 		 * so that we don't treat it as ours.
++ 		 */
++ 		Tmp_win->icon_not_ours = TRUE;
++ 
++ 		/*
++ 		 * Now make the new window the icon window for this window,
++ 		 * and set it up to work as such (select for key presses
++ 		 * and button presses/releases, set up the contexts for it,
++ 		 * and define the cursor for it).
++ 		 */
++ 		Tmp_win->icon_w = Tmp_win->wmhints->icon_window;
++ 		XSelectInput (dpy, Tmp_win->icon_w,
++ 		  KeyPressMask | ButtonPressMask | ButtonReleaseMask);
++ 		XSaveContext(dpy, Tmp_win->icon_w, TwmContext, (caddr_t)Tmp_win);
++ 		XSaveContext(dpy, Tmp_win->icon_w, ScreenContext, (caddr_t)Scr);
++ 		XDefineCursor(dpy, Tmp_win->icon_w, Scr->IconCursor);
++ 	    }
++ 	}
++ 
+  	if (Tmp_win->icon_w && !Tmp_win->forced && Tmp_win->wmhints &&
+  	    (Tmp_win->wmhints->flags & IconPixmapHint)) {
+  	    if (!XGetGeometry (dpy, Tmp_win->wmhints->icon_pixmap, &JunkRoot,
+***************
+*** 762,771 ****
+  	    if (Tmp_win->icon_bm_w)
+  		XDestroyWindow(dpy, Tmp_win->icon_bm_w);
+  
+! 	    Tmp_win->icon_bm_w = XCreateWindow(dpy, Tmp_win->icon_w,
+! 		0, 0, Tmp_win->icon_width, Tmp_win->icon_height,
+! 		0, Scr->d_depth, CopyFromParent, Scr->d_visual,
+! 		valuemask, &attributes);
+  
+  	    XFreePixmap (dpy, pm);
+  	    RedoIconName();
+--- 821,833 ----
+  	    if (Tmp_win->icon_bm_w)
+  		XDestroyWindow(dpy, Tmp_win->icon_bm_w);
+  
+! 	    Tmp_win->icon_bm_w =
+! 	      XCreateWindow (dpy, Tmp_win->icon_w, 0, 0,
+! 			     (unsigned int) Tmp_win->icon_width,
+! 			     (unsigned int) Tmp_win->icon_height,
+! 			     (unsigned int) 0, Scr->d_depth,
+! 			     (unsigned int) CopyFromParent, Scr->d_visual,
+! 			     valuemask, &attributes);
+  
+  	    XFreePixmap (dpy, pm);
+  	    RedoIconName();
+***************
+*** 814,819 ****
+--- 876,884 ----
+      if (Tmp_win->icon_w == NULL)
+  	return;
+  
++     if (Tmp_win->icon_not_ours)
++ 	return;
++ 
+      Tmp_win->icon_w_width = XTextWidth(Scr->IconFont.font,
+  	Tmp_win->icon_name, strlen(Tmp_win->icon_name));
+  
+***************
+*** 991,996 ****
+--- 1056,1085 ----
+      }
+  }
+  
++ static void remove_window_from_ring (tmp)
++     TwmWindow *tmp;
++ {
++     TwmWindow *prev = tmp->ring.prev, *next = tmp->ring.next;
++ 
++     if (enter_win == tmp) {
++ 	enter_flag = FALSE;
++ 	enter_win = NULL;
++     }
++     if (raise_win == Tmp_win) raise_win = NULL;
++ 
++     /*
++      * 1. Unlink window
++      * 2. If window was only thing in ring, null out ring
++      * 3. If window was ring leader, set to next (or null)
++      */
++     if (prev) prev->ring.next = next;
++     if (next) next->ring.prev = prev;
++     if (Scr->Ring == tmp) 
++       Scr->Ring = (next != tmp ? next : (TwmWindow *) NULL);
++ 
++     if (!Scr->Ring || Scr->RingLeader == tmp) Scr->RingLeader = Scr->Ring;
++ }
++ 
+  /***********************************************************************
+   *
+   *  Procedure:
+***************
+*** 1062,1067 ****
+--- 1151,1157 ----
+       *     8.  iconmgrp
+       *     9.  cwins
+       *     10. titlebuttons
++      *     11. window ring
+       */
+      if (Tmp_win->gray) XFreePixmap (dpy, Tmp_win->gray);
+  
+***************
+*** 1086,1091 ****
+--- 1176,1183 ----
+      free_cwins (Tmp_win);				/* 9 */
+      if (Tmp_win->titlebuttons)					/* 10 */
+        free ((char *) Tmp_win->titlebuttons);
++     remove_window_from_ring (Tmp_win);				/* 11 */
++ 
+      free((char *)Tmp_win);
+  }
+  
+***************
+*** 1223,1228 ****
+--- 1315,1322 ----
+      Tmp_win->icon_on = FALSE;
+  }
+  
++ 
++ 
+  /***********************************************************************
+   *
+   *  Procedure:
+***************
+*** 1256,1275 ****
+      if (Tmp_win == NULL || (!Tmp_win->mapped && !Tmp_win->icon))
+  	return;
+  
+-     if (enter_win == Tmp_win) enter_win = NULL;
+- 
+-     if (Scr->RingLeader && Scr->RingLeader == Tmp_win)
+-       Scr->RingLeader = (TwmWindow *) NULL;
+-     if (Tmp_win->ring.next) {
+- 	if (Tmp_win->ring.next != Tmp_win) {
+- 	    Tmp_win->ring.next->ring.prev = Tmp_win->ring.prev;
+- 	    Tmp_win->ring.prev->ring.next = Tmp_win->ring.next;
+- 	    Scr->Ring = Tmp_win->ring.next;
+- 	} else {
+- 	    Scr->Ring = (TwmWindow *) NULL;
+- 	}
+-     }
+- 
+      /*
+       * The program may have unmapped the client window, from either
+       * NormalState or IconicState.  Handle the transition to WithdrawnState.
+--- 1350,1355 ----
+***************
+*** 1288,1294 ****
+  	RestoreWithdrawnLocation (Tmp_win);
+  	XRemoveFromSaveSet (dpy, Event.xunmap.window);
+  	HandleDestroyNotify ();		/* do not need to mash event before */
+!     }
+      XUngrabServer (dpy);
+      XFlush (dpy);
+  }
+--- 1368,1374 ----
+  	RestoreWithdrawnLocation (Tmp_win);
+  	XRemoveFromSaveSet (dpy, Event.xunmap.window);
+  	HandleDestroyNotify ();		/* do not need to mash event before */
+!     } /* else window no longer exists and we'll get a destroy notify */
+      XUngrabServer (dpy);
+      XFlush (dpy);
+  }
+***************
+*** 1376,1381 ****
+--- 1456,1463 ----
+  		yt = Scr->MyDisplayHeight - h;
+  	}
+  
++ 	CurrentDragX = xl;
++ 	CurrentDragY = yt;
+  	if (DragWindow == Tmp_win->frame)
+  	    SetupWindow (Tmp_win, xl, yt,
+  			 Tmp_win->frame_width, Tmp_win->frame_height, -1);
+***************
+*** 1382,1388 ****
+  	else
+  	    XMoveWindow (dpy, DragWindow, xl, yt);
+  
+! 	if (!Scr->NoRaiseMove)
+  	    XRaiseWindow(dpy, DragWindow);
+  
+  	if (!Scr->OpaqueMove)
+--- 1464,1470 ----
+  	else
+  	    XMoveWindow (dpy, DragWindow, xl, yt);
+  
+! 	if (!Scr->NoRaiseMove && !Scr->OpaqueMove)    /* opaque already did */
+  	    XRaiseWindow(dpy, DragWindow);
+  
+  	if (!Scr->OpaqueMove)
+***************
+*** 1454,1459 ****
+--- 1536,1542 ----
+      {
+  	XUngrabPointer(dpy, CurrentTime);
+  	XUngrabServer(dpy);
++ 	XFlush(dpy);
+  	EventHandler[EnterNotify] = HandleEnterNotify;
+  	EventHandler[LeaveNotify] = HandleLeaveNotify;
+  	ButtonPressed = -1;
+***************
+*** 1505,1511 ****
+  void
+  HandleButtonPress()
+  {
+!     int modifier;
+      Cursor cur;
+  
+      /* pop down the menu, if any */
+--- 1588,1594 ----
+  void
+  HandleButtonPress()
+  {
+!     unsigned int modifier;
+      Cursor cur;
+  
+      /* pop down the menu, if any */
+***************
+*** 1524,1529 ****
+--- 1607,1614 ----
+  	 * down, we need to cancel the operation we were doing
+  	 */
+  	Cancel = TRUE;
++ 	CurrentDragX = origDragX;
++ 	CurrentDragY = origDragY;
+  	if (Scr->OpaqueMove && DragWindow != None) {
+  	    XMoveWindow (dpy, DragWindow, origDragX, origDragY);
+  	} else {
+***************
+*** 1669,1675 ****
+      /* if we get to here, we have to execute a function or pop up a 
+       * menu
+       */
+!     modifier = Event.xbutton.state & (ShiftMask | ControlMask | Mod1Mask);
+  
+      if (Context == C_NO_CONTEXT)
+  	return;
+--- 1754,1760 ----
+      /* if we get to here, we have to execute a function or pop up a 
+       * menu
+       */
+!     modifier = (Event.xbutton.state & mods_used);
+  
+      if (Context == C_NO_CONTEXT)
+  	return;
+***************
+*** 1678,1684 ****
+      if (Scr->Mouse[Event.xbutton.button][Context][modifier].func == F_MENU)
+      {
+  	do_menu (Scr->Mouse[Event.xbutton.button][Context][modifier].menu,
+! 		 None);
+      }
+      else if (Scr->Mouse[Event.xbutton.button][Context][modifier].func != NULL)
+      {
+--- 1763,1769 ----
+      if (Scr->Mouse[Event.xbutton.button][Context][modifier].func == F_MENU)
+      {
+  	do_menu (Scr->Mouse[Event.xbutton.button][Context][modifier].menu,
+! 		 (Window) None);
+      }
+      else if (Scr->Mouse[Event.xbutton.button][Context][modifier].func != NULL)
+      {
+***************
+*** 1691,1697 ****
+      {
+  	if (Scr->DefaultFunction.func == F_MENU)
+  	{
+! 	    do_menu (Scr->DefaultFunction.menu, None);
+  	}
+  	else
+  	{
+--- 1776,1782 ----
+      {
+  	if (Scr->DefaultFunction.func == F_MENU)
+  	{
+! 	    do_menu (Scr->DefaultFunction.menu, (Window) None);
+  	}
+  	else
+  	{
+***************
+*** 1858,1863 ****
+--- 1943,1949 ----
+  	     */
+  	    if (Tmp_win->ring.next && (!enter_flag || raise_win == enter_win))
+  	      Scr->RingLeader = Tmp_win;
++ 	    XSync (dpy, 0);
+  	    return;
+  	}				/* end if Tmp_win */
+      }					/* end if !ActiveMenu */
+***************
+*** 1872,1877 ****
+--- 1958,1964 ----
+  	if (Scr->Shadow) XUnmapWindow (dpy, ActiveMenu->shadow);
+  	XUnmapWindow (dpy, ActiveMenu->w);
+  	ActiveMenu->mapped = UNMAPPED;
++ 	UninstallRootColormap ();
+  	if (ActiveItem) ActiveItem->state = 0;
+  	ActiveItem = NULL;
+  	ActiveMenu = mr;
+***************
+*** 1988,1993 ****
+--- 2075,2081 ----
+  		}
+  	    }
+  	}
++ 	XSync (dpy, 0);
+  	return;
+      }
+  }
+***************
+*** 2026,2033 ****
+  	fprintf(stderr, "  stack = %d\n", cre->detail);
+  #endif
+  
+!     Event.xany.window = cre->window;	/* effectively mashing parent field */
+  
+      /*
+       * According to the July 27, 1988 ICCCM draft, we should ignore size and
+       * position fields in the WM_NORMAL_HINTS property when we map a window.
+--- 2114,2129 ----
+  	fprintf(stderr, "  stack = %d\n", cre->detail);
+  #endif
+  
+!     /*
+!      * Event.xany.window is Event.xconfigurerequest.parent, so Tmp_win will
+!      * be wrong
+!      */
+!     Event.xany.window = cre->window;	/* mash parent field */
+!     if (XFindContext (dpy, cre->window, TwmContext, (caddr_t *) &Tmp_win) ==
+! 	XCNOENT)
+!       Tmp_win = NULL;
+  
++ 
+      /*
+       * According to the July 27, 1988 ICCCM draft, we should ignore size and
+       * position fields in the WM_NORMAL_HINTS property when we map a window.
+***************
+*** 2046,2061 ****
+  	return;
+      }
+  
+!     if (cre->value_mask & CWStackMode)
+!     {
+! 	if (cre->detail == Above)
+! 	    XRaiseWindow(dpy, Tmp_win->frame);
+! 	else if (cre->detail == Below)
+! 	    XLowerWindow(dpy, Tmp_win->frame);
+  
+! 	return;
+      }
+  
+      /* Don't modify frame_XXX fields before calling SetupWindow! */
+      x = Tmp_win->frame_x;
+      y = Tmp_win->frame_y;
+--- 2142,2160 ----
+  	return;
+      }
+  
+!     if ((cre->value_mask & CWStackMode) && Tmp_win->stackmode) {
+! 	TwmWindow *otherwin;
+  
+! 	xwc.sibling = (((cre->value_mask & CWSibling) &&
+! 			(XFindContext (dpy, cre->above, TwmContext,
+! 				       (caddr_t *) &otherwin) == XCSUCCESS))
+! 		       ? otherwin->frame : cre->above);
+! 	xwc.stack_mode = cre->detail;
+! 	XConfigureWindow (dpy, Tmp_win->frame, 
+! 			  cre->value_mask & (CWSibling | CWStackMode), &xwc);
+      }
+  
++ 
+      /* Don't modify frame_XXX fields before calling SetupWindow! */
+      x = Tmp_win->frame_x;
+      y = Tmp_win->frame_y;
+***************
+*** 2076,2094 ****
+      GetGravityOffsets (Tmp_win, &gravx, &gravy);
+  
+      if (cre->value_mask & CWBorderWidth) {
+! 	int bwdelta = cre->border_width - Tmp_win->old_bw;
+  	if (bwdelta && Scr->ClientBorderWidth) {  /* if change allowed */
+  	    x += gravx * bwdelta;	/* change default values only */
+  	    y += gravy * bwdelta;	/* ditto */
+  	    bw = cre->border_width;
+  	}
+  	Tmp_win->old_bw = cre->border_width;  /* for restoring */
+      }
+!     if (cre->value_mask & CWX) {
+! 	x = cre->x;			/* override even if border change */
+      }
+      if (cre->value_mask & CWY) {
+! 	y = cre->y - ((gravy >= 0) ? Tmp_win->title_height : 0);
+      }
+  
+      if (cre->value_mask & CWWidth) {
+--- 2175,2197 ----
+      GetGravityOffsets (Tmp_win, &gravx, &gravy);
+  
+      if (cre->value_mask & CWBorderWidth) {
+! 	int bwdelta = cre->border_width - Tmp_win->old_bw;  /* posit growth */
+  	if (bwdelta && Scr->ClientBorderWidth) {  /* if change allowed */
+  	    x += gravx * bwdelta;	/* change default values only */
+  	    y += gravy * bwdelta;	/* ditto */
+  	    bw = cre->border_width;
++ 	    if (Tmp_win->title_height) height += bwdelta;
++ 	    x += (gravx < 0) ? bwdelta : -bwdelta;
++ 	    y += (gravy < 0) ? bwdelta : -bwdelta;
+  	}
+  	Tmp_win->old_bw = cre->border_width;  /* for restoring */
+      }
+! 
+!     if (cre->value_mask & CWX) {	/* override even if border change */
+! 	x = cre->x - bw;
+      }
+      if (cre->value_mask & CWY) {
+! 	y = cre->y - ((gravy < 0) ? 0 : Tmp_win->title_height) - bw;
+      }
+  
+      if (cre->value_mask & CWWidth) {
+***************
+*** 2095,2101 ****
+  	width = cre->width;
+      }
+      if (cre->value_mask & CWHeight) {
+! 	height = cre->height + Tmp_win->title_height;
+      }
+  
+      if (width != Tmp_win->frame_width || height != Tmp_win->frame_height)
+--- 2198,2204 ----
+  	width = cre->width;
+      }
+      if (cre->value_mask & CWHeight) {
+! 	height = cre->height + Scr->TitleHeight + bw;
+      }
+  
+      if (width != Tmp_win->frame_width || height != Tmp_win->frame_height)
+***************
+*** 2103,2109 ****
+  
+      /*
+       * SetupWindow (x,y) are the location of the upper-left outer corner and
+!      * are passed directly to XMoveResizeWindow (frame).
+       */
+      SetupWindow (Tmp_win, x, y, width, height, bw);
+  }
+--- 2206,2215 ----
+  
+      /*
+       * SetupWindow (x,y) are the location of the upper-left outer corner and
+!      * are passed directly to XMoveResizeWindow (frame).  The (width,height)
+!      * are the inner size of the frame.  The inner width is the same as the 
+!      * requested client window width; the inner height is the same as the
+!      * requested client window height plus any title bar slop.
+       */
+      SetupWindow (Tmp_win, x, y, width, height, bw);
+  }
+***************
+*** 2439,2441 ****
+--- 2545,2548 ----
+      }
+  }
+  #endif /* TRACE */
++ 
+*** /tmp/,RCSt1a23708	Wed Mar 28 17:17:39 1990
+--- mit/clients/twm/events.h	Tue Mar 13 15:47:18 1990
+***************
+*** 28,34 ****
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: events.h,v 1.12 89/12/10 17:46:19 jim Exp $
+   *
+   * twm event handler include file
+   *
+--- 28,34 ----
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: events.h,v 1.13 90/03/13 15:47:17 jim Exp $
+   *
+   * twm event handler include file
+   *
+***************
+*** 75,80 ****
+--- 75,82 ----
+  extern int DragY;
+  extern int DragWidth;
+  extern int DragHeight;
++ extern int CurrentDragX;
++ extern int CurrentDragY;
+  
+  extern int ButtonPressed;
+  extern int Cancel;
+*** /tmp/,RCSt1a23715	Wed Mar 28 17:17:40 1990
+--- mit/clients/twm/gc.c	Tue Mar 13 15:28:58 1990
+***************
+*** 28,34 ****
+  
+  /**********************************************************************
+   *
+!  * $XConsortium: gc.c,v 1.20 89/12/10 19:20:03 jim Exp $
+   *
+   * Open the fonts and create the GCs
+   *
+--- 28,34 ----
+  
+  /**********************************************************************
+   *
+!  * $XConsortium: gc.c,v 1.21 90/03/13 15:28:56 jim Exp $
+   *
+   * Open the fonts and create the GCs
+   *
+***************
+*** 36,45 ****
+   *
+   **********************************************************************/
+  
+! #ifndef lint
+  static char RCSinfo[]=
+! "$XConsortium: gc.c,v 1.20 89/12/10 19:20:03 jim Exp $";
+! #endif /* lint */
+  
+  #include <stdio.h>
+  #include "twm.h"
+--- 36,45 ----
+   *
+   **********************************************************************/
+  
+! #if !defined(lint) && !defined(SABER)
+  static char RCSinfo[]=
+! "$XConsortium: gc.c,v 1.21 90/03/13 15:28:56 jim Exp $";
+! #endif
+  
+  #include <stdio.h>
+  #include "twm.h"
+*** /tmp/,RCSt1a23729	Wed Mar 28 17:17:45 1990
+--- mit/clients/twm/gram.y	Fri Mar 16 12:12:09 1990
+***************
+*** 28,34 ****
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: gram.y,v 1.84 89/12/14 14:52:03 jim Exp $
+   *
+   * .twmrc command grammer
+   *
+--- 28,34 ----
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: gram.y,v 1.88 90/03/16 12:12:06 jim Exp $
+   *
+   * .twmrc command grammer
+   *
+***************
+*** 62,67 ****
+--- 62,68 ----
+  static int cont = 0;
+  static int color;
+  int mods = 0;
++ unsigned int mods_used = (ShiftMask | ControlMask | Mod1Mask);
+  
+  extern int do_single_keyword(), do_string_keyword(), do_number_keyword();
+  extern name_list **do_colorlist_keyword();
+***************
+*** 81,92 ****
+  %token <num> ICONMGR_GEOMETRY ICONMGR_NOSHOW MAKE_TITLE
+  %token <num> ICONIFY_BY_UNMAPPING DONT_ICONIFY_BY_UNMAPPING 
+  %token <num> NO_TITLE AUTO_RAISE NO_HILITE ICON_REGION 
+! %token <num> META SHIFT CONTROL WINDOW TITLE ICON ROOT FRAME 
+  %token <num> COLON EQUALS SQUEEZE_TITLE DONT_SQUEEZE_TITLE
+  %token <num> START_ICONIFIED NO_TITLE_HILITE TITLE_HILITE
+  %token <num> MOVE RESIZE WAIT SELECT KILL LEFT_TITLEBUTTON RIGHT_TITLEBUTTON 
+  %token <num> NUMBER KEYWORD NKEYWORD CKEYWORD CLKEYWORD FKEYWORD FSKEYWORD 
+  %token <num> SKEYWORD DKEYWORD JKEYWORD WINDOW_RING WARP_CURSOR ERRORTOKEN
+  %token <ptr> STRING 
+  
+  %type <ptr> string
+--- 82,94 ----
+  %token <num> ICONMGR_GEOMETRY ICONMGR_NOSHOW MAKE_TITLE
+  %token <num> ICONIFY_BY_UNMAPPING DONT_ICONIFY_BY_UNMAPPING 
+  %token <num> NO_TITLE AUTO_RAISE NO_HILITE ICON_REGION 
+! %token <num> META SHIFT LOCK CONTROL WINDOW TITLE ICON ROOT FRAME 
+  %token <num> COLON EQUALS SQUEEZE_TITLE DONT_SQUEEZE_TITLE
+  %token <num> START_ICONIFIED NO_TITLE_HILITE TITLE_HILITE
+  %token <num> MOVE RESIZE WAIT SELECT KILL LEFT_TITLEBUTTON RIGHT_TITLEBUTTON 
+  %token <num> NUMBER KEYWORD NKEYWORD CKEYWORD CLKEYWORD FKEYWORD FSKEYWORD 
+  %token <num> SKEYWORD DKEYWORD JKEYWORD WINDOW_RING WARP_CURSOR ERRORTOKEN
++ %token <num> NO_STACKMODE
+  %token <ptr> STRING 
+  
+  %type <ptr> string
+***************
+*** 177,182 ****
+--- 179,188 ----
+  		  win_list
+  		| NO_HILITE		{ if (Scr->FirstTime)
+  						Scr->Highlight = FALSE; }
++ 		| NO_STACKMODE		{ list = &Scr->NoStackModeL; }
++ 		  win_list
++ 		| NO_STACKMODE		{ if (Scr->FirstTime)
++ 						Scr->StackMode = FALSE; }
+  		| NO_TITLE		{ list = &Scr->NoTitle; }
+  		  win_list
+  		| NO_TITLE		{ if (Scr->FirstTime)
+***************
+*** 277,283 ****
+--- 283,300 ----
+  
+  key		: META			{ mods |= Mod1Mask; }
+  		| SHIFT			{ mods |= ShiftMask; }
++ 		| LOCK			{ mods |= LockMask; }
+  		| CONTROL		{ mods |= ControlMask; }
++ 		| META number		{ if ($2 < 1 || $2 > 5) {
++ 					     twmrc_error_prefix();
++ 					     fprintf (stderr, 
++ 				"bad modifier number (%d), must be 1-5\n",
++ 						      $2);
++ 					     ParseError = 1;
++ 					  } else {
++ 					     mods |= (Mod1Mask << ($2 - 1));
++ 					  }
++ 					}
+  		| OR			{ }
+  		;
+  
+***************
+*** 669,674 ****
+--- 686,695 ----
+  		}
+  		*o = n;
+  		break;
++ 	    case '\n':
++ 		i++;	/* punt */
++ 		o--;	/* to account for o++ at end of loop */
++ 		break;
+  	    case '\"':
+  	    case '\'':
+  	    case '\\':
+***************
+*** 733,738 ****
+--- 754,760 ----
+      Action = "";
+      pull = NULL;
+      cont = 0;
++     mods_used |= mods;
+      mods = 0;
+  }
+  
+***************
+*** 753,758 ****
+--- 775,781 ----
+      Action = "";
+      pull = NULL;
+      cont = 0;
++     mods_used |= mods;
+      mods = 0;
+  }
+  
+*** /tmp/,RCSt1a23736	Wed Mar 28 17:17:49 1990
+--- mit/clients/twm/iconmgr.c	Tue Mar 20 11:20:19 1990
+***************
+*** 21,27 ****
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: iconmgr.c,v 1.39 89/12/14 16:22:57 rws Exp $
+   *
+   * Icon Manager routines
+   *
+--- 21,27 ----
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: iconmgr.c,v 1.43 90/03/20 11:20:17 jim Exp $
+   *
+   * Icon Manager routines
+   *
+***************
+*** 318,436 ****
+   */
+  
+  void JumpIconManager(dir)
+!     int dir;
+  {
+      IconMgr *ip, *tmp_ip = NULL;
+!     int got_it;
+      ScreenInfo *sp;
+      int screen;
+  
+      ip = Active->iconmgr;
+!     got_it = FALSE;
+!     switch (dir)
+!     {
+! 	case F_NEXTICONMGR:
+! 	    for (tmp_ip = ip->next; tmp_ip != NULL; tmp_ip = tmp_ip->next)
+! 	    {
+! 		if (tmp_ip->count != 0 && tmp_ip->twm_win->mapped)
+! 		{
+! 		    /* we've got one on our own screen! */
+! 		    got_it = TRUE;
+! 		    break;
+! 		}
+! 	    }
+! 	    if (!got_it && !MultiScreen)
+! 	    {
+! 		/* let's start from the begining of this screen's list */
+! 		for (tmp_ip = &(ip->scr->iconmgr); tmp_ip != NULL;
+! 		    tmp_ip = tmp_ip->next)
+! 		{
+! 		    if (tmp_ip->count != 0 && tmp_ip->twm_win->mapped)
+! 		    {
+! 			/* we've got one on our own screen! */
+! 			got_it = TRUE;
+! 			break;
+! 		    }
+! 		}
+! 	    }
+! 	    while (!got_it)
+! 	    {
+! 		/* we have to go looking for one on another screen or
+! 		* wrap around on this screen
+! 		*/
+! 		for (screen = (ip->scr->screen+1); ; screen++)
+! 		{
+! 		    if (screen >= NumScreens)
+! 			screen = 0;
+  
+! 		    sp = ScreenList[screen];
+! 		    for (tmp_ip = &(sp->iconmgr); tmp_ip != NULL;
+! 			tmp_ip = tmp_ip->next)
+! 		    {
+! 			if (tmp_ip->count != 0 && tmp_ip->twm_win->mapped)
+! 			{
+! 			    /* we've got one */
+! 			    got_it = TRUE;
+! 			    break;
+! 			}
+! 		    }
+! 		    if (got_it)
+! 			break;
+! 		}
+! 	    }
+! 	    break;
+! 	case F_PREVICONMGR:
+! 	    for (tmp_ip = ip->prev; tmp_ip != NULL; tmp_ip = tmp_ip->prev)
+! 	    {
+! 		if (tmp_ip->count != 0 && tmp_ip->twm_win->mapped)
+! 		{
+! 		    /* we've got one on our own screen! */
+! 		    got_it = TRUE;
+! 		    break;
+! 		}
+! 	    }
+! 	    if (!got_it && !MultiScreen)
+! 	    {
+! 		/* let's start from the end of this screen's list */
+! 		for (tmp_ip = ip->scr->iconmgr.lasti; tmp_ip != NULL;
+! 		    tmp_ip = tmp_ip->prev)
+! 		{
+! 		    if (tmp_ip->count != 0 && tmp_ip->twm_win->mapped)
+! 		    {
+! 			/* we've got one on our own screen! */
+! 			got_it = TRUE;
+! 			break;
+! 		    }
+! 		}
+! 	    }
+! 	    while (!got_it)
+! 	    {
+! 		/* we have to go looking for one on another screen or
+! 		* wrap around on this screen
+! 		*/
+! 		for (screen = (ip->scr->screen-1); ; screen--)
+! 		{
+! 		    if (screen < 0)
+! 			screen = NumScreens-1;
+  
+! 		    sp = ScreenList[screen];
+! 		    for (tmp_ip = sp->iconmgr.lasti; tmp_ip != NULL;
+! 			tmp_ip = tmp_ip->prev)
+! 		    {
+! 			if (tmp_ip->count != 0 && tmp_ip->twm_win->mapped)
+! 			{
+! 			    /* we've got one */
+! 			    got_it = TRUE;
+! 			    break;
+! 			}
+! 		    }
+! 		    if (got_it)
+! 			break;
+  		}
+  	    }
+! 	    break;
+      }
+  
+      /* raise the frame so it is visible */
+      XRaiseWindow(dpy, tmp_ip->twm_win->frame);
+      if (tmp_ip->active)
+--- 318,372 ----
+   */
+  
+  void JumpIconManager(dir)
+!     register int dir;
+  {
+      IconMgr *ip, *tmp_ip = NULL;
+!     int got_it = FALSE;
+      ScreenInfo *sp;
+      int screen;
+  
++     if (!Active) return;
++ 
++ 
++ #define ITER(i) (dir == F_NEXTICONMGR ? (i)->next : (i)->prev)
++ #define IPOFSP(sp) (dir == F_NEXTICONMGR ? &(sp->iconmgr) : sp->iconmgr.lasti)
++ #define TEST(ip) if ((ip)->count != 0 && (ip)->twm_win->mapped) \
++ 		 { got_it = TRUE; break; }
++ 
+      ip = Active->iconmgr;
+!     for (tmp_ip = ITER(ip); tmp_ip; tmp_ip = ITER(tmp_ip)) {
+! 	TEST (tmp_ip);
+!     }
+  
+!     if (!got_it) {
+! 	int origscreen = ip->scr->screen;
+! 	int inc = (dir == F_NEXTICONMGR ? 1 : -1);
+  
+! 	for (screen = origscreen + inc; ; screen += inc) {
+! 	    if (screen >= NumScreens)
+! 	      screen = 0;
+! 	    else if (screen < 0)
+! 	      screen = NumScreens - 1;
+! 
+! 	    sp = ScreenList[screen];
+! 	    if (sp) {
+! 		for (tmp_ip = IPOFSP (sp); tmp_ip; tmp_ip = ITER(tmp_ip)) {
+! 		    TEST (tmp_ip);
+  		}
+  	    }
+! 	    if (got_it || screen == origscreen) break;
+! 	}
+      }
+  
++ #undef ITER
++ #undef IPOFSP
++ #undef TEST
++ 
++     if (!got_it) {
++ 	XBell (dpy, 0);
++ 	return;
++     }
++ 
+      /* raise the frame so it is visible */
+      XRaiseWindow(dpy, tmp_ip->twm_win->frame);
+      if (tmp_ip->active)
+***************
+*** 510,518 ****
+  			     ButtonReleaseMask | ExposureMask |
+  			     EnterWindowMask | LeaveWindowMask);
+      attributes.cursor = Scr->IconMgrCursor;
+!     tmp->w = XCreateWindow (dpy, ip->w, 0, 0, 1, h, 0, 
+! 			    CopyFromParent, CopyFromParent, CopyFromParent,
+! 			    valuemask, &attributes);
+  
+  
+      valuemask = (CWBackPixel | CWBorderPixel | CWEventMask | CWCursor);
+--- 446,455 ----
+  			     ButtonReleaseMask | ExposureMask |
+  			     EnterWindowMask | LeaveWindowMask);
+      attributes.cursor = Scr->IconMgrCursor;
+!     tmp->w = XCreateWindow (dpy, ip->w, 0, 0, (unsigned int) 1, 
+! 			    (unsigned int) h, (unsigned int) 0, 
+! 			    CopyFromParent, (unsigned int) CopyFromParent,
+! 			    (Visual *) CopyFromParent, valuemask, &attributes);
+  
+  
+      valuemask = (CWBackPixel | CWBorderPixel | CWEventMask | CWCursor);
+***************
+*** 521,529 ****
+      attributes.event_mask = (ButtonReleaseMask| ButtonPressMask |
+  			     ExposureMask);
+      attributes.cursor = Scr->ButtonCursor;
+!     tmp->icon = XCreateWindow (dpy, tmp->w, 5, (h - siconify_height)/2,
+! 			       siconify_width, siconify_height, 0,
+! 			       CopyFromParent, CopyFromParent, CopyFromParent,
+  			       valuemask, &attributes);
+  
+      ip->count += 1;
+--- 458,469 ----
+      attributes.event_mask = (ButtonReleaseMask| ButtonPressMask |
+  			     ExposureMask);
+      attributes.cursor = Scr->ButtonCursor;
+!     tmp->icon = XCreateWindow (dpy, tmp->w, 5, (int) (h - siconify_height)/2,
+! 			       (unsigned int) siconify_width,
+! 			       (unsigned int) siconify_height,
+! 			       (unsigned int) 0, CopyFromParent,
+! 			       (unsigned int) CopyFromParent,
+! 			       (Visual *) CopyFromParent,
+  			       valuemask, &attributes);
+  
+      ip->count += 1;
+*** /tmp/,RCSt1a23750	Wed Mar 28 17:17:55 1990
+--- mit/clients/twm/icons.c	Tue Mar 27 13:51:38 1990
+***************
+*** 21,27 ****
+  
+  /**********************************************************************
+   *
+!  * $XConsortium: icons.c,v 1.14 89/12/10 19:20:04 jim Exp $
+   *
+   * Icon releated routines
+   *
+--- 21,27 ----
+  
+  /**********************************************************************
+   *
+!  * $XConsortium: icons.c,v 1.20 90/03/27 13:51:34 jim Exp $
+   *
+   * Icon releated routines
+   *
+***************
+*** 158,169 ****
+  {
+      int		x, y;
+      int		defx, defy;
+  
+      defx = -100;
+      defy = -100;
+      PlaceIcon(tmp_win, defx, defy, &x, &y);
+!     if (x != defx || y != defy)
+  	XMoveWindow (dpy, tmp_win->icon_w, x, y);
+  }
+  
+  static IconEntry *
+--- 158,196 ----
+  {
+      int		x, y;
+      int		defx, defy;
++     struct IconRegion *ir;
+  
++     /*
++      * If the client specified a particular location, let's use it (this might
++      * want to be an option at some point).  Otherwise, try to fit within the
++      * icon region.
++      */
++     if (tmp_win->wmhints && (tmp_win->wmhints->flags & IconPositionHint))
++       return;
++ 
++     if (tmp_win->icon_moved) {
++ 	if (!XGetGeometry (dpy, tmp_win->icon_w, &JunkRoot, &defx, &defy,
++ 			   &JunkWidth, &JunkHeight, &JunkBW, &JunkDepth))
++ 	  return;
++ 
++ 	x = defx + ((int) JunkWidth) / 2;
++ 	y = defy + ((int) JunkHeight) / 2;
++ 
++ 	for (ir = Scr->FirstRegion; ir; ir = ir->next) {
++ 	    if (x >= ir->x && x < (ir->x + ir->w) &&
++ 		y >= ir->y && y < (ir->y + ir->h))
++ 	      break;
++ 	}
++ 	if (!ir) return;		/* outside icon regions, leave alone */
++     }
++ 
+      defx = -100;
+      defy = -100;
+      PlaceIcon(tmp_win, defx, defy, &x, &y);
+!     if (x != defx || y != defy) {
+  	XMoveWindow (dpy, tmp_win->icon_w, x, y);
++ 	tmp_win->icon_moved = FALSE;	/* since we've restored it */
++     }
+  }
+  
+  static IconEntry *
+***************
+*** 321,326 ****
+--- 348,354 ----
+      FB(tmp_win->iconc.fore, tmp_win->iconc.back);
+  
+      tmp_win->forced = FALSE;
++     tmp_win->icon_not_ours = FALSE;
+  
+      /* now go through the steps to get an icon window,  if ForceIcon is 
+       * set, then no matter what else is defined, the bitmap from the
+***************
+*** 477,482 ****
+--- 505,514 ----
+  	    tmp_win->icon_w = NULL;
+  	    tmp_win->wmhints->flags &= ~IconWindowHint;
+  	}
++ 	else
++ 	{
++ 	    tmp_win->icon_not_ours = TRUE;
++ 	}
+      }
+      else
+      {
+***************
+*** 508,517 ****
+  	else
+  	    x = (tmp_win->icon_w_width - tmp_win->icon_width)/2;
+  
+! 	tmp_win->icon_bm_w = XCreateWindow(dpy, tmp_win->icon_w,
+! 	    x, y, tmp_win->icon_width, tmp_win->icon_height,
+! 	    0, Scr->d_depth, CopyFromParent,
+! 	    Scr->d_visual, valuemask, &attributes);
+      }
+  
+      /* I need to figure out where to put the icon window now, because 
+--- 540,552 ----
+  	else
+  	    x = (tmp_win->icon_w_width - tmp_win->icon_width)/2;
+  
+! 	tmp_win->icon_bm_w = XCreateWindow (dpy, tmp_win->icon_w, x, y,
+! 					    (unsigned int)tmp_win->icon_width,
+! 					    (unsigned int)tmp_win->icon_height,
+! 					    (unsigned int) 0, Scr->d_depth,
+! 					    (unsigned int) CopyFromParent,
+! 					    Scr->d_visual, valuemask,
+! 					    &attributes);
+      }
+  
+      /* I need to figure out where to put the icon window now, because 
+***************
+*** 543,548 ****
+      XSaveContext(dpy, tmp_win->icon_w, TwmContext, (caddr_t)tmp_win);
+      XSaveContext(dpy, tmp_win->icon_w, ScreenContext, (caddr_t)Scr);
+      XDefineCursor(dpy, tmp_win->icon_w, Scr->IconCursor);
+!     XFreePixmap (dpy, pm);
+      return;
+  }
+--- 578,583 ----
+      XSaveContext(dpy, tmp_win->icon_w, TwmContext, (caddr_t)tmp_win);
+      XSaveContext(dpy, tmp_win->icon_w, ScreenContext, (caddr_t)Scr);
+      XDefineCursor(dpy, tmp_win->icon_w, Scr->IconCursor);
+!     if (pm) XFreePixmap (dpy, pm);
+      return;
+  }

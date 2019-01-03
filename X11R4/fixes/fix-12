@@ -1,0 +1,1784 @@
+This patch fixes the following Xt problems:
+
+	call XtUninstallTranslations with a real widget in SetValues
+	hack around problem with children destroying ancestors
+	make XtIsObject return True when objects really are
+	make '$' be abbreviation for Meta, per spec, not Alt, in translations
+	unregister widgets with MappingNotify translations when destroyed
+	fix shared GC support for multiple screens w/multiple depths
+	bugs with type conversion on constraint resources in XtVaSetValues
+	incorrect test being used for calling constraint methods
+	fix some ANSI C problems
+
+cd to the top of the X tree and apply with "patch -p0".
+
+*** /tmp/,RCSt1a19376	Mon Jun 25 08:58:58 1990
+--- mit/lib/Xt/Callback.c	Mon Jun 25 08:58:59 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Callback.c,v 1.22 89/12/12 20:15:27 swick Exp $";
+  /* $oHeader: Callback.c,v 1.4 88/09/01 11:08:37 asente Exp $ */
+  #endif /* lint */
+  
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Callback.c,v 1.24 90/04/13 20:16:30 swick Exp $";
+  /* $oHeader: Callback.c,v 1.4 88/09/01 11:08:37 asente Exp $ */
+  #endif /* lint */
+  
+***************
+*** 31,41 ****
+  
+  /* exported internal procedures */
+  
+! extern CallbackStruct* _XtCompileCallbackList();
+! extern CallbackList* _XtCallbackList();
+! extern void _XtFreeCallbackList();
+! extern XtCallbackList _XtGetCallbackList();
+  
+  
+  typedef struct _CallbackRec {
+      CallbackList  next;
+--- 31,45 ----
+  
+  /* exported internal procedures */
+  
+! CallbackStruct* _XtCompileCallbackList();
+! CallbackList* _XtCallbackList();
+! XtCallbackList _XtGetCallbackList();
+  
++ static String XtNinvalidCallbackList = "invalidCallbackList";
++ static String XtNxtAddCallback = "xtAddCallback";
++ static String XtNxtRemoveCallback = "xtRemoveCallback";
++ static String XtNxtRemoveAllCallback = "xtRemoveAllCallback";
++ static String XtNxtCallCallback = "xtCallCallback";
+  
+  typedef struct _CallbackRec {
+      CallbackList  next;
+***************
+*** 108,113 ****
+--- 112,133 ----
+      *callbacks = new;
+  } /* _XtAddCallback */
+  
++ void _XtAddCallbackOnce(widget, callbacks, callback, closure)
++     Widget		    widget;
++     register CallbackList   *callbacks;
++     XtCallbackProc	    callback;
++     XtPointer		    closure;
++ {
++     for ( ; *callbacks != NULL; callbacks = &(*callbacks)->next) {
++ 	if ((*callbacks)->widget == widget &&
++ 	    (*callbacks)->callback == callback &&
++ 	    (*callbacks)->closure == closure)
++ 	    return;
++     }
++ 
++     _XtAddCallback(widget, callbacks, callback, closure);
++ } /* _XtAddCallbackOnce */
++ 
+  void XtAddCallback(widget, name, callback, closure)
+      Widget	    widget;
+      String	    name;
+***************
+*** 119,125 ****
+      callbacks = FetchCallbackList(widget, name, True);
+      if (callbacks == NULL) {
+         XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 	       "invalidCallbackList","xtAddCallback","XtToolkitError",
+                "Cannot find callback list in XtAddCallbacks",
+  	      (String *)NULL, (Cardinal *)NULL);
+         return;
+--- 139,145 ----
+      callbacks = FetchCallbackList(widget, name, True);
+      if (callbacks == NULL) {
+         XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 	       XtNinvalidCallbackList,XtNxtAddCallback,XtCXtToolkitError,
+                "Cannot find callback list in XtAddCallbacks",
+  	      (String *)NULL, (Cardinal *)NULL);
+         return;
+***************
+*** 148,154 ****
+      callbacks = FetchCallbackList(widget, name, True);
+      if (callbacks == NULL) {
+         XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 	       "invalidCallbackList","xtAddCallback","XtToolkitError",
+                "Cannot find callback list in XtAddCallbacks",
+  	      (String *)NULL, (Cardinal *)NULL);
+         return;
+--- 168,174 ----
+      callbacks = FetchCallbackList(widget, name, True);
+      if (callbacks == NULL) {
+         XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 	       XtNinvalidCallbackList,XtNxtAddCallback,XtCXtToolkitError,
+                "Cannot find callback list in XtAddCallbacks",
+  	      (String *)NULL, (Cardinal *)NULL);
+         return;
+***************
+*** 158,164 ****
+      XtFree((char*)add_callbacks);
+  } /* XtAddCallbacks */
+  
+! void RemoveCallback (widget, callbacks, callback, closure)
+      Widget		    widget;
+      register CallbackList   *callbacks;
+      XtCallbackProc	    callback;
+--- 178,184 ----
+      XtFree((char*)add_callbacks);
+  } /* XtAddCallbacks */
+  
+! void _XtRemoveCallback (widget, callbacks, callback, closure)
+      Widget		    widget;
+      register CallbackList   *callbacks;
+      XtCallbackProc	    callback;
+***************
+*** 175,181 ****
+  	    return;
+  	}
+      }
+! } /* RemoveCallback */
+  
+  void XtRemoveCallback (widget, name, callback, closure)
+      Widget	    widget;
+--- 195,201 ----
+  	    return;
+  	}
+      }
+! } /* _XtRemoveCallback */
+  
+  void XtRemoveCallback (widget, name, callback, closure)
+      Widget	    widget;
+***************
+*** 189,200 ****
+      callbacks = FetchCallbackList(widget, name, False);
+      if (callbacks == NULL) {
+         XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 	       "invalidCallbackList","xtRemoveCallback","XtToolkitError",
+                "Cannot find callback list in XtRemoveCallbacks",
+  	      (String *)NULL, (Cardinal *)NULL);
+  	return;
+      }
+!     RemoveCallback(widget, callbacks, callback, closure);
+  } /* XtRemoveCallback */
+  
+  
+--- 209,220 ----
+      callbacks = FetchCallbackList(widget, name, False);
+      if (callbacks == NULL) {
+         XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 	       XtNinvalidCallbackList,XtNxtRemoveCallback,XtCXtToolkitError,
+                "Cannot find callback list in XtRemoveCallbacks",
+  	      (String *)NULL, (Cardinal *)NULL);
+  	return;
+      }
+!     _XtRemoveCallback(widget, callbacks, callback, closure);
+  } /* XtRemoveCallback */
+  
+  
+***************
+*** 209,215 ****
+      callbacks = FetchCallbackList(widget, name, False);
+      if (callbacks == NULL) {
+         XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 	       "invalidCallbackList","xtRemoveCallback","XtToolkitError",
+                "Cannot find callback list in XtRemoveCallbacks",
+  	      (String *)NULL, (Cardinal *)NULL);
+  	return;
+--- 229,235 ----
+      callbacks = FetchCallbackList(widget, name, False);
+      if (callbacks == NULL) {
+         XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 	       XtNinvalidCallbackList,XtNxtRemoveCallback,XtCXtToolkitError,
+                "Cannot find callback list in XtRemoveCallbacks",
+  	      (String *)NULL, (Cardinal *)NULL);
+  	return;
+***************
+*** 216,222 ****
+      }
+  
+      for (; xtcallbacks->callback != NULL; xtcallbacks++) {
+! 	RemoveCallback(
+  	    widget, callbacks, xtcallbacks->callback,
+  	    xtcallbacks->closure);
+      }
+--- 236,242 ----
+      }
+  
+      for (; xtcallbacks->callback != NULL; xtcallbacks++) {
+! 	_XtRemoveCallback(
+  	    widget, callbacks, xtcallbacks->callback,
+  	    xtcallbacks->closure);
+      }
+***************
+*** 255,261 ****
+      callbacks = FetchCallbackStruct(widget, name);
+      if (callbacks == NULL) {
+         XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 	       "invalidCallbackList","xtRemoveAllCallback","XtToolkitError",
+                "Cannot find callback list in XtRemoveAllCallbacks",
+  	      (String *)NULL, (Cardinal *)NULL);
+  
+--- 275,281 ----
+      callbacks = FetchCallbackStruct(widget, name);
+      if (callbacks == NULL) {
+         XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 	       XtNinvalidCallbackList,XtNxtRemoveAllCallback,XtCXtToolkitError,
+                "Cannot find callback list in XtRemoveAllCallbacks",
+  	      (String *)NULL, (Cardinal *)NULL);
+  
+***************
+*** 393,399 ****
+      callbacks = FetchCallbackList(widget, name, False);
+      if (callbacks == NULL) {
+         XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 	       "invalidCallbackList","xtCallCallback","XtToolkitError",
+                "Cannot find callback list in XtCallCallbacks",
+  	      (String *)NULL, (Cardinal *)NULL);
+  	return;
+--- 413,419 ----
+      callbacks = FetchCallbackList(widget, name, False);
+      if (callbacks == NULL) {
+         XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 	       XtNinvalidCallbackList,XtNxtCallCallback,XtCXtToolkitError,
+                "Cannot find callback list in XtCallCallbacks",
+  	      (String *)NULL, (Cardinal *)NULL);
+  	return;
+
+*** /tmp/,RCSt1a19385	Mon Jun 25 08:59:29 1990
+--- mit/lib/Xt/CallbackI.h	Mon Jun 25 08:59:31 1990
+***************
+*** 1,4 ****
+! /* $XConsortium: CallbackI.h,v 1.8 89/09/12 16:48:17 swick Exp $ */
+  /* $oHeader: CallbackI.h,v 1.2 88/08/18 15:53:53 asente Exp $ */
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+--- 1,4 ----
+! /* $XConsortium: CallbackI.h,v 1.9 90/04/13 20:10:52 swick Exp $ */
+  /* $oHeader: CallbackI.h,v 1.2 88/08/18 15:53:53 asente Exp $ */
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+***************
+*** 36,59 ****
+       int            offset;
+  } XtOffsetRec, *_XtOffsetList;
+  
+! extern void _XtRemoveAllCallbacks (); /* callbackList */
+!     /* CallbackList     *callbackList;  */
+  
+! extern void _XtCallCallbacks (); /* callbacks, call_data */
+!     /* CallbackList     *callbacks;     */
+!     /* XtPointer        callData;       */
+  
+  
+! extern void _XtAddCallback(); /* widget, callbacks, callback, closure */
+!     /* Widget           widget; */
+!     /* CallbackList     *callbacks; */
+!     /* XtCallbackProc   callback; */
+!     /* XtPointer        closure; */
+  
+! typedef struct _CallbackRec *CallbackList;
+  
+! typedef struct _CallbackStruct CallbackStruct;
+  
+! extern CallbackList *_XtDestroyList;
+  
+! #define _XtSafeToDestroy (_XtDestroyList == NULL)
+--- 36,81 ----
+       int            offset;
+  } XtOffsetRec, *_XtOffsetList;
+  
+! typedef struct _CallbackRec *CallbackList;
+! typedef struct _CallbackStruct CallbackStruct;
+  
+! extern CallbackList *_XtDestroyList;
+  
++ #define _XtSafeToDestroy (_XtDestroyList == NULL)
+  
+! extern void _XtRemoveAllCallbacks(
+! #if NeedFunctionPrototypes
+!     CallbackList*	/* callbackList */
+! #endif
+! );
+  
+! extern void _XtCallCallbacks(
+! #if NeedFunctionPrototypes
+!     CallbackList*	/* callbacks */,
+!     XtPointer 		/* callData */
+! #endif
+! );
+  
+! extern void _XtAddCallback(
+! #if NeedFunctionPrototypes
+!     Widget 		/* widget */,
+!     CallbackList*	/* callbacks */,
+!     XtCallbackProc	/* callback */,
+!     XtPointer 		/* closure */
+! #endif
+! );
+  
+! extern void _XtAddCallbackOnce(
+! #if NeedFunctionPrototypes
+!     Widget 		/* widget */,
+!     CallbackList*	/* callbacks */,
+!     XtCallbackProc	/* callback */,
+!     XtPointer 		/* closure */
+! #endif
+! );
+  
+! extern CallbackList* _XtCallbackList(
+! #if NeedFunctionPrototypes
+!     CallbackStruct*	/* callbacks */
+! #endif
+! );
+
+*** /tmp/,RCSt1a19401	Mon Jun 25 09:00:58 1990
+--- mit/lib/Xt/Core.c	Mon Jun 25 09:00:59 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Core.c,v 1.34 89/12/12 19:30:44 swick Exp $";
+  /* $oHeader: Core.c,v 1.2 88/08/18 15:37:59 asente Exp $ */
+  #endif /* lint */
+  
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Core.c,v 1.37 90/04/13 20:14:01 swick Exp $";
+  /* $oHeader: Core.c,v 1.2 88/08/18 15:37:59 asente Exp $ */
+  #endif /* lint */
+  
+***************
+*** 43,48 ****
+--- 43,49 ----
+   ******************************************************************/
+  
+  externaldef(xtinherittranslations) int _XtInheritTranslations = NULL;
++ extern String XtCXtToolkitError; /* from IntrinsicI.h */
+  
+  static XtResource resources[] = {
+      {XtNscreen, XtCScreen, XtRScreen, sizeof(int),
+***************
+*** 93,99 ****
+      /* class_inited       */	FALSE,
+      /* initialize	  */	NULL,
+      /* initialize_hook    */	NULL,		
+!     /* realize		  */	XtInheritRealize,
+      /* actions		  */	NULL,
+      /* num_actions	  */	0,
+      /* resources	  */	NULL,
+--- 94,100 ----
+      /* class_inited       */	FALSE,
+      /* initialize	  */	NULL,
+      /* initialize_hook    */	NULL,		
+!     /* realize		  */	(XtProc)XtInheritRealize,
+      /* actions		  */	NULL,
+      /* num_actions	  */	0,
+      /* resources	  */	NULL,
+***************
+*** 321,327 ****
+         }
+  	if (old->core.depth != new->core.depth) {
+  	   XtAppWarningMsg(XtWidgetToApplicationContext(old),
+! 		    "invalidDepth","setValues","XtToolkitError",
+                 "Can't change widget depth", (String *)NULL, (Cardinal *)NULL);
+  	   new->core.depth = old->core.depth;
+  	}
+--- 322,328 ----
+         }
+  	if (old->core.depth != new->core.depth) {
+  	   XtAppWarningMsg(XtWidgetToApplicationContext(old),
+! 		    "invalidDepth","setValues",XtCXtToolkitError,
+                 "Can't change widget depth", (String *)NULL, (Cardinal *)NULL);
+  	   new->core.depth = old->core.depth;
+  	}
+***************
+*** 343,350 ****
+  
+  	/* Translation table and state */
+  	if (old->core.tm.translations != new->core.tm.translations) {
+! 	    XtUninstallTranslations((Widget)old);
+! 	    new->core.tm.proc_table = NULL;
+  	    _XtBindActions(new, &new->core.tm);
+  	    _XtInstallTranslations((Widget) new, new->core.tm.translations);
+  	}
+--- 344,353 ----
+  
+  	/* Translation table and state */
+  	if (old->core.tm.translations != new->core.tm.translations) {
+! 	    XtTranslations translations = new->core.tm.translations;
+! 	    new->core.tm.translations = old->core.tm.translations;
+! 	    XtUninstallTranslations((Widget)new);
+! 	    new->core.tm.translations = translations;
+  	    _XtBindActions(new, &new->core.tm);
+  	    _XtInstallTranslations((Widget) new, new->core.tm.translations);
+  	}
+
+*** /tmp/,RCSt1a19789	Mon Jun 25 13:27:40 1990
+--- mit/lib/Xt/Create.c	Mon Jun 25 13:27:41 1990
+***************
+*** 1,6 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Create.c,v 1.71 90/03/27 12:56:32 swick Exp $";
+! /* $oHeader: Create.c,v 1.5 88/09/01 11:26:22 asente Exp $ */
+  #endif /*lint*/
+  
+  /***********************************************************
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Create.c,v 1.73 90/06/25 12:05:51 swick Exp $";
+  #endif /*lint*/
+  
+  /***********************************************************
+***************
+*** 34,39 ****
+--- 33,42 ----
+  #include "ShellP.h"
+  #include <stdio.h>
+  
++ static String XtNxtCreateWidget = "xtCreateWidget";
++ static String XtNremovePopupFromParent = "removePopupFromParent";
++ static String XtNxtCreatePopupShell = "xtCreatePopupShell";
++ 
+  extern void bcopy();
+  
+  static void CallClassPartInit(ancestor, wc)
+***************
+*** 99,105 ****
+  	if (wc->core_class.version == (11 * 1000 + 3)) { /* MIT X11R3 */
+  	    if (inited & ShellClassFlag) {
+  		Cardinal num_params=1;
+! 		XtWarningMsg("r3versionMismatch","widget","XtToolkitError",
+  			     "Shell Widget class %s binary compiled for R3",
+  			     param,&num_params);
+  	    }
+--- 102,108 ----
+  	if (wc->core_class.version == (11 * 1000 + 3)) { /* MIT X11R3 */
+  	    if (inited & ShellClassFlag) {
+  		Cardinal num_params=1;
+! 		XtWarningMsg("r3versionMismatch","widget",XtCXtToolkitError,
+  			     "Shell Widget class %s binary compiled for R3",
+  			     param,&num_params);
+  	    }
+***************
+*** 108,119 ****
+  	    Cardinal num_params=3;
+  	    param[1] = (String)wc->core_class.version;
+  	    param[2] = (String)XtVersion;
+! 	    XtWarningMsg("versionMismatch","widget","XtToolkitError",
+  			 "Widget class %s version mismatch (recompilation needed):\n  widget %d vs. intrinsics %d.",
+  			 param,&num_params);
+  	    if (wc->core_class.version == (2 * 1000 + 2)) /* MIT X11R2 */ {
+  		Cardinal num_params=1;
+! 		XtErrorMsg("r2versionMismatch","widget","XtToolkitError",
+  			   "Widget class %s must be re-compiled.",
+  			   param, &num_params);
+  	    }
+--- 111,122 ----
+  	    Cardinal num_params=3;
+  	    param[1] = (String)wc->core_class.version;
+  	    param[2] = (String)XtVersion;
+! 	    XtWarningMsg("versionMismatch","widget",XtCXtToolkitError,
+  			 "Widget class %s version mismatch (recompilation needed):\n  widget %d vs. intrinsics %d.",
+  			 param,&num_params);
+  	    if (wc->core_class.version == (2 * 1000 + 2)) /* MIT X11R2 */ {
+  		Cardinal num_params=1;
+! 		XtErrorMsg("r2versionMismatch","widget",XtCXtToolkitError,
+  			   "Widget class %s must be re-compiled.",
+  			   param, &num_params);
+  	    }
+***************
+*** 197,207 ****
+      widget->core.xrm_name = StringToName((name != NULL) ? name : "");
+      widget->core.being_destroyed =
+  	(parent != NULL ? parent->core.being_destroyed : FALSE);
+!     widget->core.constraints = NULL;
+!     if (parent_constraint_class != NULL) 
+         	widget->core.constraints = 
+  	    (XtPointer) XtMalloc((unsigned)parent_constraint_class->
+                         constraint_class.constraint_size);
+      if (XtIsWidget(widget)) {
+  	widget->core.name = XtNewString((name != NULL) ? name : "");
+          widget->core.screen = default_screen;
+--- 200,212 ----
+      widget->core.xrm_name = StringToName((name != NULL) ? name : "");
+      widget->core.being_destroyed =
+  	(parent != NULL ? parent->core.being_destroyed : FALSE);
+!     if (parent_constraint_class != NULL
+! 	&& parent_constraint_class->constraint_class.constraint_size > 0)
+         	widget->core.constraints = 
+  	    (XtPointer) XtMalloc((unsigned)parent_constraint_class->
+                         constraint_class.constraint_size);
++     else
++ 	widget->core.constraints = NULL;
+      if (XtIsWidget(widget)) {
+  	widget->core.name = XtNewString((name != NULL) ? name : "");
+          widget->core.screen = default_screen;
+***************
+*** 273,285 ****
+      }
+  
+      if (parent_constraint_class != NULL) {
+! 	size = parent_constraint_class->constraint_class.constraint_size;
+! 	req_constraints = XtStackAlloc(size, constraint_cache);
+! 	bcopy(widget->core.constraints, (char*)req_constraints, (int) size);
+! 	req_widget->core.constraints = req_constraints;
+  	CallConstraintInitialize(parent_constraint_class, req_widget, widget,
+  				 args, num_args);
+! 	XtStackFree(req_constraints, constraint_cache);
+      }
+      XtStackFree((XtPointer)req_widget, widget_cache);
+      return (widget);
+--- 278,291 ----
+      }
+  
+      if (parent_constraint_class != NULL) {
+! 	if (size = parent_constraint_class->constraint_class.constraint_size){
+! 	    req_constraints = XtStackAlloc(size, constraint_cache);
+! 	    bcopy(widget->core.constraints, (char*)req_constraints,(int)size);
+! 	    req_widget->core.constraints = req_constraints;
+! 	} else req_widget->core.constraints = NULL;
+  	CallConstraintInitialize(parent_constraint_class, req_widget, widget,
+  				 args, num_args);
+! 	if (size) XtStackFree(req_constraints, constraint_cache);
+      }
+      XtStackFree((XtPointer)req_widget, widget_cache);
+      return (widget);
+***************
+*** 302,313 ****
+      Screen*                 default_screen;
+  
+      if (parent == NULL) {
+! 	XtErrorMsg("invalidParent","xtCreateWidget","XtToolkitError",
+                  "XtCreateWidget requires non-NULL parent",
+                    (String *)NULL, (Cardinal *)NULL);
+      } else if (widget_class == NULL) {
+  	XtAppErrorMsg(XtWidgetToApplicationContext(parent),
+! 		"invalidClass","xtCreateWidget","XtToolkitError",
+                  "XtCreateWidget requires non-NULL widget class",
+                    (String *)NULL, (Cardinal *)NULL);
+      }
+--- 308,319 ----
+      Screen*                 default_screen;
+  
+      if (parent == NULL) {
+! 	XtErrorMsg("invalidParent",XtNxtCreateWidget,XtCXtToolkitError,
+                  "XtCreateWidget requires non-NULL parent",
+                    (String *)NULL, (Cardinal *)NULL);
+      } else if (widget_class == NULL) {
+  	XtAppErrorMsg(XtWidgetToApplicationContext(parent),
+! 		"invalidClass",XtNxtCreateWidget,XtCXtToolkitError,
+                  "XtCreateWidget requires non-NULL widget class",
+                    (String *)NULL, (Cardinal *)NULL);
+      }
+***************
+*** 329,335 ****
+  		Cardinal num_params = 1;
+  		params[0] = XtClass(parent)->core_class.class_name;
+  		XtAppWarningMsg(XtWidgetToApplicationContext(parent),
+! 		  "invalidExtension", "xtCreateWidget", "XtToolkitError",
+  		  "widget class %s has invalid CompositeClassExtension record",
+  		  params, &num_params);
+  		ext = NULL;
+--- 335,341 ----
+  		Cardinal num_params = 1;
+  		params[0] = XtClass(parent)->core_class.class_name;
+  		XtAppWarningMsg(XtWidgetToApplicationContext(parent),
+! 		  "invalidExtension", XtNxtCreateWidget, XtCXtToolkitError,
+  		  "widget class %s has invalid CompositeClassExtension record",
+  		  params, &num_params);
+  		ext = NULL;
+***************
+*** 340,346 ****
+  		params[0] = name;
+  		params[1] = XtName(parent);
+  		XtAppErrorMsg(XtWidgetToApplicationContext(parent),
+! 			      "nonWidget","xtCreateWidget","XtToolkitError",
+  			      "attempt to add non-widget child \"%s\" to parent \"%s\" which supports only widgets",
+  			      params, &num_params);
+  	    }
+--- 346,352 ----
+  		params[0] = name;
+  		params[1] = XtName(parent);
+  		XtAppErrorMsg(XtWidgetToApplicationContext(parent),
+! 			      "nonWidget",XtNxtCreateWidget,XtCXtToolkitError,
+  			      "attempt to add non-widget child \"%s\" to parent \"%s\" which supports only widgets",
+  			      params, &num_params);
+  	    }
+***************
+*** 364,370 ****
+      }
+      if (insert_child == NULL) {
+  	XtAppErrorMsg(XtWidgetToApplicationContext(parent),
+! 		"nullProc","insertChild","XtToolkitError",
+                  "NULL insert_child procedure",
+                    (String *)NULL, (Cardinal *)NULL);
+      } else {
+--- 370,376 ----
+      }
+      if (insert_child == NULL) {
+  	XtAppErrorMsg(XtWidgetToApplicationContext(parent),
+! 		"nullProc","insertChild",XtCXtToolkitError,
+                  "NULL insert_child procedure",
+                    (String *)NULL, (Cardinal *)NULL);
+      } else {
+***************
+*** 411,417 ****
+      parent = widget->core.parent;
+      if (parent == NULL || parent->core.num_popups == 0)
+          XtAppErrorMsg(XtWidgetToApplicationContext(widget),
+! 		"invalidParameter","removePopupFromParent","XtToolkitError",
+                  "RemovePopupFromParent requires non-NULL popuplist",
+                    (String *)NULL, (Cardinal *)NULL);
+  
+--- 417,423 ----
+      parent = widget->core.parent;
+      if (parent == NULL || parent->core.num_popups == 0)
+          XtAppErrorMsg(XtWidgetToApplicationContext(widget),
+! 		"invalidParameter",XtNremovePopupFromParent,XtCXtToolkitError,
+                  "RemovePopupFromParent requires non-NULL popuplist",
+                    (String *)NULL, (Cardinal *)NULL);
+  
+***************
+*** 421,427 ****
+          }
+      if (found == FALSE) {
+          XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 		  "invalidWidget","removePopupFromParent","XtToolkitError",
+                    "RemovePopupFromParent, widget not on parent list",
+                     (String *)NULL, (Cardinal *)NULL);
+          return;
+--- 427,433 ----
+          }
+      if (found == FALSE) {
+          XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 		  "invalidWidget",XtNremovePopupFromParent,XtCXtToolkitError,
+                    "RemovePopupFromParent, widget not on parent list",
+                     (String *)NULL, (Cardinal *)NULL);
+          return;
+***************
+*** 454,465 ****
+      Screen* default_screen;
+  
+      if (parent == NULL) {
+! 	XtErrorMsg("invalidParent","xtCreatePopupShell","XtToolkitError",
+                  "XtCreatePopupShell requires non-NULL parent",
+                    (String *)NULL, (Cardinal *)NULL);
+      } else if (widget_class == NULL) {
+  	XtAppErrorMsg(XtWidgetToApplicationContext(parent),
+! 		"invalidClass","xtCreatePopupShell","XtToolkitError",
+                  "XtCreatePopupShell requires non-NULL widget class",
+                    (String *)NULL, (Cardinal *)NULL);
+      }
+--- 460,471 ----
+      Screen* default_screen;
+  
+      if (parent == NULL) {
+! 	XtErrorMsg("invalidParent",XtNxtCreatePopupShell,XtCXtToolkitError,
+                  "XtCreatePopupShell requires non-NULL parent",
+                    (String *)NULL, (Cardinal *)NULL);
+      } else if (widget_class == NULL) {
+  	XtAppErrorMsg(XtWidgetToApplicationContext(parent),
+! 		"invalidClass",XtNxtCreatePopupShell,XtCXtToolkitError,
+                  "XtCreatePopupShell requires non-NULL widget class",
+                    (String *)NULL, (Cardinal *)NULL);
+      }
+***************
+*** 503,509 ****
+  {
+      if (widget_class == NULL) {
+  	XtAppErrorMsg(XtDisplayToApplicationContext(display),
+! 	       "invalidClass","xtAppCreateShell","XtToolkitError",
+                 "XtAppCreateShell requires non-NULL widget class",
+                   (String *)NULL, (Cardinal *)NULL);
+      }
+--- 509,515 ----
+  {
+      if (widget_class == NULL) {
+  	XtAppErrorMsg(XtDisplayToApplicationContext(display),
+! 	       "invalidClass","xtAppCreateShell",XtCXtToolkitError,
+                 "XtAppCreateShell requires non-NULL widget class",
+                   (String *)NULL, (Cardinal *)NULL);
+      }
+
+*** /tmp/,RCSt1a19796	Mon Jun 25 13:27:45 1990
+--- mit/lib/Xt/Destroy.c	Mon Jun 25 13:27:46 1990
+***************
+*** 1,6 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Destroy.c,v 1.24 90/03/27 11:07:16 swick Exp $";
+! /* $oHeader: Destroy.c,v 1.3 88/09/01 11:27:27 asente Exp $ */
+  #endif /* lint */
+  
+  /***********************************************************
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Destroy.c,v 1.27 90/06/25 12:10:55 swick Exp $";
+  #endif /* lint */
+  
+  /***********************************************************
+***************
+*** 79,86 ****
+      register ConstraintWidgetClass  cwClass;
+  
+      /* Call constraint destroy procedures */
+!     if (widget->core.parent != NULL && widget->core.constraints != NULL) {
+! 	cwClass = (ConstraintWidgetClass)widget->core.parent->core.widget_class;
+  	for (;;) {
+  	    if (cwClass->constraint_class.destroy != NULL)
+  		(*(cwClass->constraint_class.destroy)) (widget);
+--- 78,86 ----
+      register ConstraintWidgetClass  cwClass;
+  
+      /* Call constraint destroy procedures */
+!     /* assert: !XtIsShell(w) => (XtParent(w) != NULL) */
+!     if (!XtIsShell(widget) && XtIsConstraint(XtParent(widget))) {
+! 	cwClass = (ConstraintWidgetClass)XtParent(widget)->core.widget_class;
+  	for (;;) {
+  	    if (cwClass->constraint_class.destroy != NULL)
+  		(*(cwClass->constraint_class.destroy)) (widget);
+***************
+*** 127,133 ****
+  	    String param = parent->core.widget_class->core_class.class_name;
+  	    Cardinal num_params = 1;
+  	    XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 		"invalidProcedure","deleteChild","XtToolkitError",
+  		"null delete_child procedure for class %s in XtDestroy",
+  		&param, &num_params);
+  	} else {
+--- 127,133 ----
+  	    String param = parent->core.widget_class->core_class.class_name;
+  	    Cardinal num_params = 1;
+  	    XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+! 		"invalidProcedure","deleteChild",XtCXtToolkitError,
+  		"null delete_child procedure for class %s in XtDestroy",
+  		&param, &num_params);
+  	} else {
+***************
+*** 165,171 ****
+      Recursive(widget, Phase2Destroy);
+      app->in_phase2_destroy = outerInPhase2Destroy;
+  
+!     if (window)
+  	XDestroyWindow(display, window);
+  } /* XtPhase2Destroy */
+  
+--- 165,175 ----
+      Recursive(widget, Phase2Destroy);
+      app->in_phase2_destroy = outerInPhase2Destroy;
+  
+!     /* %%% the following parent test hides a more serious problem,
+!        but it avoids breaking those who depended on the old bug
+!        until we have time to fix it properly. */
+! 
+!     if (window && (parent == NULL || !parent->core.being_destroyed))
+  	XDestroyWindow(display, window);
+  } /* XtPhase2Destroy */
+  
+*** /tmp/,RCSt1a19517	Mon Jun 25 09:29:02 1990
+--- mit/lib/Xt/Display.c	Mon Jun 25 09:29:03 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Display.c,v 1.43 90/04/05 10:51:28 swick Exp $";
+  /* $oHeader: Display.c,v 1.9 88/09/01 11:28:47 asente Exp $ */
+  #endif /*lint*/
+  
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Display.c,v 1.45 90/06/22 17:09:28 swick Exp $";
+  /* $oHeader: Display.c,v 1.9 88/09/01 11:28:47 asente Exp $ */
+  #endif /*lint*/
+  
+***************
+*** 128,134 ****
+  {
+  	char  displayCopy[256];
+  	int i;
+- 	char *rindex(), *index(), *strncpy();
+  	Display *d;
+  #ifdef OLDCOLONDISPLAY
+  	int squish = -1;
+--- 128,133 ----
+***************
+*** 224,229 ****
+--- 223,229 ----
+  	XtAddToAppContext(dpy, app);
+  
+  	pd = NewPerDisplay(dpy);
++ 	_XtHeapInit(&pd->heap);
+  	pd->destroy_callbacks = NULL;
+  	pd->region = XCreateRegion();
+          pd->defaultCaseConverter = _XtConvertCase;
+***************
+*** 236,243 ****
+  	pd->class = XrmStringToClass(classname);
+  	pd->being_destroyed = False;
+  	pd->GClist = NULL;
+! 	pd->drawables = NULL;
+! 	pd->drawable_count = 0;
+  	pd->rv = False;
+  	pd->xa_wm_colormap_windows = None; /* Initialize this to None unless
+  					      we need to use it.*/
+--- 236,253 ----
+  	pd->class = XrmStringToClass(classname);
+  	pd->being_destroyed = False;
+  	pd->GClist = NULL;
+! 	pd->drawable_tab = (ScreenDrawables)
+! 	    _XtHeapAlloc(&pd->heap,
+! 		       (unsigned)ScreenCount(dpy)*sizeof(ScreenDrawablesRec));
+! 	{
+! 	    int i;
+! 	    ScreenDrawables d;
+! 	    for (i=0, d=pd->drawable_tab; i<ScreenCount(dpy); i++, d++) {
+! 		d->screen = ScreenOfDisplay(dpy, i);
+! 		d->drawables = NULL;
+! 		d->drawable_count = 0;
+! 	    }
+! 	}
+  	pd->rv = False;
+  	pd->xa_wm_colormap_windows = None; /* Initialize this to None unless
+  					      we need to use it.*/
+***************
+*** 244,250 ****
+  	pd->last_timestamp = 0;
+  	pd->tm_context = NULL;
+  	pd->mapping_callbacks = NULL;
+- 	_XtHeapInit(&pd->heap);
+  
+  	_XtDisplayInitialize(dpy, pd, name, classname, urlist, 
+  			     num_urs, argc, argv);
+--- 254,259 ----
+***************
+*** 518,524 ****
+  	    _XtCacheFlushTag(xtpd->appContext, (XtPointer)&xtpd->heap);
+  	    _XtHeapFree(&xtpd->heap);
+  	    _XtGClistFree(xtpd->GClist);
+! 	    XtFree((char *) xtpd->drawables);
+          }
+  	XtFree((char*)pd);
+  	XrmDestroyDatabase(dpy->db);
+--- 527,538 ----
+  	    _XtCacheFlushTag(xtpd->appContext, (XtPointer)&xtpd->heap);
+  	    _XtHeapFree(&xtpd->heap);
+  	    _XtGClistFree(xtpd->GClist);
+! 	    {
+! 		int i;
+! 		ScreenDrawables d;
+! 		for (i=0, d=xtpd->drawable_tab; i<ScreenCount(dpy); i++, d++)
+! 		    XtFree((char*)d->drawables);
+! 	    }
+          }
+  	XtFree((char*)pd);
+  	XrmDestroyDatabase(dpy->db);
+
+*** /tmp/,RCSt1a19596	Mon Jun 25 10:17:32 1990
+--- mit/lib/Xt/GCManager.c	Mon Jun 25 10:17:33 1990
+***************
+*** 1,6 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: GCManager.c,v 1.36 89/09/14 15:19:31 swick Exp $";
+! /* $oHeader: GCManager.c,v 1.4 88/08/19 14:19:51 asente Exp $ */
+  #endif /* lint */
+  
+  /***********************************************************
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: GCManager.c,v 1.38 90/06/25 09:32:19 swick Exp $";
+  #endif /* lint */
+  
+  /***********************************************************
+***************
+*** 161,183 ****
+  
+      if (drawable == NULL) {
+  	/* Have to find a Drawable to identify the depth for the GC */
+! 	if (depth >= pd->drawable_count) {
+  	    int i;
+! 	    pd->drawables =
+! 		(Drawable*)XtRealloc((char*)pd->drawables,
+  				     (unsigned)(depth+1)*sizeof(Drawable));
+! 	    for (i = pd->drawable_count; i <= depth; i++)
+! 		pd->drawables[i] = 0;
+! 	    pd->drawable_count = depth+1;
+  	}
+! 	if (pd->drawables[depth] != 0)
+! 	    drawable = pd->drawables[depth];
+          else {
+  	    if (depth == DefaultDepthOfScreen(screen))
+  		drawable = RootWindowOfScreen(screen);
+  	    else 
+  		drawable = XCreatePixmap(DisplayOfScreen(screen), screen->root, 1, 1, depth);
+! 	    pd->drawables[depth] = drawable;
+          }
+      }
+      cur->gc = XCreateGC(DisplayOfScreen(screen), drawable, valueMask, values);
+--- 160,191 ----
+  
+      if (drawable == NULL) {
+  	/* Have to find a Drawable to identify the depth for the GC */
+! 	ScreenDrawables sd;
+! 	for (sd = pd->drawable_tab; sd->screen != screen; sd++);
+! 	if (sd != pd->drawable_tab) {
+! 	    ScreenDrawablesRec dr;
+! 	    dr = *pd->drawable_tab;
+! 	    *pd->drawable_tab = *sd;
+! 	    *sd = dr;
+! 	    sd = pd->drawable_tab;
+! 	}
+! 	if (depth >= sd->drawable_count) {
+  	    int i;
+! 	    sd->drawables =
+! 		(Drawable*)XtRealloc((char*)sd->drawables,
+  				     (unsigned)(depth+1)*sizeof(Drawable));
+! 	    for (i = sd->drawable_count; i <= depth; i++)
+! 		sd->drawables[i] = 0;
+! 	    sd->drawable_count = depth+1;
+  	}
+! 	if (sd->drawables[depth] != 0)
+! 	    drawable = sd->drawables[depth];
+          else {
+  	    if (depth == DefaultDepthOfScreen(screen))
+  		drawable = RootWindowOfScreen(screen);
+  	    else 
+  		drawable = XCreatePixmap(DisplayOfScreen(screen), screen->root, 1, 1, depth);
+! 	    sd->drawables[depth] = drawable;
+          }
+      }
+      cur->gc = XCreateGC(DisplayOfScreen(screen), drawable, valueMask, values);
+
+*** /tmp/,RCSt1a19810	Mon Jun 25 13:27:58 1990
+--- mit/lib/Xt/GetValues.c	Mon Jun 25 13:27:59 1990
+***************
+*** 1,6 ****
+  #ifndef lint
+  static char Xrcsid[] =
+!     "$XConsortium: GetValues.c,v 1.1 89/09/29 14:02:04 swick Exp $";
+  #endif /*lint*/
+  /*LINTLIBRARY*/
+  
+--- 1,6 ----
+  #ifndef lint
+  static char Xrcsid[] =
+!     "$XConsortium: GetValues.c,v 1.3 90/06/25 12:23:55 swick Exp $";
+  #endif /*lint*/
+  /*LINTLIBRARY*/
+  
+***************
+*** 124,130 ****
+  	    Cardinal num_params = 1;
+  	    params[0] = widget_class->core_class.class_name;
+  	    XtAppWarningMsg(XtWidgetToApplicationContext(w),
+! 		 "invalidExtension", "xtCreateWidget", "XtToolkitError",
+  		 "widget class %s has invalid ConstraintClassExtension record",
+  		 params, &num_params);
+  	}
+--- 124,130 ----
+  	    Cardinal num_params = 1;
+  	    params[0] = widget_class->core_class.class_name;
+  	    XtAppWarningMsg(XtWidgetToApplicationContext(w),
+! 		 "invalidExtension", "xtCreateWidget", XtCXtToolkitError,
+  		 "widget class %s has invalid ConstraintClassExtension record",
+  		 params, &num_params);
+  	}
+***************
+*** 142,148 ****
+      if (num_args == 0) return;
+      if ((args == NULL) && (num_args != 0)) {
+  	XtAppErrorMsg(XtWidgetToApplicationContext(w),
+! 		"invalidArgCount","xtGetValues","XtToolkitError",
+              "Argument count > 0 on NULL argument list in XtGetValues",
+                (String *)NULL, (Cardinal *)NULL);
+      }
+--- 142,148 ----
+      if (num_args == 0) return;
+      if ((args == NULL) && (num_args != 0)) {
+  	XtAppErrorMsg(XtWidgetToApplicationContext(w),
+! 		"invalidArgCount","xtGetValues",XtCXtToolkitError,
+              "Argument count > 0 on NULL argument list in XtGetValues",
+                (String *)NULL, (Cardinal *)NULL);
+      }
+***************
+*** 151,171 ****
+  	wc->core_class.num_resources, args, num_args);
+  
+      /* Get constraint values if necessary */
+!     /* if (!XtIsShell(w) && XtIsConstraint(w->core.parent)) */
+!     if (w->core.constraints != NULL) {
+  	ConstraintWidgetClass cwc
+! 	    = (ConstraintWidgetClass) XtClass(w->core.parent);
+  	GetValues((char*)w->core.constraints, 
+! 	    (XrmResourceList *)(cwc->constraint_class.resources),
+! 	    cwc->constraint_class.num_resources, args, num_args);
+      }
+      /* Notify any class procedures that we have performed get_values */
+      CallGetValuesHook(wc, w, args, num_args);
+  
+      /* Notify constraint get_values if necessary */
+!     /* if (!XtIsShell(w) && XtIsConstraint(w->core.parent)) */
+!     if (w->core.constraints != NULL)
+! 	CallConstraintGetValuesHook(XtClass(w->core.parent), w, args,num_args);
+  } /* XtGetValues */
+  
+  void XtGetSubvalues(base, resources, num_resources, args, num_args)
+--- 151,171 ----
+  	wc->core_class.num_resources, args, num_args);
+  
+      /* Get constraint values if necessary */
+!     /* assert: !XtIsShell(w) => (XtParent(w) != NULL) */
+!     /* constraints may be NULL if constraint_size==0 */
+!     if (!XtIsShell(w) && XtIsConstraint(XtParent(w)) && w->core.constraints) {
+  	ConstraintWidgetClass cwc
+! 	    = (ConstraintWidgetClass) XtClass(XtParent(w));
+  	GetValues((char*)w->core.constraints, 
+! 		  (XrmResourceList *)(cwc->constraint_class.resources),
+! 		  cwc->constraint_class.num_resources, args, num_args);
+      }
+      /* Notify any class procedures that we have performed get_values */
+      CallGetValuesHook(wc, w, args, num_args);
+  
+      /* Notify constraint get_values if necessary */
+!     if (!XtIsShell(w) && XtIsConstraint(XtParent(w)))
+! 	CallConstraintGetValuesHook(XtClass(XtParent(w)), w, args,num_args);
+  } /* XtGetValues */
+  
+  void XtGetSubvalues(base, resources, num_resources, args, num_args)
+
+*** /tmp/,RCSt1a19508	Mon Jun 25 09:28:28 1990
+--- mit/lib/Xt/InitialI.h	Mon Jun 25 09:28:29 1990
+***************
+*** 1,5 ****
+! /* $XConsortium: InitialI.h,v 1.30 89/12/12 14:32:48 swick Exp $ */
+! /* $oHeader: InitializeI.h,v 1.8 88/09/01 11:25:04 asente Exp $ */
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+  and the Massachusetts Institute of Technology, Cambridge, Massachusetts.
+--- 1,5 ----
+! /* $XConsortium: InitialI.h,v 1.31 90/06/22 16:47:34 swick Exp $ */
+! 
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+  and the Massachusetts Institute of Technology, Cambridge, Massachusetts.
+***************
+*** 146,151 ****
+--- 146,157 ----
+      /* unsigned long *howlong; */
+      /* XtAppContext app */
+  
++ typedef struct {		/* support for XtGetGC */
++     Screen* screen;		/* root to which drawables apply */
++     Drawable* drawables;	/* list of drawables, indexed by depth */
++     Cardinal drawable_count;	/* num entries in above list */
++ } ScreenDrawablesRec, *ScreenDrawables;
++ 
+  typedef struct _XtPerDisplayStruct {
+      CallbackList destroy_callbacks;
+      Region region;
+***************
+*** 153,159 ****
+      XtKeyProc defaultKeycodeTranslator;
+      XtAppContext appContext;
+      KeySym *keysyms;                   /* keycode to keysym table */
+!     int keysyms_per_keycode;           /* number of keysyms for each keycode */
+      int min_keycode, max_keycode;      /* range of keycodes */
+      KeySym *modKeysyms;                /* keysym values for modToKeysysm */
+      ModToKeysymTable *modsToKeysyms;   /* modifiers to Keysysms index table*/
+--- 159,165 ----
+      XtKeyProc defaultKeycodeTranslator;
+      XtAppContext appContext;
+      KeySym *keysyms;                   /* keycode to keysym table */
+!     int keysyms_per_keycode;           /* number of keysyms for each keycode*/
+      int min_keycode, max_keycode;      /* range of keycodes */
+      KeySym *modKeysyms;                /* keysym values for modToKeysysm */
+      ModToKeysymTable *modsToKeysyms;   /* modifiers to Keysysms index table*/
+***************
+*** 165,173 ****
+      XrmName name;		       /* resolved app name */
+      XrmClass class;		       /* application class */
+      Heap heap;
+!     struct _GCrec *GClist;	       /* for XtGetGC */
+!     Drawable* drawables;	       /* support for XtGetGC */
+!     Cardinal drawable_count;	       /* num entries in above list */
+      String language;		       /* XPG language string */
+      Atom xa_wm_colormap_windows;       /* the WM_COLORMAP_WINDOWS atom.
+  					  this is currently only used in 
+--- 171,178 ----
+      XrmName name;		       /* resolved app name */
+      XrmClass class;		       /* application class */
+      Heap heap;
+!     struct _GCrec *GClist;	       /* support for XtGetGC */
+!     ScreenDrawables drawable_tab;      /* ditto for XtGetGC */
+      String language;		       /* XPG language string */
+      Atom xa_wm_colormap_windows;       /* the WM_COLORMAP_WINDOWS atom.
+  					  this is currently only used in 
+
+*** /tmp/,RCSt1a19419	Mon Jun 25 09:02:09 1990
+--- mit/lib/Xt/Intrinsic.c	Mon Jun 25 09:02:10 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Intrinsic.c,v 1.147 90/04/10 15:57:53 swick Exp $";
+  /* $oHeader: Intrinsic.c,v 1.4 88/08/18 15:40:35 asente Exp $ */
+  #endif /* lint */
+  
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Intrinsic.c,v 1.149 90/04/13 20:17:34 swick Exp $";
+  /* $oHeader: Intrinsic.c,v 1.4 88/08/18 15:40:35 asente Exp $ */
+  #endif /* lint */
+  
+***************
+*** 262,268 ****
+      register CompositeWidget	cw;
+      register Cardinal		i;
+      register WidgetList		children;
+!     extern void _XtTranslateEvent();
+  
+      if (!XtIsWidget(widget) || !XtIsRealized(widget)) return;
+  
+--- 262,268 ----
+      register CompositeWidget	cw;
+      register Cardinal		i;
+      register WidgetList		children;
+!     extern void _XtRemoveTranslations();
+  
+      if (!XtIsWidget(widget) || !XtIsRealized(widget)) return;
+  
+***************
+*** 298,306 ****
+      /* Removing the event handler here saves having to keep track if
+       * the translation table is changed while the widget is unrealized.
+       */
+!     XtRemoveEventHandler(widget, XtAllEvents, TRUE, _XtTranslateEvent,
+! 			 (XtPointer)&widget->core.tm);
+! 
+  } /* UnrealizeWidget */
+  
+  
+--- 298,304 ----
+      /* Removing the event handler here saves having to keep track if
+       * the translation table is changed while the widget is unrealized.
+       */
+!     _XtRemoveTranslations(widget);
+  } /* UnrealizeWidget */
+  
+  
+***************
+*** 613,628 ****
+      Widget object;
+  {
+      WidgetClass wc;
+      /* perform basic sanity checks */
+!     if (object->core.self != object) return False;
+  
+      wc = object->core.widget_class;
+!     if (wc->core_class.class_name
+! 	!= XrmClassToString(wc->core_class.xrm_class))
+  	    return False;
+  
+      if (XtIsWidget(object)) {
+! 	if (object->core.name != XrmNameToString(object->core.xrm_name))
+  	    return False;
+      }
+      return True;
+--- 611,633 ----
+      Widget object;
+  {
+      WidgetClass wc;
++     String class_name;
++ 
+      /* perform basic sanity checks */
+!     if (object->core.self != object || object->core.xrm_name == NULLQUARK)
+! 	return False;
+  
+      wc = object->core.widget_class;
+!     if (wc->core_class.class_name == NULL ||
+! 	wc->core_class.xrm_class == NULLQUARK ||
+! 	(class_name = XrmClassToString(wc->core_class.xrm_class)) == NULL ||
+! 	strcmp(wc->core_class.class_name, class_name) != 0)
+  	    return False;
+  
+      if (XtIsWidget(object)) {
+! 	if (object->core.name == NULL ||
+! 	    (class_name = XrmNameToString(object->core.xrm_name)) == NULL ||
+! 	    strcmp(object->core.name, class_name) != 0)
+  	    return False;
+      }
+      return True;
+
+*** /tmp/,RCSt1a19428	Mon Jun 25 09:04:05 1990
+--- mit/lib/Xt/Resources.c	Mon Jun 25 09:04:08 1990
+***************
+*** 1,6 ****
+  #ifndef lint
+  static char Xrcsid[] =
+!     "$XConsortium: Resources.c,v 1.82 89/12/15 09:59:55 swick Exp $";
+  /* $oHeader: Resources.c,v 1.6 88/09/01 13:39:14 asente Exp $ */
+  #endif /*lint*/
+  /*LINTLIBRARY*/
+--- 1,6 ----
+  #ifndef lint
+  static char Xrcsid[] =
+!     "$XConsortium: Resources.c,v 1.83 90/03/19 13:03:13 swick Exp $";
+  /* $oHeader: Resources.c,v 1.6 88/09/01 13:39:14 asente Exp $ */
+  #endif /*lint*/
+  /*LINTLIBRARY*/
+***************
+*** 681,691 ****
+  		    if (xrm_default_type == QCallProc) {
+  #ifdef CRAY
+   			if ( (int) Cjumpp != (int) Cjump)
+!  			    (*(XtProc)(((int)(rx->xrm_default_addr))<<2))(
+   				 widget,-(rx->xrm_offset+1), pv);
+  			else
+  #endif
+! 			(*(XtProc)(rx->xrm_default_addr))(
+  			      widget,-(rx->xrm_offset+1), pv);
+  
+  		    } else if (xrm_default_type == QImmediate) {
+--- 681,692 ----
+  		    if (xrm_default_type == QCallProc) {
+  #ifdef CRAY
+   			if ( (int) Cjumpp != (int) Cjump)
+!  			    (*(XtResourceDefaultProc)
+! 			      (((int)(rx->xrm_default_addr))<<2))(
+   				 widget,-(rx->xrm_offset+1), pv);
+  			else
+  #endif
+! 			(*(XtResourceDefaultProc)(rx->xrm_default_addr))(
+  			      widget,-(rx->xrm_offset+1), pv);
+  
+  		    } else if (xrm_default_type == QImmediate) {
+
+*** /tmp/,RCSt1a19803	Mon Jun 25 13:27:49 1990
+--- mit/lib/Xt/SetValues.c	Mon Jun 25 13:27:55 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: SetValues.c,v 1.6 90/04/03 17:11:55 swick Exp $";
+  #endif /* lint */
+  
+  /***********************************************************
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: SetValues.c,v 1.8 90/06/25 12:15:52 swick Exp $";
+  #endif /* lint */
+  
+  /***********************************************************
+***************
+*** 96,102 ****
+      if ((WidgetClass)class != constraintWidgetClass) {
+  	if (class == NULL)
+  	    XtAppErrorMsg(XtWidgetToApplicationContext(current),
+! 		    "invalidClass","constraintSetValue","XtToolkitError",
+                   "Subclass of Constraint required in CallConstraintSetValues",
+                    (String *)NULL, (Cardinal *)NULL);
+  	redisplay = CallConstraintSetValues(
+--- 96,102 ----
+      if ((WidgetClass)class != constraintWidgetClass) {
+  	if (class == NULL)
+  	    XtAppErrorMsg(XtWidgetToApplicationContext(current),
+! 		    "invalidClass","constraintSetValue",XtCXtToolkitError,
+                   "Subclass of Constraint required in CallConstraintSetValues",
+                    (String *)NULL, (Cardinal *)NULL);
+  	redisplay = CallConstraintSetValues(
+***************
+*** 138,147 ****
+      XtWidgetGeometry geoReq, geoReply;
+      WidgetClass     wc = XtClass(w);
+      ConstraintWidgetClass cwc;
+  
+      if ((args == NULL) && (num_args != 0)) {
+          XtAppErrorMsg(XtWidgetToApplicationContext(w),
+! 		"invalidArgCount","xtSetValues","XtToolkitError",
+                  "Argument count > 0 on NULL argument list in XtSetValues",
+                   (String *)NULL, (Cardinal *)NULL);
+      }
+--- 138,148 ----
+      XtWidgetGeometry geoReq, geoReply;
+      WidgetClass     wc = XtClass(w);
+      ConstraintWidgetClass cwc;
++     Boolean	    hasConstraints;
+  
+      if ((args == NULL) && (num_args != 0)) {
+          XtAppErrorMsg(XtWidgetToApplicationContext(w),
+! 		"invalidArgCount","xtSetValues",XtCXtToolkitError,
+                  "Argument count > 0 on NULL argument list in XtSetValues",
+                   (String *)NULL, (Cardinal *)NULL);
+      }
+***************
+*** 160,169 ****
+  
+      bcopy ((char *) w, (char *) reqw, (int) widgetSize);
+  
+!     if (w->core.constraints != NULL) {
+! 	/* Allocate and copy current constraints into oldw */
+  	cwc = (ConstraintWidgetClass) XtClass(w->core.parent);
+  	constraintSize = cwc->constraint_class.constraint_size;
+  	oldw->core.constraints = XtStackAlloc(constraintSize, oldcCache);
+  	reqw->core.constraints = XtStackAlloc(constraintSize, reqcCache);
+  	bcopy((char *) w->core.constraints, 
+--- 161,175 ----
+  
+      bcopy ((char *) w, (char *) reqw, (int) widgetSize);
+  
+!     /* assert: !XtIsShell(w) => (XtParent(w) != NULL) */
+!     hasConstraints = (!XtIsShell(w) && XtIsConstraint(XtParent(w)));
+!     if (hasConstraints) {
+  	cwc = (ConstraintWidgetClass) XtClass(w->core.parent);
+  	constraintSize = cwc->constraint_class.constraint_size;
++     } else constraintSize = 0;
++ 	
++     if (constraintSize) {
++ 	/* Allocate and copy current constraints into oldw */
+  	oldw->core.constraints = XtStackAlloc(constraintSize, oldcCache);
+  	reqw->core.constraints = XtStackAlloc(constraintSize, reqcCache);
+  	bcopy((char *) w->core.constraints, 
+***************
+*** 179,185 ****
+  
+      /* Inform widget of changes, then inform parent of changes */
+      redisplay = CallSetValues (wc, oldw, reqw, w, args, num_args);
+!     if (w->core.constraints != NULL) {
+  	redisplay |= CallConstraintSetValues(cwc, oldw, reqw, w, args, num_args);
+      }
+  
+--- 185,191 ----
+  
+      /* Inform widget of changes, then inform parent of changes */
+      redisplay = CallSetValues (wc, oldw, reqw, w, args, num_args);
+!     if (hasConstraints) {
+  	redisplay |= CallConstraintSetValues(cwc, oldw, reqw, w, args, num_args);
+      }
+  
+***************
+*** 226,232 ****
+  		if (wc->core_class.set_values_almost == NULL) {
+  		    XtAppWarningMsg(XtWidgetToApplicationContext(w),
+  			    "invalidProcedure","set_values_almost",
+! 			  "XtToolkitError",
+  			  "set_values_almost procedure shouldn't be NULL",
+  			  (String *)NULL, (Cardinal *)NULL);
+  		    break;
+--- 232,238 ----
+  		if (wc->core_class.set_values_almost == NULL) {
+  		    XtAppWarningMsg(XtWidgetToApplicationContext(w),
+  			    "invalidProcedure","set_values_almost",
+! 			  XtCXtToolkitError,
+  			  "set_values_almost procedure shouldn't be NULL",
+  			  (String *)NULL, (Cardinal *)NULL);
+  		    break;
+***************
+*** 266,275 ****
+  
+  
+      /* Free dynamic storage */
+!     if (w->core.constraints != NULL) {
+          XtStackFree(oldw->core.constraints, oldcCache);
+!         XtStackFree(reqw->core.constraints,
+!         reqcCache);
+      }
+      XtStackFree((XtPointer)oldw, oldwCache);
+      XtStackFree((XtPointer)reqw, reqwCache);
+--- 272,280 ----
+  
+  
+      /* Free dynamic storage */
+!     if (constraintSize) {
+          XtStackFree(oldw->core.constraints, oldcCache);
+!         XtStackFree(reqw->core.constraints, reqcCache);
+      }
+      XtStackFree((XtPointer)oldw, oldwCache);
+      XtStackFree((XtPointer)reqw, reqwCache);
+
+*** /tmp/,RCSt1a19437	Mon Jun 25 09:04:52 1990
+--- mit/lib/Xt/TMparse.c	Mon Jun 25 09:04:55 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: TMparse.c,v 1.88 89/12/19 16:06:15 swick Exp $";
+  /* $oHeader: TMparse.c,v 1.4 88/09/01 17:30:39 asente Exp $ */
+  #endif /*lint*/
+  
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: TMparse.c,v 1.89 90/01/22 17:08:54 swick Exp $";
+  /* $oHeader: TMparse.c,v 1.4 88/09/01 17:30:39 asente Exp $ */
+  #endif /*lint*/
+  
+***************
+*** 578,584 ****
+      String str,modStr;
+  {
+      String start = str;
+!     String metaString = "Alt";
+      String ctrlString = "Ctrl";
+      if (*str == '$') {
+          strcpy(modStr,metaString);
+--- 578,584 ----
+      String str,modStr;
+  {
+      String start = str;
+!     String metaString = "Meta";
+      String ctrlString = "Ctrl";
+      if (*str == '$') {
+          strcpy(modStr,metaString);
+
+*** /tmp/,RCSt1a19446	Mon Jun 25 09:05:28 1990
+--- mit/lib/Xt/TMstate.c	Mon Jun 25 09:05:36 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: TMstate.c,v 1.98 90/04/10 15:58:55 swick Exp $";
+  /* $oHeader: TMstate.c,v 1.5 88/09/01 17:17:29 asente Exp $ */
+  #endif /* lint */
+  /*LINTLIBRARY*/
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: TMstate.c,v 1.99 90/04/13 20:20:34 swick Exp $";
+  /* $oHeader: TMstate.c,v 1.5 88/09/01 17:17:29 asente Exp $ */
+  #endif /* lint */
+  /*LINTLIBRARY*/
+***************
+*** 759,765 ****
+  
+  
+  /* ARGSUSED */
+! void _XtTranslateEvent (w, closure, event, continue_to_dispatch)
+      Widget w;
+      XtPointer closure;		/* XtTM */
+      register    XEvent * event;
+--- 759,765 ----
+  
+  
+  /* ARGSUSED */
+! static void _XtTranslateEvent (w, closure, event, continue_to_dispatch)
+      Widget w;
+      XtPointer closure;		/* XtTM */
+      register    XEvent * event;
+***************
+*** 1139,1146 ****
+  }
+  
+  
+! /*** Public procedures ***/
+  
+  void _XtInstallTranslations(widget, stateTable)
+      Widget widget;
+      XtTranslations stateTable;
+--- 1139,1158 ----
+  }
+  
+  
+! static void RemoveFromMappingCallbacks(widget, closure, call_data)
+!     Widget widget;
+!     XtPointer closure;		/* XtTM */
+!     XtPointer call_data;
+! {
+!     _XtRemoveCallback( widget,
+! 		       &_XtGetPerDisplay(XtDisplay(widget))
+! 		          ->mapping_callbacks,
+! 		       DispatchMappingNotify,
+! 		       closure
+! 		      );
+! }
+  
++ 
+  void _XtInstallTranslations(widget, stateTable)
+      Widget widget;
+      XtTranslations stateTable;
+***************
+*** 1157,1173 ****
+  
+  	if (mask != 0)
+  	    eventMask |= mask;
+! 	else {
+  	    nonMaskable = True;
+- 	    if (stateTable->eventObjTbl[i].event.eventType == MappingNotify) {
+- 		_XtAddCallback( widget,
+- 			        &_XtGetPerDisplay(XtDisplay(widget))
+- 			            ->mapping_callbacks,
+- 			        DispatchMappingNotify,
+- 			        (XtPointer)&widget->core.tm
+- 			      );
+- 	    }
+- 	}
+      }
+  
+      /* double click needs to make sure that you have selected on both
+--- 1169,1176 ----
+  
+  	if (mask != 0)
+  	    eventMask |= mask;
+! 	else
+  	    nonMaskable = True;
+      }
+  
+      /* double click needs to make sure that you have selected on both
+***************
+*** 1180,1192 ****
+          widget, eventMask, nonMaskable,
+               _XtTranslateEvent, (XtPointer)&widget->core.tm);
+  
+  }
+  
+! void XtUninstallTranslations(widget)
+      Widget widget;
+  {
+      XtRemoveEventHandler(widget, XtAllEvents, TRUE, _XtTranslateEvent,
+!                      (XtPointer)&widget->core.tm);
+      widget->core.tm.translations = NULL;
+      if (widget->core.tm.proc_table != NULL)
+          XtFree((char *)widget->core.tm.proc_table);
+--- 1183,1231 ----
+          widget, eventMask, nonMaskable,
+               _XtTranslateEvent, (XtPointer)&widget->core.tm);
+  
++     if (stateTable->mappingNotifyInterest) {
++ 	_XtAddCallbackOnce( widget,
++ 			    &_XtGetPerDisplay(XtDisplay(widget))
++ 			       ->mapping_callbacks,
++ 			    DispatchMappingNotify,
++ 			    (XtPointer)&widget->core.tm
++ 			   );
++ 	if (widget->core.destroy_callbacks != NULL)
++ 	    _XtAddCallbackOnce( widget,
++ 				_XtCallbackList((CallbackStruct*)
++ 					widget->core.destroy_callbacks
++ 				       ),
++ 				RemoveFromMappingCallbacks,
++ 				(XtPointer)&widget->core.tm
++ 			       );
++ 	else
++ 	    XtAddCallback( widget, XtNdestroyCallback,
++ 			   RemoveFromMappingCallbacks,
++ 			   (XtPointer)&widget->core.tm
++ 			  );
++     }
++ 
+  }
+  
+! void _XtRemoveTranslations(widget)
+      Widget widget;
+  {
+      XtRemoveEventHandler(widget, XtAllEvents, TRUE, _XtTranslateEvent,
+! 			 (XtPointer)&widget->core.tm);
+! 
+!     if ( widget->core.tm.translations &&
+! 	 widget->core.tm.translations->mappingNotifyInterest)
+! 	RemoveFromMappingCallbacks(widget, (XtPointer)&widget->core.tm, NULL);
+! }
+! 
+! 
+! 
+! /*** Public procedures ***/
+! 
+! void XtUninstallTranslations(widget)
+!     Widget widget;
+! {
+!     _XtRemoveTranslations(widget);
+      widget->core.tm.translations = NULL;
+      if (widget->core.tm.proc_table != NULL)
+          XtFree((char *)widget->core.tm.proc_table);
+***************
+*** 1437,1442 ****
+--- 1476,1482 ----
+      stateTable->accQuarkTable = NULL;
+      stateTable->accProcTbl= NULL;
+      stateTable->accQuarkTblSize = 0;
++     stateTable->mappingNotifyInterest = False;
+  }
+  
+  void _XtAddEventSeqToStateTable(eventSeq, stateTable)
+***************
+*** 1460,1465 ****
+--- 1500,1508 ----
+      /* index is eventIndex for event */
+      /* *state is head of state chain for current state */
+  
++ 	if (eventSeq->event.eventType == MappingNotify)
++ 	    stateTable->mappingNotifyInterest = True;
++ 
+  	while (*state != NULL && (*state)->index != index)
+  	    state = &(*state)->next;
+  	if (*state == NULL) *state = NewState (index, stateTable);
+***************
+*** 1752,1757 ****
+--- 1795,1803 ----
+  	    indexMap,quarkIndexMap,accQuarkIndexMap,
+  	    old,
+  	    (StateMap) NULL);
++ 
++     if (new->mappingNotifyInterest) old->mappingNotifyInterest = True;
++ 
+     XtFree((char *)indexMap);
+     XtFree((char *)quarkIndexMap);
+     XtFree((char *)accQuarkIndexMap);
+***************
+*** 1840,1846 ****
+  	return;
+  
+      if (XtIsRealized(widget)) {
+!             XtUninstallTranslations((Widget)widget);
+             widget->core.tm.translations = newTable;
+             _XtBindActions(widget, &widget->core.tm);
+             _XtInstallTranslations(widget,newTable);
+--- 1886,1892 ----
+  	return;
+  
+      if (XtIsRealized(widget)) {
+! 	   XtUninstallTranslations(widget);
+             widget->core.tm.translations = newTable;
+             _XtBindActions(widget, &widget->core.tm);
+             _XtInstallTranslations(widget,newTable);
+
+*** /tmp/,RCSt1a19455	Mon Jun 25 09:06:12 1990
+--- mit/lib/Xt/TranslateI.h	Mon Jun 25 09:06:13 1990
+***************
+*** 1,4 ****
+! /* $XConsortium: TranslateI.h,v 1.16 89/10/06 19:16:55 swick Exp $ */
+  /* $oHeader: TranslateI.h,v 1.2 88/08/18 15:56:37 asente Exp $ */
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+--- 1,4 ----
+! /* $XConsortium: TranslateI.h,v 1.17 90/04/13 20:12:37 swick Exp $ */
+  /* $oHeader: TranslateI.h,v 1.2 88/08/18 15:56:37 asente Exp $ */
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+***************
+*** 112,118 ****
+      XrmQuark*		accQuarkTable;
+      struct _XtBoundAccActionRec* accProcTbl;
+      StatePtr		head;	/* head of list of all states */
+!     
+  } TranslationData;
+  
+  #define _XtEventTimerEventType ((unsigned long)-1L)
+--- 112,118 ----
+      XrmQuark*		accQuarkTable;
+      struct _XtBoundAccActionRec* accProcTbl;
+      StatePtr		head;	/* head of list of all states */
+!     Boolean		mappingNotifyInterest;
+  } TranslationData;
+  
+  #define _XtEventTimerEventType ((unsigned long)-1L)
+
+*** /tmp/,RCSt1a20383	Tue Jun 26 08:30:07 1990
+--- mit/lib/Xt/Varargs.c	Tue Jun 26 08:30:09 1990
+***************
+*** 1,6 ****
+  #ifndef lint
+  static char Xrcsid[] =
+!     "$XConsortium: Varargs.c,v 1.16 90/03/13 18:24:15 kit Exp $";
+  #endif
+  /*
+  
+--- 1,6 ----
+  #ifndef lint
+  static char Xrcsid[] =
+!     "$XConsortium: Varargs.c,v 1.20 90/06/25 12:26:15 swick Exp $";
+  #endif
+  /*
+  
+***************
+*** 25,30 ****
+--- 25,31 ----
+  #include "IntrinsicI.h"
+  #include "VarargsI.h"
+  
++ static String XtNxtConvertVarToArgList = "xtConvertVarToArgList";
+  
+  /*
+   *    Given a nested list, _XtCountNestedList() returns counts of the
+***************
+*** 196,202 ****
+  
+      if (widget == NULL) {
+          XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+!             "nullWidget", "xtConvertVarTArgList", "XtToolkitError",
+  	    "XtVaTypedArg conversion needs non-NULL widget handle",
+              (String *)NULL, (Cardinal *)NULL);
+          return(0);
+--- 197,203 ----
+  
+      if (widget == NULL) {
+          XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+!             "nullWidget", XtNxtConvertVarToArgList, XtCXtToolkitError,
+  	    "XtVaTypedArg conversion needs non-NULL widget handle",
+              (String *)NULL, (Cardinal *)NULL);
+          return(0);
+***************
+*** 214,220 ****
+  
+      if (to_type == NULL) {
+          XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+!             "unknownType", "xtConvertVarTArgList", "XtToolkitError",
+              "Unable to find type of resource for conversion",
+              (String *)NULL, (Cardinal *)NULL);
+          return(0);
+--- 215,221 ----
+  
+      if (to_type == NULL) {
+          XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+!             "unknownType", XtNxtConvertVarToArgList, XtCXtToolkitError,
+              "Unable to find type of resource for conversion",
+              (String *)NULL, (Cardinal *)NULL);
+          return(0);
+***************
+*** 233,239 ****
+   
+      if (to_val.addr == NULL) {
+          XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+!             "conversionFailed", "xtConvertVarToArgList", "XtToolkitError",
+              "Type conversion failed", (String *)NULL, (Cardinal *)NULL);
+          return(0);
+      }
+--- 234,240 ----
+   
+      if (to_val.addr == NULL) {
+          XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+!             "conversionFailed", XtNxtConvertVarToArgList, XtCXtToolkitError,
+              "Type conversion failed", (String *)NULL, (Cardinal *)NULL);
+          return(0);
+      }
+***************
+*** 393,411 ****
+      XtInitializeWidgetClass(XtClass(widget));
+      XtGetResourceList(XtClass(widget), res_list, number);
+      
+!     if ((parent != NULL) && (XtIsConstraint(parent))) {
+  	XtResourceList res, constraint, cons_top;
+! 	Cardinal num_constraint;
+  
+  	XtGetConstraintResourceList(XtClass(parent), &constraint, 
+  				    &num_constraint);
+  
+  	cons_top = constraint;
+! 	*res_list = (XtResourceList) XtRealloc(*res_list, 
+  					       ((*number + num_constraint) * 
+  						sizeof(XtResource)));
+  
+! 	for (res = *res_list + *number ; num_constraint; num_constraint--)
+  	    *res++ = *constraint++;
+  
+  	*number += num_constraint;
+--- 394,413 ----
+      XtInitializeWidgetClass(XtClass(widget));
+      XtGetResourceList(XtClass(widget), res_list, number);
+      
+!     /* assert: !XtIsShell(w) => (XtParent(w) != NULL) */
+!     if (!XtIsShell(widget) && XtIsConstraint(parent)) {
+  	XtResourceList res, constraint, cons_top;
+! 	Cardinal num_constraint, temp;
+  
+  	XtGetConstraintResourceList(XtClass(parent), &constraint, 
+  				    &num_constraint);
+  
+  	cons_top = constraint;
+! 	*res_list = (XtResourceList) XtRealloc((char*)*res_list, 
+  					       ((*number + num_constraint) * 
+  						sizeof(XtResource)));
+  
+! 	for (temp= num_constraint, res= *res_list + *number; temp != 0; temp--)
+  	    *res++ = *constraint++;
+  
+  	*number += num_constraint;

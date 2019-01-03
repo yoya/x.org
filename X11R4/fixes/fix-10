@@ -1,0 +1,1745 @@
+You must apply fix-11 at the same time you apply this patch.
+
+This patch, together with fix-11, fixes the following Xt problems:
+
+	use of uninitialized data in SetValues on RectObj
+	selection bug for multiple requests
+	keyboard focus bugs
+	fix function prototype support
+	XtDestroyWidget on popup destroys window too soon
+	XtInstallTranslations calls XGrab* instead of XtGrab*
+	fix parameter order for XtGrabButton
+	work around Sun NTP daemon bug
+	large allocs can corrupt memory
+	RootGeometryManager may use WmShell aspects of a non-WMShell
+	XtUnrealizeWidget destroys translations
+	XtResizeWidget on a gadget can clear the wrong area
+
+cd to the top of the X tree and apply with "patch -p0".
+
+*** /tmp/,RCSt1a03886	Thu Apr 19 19:44:02 1990
+--- mit/lib/Xt/CompositeP.h	Thu Apr 19 19:44:02 1990
+***************
+*** 1,4 ****
+! /* $XConsortium: CompositeP.h,v 1.13 89/10/04 12:22:53 swick Exp $ */
+  /* $oHeader: CompositeP.h,v 1.2 88/08/18 15:54:11 asente Exp $ */
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+--- 1,4 ----
+! /* $XConsortium: CompositeP.h,v 1.14 90/03/13 10:18:12 swick Exp $ */
+  /* $oHeader: CompositeP.h,v 1.2 88/08/18 15:54:11 asente Exp $ */
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+***************
+*** 35,42 ****
+   *
+   ************************************************************************/
+  
+! typedef Cardinal (*XtOrderProc)();
+!     /* Widget child; */
+  
+  typedef struct _CompositePart {
+      WidgetList  children;	     /* array of ALL widget children	     */
+--- 35,45 ----
+   *
+   ************************************************************************/
+  
+! typedef Cardinal (*XtOrderProc)(
+! #if NeedFunctionPrototypes
+!     Widget 	/* child */
+! #endif
+! );
+  
+  typedef struct _CompositePart {
+      WidgetList  children;	     /* array of ALL widget children	     */
+
+*** /tmp/,RCSt1a03956	Thu Apr 19 19:44:47 1990
+--- mit/lib/Xt/Create.c	Thu Apr 19 19:44:49 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Create.c,v 1.68 90/01/24 16:04:57 swick Exp $";
+  /* $oHeader: Create.c,v 1.5 88/09/01 11:26:22 asente Exp $ */
+  #endif /*lint*/
+  
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Create.c,v 1.71 90/03/27 12:56:32 swick Exp $";
+  /* $oHeader: Create.c,v 1.5 88/09/01 11:26:22 asente Exp $ */
+  #endif /*lint*/
+  
+***************
+*** 50,84 ****
+  void XtInitializeWidgetClass(wc)
+      WidgetClass wc;
+  {
+!     String param[3];
+!     Cardinal num_params=3;
+      if (wc->core_class.class_inited) return;
+!     if (wc->core_class.version != XtVersion &&
+! 	    wc->core_class.version != XtVersionDontCheck) {
+!         param[0] =  wc->core_class.class_name;
+! 	param[1] =  (String)wc->core_class.version;
+!         param[2] = (String)XtVersion;
+! 	XtWarningMsg("versionMismatch","widget","XtToolkitError",
+!           "Widget class %s version mismatch:\n  widget %d vs. intrinsics %d.",
+!           param,&num_params);
+! 	if (wc->core_class.version == (2 * 1000 + 2)) /* MIT R2 */ {
+! 	    Cardinal num_params=1;
+! 	    XtErrorMsg("versionMismatch","widget","XtToolkitError",
+! 		       "Widget class %s must be re-compiled.",
+! 		       param, &num_params);
+! 	}
+!     }
+! 
+!     if ((wc->core_class.superclass != NULL) 
+! 	    && (!(wc->core_class.superclass->core_class.class_inited)))
+!  	XtInitializeWidgetClass(wc->core_class.superclass);
+!  
+!     if (wc->core_class.class_initialize != NULL)
+! 	(*(wc->core_class.class_initialize))();
+!     CallClassPartInit(wc, wc);
+      {
+  	WidgetClass pc;
+- 	XtEnum inited = 0x01;
+  #define LeaveIfClass(c, d) if (pc == c) { inited = d; break; }
+  	for (pc = wc; pc; pc = pc->core_class.superclass) {
+  	    LeaveIfClass(rectObjClass, 0x01 |
+--- 50,60 ----
+  void XtInitializeWidgetClass(wc)
+      WidgetClass wc;
+  {
+!     XtEnum inited;
+      if (wc->core_class.class_inited) return;
+!     inited = 0x01;
+      {
+  	WidgetClass pc;
+  #define LeaveIfClass(c, d) if (pc == c) { inited = d; break; }
+  	for (pc = wc; pc; pc = pc->core_class.superclass) {
+  	    LeaveIfClass(rectObjClass, 0x01 |
+***************
+*** 115,122 ****
+  			 TopLevelClassFlag);
+  	}
+  #undef LeaveIfClass
+- 	wc->core_class.class_inited = inited;
+      }
+  }
+  
+  static void CallInitialize (class, req_widget, new_widget, args, num_args)
+--- 91,133 ----
+  			 TopLevelClassFlag);
+  	}
+  #undef LeaveIfClass
+      }
++     if (wc->core_class.version != XtVersion &&
++ 	wc->core_class.version != XtVersionDontCheck) {
++ 	String param[3];
++         param[0] = wc->core_class.class_name;
++ 	if (wc->core_class.version == (11 * 1000 + 3)) { /* MIT X11R3 */
++ 	    if (inited & ShellClassFlag) {
++ 		Cardinal num_params=1;
++ 		XtWarningMsg("r3versionMismatch","widget","XtToolkitError",
++ 			     "Shell Widget class %s binary compiled for R3",
++ 			     param,&num_params);
++ 	    }
++ 	}
++ 	else {
++ 	    Cardinal num_params=3;
++ 	    param[1] = (String)wc->core_class.version;
++ 	    param[2] = (String)XtVersion;
++ 	    XtWarningMsg("versionMismatch","widget","XtToolkitError",
++ 			 "Widget class %s version mismatch (recompilation needed):\n  widget %d vs. intrinsics %d.",
++ 			 param,&num_params);
++ 	    if (wc->core_class.version == (2 * 1000 + 2)) /* MIT X11R2 */ {
++ 		Cardinal num_params=1;
++ 		XtErrorMsg("r2versionMismatch","widget","XtToolkitError",
++ 			   "Widget class %s must be re-compiled.",
++ 			   param, &num_params);
++ 	    }
++ 	}
++     }
++ 
++     if ((wc->core_class.superclass != NULL) 
++ 	    && (!(wc->core_class.superclass->core_class.class_inited)))
++  	XtInitializeWidgetClass(wc->core_class.superclass);
++  
++     if (wc->core_class.class_initialize != NULL)
++ 	(*(wc->core_class.class_initialize))();
++     CallClassPartInit(wc, wc);
++     wc->core_class.class_inited = inited;
+  }
+  
+  static void CallInitialize (class, req_widget, new_widget, args, num_args)
+***************
+*** 416,428 ****
+          return;
+      }
+      if (parent->core.being_destroyed) {
+- 	/* then we're (probably) not the target of the XtDestroyWidget,
+- 	 * so our window won't get destroyed automatically...
+- 	 */
+- 	Window win;
+-         if ((win = XtWindow(widget)) != NULL)
+- 	    XDestroyWindow( XtDisplay(widget), win );
+- 
+  	return;
+  	/* don't update parent's popup_list, as we won't then be able to find
+  	 * this child for Phase2Destroy.  This also allows for the possibility
+--- 427,432 ----
+
+*** /tmp/,RCSt1a03963	Thu Apr 19 19:44:53 1990
+--- mit/lib/Xt/Destroy.c	Thu Apr 19 19:44:55 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Destroy.c,v 1.22 89/10/09 13:36:37 swick Exp $";
+  /* $oHeader: Destroy.c,v 1.3 88/09/01 11:27:27 asente Exp $ */
+  #endif /* lint */
+  
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Destroy.c,v 1.24 90/03/27 11:07:16 swick Exp $";
+  /* $oHeader: Destroy.c,v 1.3 88/09/01 11:27:27 asente Exp $ */
+  #endif /* lint */
+  
+***************
+*** 115,121 ****
+      _XtDestroyList = &newDestroyList;
+  
+      parent = widget->core.parent;
+-     window = 0;
+  
+      if (parent != NULL && XtIsComposite(parent)) {
+  	XtWidgetProc delete_child =
+--- 115,120 ----
+***************
+*** 135,144 ****
+  	    (*delete_child) (widget);
+  	}
+      }
+!     if (XtIsWidget(widget)) {
+! 	display = XtDisplay(widget); /* widget is freed in Phase2Destroy */
+!         window = widget->core.window;
+      }
+  
+      Recursive(widget, Phase2Callbacks);
+      while (newDestroyList != NULL) {
+--- 134,154 ----
+  	    (*delete_child) (widget);
+  	}
+      }
+! 
+!     /* widget is freed in Phase2Destroy, so retrieve window now.
+!      * Shells destroy their own windows, to prevent window leaks in
+!      * popups; this test is practical only when XtIsShell() is cheap.
+!      */
+!     if (XtIsShell(widget) || !XtIsWidget(widget)) {
+! 	window = 0;
+! #ifdef lint
+! 	display = 0;
+! #endif
+      }
++     else {
++ 	display = XtDisplay(widget);
++ 	window = widget->core.window;
++     }
+  
+      Recursive(widget, Phase2Callbacks);
+      while (newDestroyList != NULL) {
+***************
+*** 155,162 ****
+      Recursive(widget, Phase2Destroy);
+      app->in_phase2_destroy = outerInPhase2Destroy;
+  
+!     /* popups destroy their own window if parent->being_destroyed */
+!     if (window != NULL && (parent == NULL || !parent->core.being_destroyed))
+  	XDestroyWindow(display, window);
+  } /* XtPhase2Destroy */
+  
+--- 165,171 ----
+      Recursive(widget, Phase2Destroy);
+      app->in_phase2_destroy = outerInPhase2Destroy;
+  
+!     if (window)
+  	XDestroyWindow(display, window);
+  } /* XtPhase2Destroy */
+  
+
+*** /tmp/,RCSt1a03970	Thu Apr 19 19:44:59 1990
+--- mit/lib/Xt/Display.c	Thu Apr 19 19:45:01 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Display.c,v 1.40 89/12/15 21:58:31 swick Exp $";
+  /* $oHeader: Display.c,v 1.9 88/09/01 11:28:47 asente Exp $ */
+  #endif /*lint*/
+  
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Display.c,v 1.43 90/04/05 10:51:28 swick Exp $";
+  /* $oHeader: Display.c,v 1.9 88/09/01 11:28:47 asente Exp $ */
+  #endif /*lint*/
+  
+***************
+*** 40,45 ****
+--- 40,47 ----
+  #define HEAP_SEGMENT_SIZE 1492
+  #endif
+  
++ static String XtNnoPerDisplay = "noPerDisplay";
++ 
+  static void _XtHeapInit();
+  static void _XtHeapFree();
+  
+***************
+*** 122,128 ****
+  	XrmOptionDescRec *urlist;
+  	Cardinal num_urs;
+  	Cardinal *argc;
+! 	char *argv[];
+  {
+  	char  displayCopy[256];
+  	int i;
+--- 124,130 ----
+  	XrmOptionDescRec *urlist;
+  	Cardinal num_urs;
+  	Cardinal *argc;
+! 	String *argv;
+  {
+  	char  displayCopy[256];
+  	int i;
+***************
+*** 214,220 ****
+  	XrmOptionDescRec *urlist;
+  	Cardinal num_urs;
+  	Cardinal *argc;
+! 	char *argv[];
+  {
+  	XtPerDisplay pd;
+  	static XtPerDisplay NewPerDisplay();
+--- 216,222 ----
+  	XrmOptionDescRec *urlist;
+  	Cardinal num_urs;
+  	Cardinal *argc;
+! 	String *argv;
+  {
+  	XtPerDisplay pd;
+  	static XtPerDisplay NewPerDisplay();
+***************
+*** 351,356 ****
+--- 353,362 ----
+  {
+  	register PerDisplayTablePtr pd, opd;
+  
++ #ifdef lint
++ 	opd = NULL;
++ #endif
++ 
+  	for (pd = _XtperDisplayList;
+  	     pd != NULL && pd->dpy != dpy;
+  	     pd = pd->next) {
+***************
+*** 358,364 ****
+  	}
+  
+  	if (pd == NULL) {
+! 	    XtErrorMsg("noPerDisplay", "getPerDisplay", "XtToolkitError",
+  		    "Couldn't find per display information",
+  		    (String *) NULL, (Cardinal *)NULL);
+  	}
+--- 364,370 ----
+  	}
+  
+  	if (pd == NULL) {
+! 	    XtErrorMsg(XtNnoPerDisplay, "getPerDisplay", XtCXtToolkitError,
+  		    "Couldn't find per display information",
+  		    (String *) NULL, (Cardinal *)NULL);
+  	}
+***************
+*** 409,415 ****
+  		*(char**)heap_loc = NULL;
+  		heap->start = heap_loc;
+  	    }
+! 	    return heap_loc;
+  	}
+  	/* else discard remainder of this segment */
+  #ifdef _TRACE_HEAP
+--- 415,421 ----
+  		*(char**)heap_loc = NULL;
+  		heap->start = heap_loc;
+  	    }
+! 	    return heap_loc + sizeof(char*);
+  	}
+  	/* else discard remainder of this segment */
+  #ifdef _TRACE_HEAP
+***************
+*** 470,475 ****
+--- 476,485 ----
+          register XtPerDisplay xtpd;
+  	register PerDisplayTablePtr pd, opd;
+  	
++ #ifdef lint
++ 	opd = NULL;
++ #endif
++ 
+  	for (pd = _XtperDisplayList;
+  	     pd != NULL && pd->dpy != dpy;
+  	     pd = pd->next){
+***************
+*** 477,483 ****
+  	}
+  
+  	if (pd == NULL) {
+! 	    XtErrorMsg("noPerDisplay", "closeDisplay", "XtToolkitError",
+  		    "Couldn't find per display information",
+  		    (String *) NULL, (Cardinal *)NULL);
+  	}
+--- 487,493 ----
+  	}
+  
+  	if (pd == NULL) {
+! 	    XtErrorMsg(XtNnoPerDisplay, "closeDisplay", XtCXtToolkitError,
+  		    "Couldn't find per display information",
+  		    (String *) NULL, (Cardinal *)NULL);
+  	}
+
+*** /tmp/,RCSt1a03977	Thu Apr 19 19:45:04 1990
+--- mit/lib/Xt/Error.c	Thu Apr 19 19:45:05 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Error.c,v 1.23 89/12/15 17:33:30 swick Exp $";
+  /* $oHeader: Error.c,v 1.6 88/08/31 17:46:14 asente Exp $ */
+  #endif /* lint */
+  
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Error.c,v 1.24 90/03/19 12:58:53 swick Exp $";
+  /* $oHeader: Error.c,v 1.6 88/08/31 17:46:14 asente Exp $ */
+  #endif /* lint */
+  
+***************
+*** 47,53 ****
+  static XtErrorMsgHandler errorMsgHandler = _XtDefaultErrorMsg;
+  static XtErrorMsgHandler warningMsgHandler = _XtDefaultWarningMsg;
+  static XtErrorHandler errorHandler = _XtDefaultError;
+! static XtErrorMsgHandler warningHandler = _XtDefaultWarning;
+  #endif /* GLOBALERRORS */
+  
+  XrmDatabase *XtGetErrorDatabase()
+--- 47,53 ----
+  static XtErrorMsgHandler errorMsgHandler = _XtDefaultErrorMsg;
+  static XtErrorMsgHandler warningMsgHandler = _XtDefaultWarningMsg;
+  static XtErrorHandler errorHandler = _XtDefaultError;
+! static XtErrorHandler warningHandler = _XtDefaultWarning;
+  #endif /* GLOBALERRORS */
+  
+  XrmDatabase *XtGetErrorDatabase()
+
+*** /tmp/,RCSt1a04020	Thu Apr 19 19:45:38 1990
+--- mit/lib/Xt/Geometry.c	Thu Apr 19 19:45:39 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Geometry.c,v 1.42 90/02/26 16:25:01 kit Exp $";
+  /* $oHeader: Geometry.c,v 1.3 88/08/23 11:37:50 asente Exp $ */
+  #endif /* lint */
+  
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Geometry.c,v 1.46 90/04/10 17:07:18 swick Exp $";
+  /* $oHeader: Geometry.c,v 1.3 88/08/23 11:37:50 asente Exp $ */
+  #endif /* lint */
+  
+***************
+*** 45,52 ****
+  
+      bw2 = r->rectangle.border_width << 1;
+      XClearArea( XtDisplay(pw), XtWindow(pw),
+! 		r->rectangle.x, r->rectangle.y,
+! 		r->rectangle.width + bw2, r->rectangle.height + bw2,
+  		TRUE );
+  }
+  
+--- 45,53 ----
+  
+      bw2 = r->rectangle.border_width << 1;
+      XClearArea( XtDisplay(pw), XtWindow(pw),
+! 		(int)r->rectangle.x, (int)r->rectangle.y,
+! 		(unsigned int)(r->rectangle.width + bw2),
+! 	        (unsigned int)(r->rectangle.height + bw2),
+  		TRUE );
+  }
+  
+***************
+*** 91,97 ****
+  		params[0] = XtClass(widget)->core_class.class_name;
+  		XtAppErrorMsg(XtWidgetToApplicationContext(widget),
+  		     "invalidExtension", "xtMakeGeometryRequest",
+! 		     "XtToolkitError",
+  		     "widget class %s has invalid ShellClassExtension record",
+  		     params, &num_params);
+  	    }
+--- 92,98 ----
+  		params[0] = XtClass(widget)->core_class.class_name;
+  		XtAppErrorMsg(XtWidgetToApplicationContext(widget),
+  		     "invalidExtension", "xtMakeGeometryRequest",
+! 		     XtCXtToolkitError,
+  		     "widget class %s has invalid ShellClassExtension record",
+  		     params, &num_params);
+  	    }
+***************
+*** 98,104 ****
+  	} else {
+  	    XtAppErrorMsg(XtWidgetToApplicationContext(widget),
+  			  "internalError", "xtMakeGeometryRequest",
+! 			  "XtToolkitError",
+  			  "internal error; ShellClassExtension is NULL",
+  			  NULL, NULL);
+  	}
+--- 99,105 ----
+  	} else {
+  	    XtAppErrorMsg(XtWidgetToApplicationContext(widget),
+  			  "internalError", "xtMakeGeometryRequest",
+! 			  XtCXtToolkitError,
+  			  "internal error; ShellClassExtension is NULL",
+  			  NULL, NULL);
+  	}
+***************
+*** 106,112 ****
+  	parentRealized = TRUE;
+      } else if (parent == NULL) {
+  	XtAppErrorMsg(XtWidgetToApplicationContext(widget),
+! 		      "invalidParent","xtMakeGeometryRequest","XtToolkitError",
+  		      "non-shell has no parent in XtMakeGeometryRequest",
+  		      (String *)NULL, (Cardinal *)NULL);
+      } else /* not shell */ {
+--- 107,113 ----
+  	parentRealized = TRUE;
+      } else if (parent == NULL) {
+  	XtAppErrorMsg(XtWidgetToApplicationContext(widget),
+! 		      "invalidParent","xtMakeGeometryRequest",XtCXtToolkitError,
+  		      "non-shell has no parent in XtMakeGeometryRequest",
+  		      (String *)NULL, (Cardinal *)NULL);
+      } else /* not shell */ {
+***************
+*** 120,126 ****
+  	    /* Should never happen - XtManageChildren should have checked */
+  	    XtAppErrorMsg(XtWidgetToApplicationContext(widget),
+  			  "invalidParent", "xtMakeGeometryRequest",
+! 			  "XtToolkitError",
+  			  "XtMakeGeometryRequest - parent not composite",
+  			  (String *)NULL, (Cardinal *)NULL);
+  	} else {
+--- 121,127 ----
+  	    /* Should never happen - XtManageChildren should have checked */
+  	    XtAppErrorMsg(XtWidgetToApplicationContext(widget),
+  			  "invalidParent", "xtMakeGeometryRequest",
+! 			  XtCXtToolkitError,
+  			  "XtMakeGeometryRequest - parent not composite",
+  			  (String *)NULL, (Cardinal *)NULL);
+  	} else {
+***************
+*** 135,141 ****
+  
+      if (managed && manager == (XtGeometryHandler) NULL) {
+  	XtErrorMsg("invalidGeometryManager","xtMakeGeometryRequest",
+!                  "XtToolkitError",
+                   "XtMakeGeometryRequest - parent has no geometry manager",
+                    (String *)NULL, (Cardinal *)NULL);
+      }
+--- 136,142 ----
+  
+      if (managed && manager == (XtGeometryHandler) NULL) {
+  	XtErrorMsg("invalidGeometryManager","xtMakeGeometryRequest",
+!                  XtCXtToolkitError,
+                   "XtMakeGeometryRequest - parent has no geometry manager",
+                    (String *)NULL, (Cardinal *)NULL);
+      }
+***************
+*** 310,335 ****
+  
+  void XtResizeWidget(w, width, height, borderWidth)
+      Widget w;
+!     Dimension height, width, borderWidth;
+  {
+      XWindowChanges changes;
+      Dimension old_width, old_height, old_borderWidth;
+      Cardinal mask = 0;
+  
+!     if (w->core.width != width) {
+! 	old_width = w->core.width;
+  	changes.width = w->core.width = width;
+  	mask |= CWWidth;
+      }
+  
+!     if (w->core.height != height) {
+! 	old_height = w->core.height;
+  	changes.height = w->core.height = height;
+  	mask |= CWHeight;
+      }
+  
+!     if (w->core.border_width != borderWidth) {
+! 	old_borderWidth = w->core.border_width;
+  	changes.border_width = w->core.border_width = borderWidth;
+  	mask |= CWBorderWidth;
+      }
+--- 311,333 ----
+  
+  void XtResizeWidget(w, width, height, borderWidth)
+      Widget w;
+!     Dimension width, height, borderWidth;
+  {
+      XWindowChanges changes;
+      Dimension old_width, old_height, old_borderWidth;
+      Cardinal mask = 0;
+  
+!     if ((old_width = w->core.width) != width) {
+  	changes.width = w->core.width = width;
+  	mask |= CWWidth;
+      }
+  
+!     if ((old_height = w->core.height) != height) {
+  	changes.height = w->core.height = height;
+  	mask |= CWHeight;
+      }
+  
+!     if ((old_borderWidth = w->core.border_width) != borderWidth) {
+  	changes.border_width = w->core.border_width = borderWidth;
+  	mask |= CWBorderWidth;
+      }
+***************
+*** 340,353 ****
+  		XConfigureWindow(XtDisplay(w), XtWindow(w), mask, &changes);
+  	    else {
+  		Widget pw = _XtWindowedAncestor(w);
+! 		Dimension big_width = old_width + (old_borderWidth << 1);
+! 		Dimension big_height = old_height + (old_borderWidth << 1);
+! 		if ((width + (borderWidth << 1)) > big_width)
+! 		    big_width = width + (borderWidth << 1);
+! 		if ((height + (borderWidth << 1)) > big_height)
+! 		    big_height = height + (borderWidth << 1);
+  		XClearArea( XtDisplay(pw), XtWindow(pw),
+! 			    w->core.x, w->core.y, big_width, big_height,
+  			    TRUE );
+  	    }
+  	}
+--- 338,352 ----
+  		XConfigureWindow(XtDisplay(w), XtWindow(w), mask, &changes);
+  	    else {
+  		Widget pw = _XtWindowedAncestor(w);
+! 		old_width += (old_borderWidth << 1);
+! 		old_height += (old_borderWidth << 1);
+! 		if ((width + (borderWidth << 1)) > old_width)
+! 		    old_width = width + (borderWidth << 1);
+! 		if ((height + (borderWidth << 1)) > old_height)
+! 		    old_height = height + (borderWidth << 1);
+  		XClearArea( XtDisplay(pw), XtWindow(pw),
+! 			    (int)w->core.x, (int)w->core.y,
+! 			    (unsigned int)old_width, (unsigned int)old_height,
+  			    TRUE );
+  	    }
+  	}
+***************
+*** 360,366 ****
+  void XtConfigureWidget(w, x, y, width, height, borderWidth)
+      Widget w;
+      Position x, y;
+!     Dimension height, width, borderWidth;
+  {
+      XWindowChanges changes, old;
+      Cardinal mask = 0;
+--- 359,365 ----
+  void XtConfigureWidget(w, x, y, width, height, borderWidth)
+      Widget w;
+      Position x, y;
+!     Dimension width, height, borderWidth;
+  {
+      XWindowChanges changes, old;
+      Cardinal mask = 0;
+***************
+*** 450,456 ****
+      }
+  
+      if (w == NULL)
+!         XtWarningMsg("invalidShell","xtTranslateCoords","XtToolkitError",
+                  "Widget has no shell ancestor",
+  		(String *)NULL, (Cardinal *)NULL);
+      else {
+--- 449,455 ----
+      }
+  
+      if (w == NULL)
+!         XtWarningMsg("invalidShell","xtTranslateCoords",XtCXtToolkitError,
+                  "Widget has no shell ancestor",
+  		(String *)NULL, (Cardinal *)NULL);
+      else {
+
+*** /tmp/,RCSt1a04062	Thu Apr 19 19:46:05 1990
+--- mit/lib/Xt/Intrinsic.c	Thu Apr 19 19:46:07 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Intrinsic.c,v 1.144 89/12/12 19:19:41 swick Exp $";
+  /* $oHeader: Intrinsic.c,v 1.4 88/08/18 15:40:35 asente Exp $ */
+  #endif /* lint */
+  
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Intrinsic.c,v 1.147 90/04/10 15:57:53 swick Exp $";
+  /* $oHeader: Intrinsic.c,v 1.4 88/08/18 15:40:35 asente Exp $ */
+  #endif /* lint */
+  
+***************
+*** 35,40 ****
+--- 35,42 ----
+  #include <sys/stat.h>
+  #endif /* VMS */
+  
++ String XtCXtToolkitError = "XtToolkitError";
++ 
+  Boolean XtIsSubclass(widget, widgetClass)
+      Widget    widget;
+      WidgetClass widgetClass;
+***************
+*** 199,205 ****
+      realize = widget->core.widget_class->core_class.realize;
+      if (realize == NULL)
+  	XtAppErrorMsg(XtWidgetToApplicationContext(widget),
+! 		      "invalidProcedure","realizeProc","XtToolkitError",
+  		      "No realize class procedure defined",
+  		      (String *)NULL, (Cardinal *)NULL);
+      else (*realize) (widget, &value_mask, &values);
+--- 201,207 ----
+      realize = widget->core.widget_class->core_class.realize;
+      if (realize == NULL)
+  	XtAppErrorMsg(XtWidgetToApplicationContext(widget),
+! 		      "invalidProcedure","realizeProc",XtCXtToolkitError,
+  		      "No realize class procedure defined",
+  		      (String *)NULL, (Cardinal *)NULL);
+      else (*realize) (widget, &value_mask, &values);
+***************
+*** 260,265 ****
+--- 262,268 ----
+      register CompositeWidget	cw;
+      register Cardinal		i;
+      register WidgetList		children;
++     extern void _XtTranslateEvent();
+  
+      if (!XtIsWidget(widget) || !XtIsRealized(widget)) return;
+  
+***************
+*** 287,301 ****
+      _XtUnregisterWindow(XtWindow(widget), widget);
+  
+      /* Remove Event Handlers */
+-     /* remove async handlers, how? */
+      /* remove grabs. Happens automatically when window is destroyed. */
+  
+      /* Destroy X Window, done at outer level with one request */
+      widget->core.window = NULL;
+  
+!     /* Unbind actions? Nope, we check in realize to see if done. */
+!     /* Uninstall Translations? */
+!     XtUninstallTranslations(widget);
+  
+  } /* UnrealizeWidget */
+  
+--- 290,305 ----
+      _XtUnregisterWindow(XtWindow(widget), widget);
+  
+      /* Remove Event Handlers */
+      /* remove grabs. Happens automatically when window is destroyed. */
+  
+      /* Destroy X Window, done at outer level with one request */
+      widget->core.window = NULL;
+  
+!     /* Removing the event handler here saves having to keep track if
+!      * the translation table is changed while the widget is unrealized.
+!      */
+!     XtRemoveEventHandler(widget, XtAllEvents, TRUE, _XtTranslateEvent,
+! 			 (XtPointer)&widget->core.tm);
+  
+  } /* UnrealizeWidget */
+  
+***************
+*** 326,332 ****
+  	if (widget->core.width == 0 || widget->core.height == 0) {
+  	    Cardinal count = 1;
+  	    XtAppErrorMsg(XtWidgetToApplicationContext(widget),
+! 		       "invalidDimension", "xtCreateWindow", "XtToolkitError",
+  		       "Widget %s has zero width and/or height",
+  		       &widget->core.name, &count);
+  	}
+--- 330,336 ----
+  	if (widget->core.width == 0 || widget->core.height == 0) {
+  	    Cardinal count = 1;
+  	    XtAppErrorMsg(XtWidgetToApplicationContext(widget),
+! 		       "invalidDimension", "xtCreateWindow", XtCXtToolkitError,
+  		       "Widget %s has zero width and/or height",
+  		       &widget->core.name, &count);
+  	}
+***************
+*** 582,588 ****
+  	String params = XtName(object);
+  	Cardinal num_params = 1;
+  	XtAppErrorMsg(XtWidgetToApplicationContext(object),
+! 		   "noWidgetAncestor", "windowedAncestor", "XtToolkitError",
+  		   "Object \"%s\" does not have windowed ancestor",
+  		   &params, &num_params);
+      }
+--- 586,592 ----
+  	String params = XtName(object);
+  	Cardinal num_params = 1;
+  	XtAppErrorMsg(XtWidgetToApplicationContext(object),
+! 		   "noWidgetAncestor", "windowedAncestor", XtCXtToolkitError,
+  		   "Object \"%s\" does not have windowed ancestor",
+  		   &params, &num_params);
+      }
+
+*** /tmp/,RCSt1a04070	Thu Apr 19 19:46:15 1990
+--- mit/lib/Xt/Intrinsic.h	Thu Apr 19 19:46:16 1990
+***************
+*** 1,5 ****
+  /*
+! * $XConsortium: Intrinsic.h,v 1.131 90/02/06 17:41:27 converse Exp $
+  * $oHeader: Intrinsic.h,v 1.10 88/09/01 10:33:34 asente Exp $
+  */
+  
+--- 1,5 ----
+  /*
+! * $XConsortium: Intrinsic.h,v 1.136 90/04/03 11:37:20 swick Exp $
+  * $oHeader: Intrinsic.h,v 1.10 88/09/01 10:33:34 asente Exp $
+  */
+  
+***************
+*** 64,73 ****
+  #endif /* __STDC__ */
+  #endif /* NeedVarargsPrototypes */
+  
+  #if defined(__cplusplus) || defined(c_plusplus)
+  #define CONST const
+  /* make const String do the right thing */
+! #define String		char*
+  #else
+  #define CONST
+  #endif /* __cplusplus */
+--- 64,75 ----
+  #endif /* __STDC__ */
+  #endif /* NeedVarargsPrototypes */
+  
++ typedef char *String;
++ 
+  #if defined(__cplusplus) || defined(c_plusplus)
+  #define CONST const
+  /* make const String do the right thing */
+! #define String char*
+  #else
+  #define CONST
+  #endif /* __cplusplus */
+***************
+*** 99,105 ****
+  
+  #define XtNumber(arr)		((Cardinal) (sizeof(arr) / sizeof(arr[0])))
+  
+- typedef char *String;
+  typedef struct _WidgetRec *Widget;
+  typedef Widget *WidgetList;
+  typedef struct _WidgetClassRec *WidgetClass;
+--- 101,106 ----
+***************
+*** 231,237 ****
+      XrmValue*		/* args */,
+      Cardinal*		/* num_args */,
+      XrmValue*		/* from */,
+!     Xrmvalue*		/* to */
+  #endif
+  );
+  
+--- 232,238 ----
+      XrmValue*		/* args */,
+      Cardinal*		/* num_args */,
+      XrmValue*		/* from */,
+!     XrmValue*		/* to */
+  #endif
+  );
+  
+***************
+*** 242,248 ****
+      Cardinal*		/* num_args */,
+      XrmValue*		/* from */,
+      XrmValue*		/* to */,
+!     XtPointer*		/* converter_data */,
+  #endif
+  );
+  
+--- 243,249 ----
+      Cardinal*		/* num_args */,
+      XrmValue*		/* from */,
+      XrmValue*		/* to */,
+!     XtPointer*		/* converter_data */
+  #endif
+  );
+  
+***************
+*** 274,281 ****
+  typedef void (*XtKeyProc)(
+  #if NeedFunctionPrototypes
+      Display*		/* dpy */,
+!     KeyCode* 		/* keycode */,
+!     Modifiers*		/* modifiers */,
+      Modifiers*		/* modifiers_return */,
+      KeySym*		/* keysym_return */
+  #endif
+--- 275,286 ----
+  typedef void (*XtKeyProc)(
+  #if NeedFunctionPrototypes
+      Display*		/* dpy */,
+! #if NeedWidePrototypes
+!     /* KeyCode */ int	/* keycode */,
+! #else
+!     KeyCode 		/* keycode */,
+! #endif /* NeedWidePrototypes */
+!     Modifiers		/* modifiers */,
+      Modifiers*		/* modifiers_return */,
+      KeySym*		/* keysym_return */
+  #endif
+***************
+*** 283,289 ****
+  
+  typedef void (*XtCaseProc)(
+  #if NeedFunctionPrototypes
+!     KeySym*		/* keysym */,
+      KeySym*		/* lower_return */,
+      KeySym*		/* upper_return */
+  #endif
+--- 288,295 ----
+  
+  typedef void (*XtCaseProc)(
+  #if NeedFunctionPrototypes
+!     Display*		/* display */,
+!     KeySym		/* keysym */,
+      KeySym*		/* lower_return */,
+      KeySym*		/* upper_return */
+  #endif
+***************
+*** 372,377 ****
+--- 378,391 ----
+      XtPointer	default_addr;	/* Address of default resource		    */
+  } XtResource, *XtResourceList;
+  
++ typedef void (*XtResourceDefaultProc)(
++ #if NeedFunctionPrototypes
++     Widget	/* widget */,
++     int		/* offset */,
++     XrmValue*	/* value */
++ #endif
++ );
++ 
+  typedef void (*XtErrorMsgHandler)(
+  #if NeedFunctionPrototypes
+      String 		/* name */,
+***************
+*** 589,595 ****
+  #if NeedFunctionPrototypes
+      Widget		/* object */,
+  #if NeedWidePrototypes
+!     /* XtEnum */ unsigned /* type_flag */
+  #else
+      XtEnum		/* type_flag */
+  #endif /* NeedWidePrototypes */
+--- 603,609 ----
+  #if NeedFunctionPrototypes
+      Widget		/* object */,
+  #if NeedWidePrototypes
+!     /* XtEnum */ int	/* type_flag */
+  #else
+      XtEnum		/* type_flag */
+  #endif /* NeedWidePrototypes */
+***************
+*** 601,607 ****
+--- 615,625 ----
+      Widget		/* object */,
+      WidgetClass		/* widget_class */,
+      WidgetClass		/* flag_class */,
++ #if NeedWidePrototypes
++     /* XtEnum */ int	/* type_flag */
++ #else
+      XtEnum		/* type_flag */
++ #endif /* NeedWidePrototypes */
+  #endif
+  );
+  
+***************
+*** 652,661 ****
+      Widget 		/* widget */,
+      Atom 		/* selection */,
+      Time 		/* time */,
+!     XtConvertSelectionIncrProc /* convert_callback */,
+!     XtLoseSelectionIncrProc /* lose_callback */,
+!     XtSelectionDoneIncrProc /* done_callback */,
+!     XtCancelSelectionCallbackProc /* cancel_callback */,
+      XtPointer 		/* client_data */
+  #endif
+  );
+--- 670,679 ----
+      Widget 		/* widget */,
+      Atom 		/* selection */,
+      Time 		/* time */,
+!     XtConvertSelectionIncrProc	/* convert_callback */,
+!     XtLoseSelectionIncrProc	/* lose_callback */,
+!     XtSelectionDoneIncrProc	/* done_callback */,
+!     XtCancelConvertSelectionProc /* cancel_callback */,
+      XtPointer 		/* client_data */
+  #endif
+  );
+***************
+*** 664,671 ****
+  #if NeedFunctionPrototypes
+      Widget 		/* widget */,
+  #if NeedWidePrototypes
+!     /* Dimension */ unsigned /* width */,
+!     /* Dimension */ unsigned /* height */,
+  #else
+      Dimension		/* width */,
+      Dimension 		/* height */,
+--- 682,689 ----
+  #if NeedFunctionPrototypes
+      Widget 		/* widget */,
+  #if NeedWidePrototypes
+!     /* Dimension */ int /* width */,
+!     /* Dimension */ int /* height */,
+  #else
+      Dimension		/* width */,
+      Dimension 		/* height */,
+***************
+*** 690,695 ****
+--- 708,730 ----
+  #endif
+  );
+  
++ extern KeySym* XtGetKeysymTable(
++ #if NeedFunctionPrototypes
++     Display*		/* dpy */,
++     KeyCode*		/* min_keycode_return */,
++     int*		/* keysyms_per_keycode_return */
++ #endif
++ );
++ 
++ extern void XtKeysymToKeycodeList(
++ #if NeedFunctionPrototypes
++     Display*		/* dpy */,
++     KeySym 		/* keysym */,
++     KeyCode**		/* keycodes_return */,
++     Cardinal*		/* keycount_return */
++ #endif
++ );
++ 
+  /* %%% Caution: don't declare any functions past this point that
+   * return one of the following types or take a pointer to one of
+   * the following types.
+***************
+*** 697,705 ****
+  
+  #if NeedWidePrototypes
+  #define Boolean		int
+! #define Dimension	unsigned int
+  #define Position	int
+! #define XtEnum		unsigned int
+  #endif /* NeedWidePrototypes */
+  
+  extern void XtStringConversionWarning(
+--- 732,741 ----
+  
+  #if NeedWidePrototypes
+  #define Boolean		int
+! #define Dimension	int
+! #define KeyCode		int
+  #define Position	int
+! #define XtEnum		int
+  #endif /* NeedWidePrototypes */
+  
+  extern void XtStringConversionWarning(
+***************
+*** 926,933 ****
+  extern void XtTranslateKey(
+  #if NeedFunctionPrototypes
+      Display*		/* dpy */,
+!     KeyCode*		/* keycode */,
+!     Modifiers*		/* modifiers */,
+      Modifiers*		/* modifiers_return */,
+      KeySym*		/* keysym_return */
+  #endif
+--- 962,969 ----
+  extern void XtTranslateKey(
+  #if NeedFunctionPrototypes
+      Display*		/* dpy */,
+!     KeyCode		/* keycode */,
+!     Modifiers		/* modifiers */,
+      Modifiers*		/* modifiers_return */,
+      KeySym*		/* keysym_return */
+  #endif
+***************
+*** 958,980 ****
+  #endif
+  );
+  
+- extern KeySym* XtGetKeysymTable(
+- #if NeedFunctionPrototypes
+-     Display*		/* dpy */,
+-     KeyCode*		/* min_keycode_return */,
+-     int*		/* keysyms_per_keycode_return */
+- #endif
+- );
+- 
+- extern void XtKeysymToKeycodeList(
+- #if NeedFunctionPrototypes
+-     Display*		/* dpy */,
+-     KeySym 		/* keysym */,
+-     KeyCode**		/* keycodes_return */,
+-     Cardinal*		/* keycount_return */
+- #endif
+- );
+- 
+  /****************************************************************
+   *
+   * Event Management
+--- 994,999 ----
+***************
+*** 981,986 ****
+--- 1000,1008 ----
+   *
+   ****************************************************************/
+  
++ /* XtAllEvents is valid only for XtRemoveEventHandler and
++  * XtRemoveRawEventHandler; don't use it to select events!
++  */
+  #define XtAllEvents ((EventMask) -1L)
+  
+  extern void XtInsertEventHandler(
+***************
+*** 1691,1697 ****
+  #if NeedFunctionPrototypes
+      CONST String 	/* name */,
+      CONST String 	/* class */,
+!     XrmOptionDescRec 	/* options */,
+      Cardinal 		/* num_options */,
+      Cardinal*		/* argc */,
+      char**		/* argv */
+--- 1713,1719 ----
+  #if NeedFunctionPrototypes
+      CONST String 	/* name */,
+      CONST String 	/* class */,
+!     XrmOptionDescRec* 	/* options */,
+      Cardinal 		/* num_options */,
+      Cardinal*		/* argc */,
+      char**		/* argv */
+***************
+*** 1945,1951 ****
+  #define XtDefaultBackground	"XtDefaultBackground"
+  #define XtDefaultFont		"XtDefaultFont"
+  
+! #ifdef CRAY
+  #ifdef CRAY2
+  
+  #define XtOffset(p_type,field) \
+--- 1967,1973 ----
+  #define XtDefaultBackground	"XtDefaultBackground"
+  #define XtDefaultFont		"XtDefaultFont"
+  
+! #if defined(CRAY) || defined(__arm)
+  #ifdef CRAY2
+  
+  #define XtOffset(p_type,field) \
+***************
+*** 1956,1962 ****
+  #define XtOffset(p_type,field) ((unsigned int)&(((p_type)NULL)->field))
+  
+  #endif	/* !CRAY2 */
+! #else	/* !CRAY */
+  
+  #define XtOffset(p_type,field) \
+  	((Cardinal) (((char *) (&(((p_type)NULL)->field))) - ((char *) NULL)))
+--- 1978,1984 ----
+  #define XtOffset(p_type,field) ((unsigned int)&(((p_type)NULL)->field))
+  
+  #endif	/* !CRAY2 */
+! #else	/* ! (CRAY || __arm) */
+  
+  #define XtOffset(p_type,field) \
+  	((Cardinal) (((char *) (&(((p_type)NULL)->field))) - ((char *) NULL)))
+***************
+*** 2275,2280 ****
+--- 2297,2304 ----
+      CONST String	/* filename */,
+      CONST String	/* suffix */,
+      CONST String	/* path */,
++     Substitution	/* substitutions */,
++     Cardinal		/* num_substitutions */,
+      XtFilePredicate 	/* predicate */
+  #endif
+  );
+***************
+*** 2392,2398 ****
+  extern void XtGrabKey(
+  #if NeedFunctionPrototypes
+      Widget 		/* widget */,
+!     KeySym 		/* keysym */,
+      Modifiers	 	/* modifiers */,
+      Boolean 		/* owner_events */,
+      int 		/* pointer_mode */,
+--- 2416,2422 ----
+  extern void XtGrabKey(
+  #if NeedFunctionPrototypes
+      Widget 		/* widget */,
+!     KeyCode 		/* keycode */,
+      Modifiers	 	/* modifiers */,
+      Boolean 		/* owner_events */,
+      int 		/* pointer_mode */,
+***************
+*** 2403,2409 ****
+  extern void XtUngrabKey(
+  #if NeedFunctionPrototypes
+      Widget 		/* widget */,
+!     KeySym 		/* keysym */,
+      Modifiers	 	/* modifiers */
+  #endif
+  );
+--- 2427,2433 ----
+  extern void XtUngrabKey(
+  #if NeedFunctionPrototypes
+      Widget 		/* widget */,
+!     KeyCode 		/* keycode */,
+      Modifiers	 	/* modifiers */
+  #endif
+  );
+***************
+*** 2482,2487 ****
+--- 2506,2512 ----
+  #if NeedWidePrototypes
+  #undef Boolean
+  #undef Dimension
++ #undef KeyCode
+  #undef Position
+  #undef XtEnum
+  #endif /* NeedWidePrototypes */
+
+*** /tmp/,RCSt1a04077	Thu Apr 19 19:46:31 1990
+--- mit/lib/Xt/IntrinsicI.h	Thu Apr 19 19:46:32 1990
+***************
+*** 1,5 ****
+  /*
+! * $XConsortium: IntrinsicI.h,v 1.39 89/11/15 12:24:52 swick Exp $
+  * $oHeader: IntrinsicI.h,v 1.5 88/08/31 16:21:08 asente Exp $
+  */
+  
+--- 1,5 ----
+  /*
+! * $XConsortium: IntrinsicI.h,v 1.41 90/04/03 10:51:57 swick Exp $
+  * $oHeader: IntrinsicI.h,v 1.5 88/08/31 16:21:08 asente Exp $
+  */
+  
+***************
+*** 167,173 ****
+  #define ERRORDB "/usr/lib/X11/XtErrorDB"
+  #endif
+  
+! extern void _XtAllocError();
+  
+  #endif /* _XtintrinsicI_h */
+  /* DON'T ADD STUFF AFTER THIS #endif */
+--- 167,188 ----
+  #define ERRORDB "/usr/lib/X11/XtErrorDB"
+  #endif
+  
+! extern String XtCXtToolkitError;
+! 
+! extern void _XtAllocError(
+! #if NeedFunctionPrototypes
+!     String	/* alloc_type */
+! #endif
+! );
+! 
+! extern XtGeometryResult _XtMakeGeometryRequest(
+! #if NeedFunctionPrototypes
+!     Widget 		/* widget */,
+!     XtWidgetGeometry*	/* request */,
+!     XtWidgetGeometry*	/* reply_return */,
+!     Boolean*		/* clear_rect_obj */
+! #endif
+! );
+  
+  #endif /* _XtintrinsicI_h */
+  /* DON'T ADD STUFF AFTER THIS #endif */
+
+*** /tmp/,RCSt1a04084	Thu Apr 19 19:46:35 1990
+--- mit/lib/Xt/IntrinsicP.h	Thu Apr 19 19:46:36 1990
+***************
+*** 1,5 ****
+  /*
+! * $XConsortium: IntrinsicP.h,v 1.46 89/12/12 20:07:10 swick Exp $
+  * $oHeader: IntrinsicP.h,v 1.4 88/08/26 14:49:52 asente Exp $
+  */
+  
+--- 1,5 ----
+  /*
+! * $XConsortium: IntrinsicP.h,v 1.49 90/04/03 09:58:50 swick Exp $
+  * $oHeader: IntrinsicP.h,v 1.4 88/08/26 14:49:52 asente Exp $
+  */
+  
+***************
+*** 45,100 ****
+  typedef unsigned long XtVersionType;
+  
+  #define XT_VERSION 11
+! #define XT_REVISION 3
+  #define XtVersion (XT_VERSION * 1000 + XT_REVISION)
+  #define XtVersionDontCheck 0
+  
+! typedef void (*XtProc)();
+!     /* takes no arguments */
+  
+! typedef void (*XtWidgetClassProc)();
+!     /* WidgetClass class */
+  
+! typedef void (*XtWidgetProc)();
+!     /* Widget widget */
+  
+! typedef Boolean (*XtAcceptFocusProc)();
+!     /* Widget widget; */
+!     /* Time *time; */ /* X time */
+  
+! typedef void (*XtArgsProc)();
+!     /* Widget   widget */
+!     /* ArgList  args */
+!     /* Cardinal *num_args */
+  
+! typedef void (*XtInitProc)();
+!     /* Widget request_widget; */
+!     /* Widget new_widget; */
+!     /* ArgList args;	  */
+!     /* Cardinal *num_args; */
+  
+! typedef Boolean (*XtSetValuesFunc)();  /* returns TRUE if redisplay needed */
+!     /* Widget widget;       */
+!     /* Widget request;      */
+!     /* Widget new;	    */
+!     /* ArgList args;	    */
+!     /* Cardinal *num_args;  */
+  
+! typedef Boolean (*XtArgsFunc)();
+!     /* Widget   widget      */
+!     /* ArgList  args	    */
+!     /* Cardinal *num_args   */
+  
+! typedef void (*XtAlmostProc)();
+!     /* Widget		widget;     */
+!     /* Widget		new_widget; */
+!     /* XtWidgetGeometry *request;   */
+!     /* XtWidgetGeometry *reply;     */
+  
+! typedef void (*XtExposeProc)();
+!     /* Widget    widget; */
+!     /* XEvent    *event; */
+!     /* Region	 region; */
+  
+  /* compress_exposure options*/
+  #define XtExposeNoCompress		((XtEnum)False)
+--- 45,132 ----
+  typedef unsigned long XtVersionType;
+  
+  #define XT_VERSION 11
+! #ifndef XT_REVISION
+! #define XT_REVISION 4
+! #endif
+  #define XtVersion (XT_VERSION * 1000 + XT_REVISION)
+  #define XtVersionDontCheck 0
+  
+! typedef void (*XtProc)(
+! #if NeedFunctionPrototypes
+!     void
+! #endif
+! );
+  
+! typedef void (*XtWidgetClassProc)(
+! #if NeedFunctionPrototypes
+!     WidgetClass /* class */
+! #endif
+! );
+  
+! typedef void (*XtWidgetProc)(
+! #if NeedFunctionPrototypes
+!     Widget	/* widget */
+! #endif
+! );
+  
+! typedef Boolean (*XtAcceptFocusProc)(
+! #if NeedFunctionPrototypes
+!     Widget	/* widget */,
+!     Time*	/* time */
+! #endif
+! );
+  
+! typedef void (*XtArgsProc)(
+! #if NeedFunctionPrototypes
+!     Widget	/* widget */,
+!     ArgList	/* args */,
+!     Cardinal*	/* num_args */
+! #endif
+! );
+  
+! typedef void (*XtInitProc)(
+! #if NeedFunctionPrototypes
+!     Widget	/* request */,
+!     Widget	/* new */,
+!     ArgList	/* args */,
+!     Cardinal*	/* num_args */
+! #endif
+! );
+  
+! typedef Boolean (*XtSetValuesFunc)(
+! #if NeedFunctionPrototypes
+!     Widget 	/* old */,
+!     Widget 	/* request */,
+!     Widget 	/* new */,
+!     ArgList 	/* args */,
+!     Cardinal*	/* num_args */
+! #endif
+! );
+  
+! typedef Boolean (*XtArgsFunc)(
+! #if NeedFunctionPrototypes
+!     Widget	/* widget */,
+!     ArgList	/* args */,
+!     Cardinal*	/* num_args */
+! #endif
+! );
+  
+! typedef void (*XtAlmostProc)(
+! #if NeedFunctionPrototypes
+!     Widget		/* old */,
+!     Widget		/* new */,
+!     XtWidgetGeometry*	/* request */,
+!     XtWidgetGeometry*	/* reply */
+! #endif
+! );
+  
+! typedef void (*XtExposeProc)(
+! #if NeedFunctionPrototypes
+!     Widget	/* widget */,
+!     XEvent*	/* event */,
+!     Region	/* region */
+! #endif
+! );
+  
+  /* compress_exposure options*/
+  #define XtExposeNoCompress		((XtEnum)False)
+***************
+*** 108,128 ****
+  #define XtExposeNoExpose	  	0x40
+  
+  
+! typedef void (*XtRealizeProc) ();
+!     /* Widget	widget;			    */
+!     /* XtValueMask mask;		    */
+!     /* XSetWindowAttributes *attributes;    */
+  
+! typedef void (*XtCreatePopupChildProc)();
+  
+! typedef XtGeometryResult (*XtGeometryHandler)();
+!     /* Widget		widget      */
+!     /* XtWidgetGeometry *request    */
+!     /* XtWidgetGeometry *reply      */
+  
+! typedef void (*XtStringProc)();
+!     /* Widget		widget	    */
+!     /* String		str	    */
+  
+  typedef struct _StateRec *StatePtr;
+  
+--- 140,173 ----
+  #define XtExposeNoExpose	  	0x40
+  
+  
+! typedef void (*XtRealizeProc)(
+! #if NeedFunctionPrototypes
+!     Widget 		  /* widget */,
+!     XtValueMask* 	  /* mask */,
+!     XSetWindowAttributes* /* attributes */
+! #endif
+! );
+  
+! typedef void (*XtCreatePopupChildProc)(
+! #if NeedFunctionPrototypes
+!     Widget	/* shell */
+! #endif
+! );
+  
+! typedef XtGeometryResult (*XtGeometryHandler)(
+! #if NeedFunctionPrototypes
+!     Widget		/* widget */,
+!     XtWidgetGeometry*	/* request */,
+!     XtWidgetGeometry*	/* reply */
+! #endif
+! );
+  
+! typedef void (*XtStringProc)(
+! #if NeedFunctionPrototypes
+!     Widget	/* widget */,
+!     String	/* str */
+! #endif
+! );
+  
+  typedef struct _StateRec *StatePtr;
+  
+***************
+*** 136,141 ****
+--- 181,188 ----
+  #include <X11/CoreP.h>
+  #include <X11/CompositeP.h>
+  #include <X11/ConstrainP.h>
++ #include <X11/ObjectP.h>
++ #include <X11/RectObjP.h>
+  
+  #define XtDisplay(widget)	DisplayOfScreen((widget)->core.screen)
+  #define XtScreen(widget)	((widget)->core.screen)
+***************
+*** 197,205 ****
+  
+  #if NeedWidePrototypes
+  #define Boolean		int
+! #define Dimension	unsigned int
+  #define Position	int
+! #define XtEnum		unsigned int
+  #endif /* NeedWidePrototypes */
+  
+  extern Widget _XtWindowedAncestor( /* internal; implementation-dependent */
+--- 244,253 ----
+  
+  #if NeedWidePrototypes
+  #define Boolean		int
+! #define Dimension	int
+! #define KeyCode		int
+  #define Position	int
+! #define XtEnum		int
+  #endif /* NeedWidePrototypes */
+  
+  extern Widget _XtWindowedAncestor( /* internal; implementation-dependent */
+***************
+*** 259,264 ****
+--- 307,313 ----
+  #if NeedWidePrototypes
+  #undef Boolean
+  #undef Dimension
++ #undef KeyCode
+  #undef Position
+  #undef XtEnum
+  #endif /* NeedWidePrototypes */
+
+*** /tmp/,RCSt1a05643	Sat Apr 21 13:14:31 1990
+--- mit/lib/Xt/NextEvent.c	Sat Apr 21 13:14:32 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: NextEvent.c,v 1.80 90/01/23 11:44:47 swick Exp $";
+  /* $oHeader: NextEvent.c,v 1.4 88/09/01 11:43:27 asente Exp $ */
+  #endif /* lint */
+  
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: NextEvent.c,v 1.83 90/04/05 11:43:46 swick Exp $";
+  /* $oHeader: NextEvent.c,v 1.4 88/09/01 11:43:27 asente Exp $ */
+  #endif /* lint */
+  
+***************
+*** 49,54 ****
+--- 49,88 ----
+  }
+  #endif
+  
++ /* Some systems running NTP daemons are known to return strange usec
++  * values from gettimeofday.  At present (3/90) this has only been
++  * reported on SunOS...
++  */
++ 
++ #ifndef NEEDS_NTPD_FIXUP
++ # ifdef sun
++ #  define NEEDS_NTPD_FIXUP 1
++ # else
++ #  define NEEDS_NTPD_FIXUP 0
++ # endif
++ #endif
++ 
++ #if NEEDS_NTPD_FIXUP
++ #define FIXUP_TIMEVAL(t) { \
++ 	while ((t).tv_usec >= 1000000) { \
++ 	    (t).tv_usec -= 1000000; \
++ 	    (t).tv_sec++; \
++ 	} \
++ 	while ((t).tv_usec < 0) { \
++ 	    if ((t).tv_sec > 0) { \
++ 		(t).tv_usec += 1000000; \
++ 		(t).tv_sec--; \
++ 	    } else { \
++ 		(t).tv_usec = 0; \
++ 		break; \
++ 	    } \
++ 	}}
++ #else
++ #define FIXUP_TIMEVAL(t)
++ #endif /*NEEDS_NTPD_FIXUP*/
++ 
++ 
++ 
+  /*
+   * Private routines
+   */
+***************
+*** 146,151 ****
+--- 180,186 ----
+  	
+   	if (block) {
+  		(void) gettimeofday (&cur_time, &cur_timezone);
++ 		FIXUP_TIMEVAL(cur_time);
+  		start_time = cur_time;
+  		if(howlong == NULL) { /* special case for ever */
+  			wait_time_ptr = 0;
+***************
+*** 200,205 ****
+--- 235,241 ----
+  			    errno = 0;  /* errno is not self reseting */
+  			    if(block && wait_time_ptr != NULL) {
+  				(void)gettimeofday (&new_time, &cur_timezone);
++ 				FIXUP_TIMEVAL(new_time);
+  				TIMEDELTA(time_spent, new_time, cur_time);
+  				cur_time = new_time;
+  				if(IS_AFTER(time_spent, *wait_time_ptr)) {
+***************
+*** 218,224 ****
+  			    Cardinal param_count = 1;
+  			    sprintf( Errno, "%d", errno);
+  			    XtAppWarningMsg(app, "communicationError","select",
+! 			       "XtToolkitError","Select failed; error code %s",
+  			       &param, &param_count);
+  #ifdef DEBUG_SELECT
+  			    if (errno == EINVAL && wait_time_ptr != NULL) {
+--- 254,260 ----
+  			    Cardinal param_count = 1;
+  			    sprintf( Errno, "%d", errno);
+  			    XtAppWarningMsg(app, "communicationError","select",
+! 			       XtCXtToolkitError,"Select failed; error code %s",
+  			       &param, &param_count);
+  #ifdef DEBUG_SELECT
+  			    if (errno == EINVAL && wait_time_ptr != NULL) {
+***************
+*** 243,248 ****
+--- 279,285 ----
+  	}
+  	if(block && howlong != NULL) { /* adjust howlong */
+  	    (void) gettimeofday (&new_time, &cur_timezone);
++ 	    FIXUP_TIMEVAL(new_time);
+  	    TIMEDELTA(time_spent, new_time, start_time);
+  	    if(*howlong <= (time_spent.tv_sec*1000+time_spent.tv_usec/1000))
+  		*howlong = (unsigned long)0;  /* Timed out */
+***************
+*** 330,336 ****
+  {
+      while (ptr != NULL) {
+  	InputEvent *next = ptr->ie_next;
+! 	(* (ptr->ie_proc))( ptr->ie_closure, &ptr->ie_source, &ptr);
+  	ptr = next;
+      }
+  }
+--- 367,373 ----
+  {
+      while (ptr != NULL) {
+  	InputEvent *next = ptr->ie_next;
+! 	(*ptr->ie_proc)(ptr->ie_closure, &ptr->ie_source, (XtInputId*)&ptr);
+  	ptr = next;
+      }
+  }
+***************
+*** 378,383 ****
+--- 415,421 ----
+  	tptr->te_timer_value.tv_sec = interval/1000;
+  	tptr->te_timer_value.tv_usec = (interval%1000)*1000;
+          (void) gettimeofday(&current_time,&timezone);
++ 	FIXUP_TIMEVAL(current_time);
+          ADD_TIME(tptr->te_timer_value,tptr->te_timer_value,current_time);
+  	QueueTimerEvent(app, tptr);
+  	return( (XtIntervalId) tptr);
+***************
+*** 493,499 ****
+  	    app->selectEqueue[source] = sptr;
+  	    FD_SET(source, &app->fds.emask);
+  	} else
+! 	  XtAppErrorMsg(app, "invalidParameter","xtAddInput","XtToolkitError",
+                    "invalid condition passed to XtAddInput",
+                     (String *)NULL, (Cardinal *)NULL);
+  	sptr->ie_proc = proc;
+--- 531,537 ----
+  	    app->selectEqueue[source] = sptr;
+  	    FD_SET(source, &app->fds.emask);
+  	} else
+! 	  XtAppErrorMsg(app, "invalidParameter","xtAddInput",XtCXtToolkitError,
+                    "invalid condition passed to XtAddInput",
+                     (String *)NULL, (Cardinal *)NULL);
+  	sptr->ie_proc = proc;
+***************
+*** 573,579 ****
+  		}
+  	    
+  	}
+! 	XtAppWarningMsg(app, "invalidProcedure","inputHandler","XtToolkitError",
+                     "XtRemoveInput: Input handler not found",
+  		   (String *)NULL, (Cardinal *)NULL);
+  	app->fds.count++;	/* Didn't remove it after all */
+--- 611,617 ----
+  		}
+  	    
+  	}
+! 	XtAppWarningMsg(app, "invalidProcedure","inputHandler",XtCXtToolkitError,
+                     "XtRemoveInput: Input handler not found",
+  		   (String *)NULL, (Cardinal *)NULL);
+  	app->fds.count++;	/* Didn't remove it after all */
+***************
+*** 606,611 ****
+--- 644,650 ----
+  	}
+  	if (app->timerQueue != NULL) {	/* check timeout queue */
+  	    (void) gettimeofday (&cur_time, &cur_timezone);
++ 	    FIXUP_TIMEVAL(cur_time);
+  	    while(IS_AFTER (app->timerQueue->te_timer_value, cur_time)) {
+  		te_ptr = app->timerQueue;
+  		app->timerQueue = te_ptr->te_next;
+***************
+*** 733,738 ****
+--- 772,778 ----
+  	for (;;) {
+  	    if (mask & XtIMTimer && app->timerQueue != NULL) {
+  		(void) gettimeofday (&cur_time, &curzone);
++ 		FIXUP_TIMEVAL(cur_time);
+  		if (IS_AFTER(app->timerQueue->te_timer_value, cur_time)) {
+  		    te_ptr = app->timerQueue;
+  		    app->timerQueue = app->timerQueue->te_next;
+***************
+*** 834,839 ****
+--- 874,880 ----
+   */
+  	if (app->timerQueue != NULL) {	/* check timeout queue */ 
+  	    (void) gettimeofday (&cur_time, &curzone);
++ 	    FIXUP_TIMEVAL(cur_time);
+  	    if ((IS_AFTER(app->timerQueue->te_timer_value, cur_time))  &&
+                  (app->timerQueue->te_proc != 0)) {
+  		ret |= XtIMTimer;
+***************
+*** 870,875 ****
+--- 911,917 ----
+  
+  	if (app->timerQueue != NULL) {	/* check timeout queue */
+  	    (void) gettimeofday (&cur_time, &cur_timezone);
++ 	    FIXUP_TIMEVAL(cur_time);
+  	    if (IS_AFTER (app->timerQueue->te_timer_value, cur_time)) return TRUE;
+  	}
+  

@@ -1,0 +1,1042 @@
+This patch fixes the following problems:
+
+	bugs when using XtVaTypedArg
+	handling contraint resources in XtVaSetValues
+	bug in Xt support for owning multiple selections
+	bug in Xt selection support when sending within same client
+	missing Xt RectObj exposures in XtSetValues
+	XtSetValues loses on XtGeometryAlmost with RectObj children
+	memory "leak" from extraneous backing-store getting created
+	server randomly dumps core in CopyArea
+	memory leak in cfb CopyArea when not using alloca
+
+cd to the top of the X tree and apply with "patch -p0".
+
+*** /tmp/,RCSt1a02253	Mon Mar  5 10:27:57 1990
+--- mit/lib/Xt/VarGet.c	Fri Feb  9 16:38:52 1990
+***************
+*** 1,6 ****
+  #ifndef lint
+  static char Xrcsid[] =
+!     "$XConsortium: VarGet.c,v 1.10 89/11/14 14:24:35 swick Exp $";
+  #endif
+  /*
+  
+--- 1,6 ----
+  #ifndef lint
+  static char Xrcsid[] =
+!     "$XConsortium: VarGet.c,v 1.11 90/02/09 16:38:49 kit Exp $";
+  #endif
+  /*
+  
+***************
+*** 126,132 ****
+      }    
+  
+      if (i == num_resources) {
+! 	XtAppWarningMsg(XtDisplayToApplicationContext(XtDisplay(widget)),
+              "unknownType", "xtGetTypedArg", "XtToolkitError",
+              "Unable to find type of resource for conversion",
+              (String *)NULL, (Cardinal *)NULL);
+--- 126,132 ----
+      }    
+  
+      if (i == num_resources) {
+! 	XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+              "unknownType", "xtGetTypedArg", "XtToolkitError",
+              "Unable to find type of resource for conversion",
+              (String *)NULL, (Cardinal *)NULL);
+***************
+*** 150,156 ****
+  	    Cardinal num_params = 2;
+  	    params[0] = typed_arg->type;
+  	    params[1] = XtName(widget);
+! 	    XtAppWarningMsg(XtDisplayToApplicationContext(XtDisplay(widget)), 
+  		"conversionFailed", "xtGetTypedArg", "XtToolkitError",
+  		"Insufficient space for converted type '%s' in widget '%s'",
+  		params, &num_params);
+--- 150,156 ----
+  	    Cardinal num_params = 2;
+  	    params[0] = typed_arg->type;
+  	    params[1] = XtName(widget);
+! 	    XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+  		"conversionFailed", "xtGetTypedArg", "XtToolkitError",
+  		"Insufficient space for converted type '%s' in widget '%s'",
+  		params, &num_params);
+***************
+*** 161,167 ****
+  	    params[0] = from_type;
+  	    params[1] = typed_arg->type;
+  	    params[2] = XtName(widget);
+! 	    XtAppWarningMsg(XtDisplayToApplicationContext(XtDisplay(widget)),
+  		"conversionFailed", "xtGetTypedArg", "XtToolkitError",
+  		"Type conversion (%s to %s) failed for widget '%s'",
+  		params, &num_params);
+--- 161,167 ----
+  	    params[0] = from_type;
+  	    params[1] = typed_arg->type;
+  	    params[2] = XtName(widget);
+! 	    XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+  		"conversionFailed", "xtGetTypedArg", "XtToolkitError",
+  		"Type conversion (%s to %s) failed for widget '%s'",
+  		params, &num_params);
+
+*** /tmp/,RCSt1a02264	Mon Mar  5 10:28:49 1990
+--- mit/lib/Xt/Varargs.c	Tue Feb 13 13:33:48 1990
+***************
+*** 1,6 ****
+  #ifndef lint
+  static char Xrcsid[] =
+!     "$XConsortium: Varargs.c,v 1.10 89/12/12 15:07:31 jim Exp $";
+  #endif
+  /*
+  
+--- 1,6 ----
+  #ifndef lint
+  static char Xrcsid[] =
+!     "$XConsortium: Varargs.c,v 1.14 90/02/13 13:32:54 kit Exp $";
+  #endif
+  /*
+  
+***************
+*** 193,200 ****
+      XrmValue            from_val, to_val;
+      register int        i;
+        
+      if (widget == NULL) {
+!         XtWarning("XtVaTypedArg conversion needs non-NULL widget handle\n");
+          return(0);
+      }
+         
+--- 193,204 ----
+      XrmValue            from_val, to_val;
+      register int        i;
+        
++ 
+      if (widget == NULL) {
+!         XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+!             "nullWidget", "xtConvertVarTArgList", "XtToolkitError",
+! 	    "XtVaTypedArg conversion needs non-NULL widget handle",
+!             (String *)NULL, (Cardinal *)NULL);
+          return(0);
+      }
+         
+***************
+*** 209,216 ****
+      }
+  
+      if (to_type == NULL) {
+!         XtAppWarningMsg(XtDisplayToApplicationContext(XtDisplay(widget)),
+!             "unknownType", "xtConvertVarToArgList", "XtToolkitError",
+              "Unable to find type of resource for conversion",
+              (String *)NULL, (Cardinal *)NULL);
+          return(0);
+--- 213,220 ----
+      }
+  
+      if (to_type == NULL) {
+!         XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+!             "unknownType", "xtConvertVarTArgList", "XtToolkitError",
+              "Unable to find type of resource for conversion",
+              (String *)NULL, (Cardinal *)NULL);
+          return(0);
+***************
+*** 228,234 ****
+      XtConvert(widget, typed_arg->type, &from_val, to_type, &to_val);
+   
+      if (to_val.addr == NULL) {
+!         XtAppWarningMsg(XtDisplayToApplicationContext(XtDisplay(widget)),
+              "conversionFailed", "xtConvertVarToArgList", "XtToolkitError",
+              "Type conversion failed", (String *)NULL, (Cardinal *)NULL);
+          return(0);
+--- 232,238 ----
+      XtConvert(widget, typed_arg->type, &from_val, to_type, &to_val);
+   
+      if (to_val.addr == NULL) {
+!         XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+              "conversionFailed", "xtConvertVarToArgList", "XtToolkitError",
+              "Type conversion failed", (String *)NULL, (Cardinal *)NULL);
+          return(0);
+***************
+*** 235,248 ****
+      }
+  
+      arg_return->name = typed_arg->name;
+!     if (to_val.size == sizeof(long))
+!         arg_return->value = (XtArgVal) *(long *)to_val.addr;
+!     else if (to_val.size == sizeof(short))
+!         arg_return->value = (XtArgVal) *(short *)to_val.addr;
+!     else if (to_val.size == sizeof(char))
+!         arg_return->value = (XtArgVal) *(char *)to_val.addr;
+!     else if (to_val.size == sizeof(XtArgVal))
+!         arg_return->value = *(XtArgVal *)to_val.addr;
+         
+      return(1);
+  }
+--- 239,258 ----
+      }
+  
+      arg_return->name = typed_arg->name;
+! 
+!     if (strcmp(to_type, XtRString) == 0) {
+! 	arg_return->value = (XtArgVal) to_val.addr;
+!     }
+!     else {
+! 	if (to_val.size == sizeof(long))
+! 	    arg_return->value = (XtArgVal) *(long *)to_val.addr;
+! 	else if (to_val.size == sizeof(short))
+! 	    arg_return->value = (XtArgVal) *(short *)to_val.addr;
+! 	else if (to_val.size == sizeof(char))
+! 	    arg_return->value = (XtArgVal) *(char *)to_val.addr;
+! 	else if (to_val.size == sizeof(XtArgVal))
+! 	    arg_return->value = *(XtArgVal *)to_val.addr;
+!     }
+         
+      return(1);
+  }
+***************
+*** 312,319 ****
+      ArgList		args = (ArgList)NULL;
+      XtTypedArg		typed_arg;
+      XtResourceList	resources = (XtResourceList)NULL;
+!     Cardinal		num_resources = 0;
+      Boolean		fetched_resource_list = False;
+  
+      if (max_count  == 0) {
+  	*num_args_return = 0;
+--- 322,330 ----
+      ArgList		args = (ArgList)NULL;
+      XtTypedArg		typed_arg;
+      XtResourceList	resources = (XtResourceList)NULL;
+!     Cardinal		num_resources;
+      Boolean		fetched_resource_list = False;
++     static void		GetResources();
+  
+      if (max_count  == 0) {
+  	*num_args_return = 0;
+***************
+*** 335,341 ****
+  	    /* if widget is NULL, typed args are ignored */
+  	    if (widget != NULL) {
+  		if (!fetched_resource_list) {
+! 		    XtGetResourceList(XtClass(widget), &resources, &num_resources);
+  		    fetched_resource_list = True;
+  		}
+  		count += _XtTypedArgToArg(widget, &typed_arg, &args[count],
+--- 346,352 ----
+  	    /* if widget is NULL, typed args are ignored */
+  	    if (widget != NULL) {
+  		if (!fetched_resource_list) {
+! 		    GetResources(widget, &resources, &num_resources);
+  		    fetched_resource_list = True;
+  		}
+  		count += _XtTypedArgToArg(widget, &typed_arg, &args[count],
+***************
+*** 343,349 ****
+  	    }
+  	} else if (strcmp(attr, XtVaNestedList) == 0) {
+  	    if (widget != NULL || !fetched_resource_list) {
+! 		XtGetResourceList(XtClass(widget), &resources, &num_resources);
+  		fetched_resource_list = True;
+  	    }
+  
+--- 354,360 ----
+  	    }
+  	} else if (strcmp(attr, XtVaNestedList) == 0) {
+  	    if (widget != NULL || !fetched_resource_list) {
+! 		GetResources(widget, &resources, &num_resources);
+  		fetched_resource_list = True;
+  	    }
+  
+***************
+*** 356,369 ****
+  	}
+      }
+  
+!     if (resources != (XtResourceList)NULL) {
+! 	XtFree((XtPointer)resources);
+!     }
+  
+      *num_args_return = (Cardinal)count;
+      *args_return = (ArgList)args;
+  }
+  
+  
+  static int _XtNestedArgtoTypedArg(args, avlist) 
+      XtTypedArgList      args;
+--- 367,418 ----
+  	}
+      }
+  
+!     XtFree((XtPointer)resources);
+  
+      *num_args_return = (Cardinal)count;
+      *args_return = (ArgList)args;
+  }
+  
++ /*	Function Name: GetResources
++  *	Description: Retreives the normal and constraint resources
++  *                   for this widget.
++  *	Arguments: widget - the widget.
++  * RETURNED        res_list - the list of resource for this widget
++  * RETURNED        number - the number of resources in the above list.
++  *	Returns: none
++  */
++ 
++ static void
++ GetResources(widget, res_list, number)
++ Widget widget;
++ XtResourceList * res_list;
++ Cardinal * number;
++ {
++     Widget parent = XtParent(widget);
++ 
++     XtInitializeWidgetClass(XtClass(widget));
++     XtGetResourceList(XtClass(widget), res_list, number);
++     
++     if ((parent != NULL) && (XtIsConstraint(parent))) {
++ 	int i;
++ 	XtResourceList constraint;
++ 	Cardinal num_constraint;
++ 
++ 	XtInitializeWidgetClass(XtClass(parent));
++ 	
++ 	XtGetConstraintResourceList(XtClass(parent), &constraint, 
++ 				    &num_constraint);
++ 
++ 	*res_list = (XtResourceList) XtRealloc(*res_list, sizeof(XtResource) * 
++ 					       (*number + num_constraint));
++ 
++ 	for (i = 0; i < num_constraint; i++)
++ 	    (*res_list)[*number + i] = constraint[i];
++ 
++ 	*number += num_constraint;
++ 	XtFree( (XtPointer) constraint);
++     }
++ }
+  
+  static int _XtNestedArgtoTypedArg(args, avlist) 
+      XtTypedArgList      args;
+
+*** /tmp/,RCSt1a02272	Mon Mar  5 10:30:27 1990
+--- mit/lib/Xt/Selection.c	Fri Feb 16 11:48:28 1990
+***************
+*** 1,6 ****
+  #ifndef lint
+  static char Xrcsid[] =
+!     "$XConsortium: Selection.c,v 1.43 89/12/15 15:28:52 swick Exp $";
+  #endif
+  
+  /***********************************************************
+--- 1,6 ----
+  #ifndef lint
+  static char Xrcsid[] =
+!     "$XConsortium: Selection.c,v 1.45 90/02/16 11:45:54 kit Exp $";
+  #endif
+  
+  /***********************************************************
+***************
+*** 216,222 ****
+  	ctx->dpy = dpy;
+  	ctx->selection = selection;
+  	ctx->widget = NULL;
+-  	ctx->refcount = 0;
+  	ctx->prop_list = sarray;
+  	(void)XSaveContext(dpy, (Window)selection, selectContext, (caddr_t)ctx);
+      }
+--- 216,221 ----
+***************
+*** 243,267 ****
+  {
+      static void HandleSelectionEvents();
+  
+!     if ((ctx->widget == widget)
+!        && (ctx->selection == selection) /* paranoia */
+!        && ((time == CurrentTime) || (time >= ctx->time))) {
+! 	    if (--ctx->refcount) {
+! 		XtRemoveEventHandler(widget, (EventMask) NULL, TRUE,
+! 			HandleSelectionEvents, (XtPointer)ctx); 
+! 	        XtRemoveCallback(widget, XtNdestroyCallback, 
+! 			WidgetDestroyed, (XtPointer)ctx); 
+! 	    };
+! 	    ctx->widget = NULL; /* widget officially loses ownership */
+! 	    /* now inform widget */
+! 	    if (ctx->loses) { 
+! 		if (ctx->incremental)  
+! 		   (*ctx->loses)(widget, &ctx->selection, ctx->owner_closure);
+! 		else  (*ctx->loses)(widget, &ctx->selection);
+! 	    }
+! 	    return(TRUE);
+  	}
+!    else return(FALSE);
+  }
+  
+  static XContext selectWindowContext = 0;
+--- 242,265 ----
+  {
+      static void HandleSelectionEvents();
+  
+!     if ((ctx->widget == widget) &&
+! 	(ctx->selection == selection) && /* paranoia */
+! 	((time == CurrentTime) || (time >= ctx->time)))
+!     {
+! 	XtRemoveEventHandler(widget, (EventMask) NULL, TRUE,
+! 			     HandleSelectionEvents, (XtPointer)ctx); 
+! 	XtRemoveCallback(widget, XtNdestroyCallback, 
+! 			 WidgetDestroyed, (XtPointer)ctx); 
+! 	ctx->widget = NULL; /* widget officially loses ownership */
+! 	/* now inform widget */
+! 	if (ctx->loses) { 
+! 	    if (ctx->incremental)  
+! 	       (*ctx->loses)(widget, &ctx->selection, ctx->owner_closure);
+! 	    else  (*ctx->loses)(widget, &ctx->selection);
+  	}
+! 	return(TRUE);
+!     }
+!     else return(FALSE);
+  }
+  
+  static XContext selectWindowContext = 0;
+***************
+*** 580,586 ****
+  XtPointer closure;
+  XEvent *event;
+  {
+!     Select ctx;
+      XSelectionEvent ev;
+      Boolean incremental;
+      Atom target;
+--- 578,584 ----
+  XtPointer closure;
+  XEvent *event;
+  {
+!     Select eventCtx, ctx;
+      XSelectionEvent ev;
+      Boolean incremental;
+      Atom target;
+***************
+*** 587,602 ****
+      int count;
+      Boolean writeback = FALSE;
+  
+      switch (event->type) {
+        case SelectionClear:
+! 	ctx = FindCtx(event->xselectionclear.display,
+! 		      event->xselectionclear.selection);
+  	(void) LoseSelection(ctx, widget, event->xselectionclear.selection,
+  			event->xselectionclear.time);
+  	break;
+        case SelectionRequest:
+! 	ctx = FindCtx(event->xselectionrequest.display,
+! 		      event->xselectionrequest.selection);
+  	ev.type = SelectionNotify;
+  	ev.display = event->xselectionrequest.display;
+  	ev.requestor = event->xselectionrequest.requestor;
+--- 585,609 ----
+      int count;
+      Boolean writeback = FALSE;
+  
++     ctx = (Select) closure;
+      switch (event->type) {
+        case SelectionClear:
+! 	eventCtx = FindCtx(event->xselectionclear.display,
+! 			   event->xselectionclear.selection);
+! 	/* if this event is not for the selection we registered for,
+! 	 * don't do anything */
+! 	if (eventCtx != ctx)
+! 	    break;
+  	(void) LoseSelection(ctx, widget, event->xselectionclear.selection,
+  			event->xselectionclear.time);
+  	break;
+        case SelectionRequest:
+! 	eventCtx = FindCtx(event->xselectionrequest.display,
+! 			   event->xselectionrequest.selection);
+! 	/* if this event is not for the selection we registered for,
+! 	 * don't do anything */
+! 	if (eventCtx != ctx)
+! 	    break;
+  	ev.type = SelectionNotify;
+  	ev.display = event->xselectionrequest.display;
+  	ev.requestor = event->xselectionrequest.requestor;
+***************
+*** 664,681 ****
+  Boolean incremental;
+  {
+      Select ctx;
+      Window window;
+      ctx = FindCtx(XtDisplay(widget), selection);
+!     if (ctx->widget != widget) {
+!         XSetSelectionOwner(ctx->dpy, selection, window = XtWindow(widget),
+! 		 time);
+          if (XGetSelectionOwner(ctx->dpy, selection) != window)
+! 		return(FALSE);
+! 	if (ctx->widget)
+! 	    (void) LoseSelection(ctx, ctx->widget, selection, ctx->time);
+      }
+-     ctx->widget = widget;
+-     ctx->time = time;
+      ctx->convert = convert;
+      ctx->loses = lose;
+      ctx->notify = notify;
+--- 671,702 ----
+  Boolean incremental;
+  {
+      Select ctx;
++     SelectRec oldctx;
+      Window window;
++     Boolean old_context = FALSE;
++ 
+      ctx = FindCtx(XtDisplay(widget), selection);
+!     if (ctx->widget != widget || ctx->time != time)
+!     {
+! 	window = XtWindow(widget);
+!         XSetSelectionOwner(ctx->dpy, selection, window, time);
+          if (XGetSelectionOwner(ctx->dpy, selection) != window)
+! 	    return FALSE;
+!     	if (ctx->widget != widget)
+!  	{
+! 	    XtAddEventHandler(widget, (EventMask)NULL, TRUE,
+! 			      HandleSelectionEvents, (XtPointer)ctx);
+! 	    XtAddCallback(widget, XtNdestroyCallback,
+! 			  WidgetDestroyed, (XtPointer)ctx);
+! 
+! 	    if (ctx->widget) {
+! 		oldctx = *ctx;
+! 		old_context = TRUE;
+! 	    }
+! 	}
+! 	ctx->widget = widget;	/* Selection offically changes hands. */
+! 	ctx->time = time;
+      }
+      ctx->convert = convert;
+      ctx->loses = lose;
+      ctx->notify = notify;
+***************
+*** 682,691 ****
+      ctx->owner_cancel = cancel;
+      ctx->incremental = incremental;
+      ctx->owner_closure = closure;
+!     ctx->refcount++;
+!     XtAddEventHandler(widget, (EventMask)NULL, TRUE,
+! 		      HandleSelectionEvents, (XtPointer)ctx);
+!     XtAddCallback(widget, XtNdestroyCallback, WidgetDestroyed, (XtPointer)ctx);
+      return TRUE;
+  }
+  
+--- 703,712 ----
+      ctx->owner_cancel = cancel;
+      ctx->incremental = incremental;
+      ctx->owner_closure = closure;
+! 
+!     if (old_context)
+! 	(void) LoseSelection(&oldctx, oldctx.widget, selection, oldctx.time);
+! 
+      return TRUE;
+  }
+  
+
+*** /tmp/,RCSt1a02279	Mon Mar  5 10:30:54 1990
+--- mit/lib/Xt/SelectionI.h	Thu Feb  1 15:08:36 1990
+***************
+*** 1,4 ****
+! /* $XConsortium: SelectionI.h,v 1.21 89/12/15 15:28:06 swick Exp $ */
+  /* $oHeader: SelectionI.h,v 1.3 88/08/19 14:02:44 asente Exp $ */
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+--- 1,4 ----
+! /* $XConsortium: SelectionI.h,v 1.22 90/02/01 15:08:04 keith Exp $ */
+  /* $oHeader: SelectionI.h,v 1.3 88/08/19 14:02:44 asente Exp $ */
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+***************
+*** 68,74 ****
+      Display *dpy; 			/* constant */
+      Widget widget;
+      Time time;
+-     int refcount;
+      XtConvertSelectionProc convert;
+      XtLoseSelectionProc loses;
+      XtSelectionDoneProc notify;
+--- 68,73 ----
+
+*** /tmp/,RCSt1a02286	Mon Mar  5 10:31:20 1990
+--- mit/lib/Xt/Geometry.c	Mon Feb 26 16:25:04 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Geometry.c,v 1.41 89/12/16 16:59:52 rws Exp $";
+  /* $oHeader: Geometry.c,v 1.3 88/08/23 11:37:50 asente Exp $ */
+  #endif /* lint */
+  
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Geometry.c,v 1.42 90/02/26 16:25:01 kit Exp $";
+  /* $oHeader: Geometry.c,v 1.3 88/08/23 11:37:50 asente Exp $ */
+  #endif /* lint */
+  
+***************
+*** 50,60 ****
+  		TRUE );
+  }
+  
+! /* Public routines */
+  
+! XtGeometryResult XtMakeGeometryRequest (widget, request, reply)
+!     Widget         widget;
+      XtWidgetGeometry *request, *reply;
+  {
+      XtWidgetGeometry    junk;
+      XtGeometryHandler manager;
+--- 50,68 ----
+  		TRUE );
+  }
+  
+! /*
+!  * This function is exactly like XtMakeGeometryRequest except that
+!  * it will return an extra variable.
+!  *
+!  * clear_rect_obj - *** RETURNED ***  
+!  *		    TRUE if the rect obj has been cleared, false otherwise.
+!  */
+  
+! XtGeometryResult 
+! _XtMakeGeometryRequest (widget, request, reply, clear_rect_obj)
+!     Widget widget;
+      XtWidgetGeometry *request, *reply;
++     Boolean * clear_rect_obj;
+  {
+      XtWidgetGeometry    junk;
+      XtGeometryHandler manager;
+***************
+*** 64,69 ****
+--- 72,79 ----
+      Boolean managed, parentRealized;
+      XWindowChanges changes;
+  
++     *clear_rect_obj = FALSE;
++ 
+      if (XtIsShell(widget)) {
+  	ShellClassExtension ext;
+  	for (ext = (ShellClassExtension)((ShellWidgetClass)XtClass(widget))
+***************
+*** 195,209 ****
+  	}
+      }
+  
+!     if (changeMask & XtCWQueryOnly) {
+! 	/* Just asking about it, don't change any geometry fields */
+  	return returnCode;
+      }
+  
+!     if (returnCode == XtGeometryYes
+! 	&& XtIsWidget(widget) && XtIsRealized(widget)) {
+! 	/* reconfigure the window (if needed) */
+! 
+  	if (changes.x != widget->core.x) {
+   	    changeMask |= CWX;
+   	    changes.x = widget->core.x;
+--- 205,224 ----
+  	}
+      }
+  
+!     /*
+!      * If Unrealized, not a XtGeometryYes, or a query-only then we are done.
+!      */
+! 
+!     if ((returnCode != XtGeometryYes) || 
+! 	(changeMask & XtCWQueryOnly) || !XtIsRealized(widget)) {
+! 
+! 	if (returnCode == XtGeometryDone)
+! 	    returnCode = XtGeometryYes;
+! 
+  	return returnCode;
+      }
+  
+!     if (XtIsWidget(widget)) {	/* reconfigure the window (if needed) */
+  	if (changes.x != widget->core.x) {
+   	    changeMask |= CWX;
+   	    changes.x = widget->core.x;
+***************
+*** 231,246 ****
+  	}
+  
+  	XConfigureWindow(XtDisplay(widget), XtWindow(widget),
+! 		changeMask, &changes);
+      }
+!     else if (returnCode == XtGeometryYes && XtIsRealized(widget)) {
+! 	/* RectObj child of realized Widget */
+  	ClearRectObjAreas((RectObj)widget, &changes);
+      }
+-     else if (returnCode == XtGeometryDone) returnCode = XtGeometryYes;
+  
+      return returnCode;
+! } /* XtMakeGeometryRequest */
+  
+  XtGeometryResult XtMakeResizeRequest
+  	(widget, width, height, replyWidth, replyHeight)
+--- 246,272 ----
+  	}
+  
+  	XConfigureWindow(XtDisplay(widget), XtWindow(widget),
+! 			 changeMask, &changes);
+      }
+!     else {			/* RectObj child of realized Widget */
+! 	*clear_rect_obj = TRUE;
+  	ClearRectObjAreas((RectObj)widget, &changes);
+      }
+  
+      return returnCode;
+! } /* _XtMakeGeometryRequest */
+! 
+! 
+! /* Public routines */
+! 
+! XtGeometryResult XtMakeGeometryRequest (widget, request, reply)
+!     Widget         widget;
+!     XtWidgetGeometry *request, *reply;
+! {
+!     Boolean junk;
+! 
+!     return(_XtMakeGeometryRequest(widget, request, reply, &junk));
+! }
+  
+  XtGeometryResult XtMakeResizeRequest
+  	(widget, width, height, replyWidth, replyHeight)
+
+*** /tmp/,RCSt1a02293	Mon Mar  5 10:31:49 1990
+--- mit/lib/Xt/SetValues.c	Mon Feb 26 16:25:06 1990
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: SetValues.c,v 1.3 90/01/24 16:05:41 swick Exp $";
+  #endif /* lint */
+  
+  /***********************************************************
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: SetValues.c,v 1.4 90/02/26 16:25:04 kit Exp $";
+  #endif /* lint */
+  
+  /***********************************************************
+***************
+*** 133,139 ****
+      double	    oldwCache[100], reqwCache[100];
+      double	    oldcCache[20], reqcCache[20];
+      Cardinal	    widgetSize, constraintSize;
+!     Boolean	    redisplay, reconfigured = False;
+      XtGeometryResult result;
+      XtWidgetGeometry geoReq, geoReply;
+      WidgetClass     wc = XtClass(w);
+--- 133,139 ----
+      double	    oldwCache[100], reqwCache[100];
+      double	    oldcCache[20], reqcCache[20];
+      Cardinal	    widgetSize, constraintSize;
+!     Boolean	    redisplay, cleared_rect_obj, reconfigured = False;
+      XtGeometryResult result;
+      XtWidgetGeometry geoReq, geoReply;
+      WidgetClass     wc = XtClass(w);
+***************
+*** 214,224 ****
+      
+  	if (geoReq.request_mode != 0) {
+  	    do {
+! 		result = XtMakeGeometryRequest(w, &geoReq, &geoReply);
+  		if (result == XtGeometryYes) {
+! 		    reconfigured = True;
+  		    break;
+  		}
+  		/* An Almost or No reply.  Call widget and let it munge
+  		   request, reply */
+  		if (wc->core_class.set_values_almost == NULL) {
+--- 214,226 ----
+      
+  	if (geoReq.request_mode != 0) {
+  	    do {
+! 		result = _XtMakeGeometryRequest(w, &geoReq, &geoReply, 
+! 						&cleared_rect_obj);
+  		if (result == XtGeometryYes) {
+! 		    reconfigured = TRUE;
+  		    break;
+  		}
++ 
+  		/* An Almost or No reply.  Call widget and let it munge
+  		   request, reply */
+  		if (wc->core_class.set_values_almost == NULL) {
+***************
+*** 247,253 ****
+              if (redisplay && XtIsRealized(w))
+                  XClearArea (XtDisplay(w), XtWindow(w), 0, 0, 0, 0, TRUE);
+          } else { /*non-window object */
+! 	  if (redisplay && ! reconfigured) {
+  	      Widget pw = _XtWindowedAncestor(w);
+  	      if (XtIsRealized(pw)) {
+  		  RectObj r = (RectObj)w;
+--- 249,255 ----
+              if (redisplay && XtIsRealized(w))
+                  XClearArea (XtDisplay(w), XtWindow(w), 0, 0, 0, 0, TRUE);
+          } else { /*non-window object */
+! 	  if (redisplay && ! cleared_rect_obj ) {
+  	      Widget pw = _XtWindowedAncestor(w);
+  	      if (XtIsRealized(pw)) {
+  		  RectObj r = (RectObj)w;
+
+*** /tmp/,RCSt1a02309	Mon Mar  5 10:35:37 1990
+--- mit/server/dix/window.c	Wed Feb 28 16:09:58 1990
+***************
+*** 22,28 ****
+  
+  ******************************************************************/
+  
+! /* $XConsortium: window.c,v 5.47 89/12/14 14:59:32 keith Exp $ */
+  
+  #include "X.h"
+  #define NEED_REPLIES
+--- 22,28 ----
+  
+  ******************************************************************/
+  
+! /* $XConsortium: window.c,v 5.50 90/02/28 16:09:42 keith Exp $ */
+  
+  #include "X.h"
+  #define NEED_REPLIES
+***************
+*** 365,372 ****
+      {
+          p2 = p1->firstChild;
+          for (i=0; i<indent; i++) ErrorF( " ");
+! 	ErrorF( "%x\n", p1->wid);
+!         miprintRegion(&p1->clipList);
+  	PrintChildren(p2, indent+4);
+  	p1 = p1->nextSib;
+      }
+--- 365,372 ----
+      {
+          p2 = p1->firstChild;
+          for (i=0; i<indent; i++) ErrorF( " ");
+! 	ErrorF( "%x\n", p1->drawable.id);
+!         miPrintRegion(&p1->clipList);
+  	PrintChildren(p2, indent+4);
+  	p1 = p1->nextSib;
+      }
+***************
+*** 381,387 ****
+      {
+  	ErrorF( "WINDOW %d\n", i);
+  	pWin = WindowTable[i];
+!         miprintRegion(&pWin->clipList);
+  	p1 = pWin->firstChild;
+  	PrintChildren(p1, 4);
+      }
+--- 381,387 ----
+      {
+  	ErrorF( "WINDOW %d\n", i);
+  	pWin = WindowTable[i];
+!         miPrintRegion(&pWin->clipList);
+  	p1 = pWin->firstChild;
+  	PrintChildren(p1, 4);
+      }
+***************
+*** 521,526 ****
+--- 521,527 ----
+      pWin->cursorIsNone = TRUE;
+  
+      pWin->backingStore = NotUseful;
++     pWin->DIXsaveUnder = FALSE;
+      pWin->backStorage = (pointer) NULL;
+  
+      pWin->mapped = FALSE;           /* off */
+
+*** /tmp/,RCSt1a02316	Mon Mar  5 10:37:14 1990
+--- mit/server/ddx/mfb/mfbbitblt.c	Mon Mar  5 10:37:16 1990
+***************
+*** 22,28 ****
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: mfbbitblt.c,v 5.13 89/11/30 15:32:17 keith Exp $ */
+  #include "X.h"
+  #include "Xprotostr.h"
+  
+--- 22,28 ----
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: mfbbitblt.c,v 5.14 90/02/08 13:29:24 rws Exp $ */
+  #include "X.h"
+  #include "Xprotostr.h"
+  
+***************
+*** 81,87 ****
+  int dstx, dsty;
+  {
+      RegionPtr prgnSrcClip;	/* may be a new region, or just a copy */
+-     RegionRec rgnSrcRec;
+      Bool freeSrcClip = FALSE;
+  
+      RegionPtr prgnExposed;
+--- 81,86 ----
+***************
+*** 187,195 ****
+  	{
+  	    if (!fastClip)
+  		(*pGC->pScreen->RegionUninit)(&rgnDst);
+! 	    if (prgnSrcClip == &rgnSrcRec)
+! 		(*pGC->pScreen->RegionUninit)(prgnSrcClip);
+! 	    else if (freeSrcClip)
+  		(*pGC->pScreen->RegionDestroy)(prgnSrcClip);
+  	    return NULL;
+  	}
+--- 186,192 ----
+  	{
+  	    if (!fastClip)
+  		(*pGC->pScreen->RegionUninit)(&rgnDst);
+! 	    if (freeSrcClip)
+  		(*pGC->pScreen->RegionDestroy)(prgnSrcClip);
+  	    return NULL;
+  	}
+***************
+*** 257,265 ****
+  						  sizeof(DDXPointRec))))
+  	{
+  	    (*pGC->pScreen->RegionUninit)(&rgnDst);
+! 	    if (prgnSrcClip == &rgnSrcRec)
+! 		(*pGC->pScreen->RegionUninit)(prgnSrcClip);
+! 	    else if (freeSrcClip)
+  		(*pGC->pScreen->RegionDestroy)(prgnSrcClip);
+  	    return NULL;
+  	}
+--- 254,260 ----
+  						  sizeof(DDXPointRec))))
+  	{
+  	    (*pGC->pScreen->RegionUninit)(&rgnDst);
+! 	    if (freeSrcClip)
+  		(*pGC->pScreen->RegionDestroy)(prgnSrcClip);
+  	    return NULL;
+  	}
+***************
+*** 288,296 ****
+  				  origDest.x, origDest.y, (unsigned long)0);
+  	}
+      (*pGC->pScreen->RegionUninit)(&rgnDst);
+!     if (prgnSrcClip == &rgnSrcRec)
+! 	(*pGC->pScreen->RegionUninit)(prgnSrcClip);
+!     else if (freeSrcClip)
+  	(*pGC->pScreen->RegionDestroy)(prgnSrcClip);
+      return prgnExposed;
+  }
+--- 283,289 ----
+  				  origDest.x, origDest.y, (unsigned long)0);
+  	}
+      (*pGC->pScreen->RegionUninit)(&rgnDst);
+!     if (freeSrcClip)
+  	(*pGC->pScreen->RegionDestroy)(prgnSrcClip);
+      return prgnExposed;
+  }
+
+*** /tmp/,RCSt1a02404	Mon Mar  5 11:06:30 1990
+--- mit/server/ddx/cfb/cfbbitblt.c	Mon Mar  5 11:06:43 1990
+***************
+*** 18,24 ****
+  Author: Keith Packard
+  
+  */
+! /* $XConsortium: cfbbitblt.c,v 5.26 90/01/10 19:51:35 keith Exp $ */
+  
+  #include	"X.h"
+  #include	"Xmd.h"
+--- 18,24 ----
+  Author: Keith Packard
+  
+  */
+! /* $XConsortium: cfbbitblt.c,v 5.27.1.1 90/03/05 11:05:08 rws Exp $ */
+  
+  #include	"X.h"
+  #include	"Xmd.h"
+***************
+*** 675,680 ****
+--- 675,692 ----
+      	    pptSrc++;
+      	}
+      }
++ 
++     /* free up stuff */
++     if (pboxNew2)
++     {
++ 	DEALLOCATE_LOCAL(pptNew2);
++ 	DEALLOCATE_LOCAL(pboxNew2);
++     }
++     if (pboxNew1)
++     {
++ 	DEALLOCATE_LOCAL(pptNew1);
++ 	DEALLOCATE_LOCAL(pboxNew1);
++     }
+  }
+  
+  static int (*doBitBlt)() = cfbDoBitblt;
+***************
+*** 690,696 ****
+      int dstx, dsty;
+  {
+      RegionPtr prgnSrcClip;	/* may be a new region, or just a copy */
+-     RegionRec rgnSrcRec;
+      Bool freeSrcClip = FALSE;
+  
+      RegionPtr prgnExposed;
+--- 702,707 ----
+***************
+*** 821,829 ****
+  	{
+  	    if (!fastClip)
+  		(*pGC->pScreen->RegionUninit)(&rgnDst);
+! 	    if (prgnSrcClip == &rgnSrcRec)
+! 		(*pGC->pScreen->RegionUninit)(prgnSrcClip);
+! 	    else if (freeSrcClip)
+  		(*pGC->pScreen->RegionDestroy)(prgnSrcClip);
+  	    return NULL;
+  	}
+--- 832,838 ----
+  	{
+  	    if (!fastClip)
+  		(*pGC->pScreen->RegionUninit)(&rgnDst);
+! 	    if (freeSrcClip)
+  		(*pGC->pScreen->RegionDestroy)(prgnSrcClip);
+  	    return NULL;
+  	}
+***************
+*** 897,905 ****
+  						  sizeof(DDXPointRec))))
+  	{
+  	    (*pGC->pScreen->RegionUninit)(&rgnDst);
+! 	    if (prgnSrcClip == &rgnSrcRec)
+! 		(*pGC->pScreen->RegionUninit)(prgnSrcClip);
+! 	    else if (freeSrcClip)
+  		(*pGC->pScreen->RegionDestroy)(prgnSrcClip);
+  	    return NULL;
+  	}
+--- 906,912 ----
+  						  sizeof(DDXPointRec))))
+  	{
+  	    (*pGC->pScreen->RegionUninit)(&rgnDst);
+! 	    if (freeSrcClip)
+  		(*pGC->pScreen->RegionDestroy)(prgnSrcClip);
+  	    return NULL;
+  	}
+***************
+*** 930,938 ****
+  				  origDest.x, origDest.y, (unsigned long)0);
+      }
+      (*pGC->pScreen->RegionUninit)(&rgnDst);
+!     if (prgnSrcClip == &rgnSrcRec)
+! 	(*pGC->pScreen->RegionUninit)(prgnSrcClip);
+!     else if (freeSrcClip)
+  	(*pGC->pScreen->RegionDestroy)(prgnSrcClip);
+      return prgnExposed;
+  }
+--- 937,943 ----
+  				  origDest.x, origDest.y, (unsigned long)0);
+      }
+      (*pGC->pScreen->RegionUninit)(&rgnDst);
+!     if (freeSrcClip)
+  	(*pGC->pScreen->RegionDestroy)(prgnSrcClip);
+      return prgnExposed;
+  }

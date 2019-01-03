@@ -1,0 +1,1518 @@
+This patch fixes the following problems:
+
+	work around gcc bug compiling XtNewString
+	multiple display bug in cfb
+	shift by 32 bug in cfb
+	stipple bug in cfb (sparc)
+	xmodmap can kill in-progress connections
+	arc bugs crash server
+	dashed round cap wide line floating exception
+	qvss server returns bad screen size
+	text widget ReplaceAll can infinite loop
+	alignment bugs in XtCreateWidget() and XtSetValues()
+	XtGrab* routines ignore arguments, call Xlib incorrectly
+	XListHosts returns garbage when host list is empty
+	xdm mishandles pid file
+	xdm fails to handle non-file servers resource
+	xdm shell scripts mishandled under System V
+	xdm mishandles IO errors
+	xdmshell doesn't disable XDMCP, fails to exit
+
+cd to the top of the X tree and apply with "patch -p0".
+
+*** /tmp/,RCSt1a28650	Tue Feb  6 17:43:55 1990
+--- mit/lib/Xt/Intrinsic.h	Tue Feb  6 17:42:41 1990
+***************
+*** 1,5 ****
+  /*
+! * $XConsortium: Intrinsic.h,v 1.130 89/12/15 17:20:05 swick Exp $
+  * $oHeader: Intrinsic.h,v 1.10 88/09/01 10:33:34 asente Exp $
+  */
+  
+--- 1,5 ----
+  /*
+! * $XConsortium: Intrinsic.h,v 1.131 90/02/06 17:41:27 converse Exp $
+  * $oHeader: Intrinsic.h,v 1.10 88/09/01 10:33:34 asente Exp $
+  */
+  
+***************
+*** 2144,2150 ****
+  
+  #define XtNew(type) ((type *) XtMalloc((unsigned) sizeof(type)))
+  #define XtNewString(str) \
+!     ((str) == NULL ? NULL : (strcpy(XtMalloc((unsigned)strlen(str) + 1), str)))
+  
+  extern char *XtMalloc(
+  #if NeedFunctionPrototypes
+--- 2144,2150 ----
+  
+  #define XtNew(type) ((type *) XtMalloc((unsigned) sizeof(type)))
+  #define XtNewString(str) \
+!     ((str) != NULL ? (strcpy(XtMalloc((unsigned)strlen(str) + 1), str)) : NULL)
+  
+  extern char *XtMalloc(
+  #if NeedFunctionPrototypes
+
+
+*** /tmp/,RCSt1a19124	Thu Jan 25 09:43:06 1990
+--- mit/server/ddx/cfb/cfbscrinit.c	Tue Jan 23 15:38:47 1990
+***************
+*** 119,127 ****
+  
+      if (cfbGeneration != serverGeneration)
+      {
+- 	if (!mfbAllocatePrivates(pScreen,
+- 				 &cfbWindowPrivateIndex, &cfbGCPrivateIndex))
+- 	    return FALSE;
+  	/*  Set up the visual IDs */
+  	for (i = 0; i < NUMVISUALS; i++) {
+  	    visuals[i].vid = FakeClientID(0);
+--- 119,124 ----
+***************
+*** 129,135 ****
+  	}
+  	cfbGeneration = serverGeneration;
+      }
+! 
+      if (!AllocateWindowPrivate(pScreen, cfbWindowPrivateIndex,
+  			       sizeof(cfbPrivWin)) ||
+  	!AllocateGCPrivate(pScreen, cfbGCPrivateIndex, sizeof(cfbPrivGC)))
+--- 126,134 ----
+  	}
+  	cfbGeneration = serverGeneration;
+      }
+!     if (!mfbAllocatePrivates(pScreen,
+! 			     &cfbWindowPrivateIndex, &cfbGCPrivateIndex))
+! 	return FALSE;
+      if (!AllocateWindowPrivate(pScreen, cfbWindowPrivateIndex,
+  			       sizeof(cfbPrivWin)) ||
+  	!AllocateGCPrivate(pScreen, cfbGCPrivateIndex, sizeof(cfbPrivGC)))
+
+*** /tmp/,RCSt1a19129	Thu Jan 25 09:43:19 1990
+--- mit/server/ddx/mfb/mfbscrinit.c	Tue Jan 23 15:39:36 1990
+***************
+*** 21,27 ****
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: mfbscrinit.c,v 5.9 89/09/12 14:25:48 keith Exp $ */
+  
+  #include "X.h"
+  #include "Xproto.h"	/* for xColorItem */
+--- 21,27 ----
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: mfbscrinit.c,v 5.10 90/01/23 15:39:27 rws Exp $ */
+  
+  #include "X.h"
+  #include "Xproto.h"	/* for xColorItem */
+***************
+*** 75,85 ****
+  	visual.vid = FakeClientID(0);
+  	VID = visual.vid;
+  	mfbGeneration = serverGeneration;
+- 	if (pWinIndex)
+- 	    *pWinIndex = mfbWindowPrivateIndex;
+- 	if (pGCIndex)
+- 	    *pGCIndex = mfbGCPrivateIndex;
+      }
+      return (AllocateWindowPrivate(pScreen, mfbWindowPrivateIndex,
+  				  sizeof(mfbPrivWin)) &&
+  	    AllocateGCPrivate(pScreen, mfbGCPrivateIndex, sizeof(mfbPrivGC)));
+--- 75,85 ----
+  	visual.vid = FakeClientID(0);
+  	VID = visual.vid;
+  	mfbGeneration = serverGeneration;
+      }
++     if (pWinIndex)
++ 	*pWinIndex = mfbWindowPrivateIndex;
++     if (pGCIndex)
++ 	*pGCIndex = mfbGCPrivateIndex;
+      return (AllocateWindowPrivate(pScreen, mfbWindowPrivateIndex,
+  				  sizeof(mfbPrivWin)) &&
+  	    AllocateGCPrivate(pScreen, mfbGCPrivateIndex, sizeof(mfbPrivGC)));
+
+
+*** /tmp/,RCSt1a00307	Fri Feb  9 12:03:47 1990
+--- mit/server/ddx/cfb/cfbpush8.c	Fri Feb  9 12:03:48 1990
+***************
+*** 15,21 ****
+  representations about the suitability of this software for any
+  purpose.  It is provided "as is" without express or implied warranty.
+  */
+! /* $XConsortium: cfbpush8.c,v 5.5 89/11/19 17:57:28 rws Exp $ */
+  
+  #include	"X.h"
+  #include	"Xmd.h"
+--- 15,21 ----
+  representations about the suitability of this software for any
+  purpose.  It is provided "as is" without express or implied warranty.
+  */
+! /* $XConsortium: cfbpush8.c,v 5.6 90/02/09 12:02:11 rws Exp $ */
+  
+  #include	"X.h"
+  #include	"Xmd.h"
+***************
+*** 130,136 ****
+  	    NextFourBits(c);
+  	    dst++;
+  	    nPixmapTmp -= 8;
+! 	    c = BitLeft (bits, 32 - xoff);
+  	}
+  	if (BitLeft (rightMask, xoff))
+  	    c |= BitRight (*src, xoff);
+--- 130,138 ----
+  	    NextFourBits(c);
+  	    dst++;
+  	    nPixmapTmp -= 8;
+! 	    c = 0;
+! 	    if (xoff)
+! 		c = BitLeft (bits, 32 - xoff);
+  	}
+  	if (BitLeft (rightMask, xoff))
+  	    c |= BitRight (*src, xoff);
+
+*** /tmp/,RCSt1a00400	Fri Feb  9 13:13:14 1990
+--- mit/server/ddx/cfb/cfbrctstp8.c	Fri Feb  9 13:12:54 1990
+***************
+*** 18,24 ****
+  
+  */
+  
+! /* $XConsortium: cfbrctstp8.c,v 1.10 90/01/23 16:54:13 keith Exp $ */
+  
+  #include "X.h"
+  #include "Xmd.h"
+--- 18,24 ----
+  
+  */
+  
+! /* $XConsortium: cfbrctstp8.c,v 1.11 90/02/09 13:12:34 rws Exp $ */
+  
+  #include "X.h"
+  #include "Xmd.h"
+***************
+*** 269,275 ****
+  			     ((char *) (dst))[1] = (fg);)
+  	    	    break;
+  	    	case 8:
+! 	    	    BitLoop (((char *) (dst))[3] = (fg);)
+  	    	    break;
+  	    	case 9:
+  	    	    BitLoop (((char *) (dst))[3] = (fg);
+--- 269,275 ----
+  			     ((char *) (dst))[1] = (fg);)
+  	    	    break;
+  	    	case 8:
+! 	    	    BitLoop (((char *) (dst))[0] = (fg);)
+  	    	    break;
+  	    	case 9:
+  	    	    BitLoop (((char *) (dst))[3] = (fg);
+
+*** /tmp/,RCSt1a19936	Thu Jan 25 14:23:42 1990
+--- mit/server/dix/devices.c	Thu Jan 25 14:23:28 1990
+***************
+*** 23,29 ****
+  ********************************************************/
+  
+  
+! /* $XConsortium: devices.c,v 5.5 89/11/07 10:45:09 rws Exp $ */
+  
+  #include "X.h"
+  #include "misc.h"
+--- 23,29 ----
+  ********************************************************/
+  
+  
+! /* $XConsortium: devices.c,v 5.6 90/01/25 14:22:44 rws Exp $ */
+  
+  #include "X.h"
+  #include "misc.h"
+***************
+*** 38,43 ****
+--- 38,44 ----
+  #include "dixstruct.h"
+  
+  extern InputInfo inputInfo;
++ extern int (* InitialVector[3]) ();
+  extern void (* ReplySwapVector[256]) ();
+  extern void CopySwap32Write(), SwapTimeCoordWrite();
+  extern void ActivatePointerGrab(), DeactivatePointerGrab();
+***************
+*** 531,537 ****
+      }
+      /* 0 is the server client */
+      for (i=1; i<currentMaxClients; i++)
+!         if (clients[i] && ! clients[i]->clientGone)
+  	{
+  	    event.u.u.sequenceNumber = clients[i]->sequence;
+              WriteEventsToClient(clients[i], 1, &event);
+--- 532,539 ----
+      }
+      /* 0 is the server client */
+      for (i=1; i<currentMaxClients; i++)
+!         if (clients[i] && ! clients[i]->clientGone &&
+! 	    (clients[i]->requestVector != InitialVector))
+  	{
+  	    event.u.u.sequenceNumber = clients[i]->sequence;
+              WriteEventsToClient(clients[i], 1, &event);
+
+
+
+*** /tmp/,RCSt1a03477	Mon Jan 29 20:36:39 1990
+--- mit/server/ddx/mi/miarc.c	Mon Jan 29 20:36:22 1990
+***************
+*** 21,27 ****
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: miarc.c,v 5.13 89/12/06 18:20:00 keith Exp $ */
+  /* Author: Keith Packard */
+  
+  #include <math.h>
+--- 21,27 ----
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: miarc.c,v 5.14 90/01/29 20:35:51 keith Exp $ */
+  /* Author: Keith Packard */
+  
+  #include <math.h>
+***************
+*** 479,485 ****
+  	a1 = miDatan2 (- (point1.y - center.y), point1.x - center.x);
+  	a2 = miDatan2 (- (point2.y - center.y), point2.x - center.x);
+  	a = a2 - a1;
+! 	if (a < -180.0)
+  		a += 360.0;
+  	else if (a > 180.0)
+  		a -= 360.0;
+--- 479,485 ----
+  	a1 = miDatan2 (- (point1.y - center.y), point1.x - center.x);
+  	a2 = miDatan2 (- (point2.y - center.y), point2.x - center.x);
+  	a = a2 - a1;
+! 	if (a <= -180.0)
+  		a += 360.0;
+  	else if (a > 180.0)
+  		a -= 360.0;
+***************
+*** 1642,1648 ****
+  	double	xmax, ymax, xmin, ymin;
+  	int	a0, a1;
+  	double	a, startAngle, endAngle;
+! 	double	l;
+  
+  	l = pGC->lineWidth;
+  	if (l == 0)
+--- 1642,1648 ----
+  	double	xmax, ymax, xmin, ymin;
+  	int	a0, a1;
+  	double	a, startAngle, endAngle;
+! 	double	l, lx, ly;
+  
+  	l = pGC->lineWidth;
+  	if (l == 0)
+***************
+*** 1706,1711 ****
+--- 1706,1737 ----
+  				a = 90 * (ceil (a/90.0) - 1);
+  		}
+  	}
++ 	lx = ly = l;
++ 	if ((x1 - x0) + (y1 - y0) < 0)
++ 	    lx = ly = -l;
++ 	if (h)
++ 	    ly = 0.0;
++ 	else
++ 	    lx = 0.0;
++ 	if (right)
++ 	{
++ 	    right->center.x = x0;
++ 	    right->center.y = y0;
++ 	    right->clock.x = x0 - lx;
++ 	    right->clock.y = y0 - ly;
++ 	    right->counterClock.x = x0 + lx;
++ 	    right->counterClock.y = y0 + ly;
++ 	}
++ 	if (left)
++  	{
++ 	    left->center.x = x1;
++ 	    left->center.y = y1;
++ 	    left->clock.x = x1 + lx;
++ 	    left->clock.y = y1 + ly;
++ 	    left->counterClock.x = x1 - lx;
++ 	    left->counterClock.y = y1 - ly;
++ 	}
++ 	
+  	x0 = xmin;
+  	x1 = xmax;
+  	y0 = ymin;
+***************
+*** 1730,1769 ****
+  		rect.width = maxx - minx;
+  		rect.height = maxy - miny;
+  		(*pGC->ops->PolyFillRect) (pDraw, pGC, 1, &rect);
+- 	}
+- 	if (right) {
+- 		if (h != 0) {
+- 			right->clock.x = x1;
+- 			right->clock.y = y0;
+- 			right->center.x = 0;
+- 			right->center.y = y0;
+- 			right->counterClock.x = x0;
+- 			right->counterClock.y = y0;
+- 		} else {
+- 			right->clock.x = x0;
+- 			right->clock.y = y0;
+- 			right->center.x = x0;
+- 			right->center.y = 0;
+- 			right->counterClock.x = x0;
+- 			right->counterClock.y = y1;
+- 		}
+- 	}
+- 	if (left) {
+- 		if (h != 0) {
+- 			left->clock.x = x0;
+- 			left->clock.y = y1;
+- 			left->center.x = 0;
+- 			left->center.y = y1;
+- 			left->counterClock.x = x1;
+- 			left->counterClock.y = y1;
+- 		} else {
+- 			left->clock.x = x1;
+- 			left->clock.y = y1;
+- 			left->center.x = x1;
+- 			left->center.y = 0;
+- 			left->counterClock.x = x1;
+- 			left->counterClock.y = y0;
+- 		}
+  	}
+  }
+  
+--- 1756,1761 ----
+
+
+*** /tmp/,RCSt1a01807	Fri Feb  9 10:14:21 1990
+--- mit/server/ddx/mi/mifillarc.c	Fri Feb  9 10:12:44 1990
+***************
+*** 17,23 ****
+  
+  ********************************************************/
+  
+! /* $XConsortium: mifillarc.c,v 5.9 89/11/05 13:03:44 rws Exp $ */
+  
+  #include <math.h>
+  #include "X.h"
+--- 17,23 ----
+  
+  ********************************************************/
+  
+! /* $XConsortium: mifillarc.c,v 5.10 90/02/09 10:12:04 rws Exp $ */
+  
+  #include <math.h>
+  #include "X.h"
+***************
+*** 203,208 ****
+--- 203,209 ----
+  
+      if ((angle == 0) || (angle == HALFCIRCLE))
+      {
++     horz:
+  	edge->x = left ? -65536 : 65536;
+  	edge->stepx = 0;
+  	edge->e = 0;
+***************
+*** 211,216 ****
+--- 212,218 ----
+      }
+      if ((angle == QUADRANT) || (angle == QUADRANT3))
+      {
++     vert:
+  	edge->x = arc->x + (arc->width >> 1);
+  	if (left && (arc->width & 1))
+  	    edge->x++;
+***************
+*** 239,245 ****
+--- 241,249 ----
+  	signdx = 1;
+      scale = (dx > dy) ? dx : dy;
+      edge->dx = floor((dx * 32768) / scale + .5);
++     if (!edge->dx) goto vert; /* gross */
+      edge->dy = floor((dy * 32768) / scale + .5);
++     if (!edge->dy) goto horz; /* gross */
+      if (signdx < 0)
+  	edge->dx = -edge->dx;
+      if (signdy < 0)
+
+*** /tmp/,RCSt1a01657	Fri Feb  9 14:17:54 1990
+--- mit/server/ddx/mi/miwideline.c	Fri Feb  9 14:17:36 1990
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: miwideline.c,v 1.27 90/01/23 15:36:25 keith Exp $
+   *
+   * Copyright 1988 Massachusetts Institute of Technology
+   *
+--- 1,5 ----
+  /*
+!  * $XConsortium: miwideline.c,v 1.28 90/02/09 14:17:14 keith Exp $
+   *
+   * Copyright 1988 Massachusetts Institute of Technology
+   *
+***************
+*** 1666,1676 ****
+--- 1666,1678 ----
+  	    {
+  		lcapFace.xa = -vertices[V_LEFT].x;
+  		lcapFace.ya = -vertices[V_LEFT].y;
++ 		lcapFace.k = slopes[V_LEFT].k;
+  	    }
+  	    else
+  	    {
+  		lcapFace.xa = vertices[V_TOP].x;
+  		lcapFace.ya = vertices[V_TOP].y;
++ 		lcapFace.k = -slopes[V_LEFT].k;
+  	    }
+  	    miLineArc (pDrawable, pGC, pixel, spanData,
+  		       &lcapFace, (LineFacePtr) NULL,
+
+*** /tmp/,RCSt1a01849	Fri Feb  9 10:24:21 1990
+--- mit/server/ddx/dec/qvss/qvss_io.c	Fri Feb  9 10:24:06 1990
+***************
+*** 21,27 ****
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: qvss_io.c,v 1.101 89/12/16 20:35:19 rws Exp $ */
+  
+  #include <stdio.h>
+  #include <sys/types.h>
+--- 21,27 ----
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: qvss_io.c,v 1.102 90/02/09 10:23:37 rws Exp $ */
+  
+  #include <stdio.h>
+  #include <sys/types.h>
+***************
+*** 273,280 ****
+      }
+      qLimit = queue->size - 1;
+  
+-     i = monitorResolution ? monitorResolution : 80;
+- 
+      blackValue = NULL;
+      SpecificB = FALSE;
+      whiteValue = NULL;
+--- 273,278 ----
+***************
+*** 353,358 ****
+--- 351,358 ----
+      pScreen->PointerNonInterestBox = qvPointerNonInterestBox;
+      pScreen->ConstrainCursor = qvConstrainCursor;
+      pScreen->RecolorCursor = miRecolorCursor;
++ 
++     i = monitorResolution ? monitorResolution : 80;
+  
+  #ifdef ULTRIX3_0
+      if (isSMdevice)
+
+*** /tmp/,RCSt1a26412	Thu Feb  1 16:21:57 1990
+--- mit/lib/Xaw/TextPop.c	Thu Feb  1 16:21:34 1990
+***************
+*** 1,5 ****
+  #if (!defined(lint) && !defined(SABER))
+! static char Xrcsid[] = "$XConsortium: TextPop.c,v 1.9 89/11/08 13:44:39 kit Exp $";
+  #endif /* lint && SABER */
+  
+  /***********************************************************
+--- 1,5 ----
+  #if (!defined(lint) && !defined(SABER))
+! static char Xrcsid[] = "$XConsortium: TextPop.c,v 1.10 90/02/01 16:21:22 kit Exp $";
+  #endif /* lint && SABER */
+  
+  /***********************************************************
+***************
+*** 949,954 ****
+--- 949,959 ----
+        return(FALSE);
+      }      
+  
++     if (dir == XawsdRight)
++       XawTextSetInsertionPoint( tw, pos + replace.length);
++     else
++       XawTextSetInsertionPoint( tw, pos);
++ 
+      if (once_only) 
+        if (show_current)
+  	break;
+***************
+*** 958,968 ****
+        }
+      count++;
+    }
+- 
+-   if (dir == XawsdRight)
+-     XawTextSetInsertionPoint( tw, pos + replace.length);
+-   else
+-     XawTextSetInsertionPoint( tw, pos);
+  
+    if (replace.length == 0)
+      XawTextUnsetSelection(tw);
+--- 963,968 ----
+
+
+
+*** old/lib/Xt/Create.c
+--- mit/lib/Xt/Create.c
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Create.c,v 1.67 90/01/23 11:29:41 swick Exp $";
+  /* $oHeader: Create.c,v 1.5 88/09/01 11:26:22 asente Exp $ */
+  #endif /*lint*/
+  
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: Create.c,v 1.68 90/01/24 16:04:57 swick Exp $";
+  /* $oHeader: Create.c,v 1.5 88/09/01 11:26:22 asente Exp $ */
+  #endif /*lint*/
+  
+***************
+*** 167,175 ****
+  {
+      register _XtOffsetList  offsetList;
+      XtCallbackList          *pCallbacks;
+!     char                    widget_cache[600];
+      Widget                  req_widget;
+-     char                    constraint_cache[100];
+      XtPointer               req_constraints;
+      Cardinal                size;
+      register Widget	    widget;
+--- 167,176 ----
+  {
+      register _XtOffsetList  offsetList;
+      XtCallbackList          *pCallbacks;
+!     /* need to use strictest alignment rules possible in next two decls. */
+!     double                  widget_cache[100];
+!     double                  constraint_cache[20];
+      Widget                  req_widget;
+      XtPointer               req_constraints;
+      Cardinal                size;
+      register Widget	    widget;
+
+*** old/lib/Xt/SetValues.c
+--- mit/lib/Xt/SetValues.c
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: SetValues.c,v 1.2 89/12/15 20:20:18 swick Exp $";
+  #endif /* lint */
+  
+  /***********************************************************
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: SetValues.c,v 1.3 90/01/24 16:05:41 swick Exp $";
+  #endif /* lint */
+  
+  /***********************************************************
+***************
+*** 129,136 ****
+  	     Cardinal num_args;
+  {
+      register Widget oldw, reqw;
+!     char	    oldwCache[500], reqwCache[500];
+!     char	    oldcCache[100], reqcCache[100];
+      Cardinal	    widgetSize, constraintSize;
+      Boolean	    redisplay, reconfigured = False;
+      XtGeometryResult result;
+--- 129,137 ----
+  	     Cardinal num_args;
+  {
+      register Widget oldw, reqw;
+!     /* need to use strictest alignment rules possible in next two decls. */
+!     double	    oldwCache[100], reqwCache[100];
+!     double	    oldcCache[20], reqcCache[20];
+      Cardinal	    widgetSize, constraintSize;
+      Boolean	    redisplay, reconfigured = False;
+      XtGeometryResult result;
+
+
+
+
+
+*** old/lib/Xt/PassivGrab.c
+--- mit/lib/Xt/PassivGrab.c
+***************
+*** 1,5 ****
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium";
+  #endif
+  
+  /********************************************************
+--- 1,5 ----
+  #ifndef lint
+! static char Xrcsid[] = "$XConsortium: PassivGrab.c,v 1.9 90/01/25 09:44:18 swick Exp $";
+  #endif
+  
+  /********************************************************
+***************
+*** 143,149 ****
+      
+      Widget	widget;
+      Boolean	ownerEvents;
+!     unsigned short modifiers;
+      KeyCode 	key;
+      int		pointer_mode, keyboard_mode;
+      Mask	event_mask;
+--- 143,149 ----
+      
+      Widget	widget;
+      Boolean	ownerEvents;
+!     Modifiers	modifiers;
+      KeyCode 	key;
+      int		pointer_mode, keyboard_mode;
+      Mask	event_mask;
+***************
+*** 334,340 ****
+  
+  /*
+   * Delete a grab combination from the passive grab list.  Each entry will
+!  * be checked to see if it is affected by the grab being delete.  This
+   * may result in multiple entries being modified/deleted.
+   */
+  
+--- 334,340 ----
+  
+  /*
+   * Delete a grab combination from the passive grab list.  Each entry will
+!  * be checked to see if it is affected by the grab being deleted.  This
+   * may result in multiple entries being modified/deleted.
+   */
+  
+***************
+*** 348,354 ****
+      register XtServerGrabPtr *next;
+      register XtServerGrabPtr grab;
+      
+!     for (next = (XtServerGrabPtr *) (passiveListPtr); *next; )
+        {
+  	  grab = *next;
+  	  
+--- 348,354 ----
+      register XtServerGrabPtr *next;
+      register XtServerGrabPtr grab;
+      
+!     for (next = passiveListPtr; *next; )
+        {
+  	  grab = *next;
+  	  
+***************
+*** 412,418 ****
+  						       pMinuendGrab->detail.exact);
+  				  
+  				  pNewGrab = CreateGrab(grab->widget,
+! 							grab->ownerEvents, AnyModifier,
+  							pMinuendGrab->detail.exact,
+  							grab->pointerMode,
+  							grab->keyboardMode, 0, 0, 0);
+--- 412,419 ----
+  						       pMinuendGrab->detail.exact);
+  				  
+  				  pNewGrab = CreateGrab(grab->widget,
+! 							grab->ownerEvents,
+! 							(Modifiers)AnyModifier,
+  							pMinuendGrab->detail.exact,
+  							grab->pointerMode,
+  							grab->keyboardMode, 0, 0, 0);
+***************
+*** 473,485 ****
+  	  grab = next;
+  	  next = grab->next;
+  	  
+! 	  if (XtIsRealized(grab->widget))
+! 	    XUngrabKey(pDisplay(grab),
+! 		       grab->detail.exact, 
+! 		       grab->modifiersDetail.exact, 
+! 		       pWindow(grab));
+  	  FreeGrab(grab);
+- 	  grab = NULL;
+        }
+  }
+  
+--- 474,484 ----
+  	  grab = next;
+  	  next = grab->next;
+  	  
+! 	  /* not necessary to explicitly ungrab key or button;
+! 	   * window is being destroyed so server will take care of it.
+! 	   */ 
+! 
+  	  FreeGrab(grab);
+        }
+  }
+  
+***************
+*** 487,496 ****
+  /*
+   * This function is called at widget destroy time to clean up
+   */
+  void _XtDestroyServerGrabs(w, pwi, call_data)
+      Widget		w;
+      XtPerWidgetInput	pwi;
+!     XtPointer		call_data;
+  {
+      XtPerDisplayInput		pdi;
+      
+--- 486,496 ----
+  /*
+   * This function is called at widget destroy time to clean up
+   */
++ /*ARGSUSED*/
+  void _XtDestroyServerGrabs(w, pwi, call_data)
+      Widget		w;
+      XtPerWidgetInput	pwi;
+!     XtPointer		call_data; /* unused */
+  {
+      XtPerDisplayInput		pdi;
+      
+***************
+*** 525,546 ****
+      XtServerGrabRec 	tempGrab;
+      XtServerGrabPtr	*passiveListPtr;
+      XtPerWidgetInput	pwi;
+-     XtDevice		device;
+  
+- 
+      if ((pwi = _XtGetPerWidgetInput(widget, FALSE)) == NULL)
+        return (XtServerGrabPtr)0;
+  
+      if (isKeyboard)
+-       {
+  	  passiveListPtr = &pwi->keyList;
+- 	  device = &pdi->keyboard;
+-       }
+      else
+-       {
+  	  passiveListPtr = &pwi->ptrList;
+! 	  device = &pdi->pointer;
+!       }
+      /*
+       * if either there is no entry in the context manager or the entry
+       * is empty, or the keyboard is grabed, then no work to be done
+--- 525,539 ----
+      XtServerGrabRec 	tempGrab;
+      XtServerGrabPtr	*passiveListPtr;
+      XtPerWidgetInput	pwi;
+  
+      if ((pwi = _XtGetPerWidgetInput(widget, FALSE)) == NULL)
+        return (XtServerGrabPtr)0;
+  
+      if (isKeyboard)
+  	  passiveListPtr = &pwi->keyList;
+      else
+  	  passiveListPtr = &pwi->ptrList;
+! 
+      /*
+       * if either there is no entry in the context manager or the entry
+       * is empty, or the keyboard is grabed, then no work to be done
+***************
+*** 577,582 ****
+--- 570,576 ----
+   * widget has been unmapped.
+   */
+  
++ /*ARGSUSED*/
+  static void  ActiveHandler (widget, pdi, event)
+      Widget 		widget;
+      XtPerDisplayInput	pdi;
+***************
+*** 659,674 ****
+  } 
+     
+  /*
+!  * This functions is the event handler attached to the associated widget
+   * when grabs need to be added, but the widget is not yet realized.  When
+   * it is first mapped, this handler will be invoked, and it will add all
+   * needed grabs.
+   */
+  
+  static void  RealizeHandler (widget, pwi, event)
+      Widget 		widget;
+      XtPerWidgetInput	pwi;
+!     XEvent 		*event;
+  
+  {
+      XtPerDisplayInput	pdi;
+--- 653,669 ----
+  } 
+     
+  /*
+!  * This function is the event handler attached to the associated widget
+   * when grabs need to be added, but the widget is not yet realized.  When
+   * it is first mapped, this handler will be invoked, and it will add all
+   * needed grabs.
+   */
+  
++ /*ARGSUSED*/
+  static void  RealizeHandler (widget, pwi, event)
+      Widget 		widget;
+      XtPerWidgetInput	pwi;
+!     XEvent 		*event;	/* unused */
+  
+  {
+      XtPerDisplayInput	pdi;
+***************
+*** 678,685 ****
+      MakeGrabs(&pwi->keyList, KEYBOARD, pdi);
+      MakeGrabs(&pwi->ptrList, POINTER, pdi);
+   
+!     XtRemoveEventHandler(widget, StructureNotifyMask,
+! 			 False, RealizeHandler, (XtPointer)pwi);
+      pwi->realize_handler_added = FALSE;
+  }
+  
+--- 673,680 ----
+      MakeGrabs(&pwi->keyList, KEYBOARD, pdi);
+      MakeGrabs(&pwi->ptrList, POINTER, pdi);
+   
+!     XtRemoveEventHandler(widget, XtAllEvents, True,
+! 			 RealizeHandler, (XtPointer)pwi);
+      pwi->realize_handler_added = FALSE;
+  }
+  
+***************
+*** 699,705 ****
+  		       confine_to, cursor, isKeyboard)
+      Widget	widget;
+      KeyCode	keyOrButton;
+!     unsigned int modifiers;
+      Boolean	owner_events;
+      int 	pointer_mode;
+      int 	keyboard_mode;
+--- 694,700 ----
+  		       confine_to, cursor, isKeyboard)
+      Widget	widget;
+      KeyCode	keyOrButton;
+!     Modifiers	modifiers;
+      Boolean	owner_events;
+      int 	pointer_mode;
+      int 	keyboard_mode;
+***************
+*** 761,772 ****
+  void   UngrabKeyOrButton (widget, keyOrButton, modifiers, isKeyboard)
+      Widget	widget;
+      int		keyOrButton;
+!     unsigned int modifiers;
+      Boolean	isKeyboard;
+  {
+      XtServerGrabRec 	tempGrab;
+-     XtServerGrabPtr	*passiveListPtr;
+-     XtPerDisplayInput	pdi;
+      XtPerWidgetInput	pwi;
+      
+      if (!XtIsWidget(widget)){
+--- 756,765 ----
+  void   UngrabKeyOrButton (widget, keyOrButton, modifiers, isKeyboard)
+      Widget	widget;
+      int		keyOrButton;
+!     Modifiers	modifiers;
+      Boolean	isKeyboard;
+  {
+      XtServerGrabRec 	tempGrab;
+      XtPerWidgetInput	pwi;
+      
+      if (!XtIsWidget(widget)){
+***************
+*** 787,805 ****
+      
+      pwi = _XtGetPerWidgetInput(widget, FALSE);
+      
+-     if (pwi)
+-       {
+- 	  if (isKeyboard)
+- 	    passiveListPtr = &pwi->keyList;
+- 	  else
+- 	    passiveListPtr = &pwi->ptrList;
+-       }
+-     
+      /*
+!      * if either there is no entry in the context manager or the entry
+!      * is empty, then somethings wrong
+       */
+!     if (!pwi || !passiveListPtr)
+        {
+  	  XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+  		       "invalidGrab", "ungrabKeyOrButton", "XtToolkitError",
+--- 780,789 ----
+      
+      pwi = _XtGetPerWidgetInput(widget, FALSE);
+      
+      /*
+!      * if there is no entry in the context manager then somethings wrong
+       */
+!     if (!pwi)
+        {
+  	  XtAppWarningMsg(XtWidgetToApplicationContext(widget),
+  		       "invalidGrab", "ungrabKeyOrButton", "XtToolkitError",
+***************
+*** 807,829 ****
+  		       (String *)NULL, (Cardinal *)NULL);
+  	  return;
+        }
+      if (XtIsRealized(widget))
+        {
+  	  if (isKeyboard)
+  	    XUngrabKey(widget->core.screen->display,
+! 		       keyOrButton, modifiers, 
+  		       widget->core.window);
+  	  else
+  	    XUngrabButton(widget->core.screen->display,
+! 			  keyOrButton, modifiers, 
+  			  widget->core.window);
+        }
+  
+!     pdi = _XtGetPerDisplayInput(XtDisplay(widget));
+!     
+      /* Delete all entries which are encompassed by the specified grab. */
+!     DeleteServerGrabFromList(passiveListPtr,
+! 			     pdi, 
+  			     &tempGrab);
+  }
+  
+--- 791,813 ----
+  		       (String *)NULL, (Cardinal *)NULL);
+  	  return;
+        }
++ 
+      if (XtIsRealized(widget))
+        {
+  	  if (isKeyboard)
+  	    XUngrabKey(widget->core.screen->display,
+! 		       keyOrButton, (unsigned int)modifiers,
+  		       widget->core.window);
+  	  else
+  	    XUngrabButton(widget->core.screen->display,
+! 			  keyOrButton, (unsigned int)modifiers, 
+  			  widget->core.window);
+        }
+  
+!    
+      /* Delete all entries which are encompassed by the specified grab. */
+!     DeleteServerGrabFromList(isKeyboard ? &pwi->keyList : &pwi->ptrList,
+! 			     _XtGetPerDisplayInput(XtDisplay(widget)), 
+  			     &tempGrab);
+  }
+  
+***************
+*** 832,838 ****
+  		 pointer_mode, keyboard_mode)
+      Widget	widget;
+      KeyCode	keycode;
+!     unsigned int modifiers;
+      Boolean	owner_events;
+      int 	pointer_mode;
+      int 	keyboard_mode;
+--- 816,822 ----
+  		 pointer_mode, keyboard_mode)
+      Widget	widget;
+      KeyCode	keycode;
+!     Modifiers	modifiers;
+      Boolean	owner_events;
+      int 	pointer_mode;
+      int 	keyboard_mode;
+***************
+*** 840,846 ****
+  {
+      GrabKeyOrButton(widget, keycode, modifiers, owner_events,
+  		    pointer_mode, keyboard_mode, 
+! 		    0, 0, 0, KEYBOARD);
+  }
+  
+  void  XtGrabButton(widget, button, modifiers, owner_events,
+--- 824,830 ----
+  {
+      GrabKeyOrButton(widget, keycode, modifiers, owner_events,
+  		    pointer_mode, keyboard_mode, 
+! 		    (Mask)0, (Window)None, (Cursor)None, KEYBOARD);
+  }
+  
+  void  XtGrabButton(widget, button, modifiers, owner_events,
+***************
+*** 870,885 ****
+  void   XtUngrabKey (widget, keycode, modifiers)
+      Widget	widget;
+      KeyCode	keycode;
+!     unsigned int modifiers;
+  {
+  
+!     UngrabKeyOrButton(widget, keycode, modifiers, KEYBOARD);
+  }
+  
+  void   XtUngrabButton (widget, button, modifiers)
+      Widget	widget;
+      int		button;
+!     unsigned int modifiers;
+  {
+  
+      UngrabKeyOrButton(widget, button, modifiers, POINTER);
+--- 854,869 ----
+  void   XtUngrabKey (widget, keycode, modifiers)
+      Widget	widget;
+      KeyCode	keycode;
+!     Modifiers	modifiers;
+  {
+  
+!     UngrabKeyOrButton(widget, (int)keycode, modifiers, KEYBOARD);
+  }
+  
+  void   XtUngrabButton (widget, button, modifiers)
+      Widget	widget;
+      int		button;
+!     Modifiers	modifiers;
+  {
+  
+      UngrabKeyOrButton(widget, button, modifiers, POINTER);
+***************
+*** 914,926 ****
+      
+      if (!isKeyboard)
+        returnVal = XGrabPointer(XtDisplay(widget), XtWindow(widget), 
+! 			       owner_events, GrabModeAsync, 
+! 			       GrabModeAsync, event_mask,
+  			       confine_to, cursor, time);
+      else
+        returnVal = XGrabKeyboard(XtDisplay(widget), XtWindow(widget), 
+! 				owner_events, GrabModeAsync, 
+! 				GrabModeAsync, time);
+  
+      if (returnVal == GrabSuccess)
+        {	
+--- 898,910 ----
+      
+      if (!isKeyboard)
+        returnVal = XGrabPointer(XtDisplay(widget), XtWindow(widget), 
+! 			       owner_events, event_mask,
+! 			       pointer_mode, keyboard_mode,
+  			       confine_to, cursor, time);
+      else
+        returnVal = XGrabKeyboard(XtDisplay(widget), XtWindow(widget), 
+! 				owner_events, pointer_mode, 
+! 				keyboard_mode, time);
+  
+      if (returnVal == GrabSuccess)
+        {	
+***************
+*** 988,994 ****
+  {
+      return (GrabDevice (widget, owner_events,
+  			pointer_mode, keyboard_mode, 
+! 			0, 0, 0, time, KEYBOARD));
+  }
+  
+  
+--- 972,978 ----
+  {
+      return (GrabDevice (widget, owner_events,
+  			pointer_mode, keyboard_mode, 
+! 			(Mask)0, (Window)None, (Cursor)None, time, KEYBOARD));
+  }
+  
+  
+
+
+
+
+
+*** /tmp/,RCSt1a09586	Wed Jan 31 12:23:07 1990
+--- mit/lib/X/XLiHosts.c	Wed Jan 31 12:22:57 1990
+***************
+*** 1,6 ****
+  #include "copyright.h"
+  
+! /* $XConsortium: XLiHosts.c,v 11.16 89/11/08 17:07:12 converse Exp $ */
+  /* Copyright    Massachusetts Institute of Technology    1986	*/
+  /* This can really be considered an os dependent routine */
+  
+--- 1,6 ----
+  #include "copyright.h"
+  
+! /* $XConsortium: XLiHosts.c,v 11.17 90/01/31 12:22:47 keith Exp $ */
+  /* Copyright    Massachusetts Institute of Technology    1986	*/
+  /* This can really be considered an os dependent routine */
+  
+***************
+*** 15,21 ****
+      int *nhosts;	/* RETURN */
+      Bool *enabled;	/* RETURN */
+      {
+!     register XHostAddress *outbuf, *op;
+      xListHostsReply reply;
+      long nbytes;
+      unsigned char *buf, *bp;
+--- 15,21 ----
+      int *nhosts;	/* RETURN */
+      Bool *enabled;	/* RETURN */
+      {
+!     register XHostAddress *outbuf = 0, *op;
+      xListHostsReply reply;
+      long nbytes;
+      unsigned char *buf, *bp;
+
+
+
+
+
+*** /tmp/,RCSt1a00203	Fri Feb  9 11:47:31 1990
+--- mit/clients/xdm/dm.c	Wed Feb  7 18:47:18 1990
+***************
+*** 1,7 ****
+  /*
+   * xdm - display manager daemon
+   *
+!  * $XConsortium: dm.c,v 1.34 89/12/19 16:56:09 rws Exp $
+   *
+   * Copyright 1988 Massachusetts Institute of Technology
+   *
+--- 1,7 ----
+  /*
+   * xdm - display manager daemon
+   *
+!  * $XConsortium: dm.c,v 1.36 90/02/07 18:47:14 keith Exp $
+   *
+   * Copyright 1988 Massachusetts Institute of Technology
+   *
+***************
+*** 25,30 ****
+--- 25,34 ----
+  # include	<stdio.h>
+  # include	<X11/Xos.h>
+  # include	<sys/signal.h>
++ #ifndef sigmask
++ #define sigmask(m)  (1 << ((m - 1)))
++ #endif
++ 
+  # include	<sys/stat.h>
+  # include	<errno.h>
+  # include	<varargs.h>
+***************
+*** 55,65 ****
+  int	argc;
+  char	**argv;
+  {
+!     int	oldpid;
+  #ifndef SYSV
+      static SIGVAL	ChildNotify ();
+  #endif
+  
+  #ifndef NOXDMTITLE
+      Title = argv[0];
+      TitleLen = (argv[argc - 1] + strlen(argv[argc - 1])) - Title;
+--- 59,72 ----
+  int	argc;
+  char	**argv;
+  {
+!     int	oldpid, oldumask;
+  #ifndef SYSV
+      static SIGVAL	ChildNotify ();
+  #endif
+  
++     /* make sure at least world write access is disabled */
++     if (((oldumask = umask(022)) & 002) == 002)
++ 	(void) umask (oldumask);
+  #ifndef NOXDMTITLE
+      Title = argv[0];
+      TitleLen = (argv[argc - 1] + strlen(argv[argc - 1])) - Title;
+***************
+*** 170,176 ****
+      }
+      else
+      {
+! 	ParseDisplay (lineBuf, acceptableTypes, NumTypes);
+      }
+  }
+  
+--- 177,183 ----
+      }
+      else
+      {
+! 	ParseDisplay (servers, acceptableTypes, NumTypes);
+      }
+  }
+  
+***************
+*** 597,602 ****
+--- 604,611 ----
+  	}
+  	close(creat(pidFile, 0666));
+  	fprintf (pidFilePtr, "%d\n", getpid ());
++ 	(void) fflush (pidFilePtr);
++ 	RegisterCloseOnFork (pidFd);
+      }
+      return 0;
+  }
+
+*** /tmp/,RCSt1a21346	Wed Feb  7 18:47:38 1990
+--- mit/clients/xdm/session.c	Wed Feb  7 18:47:21 1990
+***************
+*** 1,7 ****
+  /*
+   * xdm - display manager daemon
+   *
+!  * $XConsortium: session.c,v 1.28 89/12/19 19:50:18 rws Exp $
+   *
+   * Copyright 1988 Massachusetts Institute of Technology
+   *
+--- 1,7 ----
+  /*
+   * xdm - display manager daemon
+   *
+!  * $XConsortium: session.c,v 1.29 90/02/07 18:47:19 keith Exp $
+   *
+   * Copyright 1988 Massachusetts Institute of Technology
+   *
+***************
+*** 329,335 ****
+  		}
+  	if (verify->argv) {
+  		Debug ("executing session %s\n", verify->argv[0]);
+! 		execve (verify->argv[0], verify->argv, verify->userEnviron);
+  		LogError ("Session execution failed %s\n", verify->argv[0]);
+  		Debug ("exec failed\n");
+  	} else {
+--- 329,335 ----
+  		}
+  	if (verify->argv) {
+  		Debug ("executing session %s\n", verify->argv[0]);
+! 		execute (verify->argv, verify->userEnviron);
+  		LogError ("Session execution failed %s\n", verify->argv[0]);
+  		Debug ("exec failed\n");
+  	} else {
+***************
+*** 337,343 ****
+  	}
+  	failsafeArgv[0] = d->failsafeClient;
+  	failsafeArgv[1] = 0;
+! 	execve (failsafeArgv[0], failsafeArgv, verify->userEnviron);
+  	exit (1);
+      case -1:
+  	Debug ("StartSession, fork failed\n");
+--- 337,343 ----
+  	}
+  	failsafeArgv[0] = d->failsafeClient;
+  	failsafeArgv[1] = 0;
+! 	execute (failsafeArgv, verify->userEnviron);
+  	exit (1);
+      case -1:
+  	Debug ("StartSession, fork failed\n");
+
+*** /tmp/,RCSt1a21346	Wed Feb  7 18:47:39 1990
+--- mit/clients/xdm/xdmshell.c	Wed Feb  7 18:47:25 1990
+***************
+*** 67,75 ****
+  }
+  
+  
+! static int exec_one_arg (filename, arg)
+      char *filename;
+!     char *arg;
+  {
+      int pid;
+      waitType status;
+--- 67,75 ----
+  }
+  
+  
+! static int exec_args (filename, args)
+      char *filename;
+!     char **args;
+  {
+      int pid;
+      waitType status;
+***************
+*** 94,100 ****
+        case -1:						/* error */
+  	return -1;
+        case 0:    					/* child */
+! 	execl (filename, filename, arg, 0);
+  	_exit (1);
+  	/* NOTREACHED */
+        default:						/* parent */
+--- 94,100 ----
+        case -1:						/* error */
+  	return -1;
+        case 0:    					/* child */
+! 	execv (filename, args);
+  	_exit (1);
+  	/* NOTREACHED */
+        default:						/* parent */
+***************
+*** 103,109 ****
+--- 103,120 ----
+      return waitCode (status);
+  }
+  
++ static int exec_one_arg (filename, arg)
++     char    *filename;
++     char    *arg;
++ {
++     char    *argv[3];
+  
++     argv[0] = filename;
++     argv[1] = arg;
++     argv[2] = NULL;
++     return exec_args (filename, argv);
++ }
++ 
+  main (argc, argv)
+      int argc;
+      char *argv[];
+***************
+*** 110,115 ****
+--- 121,127 ----
+  {
+      int ttyfd;
+      char cmdbuf[256];
++     char *args[10];
+  #ifdef ON_CONSOLE_ONLY
+      int consfd;
+      int ttypgrp, conspgrp;
+***************
+*** 172,184 ****
+      }
+  #endif
+  
+  
+      /*
+!      * exec /usr/bin/X11/xdm -nodaemon
+       */
+      strcpy (cmdbuf, BINDIR);
+      strcat (cmdbuf, "/xdm");
+!     if (exec_one_arg (cmdbuf, "-nodaemon") == -1) {
+  	fprintf (stderr, "%s:  unable to execute %s (error %d, %s)\r\n",
+  		 ProgramName, cmdbuf, errno, SysErrorMsg(errno));
+  	exit (1);
+--- 184,203 ----
+      }
+  #endif
+  
++     /* make xdm run in a non-setuid environment */
++     setuid (geteuid());
+  
+      /*
+!      * exec /usr/bin/X11/xdm -nodaemon -udpPort 0
+       */
+      strcpy (cmdbuf, BINDIR);
+      strcat (cmdbuf, "/xdm");
+!     args[0] = cmdbuf;
+!     args[1] = "-nodaemon";
+!     args[2] = "-udpPort";
+!     args[3] = "0";
+!     args[4] = NULL;
+!     if (exec_args (cmdbuf, args) == -1) {
+  	fprintf (stderr, "%s:  unable to execute %s (error %d, %s)\r\n",
+  		 ProgramName, cmdbuf, errno, SysErrorMsg(errno));
+  	exit (1);
+
+*** /tmp/,RCSt1a21346	Wed Feb  7 18:47:40 1990
+--- mit/clients/xdm/server.c	Wed Feb  7 18:47:26 1990
+***************
+*** 1,7 ****
+  /*
+   * xdm - display manager daemon
+   *
+!  * $XConsortium: server.c,v 1.5 89/12/06 19:38:39 keith Exp $
+   *
+   * Copyright 1988 Massachusetts Institute of Technology
+   *
+--- 1,7 ----
+  /*
+   * xdm - display manager daemon
+   *
+!  * $XConsortium: server.c,v 1.6 90/02/07 18:47:25 keith Exp $
+   *
+   * Copyright 1988 Massachusetts Institute of Technology
+   *
+***************
+*** 303,308 ****
+--- 303,309 ----
+  	Debug ("Server dead\n");
+  	alarm (0);
+  	signal (SIGALRM, SIG_DFL);
++ 	XSetIOErrorHandler (oldError);
+  	return 0;
+      }
+      alarm (0);
+
+*** /tmp/,RCSt1a21346	Wed Feb  7 18:47:41 1990
+--- mit/clients/xdm/Imakefile	Wed Feb  7 18:47:28 1990
+***************
+*** 39,47 ****
+         PROGRAMS = xdm xdmshell sessreg
+  
+  #if !HasVoidSignalReturn
+!      SIGDEFS = -DSIGNALRETURNSINT
+  #endif
+!         DEFINES = -DBINDIR=\"$(BINDIR)\" -DXDMDIR=\"$(XDMDIR)\" $(SIGDEFS) $(DESDEFS) ConnectionFlags
+  
+  /**/#
+  /**/# Special definitions for compiling default resources; these parameters
+--- 39,52 ----
+         PROGRAMS = xdm xdmshell sessreg
+  
+  #if !HasVoidSignalReturn
+!         SIGDEFS = -DSIGNALRETURNSINT
+  #endif
+!  OSMAJORVERSION = OSMajorVersion
+!  OSMINORVERSION = OSMinorVersion
+!         DEFINES = -DBINDIR=\"$(BINDIR)\" -DXDMDIR=\"$(XDMDIR)\" $(SIGDEFS) \
+! 		$(DESDEFS) ConnectionFlags \
+! 		-DOSMAJORVERSION=$(OSMAJORVERSION) \
+! 		-DOSMINORVERSION=$(OSMINORVERSION)
+  
+  /**/#
+  /**/# Special definitions for compiling default resources; these parameters
+
+*** /tmp/,RCSt1a21346	Wed Feb  7 18:47:42 1990
+--- mit/clients/xdm/cryptokey.c	Wed Feb  7 18:47:30 1990
+***************
+*** 1,7 ****
+  /*
+   * xdm - display manager daemon
+   *
+!  * $XConsortium: cryptokey.c,v 1.1 89/12/13 15:22:52 keith Exp $
+   *
+   * Copyright 1988 Massachusetts Institute of Technology
+   *
+--- 1,7 ----
+  /*
+   * xdm - display manager daemon
+   *
+!  * $XConsortium: cryptokey.c,v 1.2 90/02/07 18:47:29 keith Exp $
+   *
+   * Copyright 1988 Massachusetts Institute of Technology
+   *
+***************
+*** 40,47 ****
+  #  endif
+  #  ifdef sun
+  #   define USE_CRYPT
+!     /* avoid strange sun crypt hackery */
+! #   define crypt _crypt
+  #  endif
+  # endif
+  #endif
+--- 40,49 ----
+  #  endif
+  #  ifdef sun
+  #   define USE_CRYPT
+! #   if (OSMAJORVERSION >= 4)
+!      /* avoid strange sun crypt hackery */
+! #    define crypt _crypt
+! #   endif
+  #  endif
+  # endif
+  #endif
+

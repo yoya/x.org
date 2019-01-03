@@ -1,0 +1,402 @@
+This patch fixes a security hole in xterm that has been there since X.V10R4.
+To apply it, cd to the top of the X tree and apply with "patch -p0" and
+remake in mit/clients/xterm.
+
+*** /tmp/,RCSt1a24884	Mon Mar 12 11:27:20 1990
+--- mit/clients/xterm/Imakefile	Mon Mar 12 11:25:46 1990
+***************
+*** 34,39 ****
+--- 34,40 ----
+  #endif
+  
+     MAIN_DEFINES = -DUTMP $(TTYGROUPDEF) $(PUCCPTYDDEF)
++    MISC_DEFINES = /* -DALLOWLOGFILEEXEC */
+  
+            SRCS1 = button.c charproc.c cursor.c data.c input.c \
+  		  main.c menu.c misc.c screen.c scrollbar.c tabs.c \
+***************
+*** 50,64 ****
+         DEPLIBS2 = 
+         PROGRAMS = xterm resize
+  
+  #ifdef CrayArchitecture
+!      TERMCAPLIB = -lcurses
+  #else
+!      TERMCAPLIB = -ltermcap
+  #endif
+  
+  AllTarget($(PROGRAMS))
+  
+  SpecialObjectRule(main.o, ,$(MAIN_DEFINES))
+  
+  NormalProgramTarget(xterm,$(OBJS1),$(DEPLIBS1),XawClientLibs,$(TERMCAPLIB) $(PTYLIB))
+  InstallProgramWithFlags(xterm, $(BINDIR), $(INSTUIDFLAGS))
+--- 51,75 ----
+         DEPLIBS2 = 
+         PROGRAMS = xterm resize
+  
++ #ifndef TermcapLibrary
++ #if SystemV && !defined(MacIIArchitecture)
+  #ifdef CrayArchitecture
+! #define TermcapLibrary -lcurses		/* special case of system v */
+  #else
+! #define TermcapLibrary -ltermlib	/* usually in here */
+  #endif
++ #else
++ #define TermcapLibrary -ltermcap	/* bsd puts it here */
++ #endif
++ #endif
+  
++      TERMCAPLIB = TermcapLibrary
++ 
+  AllTarget($(PROGRAMS))
+  
+  SpecialObjectRule(main.o, ,$(MAIN_DEFINES))
++ SpecialObjectRule(misc.o, ,$(MISC_DEFINES))
++ SpecialObjectRule(charproc.o, ,$(MISC_DEFINES))
+  
+  NormalProgramTarget(xterm,$(OBJS1),$(DEPLIBS1),XawClientLibs,$(TERMCAPLIB) $(PTYLIB))
+  InstallProgramWithFlags(xterm, $(BINDIR), $(INSTUIDFLAGS))
+*** /tmp/,RCSt1a24650	Mon Mar 12 11:11:45 1990
+--- mit/clients/xterm/button.c	Mon Mar  5 11:47:01 1990
+***************
+*** 1,5 ****
+  /*
+!  *	$XConsortium: button.c,v 1.49 89/12/10 20:45:17 jim Exp $
+   */
+  
+  
+--- 1,5 ----
+  /*
+!  *	$XConsortium: button.c,v 1.50 90/03/05 11:46:57 keith Exp $
+   */
+  
+  
+***************
+*** 35,41 ****
+  				J. Gettys.
+  */
+  #ifndef lint
+! static char rcs_id[] = "$XConsortium: button.c,v 1.49 89/12/10 20:45:17 jim Exp $";
+  #endif	/* lint */
+  
+  #include "ptyx.h"		/* Xlib headers included here. */
+--- 35,41 ----
+  				J. Gettys.
+  */
+  #ifndef lint
+! static char rcs_id[] = "$XConsortium: button.c,v 1.50 90/03/05 11:46:57 keith Exp $";
+  #endif	/* lint */
+  
+  #include "ptyx.h"		/* Xlib headers included here. */
+***************
+*** 489,497 ****
+  	    PointToRowCol(event->xbutton.y, event->xbutton.x, &row, &col);
+  	}
+  	ExtendExtend (row, col);
+- 
+  	lastButtonUpTime = event->xbutton.time;
+- 	/* Only do select stuff if non-null select */
+  	if (startSRow != endSRow || startSCol != endSCol) {
+  		if (replyToEmacs) {
+  			if (rawRow == startSRow && rawCol == startSCol 
+--- 489,495 ----
+***************
+*** 514,525 ****
+  			}
+  			TrackText(0, 0, 0, 0);
+  		}
+  		SaltTextAway(startSRow, startSCol, endSRow, endSCol,
+  			     params, num_params);
+! 	} else DisownSelection(term);
+! 
+! 	/* TrackText(0, 0, 0, 0); */
+! 	eventMode = NORMAL;
+  }
+  
+  #define Abs(x)		((x) < 0 ? -(x) : (x))
+--- 512,542 ----
+  			}
+  			TrackText(0, 0, 0, 0);
+  		}
++ 	}
++ 	SelectSet(event, params, num_params);
++ 	eventMode = NORMAL;
++ }
++ 
++ HandleSelectSet(w, event, params, num_params)
++ Widget w;
++ XEvent *event;
++ String *params;
++ Cardinal *num_params;
++ {
++ 	SelectSet (event, params, *num_params);
++ }
++ 
++ SelectSet (event, params, num_params)
++ XEvent	*event;
++ String	*params;
++ Cardinal    num_params;
++ {
++ 	/* Only do select stuff if non-null select */
++ 	if (startSRow != endSRow || startSCol != endSCol) {
+  		SaltTextAway(startSRow, startSCol, endSRow, endSCol,
+  			     params, num_params);
+! 	} else
+! 		DisownSelection(term);
+  }
+  
+  #define Abs(x)		((x) < 0 ? -(x) : (x))
+*** /tmp/,RCSt1a24657	Mon Mar 12 11:11:48 1990
+--- mit/clients/xterm/charproc.c	Mon Mar 12 10:30:27 1990
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: charproc.c,v 1.121 89/12/15 19:07:43 jim Exp $
+   */
+  
+  
+--- 1,5 ----
+  /*
+!  * $XConsortium: charproc.c,v 1.123 90/03/12 10:30:21 jim Exp $
+   */
+  
+  
+***************
+*** 149,155 ****
+  #define	doinput()		(bcnt-- > 0 ? *bptr++ : in_put())
+  
+  #ifndef lint
+! static char rcs_id[] = "$XConsortium: charproc.c,v 1.121 89/12/15 19:07:43 jim Exp $";
+  #endif	/* lint */
+  
+  static int nparam;
+--- 149,155 ----
+  #define	doinput()		(bcnt-- > 0 ? *bptr++ : in_put())
+  
+  #ifndef lint
+! static char rcs_id[] = "$XConsortium: charproc.c,v 1.123 90/03/12 10:30:21 jim Exp $";
+  #endif	/* lint */
+  
+  static int nparam;
+***************
+*** 180,186 ****
+  static void HandleKeymapChange();
+  extern void HandleInsertSelection();
+  extern void HandleSelectStart(), HandleKeyboardSelectStart();
+! extern void HandleSelectExtend();
+  extern void HandleSelectEnd(), HandleKeyboardSelectEnd();
+  extern void HandleStartExtend(), HandleKeyboardStartExtend();
+  static void HandleBell();
+--- 180,186 ----
+  static void HandleKeymapChange();
+  extern void HandleInsertSelection();
+  extern void HandleSelectStart(), HandleKeyboardSelectStart();
+! extern void HandleSelectExtend(), HandleSelectSet();
+  extern void HandleSelectEnd(), HandleKeyboardSelectEnd();
+  extern void HandleStartExtend(), HandleKeyboardStartExtend();
+  static void HandleBell();
+***************
+*** 250,255 ****
+--- 250,256 ----
+      { "select-start",	  HandleSelectStart },
+      { "select-extend",	  HandleSelectExtend },
+      { "select-end",	  HandleSelectEnd },
++     { "select-set",	  HandleSelectSet },
+      { "select-cursor-start",	  HandleKeyboardSelectStart },
+      { "select-cursor-end",	  HandleKeyboardSelectEnd },
+      { "set-vt-font",	  HandleSetFont },
+***************
+*** 1489,1498 ****
+--- 1490,1508 ----
+  			update_reversewrap();
+  			break;
+  		case 46:		/* logging		*/
++ #ifdef ALLOWLOGFILEONOFF
++ 			/*
++ 			 * if this feature is enabled, logging may be 
++ 			 * enabled and disabled via escape sequences.
++ 			 */
+  			if(func == bitset)
+  				StartLog(screen);
+  			else
+  				CloseLog(screen);
++ #else
++ 			Bell();
++ 			Bell();
++ #endif /* ALLOWLOGFILEONOFF */
+  			break;
+  		case 47:		/* alternate buffer		*/
+  			if(func == bitset)
+***************
+*** 1687,1696 ****
+--- 1697,1708 ----
+  			update_reversewrap();
+  			break;
+  		case 46:		/* logging		*/
++ #ifdef ALLOWLOGFILEONOFF
+  			if(screen->save_modes[14])
+  				StartLog(screen);
+  			else
+  				CloseLog(screen);
++ #endif /* ALLOWLOGFILEONOFF */
+  			/* update_logging done by StartLog and CloseLog */
+  			break;
+  		case 47:		/* alternate buffer		*/
+*** /tmp/,RCSt1a24743	Mon Mar 12 11:12:09 1990
+--- mit/clients/xterm/misc.c	Mon Mar 12 10:30:22 1990
+***************
+*** 1,5 ****
+  /*
+!  *	$XConsortium: misc.c,v 1.62 89/12/10 20:44:41 jim Exp $
+   */
+  
+  
+--- 1,5 ----
+  /*
+!  *	$XConsortium: misc.c,v 1.65 90/03/12 10:30:17 jim Exp $
+   */
+  
+  
+***************
+*** 58,64 ****
+  static void DoSpecialLeaveNotify();
+  
+  #ifndef lint
+! static char rcs_id[] = "$XConsortium: misc.c,v 1.62 89/12/10 20:44:41 jim Exp $";
+  #endif	/* lint */
+  
+  xevents()
+--- 58,64 ----
+  static void DoSpecialLeaveNotify();
+  
+  #ifndef lint
+! static char rcs_id[] = "$XConsortium: misc.c,v 1.65 90/03/12 10:30:17 jim Exp $";
+  #endif	/* lint */
+  
+  xevents()
+***************
+*** 388,393 ****
+--- 388,394 ----
+  	register int i;
+  	static char *log_default;
+  	char *malloc(), *rindex();
++ #ifdef ALLOWLOGFILEEXEC
+  	void logpipe();
+  #ifdef SYSV
+  	/* SYSV has another pointer which should be part of the
+***************
+*** 395,400 ****
+--- 396,402 ----
+  	*/
+  	unsigned char *old_bufend;
+  #endif	/* SYSV */
++ #endif /* ALLOWLOGFILEEXEC */
+  
+  	if(screen->logging || (screen->inhibit & I_LOG))
+  		return;
+***************
+*** 408,413 ****
+--- 410,421 ----
+  		strcpy(screen->logfile, log_default);
+  	}
+  	if(*screen->logfile == '|') {	/* exec command */
++ #ifdef ALLOWLOGFILEEXEC
++ 		/*
++ 		 * Warning, enabling this "feature" allows arbitrary programs
++ 		 * to be run.  If ALLOWLOGFILECHANGES is enabled, this can be
++ 		 * done through escape sequences....  You have been warned.
++ 		 */
+  		int p[2];
+  		static char *shell;
+  
+***************
+*** 454,459 ****
+--- 462,472 ----
+  		close(p[0]);
+  		screen->logfd = p[1];
+  		signal(SIGPIPE, logpipe);
++ #else
++ 		Bell();
++ 		Bell();
++ 		return;
++ #endif
+  	} else {
+  		if(access(screen->logfile, F_OK) == 0) {
+  			if(access(screen->logfile, W_OK) < 0)
+***************
+*** 500,505 ****
+--- 513,519 ----
+  	screen->logstart = screen->TekEmu ? Tbuffer : buffer;
+  }
+  
++ #ifdef ALLOWLOGFILEEXEC
+  void logpipe()
+  {
+  	register TScreen *screen = &term->screen;
+***************
+*** 510,516 ****
+--- 524,532 ----
+  	if(screen->logging)
+  		CloseLog(screen);
+  }
++ #endif /* ALLOWLOGFILEEXEC */
+  
++ 
+  do_osc(func)
+  int (*func)();
+  {
+***************
+*** 518,523 ****
+--- 534,540 ----
+  	register int mode, c;
+  	register char *cp;
+  	char buf[512];
++ 	char *bufend = &buf[(sizeof buf) - 1];	/* leave room for null */
+  	extern char *malloc();
+  	Bool okay = True;
+  
+***************
+*** 531,537 ****
+  		mode = 10 * mode + (c - '0');
+  	if (c != ';') okay = False;
+  	cp = buf;
+! 	while(isprint((c = (*func)()) & 0x7f))
+  		*cp++ = c;
+  	if (c != 7) okay = False;
+  	*cp = 0;
+--- 548,554 ----
+  		mode = 10 * mode + (c - '0');
+  	if (c != ';') okay = False;
+  	cp = buf;
+! 	while(isprint((c = (*func)()) & 0x7f) && cp < bufend)
+  		*cp++ = c;
+  	if (c != 7) okay = False;
+  	*cp = 0;
+***************
+*** 550,555 ****
+--- 567,577 ----
+  		break;
+  
+  	 case 46:	/* new log file */
++ #ifdef ALLOWLOGFILECHANGES
++ 		/*
++ 		 * Warning, enabling this feature allows people to overwrite
++ 		 * arbitrary files accessible to the person running xterm.
++ 		 */
+  		if((cp = malloc((unsigned)strlen(buf) + 1)) == NULL)
+  			break;
+  		strcpy(cp, buf);
+***************
+*** 556,561 ****
+--- 578,587 ----
+  		if(screen->logfile)
+  			free(screen->logfile);
+  		screen->logfile = cp;
++ #else
++ 		Bell();
++ 		Bell();
++ #endif
+  		break;
+  
+  	case 50:
