@@ -1,5 +1,5 @@
 /*
-* $XConsortium: IntrinsicI.h,v 1.39 89/11/15 12:24:52 swick Exp $
+* $XConsortium: IntrinsicI.h,v 1.42 90/07/26 10:05:52 swick Exp $
 * $oHeader: IntrinsicI.h,v 1.5 88/08/31 16:21:08 asente Exp $
 */
 
@@ -42,9 +42,10 @@ SOFTWARE.
 #include "CallbackI.h"
 #include "CompositeI.h"
 #include "ConvertI.h"
+#include "EventI.h"
+#include "PassivGraI.h"
 #include "InitialI.h"
 #include "ResourceI.h"
-#include "EventI.h"
 
 #define RectObjClassFlag	0x02
 #define WidgetClassFlag		0x04
@@ -167,7 +168,22 @@ extern int bcmp();
 #define ERRORDB "/usr/lib/X11/XtErrorDB"
 #endif
 
-extern void _XtAllocError();
+extern String XtCXtToolkitError;
+
+extern void _XtAllocError(
+#if NeedFunctionPrototypes
+    String	/* alloc_type */
+#endif
+);
+
+extern XtGeometryResult _XtMakeGeometryRequest(
+#if NeedFunctionPrototypes
+    Widget 		/* widget */,
+    XtWidgetGeometry*	/* request */,
+    XtWidgetGeometry*	/* reply_return */,
+    Boolean*		/* clear_rect_obj */
+#endif
+);
 
 #endif /* _XtintrinsicI_h */
 /* DON'T ADD STUFF AFTER THIS #endif */

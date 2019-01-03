@@ -66,7 +66,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
 SOFTWARE.
 
 ******************************************************************/
-/* $XConsortium: mfbgc.c,v 5.6 89/07/19 09:30:40 rws Exp $ */
+/* $XConsortium: apa16GC.c,v 1.3 90/03/21 09:50:21 rws Exp $ */
 #include "X.h"
 #include "Xmd.h"
 #include "Xproto.h"
@@ -411,22 +411,7 @@ apa16CopyGC (pGCSrc, changes, pGCDst)
     Mask 	changes;
     GCPtr	pGCDst;
 {
-    RegionPtr		pClip;
-
-    if(changes & GCClipMask)
-    {
-	if(pGCDst->clientClipType == CT_PIXMAP)
-	{
-	    ((PixmapPtr)pGCDst->clientClip)->refcnt++;
-	}
-	else if(pGCDst->clientClipType == CT_REGION)
-	{
-	    pClip = (RegionPtr) pGCDst->clientClip;
-	    pGCDst->clientClip =
-	        (pointer)(* pGCDst->pScreen->RegionCreate)(NULL, 1);
-	    (* pGCDst->pScreen->RegionCopy)(pGCDst->clientClip, pClip);
-	}
-    }
+    return;
 }
 
 static void
@@ -855,21 +840,26 @@ apa16ValidateGC(pGC, changes, pDrawable)
 	{
 	    if(pGC->lineWidth == 0)
 	    {
-	        if (pGC->fillStyle == FillSolid)
+	        if (pGC->fillStyle == FillSolid) {
 		    pGC->ops->Polylines = apa16LineSS;
-	        else
+		    pGC->ops->PolySegment = apa16PolySegment;
+	        } else {
 		    pGC->ops->Polylines = miZeroLine;
+		    pGC->ops->PolySegment = miPolySegment;
+		}
 	    }
 	    else
 	    {
 		pGC->ops->Polylines = miWideLine;
+		pGC->ops->PolySegment = miPolySegment;
 	    }
-	}
-	else
-	    if(pGC->lineWidth == 0)
+	} else {
+	    pGC->ops->PolySegment = miPolySegment;
+	    if(pGC->lineWidth == 0) 
 	        pGC->ops->Polylines = apa16DashLine;
 	    else
 	        pGC->ops->Polylines = miWideDash;
+	}
     }
 
     if (new_text || new_fill)
@@ -888,9 +878,11 @@ apa16ValidateGC(pGC, changes, pDrawable)
 	}
 	else
 	{
-	    pGC->ops->PolyGlyphBlt	= apa16PolyGlyphBlt;
-	    pGC->ops->PolyText8		= apa16PolyText8;
-	    pGC->ops->PolyText16	= apa16PolyText16;
+	    pGC->ops->PolyGlyphBlt	= miPolyGlyphBlt;
+	    pGC->ops->PolyText8		= miPolyText8;
+	    pGC->ops->PolyText16	= miPolyText16;
+	    pGC->ops->ImageText8	= miImageText8;
+	    pGC->ops->ImageText16	= miImageText16;
 	}
     }
 
@@ -929,9 +921,13 @@ apa16ValidateGC(pGC, changes, pDrawable)
 	    switch(devPriv->rop)
 	    {
 	      case RROP_WHITE:
+		pGC->ops->FillSpans = mfbWhiteStippleFS;
+		break;
 	      case RROP_INVERT:
+		pGC->ops->FillSpans = mfbInvertStippleFS;
+		break;
 	      case RROP_BLACK:
-		pGC->ops->FillSpans = apa16StippleFS;
+		pGC->ops->FillSpans = mfbBlackStippleFS;
 		break;
 	      case RROP_NOP:
 		pGC->ops->FillSpans = NoopDDA;

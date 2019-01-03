@@ -1,4 +1,4 @@
-/* $XConsortium: SelectionI.h,v 1.21 89/12/15 15:28:06 swick Exp $ */
+/* $XConsortium: SelectionI.h,v 1.28 90/08/27 20:47:36 swick Exp $ */
 /* $oHeader: SelectionI.h,v 1.3 88/08/19 14:02:44 asente Exp $ */
 /***********************************************************
 Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
@@ -43,8 +43,8 @@ typedef struct _RequestRec {
    Atom target;
    Atom type;
    int format;
-   char *value;
-   int bytelength;
+   XtPointer value;
+   unsigned long bytelength;
    int offset;
    XtIntervalId timeout;
    XSelectionRequestEvent event; /* for XtGetSelectionRequest */
@@ -68,7 +68,6 @@ typedef struct _SelectRec {
     Display *dpy; 			/* constant */
     Widget widget;
     Time time;
-    int refcount;
     XtConvertSelectionProc convert;
     XtLoseSelectionProc loses;
     XtSelectionDoneProc notify;
@@ -76,7 +75,10 @@ typedef struct _SelectRec {
     XtPointer owner_closure;
     PropList prop_list;
     Request req;			/* state for local non-incr xfer */
-    Boolean incremental;
+    int ref_count;			/* of active transfers */
+    Boolean incremental:1;
+    Boolean free_when_done:1;
+    Boolean was_disowned:1;
 } SelectRec;
 
 typedef struct {
@@ -113,6 +115,7 @@ typedef struct {
 
 #define MATCH_SELECT(event, info) ((event->time == info->time) && \
 	    (event->requestor == XtWindow(info->widget)) && \
+	    (event->selection == info->ctx->selection) && \
 	    ((event->target == *info->target) || \
 	     ((event->target == info->ctx->prop_list->incremental_atom) && \
 	      (event->property == info->property))))

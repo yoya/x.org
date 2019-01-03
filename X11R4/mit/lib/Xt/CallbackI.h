@@ -1,5 +1,4 @@
-/* $XConsortium: CallbackI.h,v 1.8 89/09/12 16:48:17 swick Exp $ */
-/* $oHeader: CallbackI.h,v 1.2 88/08/18 15:53:53 asente Exp $ */
+/* $XConsortium: CallbackI.h,v 1.11 90/08/29 13:09:40 swick Exp $ */
 /***********************************************************
 Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
 and the Massachusetts Institute of Technology, Cambridge, Massachusetts.
@@ -36,24 +35,42 @@ typedef struct _XtOffsetRec {
      int            offset;
 } XtOffsetRec, *_XtOffsetList;
 
-extern void _XtRemoveAllCallbacks (); /* callbackList */
-    /* CallbackList     *callbackList;  */
-
-extern void _XtCallCallbacks (); /* callbacks, call_data */
-    /* CallbackList     *callbacks;     */
-    /* XtPointer        callData;       */
-
-
-extern void _XtAddCallback(); /* widget, callbacks, callback, closure */
-    /* Widget           widget; */
-    /* CallbackList     *callbacks; */
-    /* XtCallbackProc   callback; */
-    /* XtPointer        closure; */
-
 typedef struct _CallbackRec *CallbackList;
-
 typedef struct _CallbackStruct CallbackStruct;
 
-extern CallbackList *_XtDestroyList;
+extern void _XtRemoveAllCallbacks(
+#if NeedFunctionPrototypes
+    CallbackList*	/* callbackList */
+#endif
+);
 
-#define _XtSafeToDestroy (_XtDestroyList == NULL)
+extern void _XtCallCallbacks(
+#if NeedFunctionPrototypes
+    CallbackList*	/* callbacks */,
+    XtPointer 		/* callData */
+#endif
+);
+
+extern void _XtAddCallback(
+#if NeedFunctionPrototypes
+    Widget 		/* widget */,
+    CallbackList*	/* callbacks */,
+    XtCallbackProc	/* callback */,
+    XtPointer 		/* closure */
+#endif
+);
+
+extern void _XtAddCallbackOnce(
+#if NeedFunctionPrototypes
+    Widget 		/* widget */,
+    CallbackList*	/* callbacks */,
+    XtCallbackProc	/* callback */,
+    XtPointer 		/* closure */
+#endif
+);
+
+extern CallbackList* _XtCallbackList(
+#if NeedFunctionPrototypes
+    CallbackStruct*	/* callbacks */
+#endif
+);

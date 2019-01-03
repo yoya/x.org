@@ -1,7 +1,4 @@
-#ifndef lint
-static char Xrcsid[] = "$XConsortium: Create.c,v 1.66 89/11/14 14:18:56 swick Exp $";
-/* $oHeader: Create.c,v 1.5 88/09/01 11:26:22 asente Exp $ */
-#endif /*lint*/
+/* $XConsortium: Create.c,v 1.78 90/09/04 10:50:33 swick Exp $ */
 
 /***********************************************************
 Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
@@ -34,6 +31,9 @@ SOFTWARE.
 #include "ShellP.h"
 #include <stdio.h>
 
+static String XtNxtCreateWidget = "xtCreateWidget";
+static String XtNxtCreatePopupShell = "xtCreatePopupShell";
+
 extern void bcopy();
 
 static void CallClassPartInit(ancestor, wc)
@@ -50,35 +50,11 @@ static void CallClassPartInit(ancestor, wc)
 void XtInitializeWidgetClass(wc)
     WidgetClass wc;
 {
-    String param[3];
-    Cardinal num_params=3;
+    XtEnum inited;
     if (wc->core_class.class_inited) return;
-    if (wc->core_class.version != XtVersion &&
-	    wc->core_class.version != XtVersionDontCheck) {
-        param[0] =  wc->core_class.class_name;
-	param[1] =  (String)wc->core_class.version;
-        param[2] = (String)XtVersion;
-	XtWarningMsg("versionMismatch","widget","XtToolkitError",
-          "Widget class %s version mismatch:\n  widget %d vs. intrinsics %d.",
-          param,&num_params);
-	if (wc->core_class.version == (2 * 1000 + 2)) /* MIT R2 */ {
-	    Cardinal num_params=1;
-	    XtErrorMsg("versionMismatch","widget","XtToolkitError",
-		       "Widget class %s must be re-compiled.",
-		       param, &num_params);
-	}
-    }
-
-    if ((wc->core_class.superclass != NULL) 
-	    && (!(wc->core_class.superclass->core_class.class_inited)))
- 	XtInitializeWidgetClass(wc->core_class.superclass);
- 
-    if (wc->core_class.class_initialize != NULL)
-	(*(wc->core_class.class_initialize))();
-    CallClassPartInit(wc, wc);
+    inited = 0x01;
     {
 	WidgetClass pc;
-	XtEnum inited = 0x01;
 #define LeaveIfClass(c, d) if (pc == c) { inited = d; break; }
 	for (pc = wc; pc; pc = pc->core_class.superclass) {
 	    LeaveIfClass(rectObjClass, 0x01 |
@@ -115,8 +91,43 @@ void XtInitializeWidgetClass(wc)
 			 TopLevelClassFlag);
 	}
 #undef LeaveIfClass
-	wc->core_class.class_inited = inited;
     }
+    if (wc->core_class.version != XtVersion &&
+	wc->core_class.version != XtVersionDontCheck) {
+	String param[3];
+        param[0] = wc->core_class.class_name;
+	if (wc->core_class.version == (11 * 1000 + 3)) { /* MIT X11R3 */
+	    if (inited & ShellClassFlag) {
+		Cardinal num_params=1;
+		XtWarningMsg("r3versionMismatch","widget",XtCXtToolkitError,
+			     "Shell Widget class %s binary compiled for R3",
+			     param,&num_params);
+	    }
+	}
+	else {
+	    Cardinal num_params=3;
+	    param[1] = (String)wc->core_class.version;
+	    param[2] = (String)XtVersion;
+	    XtWarningMsg("versionMismatch","widget",XtCXtToolkitError,
+			 "Widget class %s version mismatch (recompilation needed):\n  widget %d vs. intrinsics %d.",
+			 param,&num_params);
+	    if (wc->core_class.version == (2 * 1000 + 2)) /* MIT X11R2 */ {
+		Cardinal num_params=1;
+		XtErrorMsg("r2versionMismatch","widget",XtCXtToolkitError,
+			   "Widget class %s must be re-compiled.",
+			   param, &num_params);
+	    }
+	}
+    }
+
+    if ((wc->core_class.superclass != NULL) 
+	    && (!(wc->core_class.superclass->core_class.class_inited)))
+ 	XtInitializeWidgetClass(wc->core_class.superclass);
+ 
+    if (wc->core_class.class_initialize != NULL)
+	(*(wc->core_class.class_initialize))();
+    CallClassPartInit(wc, wc);
+    wc->core_class.class_inited = inited;
 }
 
 static void CallInitialize (class, req_widget, new_widget, args, num_args)
@@ -167,9 +178,10 @@ static Widget _XtCreate(
 {
     register _XtOffsetList  offsetList;
     XtCallbackList          *pCallbacks;
-    char                    widget_cache[600];
+    /* need to use strictest alignment rules possible in next two decls. */
+    double                  widget_cache[100];
+    double                  constraint_cache[20];
     Widget                  req_widget;
-    char                    constraint_cache[100];
     XtPointer               req_constraints;
     Cardinal                size;
     register Widget	    widget;
@@ -185,21 +197,26 @@ static Widget _XtCreate(
     widget->core.xrm_name = StringToName((name != NULL) ? name : "");
     widget->core.being_destroyed =
 	(parent != NULL ? parent->core.being_destroyed : FALSE);
-    widget->core.constraints = NULL;
-    if (parent_constraint_class != NULL) 
+    if (parent_constraint_class != NULL
+	&& parent_constraint_class->constraint_class.constraint_size > 0)
        	widget->core.constraints = 
 	    (XtPointer) XtMalloc((unsigned)parent_constraint_class->
                        constraint_class.constraint_size);
+    else
+	widget->core.constraints = NULL;
     if (XtIsWidget(widget)) {
-	widget->core.name = XtNewString((name != NULL) ? name : "");
+	widget->core.name = XrmNameToString(widget->core.xrm_name);
         widget->core.screen = default_screen;
         widget->core.tm.translations = NULL;
     };
     if (XtIsApplicationShell(widget)) {
 	ApplicationShellWidget a = (ApplicationShellWidget) widget;
-	if (class != NULL) a->application.class = XtNewString(class);
-	else a->application.class = widget_class->core_class.class_name;
-	a->application.xrm_class = StringToClass(a->application.class);
+	if (class != NULL)
+	    a->application.xrm_class = StringToClass(class);
+	else
+	    a->application.xrm_class =
+		StringToClass(widget_class->core_class.class_name);
+	a->application.class = XrmQuarkToString(a->application.xrm_class);
     }
 
     /* fetch resources */
@@ -223,7 +240,7 @@ static Widget _XtCreate(
 	 offsetList != NULL;
 	 offsetList = offsetList->next) {
 	 pCallbacks = (XtCallbackList *)
-	     ((XtPointer)widget - offsetList->offset - 1);
+	     ((char *)widget - offsetList->offset - 1);
 	if (*pCallbacks != NULL) {
 	    extern CallbackStruct* _XtCompileCallbackList();
 	    *pCallbacks =
@@ -241,32 +258,34 @@ static Widget _XtCreate(
     bcopy ((char *) widget, (char *) req_widget, (int) size);
     CallInitialize (XtClass(widget), req_widget, widget, args, num_args);
 
-    if (typed_args != NULL && num_typed_args > 0) {
+    if (typed_args != NULL) {
+	while (num_typed_args-- > 0) {
 	
-	/* in GetResources we may have dynamically alloc'ed store to hold a */
-	/* copy of a resource which was larger then sizeof(XtARrgVal) .... */
-	/* we must free this store now in order to prevent a memory leak... */
-	/* a typed arg that has a converted value in dynamic store has a */
-	/* negated size field */
+	    /* In GetResources we may have dynamically alloc'd store to hold */
+	    /* a copy of a resource which was larger then sizeof(XtArgVal). */
+	    /* We must free this store now in order to prevent a memory leak */
+	    /* A typed arg that has a converted value in dynamic store has a */
+	    /* negated size field. */
 
-	for (i = 0; i < num_typed_args; i++) {
-		if (typed_args[i].size < 0) { /* we alloc`ed store dynamically */
-			XtFree((XtPointer)typed_args[i].value);
-			typed_args[i].size = -(typed_args[i].size);
+	    if (typed_args->type != NULL && typed_args->size < 0) {
+		XtFree((char*)typed_args->value);
+		typed_args->size = -(typed_args->size);
 		}
+	    typed_args++;
 	}
 
-	DEALLOCATE_LOCAL((XtPointer)args);
+	DEALLOCATE_LOCAL((char*)args);
     }
 
     if (parent_constraint_class != NULL) {
-	size = parent_constraint_class->constraint_class.constraint_size;
-	req_constraints = XtStackAlloc(size, constraint_cache);
-	bcopy(widget->core.constraints, (char*)req_constraints, (int) size);
-	req_widget->core.constraints = req_constraints;
+	if (size = parent_constraint_class->constraint_class.constraint_size){
+	    req_constraints = XtStackAlloc(size, constraint_cache);
+	    bcopy(widget->core.constraints, (char*)req_constraints,(int)size);
+	    req_widget->core.constraints = req_constraints;
+	} else req_widget->core.constraints = NULL;
 	CallConstraintInitialize(parent_constraint_class, req_widget, widget,
 				 args, num_args);
-	XtStackFree(req_constraints, constraint_cache);
+	if (size) XtStackFree(req_constraints, constraint_cache);
     }
     XtStackFree((XtPointer)req_widget, widget_cache);
     return (widget);
@@ -289,12 +308,12 @@ Widget _XtCreateWidget(name, widget_class, parent, args, num_args,
     Screen*                 default_screen;
 
     if (parent == NULL) {
-	XtErrorMsg("invalidParent","xtCreateWidget","XtToolkitError",
+	XtErrorMsg("invalidParent",XtNxtCreateWidget,XtCXtToolkitError,
                 "XtCreateWidget requires non-NULL parent",
                   (String *)NULL, (Cardinal *)NULL);
     } else if (widget_class == NULL) {
 	XtAppErrorMsg(XtWidgetToApplicationContext(parent),
-		"invalidClass","xtCreateWidget","XtToolkitError",
+		"invalidClass",XtNxtCreateWidget,XtCXtToolkitError,
                 "XtCreateWidget requires non-NULL widget class",
                   (String *)NULL, (Cardinal *)NULL);
     }
@@ -316,7 +335,7 @@ Widget _XtCreateWidget(name, widget_class, parent, args, num_args,
 		Cardinal num_params = 1;
 		params[0] = XtClass(parent)->core_class.class_name;
 		XtAppWarningMsg(XtWidgetToApplicationContext(parent),
-		  "invalidExtension", "xtCreateWidget", "XtToolkitError",
+		  "invalidExtension", XtNxtCreateWidget, XtCXtToolkitError,
 		  "widget class %s has invalid CompositeClassExtension record",
 		  params, &num_params);
 		ext = NULL;
@@ -327,7 +346,7 @@ Widget _XtCreateWidget(name, widget_class, parent, args, num_args,
 		params[0] = name;
 		params[1] = XtName(parent);
 		XtAppErrorMsg(XtWidgetToApplicationContext(parent),
-			      "nonWidget","xtCreateWidget","XtToolkitError",
+			      "nonWidget",XtNxtCreateWidget,XtCXtToolkitError,
 			      "attempt to add non-widget child \"%s\" to parent \"%s\" which supports only widgets",
 			      params, &num_params);
 	    }
@@ -351,7 +370,7 @@ Widget _XtCreateWidget(name, widget_class, parent, args, num_args,
     }
     if (insert_child == NULL) {
 	XtAppErrorMsg(XtWidgetToApplicationContext(parent),
-		"nullProc","insertChild","XtToolkitError",
+		"nullProc","insertChild",XtCXtToolkitError,
                 "NULL insert_child procedure",
                   (String *)NULL, (Cardinal *)NULL);
     } else {
@@ -381,57 +400,10 @@ Widget XtCreateManagedWidget(name, widget_class, parent, args, num_args)
 {
     register Widget	    widget;
 
+    XtCheckSubclass(parent, compositeWidgetClass, "in XtCreateManagedWidget");
     widget = XtCreateWidget(name, widget_class, parent, args, num_args);
     XtManageChild(widget);
     return widget;
-}
-
-/*ARGSUSED*/
-static void RemovePopupFromParent(widget,closure,call_data)
-    Widget  widget;
-    XtPointer closure;
-    XtPointer call_data;
-{
-    int i;
-    Boolean found = FALSE;
-    register Widget parent;
-    parent = widget->core.parent;
-    if (parent == NULL || parent->core.num_popups == 0)
-        XtAppErrorMsg(XtWidgetToApplicationContext(widget),
-		"invalidParameter","removePopupFromParent","XtToolkitError",
-                "RemovePopupFromParent requires non-NULL popuplist",
-                  (String *)NULL, (Cardinal *)NULL);
-
-    for (i=0; i<parent->core.num_popups; i++)
-        if (parent->core.popup_list[i] == widget){
-            found = TRUE; break;
-        }
-    if (found == FALSE) {
-        XtAppWarningMsg(XtWidgetToApplicationContext(widget),
-		  "invalidWidget","removePopupFromParent","XtToolkitError",
-                  "RemovePopupFromParent, widget not on parent list",
-                   (String *)NULL, (Cardinal *)NULL);
-        return;
-    }
-    if (parent->core.being_destroyed) {
-	/* then we're (probably) not the target of the XtDestroyWidget,
-	 * so our window won't get destroyed automatically...
-	 */
-	Window win;
-        if ((win = XtWindow(widget)) != NULL)
-	    XDestroyWindow( XtDisplay(widget), win );
-
-	return;
-	/* don't update parent's popup_list, as we won't then be able to find
-	 * this child for Phase2Destroy.  This also allows for the possibility
-	 * that a destroy callback higher up in the hierarchy may care to
-	 * know that this popup child once existed.
-	 */
-    }
-    parent->core.num_popups--;
-    for (/*i=i*/; i<parent->core.num_popups; i++)
-        parent->core.popup_list[i]= parent->core.popup_list[i+1];
-
 }
 
 Widget _XtCreatePopupShell(name, widget_class, parent, args, num_args,
@@ -448,15 +420,16 @@ Widget _XtCreatePopupShell(name, widget_class, parent, args, num_args,
     Screen* default_screen;
 
     if (parent == NULL) {
-	XtErrorMsg("invalidParent","xtCreatePopupShell","XtToolkitError",
+	XtErrorMsg("invalidParent",XtNxtCreatePopupShell,XtCXtToolkitError,
                 "XtCreatePopupShell requires non-NULL parent",
                   (String *)NULL, (Cardinal *)NULL);
     } else if (widget_class == NULL) {
 	XtAppErrorMsg(XtWidgetToApplicationContext(parent),
-		"invalidClass","xtCreatePopupShell","XtToolkitError",
+		"invalidClass",XtNxtCreatePopupShell,XtCXtToolkitError,
                 "XtCreatePopupShell requires non-NULL widget class",
                   (String *)NULL, (Cardinal *)NULL);
     }
+    XtCheckSubclass(parent, coreWidgetClass, "in XtCreatePopupShell");
     default_screen = parent->core.screen;
     widget = _XtCreate(
 		       name, (char *)NULL, widget_class, parent,
@@ -464,11 +437,9 @@ Widget _XtCreatePopupShell(name, widget_class, parent, args, num_args,
 		       num_typed_args, (ConstraintWidgetClass)NULL);
 
     parent->core.popup_list =
-	(WidgetList) XtRealloc((XtPointer) parent->core.popup_list,
+	(WidgetList) XtRealloc((char*) parent->core.popup_list,
                (unsigned) (parent->core.num_popups+1) * sizeof(Widget));
     parent->core.popup_list[parent->core.num_popups++] = widget;
-    XtAddCallback(
-       widget,XtNdestroyCallback,RemovePopupFromParent, (XtPointer)NULL);
     return(widget);
 }
 
@@ -497,7 +468,7 @@ Widget _XtAppCreateShell(name, class, widget_class, display, args, num_args,
 {
     if (widget_class == NULL) {
 	XtAppErrorMsg(XtDisplayToApplicationContext(display),
-	       "invalidClass","xtAppCreateShell","XtToolkitError",
+	       "invalidClass","xtAppCreateShell",XtCXtToolkitError,
                "XtAppCreateShell requires non-NULL widget class",
                  (String *)NULL, (Cardinal *)NULL);
     }

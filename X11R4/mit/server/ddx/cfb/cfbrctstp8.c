@@ -18,7 +18,7 @@ Author: Keith Packard, MIT X Consortium
 
 */
 
-/* $XConsortium: cfbrctstp8.c,v 1.9 89/11/19 15:42:35 rws Exp $ */
+/* $XConsortium: cfbrctstp8.c,v 1.11 90/02/09 13:12:34 rws Exp $ */
 
 #include "X.h"
 #include "Xmd.h"
@@ -269,7 +269,7 @@ cfb8FillBoxTransparentStippled32 (pDrawable, nBox, pBox, stipple, fg)
 			     ((char *) (dst))[1] = (fg);)
 	    	    break;
 	    	case 8:
-	    	    BitLoop (((char *) (dst))[3] = (fg);)
+	    	    BitLoop (((char *) (dst))[0] = (fg);)
 	    	    break;
 	    	case 9:
 	    	    BitLoop (((char *) (dst))[3] = (fg);
@@ -291,8 +291,8 @@ cfb8FillBoxTransparentStippled32 (pDrawable, nBox, pBox, stipple, fg)
 			     ((short *) (dst))[0] = (fg);)
 	    	    break;
 	    	case 14:
-	    	    BitLoop (((char *) (dst))[2] = (fg);)
-	    	    ((short *) (dst))[0] = (fg);
+	    	    BitLoop (((char *) (dst))[2] = (fg);
+			     ((short *) (dst))[0] = (fg);)
 	    	    break;
 	    	case 15:
 	    	    BitLoop (((long *) (dst))[0] = (fg);)

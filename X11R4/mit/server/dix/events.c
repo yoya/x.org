@@ -23,7 +23,7 @@ SOFTWARE.
 ********************************************************/
 
 
-/* $XConsortium: events.c,v 5.20 89/12/18 18:53:37 rws Exp $ */
+/* $XConsortium: events.c,v 5.22 90/03/08 11:27:15 rws Exp $ */
 
 #include "X.h"
 #include "misc.h"
@@ -528,7 +528,7 @@ PlayReleasedEvents()
 	if (!qe->device->sync.frozen)
 	{
 	    *prev = qe->next;
-	    if (!qe->next)
+	    if (*syncEvents.pendtail == *prev)
 		syncEvents.pendtail = prev;
 	    if (qe->event->u.u.type == MotionNotify)
 		CheckVirtualMotion(qe, NullWindow);
@@ -2648,7 +2648,7 @@ ProcChangeActivePointerGrab(client)
     TimeStamp time;
 
     REQUEST_SIZE_MATCH(xChangeActivePointerGrabReq);
-    if (stuff->eventMask & ~PointerGrabMask)
+    if ((stuff->eventMask & ~PointerGrabMask) && !permitOldBugs)
     {
 	client->errorValue = stuff->eventMask;
         return BadValue;

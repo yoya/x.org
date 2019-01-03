@@ -358,18 +358,7 @@ qdCopyGCDest( pgcDst, pQ, maskQ, pgcSrc)
     int                 maskQ;
     GCPtr		pgcSrc;
 {
-#ifdef X11R4
-    if (maskQ & GCClipMask) {
-	if (pgcDst->clientClipType == CT_PIXMAP)
-	    ((PixmapPtr)pgcDst->clientClip)->refcnt++;
-	else if (pgcDst->clientClipType == CT_REGION) {
-	    RegionPtr pClip = (RegionPtr) pgcDst->clientClip;
-	    pgcDst->clientClip =
-		(pointer)(* pgcDst->pScreen->RegionCreate)(NULL, 1);
-	    (* pgcDst->pScreen->RegionCopy)(pgcDst->clientClip, pClip);
-	}
-    }
-#else
+#ifndef X11R4
     RegionPtr		pregionsrc = (RegionPtr) pgcSrc->clientClip;
 
     if ( ! (maskQ & GCClipMask)
@@ -800,7 +789,7 @@ qdValidateGC( pGC, pQ, changes, pDrawable)
 		    ops->PolySegment = miPolySegment;
 		}
 		else if ((fillStyle < FillSolid )
-		  || (pDrawable->type != DRAWABLE_WINDOW))
+		  || (pDrawable->type != DRAWABLE_WINDOW)) {
 		    ops->Polylines = miZeroLine;
 		    ops->PolySegment = miPolySegment;
 		}
@@ -1099,9 +1088,9 @@ qdValidateGC( pGC, pQ, changes, pDrawable)
 	    vdone |= 1L<<(*plvec);	/* indicate valid done */
 	  }	/* for changed vectors */
 	}	/* for GC + devPriv changed fields */
-    }
 
 #endif /* !X11R4 */
+    }
 
 #ifndef X11R4
     /*

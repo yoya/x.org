@@ -1,7 +1,4 @@
-#ifndef lint
-static char Xrcsid[] = "$XConsortium: Intrinsic.c,v 1.144 89/12/12 19:19:41 swick Exp $";
-/* $oHeader: Intrinsic.c,v 1.4 88/08/18 15:40:35 asente Exp $ */
-#endif /* lint */
+/* $XConsortium: Intrinsic.c,v 1.153 90/08/22 12:48:37 swick Exp $ */
 
 /***********************************************************
 Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
@@ -34,6 +31,8 @@ SOFTWARE.
 #ifndef VMS
 #include <sys/stat.h>
 #endif /* VMS */
+
+String XtCXtToolkitError = "XtToolkitError";
 
 Boolean XtIsSubclass(widget, widgetClass)
     Widget    widget;
@@ -199,7 +198,7 @@ static void RealizeWidget(widget)
     realize = widget->core.widget_class->core_class.realize;
     if (realize == NULL)
 	XtAppErrorMsg(XtWidgetToApplicationContext(widget),
-		      "invalidProcedure","realizeProc","XtToolkitError",
+		      "invalidProcedure","realizeProc",XtCXtToolkitError,
 		      "No realize class procedure defined",
 		      (String *)NULL, (Cardinal *)NULL);
     else (*realize) (widget, &value_mask, &values);
@@ -216,7 +215,7 @@ static void RealizeWidget(widget)
 #ifdef notdef
     _XtRegisterAsyncHandlers(widget);
 #endif
-    _XtRegisterGrabs(widget,&widget->core.tm);
+    _XtRegisterGrabs(widget, False);
     _XtRegisterWindow (window, widget);
 
     if (XtIsComposite (widget)) {
@@ -260,6 +259,7 @@ static void UnrealizeWidget(widget)
     register CompositeWidget	cw;
     register Cardinal		i;
     register WidgetList		children;
+    extern void _XtRemoveTranslations();
 
     if (!XtIsWidget(widget) || !XtIsRealized(widget)) return;
 
@@ -287,16 +287,15 @@ static void UnrealizeWidget(widget)
     _XtUnregisterWindow(XtWindow(widget), widget);
 
     /* Remove Event Handlers */
-    /* remove async handlers, how? */
     /* remove grabs. Happens automatically when window is destroyed. */
 
     /* Destroy X Window, done at outer level with one request */
     widget->core.window = NULL;
 
-    /* Unbind actions? Nope, we check in realize to see if done. */
-    /* Uninstall Translations? */
-    XtUninstallTranslations(widget);
-
+    /* Removing the event handler here saves having to keep track if
+     * the translation table is changed while the widget is unrealized.
+     */
+    _XtRemoveTranslations(widget);
 } /* UnrealizeWidget */
 
 
@@ -326,7 +325,7 @@ void XtCreateWindow(widget, window_class, visual, value_mask, attributes)
 	if (widget->core.width == 0 || widget->core.height == 0) {
 	    Cardinal count = 1;
 	    XtAppErrorMsg(XtWidgetToApplicationContext(widget),
-		       "invalidDimension", "xtCreateWindow", "XtToolkitError",
+		       "invalidDimension", "xtCreateWindow", XtCXtToolkitError,
 		       "Widget %s has zero width and/or height",
 		       &widget->core.name, &count);
 	}
@@ -383,7 +382,7 @@ static Widget MatchWildChildren(names, bindings, children, num,
     int in_depth, *out_depth, *found_depth;
 {
     register Cardinal   i;
-    Widget w, result;
+    Widget w, result = NULL;
     int d, min = 10000;
 
     for (i = 0; i < num; i++) {
@@ -436,6 +435,11 @@ static Widget NameListToWidget(root, names, bindings,
     if (names[0] == NULLQUARK) {
 	*out_depth = *found_depth = in_depth;
 	return root;
+    }
+
+    if (! XtIsWidget(root)) {
+	*out_depth = 10000;
+	return NULL;
     }
 
     if (*bindings == XrmBindTightly) {
@@ -573,16 +577,16 @@ Boolean XtIsSensitive(object)
  * Internal routine; must be called only after XtIsWidget returns false
  */
 Widget _XtWindowedAncestor(object)
-	Widget object;
+    register Widget object;
 {
+    Widget obj = object;
     for (object = XtParent(object); object && !XtIsWidget(object);)
 	object = XtParent(object);
 
     if (object == NULL) {
-	String params = XtName(object);
+	String params = XtName(obj);
 	Cardinal num_params = 1;
-	XtAppErrorMsg(XtWidgetToApplicationContext(object),
-		   "noWidgetAncestor", "windowedAncestor", "XtToolkitError",
+	XtErrorMsg("noWidgetAncestor", "windowedAncestor", XtCXtToolkitError,
 		   "Object \"%s\" does not have windowed ancestor",
 		   &params, &num_params);
     }
@@ -609,16 +613,23 @@ Boolean XtIsObject(object)
     Widget object;
 {
     WidgetClass wc;
+    String class_name;
+
     /* perform basic sanity checks */
-    if (object->core.self != object) return False;
+    if (object->core.self != object || object->core.xrm_name == NULLQUARK)
+	return False;
 
     wc = object->core.widget_class;
-    if (wc->core_class.class_name
-	!= XrmClassToString(wc->core_class.xrm_class))
+    if (wc->core_class.class_name == NULL ||
+	wc->core_class.xrm_class == NULLQUARK ||
+	(class_name = XrmClassToString(wc->core_class.xrm_class)) == NULL ||
+	strcmp(wc->core_class.class_name, class_name) != 0)
 	    return False;
 
     if (XtIsWidget(object)) {
-	if (object->core.name != XrmNameToString(object->core.xrm_name))
+	if (object->core.name == NULL ||
+	    (class_name = XrmNameToString(object->core.xrm_name)) == NULL ||
+	    strcmp(object->core.name, class_name) != 0)
 	    return False;
     }
     return True;

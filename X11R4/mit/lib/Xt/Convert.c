@@ -1,7 +1,5 @@
-#ifndef lint
-static char Xrcsid[] = "$XConsortium: Convert.c,v 1.38 89/12/20 16:30:54 swick Exp $";
-/* $oHeader: Convert.c,v 1.4 88/09/01 11:10:44 asente Exp $ */
-#endif /*lint*/
+/* $XConsortium: Convert.c,v 1.43 90/09/04 10:45:55 swick Exp $ */
+
 /*LINTLIBRARY*/
 
 /***********************************************************
@@ -38,8 +36,6 @@ SOFTWARE.
 
 /* Conversion procedure hash 	table */
 
-typedef struct _ConverterRec *ConverterPtr;
-
 typedef struct _ConverterRec {
     ConverterPtr	next;
     XrmRepresentation	from, to;
@@ -50,10 +46,6 @@ typedef struct _ConverterRec {
     Boolean		new_style;
     XtCacheType		cache_type;
 } ConverterRec;
-
-#define CONVERTHASHSIZE	((unsigned)512)
-#define CONVERTHASHMASK	511
-#define ProcHash(from_type, to_type) (2 * (from_type) + to_type)
 
 /* used for old-style type converter cache only */
 static Heap globalHeap = {NULL, NULL, 0};
@@ -90,6 +82,7 @@ void _XtFreeConverterTable(table)
 	for (i = 0; i < CONVERTHASHSIZE; i++) {
 	    for (p = table[i]; p != NULL;) {
 		register ConverterPtr next = p->next;
+		if (p->num_args) XtFree((char*)p->convert_args);
 		XtFree((char*)p);
 		p = next;
 	    }
@@ -144,6 +137,7 @@ void _XtTableAddConverter(table, from_type, to_type, converter, convert_args, nu
     XtDestructor nullProc = NULL;
 
     pHashEntry= &table[ProcHash(from_type, to_type) & CONVERTHASHMASK];
+ 
     for (p = *pHashEntry; p != NULL; p = p->next) {
 	if (p->from == from_type && p->to == to_type) break;
     }
@@ -312,7 +306,7 @@ CacheEnter(heap, converter, args, num_args, from, to, succeeded, hash,
     p->hash	    = hash;
     p->converter    = converter;
     p->from.size    = from->size;
-    p->from.addr = (XtPointer) _XtHeapAlloc(heap, from->size);
+    p->from.addr = (caddr_t)_XtHeapAlloc(heap, from->size);
     XtBCopy(from->addr, p->from.addr, from->size);
     p->num_args = num_args;
     if (num_args == 0) {
@@ -321,13 +315,13 @@ CacheEnter(heap, converter, args, num_args, from, to, succeeded, hash,
 	p->args = (XrmValuePtr) _XtHeapAlloc(heap, num_args * sizeof(XrmValue));
 	for (i = 0; i < num_args; i++) {
 	    p->args[i].size = args[i].size;
-	    p->args[i].addr = (XtPointer) _XtHeapAlloc(heap, args[i].size);
+	    p->args[i].addr = (caddr_t)_XtHeapAlloc(heap, args[i].size);
 	    XtBCopy(args[i].addr, p->args[i].addr, args[i].size);
 	}
     }
     p->to.size  = to->size;
     if (succeeded && to->addr != NULL) {
-	p->to.addr  = (XtPointer) _XtHeapAlloc(heap, to->size);
+	p->to.addr  = (caddr_t)_XtHeapAlloc(heap, to->size);
 	XtBCopy(to->addr, p->to.addr, to->size);
     }
     else {
@@ -438,9 +432,9 @@ static void ComputeArgs(widget, convert_args, num_args, args)
 	case XtBaseOffset:
 #ifdef CRAY1
 	    args[i].addr =
-		(XtPointer)((int)widget + (int)convert_args[i].address_id);
+		(caddr_t)((int)widget + (int)convert_args[i].address_id);
 #else
-	    args[i].addr = (XtPointer)widget + (int)convert_args[i].address_id;
+	    args[i].addr = (caddr_t)((char *)widget + (int)convert_args[i].address_id);
 #endif
 	    break;
 
@@ -454,15 +448,15 @@ static void ComputeArgs(widget, convert_args, num_args, args)
 
 #ifdef CRAY1
 	    args[i].addr =
-		(XtPointer)((int)ancestor + (int)convert_args[i].address_id);
+		(caddr_t)((int)ancestor + (int)convert_args[i].address_id);
 #else
 	    args[i].addr =
-		(XtPointer)ancestor + (int)convert_args[i].address_id;
+		(caddr_t)((char *)ancestor + (int)convert_args[i].address_id);
 #endif
 	    break;
 
 	case XtImmediate:
-	    args[i].addr = (XtPointer) &(convert_args[i].address_id);
+	    args[i].addr = (caddr_t) &(convert_args[i].address_id);
 	    break;
 
 	case XtProcedureArg:
@@ -483,21 +477,21 @@ static void ComputeArgs(widget, convert_args, num_args, args)
 		params[0]=
                   XrmQuarkToString((XrmQuark) convert_args[i].address_id);
                XtAppWarningMsg(XtWidgetToApplicationContext(widget),
-		    "invalidResourceName","computeArgs","XtToolkitError",
+		    "invalidResourceName","computeArgs",XtCXtToolkitError,
 		    "Cannot find resource name %s as argument to conversion",
                      params,&num_params);
 		offset = 0;
 	    }
 #ifdef CRAY1
-	    args[i].addr = (XtPointer)((int)widget + offset);
+	    args[i].addr = (caddr_t)((int)widget + offset);
 #else
-	    args[i].addr = (XtPointer)widget + offset;
+	    args[i].addr = (caddr_t)((char *)widget + offset);
 #endif
 	    break;
 	default:
 	    params[0] = XtName(widget);
 	    XtAppWarningMsg(XtWidgetToApplicationContext(widget),
-		"invalidAddressMode", "computeArgs", "XtToolkitError",
+		"invalidAddressMode", "computeArgs", XtCXtToolkitError,
 		"Conversion arguments for widget '%s' contain an unsupported address mode",
 			params,&num_params);
 	    args[i].addr = NULL;
@@ -583,16 +577,34 @@ XtCallConverter(dpy, converter, args, num_args, from, to, cache_ref_return)
     XrmValuePtr     to;
     XtCacheRef	    *cache_ref_return;
 {
+    ConverterPtr cP;
+    Boolean _XtCallConverter();
+
+    cP = GetConverterEntry( XtDisplayToApplicationContext(dpy), converter );
+    return _XtCallConverter(dpy, converter, args, num_args, from, to, 
+			    cache_ref_return, cP);
+}
+
+Boolean
+_XtCallConverter(dpy, converter,
+		 args, num_args, from, to, cache_ref_return, cP)
+    Display*	    dpy;
+    XtTypeConverter converter;
+    XrmValuePtr     args;
+    Cardinal	    num_args;
+    register XrmValuePtr from;
+    XrmValuePtr     to;
+    XtCacheRef	    *cache_ref_return;
+    register ConverterPtr cP;
+{
     register CachePtr   p;
     register int	hash;
     register Cardinal   i;
-    register ConverterPtr cP;
     XtDestructor nullProc = NULL; /* some compilers broken */
 
-    cP = GetConverterEntry( XtDisplayToApplicationContext(dpy), converter );
     if (cP == NULL
      || ((cP->cache_type == XtCacheNone) && (cP->destructor == nullProc))) {
-	char* closure;
+	XtPointer closure;
 	if (cache_ref_return != NULL) *cache_ref_return = NULL;
 	return (*(XtTypeConverter)converter)
 	    (dpy, args, &num_args, from, to, &closure);
@@ -645,7 +657,7 @@ XtCallConverter(dpy, converter, args, num_args, from, to, cache_ref_return)
     /* No cache entry, call converter procedure and enter result in cache */
     {
 	Heap *heap;
-	char* closure;
+	XtPointer closure;
 	XtCacheType cache_type = cP->cache_type & 0xff;
 	int ref_flags =
 	    ((cP->cache_type & XtCacheRefCount) && (cache_ref_return != NULL))
@@ -700,9 +712,9 @@ Boolean _XtConvert(widget, from_type, from, to_type, to, cache_ref_return)
 	    } else args = NULL;
 	    if (p->new_style) {
 		retval =
-		    XtCallConverter(XtDisplayOfObject(widget),
-				    p->converter, args, num_args,
-				    from, to, cache_ref_return);
+		    _XtCallConverter(XtDisplayOfObject(widget),
+				     p->converter, args, num_args,
+				     from, to, cache_ref_return, p);
 	    }
 	    else { /* is old-style (non-app) converter */
 		XrmValue tempTo;
@@ -735,7 +747,7 @@ Boolean _XtConvert(widget, from_type, from, to_type, to, cache_ref_return)
 	Cardinal num_params = 2;
 	params[0] = XrmRepresentationToString(from_type);
 	params[1] = XrmRepresentationToString(to_type);
-	XtAppWarningMsg(app, "typeConversionError", "noConverter", "XtToolkitError",
+	XtAppWarningMsg(app, "typeConversionError", "noConverter", XtCXtToolkitError,
 	     "No type converter registered for '%s' to '%s' conversion.",
              params, &num_params);
     }

@@ -1,6 +1,4 @@
-#ifndef lint
-static char Xrcsid[] = "$XConsortium: Keyboard.c,v 1.11 89/12/17 16:38:52 rws Exp $";
-#endif
+/* $XConsortium: Keyboard.c,v 1.20 90/08/24 18:49:18 swick Exp $ */
 
 /********************************************************
 
@@ -38,20 +36,17 @@ SOFTWARE.
 extern void _XtFillAncestorList();
 extern void _XtSendFocusEvent();
 
-static XtServerGrabPtr CheckServerGrabs(event, trace,
-					traceDepth, pdi)
+static XtServerGrabPtr CheckServerGrabs(event, trace, traceDepth)
     XEvent	*event;
     Widget	*trace;
     Cardinal	traceDepth;
-    XtPerDisplayInput pdi;
 {
     XtServerGrabPtr 	grab;
     Cardinal		i;
 
     for (i = traceDepth;  i > 0; i--)
       {
-	 if (grab = _XtCheckServerGrabsOnWidget(event, trace[i-1],
-						KEYBOARD, pdi))
+	 if (grab = _XtCheckServerGrabsOnWidget(event, trace[i-1], KEYBOARD))
 	   return (grab);
      }
     return (XtServerGrabPtr)0;
@@ -101,47 +96,48 @@ static Widget CommonAncestor(a, b, relTypeRtn)
     
 
 
-static Widget _FindFocusWidget(widget, trace, traceDepth, activeCheck)
+static Widget _FindFocusWidget(widget, trace, traceDepth, activeCheck, isTarget)
     Widget 	widget;
     Widget	*trace;
-    Cardinal	traceDepth;
+    int		traceDepth;
     Boolean	activeCheck;
+    Boolean	*isTarget;
 {
-    int i;
     int src;
     Widget dst;
-    XtPerWidgetInput	pwi;
-    Boolean	isAncestor;
+    XtPerWidgetInput	pwi = NULL;
     
     /* For each ancestor, starting at the top, see if it's forwarded */
 
 
     /* first check the trace list till done or we go to branch */
-    isAncestor = TRUE;
-    for (src = traceDepth-1, dst = widget;
-	 ((src > 0) && isAncestor);
-	 )
+    for (src = traceDepth-1, dst = widget; src > 0;)
       {
 	  if (pwi = _XtGetPerWidgetInput(trace[src], FALSE))
 	    {
 		if (pwi->focusKid)
 		  {
 		      dst = pwi->focusKid;
-		      for (i = src-1; i >= 0 && trace[i] != dst; i--) {}
-		      
-		      if (i < 0) 
-			isAncestor = FALSE;
-		      else
-			src = i;
+		      for (src--; src > 0 && trace[src] != dst; src--) {}
 		  }
 		else dst = trace[--src];
 	    }
 	  else dst = trace[--src];
-      }	
+      }
+
+    if (isTarget) {
+	if (pwi && pwi->focusKid == widget)
+	    *isTarget = TRUE;
+	else
+	    *isTarget = FALSE;
+    }
 
     if (!activeCheck)
-      while (XtIsWidget(dst) && (pwi = _XtGetPerWidgetInput(dst, FALSE)) && pwi->focusKid)
+      while (XtIsWidget(dst)
+	     && (pwi = _XtGetPerWidgetInput(dst, FALSE))
+	     && pwi->focusKid)
 	dst = pwi->focusKid;
+
     return dst;
 }
 
@@ -153,7 +149,7 @@ static Widget FindFocusWidget(widget, pdi)
     if (pdi->focusWidget) 
       return  pdi->focusWidget;
     else
-      return _FindFocusWidget(widget, pdi->trace, pdi->traceDepth, FALSE);
+      return _FindFocusWidget(widget, pdi->trace, pdi->traceDepth, FALSE, NULL);
 }
 
 
@@ -161,7 +157,7 @@ static Boolean IsOutside(e, w)
     XKeyEvent	*e;
     Widget	w;
 {
-    int left, right, top, bottom;
+    Position left, right, top, bottom;
     
     /*
      * if the pointer is outside the shell or inside
@@ -285,7 +281,7 @@ static Widget 	FindKeyDestination(widget, event,
 			  IsAnyGrab(devGrabType) && 
 			  (devGrab->ownerEvents)
 #else
-			  (!event->type == KeyPress)
+			  (event->type != KeyPress)
 #endif /* OWNER_EVENTS_FIX */
 			  )
 			dspWidget = focusWidget;
@@ -293,8 +289,8 @@ static Widget 	FindKeyDestination(widget, event,
 			{
 			    static Display	*pseudoTraceDisplay = NULL;
 			    static Widget	*pseudoTrace = NULL;
-			    static Cardinal     pseudoTraceDepth = 0;
-			    static Cardinal	pseudoTraceMax = 0;
+			    static int		pseudoTraceDepth = 0;
+			    static int		pseudoTraceMax = 0;
 			    XtServerGrabPtr	grab;
 
 			    if (!pseudoTraceDepth || 
@@ -319,7 +315,7 @@ static Widget 	FindKeyDestination(widget, event,
 			      }
 			    if (grab = CheckServerGrabs((XEvent*)event,
 							pseudoTrace,
-							pseudoTraceDepth, pdi))
+							pseudoTraceDepth))
 			      {
 				  XtDevice device = &pdi->keyboard;
 				  
@@ -364,7 +360,7 @@ Widget _XtProcessKeyboardEvent(event, widget, pdi)
 	      if (!IsServerGrab(device->grabType) && 
 		  (newGrab = CheckServerGrabs((XEvent*)event,
 					      pdi->trace,
-					      pdi->traceDepth, pdi)))
+					      pdi->traceDepth)))
 		{
 		    /*
 		     * honor pseudo-grab from prior event by X
@@ -421,13 +417,15 @@ static Widget GetShell(widget)
  * Check that widget really has Xt focus due to it having recieved an
  * event 
  */
-static Boolean InActiveSubtree(widget)
+typedef enum {NotActive = 0, IsActive, IsTarget} ActiveType;
+static ActiveType InActiveSubtree(widget)
     Widget	widget;
 {
     static Widget	*pathTrace = NULL;
-    static Cardinal     pathTraceDepth = 0;
-    static Cardinal	pathTraceMax = 0;
+    static int		pathTraceDepth = 0;
+    static int		pathTraceMax = 0;
     static Display	*display = NULL;
+    Boolean		isTarget;
     
     if (!pathTraceDepth || 
 	!(display == XtDisplay(widget)) ||
@@ -443,20 +441,22 @@ static Boolean InActiveSubtree(widget)
     if (widget == _FindFocusWidget(widget, 
 				   pathTrace,
 				   pathTraceDepth, 
-				   TRUE))
-      return TRUE;
+				   TRUE,
+				   &isTarget))
+      return isTarget ? IsTarget : IsActive;
     else
-      return FALSE;
+      return NotActive;
 }
 
 
 
 
 /* ARGSUSED */
-void _XtHandleFocus(widget, client_data, event)
+void _XtHandleFocus(widget, client_data, event, cont)
     Widget widget;
     XtPointer client_data;	/* child who wants focus */
     XEvent *event;
+    Boolean *cont;		/* unused */
 {
     XtPerDisplayInput 	pdi = _XtGetPerDisplayInput(XtDisplay(widget));
     XtPerWidgetInput	pwi = (XtPerWidgetInput)client_data;
@@ -488,9 +488,11 @@ void _XtHandleFocus(widget, client_data, event)
 		  case XtMyAncestor:
 		    if (event->type == LeaveNotify)
 		      newFocalPoint = XtUnrelated;
+		    break;
 		  case XtUnrelated:
 		    if (event->type == EnterNotify)
 		      newFocalPoint = XtMyAncestor;
+		    break;
 		  case XtMySelf:
 		    break;
 		  case XtMyDescendant:
@@ -540,7 +542,7 @@ void _XtHandleFocus(widget, client_data, event)
 	  Widget	descendant = pwi->focusKid;
 
 	  if ((oldFocalPoint == XtUnrelated) &&
-	      InActiveSubtree(widget))
+	      InActiveSubtree(widget) != NotActive)
 	    {
 		pdi->focusWidget = NULL; /* invalidate the cache */
 		pwi->haveFocus = TRUE;
@@ -572,32 +574,26 @@ void _XtHandleFocus(widget, client_data, event)
 }
 
 
-static void AddFocusHandler(widget, descendant, pwi, pdi, oldEventMask)
+static void AddFocusHandler(widget, descendant, pwi, psi, pdi, oldEventMask)
     Widget widget, descendant;
     XtPerWidgetInput pwi;
+    XtPerWidgetInput psi;
     XtPerDisplayInput pdi;
     EventMask oldEventMask;
 {
-    XtPerWidgetInput	psi;
-    Widget		shell;
-    EventMask	 	eventMask;
+    EventMask	 	eventMask, targetEventMask;
     Widget		target;
 
     /*
-     * we are having this handler server double duty as the
-     * heir of ForwardEvent in R3. One thing that is needed is
-     * to guarantee that the descendant gets keyevents if
-     * interested 
-     */
-    shell = GetShell(widget);
-    psi = _XtGetPerWidgetInput(shell, TRUE);
-
-    /*
+     * widget must now select for key events if the descendant is
+     * interested in them.
+     *
      * shell borders are not occluded by the child, they're occluded
      * by reparenting window managers. !!!
      */
     target = descendant ? _GetWindowedAncestor(descendant) : NULL;
-    eventMask = XtBuildEventMask(target) & (KeyPressMask | KeyReleaseMask);
+    targetEventMask = XtBuildEventMask(target);
+    eventMask = targetEventMask & (KeyPressMask | KeyReleaseMask);
     eventMask |= FocusChangeMask | EnterWindowMask | LeaveWindowMask;
 
     if (oldEventMask) {
@@ -613,51 +609,55 @@ static void AddFocusHandler(widget, descendant, pwi, pdi, oldEventMask)
 	XtAddEventHandler(widget, eventMask, False, 
 			  _XtHandleFocus, (XtPointer)pwi);
 
-    if (!pwi->haveFocus) {
+    /* What follows is too much grief to go through if the
+     * target doesn't actually care about focus change events,
+     * so just invalidate the focus cache & refill it when
+     * the next input event actually arrives.
+     */
+
+    if (!(targetEventMask & FocusChangeMask)) {
+	pdi->focusWidget = NULL;
+	return;
+    }
+
+    if (XtIsRealized(widget) && !pwi->haveFocus) {
 	if (psi->haveFocus) {
 	    Window root, child;
-	    int root_x, root_y, win_x, win_y, shellX, shellY;
+	    int root_x, root_y, win_x, win_y;
 	    int left, right, top, bottom;
 	    unsigned int modMask;
-	    Widget 	w = widget;
-	    Boolean	maybe = FALSE;
-
+	    ActiveType act;
 
 	    /*
-	     * if the pointer is outside the shell or inside
-	     * the window try to see if it would recieve the
-	     * focus 
+	     * If the shell has the focus but the source widget
+	     * doesn't, it may only be because the source widget
+	     * wasn't previously tracking focus or crossing events.
+	     * If the target wants focus events, we have to
+	     * now determine whether the source has the focus.
 	     */
-	    XtTranslateCoords(shell, 0, 0, &shellX, &shellY);
-	    /* We need to take borders into consideration */
-	    left = top = -((int) shell->core.border_width);
-	    right = (int) (shell->core.width + (shell->core.border_width << 1));
-	    bottom = (int) (shell->core.height + (shell->core.border_width << 1));
 
-	    XQueryPointer(XtDisplay(w), XtWindow(w), &root, &child,
-			  &root_x, &root_y, &win_x, &win_y, &modMask );
-
-	    if (root_x >= left && root_x < right &&
-		root_y >= top && root_y < bottom) {
-
-		/* We need to take borders into consideration */
-		left = top = -((int) w->core.border_width);
-		right = (int) (w->core.width + (w->core.border_width << 1));
-		bottom = (int) (w->core.height + (w->core.border_width << 1));
-
-		if (win_x >= left && win_x < right &&
-		    win_y >= top && win_y < bottom)
-		  maybe = TRUE;
-	    }
-	    else maybe = TRUE;
-
-	    /*
-	     * if the hierarchy has the focus and the widget
-	     * is a focus candidate, then see if it is a
-	     * descendant of the focus path
-	     */
-	    if (maybe && (InActiveSubtree(w)))
+	    if ((act = InActiveSubtree(widget)) == IsTarget)
 		pwi->haveFocus = TRUE;
+	    else if (act == IsActive) {
+		/*
+		 * An ancestor contains the focus, so if source
+		 * contains the pointer, then source has the focus.
+		 */
+
+		if (XQueryPointer(XtDisplay(widget), XtWindow(widget),
+				  &root, &child,
+				  &root_x, &root_y, &win_x, &win_y, &modMask))
+		{
+		    /* We need to take borders into consideration */
+		    left = top = -((int) widget->core.border_width);
+		    right = (int) (widget->core.width + (widget->core.border_width << 1));
+		    bottom = (int) (widget->core.height + (widget->core.border_width << 1));
+
+		    if (win_x >= left && win_x < right &&
+			win_y >= top && win_y < bottom)
+			pwi->haveFocus = TRUE;
+		}
+	    }
 	}
     }
     if (pwi->haveFocus) {
@@ -683,12 +683,12 @@ static void QueryEventMask(widget, client_data, event, cont)
     XtPerWidgetInput pwi = _XtGetPerWidgetInput(ancestor, FALSE);
     Widget target = pwi->queryEventDescendant;
 
-    /* This is non-standard hackery for broken Motif mis-use only;
-     * focus can go to non-widget
-     */
+    /* use of 'target' is non-standard hackery; allows focus to non-widget */
     if (pwi && (pwi->focusKid == target)) {
-	XtPerDisplayInput pdi = _XtGetPerDisplayInput(XtDisplay(ancestor));
-	AddFocusHandler(ancestor, target, pwi, pdi, (EventMask)0);
+	AddFocusHandler(ancestor, target, pwi,
+			_XtGetPerWidgetInput(GetShell(ancestor), TRUE),
+			_XtGetPerDisplayInput(XtDisplay(ancestor)),
+			(EventMask)0);
     }
     XtRemoveEventHandler(widget, XtAllEvents, True,
 			 QueryEventMask, client_data);
@@ -714,6 +714,8 @@ void XtSetKeyboardFocus(widget, descendant)
     Widget oldDesc = pwi->focusKid;
     Widget oldTarget, target;
     
+    if (descendant == widget) descendant = (Widget)None;
+
     target = descendant ? _GetWindowedAncestor(descendant) : NULL;
     oldTarget = oldDesc ? _GetWindowedAncestor(oldDesc) : NULL;
     
@@ -745,25 +747,43 @@ void XtSetKeyboardFocus(widget, descendant)
 		pwi->map_handler_added = FALSE;
 	    }
 
+	    if (pwi->haveFocus)
+		pdi->focusWidget = NULL; /* invalidate cache */
+
 	    /*
 	     * If there was a forward path then remove the handler if
 	     * the path is being set to null and it isn't a shell.
 	     * shells always have a handler for tracking focus for the
-	     * hierarchy. 
+	     * hierarchy.
+	     *
+	     * Keep the pwi record on the assumption that the client
+	     * will continue to dynamically assign focus for this widget.
 	     */
-	    if (!XtIsShell(widget) && !descendant)
+	    if (!XtIsShell(widget) && !descendant) {
 	      XtRemoveEventHandler(widget, XtAllEvents, True, 
 				   _XtHandleFocus, (XtPointer)pwi);
+	      pwi->haveFocus = FALSE;
+	  }
 	}
 	
-	if (!descendant)
-	  pwi->haveFocus = FALSE;
-	else {
+	if (descendant) {
+	    Widget shell = GetShell(widget);
+	    XtPerWidgetInput psi = _XtGetPerWidgetInput(shell, TRUE);
 	    XtAddCallback (descendant, XtNdestroyCallback, 
 			   FocusDestroyCallback, (XtPointer) widget);
 
-	    AddFocusHandler(widget, descendant, pwi, pdi,
+	    AddFocusHandler(widget, descendant, pwi, psi, pdi,
 			    oldTarget ? XtBuildEventMask(oldTarget) : 0);
+
+	    if (widget != shell)
+		XtAddEventHandler(
+			shell,
+			FocusChangeMask | EnterWindowMask | LeaveWindowMask,
+			False,
+			_XtHandleFocus,
+			(XtPointer)psi
+		       );
+
 	    if (! XtIsRealized(target)) {
 		XtAddEventHandler(target, (EventMask)StructureNotifyMask,
 				  False, QueryEventMask, (XtPointer)widget);

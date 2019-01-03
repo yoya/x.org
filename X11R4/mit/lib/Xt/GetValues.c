@@ -1,7 +1,4 @@
-#ifndef lint
-static char Xrcsid[] =
-    "$XConsortium: GetValues.c,v 1.1 89/09/29 14:02:04 swick Exp $";
-#endif /*lint*/
+/* $XConsortium: GetValues.c,v 1.4 90/07/03 17:27:06 swick Exp $ */
 /*LINTLIBRARY*/
 
 /***********************************************************
@@ -45,8 +42,13 @@ static void GetValues(base, res, num_resources, args, num_args)
     register int 		i;
     register XrmName		argName;
     register XrmResourceList*   xrmres;
-    register XrmQuark		QCallback = XrmStringToQuark(XtRCallback);
+    static XrmQuark QCallback = NULLQUARK, QTranslations;
     extern XtCallbackList	_XtGetCallbackList();
+
+    if (QCallback == NULLQUARK) {
+	QCallback = XrmStringToQuark(XtRCallback);
+	QTranslations = XrmStringToRepresentation(XtRTranslationTable);
+    }
 
     /* Resource lists should be in compiled form already  */
 
@@ -54,16 +56,24 @@ static void GetValues(base, res, num_resources, args, num_args)
 	argName = StringToName(arg->name);
 	for (xrmres = res, i = 0; i < num_resources; i++, xrmres++) {
 	    if (argName == (*xrmres)->xrm_name) {
+		/* hack; do special cases here instead of a get_values_hook
+		 * because get_values_hook looses info as to
+		 * whether arg->value == NULL for ancient compatibility
+		 * mode in _XtCopyToArg.  It helps performance, too...
+		 */
 		if ((*xrmres)->xrm_type == QCallback) {
-		    /* hack; do this here instead of a get_values_hook
-		     * because get_values_hook looses info as to
-		     * whether arg->value == NULL for _XtCopyToArg.
-		     * It helps performance, too...
-		     */
 		    XtCallbackList callback = _XtGetCallbackList(
 			      base - (*xrmres)->xrm_offset - 1);
 		    _XtCopyToArg(
 			      (char*)&callback, &arg->value,
+			      (*xrmres)->xrm_size);
+		}
+		else if ((*xrmres)->xrm_type == QTranslations) {
+		    XtTranslations translations =
+			_XtCondCopyTranslations(
+			     *(XtTranslations*)(base-(*xrmres)->xrm_offset-1));
+		    _XtCopyToArg(
+			      (char*)&translations, &arg->value,
 			      (*xrmres)->xrm_size);
 		}
 		else {
@@ -124,7 +134,7 @@ static void CallConstraintGetValuesHook(widget_class, w, args, num_args)
 	    Cardinal num_params = 1;
 	    params[0] = widget_class->core_class.class_name;
 	    XtAppWarningMsg(XtWidgetToApplicationContext(w),
-		 "invalidExtension", "xtCreateWidget", "XtToolkitError",
+		 "invalidExtension", "xtCreateWidget", XtCXtToolkitError,
 		 "widget class %s has invalid ConstraintClassExtension record",
 		 params, &num_params);
 	}
@@ -142,7 +152,7 @@ void XtGetValues(w, args, num_args)
     if (num_args == 0) return;
     if ((args == NULL) && (num_args != 0)) {
 	XtAppErrorMsg(XtWidgetToApplicationContext(w),
-		"invalidArgCount","xtGetValues","XtToolkitError",
+		"invalidArgCount","xtGetValues",XtCXtToolkitError,
             "Argument count > 0 on NULL argument list in XtGetValues",
               (String *)NULL, (Cardinal *)NULL);
     }
@@ -151,21 +161,21 @@ void XtGetValues(w, args, num_args)
 	wc->core_class.num_resources, args, num_args);
 
     /* Get constraint values if necessary */
-    /* if (!XtIsShell(w) && XtIsConstraint(w->core.parent)) */
-    if (w->core.constraints != NULL) {
+    /* assert: !XtIsShell(w) => (XtParent(w) != NULL) */
+    /* constraints may be NULL if constraint_size==0 */
+    if (!XtIsShell(w) && XtIsConstraint(XtParent(w)) && w->core.constraints) {
 	ConstraintWidgetClass cwc
-	    = (ConstraintWidgetClass) XtClass(w->core.parent);
+	    = (ConstraintWidgetClass) XtClass(XtParent(w));
 	GetValues((char*)w->core.constraints, 
-	    (XrmResourceList *)(cwc->constraint_class.resources),
-	    cwc->constraint_class.num_resources, args, num_args);
+		  (XrmResourceList *)(cwc->constraint_class.resources),
+		  cwc->constraint_class.num_resources, args, num_args);
     }
     /* Notify any class procedures that we have performed get_values */
     CallGetValuesHook(wc, w, args, num_args);
 
     /* Notify constraint get_values if necessary */
-    /* if (!XtIsShell(w) && XtIsConstraint(w->core.parent)) */
-    if (w->core.constraints != NULL)
-	CallConstraintGetValuesHook(XtClass(w->core.parent), w, args,num_args);
+    if (!XtIsShell(w) && XtIsConstraint(XtParent(w)))
+	CallConstraintGetValuesHook(XtClass(XtParent(w)), w, args,num_args);
 } /* XtGetValues */
 
 void XtGetSubvalues(base, resources, num_resources, args, num_args)

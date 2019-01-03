@@ -1,5 +1,5 @@
 #ifndef lint
-static char Xrcsid[] = "$XConsortium: SetValues.c,v 1.2 89/12/15 20:20:18 swick Exp $";
+static char Xrcsid[] = "$XConsortium: SetValues.c,v 1.10 90/07/19 10:48:55 swick Exp $";
 #endif /* lint */
 
 /***********************************************************
@@ -96,7 +96,7 @@ CallConstraintSetValues (class, current, request, new, args, num_args)
     if ((WidgetClass)class != constraintWidgetClass) {
 	if (class == NULL)
 	    XtAppErrorMsg(XtWidgetToApplicationContext(current),
-		    "invalidClass","constraintSetValue","XtToolkitError",
+		    "invalidClass","constraintSetValue",XtCXtToolkitError,
                  "Subclass of Constraint required in CallConstraintSetValues",
                   (String *)NULL, (Cardinal *)NULL);
 	redisplay = CallConstraintSetValues(
@@ -129,18 +129,20 @@ void XtSetValues(w, args, num_args)
 	     Cardinal num_args;
 {
     register Widget oldw, reqw;
-    char	    oldwCache[500], reqwCache[500];
-    char	    oldcCache[100], reqcCache[100];
+    /* need to use strictest alignment rules possible in next two decls. */
+    double	    oldwCache[100], reqwCache[100];
+    double	    oldcCache[20], reqcCache[20];
     Cardinal	    widgetSize, constraintSize;
-    Boolean	    redisplay, reconfigured = False;
+    Boolean	    redisplay, cleared_rect_obj = False, reconfigured = False;
     XtGeometryResult result;
     XtWidgetGeometry geoReq, geoReply;
     WidgetClass     wc = XtClass(w);
     ConstraintWidgetClass cwc;
+    Boolean	    hasConstraints;
 
     if ((args == NULL) && (num_args != 0)) {
         XtAppErrorMsg(XtWidgetToApplicationContext(w),
-		"invalidArgCount","xtSetValues","XtToolkitError",
+		"invalidArgCount","xtSetValues",XtCXtToolkitError,
                 "Argument count > 0 on NULL argument list in XtSetValues",
                  (String *)NULL, (Cardinal *)NULL);
     }
@@ -159,10 +161,20 @@ void XtSetValues(w, args, num_args)
 
     bcopy ((char *) w, (char *) reqw, (int) widgetSize);
 
-    if (w->core.constraints != NULL) {
-	/* Allocate and copy current constraints into oldw */
+    /* assert: !XtIsShell(w) => (XtParent(w) != NULL) */
+    hasConstraints = (!XtIsShell(w) && XtIsConstraint(XtParent(w)));
+
+    /* Some widget sets apparently do ugly things by freeing the
+     * constraints on some children, thus the extra test here */
+    if (hasConstraints) {
 	cwc = (ConstraintWidgetClass) XtClass(w->core.parent);
-	constraintSize = cwc->constraint_class.constraint_size;
+	if (w->core.constraints)
+	    constraintSize = cwc->constraint_class.constraint_size;
+	else constraintSize = 0;
+    } else constraintSize = 0;
+	
+    if (constraintSize) {
+	/* Allocate and copy current constraints into oldw */
 	oldw->core.constraints = XtStackAlloc(constraintSize, oldcCache);
 	reqw->core.constraints = XtStackAlloc(constraintSize, reqcCache);
 	bcopy((char *) w->core.constraints, 
@@ -178,7 +190,7 @@ void XtSetValues(w, args, num_args)
 
     /* Inform widget of changes, then inform parent of changes */
     redisplay = CallSetValues (wc, oldw, reqw, w, args, num_args);
-    if (w->core.constraints != NULL) {
+    if (hasConstraints) {
 	redisplay |= CallConstraintSetValues(cwc, oldw, reqw, w, args, num_args);
     }
 
@@ -213,17 +225,19 @@ void XtSetValues(w, args, num_args)
     
 	if (geoReq.request_mode != 0) {
 	    do {
-		result = XtMakeGeometryRequest(w, &geoReq, &geoReply);
+		result = _XtMakeGeometryRequest(w, &geoReq, &geoReply, 
+						&cleared_rect_obj);
 		if (result == XtGeometryYes) {
-		    reconfigured = True;
+		    reconfigured = TRUE;
 		    break;
 		}
+
 		/* An Almost or No reply.  Call widget and let it munge
 		   request, reply */
 		if (wc->core_class.set_values_almost == NULL) {
 		    XtAppWarningMsg(XtWidgetToApplicationContext(w),
 			    "invalidProcedure","set_values_almost",
-			  "XtToolkitError",
+			  XtCXtToolkitError,
 			  "set_values_almost procedure shouldn't be NULL",
 			  (String *)NULL, (Cardinal *)NULL);
 		    break;
@@ -239,16 +253,18 @@ void XtSetValues(w, args, num_args)
 		(*(wc->core_class.resize))(w);
 	    }
 	}
-	/* Redisplay if needed */
+	/* Redisplay if needed.  No point in clearing if the window is
+	 * about to disappear, as the Expose event will just go straight
+	 * to the bit bucket. */
         if (XtIsWidget(w)) {
             /* widgets can distinguish between redisplay and resize, since
              the server will cause an expose on resize */
-            if (redisplay && XtIsRealized(w))
+            if (redisplay && XtIsRealized(w) && !w->core.being_destroyed)
                 XClearArea (XtDisplay(w), XtWindow(w), 0, 0, 0, 0, TRUE);
         } else { /*non-window object */
-	  if (redisplay && ! reconfigured) {
+	  if (redisplay && ! cleared_rect_obj ) {
 	      Widget pw = _XtWindowedAncestor(w);
-	      if (XtIsRealized(pw)) {
+	      if (XtIsRealized(pw) && !pw->core.being_destroyed) {
 		  RectObj r = (RectObj)w;
 		  int bw2 = r->rectangle.border_width << 1;
 		  XClearArea (XtDisplay (pw), XtWindow (pw),
@@ -261,10 +277,9 @@ void XtSetValues(w, args, num_args)
 
 
     /* Free dynamic storage */
-    if (w->core.constraints != NULL) {
+    if (constraintSize) {
         XtStackFree(oldw->core.constraints, oldcCache);
-        XtStackFree(reqw->core.constraints,
-        reqcCache);
+        XtStackFree(reqw->core.constraints, reqcCache);
     }
     XtStackFree((XtPointer)oldw, oldwCache);
     XtStackFree((XtPointer)reqw, reqwCache);
