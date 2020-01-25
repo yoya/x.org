@@ -1,0 +1,77 @@
+This directory contains some examples of ~/.xinitrc, ~/.xsession, ~/.X11Startup
+and ~/.Xdefaults files.  It also contains an example of configuration file,
+common to several window managers.  These files are described below.
+
+WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+
+Due to the compliance with ISO 9660 CD-ROM format, the first dot (`.') has been
+removed from the names of these files.  Don't forget to rename the files if
+you want to use them.
+
+WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+
+                                      ----
+
+The ~/.xinitrc file is the shell script used by "xinit" as startup file.  When
+this script ends, the X server will be shut down, and the X Window session will
+die.  The .xinitrc.short file in this directory contains only one command to
+execute xsession.  However, if you wish to modify one or some xsession
+resources, you must first read the user's application-defaults file with
+"xrdb".  You should run xsession with the "exec" shell command in order to
+reduce the number of processes owned by the user; indeed, as xsession is run as
+the last client, the "sh" process having read the script becomes useless. The
+.xinitrc file given here does that.  Maybe should you test if xsession can be
+accessed within the PATH; look at the .xinitrc.safe file.
+
+The ~/.xsession file is the shell-script used by "xdm" as startup file.  When
+this script ends, the X server will be reset in such a way that all X
+applications running on this display die.  The .xinitrc examples given here are
+very simple and so could be used as .xsession without any modification.
+
+The ~/.X11Startup file is the shell script run by xsession at startup.  It
+should contain all applications wanted by the user when he is logging on.  The
+example shown here customizes the X screen saver, clears the screen's
+background, runs an "xconsole" application only if the user isn't logging on
+from an X terminal, and starts an "xterm" application.  Don't forget that the
+window manager is run by xsession itself, so you don't have to start it in
+this file.
+
+The ~/.Xdefaults file is the user's application-defaults file.  It should be
+read with "xrdb" in the ~/.xinitrc or ~/.xsession script.  The example given
+here shows how to add a new (fictive) window manager, SWM, and a new
+application, Editres, to the default menus; moreover, only frequently used
+window managers are kept in the list.  See the manual page for details about
+the building rules for these resources.
+
+The .wmrc.m4 file given here is an example of configuration file which can be
+shared between "twm", "ctwm" and "vtwm".  Some lines are protected by a test on
+the "WM_NAME" macro, while other lines are common.  This file shows how to use
+some useful m4 directives.  The "MENUS" section could also be used (or
+included) in a file shared by "mwm" (Motif), "vuewm" (HP) and "4Dwm" (IRIX).
+
+
+COPYRIGHT
+
+  Copyright (C) 1993, 1994, Alain Nissen & Raphael Quinet, University of Liege,
+                                                                       Belgium.
+
+  The X Consortium, and any party obtaining a copy of these files from the
+  X Consortium, directly or indirectly, is granted, free of charge, a full and
+  unrestricted irrevocable, world-wide, paid up, royalty-free, nonexclusive
+  right and license to deal in this software and documentation files (the
+  "Software"), including without limitation the rights to use, copy, modify,
+  merge, publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons who receive copies from any such party to do so.  This
+  license includes without limitation a license to do the foregoing actions
+  under any patents of the party supplying this software to the X Consortium.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+  X CONSORTIUM, THE AUTHORS OR THE UNIVERSITY OF LIEGE BE LIABLE FOR ANY CLAIM,
+  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+  OR OTHER DEALINGS IN THE SOFTWARE.
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.

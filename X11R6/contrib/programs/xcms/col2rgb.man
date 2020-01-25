@@ -1,0 +1,95 @@
+.TH COL2RGB 1.0 "2 June 1994" "X11R6" "Talisman User Commands"
+.ds p col2rgb
+.SH NAME
+col2rgb \- convert Xcms colors to RGB:0/0/0 or RGB.TXT format
+.SH SYNOPSIS
+.B \*p
+[-help]
+[-version]
+[-debug]
+[-xcmsdb]
+[-rgbtxt]
+[<XtOptions>...]
+.SH DESCRIPTION
+The 
+.I \*p
+program
+allows the user to convert a sequence of
+.IP
+.I colorname colorspec
+.PP
+pairs to either the Xcms RGB format, such as
+.IP
+.I colorname 
+.B RGB:255/255/255
+.PP
+or to the archaic RGB.TXT format used by many X servers, where each line is
+.IP
+.B 255 255 255
+.I colorname
+.PP
+on a workstation display running X.
+.SH OPTIONS
+The various options are as follows:
+.IP \fB-help\fP
+Print a usage message and exit.
+.IP \fB-version\fP
+Print a version summary and exit.
+.IP \fB-debug\fP
+Enable debugging.
+.IP \fB-xcmsdb\fP
+The input is expected to be an Xcms Database for use through the
+.I XCMSDB
+environment variable.  The usual header and trailer for an XcmsDB are
+discarded on input.
+.IP \fB-rgbtxt\fP
+The output is expected to be formatted as an
+.I rgb.txt
+file, for use as an X server\'s primary color database, generally specified
+as a startup option on the X server command line.  Note that it is common
+for this file to be further processed into files such as
+.I rgb.dir
+.I rgb.pag
+by additional software, see rgb(1).
+.IP \fB<XtOptions>\fP
+The
+.I -display
+to specify an alternate server for executions where
+no server is on the local machine.
+.SH FILES
+.nf
+*.col          Xcms color file.
+*.rgb          Color file in \fIrgb.txt\fP format.
+*.xcmsdb       Xcms Database file.
+rgb.txt        The canonical \fIrgb.txt\fP file.
+rgb.pag        Postprocessed \fIrgb.txt\fP file, section 1.
+rgb.dir        Postprocessed \fIrgb.txt\fP file, seciont 2.
+.SH "SEE ALSO"
+X(1)
+rgb(1)
+xcmsdb(1)
+xcolors(1)
+XcmsLookupColor(3)
+XcmsConvertColors(3)
+.SH ENVIRONMENT
+DISPLAY to figure out which display and screen to use.
+.SH COPYRIGHT
+.PP
+Copyright (c) 1993, 1994 Christopher Alexander North-Keys
+.PP
+The X Consortium, and any party obtaining a copy of these files from
+the X Consortium, directly or indirectly, is granted, free of charge, a
+full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+nonexclusive right and license to deal in this software and
+documentation files (the "Software"), including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons who receive
+copies from any such party to do so.  This license includes without
+limitation a license to do the foregoing actions under any patents of
+the party supplying this software to the X Consortium.
+.SH AUTHOR
+Christopher Alexander North-Keys, Group Talisman
+.br
+.PP
+erlkonig@gnu.ai.mit.edu
+.br

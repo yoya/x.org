@@ -1,0 +1,48 @@
+XCOMM $XConsortium: Imakefile,v 1.5 94/03/25 19:55:16 matt Exp $
+
+HEADERS = \
+    Xdefs.h Xdisplay.h Xdrawing.h Xevent.h Xlib.h Xpainter.h Xraster.h \
+    Xscreen.h XtIntrinsic.h Xtf-impl.h XtfFresco.h XtfViewer.h \
+    XtfViewerP.h Xundefs.h Xutil.h Xwindow.h action.h charstr.h \
+    figures.h fobjects.h fresco-impl.h glyphs.h polyglyph.h region.h \
+    styles.h transform.h traversal.h viewers.h widgetkit.h
+
+DEST = $(INCDIR)/Fresco/Impls
+
+all::
+
+BuildIncludes($(HEADERS),Fresco/Impls,../..)
+
+InstallMultipleFlags($(HEADERS),$(DEST),$(INSTINCFLAGS))
+
+XCOMM  The stuff from here down is related to running the ixx translator
+XCOMM  to build header files from IDL definitions.  You should not have 
+XCOMM  to use this part unless you are rebuilding the Fresco headers.
+
+#include <Ixx.tmpl>
+
+I = ../Interfaces
+
+EditImplHeader(action,$(I)/types.idl)
+EditImplHeader(charstr,$(I)/types.idl)
+EditImplHeader(figures,$(I)/figures.idl)
+EditImplHeader(fresco-impl,$(I)/types.idl)
+EditImplHeader(glyphs,$(I)/glyph.idl)
+EditImplHeader(polyglyph,$(I)/glyph.idl)
+EditImplHeader(region,$(I)/types.idl)
+EditImplHeader(styles,$(I)/types.idl)
+EditImplHeader(transform,$(I)/types.idl)
+EditImplHeader(traversal,$(I)/glyph.idl)
+EditImplHeader(viewers,$(I)/viewer.idl)
+EditImplHeader(widgetkit,$(I)/widgets.idl)
+EditImplHeader(Xdisplay,$(I)/display.idl)
+EditImplHeader(Xdrawing,$(I)/drawing.idl)
+EditImplHeader(Xevent,$(I)/viewer.idl)
+EditImplHeader(Xpainter,$(I)/drawing.idl)
+EditImplHeader(Xraster,$(I)/drawing.idl)
+EditImplHeader(Xscreen,$(I)/display.idl)
+EditImplHeader(Xwindow,$(I)/display.idl $(I)/glyph.idl)
+
+headers::
+
+clean_headers::

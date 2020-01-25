@@ -1,0 +1,50 @@
+
+/* 
+     Copyright (c) 1991 xtexcad  V1.3 by K. Zitzmann
+
+     The X Consortium, and any party obtaining a copy of these files from
+     the X Consortium, directly or indirectly, is granted, free of charge, a
+     full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+     nonexclusive right and license to deal in this software and
+     documentation files (the "Software"), including without limitation the
+     rights to use, copy, modify, merge, publish, distribute, sublicense,
+     and/or sell copies of the Software, and to permit persons who receive
+     copies from any such party to do so.  This license includes without
+     limitation a license to do the foregoing actions under any patents of
+     the party supplying this software to the X Consortium.
+*/
+
+
+
+This is the most recent readme-file to xtexcad version 1.3 !!
+
+In order to contribute this package to the Release 6 distribution
+of the X Window System, I've made a couple of slight changes 
+of which I hope they're improvements.
+
+To compile xtexcad version 1.3 simply create a `Makefile` by 
+typing 'xmkmf' in the current directory, i.e. the directory 
+containing all the files pertaining to this distribution.
+The `xmkmf` utilizes the `Imakefile` - file to create an 
+architecture-dependent `Makefile` - file. Now, type 'make all` 
+( or `make install' if you've got the permission ) and hopefully, 
+in a five minutes time the executable appears.
+
+I've tested xtexcad version 1.3 with release 6 on a NeXT computer 
+with the cc compiler (This is a GNU C Compiler !!!).
+If you want to install xtexcad on a NeXT computer, you should use
+the 'cc' compiler from NeXT! 
+Compilation on SPARC's, SUN3 and DataGeneral
+has never been a problem with 'CC = gcc' (default setting) !
+
+
+5/18/94 Klaus Zitzmann
+
+
+P.S.
+The xtexcad version 1.3 package is the final version of 
+this software because nowadays, it is more convenient 
+to import encapsulated PostScript graphics into a document. 
+However, for little diagrams and graphics it still is
+a very useful tool which furthermore produces portable
+(i.e. non-binary) images.

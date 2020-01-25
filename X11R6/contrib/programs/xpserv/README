@@ -1,0 +1,156 @@
+
+		    X to PostScript Printing Server
+
+	Finally! a printing model for X-Windows!  The X to PostScript 
+    server is modelled as an extension to the X protocol, using a 
+    second display.  Connect to the server, use the extension to
+    specify which window you want printed, send the Xlib calls to 
+    the second server, close the print window, and voila, a PostScript
+    file is created.
+
+	There are three calls in the API:
+
+	include "printlib.h"
+
+	Bool XOpenPrintWindow( Display	*dpy,
+			       Window	win,
+			       char	*printfile)
+	
+	dpy		Specifies the connection to the printing server.
+
+	Window		Specifies the window for which Xlib commands are
+			to be converted to PostScript.  All commands directed
+			to other windows are ignored.
+	
+	printfile	Specifies the name of the PostScript file to be
+			generated.
+
+	The XOpenPrintWindow function directs the print server to translate
+	Xlib commands directed to "win" into PostScript calls.
+
+
+	Bool XClosePrintWindow( Display	*dpy,
+				Window	win)
+		    
+
+	dpy		Specifies the connection to the printing server.
+
+	Window		Specifies the window to stop generating Xlib
+			commands for.
+    
+
+	XClosePrintWindow directs the server to stop translating Xlib 
+	calls sent to the specified window.
+
+
+	Bool XSetPrintParams( Display	*dpy,
+			      Bool	preserve_aspect,
+			      int	font_scale,
+			      int	pixmap_scale,
+			      int	page_width,
+			      int	page_height)
+	
+	dpy		Specifies the connection to the printing server
+
+	preserve_aspect	Flag to tell server to preserve the aspect ratio 
+			of the print window, instead of trying to fill
+			the page.
+	
+	font_scale	Scaling to apply to X font.
+
+	pixmap_scale	Scaling to apply to pixmaps.
+
+	page_width	Width of output page in points.
+
+	page_height	Height of output page in points.
+
+
+	XSetPrintParams sets the parameters for the PostScript output.
+	You're going to want to print at a higher resolution than the
+	screen, so chances are you'll create a print window that's
+	much larger than the screen window.  When you do this, your
+	bitmap fonts and symbols ( pixmaps) don't get scaled, so you 
+	have to rescale them.  The scaling is simply a multiplier for
+	the size of  the corresponding PostScript font.  Be careful
+	if you've done any calculations for font or symbol positioning.
+
+	By default, the server prints the output to fill the page, and
+	decides whether to use portrait or landscape mode, depending on
+	what fits better.  You can override the server by setting
+	preserve_aspect to TRUE.
+
+	page_width and page_height set the size of the output page in 
+	points.
+
+
+    The server is run from the command line with the following options:
+
+	pserver [-g][-p port#][-d disp_name]
+
+	-g 		Turn on debugging output for the server.
+
+	-p port #	Give an alternate port number for the server.
+			The default is 1, ex: "stonehenge:1.0"
+	
+	-d disp_name	Specifies the name of the *real* X server to
+			connect to for queries.  Default is "unix:0.0"
+
+
+    In addition, the server requires the following environment variables:
+
+	XPRINTFONTS:  	This specifies the file which maps X fonts to
+			PostScript fonts.  A sample file is given in
+			"printfonts". The format of the file is the
+			"X wildcard" on one line, followed by the
+			PostScript font name on the next line.
+	
+	XPRINTOPTS:	This is a file which contains printer options.
+			Right now, it just controls the image/colorimage
+			operator, but the file is intended to be a hook
+			to be able to deal with all the different quirks
+			of different PostScript printers.
+
+    
+    Limitations of the X Printing Server:
+
+	All of the resources (GC's, Fonts, Colors) which you wish to use
+    must be loaded on the printing server.  If you try to use a GC which
+    is on the real display server, it'll choke on the printing server.  
+    Same thing for fonts.  You have to use XLoadFont so it can divine
+    the font name to map to the PostScript font.  The server can't get
+    the font name from just the font id.  All colors have to be allocated
+    or stored using XStoreColor or XAllocColor.  Remember, this is
+    a separate server that you're communicating with.
+
+	The server attempts to spoof the X protocol, and there are some
+    obvious limitations.  Basically, anything dealing with events
+    (XGrabKey, XGrabPointer, etc.) are ignored. Replies are sent when
+    neccessary, but chances are they contain garbage.  The intention of
+    this server is that you take the Xlib portion of your expose callbacks,
+    send it to the printing server, and that's it.  It's strictly output
+    only.
+
+	The function XCopyArea is not supported for the printing window
+    as the source.  You can copy from a server pixmap or window 
+    to the printing window, but not from the window to itself, because
+    (at least to my knowledge), that there isn't a corresponding PostScript
+    operator.  XAllocColorCells and XAllocColorPlanes return garbage,
+    because, quite frankly, I don't know what they're really supposed to
+    do.  The  stuff for setting and getting atoms is in there, but I haven't
+    had time to test it.  Not all of the more obscure portions of GC's are
+    supported.  Clip_mask doesn't do anything, tile and stipple are 
+    unused, and dashes don't do anything.
+
+	The server only works between systems which have the same endian-ness.
+    (Intels to Intels and Sparcs to Sparcs, but no mixing).  This is 
+    priority #1 for version 1.01.
+
+	There's a sample program, called "testcli", which shows how to
+    communicate with the printing server and set options.  Please forward
+    any comments, bug reports, fixes, etc. to mreynold@qualcomm.com
+
+
+    Systems:
+	
+	The printserver has only been compiled and tested on Sparcs running
+    Solaris 2.3

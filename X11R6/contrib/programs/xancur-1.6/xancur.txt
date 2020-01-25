@@ -1,0 +1,264 @@
+
+
+
+XANCUR(1.6)          Talisman User Commands           XANCUR(1.6)
+
+
+
+NAME
+     xancur - root cursor animation program for X
+
+SYNOPSIS
+     xancur [-help] [-display _d_i_s_p_l_a_y] [-usleep _m_i_c_r_o_s_e_c_o_n_d_s]  [-
+     fg  _c_o_l_o_r]  [-bg  _c_o_l_o_r]  [-rv]  [-script _s_c_r_i_p_t_n_a_m_e] [-iter
+     _i_t_e_r_a_t_i_o_n_s] [_c_u_r_s_o_r_f_i_l_e _m_a_s_k_f_i_l_e]...
+
+DESCRIPTION
+     The _x_a_n_c_u_r program allows the user to animate the background
+     ("root")  cursor  on  a workstation display running X.  Nor-
+     mally, one experiments with _x_a_n_c_u_r until one finds a  pleas-
+     ing,  personalized  look,  then puts the _x_a_n_c_u_r command that
+     produces it into an X  startup  file.   If  no  options  are
+     specified,  _x_a_n_c_u_r  will  attempt to read a scriptfile named
+     ._x_a_n_c_u_r  in  the  user's  home  directory  for  a  list   of
+     cursor/mask filenames.  Failing that, xancur will look for a
+     system scriptfile  defined  at  compilation  ---  see  _F_I_L_E_S
+     below.
+     _x_a_n_c_u_r can also be used  for  program-to-user  communication
+     (although  this  is really pushing things), by using a mean-
+     ingful batch animation through a finite number of iterations
+     to indicate, for example, the completion of a batch job.  It
+     can also run until the xancur process is killed by  a  catch
+     on  the end of a task.  The program will not, however, pause
+     another invocation of itself while running, so improper  use
+     could be less than esthetic.
+
+OPTIONS
+     The various options are as follows:
+
+     -help
+          Print a usage message and exit.
+
+     _c_u_r_s_o_r_f_i_l_e _m_a_s_k_f_i_l_e
+          Filename pairs in this form are used to  set  the  root
+          cursor  animation frame sequence.  The enables the user
+          to specify the complete animation cycle  with  standard
+          cursor  and mask bitmaps as used by _x_s_e_t_r_o_o_t(_1). Cursor
+          and mask files are bitmaps (little pictures),  and  can
+          be  made with the _b_i_t_m_a_p(_1) program.  One usually wants
+          the mask files to be all black until one  becomes  more
+          familiar with the way masks work.
+
+     -script _s_c_r_i_p_t_n_a_m_e
+          File _s_c_r_i_p_t_n_a_m_e contains  commands  (similar  to  those
+          used  on  the  the command line) and either cursor/mask
+          filename pairs or merely the name of the  cursor  files
+          to  which  .mask  will  be added to create the maskfile
+          names.
+
+     -iter _i_t_e_r_a_t_i_o_n_s
+
+
+
+X11R6               Last change: 30 May 1994                    1
+
+
+
+
+
+
+XANCUR(1.6)          Talisman User Commands           XANCUR(1.6)
+
+
+
+          This option sets the number of iterations for the  com-
+          plete  animation loop.  If left unset, the program will
+          loop until interrupted.
+
+     -fg _c_o_l_o_r
+          Use _c_o_l_o_r as the foreground color.
+
+     -bg _c_o_l_o_r
+          Use _c_o_l_o_r as the background color.
+
+     -rv  This exchanges the foreground  and  background  colors.
+          Normally  the  foreground  color is black and the back-
+          ground color is white.
+
+     -display _d_i_s_p_l_a_y
+          Specifies the server to which to connect; see _X(_1).
+
+     For convenience, xancur interprets the ~  (tilde)  character
+     in  the  same  way as that seen in the _c_s_h(_1).  This is also
+     true within scripts.
+
+     It is not currently known precisely how many frames long  an
+     animation loop can be.  User should probably be warned that,
+     like many other aspects of customization, many days  can  be
+     lost in exploring such limits.
+
+EXAMPLE
+     To have _x_a_n_c_u_r cycle through the two cursor/masks pairs  for
+     frames _b_m_1 and _b_m_2 one might run the following command.
+
+          xancur -usleep 400000 bm1 bm1.mask bm2 bm2.mask
+
+     More commonly, one might run the  following  in  the  _x_a_n_c_u_r
+     source directory.
+
+          xancur -script animations/fourpoints/Script
+
+SCRIPTS
+     The scriptfiles may contain image/mask filename pairs, image
+     filenames  with  assumed  .mask suffixes for mask filenames,
+     and command switches.  The command switches comprise a  sub-
+     set of the command line options, and include:
+
+     -script _s_c_r_i_p_t_n_a_m_e
+
+     -fg _c_o_l_o_r
+
+     -bg _c_o_l_o_r
+
+     -rv
+
+
+
+
+
+X11R6               Last change: 30 May 1994                    2
+
+
+
+
+
+
+XANCUR(1.6)          Talisman User Commands           XANCUR(1.6)
+
+
+
+     It is important to note that the dash-commands  do  _n_o_t  get
+     saved  or re-executed, but rather merely affect a particular
+     cursor construction.  One should also note that  the  script
+     below  will  only work with the requisite X bitmaps resident
+     in the same directory as the script file.
+
+     A variation of the default pointer, showing color reversal:
+
+
+          -bg white
+          -fg black
+          fourpoints0
+          fourpoints15
+          fourpoints30
+          fourpoints45
+          fourpoints60
+          fourpoints75
+          -rv
+          fourpoints0
+          fourpoints15
+          fourpoints30
+          fourpoints45
+          fourpoints60
+          fourpoints75
+
+     It should be noted that any pathname within  a  script  file
+     which  is not a fully-rooted pathname will be resolved rela-
+     tive to the script file's location rather than  relative  to
+     the current working directory.
+
+NOTES
+     Running xancur tends to prevent one's X  server  from  being
+     swapped  out as often.  This has been known to significantly
+     improve response time on some machines.
+
+FILES
+     /usr/lib/X11/xancur/Script                  default (system) script.
+     $HOME/.xancur                      default (personal) script.
+     $HOME/.xinitrc        typical place for first xancur command.
+
+SEE ALSO
+     csh(1), X(1), xinit(1), xset(1), xsetroot(1), xrdb(1),  XDe-
+     fineCursor(3)
+
+BUGS
+     This version probably can't handle individual files of  over
+     64K in length.
+
+     The program makes no use of the X resources for anything.
+
+COPYRIGHT
+     Copyright (c) 1993, 1994 Christopher Alexander North-Keys
+
+
+
+X11R6               Last change: 30 May 1994                    3
+
+
+
+
+
+
+XANCUR(1.6)          Talisman User Commands           XANCUR(1.6)
+
+
+
+     The X Consortium, and any party obtaining a  copy  of  these
+     files  from  the  X  Consortium,  directly or indirectly, is
+     granted, free of charge, a full and  unrestricted  irrevoca-
+     ble,  world-wide,  paid up, royalty-free, nonexclusive right
+     and license to deal in this software and documentation files
+     (the "Software"), including without limitation the rights to
+     use, copy, modify, merge, publish,  distribute,  sublicense,
+     and/or  sell  copies  of the Software, and to permit persons
+     who receive copies from any  such  party  to  do  so.   This
+     license  includes  without  limitation  a  license to do the
+     foregoing actions under any patents of the  party  supplying
+     this software to the X Consortium.
+
+AUTHOR
+     Christopher Alexander North-Keys, Group Talisman
+
+     erlkonig@gnu.ai.mit.edu
+
+     Special thanks to Mark Lillibridge, MIT Project Athena,  for
+     having written the code for _x_s_e_t_r_o_o_t(1), thanks to the other
+     members of group Talisman for beta testing this program  and
+     offering  comments, and thanks to Mic Kaczmarczik (UT@Austin
+     CCWF) for  proofreading  this  documentation,  checking  the
+     installation  process, and checking the spelling of his sur-
+     name.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+X11R6               Last change: 30 May 1994                    4
+
+
+

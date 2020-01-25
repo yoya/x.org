@@ -1,0 +1,325 @@
+.ad l
+.nh
+.TH import 1 "1 May 1994" "ImageMagick"
+.SH NAME
+import - capture some or all of an X server screen and save the image to
+a file.
+.SH SYNOPSIS
+.B "import"
+[ \fIoptions\fP ... ] \fIfile\fP
+.SH DESCRIPTION
+\fBimport\fP reads an image from any visible window on an X server and
+outputs it as an image file.  You can capture a single window, the
+entire screen, or any rectangular portion of the screen.  Use
+\fBdisplay\fP (see \fBdisplay(1)\fP) for redisplay, printing, editing,
+formatting, archiving, image processing, etc. of the captured image.
+.PP
+The target window can be specified by id, name, or may be selected by
+clicking the mouse in the desired window.  If you press a button and
+then drag, a rectangle will form which expands and contracts as
+the mouse moves.  To save the portion of the screen  defined by the
+rectangle, just release the button.  The keyboard bell is rung once at
+the beginning of the screen capture and twice when it completes.
+.PP
+.SH EXAMPLES
+.PP
+To select an X window with the mouse and save it in the MIFF image
+format to a file titled window.miff, use:
+.PP
+.B
+     import window.miff
+.PP
+To select an X window and save it in the Encapsulated Postscript format
+to include in another document, use:
+.PP
+.B
+     import figure.eps
+.PP
+To capture the entire X server screen in the JPEG image format in a file
+titled root.jpeg, use:
+.PP
+.B
+     import -window root root.jpeg
+.SH OPTIONS
+\fBimport\fP options can appear on the command line or in your X resources
+file (see \fBX(1)\fP).  Options on the command line supersede values specified
+in your X resources file.
+.TP 5
+.B "-border"
+include image borders in the output image.
+.TP 5
+.B "-clip \fI<width>x<height>{\+-}<x offset>{\+-}<y offset>\fP"
+preferred size and location of the clipped image.  See \fBX(1)\fP for details
+about the geometry specification.
+ 
+Use clipping to crop a particular area of an image.   Use \fB-clip
+0x0\fP to remove edges that are the background color.
+.TP 5
+.B "-colors \fIvalue\fP"
+preferred number of colors in the image.
+ 
+The actual number of colors in the image may be less than your request,
+but never more.  Note, this is a color reduction option.  Images with
+less unique colors than specified with this option will remain unchanged.
+Refer to \fBquantize(9)\fP for more details.
+ 
+Note, options \fB-dither\fP, \fB-colorspace\fP, and \fB-treedepth\fP affect
+the color reduction algorithm.
+.TP 5
+.B "-colorspace \fIvalue\fP"
+the type of colorspace: \fBGRAY\fP, \fBOHTA\fP, \fBRGB\fP, \fBXYZ\fP,
+\fBYCbCr\fP, \fBYIQ\fP, or \fBYUV\fP.
+ 
+Color reduction, by default, takes place in the RGB color space.
+Empirical evidence suggests that distances in color spaces such as YUV
+or YIQ correspond to perceptual color differences more closely
+than do distances in RGB space.  These color spaces may give better
+results when color reducing an image.  Refer to \fBquantize(9)\fP for
+more details.
+ 
+The \fB-colors\fP or \fB-monochrome\fP option is required for this option
+to take effect.
+.TP 5
+.B "-comment \fIstring\fP"
+annotate an image with a comment.
+
+By default, each image is commented with its file name.  Use this
+option to assign a specific comment to the image.  Optionally you can
+include the image filename, type, width, height, or scene number by
+embedding special format characters.  Embed \fB%f\fP for filename,
+\fB%m\fP for magick, \fB%w\fP for width, \fB%h\fP for height, \fB%s\fP
+for scene number, or \fB\\n\fP for newline.  For example,
+
+.nf
+     -comment "%m:%f %wx%h"
+.fi
+
+produces an image comment of \fBMIFF:bird.miff 512x480\fP for an image
+titled \fBbird.miff\fP and whose width is 512 and height is 480.
+ 
+If the first character of \fIstring\fP is \fB@\fP, the image comment is read
+from a file titled by the remaining characters in the string.
+.TP 5
+.B "-compress \fItype\fP"
+the type of image compression: \fIQEncoded\fP or \fIRunlengthEncoded\fP.
+See \fBmiff(5)\fP for details.
+
+Specify \fB\+compress\fP to store the binary image in an uncompressed format.
+The default is the compression type of the specified image file.
+.TP 5
+.B "-delay \fIseconds\fP"
+pause before selecting target window.
+
+This option is useful when you need time to ready the target window before
+it is captured to a file.
+.TP 5
+.B "-density \fI<width>x<height>
+vertical and horizontal density of the image.
+
+This option specifies an image density for a Postscript page.
+The default is 72 dots per inch in the horizontal and vertical direction.
+Use this option to alter the default density.
+.TP 5
+.B "-descend"
+obtain image by descending window hierarchy.
+
+This option reads each subwindow and its colormap of the chosen window.
+The final image is guarenteed to have the correct colors but obtaining
+the image is significantly slower.
+.TP 5
+.B "-display \fIhost:display[.screen]\fP"
+specifies the X server to contact; see \fBX(1)\fP.
+.TP 5
+.B "-dither"
+apply Floyd/Steinberg error diffusion to the image.
+ 
+The basic strategy of dithering is to trade intensity resolution for
+spatial resolution by averaging the intensities of several neighboring
+pixels.  Images which suffer from severe contouring when reducing colors
+can be improved with this option.
+ 
+The \fB-colors\fP option is required for dithering to take effect.
+.TP 5
+.B "-frame"
+include window manager frame.
+.TP 5
+.B "-geometry \fI<width>{%}x<height>{%}{!}"
+the width and height of the image.
+
+By default, the width and height are maximum values.  That is, the
+image is expanded or contracted to fit the width and height value while
+maintaining the aspect ratio of the image.  Append an exclamation point
+to the geometry to force the image size to exactly the size you
+specify.  For example, if you specify \fB640x480!\fP the image width is
+set to 640 pixels and height to 480.  If only one factor is
+specified, both the width and height assume the value.
+ 
+To specify a percentage width or height instead, append \fB%\fP.  The
+image size is multiplied by the width and height percentages to obtain
+the final image dimensions.  To increase the size of an image, use a
+value greater than 100 (e.g. 125%).  To decrease an image's size, use a
+percentage less than 100.
+
+Use this option to specify the width and height of raw images whose
+dimensions are unknown such as \fBGRAY\fP, \fBRGB\fP, and \fBCMYK\fP.
+.TP 5
+.B "-interlace \fItype\fP"
+the type of interlacing scheme: \fBNONE\fP, \fBLINE\fP, or \fBPLANE\fP.
+
+This option is used to specify the type of interlacing scheme for raw
+image formats such as \fBRGB\fP or \fBYUV\fP.  \fBNONE\fP means do not
+interlace (RGBRGBRGBRGBRGBRGB...), \fBLINE\fP uses scanline
+interlacing (RRR...GGG...BBB...RRR...GGG...BBB...), and \fBPLANE\fP uses
+plane interlacing (RRRRRR...GGGGGG...BBBBBB...).
+.B "-label \fIname\fP"
+assign a label to an image.
+
+Use this option to assign a specific label to the image.  Optionally
+you can include the image filename, type, width, height, or scene
+number in the label by embedding special format characters.   Embed
+\fB%f\fP for filename, \fB%m\fP for magick, \fB%w\fP for width,
+\fB%h\fP for height, or \fB%s\fP for scene number.  For example,
+.nf
+     -label "%m:%f %wx%h"
+.fi
+produces an image label of \fBMIFF:bird.miff 512x480\fP for an image
+titled \fBbird.miff\fP and whose width is 512 and height is 480.
+
+If the first character of \fIstring\fP is \fB@\fP, the image label is read
+from a file titled by the remaining characters in the string.
+ 
+When converting to Postscript, use this option to specify a header string
+to print above the image.
+.TP 5
+.B "-monochrome"
+transform image to black and white.
+.TP 5
+.B "-negate"
+apply color inversion to image.
+ 
+The red, green, and blue intensities of an image are negated.
+.TP 5
+.TP 5
+.B "-page \fI<width>x<height>{\+-}<x offset>{\+-}<y offset>\fP"
+preferred size and location of the Postscript page.
+
+Use this option to specify the dimensions of the Postscript page in
+picas or a TEXT page in pixels.  The default for a Postscript page is
+to center the image on a letter page 612 by 792 dots per inch.  The
+left and right margins are 18 picas and the top and bottom 94 picas
+(i.e.  612x792+18+94).  Other common sizes are:
+
+    540x720   Note
+    612x1008  Legal
+    842x1190  A3
+    595x842   A4
+    421x595   A5
+    297x421   A6
+    709x1002  B4
+    612x936   U.S. Foolscap
+    612x936   European Foolscap
+    396x612   Half Letter
+    792x1224  11x17
+    1224x792  Ledger
+
+The page geometry is relative to the vertical and horizontal density of the
+Postscript page.  See \fB-density\fP for details.
+
+The default page dimensions for a TEXT image is 612x792+36+36.
+.TP 5
+.B "-quality \fIvalue\fP"
+JPEG quality setting.
+
+Quality is 0 (worst) to 100 (best). The default is 85.
+.TP 5
+.B "-rotate \fIdegrees\fP"
+apply Paeth image rotation to the image.
+
+Empty triangles left over from rotating the image are filled with
+the color defined as \fBbordercolor\fP (class \fBborderColor\fP).
+See \fBX(1)\fP for details.
+.TP 5
+.B "-scene \fIvalue\fP"
+image scene number.
+.TP 5
+.B "-screen"
+This option indicates that the GetImage request used to obtain the image
+should be done on the root window, rather than directly on the specified
+window.  In this way, you can obtain pieces of other windows that overlap
+the specified window, and more importantly, you can capture menus or other
+popups that are independent windows but appear over the specified window.
+.TP 5
+.B "-treedepth \fIvalue\fP"
+Normally, this integer value is zero or one.  A zero or one tells
+\fBconvert\fP to choose a optimal tree depth for the color reduction
+algorithm.
+ 
+An optimal depth generally allows the best representation of the source
+image with the fastest computational speed and the least amount of
+memory.  However, the default depth is inappropriate for some images.
+To assure the best representation, try values between 2 and 8 for this
+parameter.  Refer to \fBquantize(9)\fP for more details.
+ 
+The \fB-colors\fP option is required for this option to take effect.
+.TP 5
+.B -verbose
+print detailed information about the image.
+
+This information is printed: image scene number;  image name;  image size;
+the image class (\fIDirectClass\fP or \fIPseudoClass\fP);  the total
+number of unique colors;  and the number of seconds to read and write the
+image.
+.TP 5
+.B "-window \fIid\fP"
+select window with this id or name.
+
+With this option you can specify the target window by id or name rather
+than using the mouse.  Specify 'root' to select X's root window as the
+target window.
+.PP
+Change \fI-\fP to \fI+\fP in any option above to reverse its effect.  For
+example \fB+frame\fP means do include window manager frame.
+.PP
+\fIfile\fP specifies the image filename.  By default, the image is
+written in the Postscript image format.  To specify a particular image
+format, precede the filename with an image format name and a colon
+(i.e.  ps:image) or specify the image type as the filename suffix (i.e.
+image.ps).  See \fBconvert(1)\fP for a list of valid image formats.
+.PP
+Specify \fIfile\fP as \fI-\fP for standard output.  If \fIfile\fP has
+the extension \fB.Z\fP or \fB.gz\fP, the file size is compressed using
+with \fBcompress\fP or \fBgzip\fP respectively.  Precede the image file
+name \fI|\fP to pipe to a system command. If \fIfile\fP already exists,
+you will be prompted as to whether it should be overwritten.
+.SH ENVIRONMENT
+.PP
+.TP 5
+.B display
+To get the default host, display number, and screen.
+.SH SEE ALSO
+.B
+display(1), animate(1), montage(1), mogrify(1), convert(1),
+segment(1), combine(1), xtp(1)
+.SH COPYRIGHT
+Copyright 1994 E. I. du Pont de Nemours and Company
+.PP
+Permission to use, copy, modify, distribute, and sell this software and
+its documentation for any purpose is hereby granted without fee,
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in
+supporting documentation, and that the name of E. I. du Pont de Nemours
+and Company not be used in advertising or publicity pertaining to
+distribution of the software without specific, written prior
+permission.  E. I. du Pont de Nemours and Company makes no representations
+about the suitability of this software for any purpose.  It is provided
+"as is" without express or implied warranty.
+.PP
+E. I. du Pont de Nemours and Company disclaims all warranties with regard
+to this software, including all implied warranties of merchantability
+and fitness, in no event shall E. I. du Pont de Nemours and Company be
+liable for any special, indirect or consequential damages or any
+damages whatsoever resulting from loss of use, data or profits, whether
+in an action of contract, negligence or other tortuous action, arising
+out of or in connection with the use or performance of this software.
+.SH AUTHORS
+John Cristy, E.I. du Pont De Nemours and Company Incorporated

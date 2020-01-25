@@ -1,0 +1,21 @@
+#!/usr/bin/perl
+#
+# Retrieve files from remote host using standard 'host: filename' string:
+#
+#   get export.lcs.mit.edu: contrib/ImageMagick.tar.Z
+#
+$host=shift || die "Usage: get host/ip-address file\n";
+$file=shift || die "Usage: get host/ip-address file\n";
+$host=~s/:$//;
+$directory=`dirname $file`;
+chop($directory);
+$file=`basename $file`;
+chop($file);
+printf("Getting %s in directory %s from host %s...\n",$file,$directory,$host);
+$pid=fork;
+if ($pid == 0)
+  {
+    exec("xtp -r $file -b $host $directory");
+    exit(0);
+  }
+exit(0);

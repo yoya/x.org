@@ -1,0 +1,63 @@
+## User configurable parameters
+
+# xmove will use gcc as the compiler unless you set XMOVE_USE_GCC to no,
+# in which case it will use cc. Sun users please note: if using gcc check
+# to see if you are using Gnu's assembler and linker (gas and ld). You are
+# better off using Sun's versions. See comments for XMOVE_USE_DLLIBS below.
+
+#define XMOVE_USE_GCC		YES
+
+
+# If your system doesn't support loading of libraries at runtime
+# using the dlopen() command, change the next line to NO. If you
+# are using SunPro's cc then this should not be necessary. If you are
+# using the Gnu assembler and linker (gas and ld) then your system
+# does not support this and you should change the line to NO. A better
+# choice is to use the Sun assembler and linker instead. Ask your
+# sysadmin if you don't know what any of this means, or just try to
+# compile it and if you have compiler complaints about the function
+# dlopen() (among many other things) then change the line to NO.
+
+#define XMOVE_USE_DLLIBS	YES
+
+
+# Use ATOM_MAPPING_LIBRARY_PATH if XMOVE_USE_DLLIBS is set to YES.
+# Set this to the path of the "lib" directory. Don't forget to
+# use a backslash before the quotes. (ie \", not ") If you plan on
+# moving the executables to another directory after compilation, you will
+# need a separate subdirectory just for xmove's libraries. This variable
+# should be set to the directory where those libraries will be placed.
+
+ATOM_MAPPING_LIBRARY_PATH=\"/home/ethan/release/xmove/lib\"
+
+
+## Standard parameters
+
+#if XMOVE_USE_DLLIBS
+	DLLIBSRC =
+	DLLIBOBJ =
+	DLLIB    = -ldl
+	DLDEFINE = -DDL_WOUT_PRAGMA
+#else
+	DLLIBSRC = libatommap.c
+	DLLIBOBJ = libatommap.o
+	DLDEFINE =
+	DLLIB    =
+#endif
+
+LOCAL_LIBRARIES1 = -lX11 $(DLLIB)
+
+#if XMOVE_USE_GCC
+	CC = gcc
+#else
+	CC = cc
+#endif
+
+DEFINES = -DXMOVE -DNeedFunctionPrototypes=1 -DDEBUG -DATOMMAP_LIBPATH=$(ATOM_MAPPING_LIBRARY_PATH) $(DLDEFINE)
+
+SRCS1 = decode11.c linkl.c print11.c server.c fd.c main.c prtype.c table11.c xmove.c map.c get_image.c getsetProps.c move_window.c XMOVELib.c put_image.c move_selects.c colormaps.c MoveImage.c move.c check_auth.c hash.c XMOVEImUtil.c $(DLLIBSRC)
+OBJS1 = decode11.o linkl.o print11.o server.o fd.o main.o prtype.o table11.o xmove.o map.o get_image.o getsetProps.o move_window.o XMOVELib.o put_image.o move_selects.o colormaps.o MoveImage.o move.o check_auth.o hash.o XMOVEImUtil.o $(DLLIBOBJ)
+
+PROGRAMS = xmove
+
+ComplexProgramTarget_1(xmove, $(LOCAL_LIBRARIES1), )

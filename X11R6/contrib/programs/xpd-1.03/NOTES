@@ -1,0 +1,2 @@
+Xpd assumes a maximum of 250 processes.
+Redefine this if necessary in xpd_kvm.h.

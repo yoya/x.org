@@ -1,0 +1,14 @@
+XCOMM $XConsortium: Imakefile,v 1.8 94/06/09 17:23:09 gildea Exp $
+LOCAL_LIBRARIES = $(FSLIB)
+DEPLIBS = $(DEPFSLIB)
+SRCS = showfont.c
+OBJS = showfont.o
+
+#if UseInstalled
+INCLUDES = -I$(INCDIR)/fonts -I../../../xc/include/fonts
+#else
+INCLUDES = -I$(BUILDINCDIR)/fonts -I$(FONTINCSRC)
+#endif
+
+ComplexProgramTarget(showfont)
+

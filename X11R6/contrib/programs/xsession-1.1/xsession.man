@@ -1,0 +1,811 @@
+.\" [R.Q. 18-12-93] [R.Q. 11-01-94] [R.Q. 18-01-94] [R.Q. & A.N. 27-01-94]
+.\" [R.Q. 07-02-94] [A.N. 05-04-94] [R.Q. 07-04-94] [R.Q. & A.N. 08-04-94]
+.\" [A.N. 29-05-94] [R.Q. & A.N. 06-06-94]
+.TH XSESSION 1 "6 June 1994" "Version 1.1"
+.SH "NAME"
+xsession - session manager for the X Window System
+.SH "SYNOPSIS"
+\fBxsession\fP [\-\fItoolkitoption\fP ...] [\-console] [\-cpp] [\-defaultWM ...] [\-D...] [\-m4] [\-keep] [\-notify] [\-remote] [\-sounds] [\-split] [\-startup] [\-version] [\-help]
+.SH "DESCRIPTION"
+The \fIxsession\fP program is a session manager.  It is normally executed by
+your ~/.xinitrc (or ~/.xsession) script and controls your X Window session.
+As soon as it is started, \fIxsession\fP launches a window manager and some
+applications of your choice.  At anytime during your session, you may
+switch to another window manager or execute some other applications from the
+\fIxsession\fP menus.  You may also lock your screen using an independent
+locker application and redirect to the xsession window the messages usually
+sent to /dev/console.
+.PP
+One useful feature of \fIxsession\fP is the preprocessing of window managers'
+configuration files.  When a window manager is launched, its startup file can
+be filtered through \fIm4\fP(1) or \fIcpp\fP(1).  Some macros are defined
+(such as the host name, screen size and so on) that will help you customize
+your menus and screen layout.  One advantage of this feature is that several
+window managers can share the same startup file.  For example, you can (and we
+do) use the same file for \fImwm\fP(1) (Motif), \fItwm\fP(1), \fIctwm\fP(1) and
+\fIvtwm\fP(1).  Some lines are protected by a test on the ``WM_NAME'' macro,
+but the other lines are common.  This saves a lot of time if you want to
+maintain the same menu structure for the four of them.  You can also use
+``include'' statements in your file.
+.PP
+The best way to execute \fIxsession\fP is to include it in your ~/.xinitrc (or
+~/.xsession) file, as the last client.  The \fIxinit\fP(1) manual page says
+that ``the last long-lived program started [...] should be left in the
+foreground so that the script won't exit''.  You will find a similar statement
+in the \fIxdm\fP(1) manual page.  This last program should be
+\fIxsession\fP.  As a matter of fact, this may even be the only program
+executed in your startup file, because \fIxsession\fP itself provides a way to
+launch other applications.  When started, \fIxsession\fP will look in your
+home directory and execute a file named .X11Startup, if found.  This shell
+script is used to start your client programs.
+.SH "OPTIONS"
+\fIXSession\fP accepts all of the standard X Toolkit command line options
+(such as \fB\-iconic\fP, \fB\-geometry\fP and so on; see \fIX\fP(1)).  The
+following additional arguments are supported.  Note that because the standard
+X Toolkit method is used to retrieve X resources, most of the command line
+options are only another way to set the value of some resources.  These
+options always take precedence over their corresponding resources.
+.TP 4
+.B \-console
+When \-console is set, xsession tries to redirect the console output messages
+to its window.  This feature should work on most systems, but it may be
+necessary that xsession is ``setuid'' to root.
+.TP 4
+.B \-defaultWM \fIwindow-manager's-short-name\fP
+Specifies the (short) name of the default window manager to launch.  See the
+``Menu customization'' section below for details.  The easiest way to choose
+your default window manager is by using X resources in your ~/.Xdefaults file
+(or the file you read with \fIxrdb\fP(1)).  The default value is ``TWM''.
+.TP 4
+.B \-keep
+Sets the ``keepTmpFile'' resource to ``true''.  This option is used mainly
+for debugging purposes.
+.TP 4
+.B \-notify, \-nonotify
+When a message is printed in the \fIxsession\fP window and \-notify is set,
+the icon name of the application has `` *'' appended, so that it is evident
+even when the application is iconified.  When the application is de-iconified,
+the icon name will be restored to its initial value.  The \-notify option is
+set by default.
+.TP 4
+.B \-preprocessor \fIm4\fP|\fIcpp\fP
+Specifies which preprocessor must be used.  Only two values may be used: either
+``m4'' or ``cpp'' according as you want to use \fIm4\fP(1) or \fIcpp\fP(1).  
+The default value is ``m4''.
+.TP 4
+.B \-quiet
+If you use this option, \fIxsession\fP will not print any messages when an
+application or window manager is started.  The warning messages
+(e.g. ``configuration file not found'') will not be displayed either.
+.TP 4
+.B \-remote
+You should set this option if you run \fIxsession\fP on a remote host (e.g. if
+your ~/.xinitrc or ~/.xsession file tests if you are on a oldish machine and,
+if so, executes \fIxsession\fP on a more powerful host in a remote shell).
+\fIXSession\fP must then execute a special exit code to work around an unwanted
+feature in \fIrsh\fP(1) that prevents it from exiting if there is one or more
+children of \fIxsession\fP alive.  This exit code shuts down the socket
+associated with the remote connection.
+.TP 4
+.B \-sounds, \-nosounds
+Activates (or disables) the sounds.  The sounds will only be available if
+\fIxsession\fP was compiled with SOUNDS defined.  The sounds are activated by
+default if SOUNDS was defined, they are disabled otherwise.
+.TP 4
+.B \-split, \-nosplit
+When \-split and \-console are set, the output messages of the programs and
+the ones related to the console are shown in separate windows.  The \-split
+option is set by default, but will be silently ignored if the ``console''
+option is not used.
+.TP 4
+.B \-startup, \-nostartup
+If \-startup is set, then the user's .X11Startup file is executed by
+\fIxsession\fP at startup.  You may want to turn this option off for debugging
+purposes or if you don't have a .X11Startup file.  The \-startup option is set
+by default.
+.PP
+Note: if you use a ``\+'' instead of a ``\-'' in the boolean options above,
+then the effect will be reversed (e.g. \fB\+startup\fP is the same as
+\fB\-nostartup\fP).
+.PP
+There is no X resource equivalent for the following command line options:
+.TP 4
+.B \-D\fIsymbol\fP
+This defines a symbol for the preprocessor that is run on the window managers'
+configuration files.  All instances of \fIsymbol\fP in the configuration
+files will be replaced by the NULL string (if \fIxsession\fP was compiled with
+USE_M4 defined) or 1 (if \fIxsession\fP was compiled with USE_CPP).
+.TP 4
+.B \-D\fIsymbol\fP=\fIvalue\fP
+This defines a symbol for the preprocessor that is run on the window managers'
+configuration files.  All instances of \fIsymbol\fP in the configuration
+files will be replaced by \fIvalue\fP.
+.TP 4
+.B \-cpp, \-m4
+These options are equivalent to \-preprocessor cpp and \-preprocessor m4,
+respectively.
+.TP 4
+.B \-help
+Guess what?
+.TP 4
+.B \-version
+Prints the current version number and exits.
+.SH "X DEFAULTS"
+This program uses mainly the Text, Paned, Box, MenuButton and SimpleMenu
+\fIAthena\fP widgets.  Look in the \fIAthena Widget Set\fP documentation for
+controlling them.  See also the ``Application resources'' section in this
+manual page.
+.SH "WIDGETS"
+In order to specify resources, it is useful to know the hierarchy of
+the widgets which compose \fIxsession\fP.  In the notation below,
+indentation indicates hierarchical structure.  The widget class name
+is given first, followed by the widget instance name.
+.sp 
+.nf
+	XSession  xsession
+		Paned  top_pane
+			Box  menu_box
+				MenuButton  session_button
+					SimpleMenu  menu
+						SmeBSB  lock_menu_item
+						SmeBSB  quit_menu_item
+				MenuButton  wm_button
+					SimpleMenu  menu
+						SmeBSB  <window manager's short name>_menu_item
+						.
+						. (one for each window manager)
+						.
+				MenuButton  app_button
+					SimpleMenu  menu
+						SmeBSB  <application's short name>_menu_item
+						.
+						. (one for each application)
+						.
+				MenuButton  misc_button
+					SimpleMenu  menu
+						SmeBSB  clear_menu_item
+						SmeBSB  clear2_menu_item
+			Text  ascii_text
+			Text  ascii_text2
+.fi
+.sp 
+The <window manager's short name> and <application's short name> represent the
+short name of the program (a window manager or another application).  For
+example, if you have ``TWM'' in your ``Window Managers'' menu, you will have a
+SmeBSB instance named  ``TWM_menu_item''.
+.SH "APPLICATION RESOURCES"
+\fIXSession\fP has the following application-specific resources which allow
+customizations unique to \fIxsession\fP.  Some of these resources have command
+line equivalents which may be used to override them.
+.PP
+Any of these options may also be specified on the command line by using the
+X Toolkit Intrinsics resource specification mechanism.  For example, to run
+\fIxsession\fP using \fIxlock\fP(1) to lock the screen,
+.nf
+	% xsession \-xrm '*lockCommand:xlock -mode random'
+.fi
+.PP
+.TP 8
+\fBallowBell\fP (Class \fBAllowBell\fP)
+Either ``true'' or ``false''.  When ``true'', this resource directs
+\fIxsession\fP to ring the bell if the message printed in its window contains
+one or more bell character(s).  This may happen if the output from one
+application launched from the menu contains such characters (e.g. in an error
+message).  Default value: ``false''.
+.TP 8
+\fBappNames\fP (Class \fBAppNames\fP)
+This resource is a comma-separated list which gives the (short) names of the
+applications to be shown in the ``Applications'' menu.  See the ``Menu
+customization'' section below for details about names and short names of the
+applications.  The default value should have been customized for your site
+during the installation of \fIxsession\fP.  The names inside this resource are
+used as \fI<application_name>\fP to build the following resource names:
+.TP 8
+\fBapp_\fP\fI<application_name>\fP (Class \fBApp_\fP\fI<application_name>\fP)
+Each of these resources is a string that gives the full application name,
+followed by a comma and the command to execute the application.  See the ``Menu
+Customization'' section below for details about building these resources.
+.TP 8
+\fBconsole\fP (Class \fBConsole\fP)
+Either ``true'' or ``false''.  If this resource is ``true'', xsession tries to
+redirect the console output messages to its window.  This feature should work
+on most systems, but it may be necessary that xsession is ``setuid'' to root.
+Default value: ``false''.
+.TP 8
+\fBdefaultWM\fP (Class \fBDefaultWM\fP)
+This resource contains the short name of the default window manager to launch.
+See the ``Menu customization'' section below for details.  Default
+value: ``TWM''.
+.TP 8
+\fBkeepTmpFile\fP (Class \fBKeepTmpFile\fP)
+Either ``true'' or ``false''.  If this resource is ``true'', \fIxsession\fP
+will not delete the temporary files created for the preprocessor and the
+window manager.  This only makes sense if you use a preprocessor (such as
+\fIm4\fP(1) or \fIcpp\fP(1)) to filter the window manager's configuration
+file.  This option is used mainly for debugging purposes.  Default
+value: ``false''.
+.TP 8
+\fBlockCommand\fP (Class \fBLockCommand\fP)
+This resource contains the command to execute when the user selects the
+``Lock'' entry in the ``Session'' menu.  The string can contain space
+characters in order to add some arguments to the command.  Default value:
+``xscreensaver-command -lock''.
+.TP 8
+\fBmotd\fP (Class \fBMotd\fP)
+Either ``true'' or ``false''.  When this resource is ``true'',
+the content of the /etc/motd file is printed in the \fIxsession\fP window at
+startup.  Default value: ``true''.
+.TP 8
+\fBnotify\fP (Class \fBNotify\fP)
+Either ``true'' or ``false''.  When a message is printed in the \fIxsession\fP
+window and this resource is ``true'', the icon name of the
+application has `` *'' appended, so that it is evident even when the
+application is iconified.  When the application is de-iconified, the icon name
+will be restored to its initial value.  Default value: ``true''.
+.TP 8
+\fBpreprocessor\fP (Class \fBPreprocessor\fP)
+Specifies which preprocessor must be used.  Only two values may be used, either
+``m4'' or ``cpp'', according as you want to use \fIm4\fP(1) or \fIcpp\fP(1).  
+Default value: ``m4''.
+.TP 8
+\fBquiet\fP (Class \fBQuiet\fP)
+Either ``true'' or ``false''.  If this resource is ``true'', \fIxsession\fP
+will not print any messages when an application or window manager is started.
+The warning messages (e.g. ``configuration file not found'') will not be
+displayed either.  Default value: ``false''.
+.TP 8
+\fBremote\fP (Class \fBRemote\fP)
+Either ``true'' or ``false''.  The usual way to change this value is by using a
+command line option, not an X resource.  Default value: ``false''.
+.TP 8
+\fBringBell\fP (Class \fBRingBell\fP)
+Either ``true'' or ``false''.  When a message is printed in the \fIxsession\fP
+window and this resource is ``true'', the bell is rung so that the
+user is warned even if the window is not visible.  Default value: ``false''.
+.TP 8
+\fBsounds\fP (Class \fBSounds\fP)
+Either ``true'' or ``false''.  If this resource is ``false'', then the sounds
+are disabled.  The sounds will only be available if \fIxsession\fP was
+compiled with SOUNDS defined.  Default value: ``true'' if SOUNDS was defined,
+else ``false''.
+.TP 8
+\fBsplitWindow\fP (Class \fBSplitWindow\fP)
+Either ``true'' or ``false''.  If both this resource and the \fBconsole\fP
+resource are ``true'', the normal output messages of the programs and the ones
+related to the console are shown in separate windows.  Default value:
+``true''.
+.TP 8
+\fBstartup\fP (Class \fBStartup\fP)
+Either ``true'' or ``false''.  If this resource is ``true'', then
+the user's .X11Startup file is executed by \fIxsession\fP at startup.  You may
+want to turn this option off for debugging purposes or if you don't have
+a .X11Startup file.  Default value: ``true''.
+.TP 8
+\fBwmNames\fP (Class \fBWMNames\fP)
+This resource is a comma-separated list which gives the (short) names of the
+window managers to be shown in the ``Window Managers'' menu.  See the ``Menu
+customization'' section below for details about names and short names of the
+window managers.  The default value should have been customized for your site
+during the installation of \fIxsession\fP.  The names inside this resource are
+used as \fI<window_manager_name>\fP to build the following resource
+names:
+.TP 8
+\fBwm_\fP\fI<window_manager_name>\fP (Class \fBWM_\fP\fI<window_manager_name>\fP)
+Each of these resources is a comma-separated list that defines the properties
+of a window manager.  The first field is the full name of the window manager.
+The second field is the command to execute in order to run this window manager.
+The third field (optional) gives the name of the configuration file that should
+be filtered through \fIm4\fP(1) or \fIcpp\fP(1) to produce the actual window
+manager's startup file.  The fourth and fifth fields (optional) are used to
+explain to \fIxsession\fP how the window manager can read an arbitrary file as
+configuration file; this can be done using command line arguments or an
+environment string.  See the ``Menu customization'' section below for details
+about building these resources.
+.PP
+If \fIxsession\fP was compiled with the SOUNDS symbol defined, the following
+additional X resources are available.  See the ``Sounds'' section below for
+additional information about using sounds in \fIxsession\fP.
+.TP 8
+\fBsoundStart\fP (Class \fBSoundStart\fP)
+Name of the sound file to play when \fIxsession\fP starts.  Default
+value: ``none''.
+.TP 8
+\fBsoundEnd\fP (Class \fBSoundEnd\fP)
+Name of the sound file to play when \fIxsession\fP ends.  Default
+value: ``none''.
+.TP 8
+\fBsoundStartWM\fP (Class \fBSoundStartWM\fP)
+Name of the sound file to play when a window manager starts.  Default
+value: ``none''.
+.TP 8
+\fBsoundEndWM\fP (Class \fBSoundEndWM\fP)
+Name of the sound file to play when a window manager ends.  Default
+value: ``none''.
+.TP 8
+\fBsoundStartApp\fP (Class \fBSoundStartApp\fP)
+Name of the sound file to play when an application starts.  Default
+value: ``none''.
+.TP 8
+\fBsoundEndApp\fP (Class \fBSoundEndApp\fP)
+Name of the sound file to play when an application ends.  Default
+value: ``none''.
+.TP 8
+\fBsoundLock\fP (Class \fBSoundLock\fP)
+Name of the sound file to play when the screen locker starts.  Default
+value: ``none''.
+.TP 8
+\fBsoundNotify\fP (Class \fBSoundNotify\fP)
+Name of the sound file to play when a message is printed in the main window.  
+Default value: ``none''.
+.SH "PREPROCESSING OF WINDOW MANAGERS FILES"
+One of the most powerful features of \fIxsession\fP is its ability to filter
+the window managers' setup files through a preprocessor.  This is useful if
+you work on several machines which don't necessarily have the same 
+characteristics, or if you wish to share a common configuration file between
+several window managers.  You can use \fIm4\fP(1) or \fIcpp\fP(1) directives
+(e.g. file inclusion directives) and pre-defined symbols to customize your
+environment at runtime.  \fIXSession\fP uses either \fIm4\fP(1) or \fIcpp\fP(1)
+to pre-process the setup files, according to the value of the
+\fBpreprocessor\fP resource.
+.PP
+When \fIxsession\fP starts a new window manager, it creates a temporary file
+for the preprocessor.  This file contains all symbols that will be defined
+and then includes the original window manager's configuration file.  The
+preprocessor will parse that file and send its output to another temporary
+file.  This latter file will be the actual window manager's configuration
+file.  In order to achieve this, \fIxsession\fP should have a way to force
+the window manager into using another input file.  This is usually done with
+a command line parameter for the window manager (such a ``-f \fIname\fP'') or
+with an environment variable.  If a window manager provides no way for doing
+this, you won't be able to use the preprocessing features for it.  See ``Menu
+Customization'' below for details.
+.PP
+The following symbols are defined (most of these definitions were borrowed from
+the \fIctwm\fP(1) manual page):
+.TP 24
+.B "XSESSION_VERSION"
+The version number of \fIxsession\fP.
+.TP 24
+.B "XSESSION_PID"
+The process number of \fIxsession\fP.  You may use this pid to send a SIGHUP
+signal and terminate the session from one of the window manager's menus.
+.TP 24
+.B "SERVERHOST"
+This variable is set to the name of the machine that is running the X server.
+.TP 24
+.B "CLIENTHOST"
+The machine that is running the clients (i.e. the window manager and all other
+applications).
+.TP 24
+.B "HOSTNAME"
+The canonical hostname running the clients (i.e. a fully-qualified version of
+\fBCLIENTHOST\fP).
+.TP 24
+.B "MACHINE"
+The machine type of \fBCLIENTHOST\fP (e.g. ``sun4m'', ``mips'', ``i486'', ...).
+.TP 24
+.B "USER"
+The name of the user running the program.  Gotten from the environment.
+.TP 24
+.B "HOME"
+The user's home directory.  Gotten from the environment.
+.TP 24
+.B "VERSION"
+The X major protocol version.  As seen by \fIProtocolVersion\fP(3).
+.TP 24
+.B "REVISION"
+The X minor protocol revision.  As seen by \fIProtocolRevision\fP(3).
+.TP 24
+.B "VENDOR"
+The vendor of your X server.  For example: ``MIT X Consortium''.
+.TP 24
+.B "RELEASE"
+The release number of your X server.  For MIT X11R5, this is ``5''.
+.TP 24
+.B "WIDTH"
+The width of your display in pixels.
+.TP 24
+.B "HEIGHT"
+The height of your display in pixels.
+.TP 24
+.B "X_RESOLUTION"
+The X resolution of your display in pixels per meter.
+.TP 24
+.B "Y_RESOLUTION"
+The Y resolution of your display in pixels per meter.
+.TP 24
+.B "PLANES"
+The number of bit planes your display supports in the default root window.
+.TP 24
+.B "BITS_PER_RGB"
+The number of significant bits in an RGB color.  (log base 2 of the number
+of distinct colors that can be created.  This is often different from the
+number of colors that can be displayed at once.)
+.TP 24
+.B "CLASS"
+The visual class of your display.  It returns one of ``StaticGray'',
+``GrayScale'', ``StaticColor'', ``PseudoColor'', ``TrueColor'',
+``DirectColor'', or, if it cannot determine what you have, ``NonStandard''.
+.TP 24
+.B "COLOR"
+This variable is just a wrapper around the \fBCLASS\fP definition.  It returns
+``Yes'' on StaticColor, PseudoColor, TrueColor and DirectColor displays.  On
+the other displays, it is undefined if you use \fIcpp\fP(1), and it returns
+``No'' if you use \fIm4\fP(1).
+.TP 24
+.B "WM_NAME"
+The name of the current window manager.  This is useful for protecting
+parts of one shared setup file: you may use the same file for several window
+managers and protect some lines if they are understood by only one of them.
+.TP 24
+.B "TWM_TYPE"
+Same as \fBWM_NAME\fP.  For compatibility with \fIctwm\fP(1) configuration
+files.
+.PP
+Here is a short summary of the useful directives of \fIm4\fP(1) and
+\fIcpp\fP(1).  Please refer to their own manual pages for any additional
+information.
+.PP
+Warning: when using \fIm4\fP, \fIxsession\fP automatically inserts the
+following \fIm4\fP directive in the temporary file:
+.nf
+	\fBchangequote([,])\fP
+.fi
+This will use the square brackets as string delimiters, instead of the
+default quote and backquote characters, which are probably already used in
+your file.  Don't duplicate this directive in your file, because \fIm4\fP
+doesn't like that...
+.TP 8
+Assigning a value to a symbol
+With \fIm4\fP, use \fBdefine(\fP\fIsymbol\fP\fB, \fP\fIvalue\fP\fB)\fP.
+.br
+With \fIcpp\fP, use \fB#define \fP\fIsymbol value\fP.
+.TP 8
+Including a file
+With \fIm4\fP, use \fBinclude(\fP\fIfile\fP\fB)\fP or
+\fBsinclude(\fP\fIfile\fP\fB)\fP.  The \fBsinclude\fP directive is similar to
+\fBinclude\fP, except that it does not complain if the file is inaccessible.
+.br
+With \fIcpp\fP, use \fB#include "\fP\fIfile\fP\fB"\fP.
+.TP 8
+Evaluating a mathematical expression
+With \fIm4\fP, use \fBeval(\fP\fIexpression\fP\fB)\fP.
+.br
+There is no equivalent for \fIcpp\fP.
+.TP 8
+Testing if a symbol if defined
+With \fIm4\fP, use
+\fBifdef([\fP\fIsymbol\fP\fB], \fP\fIresult1\fP\fB, \fP\fIresult2\fP\fB)\fP,
+where the third argument is optional.  Note that the square brackets are
+used to quote the symbol.  If the symbol is defined, this expression returns
+\fIresult1\fP, else it returns \fIresult2\fP.
+.br
+With \fIcpp\fP, use \fB#ifdef \fP\fIsymbol\fP\fB ... #else ... #endif\fP,
+where the \fB#else ...\fP part is optional.  Each directive should be on a
+line by itself.  If \fIsymbol\fP is defined, then the lines between
+\fB#ifdef\fP and \fB#else\fP will be output.  If not, then the lines between
+\fB#else\fP and \fB#endif\fP will be output.
+.TP 8
+Testing an expression
+.br
+With \fIm4\fP,
+\fBifelse(\fP\fIexpr1\fP\fB, \fP\fIexpr2\fP\fB, \fP\fIresult1\fP\fB, ...)\fP
+does the following:
+if \fIexpr1\fP and \fIexpr2\fP are the same string, then the result of the
+\fBifelse\fP is \fIresult1\fP.  If not, and if there are more than four
+arguments, the process is repeated with arguments 4, 5, 6 and so on.
+Otherwise, the value is either the last string not used by the above process,
+or NULL if it is not present.
+.br
+Some versions of \fIcpp\fP allow a similar structure with \fB#if\fP, but
+most versions do not have any equivalent.
+.PP
+Although \fIm4\fP is less intuitive than \fIcpp\fP, it has more features.
+This is why our preferences go to \fIm4\fP for preprocessing the window
+managers' files.  See also the ``Examples'' section below, it shows some
+parts of configuration files to be preprocessed by \fIm4\fP.
+.SH "MENU CUSTOMIZATION"
+The ``Window Managers'' and ``Applications'' menus may (and should) be
+customized for your site using X resources.  These menus are built from the X
+resources using a two-stage process: first, the list of items is read from
+a resource, then the definition of each item is searched in the resource
+database.
+.PP
+The \fBwmNames\fP resource string is a comma-separated list that gives the
+(short) names of the window managers that will be listed in the menu.  These
+names should be short and contain characters from the set {`A'\-`Z', `a'\-`z',
+`0'\-`9', `_', `\-'} (no space character).  Each of these names is then used to
+create a new resource name, using the prefix \fBwm_\fP, that holds the
+complete description of the window manager.
+.PP
+This also applies to the applications, with the \fBappNames\fP and
+\fBapp_...\fP resources.
+.PP
+For a given window manager, the \fBwm_\fP\fI<window_manager's_short_name>\fP
+resource must be built as follows.  It is a comma-separated string made of
+five fields (which are not allowed to contain any comma characters, of course):
+.TP 2
+\(bu
+The first field is mandatory and denotes the full name of the window manager.
+It may contain space characters.
+.TP 2
+\(bu
+The second field is mandatory and denotes the command to execute in order to
+run this window manager.  This field may contain space characters in order to
+add some arguments to the command.
+.TP 2
+\(bu
+The third field is optional and specifies the name of the configuration file
+which must be preprocessed by \fIxsession\fP for this window manager.  This
+field must contain one and only one occurence of ``%s'' which will be replaced
+by ``m4'' or ``cpp'' according to the preprocessor that is used.  Remember that
+only the preprocessed file is used by the window manager, not the original and
+usual one (see ``Preprocessing of window managers files'' above).
+.TP 2
+\(bu
+The fourth and fifth fields are optional.  The aim of these fields is to
+explain to \fIxsession\fP how this window manager can read an arbitrary file
+instead of its default configuration file.  All well-behaved window managers
+should be able to do that!  Some of them use an environment variable, while
+others need a command line option.  If a command line option is needed, it
+should be placed in the fourth field of the string; this field must contain
+one and only one occurence of ``%s'' to specify where the filename should be
+inserted in the arguments list.  If an environment variable is needed, the
+fifth field should be defined as ``VARIABLE=VALUE'', where ``VARIABLE''
+denotes the name of the environment variable to be used, and ``VALUE'' denotes
+the value to be assigned to the variable; ``VALUE'' must contain one and only
+one occurence of ``%s'' to specify where the filename should be inserted into
+the variable.
+.br
+For most window managers, it should be possible to use one of these two
+fields.  If both are undefined or if there isn't any occurence of ``%s'' in
+them, then the preprocessed file cannot be given to the window manager by
+\fIxsession\fP; in that case, you will lose the preprocessing feature for this
+window manager, because it will always take its default configuration file,
+without any preprocessing applied on it.
+.PP
+For a given application, the \fBapp_\fP\fI<application's_short_name>\fP must be
+built as follows.  It is a comma-separated string made of two fields.  The two
+fields are mandatory:
+.TP 2
+\(bu
+The first field denotes the full name of the application.  It may contain space
+characters.
+.TP 2
+\(bu
+The second field specifies the command to execute in order to run this
+application.  This field may contain space characters in order to add some
+arguments to the command.
+.PP
+In order to add a new window manager (respectively a new application) into the
+\fIxsession\fP menus, you have to insert its short name in the \fBwmNames\fP
+(respectively \fBappNames\fP) resource, and to create a new resource named
+\fBwm_\fP\fI<window_manager's_short_name>\fP (respectively
+\fBapp_\fP\fI<application's_short_name>\fP) built according to the rules above.
+.SH "EXAMPLES"
+.TP 8
+Adding a new application to the menu
+If you want to add a new application to the ``Applications'' menu (e.g.
+\fIxmosaic\fP),  you need to do two things: first, add the name of this
+application in the \fBappNames\fP list (this is the name that will be shown
+in the menu).  The \fBappNames\fP resource in your ~/.Xdefaults file should
+now look like this:
+.nf
+
+XSession*appNames: XTerm, Emacs, XEdit, XMan, XMosaic
+
+.fi
+Then, add a new resource to define the application.  This string contains
+the application's full name followed by the command that \fIxsession\fP will
+execute:
+.nf
+
+XSession*app_XMosaic: XMosaic (WWW browser), xmosaic -dil
+
+.fi
+The next time you run \fIxsession\fP, your ``Applications'' menu will have
+a new entry for \fIxmosaic\fP.
+.TP 8
+Window manager's configuration file
+You can use the same file for several window managers.  For example, you can
+have a common file called \fB.wmrc.m4\fP that is used by \fIctwm\fP(1),
+\fItwm\fP(1) and \fIvtwm\fP(1).  If some lines in this file are specific to
+one of these window managers, you can perform a test on \fBWM_NAME\fP to
+prevent other window managers from seeing them.  For instance, here is an
+excerpt from the ``Colors'' section of our \fB.wmrc.m4\fP file:
+.nf
+
+Color
+{
+	DefaultBackground  	"blue"
+	DefaultForeground  	"yellow"
+ifelse(WM_NAME, ctwm, [
+	MapWindowBackground	"white"
+	MapWindowForeground	"black"
+], WM_NAME, vtwm, [
+	DoorBackground     	"orange"
+	DoorForeground     	"blue"
+	VirtualBackground  	"LightSteelBlue"
+])
+}
+
+.fi
+.TP 8
+Other preprocessor features
+You can also use the preprocessor (\fIm4\fP, here) to define a symbol that
+will be used later.  For example, if you can define a ``FULLSCREEN'' variable
+that will give the correct geometry for a window that should cover the whole
+screen.  Here is another excerpt from a \fB.wmrc.m4\fP file:
+.nf
+
+define(FULLSCREEN, translit(WIDTH*eval(HEIGHT - 30)+0+0, *, x))
+define(SHOWIMAGE, [xv -quit -rmode 1])
+
+menu "Applications"
+{
+	"Applications"	f.title
+	"XMan"       	f.exec "xman -notopbox -bothshown -pagesize FULLSCREEN &"
+	"Backgrounds"	f.title
+	"Stupid logo"	f.exec "SHOWIMAGE winlogo.gif &"
+}
+
+.fi
+.PP
+See also the \fBexamples\fP directory in the \fIxsession\fP distribution
+for longer examples.
+.SH "SOUNDS"
+\fIXSession\fP can use the \fIrplay\fP library if it is installed on your
+system.  If \fIxsession\fP was compiled with SOUNDS defined, then it will play
+a sound when some event occurs.  For example, you may configure \fIxsession\fP
+to play ``Creaky-1.au'' when you start it, and ``goodbye.au'' when you quit.
+You only need to add the following lines to your ~/.Xdefaults file (or the file
+you read with \fIxrdb\fP(1)):
+.nf
+
+	XSession*soundStart:	Creaky-1.au
+	XSession*soundEnd:  	goodbye.au
+
+.fi
+.PP
+Here is how this works: when the selected event occurs, \fIxsession\fP will
+send a request to the \fIrplayd\fP server running on \fBCLIENTHOST\fP, asking
+it to play a sound.  The \fIrplayd\fP server will take care of what is needed
+to find the sound file and play it.
+.PP
+You will find the \fIrplay\fP library and lots of sound files on the following
+FTP site: sounds.sdsu.edu (130.191.224.4).  You will also find the library on
+ftp2.montefiore.ulg.ac.be and ftp.x.org.
+.SH "COLORS"
+Like some other X applications, \fIxsession\fP provides another set of
+resources if you want to use it on a color display.  You only need to include
+the following lines in your ~/.Xdefaults file (or the file you read with 
+\fIxrdb\fP(1)):
+.nf
+
+	#ifdef COLOR
+	*customization:    -color
+	#endif
+
+.fi
+.PP
+This will cause \fIxsession\fP to pick up the colors in the
+application-defaults color customization file (XSession-color) instead of the
+standard applications-defaults customization file (XSession).
+.fi
+.SH "ENVIRONMENT"
+.PP
+.TP 8
+.B DISPLAY
+To get the default host and display number.  If this variable is not defined in
+the environment and the \-display command line option is used instead,
+\fIxsession\fP adds this variable to its environment.
+.TP 8
+.B HOME
+To get the name of the user's home directory.  If this variable is defined,
+\fIxsession\fP changes the current directory to the one specified in this
+variable.
+.TP 8
+.B TMPDIR
+If set, temporary files will be created in this directory.  Otherwise,
+temporary files will be created in \fB/usr/tmp\fP.
+.TP 8
+.B XENVIRONMENT
+To get the name of a resource file that overrides the global resources stored
+in the RESOURCE_MANAGER property.
+.SH "FILES"
+.TP 20
+.B /usr/lib/X11/app-defaults/XSession
+specifies required resources for standard displays
+.TP
+.B /usr/lib/X11/app-defaults/XSession-color
+specifies resources for color displays
+.TP
+.B ~/.xinitrc
+the best way to launch \fIxsession\fP
+.TP
+.B ~/.xsession
+another good way to launch \fIxsession\fP
+.TP
+.B ~/.X11Startup
+startup file executed by \fIxsession\fP
+.TP
+.B /etc/motd
+message-of-the-day
+.TP
+.B /usr/tmp/xs_WM\fR<...>\fP
+preprocessed startup files created by \fIxsession\fP
+.SH "SEE ALSO"
+.IR X (1),
+.IR xinit (1),
+.IR xdm (1),
+.IR xrdb (1),
+.IR m4 (1),
+.IR cpp (1),
+.IR twm (1),
+.IR ctwm (1),
+.IR mwm (1),
+.IR xscreensaver (1),
+.IR xlock (1),
+.IR xconsole (1),
+\fIAthena Widget Set\fP, \fIX Toolkit Intrinsics\fP.
+.SH "BUGS"
+The program may crash if you put more than one ``%s'' in the third, fourth or
+fifth field of a \fBwm_\fP\fI<window_manager's_short_name>\fP resource or if
+you give another incorrect format string.
+.PP
+All symbols defined for the preprocessor are blindly replaced in the window
+managers' startup files, and this may cause some problems.   For instance, if
+you use the variable ``$HOME'' in one file, the preprocessor will replace
+the symbol ``HOME'' by its actual value, and your window manager will see a
+lost ``$'' before the path name.  Solution: remove the ``$'' sign.
+.PP
+If used from xsession, \fImwm\fP(1) (Motif) must be customized in such a way
+that it does not prompt the user if it receives a KILL signal.  Indeed, when
+you decide to switch to another window manager, xsession sends a KILL signal to
+the current window manager, waits until it ends, and starts the new one.  If,
+thanks to the prompt, the user cancels the order sent by xsession, the window
+manager will not end and xsession will wait forever.  For \fImwm\fP(1), the
+\fBshowFeedback\fP (class \fBShowFeedback\fP) resource must be changed from its
+default value (``all'') to something that does not include ``kill''.  For
+example, you can use ``behavior move placement quit resize restart'' as the
+value of this resource.
+.PP
+Please report other bugs to the authors at the following E-mail
+addresses.  Thanks.  We would rather get criticisms than no comments at all!
+.SH "AUTHORS"
+.nf
+Raphael Quinet	<quinet@montefiore.ulg.ac.be>
+              	<quinet@stud.montefiore.ulg.ac.be>
+
+Alain Nissen  	<nissen@montefiore.ulg.ac.be>
+              	<nissen@stud.montefiore.ulg.ac.be>
+.fi
+.SH "COPYRIGHT"
+Copyright \(co 1993, 1994, Alain Nissen & Raphael Quinet, University of Liege,
+Belgium.
+.PP
+The X Consortium, and any party obtaining a copy of these files from the
+X Consortium, directly or indirectly, is granted, free of charge, a full and
+unrestricted irrevocable, world-wide, paid up, royalty-free, nonexclusive right
+and license to deal in this software and documentation files (the "Software"),
+including without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to permit
+persons who receive copies from any such party to do so.  This license includes
+without limitation a license to do the foregoing actions under any patents of
+the party supplying this software to the X Consortium.
+.PP
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+X CONSORTIUM, THE AUTHORS OR THE UNIVERSITY OF LIEGE BE LIABLE FOR ANY CLAIM,
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+OR OTHER DEALINGS IN THE SOFTWARE.
+.PP
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+.SH "AVAILABILITY"
+The most recent released version of \fIxsession\fP is available for anonymous
+FTP from ftp.x.org (198.112.44.100) in the directory /contrib/applications.
+The latest version under development is available for anonymous FTP from
+ftp2.montefiore.ulg.ac.be (139.165.8.25) in the directory /pub/xsession.

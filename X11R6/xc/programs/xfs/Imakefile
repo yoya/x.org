@@ -1,0 +1,61 @@
+XCOMM $XConsortium: Imakefile,v 1.26 94/02/10 21:47:08 rws Exp $
+#undef ServerDefines
+#include <Server.tmpl>
+#define	IHaveSubdirs
+
+OSDIR = os
+OSLIB = $(OSDIR)/libos.a
+DIFSDIR = difs
+DIFSLIB = $(DIFSDIR)/libdifs.a
+SYSLIBS = MathLibrary
+#ifdef i386SVR3Architecture
+BSDEMUL = $(DEPXBSDLIB)
+#endif
+
+FSDIRS = $(OSDIR) $(DIFSDIR) $(PCFDIRS)
+FSLIBS = $(DIFSLIB) $(DEPFONTLIB) $(DIFSLIB) $(OSLIB) $(BSDEMUL)
+
+SUBDIRS = $(FSDIRS)
+
+FSLIBDIR = $(LIBDIR)/fs
+FSERRORS = $(FSLIBDIR)/fs-errors
+DEFAULTFONTPATH = DefaultFontPath
+SITE_CONFIG = -DDEFAULTFONTPATH=$(DEFAULTFONTPATH) -DFSERRORS=$(FSERRORS)
+
+all:: config
+
+ServerTarget(xfs,$(FSDIRS),NullParameter,$(FSLIBS),$(SYSLIBS))
+
+CppFileTarget(config,config.cpp,$(SITE_CONFIG),$(ICONFIGFILES))
+
+InstallManPage(xfs,$(MANDIR))
+
+#if InstallFSConfig
+InstallNonExecFile(config,$(FSLIBDIR))
+#endif
+
+#if HasCodeCenter
+debug_xfs:
+	XCOMM cd difs
+	XCOMM make debug_src
+	XCOMM cd ../os
+	XCOMM make debug_src
+	XCOMM cd ../../../lib/font/bitmap
+	XCOMM make debug_src
+	XCOMM cd ../fontfile
+	XCOMM make debug_src
+	XCOMM cd ../fc
+	XCOMM make debug_src
+	XCOMM cd ../Speedo
+	XCOMM make debug_src
+	XCOMM cd ../Type1
+	XCOMM make debug_src
+	XCOMM cd ../util
+	XCOMM make debug_src
+	XCOMM unload atom.c miscutil.c
+	XCOMM cd ../../../programs/xfs
+#endif
+
+DependSubdirs($(SUBDIRS))
+
+ForceSubdirs($(SUBDIRS))

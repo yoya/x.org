@@ -1,0 +1,16 @@
+XCOMM $XConsortium: Imakefile,v 1.2 94/04/13 18:04:00 rws Exp $
+
+#include <Library.tmpl>
+
+SRCS = lbxdelta.c
+
+OBJS = lbxdelta.o
+
+INCLUDES = -I$(INCLUDESRC) -I$(EXTINCSRC) -I$(SERVERSRC)/include -I../../../include/extensions
+
+SubdirLibraryRule($(OBJS))
+NormalLibraryObjectRule()
+NormalLintTarget($(SRCS))
+
+DependTarget()
+

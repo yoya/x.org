@@ -1,0 +1,8 @@
+XCOMM $XConsortium: Imakefile,v 1.1 94/02/10 21:05:51 rws Exp $
+
+MANDIR = $(LIBMANDIR)
+MANSUFFIX = $(LIBMANSUFFIX)
+
+all::
+
+InstallManPage(Xau,$(MANDIR))

@@ -1,0 +1,29 @@
+	Here is a list of a few of the features which we feel
+make xmove stand out over other pseudoservers written to date:
+
+* xmove provides support for the correct mapping of property and
+selection information. Currently supported are ICCCM and
+OpenLook, including Drag-and-Drop.  The support for properties
+and selections is provided through dynamically loaded libraries,
+allowing future enhancements, either by us or by others, simply
+by dropping a library into a directory.
+
+* xmove provides fairly sophisticated support for clients moved
+to new server with different color availability. We successfully
+moved IslandDraw from a color display to a grey-scale display to
+a 1-bit monochrome display and back to the color display. We were
+also able to move xv from a color display to a 1-bit display,
+modify the color schemes, and have the modifications appear
+correctly after moving the client back to the color display.
+
+* Applications that open multiple connections to the server, such
+as FrameMaker, are recognized and supported.
+
+* Movement can be directed onto a specific screen of the new
+display. This implies that movement between screens on the same
+server is also possible.
+
+* xmove is the first example of a pseudoerver designed
+exclusively for client mobility and as such provides a better
+starting point for continued development than was previously
+available.

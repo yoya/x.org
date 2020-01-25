@@ -1,0 +1,51 @@
+
+==============================================
+  facet_attributes = PEXGANone;
+==============================================
+
+==============================================
+  facet_attributes = PEXGAColor;
+==============================================
+
+==============================================
+  facet_attributes = PEXGANormal;
+==============================================
+
+==============================================
+  facet_attributes = PEXGAEdges;
+PEXError: Bad PEX OC
+OC code: 95
+Request code: 28
+==============================================
+
+==============================================
+  facet_attributes = PEXGAColor | PEXGANormal;
+==============================================
+
+==============================================
+  facet_attributes = PEXGAColor | PEXGAEdges;
+PEXError: Bad PEX OC
+OC code: 95
+Request code: 28
+==============================================
+
+==============================================
+  facet_attributes = PEXGANormal | PEXGAEdges;
+PEXError: Bad PEX OC
+OC code: 95
+Request code: 28
+==============================================
+
+==============================================
+  facet_attributes = PEXGAColor | PEXGANormal | PEXGAEdges;
+PEXError: Bad PEX OC
+OC code: 95
+Request code: 28
+==============================================
+
+==============================================
+  facet_attributes = BogusFacetAttribute;
+PEXError: Bad PEX OC
+OC code: 95
+Request code: 28
+==============================================

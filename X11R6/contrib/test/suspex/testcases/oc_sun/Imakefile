@@ -1,0 +1,97 @@
+# $XConsortium: Imakefile,v 1.2 93/11/23 17:30:58 hersh Exp $
+#
+#       NOTICE TO USER: The source code in this file is copyrighted under
+#       U.S. and international laws.  SunSoft, Inc., a Sun Microsystems,
+#       Inc. business of Mountain View, California owns the copyright.
+#       Users and possessors of this source code are hereby granted a
+#       nonexclusive, royalty-free copyright and design patent license
+#       to use this code in individual and commercial software.
+#
+#       Any use of this source code must include, in the user documentation
+#       and internal comments to the code, notices to the end user as follows:
+# 
+#(c) Copyright 1992, 1993 SunSoft, Inc., a Sun Microsystems, Inc. business.
+#
+#       SUNSOFT, INC. AND SUN MICROSYSTEMS, INC. MAKE NO REPRESENTATIONS
+#       ABOUT THE SUITABILITY OF THIS SOURCE CODE FOR ANY PURPOSE. IT IS
+#       PROVIDED "AS IS" WITHOUT EXPRESS OR IMPLIED WARRANTY OF ANY KIND.
+#       SUNSOFT, INC., AND SUN MICROSYSTEMS, INC., SEVERALLY AND
+#       INDIVIDUALLY, DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOURCE
+#       CODE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+#       FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT SHALL SUNSOFT, INC.
+#       OR SUN MICROSYSTEMS, INC., BE LIABLE FOR ANY SPECIAL, INDIRECT,
+#       INCIDENTAL, OR CONSEQUENTIAL DAMAGES, OR ANY DAMAGES WHATSOEVER
+#       RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
+#       OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+#       OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOURCE CODE.
+#
+
+
+# imake file for oc
+
+SUSPEX_LIB_DIR  = ../../src/util
+COMMON_DIR      = ../../src/common_sun
+COMMON_OBJS = $(COMMON_DIR)/lut.o $(COMMON_DIR)/renderer.o
+SHARED_MAIN_OBJS = main.o workstation.o $(COMMON_OBJS)
+SUSPEX_LIB = $(SUSPEX_LIB_DIR)/libSusPEX.a
+
+CDEBUGFLAGS = -g
+INCLUDES = -I. -I$(COMMON_DIR) 
+
+LOCAL_LIBRARIES = $(SUSPEX_LIB) $(PEXUT_LIB) $(PEXLIB) $(XMULIB) $(XLIB)
+SYS_LIBRARIES = MathLibrary
+
+PROGS= atextAttr cell \
+        edgeAttr encTextAttr \
+        fa faData fasData faset font \
+        interior intrAttr \
+        line lineAttr lineSet markerAttr multiDraw \
+        nurbCurve nurbSurf pfline \
+        quadMesh sendoc shade sofas startoc struct \
+        textAttr textExtent triStrip twoCircles
+
+AllTarget($(PROGS))
+
+$(SUSPEX_LIB):
+	(cd $(SUSPEX_LIB_DIR); make)
+
+$(COMMON_OBJS):
+	(cd $(COMMON_DIR); make)
+
+#define CommonTarget(prog) \
+  NormalProgramTarget(prog, prog.o $(SHARED_MAIN_OBJS), $(PEXUT_LIB) $(SUSPEX_LIB),$(LOCAL_LIBRARIES),)
+
+CommonTarget(atextAttr)
+CommonTarget(cell)
+CommonTarget(edgeAttr)
+CommonTarget(encTextAttr)
+CommonTarget(fa)
+CommonTarget(faData)
+CommonTarget(fasData)
+CommonTarget(faset)
+CommonTarget(font)
+CommonTarget(interior)
+CommonTarget(intrAttr)
+CommonTarget(line)
+CommonTarget(lineAttr)
+CommonTarget(lineSet)
+CommonTarget(markerAttr)
+NormalProgramTarget(multiDraw, multiDraw.o $(COMMON_OBJS) workstation.o, $(SUSPEX_LIB),$(LOCAL_LIBRARIES),)
+CommonTarget(nurbCurve)
+CommonTarget(nurbSurf)
+CommonTarget(pfline)
+CommonTarget(quadMesh)
+CommonTarget(sendoc)
+CommonTarget(shade)
+CommonTarget(sofas)
+CommonTarget(startoc)
+CommonTarget(struct)
+CommonTarget(textAttr)
+CommonTarget(textExtent)
+CommonTarget(triStrip)
+CommonTarget(twoCircles)
+
+CleanTarget()
+
+DependTarget()
+

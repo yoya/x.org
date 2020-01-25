@@ -1,0 +1,24 @@
+
+      XANCURDIR = $(LIBDIR)/xancur
+        THISDIR = fourpts.lrg
+        THATDIR = $(XANCURDIR)/$(THISDIR)
+
+MakeDirectories(install,$(THATDIR))
+
+InstallNonExec(Script,$(THATDIR))
+InstallNonExec(fourpts0,$(THATDIR))
+InstallNonExec(fourpts0.msk,$(THATDIR))
+InstallNonExec(fourpts1,$(THATDIR))
+InstallNonExec(fourpts1.msk,$(THATDIR))
+InstallNonExec(fourpts2,$(THATDIR))
+InstallNonExec(fourpts2.msk,$(THATDIR))
+InstallNonExec(fourpts3,$(THATDIR))
+InstallNonExec(fourpts3.msk,$(THATDIR))
+InstallNonExec(fourpts4,$(THATDIR))
+InstallNonExec(fourpts4.msk,$(THATDIR))
+InstallNonExec(fourpts5,$(THATDIR))
+InstallNonExec(fourpts5.msk,$(THATDIR))
+
+
+
+

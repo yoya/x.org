@@ -1,0 +1,75 @@
+#!/bin/ksh
+# $XConsortium: run_tests,v 1.0 93/11/22 12:32:33 rws Exp $
+#
+#
+#   (c) Copyright Hewlett-Packard Company, 1993, Fort Collins, Colorado       
+#                                                                            
+#                             All Rights Reserved                           
+#                                                                          
+#   Permission to use, copy, modify, and distribute this software and its 
+#   documentation for any purpose and without fee is hereby granted,     
+#   provided that the above copyright notices appear in all copies and that   
+#   both the copyright notices and this permission notice appear in          
+#   supporting documentation, and that the name of Hewlett-Packard not be   
+#   used in advertising or publicity pertaining to distribution of the     
+#   software without specific, written prior permission.                  
+#                                                                        
+#   HEWLETT-PACKARD MAKES NO WARRANTY OF ANY KIND WITH REGARD TO THIS   
+#   SOFTWARE, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
+#   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  Hewlett-Packard    
+#   shall not be liable for errors contained herein or direct, indirect,     
+#   special, incidental or consequential damages in connection with the     
+#   furnishing, performance or use of this software.                       
+#                                                                         
+#
+
+unset PAUSE
+
+TESTS="pexocp.79.1 pexocp.79.2 \
+       pexocp.80.1 \
+       pexocp.85.1 pexocp.85.2 pexocp.85.3 \
+       pexocp.86.1 pexocp.86.2 pexocp.86.3 \
+       pexocp.87.1 pexocp.87.2 pexocp.87.3 pexocp.87.4 \
+       pexocp.88.1 pexocp.88.2 pexocp.88.3 \
+       pexocp.89.1 pexocp.89.2 \
+       pexocp.90.1 pexocp.90.2 \
+       pexocp.91.1 pexocp.91.2 pexocp.91.3 pexocp.91.4 \
+       pexocp.91.5 pexocp.91.6 pexocp.91.7 \
+       pexocp.92.1 pexocp.92.2 \
+       pexocp.93.1 pexocp.93.2 \
+       pexocp.94.1 pexocp.94.2 pexocp.94.3 pexocp.94.4 \
+       pexocp.95.1 pexocp.95.2 pexocp.95.3 pexocp.95.4 pexocp.95.5 \
+       pexocp.96.1 pexocp.96.2 pexocp.96.3 pexocp.96.4 pexocp.96.5 \
+       pexocp.97.1 \
+       pexocp.98.1 pexocp.98.2 pexocp.98.3 pexocp.98.4 pexocp.98.5 \
+       pexocp.99.1 \
+       pexocp.100.1 \
+       pexocp.101.1 \
+       pexocp.102.1 \
+       pexocp.103.1"
+
+if [ $RUN_IMM = 1 ] 
+then 
+    REF_IMAGE_DIR=$REF_IMM; export REF_IMAGE_DIR
+    CUR_IMAGE_DIR=$CUR_IMM; export CUR_IMAGE_DIR
+    BAD_IMAGE_DIR=$BAD_IMM; export BAD_IMAGE_DIR
+    echo "\n# Running Immediate Mode Tests"
+    for test in $TESTS
+    do
+	$EXECUTE_TEST $test -i
+    done
+fi
+
+if [ $RUN_STR = 1 ] 
+then 
+    REF_IMAGE_DIR=$REF_STR; export REF_IMAGE_DIR
+    CUR_IMAGE_DIR=$CUR_STR; export CUR_IMAGE_DIR
+    BAD_IMAGE_DIR=$BAD_STR; export BAD_IMAGE_DIR
+    echo "\n# Running Structure Mode Tests"
+    for test in $TESTS
+    do
+	$EXECUTE_TEST $test -s
+
+    done
+fi
+

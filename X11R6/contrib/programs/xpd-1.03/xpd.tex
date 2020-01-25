@@ -1,0 +1,464 @@
+%\hbadness = 10000
+%\vbadness = 10000
+%\tolerance = 10000
+\baselineskip = 12 pt
+
+%\input setpcx
+
+\documentstyle{report}
+
+
+\begin{document}
+
+\thispagestyle{empty}
+
+\vglue 1 in
+\centerline{\Huge XPD }
+\vskip 0.5 in
+\centerline{\Large X Process Display }
+\vskip 2 in
+\centerline{By: Vincent M. Tkac}
+\centerline{Advisor: Dr. Paul Mullins}
+\bigskip
+\centerline{Youngstown State University}
+\vfill
+\leftline{\small This manual was printed on \today.}
+
+\newpage
+
+\raggedbottom
+\pagenumbering{roman}
+\tableofcontents
+\listoffigures
+\addtocounter{chapter}{-1}
+\newpage
+\pagestyle{headings}
+\pagenumbering{arabic}
+
+
+
+\chapter{Introduction}
+Xpd is designed to provide an easy-to-use, point-and-click interface to a correlation of process information available through ps(1).
+Xpd does not use ps, it reads the kernel and creates an image of the active process table, giving the user a ``snapshot'' of process activity.
+
+Xpd utilizes the Athena Widget set under X11 Release 5 and was written under SunOS 4.1.3 on a Sun X.
+
+\medskip
+\bigskip
+\leftline{\bf Features of the xpd utility include:}
+\begin{enumerate}
+\item{Display all process users}
+\item{Display processes owned by a user}
+\item{Display trace of process ancestry and children}
+\item{Display full command line arguments for a process}
+\item{Signal (kill) a selected process}
+\item{Specify the desired signal to be sent to the selected process}
+\item{Signal (kill) all of a users processes}
+\item{Rescan the process table from the kernel}
+\item{Display list of defunct processes}
+\item{Display number of processes}
+\item{Display detailed information for a selected process}
+\begin{enumerate}
+\item{Effective uid, login name and name of process owner}
+\item{Parent process id}
+\item{Process group id}
+\item{Process status}
+\item{Tty}
+\end{enumerate}
+\item{Allow authorized users to change xpd's effective userid to root}
+\end{enumerate}
+
+The real usefulness of xpd comes from its interface which is styled after xarchie.
+The hierarchical nature of the process structure in unix strongly lends itself toward this style of interface for process filtering.
+
+\begin{figure}[h]
+   \vglue 4.75 in
+   \caption{Xpd Main Window}
+\end{figure}
+
+
+\chapter{Motivation}
+Xpd is a culmination of several smaller independent ideas.
+First, providing a means of tracking process ancestry.
+The unix process structure is inherently hierarchical.
+There are parents, children, siblings and a root process in the structure.
+All processes can be traced back to the root process.
+Processes use fork(3) to spawn new processes.
+When a process uses fork to spawn a new process it becomes the parent of that new process and the new process becomes a child of the original processes.
+For the purpose of simplification, any process that can be traced back to a process are considered child processes and listed in the trace descendants list.
+See Figure 1.1.
+
+\begin{figure}
+   \vglue 5.5 in
+   \caption{Trace Window}
+\end{figure}
+
+
+Second, providing authorized users without root privilege the ability to signal processes that they do not own.
+This is normally something that only the superuser can do.
+It is often necessary to provide some users, such as lab assistants, with privileges beyond those of the average user.
+One of the most common tasks of a lab assistant is to remove run away processes or processes left behind by careless users.
+Xpd provides a way to allow such authorized user to accomplish this without knowing root's password.
+
+Finally, access to the entire set of command arguments for a process.
+When a command is executed from the shell the entire command line is stored in the kernel and is accessible to the executing program.
+This complete list of command line options can be very useful when debugging shell programs, as it will show the user exactly what options the shell script is calling other programs with.
+
+Xpd can also be used to send user defined signals to special processes prepared to accept and react to them.
+For instance, a user may create a program that backs up all files under a directory every 30 minutes.
+The user could design the program so that if it receives the user defined signal SIGUSR1, it will back up the files immediately and if it received the user defined signal SIGUSR2 it removes all backup files and exits.
+
+Following is a code segment that acts on SIGUSR1 and SIGUSR2 signals.
+
+\begin{verbatim}
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+
+void trap_signals();
+void handler1();
+void handler2();
+
+int main() {
+   trap_signals();
+
+   for ( ; ; ) ;
+}
+
+void handler1() {
+   printf("handler1\n");
+}
+
+void handler2() {
+   printf("handler2\n");
+}
+
+void trap_signals(){
+  struct sigvec vec1, vec2;
+
+  vec1.sv_handler = handler1;
+  vec2.sv_handler = handler2;
+
+  sigvec(SIGUSR1,vec1,NULL);
+  sigvec(SIGUSR2,vec2,NULL);
+}
+\end{verbatim}
+
+\chapter{Signals}
+Unix provides a facility for users to send signals to processes and for processes to define actions associated with those signals.
+This process most closely resembles the occurrence of a hardware interrupt.
+When a signal is received it is blocked from further occurrence until the associated action is completed.
+All signals have the same priority.
+
+A signal is generated by some abnormal event, initiated by a user at a terminal (quit, interrupt, stop), by a program error (bus error, etc.), by request of another  program (kill), or when a process is stopped because it wishes to access its control
+  terminal while in the background (see termio(4)).
+Signals are optionally generated when a process resumes after being stopped, when the status of child processes changes, or when input is ready at the control terminal.
+Most signals cause termination of the receiving process if no action is taken; some signals instead cause the process receiving them to be stopped, or are simply discarded if the process has not requested otherwise.
+Except for the SIGKILL and SIGSTOP signals, the signal() and sigvec() calls allow signals to be either ignored or trapped.
+
+The most familiar use of this facility is to signal a process to terminate.
+
+See the appendix for a complete list of signal numbers, names and associated descriptions.
+
+
+\chapter{Overview}
+Upon startup, xpd takes a ``snapshot'' of the process table, acquiring all process information that it will need.
+It displays a list of all process owners in the left pane.
+The user then selects a process owner.
+Xpd searches its process table for all processes owned by that process owner and displays a list of those processes by ID and associated ARGV[0] in the center pane.
+The user then selects a process ID.
+Xpd displays the entire set of arguments for the selected process ID in the right pane and specific process information in the bottom portion of the window
+If trace is enabled, xpd also updates the trace list.
+If the user selects a process ID from one of the trace lists, xpd acts just like the process ID was selected from the center pane.
+
+By clicking on the {\bf Kill Level} button, the user can select which interrupt or signal is sent to the selected process.
+The current signal is always displayed in the top right of the xpd main window.
+By clicking on the {\bf Kill} button the user can send the selected signal to the selected process.
+By clicking on the {\bf All} button the user can send the selected signal to all of the selected user's processes.
+This is accomplished by killing child processes first, then parents. (depth first, post order traversal)
+
+The process table can be updated at any time by clicking on the {\bf Rescan} button.
+This causes xpd to reread its process table from the kernel.
+
+A list of defunct processes can be displayed at any time by clicking on the {\bf Defunct} button.
+See Figure 3.1.
+\begin{figure}[h]
+   \vglue 3 in
+   \caption{Defunct List}
+\end{figure}
+A defunct process is any process that has exited with a return code but who's parent is not prepared to receive the return code.
+Defunct processes can not be killed and if many accumulate (wasting a finite number of process table entries) it may become necessary to reboot the system.
+
+
+\chapter{Permissions}
+
+Users are normally not permitted to send signals to processes that they do not own.
+The only user that is permitted to send signals to processes owned by other users is root.
+Xpd is designed to allow authorized users without root access the ability to signal processes that they do not own.
+Upon startup, xpd checks the real userid of its owner against the users in the wheel group (group~0).
+The wheel group is the group associated with the user root.
+Only members of this group can su to root.
+See su(1).
+If there is a match, xpd enables the {\bf Run As Root} button.
+If the {\bf Run As Root} button is enabled the user can change the effective userid to root and signal processes that would not otherwise be signalable.
+In addition to the {\bf Run As Root} button, there is also a {\bf Run As User} button that restores the effective userid to the real userid.
+The current setting is displayed to the left of the buttons.
+See Figure~4.1.
+
+\begin{figure}[h]
+   \vglue 1.5 in
+   \caption{Buttons to change permissions}
+\end{figure}
+
+For this to work, the ownership of the executable must be set to root and the set uid bit on.
+The set uid bit tells unix to execute the program with the user id of the owner of the program.
+In other words, it executes as if the person that owned it was executing it.
+For example, if joe\_user owns a program to delete joe\_user's mail file and the set uid bit is not set then if you execute the program it will say that you do not have permission to remove the file.
+If, on the other hand, the set uid bit is set then the program would execute as joe\_user and the file would be removed.
+In this case, the set uid bit allows xpd to send signals to processes and read files that the user would not normally be permitted to.
+Since xpd reads from the kernel it needs permission to read /dev/kmem.
+This can be accomplished two ways.
+If xpd is owned by root and the set uid bit is on, xpd will set its effective group id to kmem (group 2).
+If xpd is not owned by root, the group ownership must be set to kmem and the set gid bit must be on.
+The set gid bit tells unix to executes the program with the group id of the group owner of the program.
+
+When {\bf Kill} is selected and the user is not running as root, xpd checks that the real userid matches the effective userid of the process that is being signaled.
+If they do not match, an error is issued.
+If they do match, the signal is sent via kill(3) and the return code is checked.
+If there was an error, it is reported to the user.
+Errors include; ``Invalid Signal Number'', ``Not Owner of PID'' or ``PID no Longer Exists''.
+``Invalid Signal Number'' means that the user specified an unacceptable signal number or name, such as -10001 or -DIEDIE.
+``Not Owner of PID'' means that the process id that the user tried to kill was not owned by the user.
+``PID no Longer Exists'' means that the process the user was trying to signal has exited.
+If there was not an error, xpd checks to see if the process still exists.
+If the process still exists, nothing is updated {\bf and no error is reported}.
+This is for two reasons.
+First, the goal of signaling a process is not always to terminate it.
+Second, the unix tradition of error messages has always been non-descriptive at best.
+If the process no longer exists, xpd rescans the process table.
+When {\bf Kill} is selected and the user is running as root, xpd does not check that userids match.
+
+
+\chapter{Alternate Tools}
+\section{Shell}
+All the information available through xpd is also available through ps(1).
+
+\begin{verbatim}
+gateway 42 %) ps -l
+UID   PID  PPID CP PRI NI  SZ  RSS WCHAN    STAT TT  TIME COMMAND
+854 21158     1  5  15  0 184    0 kernelma IW   co  0:00 -tcsh (tcsh)
+854 21175 21158  2   5  0  32    0 child    IW   co  0:00 /bin/sh /usr
+854 21179 21175  1   5  0  44    0 child    IW   co  0:00 /usr/openwin
+854 21180 21179  0   1  01692 2080 select   S    co  0:56 /usr/openwin
+854 21193 21179  0   5  0  28    0 child    IW   co  0:00 sh /home/gat
+854 21202 21193  0   1  0 312  576 select   I    co  0:00 olwm -3
+854 21214     1  0   1  0 192  160 select   S    co  0:00 /usr/local/X
+854 21221     1  0   1  0 212    0 select   IW   co  0:00 sv_xv_sel_sv
+854 21222     1  0   1  0 256    0 select   IW   co  0:00 vkbd -nopopu
+854 21223     1  3   1  0  36    0 select   IW   co  0:00 dsdm
+854 21226     1  0   1  0 276  760 select   S    co  0:07 /usr/openwin
+854 21246 21202  0   1  0 248    0 select   IW   co  0:00 olwmslave
+854 21609 21266  1   3  0 200    0 Sysbase  IW   p0  0:00 /usr/local/b
+854 21229 21218  0   3  0 212    0 Sysbase  IW   p3  0:00 -csh (tcsh)
+854 21230 21220  0   3  0 208    0 Sysbase  IW   p6  0:00 -tcsh (tcsh)
+854 21266 21230  0   1  0 952  956 select   I    p6  0:12 emacs xpd.te
+854 21236 21228  0  15  0 236  388 kernelma S    p7  0:00 -csh (tcsh)
+854 26141 21236  5  26  0 248  496          R    p7  0:00 ps -Cxl
+854 21216     1  0   1  0 336    0 select   IW   p8  0:02 /usr/openwin
+854 21247 21216  0   3  0 192    0 Sysbase  IW   p8  0:00 -usr/local/b
+\end{verbatim}
+
+It is obvious that even though this information is available through ps it is difficult to work with.
+Process ancestry can also be done using this information.
+It can be determined from the above that 21180 is a child of 21179 and a sibling of 21193 while 21179 is a child of 21158 through 21175, all of which are children of 1.
+Xpd provides a more intuitive means of finding this information
+
+Signals can be sent from the shell with the kill(1) command.
+To do this the user must know the process id to signal, execute the signal and then check to see if the process accepted the signal.
+
+\begin{verbatim}
+gateway 98 %) ps -ax | grep killme
+26867 p7 S     0:00 xterm -e killme
+26880 p7 S     0:00 grep killme
+gateway 99 %) kill -HUP 26867
+gateway 100 %) ps -ax | grep killme
+26867 p7 IW    0:00 xterm -e killme
+26903 p7 S     0:00 grep killme
+gateway 101 %) kill -9 26867
+gateway 102 %) ps -ax | grep killme
+26926 p7 S     0:00 grep killme
+\end{verbatim}
+
+
+\section{X Window System}
+There currently exists an X utility called {\bf xzap} with point and click selection of processes and signaling capabilities.
+Xzap provides the same functionality as ps (it is essentially, ps in a window).
+Xzap does not provide a process hierarchy for command filtering nor does it provide the ability to trace process ancestry beyond that of ps.
+
+
+\section{C}
+Xpd utilizes the kvm system functions to acquire its process information.
+Xpd calls kvm\_open() to open the kernel.
+It uses kvm\_nextproc() to sequentially read all of the processes from the system process table.
+As it is reading each process control block in from the system process table it needs to get certain information, such as command line arguments, associated with that specific process.
+Xpd uses kvm\_getu() and kvm\_getcmd() to read this information.
+Kvm\_read() can be used to read a specific area of memory that is referenced but not available through kvm\_getu() or kvm\_getcmd().
+After reading all of this information in, xpd calls kvm\_close() to close the kernel.
+When a signal is sent, xpd uses kvm\_getproc() to search the system process table to see if the process still exists.
+
+Xpd uses the system kill(3) function to send signals to processes.
+
+
+
+\chapter{Security}
+Since xpd is designed to run with an effective userid of root, much consideration was given to security.
+The xpd process ignores the following signal: SIGHUP, SIGINT, SIGQUIT, SIGTRAP, SIGEMT, SIGTSTP.
+This is to insure that the process can not be terminated in an abnormal state allowing the user to gain unauthorized root access.
+
+No system() calls are made.
+System() calls are somewhat less secure than internal function calls.
+For instance, system(``kill -9 20238''), under normal circumstances would call the unix kill command on 20238 but if the user sets PATH=. and creates a command called kill then can gain unauthorized root access.
+This can be avoided by providing a full path name to kill.
+
+It is not possible for a user to:
+
+\begin{tabular}{l}
+Run as root unless that user is in the wheel group.\\
+Signal another user's process without running as root.\\
+Stop the xpd process.\\
+Trace the xpd process.\\
+Terminate the xpd process except with Quit.\\
+\end{tabular}
+
+\appendix
+\newpage
+\pagenumbering{alph}
+
+\chapter{Interface}
+\section{Buttons}
+\begin{description}
+\item[Quit] Terminate the application.
+\item[Rescan] Update process list to reflect current process table.
+\item[Kill Level] Show menu to select signal (see kill(1)).
+\item[Kill] Send signal to selected process.
+\item[All] Send signal to all processes owned by selected user.
+\item[Trace] Display ancestry and descendant list for selected process.
+\item[Defunct] Display list of defunct processes.
+\item[Run As Root] Change effective user id to root.
+\item[Run As User] Change effective user id to real user id.
+\end{description}
+
+\section{Panes \& Lists}
+\begin{description}
+\item[User List] List of all process owners (* displays all processes)
+\item[Pid List] List of processes for a selected user.
+\item[Argument List] List of arguments for a selected process.
+\item[Trace Ancestry List] List of process ancestry (enabled with trace button).
+\item[Trace Descendant List] List of process descendants (enabled with trace button).
+\item[Defunct List] List of defunct process (enabled with defunct button).
+\end{description}
+
+\section{Information}
+\begin{description}
+\item[Signal Status] Current signal and process selected.
+\item[Running As] Current effective user id of application.
+\item[Processes] Number of processes.
+\item[Effective UID] Effective user id and login name of process owner.
+\item[Effective Name] Name of process owner.
+\item[PID] Process ID of selected process.
+\item[PPID] Parent Process ID of selected process.
+\item[PGRP] Process Group of selected process.
+\item[STAT] Process State of selected process, see ps(1).
+\item[TTY] Tty process is associated with.
+\end{description}
+
+\section{Sample Screen}
+
+%insert screen dump here
+%\centerpcx{5in}{6in}{xpd}
+\newpage
+\vglue 1 in
+\newpage
+
+\chapter{Signal List}
+\newpage
+\begin{tabular} {l c l}
+{\bf Name}& {\bf Number} & {\bf Description}\\
+          &       &  \\
+SIGHUP    &   1   &  hangup\\
+SIGINT    &   2   &  interrupt\\
+SIGQUIT   &   3   &  quit\\
+SIGILL    &   4   &  illegal instruction\\
+SIGTRAP   &   5   &  trace trap\\
+SIGABRT   &   6   &  abort (generated by abort(3) routine)\\
+SIGEMT    &   7   &  emulator trap\\
+SIGFPE    &   8   &  arithmetic exception\\
+SIGKILL   &   9   &  kill (cannot be caught, blocked, or ignored)\\
+SIGBUS    &   10  &  bus error\\
+SIGSEGV   &   11  &  segmentation violation\\
+SIGSYS    &   12  &  bad argument to system call\\
+SIGPIPE   &   13  &  write on a pipe or other socket with no one to read it\\
+SIGALRM   &   14  &  alarm clock\\
+SIGTERM   &   15  &  software termination signal\\
+SIGURG    &   16  &  urgent condition present on socket\\
+SIGSTOP   &   17  &  stop (cannot be caught, blocked, or ignored)\\
+SIGTSTP   &   18  &  stop signal generated from keyboard\\
+SIGCONT   &   19  &  continue after stop\\
+SIGCHLD   &   20  &  child status has changed\\
+SIGTTIN   &   21  &  background read attempted from control terminal\\
+SIGTTOU   &   22  &  background write attempted to control terminal\\
+SIGIO     &   23  &  I/O is possible on a descriptor (see fcntl(2V))\\
+SIGXCPU   &   24  &  cpu time limit exceeded (see getrlimit(2))\\
+SIGXFSZ   &   25  &  file size limit exceeded (see getrlimit(2))\\
+SIGVTALRM &   26  &  virtual time alarm (see getitimer(2))\\
+SIGPROF   &   27  &  profiling timer alarm (see getitimer(2))\\
+SIGWINCH  &   28  & window changed (see termio(4) and win(4S))\\
+SIGLOST   &   29  &  resource lost (see lockd(8C))\\
+SIGUSR1   &   30  &  user-defined signal 1\\
+SIGUSR2   &   31  &  user-defined signal 2\\
+\end{tabular}
+
+
+
+\chapter{Installation}
+\begin{enumerate}
+
+
+\item{If you have a correctly installed imake, simply type
+    \begin{verbatim}
+        ~X11/bin/xmkmf -a
+    \end{verbatim}
+    and watch imake do its thing.  Otherwise, you will have to hack the 
+    Makefile.sun to appropriately configure xpd for your system.  Note that
+    the current program will NOT run on Sparc systems with OpenWindows
+    2.0 or above as not all necessary X libraries are present.}
+\item{make all}
+\item{If there aren't any errors, run make -n install.  If you are satisfied
+    with where it is going to install, run make install.   This will install
+    the executable and application defaults file (the application defaults  
+    file must be installed or in a directory referenced by XAPPLRESDIR).}
+\item{Run make install.man to install the man page.}
+\item{Note that  the Makefile will automatically set ownership of xpd in the 
+    ~X11/bin directory as root with the setuid bit turned on.  If you do NOT
+    want a setuid program in that directory, simply execute the following
+    commands as root:
+    \begin{verbatim}
+        chmod u-s ~X11/bin/xpd
+        chgrp kmem ~X11/bin/xpd
+        chmod g+s ~X11/bin/xpd
+    \end{verbatim}
+    since xpd MUST have the setgid bit on as group kmem to read kernel data
+    (for systems other than Suns, modify the group as appropriate).}
+\end{enumerate}
+
+
+
+\chapter{Source}
+
+\chapter{Application Defaults}
+
+
+\end{document}
+
+
+ 

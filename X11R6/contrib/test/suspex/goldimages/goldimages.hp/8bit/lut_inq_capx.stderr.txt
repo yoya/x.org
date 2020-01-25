@@ -1,0 +1,214 @@
+
+Test Case #  1:  Valid ColorSpace input capx
+  capx_is_supported      = 0
+  all_capxs              = 0
+  count                  = 1
+Returned Color Approx Entry #1
+    type                 = 1
+    model                = 1
+    max1                 = 5
+    max2                 = 5
+    max3                 = 5
+    dither               = 1
+    mult1                = 36
+    mult2                = 6
+    mult3                = 1
+    weight1              = 0
+    weight2              = 0
+    weight3              = 0
+    base_pixel           = 40
+
+Test Case #  2:  Invalid type field in capx
+  capx_is_supported      = 0
+  all_capxs              = 0
+  count                  = 1
+Returned Color Approx Entry #1
+    type                 = 1
+    model                = 1
+    max1                 = 5
+    max2                 = 5
+    max3                 = 5
+    dither               = 1
+    mult1                = 36
+    mult2                = 6
+    mult3                = 1
+    weight1              = 0
+    weight2              = 0
+    weight3              = 0
+    base_pixel           = 40
+
+Test Case #  3:  Invalid model field in ColorSpace capx
+  capx_is_supported      = 0
+  all_capxs              = 0
+  count                  = 1
+Returned Color Approx Entry #1
+    type                 = 1
+    model                = 1
+    max1                 = 5
+    max2                 = 5
+    max3                 = 5
+    dither               = 1
+    mult1                = 36
+    mult2                = 6
+    mult3                = 1
+    weight1              = 0
+    weight2              = 0
+    weight3              = 0
+    base_pixel           = 40
+
+Test Case #  4:  Invalid max field in ColorSpace capx
+  capx_is_supported      = 0
+  all_capxs              = 0
+  count                  = 1
+Returned Color Approx Entry #1
+    type                 = 1
+    model                = 1
+    max1                 = 5
+    max2                 = 5
+    max3                 = 5
+    dither               = 1
+    mult1                = 36
+    mult2                = 6
+    mult3                = 1
+    weight1              = 0
+    weight2              = 0
+    weight3              = 0
+    base_pixel           = 40
+
+Test Case #  5:  Invalid dither field in ColorSpace capx
+  capx_is_supported      = 0
+  all_capxs              = 0
+  count                  = 1
+Returned Color Approx Entry #1
+    type                 = 1
+    model                = 1
+    max1                 = 5
+    max2                 = 5
+    max3                 = 5
+    dither               = 1
+    mult1                = 36
+    mult2                = 6
+    mult3                = 1
+    weight1              = 0
+    weight2              = 0
+    weight3              = 0
+    base_pixel           = 40
+
+Test Case #  6:  Reserved field = 99 in capx (should be ignored)
+  capx_is_supported      = 0
+  all_capxs              = 0
+  count                  = 1
+Returned Color Approx Entry #1
+    type                 = 1
+    model                = 1
+    max1                 = 5
+    max2                 = 5
+    max3                 = 5
+    dither               = 1
+    mult1                = 36
+    mult2                = 6
+    mult3                = 1
+    weight1              = 0
+    weight2              = 0
+    weight3              = 0
+    base_pixel           = 40
+
+Test Case #  7:  Invalid mult fields in ColorSpace capx
+  capx_is_supported      = 0
+  all_capxs              = 0
+  count                  = 1
+Returned Color Approx Entry #1
+    type                 = 1
+    model                = 1
+    max1                 = 5
+    max2                 = 5
+    max3                 = 5
+    dither               = 1
+    mult1                = 36
+    mult2                = 6
+    mult3                = 1
+    weight1              = 0
+    weight2              = 0
+    weight3              = 0
+    base_pixel           = 40
+
+Test Case #  8:  Invalid weight fields in ColorSpace capx (should ignore)
+  capx_is_supported      = 0
+  all_capxs              = 0
+  count                  = 1
+Returned Color Approx Entry #1
+    type                 = 1
+    model                = 1
+    max1                 = 5
+    max2                 = 5
+    max3                 = 5
+    dither               = 1
+    mult1                = 36
+    mult2                = 6
+    mult3                = 1
+    weight1              = 0
+    weight2              = 0
+    weight3              = 0
+    base_pixel           = 40
+
+Test Case #  9:  Invalid base_pixel field in ColorSpace capx
+  capx_is_supported      = 0
+  all_capxs              = 0
+  count                  = 1
+Returned Color Approx Entry #1
+    type                 = 1
+    model                = 1
+    max1                 = 5
+    max2                 = 5
+    max3                 = 5
+    dither               = 1
+    mult1                = 36
+    mult2                = 6
+    mult3                = 1
+    weight1              = 0
+    weight2              = 0
+    weight3              = 0
+    base_pixel           = 40
+
+Test Case # 10:  Valid ColorRange input capx
+  capx_is_supported      = 1
+  all_capxs              = 0
+  count                  = 0
+
+Test Case # 11:  Invalid max  fields in ColorRange capx
+  capx_is_supported      = 0
+  all_capxs              = 0
+  count                  = 1
+Returned Color Approx Entry #1
+    type                 = 1
+    model                = 1
+    max1                 = 5
+    max2                 = 5
+    max3                 = 5
+    dither               = 1
+    mult1                = 36
+    mult2                = 6
+    mult3                = 1
+    weight1              = 0
+    weight2              = 0
+    weight3              = 0
+    base_pixel           = 40
+
+Test Case # 12:  Invalid mult fields in ColorRange capx
+  capx_is_supported      = 0
+  all_capxs              = 0
+  count                  = 1
+Returned Color Approx Entry #1
+    type                 = 1
+    model                = 1
+    max1                 = 5
+    max2                 = 5
+    max3                 = 5
+    dither               = 1
+    mult1                = 36
+    mult2                = 6
+    mult3                = 1
+    weight1              = 0
+    weight2              = 0
+    weight3              = 0
+    base_pixel           = 40

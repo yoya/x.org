@@ -1,0 +1,37 @@
+255 255   0		notice
+181 181   0		notice/dark
+255 135   0		warning
+181 100   0		warning/dark
+255   0   0		error
+181   0   0		error/dark
+255 255 255		information
+  0   0   0		information/dark
+255 255 255		information/pale
+255   0   0		admin
+181   0   0		admin/dark
+  0 255 255		comment
+  0 181 181		comment/dark
+255 135   0		function
+181 100   0		function/dark
+255 195   0		converter
+181 140   0		converter/dark
+135 255   0		static
+100 181   0		static/dark
+135 255   0		constant
+100 181   0		constant/dark
+255 255   0		dynamic
+181 181   0		dynamic/dark
+255 255   0		variable
+181 181   0		variable/dark
+  0 255   0		interlink
+  0 181   0		interlink/dark
+  0 195 255		superlayer
+  0 140 181		superlayer/dark
+135   0 255		intrinsic
+100   0 181		intrinsic/dark
+255   0 135		macro
+181   0 100		macro/dark
+255   0 255		extension
+181   0 181		extension/dark
+255   0  76		privileged
+181   0  57		privileged/dark

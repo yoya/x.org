@@ -1,0 +1,442 @@
+
+Test 1
+
+  Renderer is Valid
+PEXError: Bad PEX OC
+OC code: 39
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 39
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 39
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 39
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 25
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 25
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 25
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 25
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 4
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 4
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 4
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 4
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 32
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 32
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 32
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 32
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 54
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 54
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 54
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 54
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 11
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 11
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 11
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 11
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 39
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 25
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 4
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 32
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 54
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 11
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 55
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 49
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 28
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 5
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 21
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 70
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 67
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 6
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 65
+Request code: 28
+  PEXSetInteriorStyleIndex    does NOT generate any OC errors
+  PEXBFSetInteriorStyleIndex  does NOT generate any OC errors
+PEXError: Bad PEX OC
+OC code: 57
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 58
+Request code: 28
+  PEXSetGlobalTransform       does NOT generate any OC errors
+  PEXSetGlobalTransform2D     does NOT generate any OC errors
+  PEXSetATextStyle            does NOT generate any OC errors
+  PEXSetLineType              does NOT generate any OC errors
+  PEXSetMarkerType            does NOT generate any OC errors
+  PEXSetPolylineInterpMethod  does NOT generate any OC errors
+  PEXSetRenderingColorModel   does NOT generate any OC errors
+  PEXSetReflectionModel       does NOT generate any OC errors
+  PEXSetBFReflectionModel     does NOT generate any OC errors
+  PEXSetSurfaceEdgeType       does NOT generate any OC errors
+  PEXSetSurfaceInterpMethod   does NOT generate any OC errors
+  PEXSetBFSurfaceInterpMethod does NOT generate any OC errors
+  PEXSetATextHeight           does NOT generate any OC errors
+  PEXSetCharHeight            does NOT generate any OC errors
+  PEXSetCharExpansion         does NOT generate any OC errors
+  PEXSetCharSpacing           does NOT generate any OC errors
+  PEXSetPickID                does NOT generate any OC errors
+  PEXSetHLHSRID               does NOT generate any OC errors
+  PEXSetMarkerScale           does NOT generate any OC errors
+  PEXSetLineWidth             does NOT generate any OC errors
+  PEXSetSurfaceEdgeWidth      does NOT generate any OC errors
+PEXError: Bad PEX OC
+OC code: 45
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 44
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 29
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 36
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 61
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 50
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 18
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 14
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 7
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 19
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 15
+Request code: 28
+  PEXSetATextUpVector         does NOT generate any OC errors
+  PEXSetCharUpVector          does NOT generate any OC errors
+PEXError: Bad PEX OC
+OC code: 33
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 40
+Request code: 28
+  PEXSetModelClipVolume       does NOT generate any OC errors
+  PEXSetModelClipVolume2D     does NOT generate any OC errors
+  PEXRestoreModelClipVolume   does NOT generate any OC errors
+  PEXSetCurveApprox           does NOT generate any OC errors
+  PEXSetSurfaceApprox         does NOT generate any OC errors
+PEXError: Bad PEX OC
+OC code: 66
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 66
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 56
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 56
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 56
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 72
+Request code: 28
+PEXError: Bad PEX OC
+OC code: 72
+Request code: 28
+  PEXSetPatternAttributes     does NOT generate any OC errors
+  PEXSetPatternAttributes2D   does NOT generate any OC errors
+  PEXSetPatternSize           does NOT generate any OC errors
+  PEXAddToNameSet             does NOT generate any OC errors
+  PEXRemoveFromNameSet        does NOT generate any OC errors
+
+  Structure is Valid
+PEXError: Bad PEX OC
+OC code: 39
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 39
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 39
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 39
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 25
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 25
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 25
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 25
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 4
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 4
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 4
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 4
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 32
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 32
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 32
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 32
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 54
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 54
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 54
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 54
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 11
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 11
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 11
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 11
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 39
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 25
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 4
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 32
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 54
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 11
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 55
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 49
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 28
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 5
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 21
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 70
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 67
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 6
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 65
+Request code: 43
+  PEXSetInteriorStyleIndex    does NOT generate any OC errors
+  PEXBFSetInteriorStyleIndex  does NOT generate any OC errors
+PEXError: Bad PEX OC
+OC code: 57
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 58
+Request code: 43
+  PEXSetGlobalTransform       does NOT generate any OC errors
+  PEXSetGlobalTransform2D     does NOT generate any OC errors
+  PEXSetATextStyle            does NOT generate any OC errors
+  PEXSetLineType              does NOT generate any OC errors
+  PEXSetMarkerType            does NOT generate any OC errors
+  PEXSetPolylineInterpMethod  does NOT generate any OC errors
+  PEXSetRenderingColorModel   does NOT generate any OC errors
+  PEXSetReflectionModel       does NOT generate any OC errors
+  PEXSetBFReflectionModel     does NOT generate any OC errors
+  PEXSetSurfaceEdgeType       does NOT generate any OC errors
+  PEXSetSurfaceInterpMethod   does NOT generate any OC errors
+  PEXSetBFSurfaceInterpMethod does NOT generate any OC errors
+  PEXSetATextHeight           does NOT generate any OC errors
+  PEXSetCharHeight            does NOT generate any OC errors
+  PEXSetCharExpansion         does NOT generate any OC errors
+  PEXSetCharSpacing           does NOT generate any OC errors
+  PEXSetPickID                does NOT generate any OC errors
+  PEXSetHLHSRID               does NOT generate any OC errors
+  PEXSetMarkerScale           does NOT generate any OC errors
+  PEXSetLineWidth             does NOT generate any OC errors
+  PEXSetSurfaceEdgeWidth      does NOT generate any OC errors
+PEXError: Bad PEX OC
+OC code: 45
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 44
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 29
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 36
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 61
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 50
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 18
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 14
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 7
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 19
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 15
+Request code: 43
+  PEXSetATextUpVector         does NOT generate any OC errors
+  PEXSetCharUpVector          does NOT generate any OC errors
+PEXError: Bad PEX OC
+OC code: 33
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 40
+Request code: 43
+  PEXSetModelClipVolume       does NOT generate any OC errors
+  PEXSetModelClipVolume2D     does NOT generate any OC errors
+  PEXRestoreModelClipVolume   does NOT generate any OC errors
+  PEXSetCurveApprox           does NOT generate any OC errors
+  PEXSetSurfaceApprox         does NOT generate any OC errors
+PEXError: Bad PEX OC
+OC code: 66
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 66
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 56
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 56
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 56
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 72
+Request code: 43
+PEXError: Bad PEX OC
+OC code: 72
+Request code: 43
+  PEXSetPatternAttributes     does NOT generate any OC errors
+  PEXSetPatternAttributes2D   does NOT generate any OC errors
+  PEXSetPatternSize           does NOT generate any OC errors
+  PEXAddToNameSet             does NOT generate any OC errors
+  PEXRemoveFromNameSet        does NOT generate any OC errors

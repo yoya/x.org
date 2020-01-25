@@ -1,0 +1,26 @@
+#ifndef naming_idl
+#define naming_idl
+
+interface NamingContext {
+    typedef string NameComponent;
+    typedef sequence<NameComponent> Name;
+    enum BindingType {
+	context_type, symbolic_link_type, ordered_merge_type, regular_type
+    };
+    struct BindingInfo {
+	NameComponent comp;
+	BindingType bt;
+    };
+    typedef sequence<BindingInfo> BindingInfoList;
+
+    exception NotFound { long mode; };
+    exception NotContext { };
+    exception PermissionDenied { };
+
+    BaseObject resolve(in Name n)
+	raises(NotFound, NotContext, PermissionDenied);
+    BindingInfoList list(in Name n)
+	raises(NotFound, NotContext, PermissionDenied);
+};
+
+#endif

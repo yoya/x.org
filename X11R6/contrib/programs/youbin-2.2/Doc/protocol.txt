@@ -1,0 +1,206 @@
+#
+# Program:	$RCSfile: protocol.txt,v $  $Revision: 4.2 $
+#
+# Purpose: 	Guidance of youbin service
+#
+# Author:	K.Agusa	    agusa@nuie.nagoya-u.ac.jp
+#		S.Yamamoto  yamamoto@nuie.nagoya-u.ac.jp
+#
+# Version:	1.9
+# Protocol:	2
+#
+# Date:		1993/07/24
+# Modified:	$Date: 1994/06/12 10:33:30 $
+#
+
+	youbin protocol specification (Protocol Ver. 2)
+
+						By K.Agusa and S.Yamamoto
+						1993/09/02
+
+1 Introduction
+
+youbin protocol consists of the following seven kinds of packets which
+are identified by the first character.
+
+a) Wake up packet (from client to server)
+Client requests the registration of his name and start of youbin service.
+
+b) Registered packet (from server to client)
+Acknowledgement of Wake up packet.
+
+c) NAK packet (from server to client)
+NAK to Wake up packet. Wake up packet is rejected for some reason.
+
+d) Status report packet (from server to!client)
+Current state of mail spool (size and last modify time).
+
+e) Thanks packet (from client to server)
+Responce to Status report packet. This packet is a kind of "keep alive"
+packet.
+
+f) Update request packet (from client to server)
+Demand of the report of the current state of his mail spool.  When the
+server receives this packet, it check the spool and transmit Status
+report packet.
+
+g) Biff packet (from /bin/mail to server)
+Notification of mail arrival by the local mail delivery program.
+
+h) Quit packet (bi-direction between server and client)
+End of service.
+
+The use of youbin is categorized with the following 3 phases.
+
+	Registration phase
+	ST (Status-Thanks) phase
+	Termination phase
+
+
+2 Registration phase
+
+A user who wants the notification of his mail arrival send a Wake up
+packet to register his name at the youbin server.  The form of Wake up
+packet is
+
+	W <userName> <protocolVersion> [<options>]
+
+[] shows optional parameters. That is <options> can be omitted.
+
+The userName is login name at the server. The protocolVersion make it
+possible to avoid queer chatter between server and client with version
+mismatch. The options field can hold only "B" at this time. This "B"
+option request the server to send not only the mail arrival
+notification but also the header and first part of new arriving mail.
+
+	W <userName> <protocolVersion> B
+
+When server receives Wake up packet, it checks the version and
+authorization of userName. If there is no problem about the version
+and authorization, it replys with Registered packet whose first
+argument is client ID. The second argument of Registered packet is a
+timer value. If client has no packet from server for longer than this
+period, it should try to reconnect. If server rejects Wake up packet,
+it reply with NAK packet whose argument is the reject reason.
+
+That is client will receive one of following reply to Wake up packet.
+
+	R <userId> <interval>
+	NAK <reason>
+
+If client doed not receive any reply within 1 unit time (usually 3
+minutes, site depend), client should send Wake up packet again. Server
+avoid the duplicated registration of a certain user. However it is
+recommended not to send repeated Wake up packet with in 1 unit time.
+
+
+3 ST (Status-Thanks) phase
+
+Server send Status report packet in the period between 1 to 2 unit
+time since it receives the Thanks packet from client. This is a kind
+of " keep alive " packet and required because of no guarantee of
+packet transfer in the case UDP.
+
+Server sends Status report packet asynchronously when it receives Biff
+packet or Update request packet. The form of Status report packet is
+one of the followings.
+
+	S <size> <date>
+	S <size> <date> <mailHeader>
+
+After client receives Status report packet, it reply with T hanks
+packet with in 2/3 unit time. Since server sends Status report packet
+to all client at one time, there can be a congestion of Thanks
+packets.  To avoid this congestion, it is recommended for client to
+reply with random delay with in 2/3 unit time. The form of T packet is
+shown in the following.
+
+	T <clientID>
+
+If client receives Status report packet during this waiting period, it
+should reply with Thanks packet right away since the Status report
+packet is asynchronous packet.
+
+Server resends Status report packet to the client which does not reply
+within 2 unit times. After that, server resends 2 times at ever Unit
+Time tick to get the connection with teh client. If there is still no
+response from the client to this invitation, server removes his name
+from the registration table and terminate youbin service to the
+client.
+
+If client has no Status report packet from server within 6 unit time,
+the connection is destroyed with some reason. So client exits the
+current ST phase and goes to Registration phase if required. 6 Unit
+Time is a sum of the normal ST phase waiting time 2 + servers
+struggling time of reconnection 3 + some margin 1.
+
+Asynchronously server sends Status report packet to client when the
+change of mail spool state by mail arrival and reading. When mail
+arrives, the mail header is sent if client requests. Reading mail is
+detected with Update request packet. There are several way to send
+Update request packet. Some may use POP with youbin extension (patch
+is available) or send Update request packet manually. Since clientID
+is a kind of magic number, a user who sends Update request packet
+manually may want Update request packet with not number but name. So
+there are two types of Update request packet.
+
+	U /<clientID>
+	U <userName>
+
+There is a mechanism to notify mail arrivals, named "biff". youbin
+server is designed to work with this mechanism. The following packet
+is a special Update request packet for compatibility.
+
+	<userName>@<offset>
+
+
+4 Termination phase
+
+Server can detect the termination of client service by Thanks packet's
+not arriving. However, client is recommended to notify its termination
+to server explicitly.  For this, Quit packet is prepared.  The form of
+Quit packet is
+
+	Q <clientID>
+
+When server receives this packet, client is removed from the
+registration table.
+
+The termination of server's service notified of clients by Quit packet
+also. The argument of Quit packet from server is "hup" (Hang UP) if
+server is reinitialized, and "quit" if server actually quits. When
+client receives Quit packet with "hup", client may enter the
+registration phase with appropriate delay.
+
+	Q hup
+	Q quit
+
+
+5 State transition diagram
+
+The youbin protocol is shown in the state transition diagram of server
+and client. Here, TO means an event of timer for unit time, and TO'
+for 6 Unit TImes. TO' is the second argument <interval> of Registerd
+packet from server.
+
+The file "state.eps" includes the transition diagram in EPS format.
+
+
+6 References
+
+xyoubin(1), youbin(1), youbind(1), youbin_sub(3)
+biff(1), comsat(1), mail(1)
+
+
+7 Authors
+
+Kiyoshi Agusa 		agusa@nuie.nagoya-u.ac.jp
+Shinichirou Yamamoto  	yamamoto@nuie.nagoya-u.ac.jp
+
+Department of Information Engineering
+Nagoya University
+Chikusa, Nagoya, 464-01
+JAPAN
+
+Tel. +81 52 789 3649
+Fax. +81 52 789 3810

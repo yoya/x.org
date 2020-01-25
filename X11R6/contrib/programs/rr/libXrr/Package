@@ -1,0 +1,7 @@
+echo "Making tags files"
+make tags
+echo "Backing up previous shar file, if any"
+[ -f lib.shar ] && mv lib.shar lib.shar-
+echo "Creating new shar file"
+shar Imakefile Package *.c *.h tags TAGS colormaps/* > lib.shar
+echo "Done"

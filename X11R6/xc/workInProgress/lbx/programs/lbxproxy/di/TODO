@@ -1,0 +1,23 @@
+--------------
+
+what's left
+
+new work
+    protocol reencoding
+    large request splitting at OS layer
+    image compression
+
+tuning
+    motion compression (what's the proper number?  does it even work?)
+    properties (determining what's worth sending)
+    scheduler
+
+Bugs
+    AttendClient()/IgnoreClient() need to handle proxy clients
+	w/o blocking entire proxy
+    fix BIGREQS
+
+-------
+$NCDId: @(#)TODO,v 1.8 1994/03/25 19:10:11 lemke Exp $
+$XConsortium: TODO,v 1.3 94/03/27 14:09:31 dpw Exp $
+

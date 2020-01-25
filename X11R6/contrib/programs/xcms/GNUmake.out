@@ -1,0 +1,61 @@
+note: upcoming "Could not find..." messages, if any,  are harmless.
+xcmsdb -remove 2>/dev/null
+Deleting property XDCCC_LINEAR_RGB_MATRICES
+Deleting property XDCCC_LINEAR_RGB_CORRECTION
+xcmsdb talisman.dcc
+chrom.xcms -> chrom.col
+greys.xcms -> greys.col
+monochr.xcms -> monochr.col
+netrek.xcms -> netrek.col
+sundry.xcms -> sundry.col
+syms.xcms -> syms.col
+Others/ravel.xcms -> Others/ravel.col
+Others/rgbtxt.xcms -> Others/rgbtxt.col
+Others/thomas.xcms -> Others/thomas.col
+making rgb.xcmsdb...
+making col2rgb...
+imake -DUseInstalled -I/vol/X11R6/lib/X11/config
+rm -f col2rgb.o
+gcc -fpcc-struct-return -c -O2     -I/vol/X11R6/include      -DNDBM -DRGB_DB=\"/vol/X11R6/lib/X11/rgb\"   col2rgb.c
+gcc -fpcc-struct-return -c -O2     -I/vol/X11R6/include      -DNDBM -DRGB_DB=\"/vol/X11R6/lib/X11/rgb\"  fgetstr.c
+rm -f col2rgb
+gcc -fpcc-struct-return -o col2rgb -O2      -L/vol/X11R6/lib col2rgb.o fgetstr.o -lXext -lX11 -lXt -lSM -lICE      
+chrom.col -> chrom.rgb
+XCMSDB=rgb.xcmsdb ; export XCMSDB ; \
+cat chrom.col | ./col2rgb -rgbtxt | cat > chrom.rgb
+greys.col -> greys.rgb
+XCMSDB=rgb.xcmsdb ; export XCMSDB ; \
+cat greys.col | ./col2rgb -rgbtxt | cat > greys.rgb
+monochr.col -> monochr.rgb
+XCMSDB=rgb.xcmsdb ; export XCMSDB ; \
+cat monochr.col | ./col2rgb -rgbtxt | cat > monochr.rgb
+netrek.col -> netrek.rgb
+XCMSDB=rgb.xcmsdb ; export XCMSDB ; \
+cat netrek.col | ./col2rgb -rgbtxt | cat > netrek.rgb
+sundry.col -> sundry.rgb
+XCMSDB=rgb.xcmsdb ; export XCMSDB ; \
+cat sundry.col | ./col2rgb -rgbtxt | cat > sundry.rgb
+syms.col -> syms.rgb
+XCMSDB=rgb.xcmsdb ; export XCMSDB ; \
+cat syms.col | ./col2rgb -rgbtxt | cat > syms.rgb
+Others/ravel.col -> Others/ravel.rgb
+XCMSDB=rgb.xcmsdb ; export XCMSDB ; \
+cat Others/ravel.col | ./col2rgb -rgbtxt | cat > Others/ravel.rgb
+Others/rgbtxt.col -> Others/rgbtxt.rgb
+XCMSDB=rgb.xcmsdb ; export XCMSDB ; \
+cat Others/rgbtxt.col | ./col2rgb -rgbtxt | cat > Others/rgbtxt.rgb
+Others/thomas.col -> Others/thomas.rgb
+XCMSDB=rgb.xcmsdb ; export XCMSDB ; \
+cat Others/thomas.col | ./col2rgb -rgbtxt | cat > Others/thomas.rgb
+chrom.rgb greys.rgb monochr.rgb netrek.rgb sundry.rgb syms.rgb Others/ravel.rgb Others/rgbtxt.rgb Others/thomas.rgb -> rgb.txt
+making rgb...
+mv -f Makefile Makefile.bak
+imake -DUseInstalled -I/vol/X11R6/lib/X11/config
+rm -f rgb.o
+gcc -fpcc-struct-return -c -O2     -I/vol/X11R6/include      -DNDBM -DRGB_DB=\"/vol/X11R6/lib/X11/rgb\"   rgb.c
+rm -f rgb
+gcc -fpcc-struct-return -o rgb -O2      -L/vol/X11R6/lib rgb.o      -ldbm 
+making data...
+mv -f Makefile Makefile.bak
+imake -DUseInstalled -I/vol/X11R6/lib/X11/config
+./rgb rgb < rgb.txt && touch rgb.dir rgb.pag

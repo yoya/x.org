@@ -1,0 +1,397 @@
+'\" t
+.\"
+.\" $SonyId: sjxa.man,v 1.1 1994/05/30 13:07:29 makoto Exp $
+.\"
+.\" Copyright (c) 1994  Sony Corporation
+.\" 
+.\" Permission is hereby granted, free of charge, to any person
+.\" obtaining a copy of this software and associated documentation
+.\" files (the "Software"), to deal in the Software without
+.\" restriction, including without limitation the rights to use, copy,
+.\" modify, merge, publish, distribute, sublicense, and/or sell copies
+.\" of the Software, and to permit persons to whom the Software is
+.\" furnished to do so, subject to the following conditions:
+.\" 
+.\" The above copyright notice and this permission notice shall be
+.\" included in all copies or substantial portions of the Software.
+.\" 
+.\" THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+.\" EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+.\" MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+.\" NONINFRINGEMENT. IN NO EVENT SHALL SONY CORPORATION BE LIABLE
+.\" FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+.\" CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+.\" WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+.\" 
+.\" Except as contained in this notice, the name of Sony Corporation
+.\" shall not be used in advertising or otherwise to promote the sale,
+.\" use or other dealings in this Software without prior written
+.\" authorization from Sony Corporation.
+.\"
+.\"	
+.TH SJXA 1 "February 1, 1994"
+.SH NAME
+sjxa \- Japanese input method server for X Window System
+.SH SYNOPSIS
+.B sjxa
+[
+.BI \- toolkitoption
+\&.\&.\&.
+] [
+.B \-help
+] [
+.BI \-server " hostname"
+] [
+.B \-no_auto_replace
+] [
+.B \-/+xlc_protocol
+] [
+.B \-/+sjx_protocol
+] [
+.B \-/+kana
+]
+.SH DESCRIPTION
+The Japanese language input method server \f4sjxa\f1 performs 
+kana-kanji conversions for applications running 
+under X Window System using data transfers 
+between processes using \f4sj3serv\f1 and sockets.
+.PP
+\f4sjxa\f1 uses applications running 
+under X Window System and the XIMP, XLC or sjx protocol 
+to transfer data and converts received alphabetic 
+or katakana input into kanji. 
+The converted results are then returned to the applications.
+.PP
+When started, \f4sjxa\f1 reads in the alphabet-kana conversion 
+file specified by the \f4SJXARK\f1 environment variable
+or \f4.sjxark\f1 in that directory,
+and follows the rules it contains when performing conversions. 
+If this file is not present, it searches for another rule file, 
+first \f4$XAPPLRESDIR/$LANG/.sjxark\f1, \f4$HOME/$LANG/.sjxark\f1,
+then \f4$HOME/.sjxark\f1, and reads it in instead. 
+If none of the above rule files is found, the defaults are used.
+.SH OPTIONS
+In addition to all of the standard X Toolkit command line options,
+\f4sjxa\f1 also accepts the followings.
+.TP 8
+\f4\-help
+Displays a description of the available options.
+\f4sjxa\f1 is not activated.
+.TP
+\f4\-server \f2hostname\f1
+This option specifies the hostname of the server to be connected to. 
+If this option is omitted and no server is specified 
+by either the environment variable \f4SJ3SERV\f1
+or in the resource file, a connection 
+with the \f4localhost\f1 server will be attempted.
+\f4sjxa\f1 is activated even if all attempts to connect to a server 
+are unsuccessful, but no kana-kanji conversions are possible 
+in this case.
+.TP
+\f4\-no_auto_replace
+When this option is specified, 
+the input method server will not automatically estimate 
+the next cursor position and move to it as soon as 
+the conversion character string has been decided 
+when \*(lqover-the-spot conversion\*(rq is being used.
+.TP
+\f4\-/+auto_raise
+When +auto_raise option is specified,
+the iconified \f4sjxa\f1 will keep the iconic state when
+the application used the XNStateusNothing is begun the conversion.
+.TP
+\f4\-/+xlc_protocol
+This option specifies the XLC protocol to be recognized or not. 
+.TP
+\f4\-/+sjx_protocol
+This option specifies the sjx protocol to be recognized or not. 
+.TP
+\f4\-/+kana
+This option specifies to read the resource for the kana-input or not.
+.SH RESOURCES
+The main resources that can be set using \f4sjxa\f1 are as follows:
+.TP 8
+\f4server\f1 (class \f4Server\f1)
+Specifies the hostname of the server to be connected to.
+.TP
+\f4autoReplae\f1 (class \f4AutoReplace\f1)
+If this resource is set to \f4True\f1, 
+the input method server automatically estimates the next cursor position 
+and moves to it as soon as the conversion character string 
+has been decided when \*(lqover-the-spot conversion\*(rq is being used. 
+The default setting is \f4True\f1.
+.TP
+\f4autoRaise\f1 (class \f4AutoRaise\f1)
+If this resource is set to \f4False\f1,
+the iconified \f4sjxa\f1 will keep the iconic state when
+the application used the XNStateusNothing is begun the conversion.
+The default setting is \f4True\f1.
+.TP
+\f4xlcProtocol\f1 (class \f4XlcProtocol\f1)
+If this resource is set to \f4True\f1,
+the \f4sjxa\f1 is recognized the XLC protocol.
+The default setting is \f4True\f1.
+.TP
+\f4sjxProtocol\f1 (class \f4SjxProtocol\f1)
+If this resource is set to \f4True\f1,
+the \f4sjxa\f1 is recognized the sjx protocol.
+The default setting is \f4True\f1.
+.TP
+\f4kanaMode\f1 (class \f4KanaMode\f1)
+If this resource is set to \f4True\f1,
+the \f4sjxa\f1 reads the resource for the kana-input.
+The default setting is \f4False\f1.
+.TP
+\f4wrapToSelect\f1 (class \f4WrapToSelect\f1)
+Specifies the number of conversions to allow 
+before a list of phrase candidates is displayed. 
+The default is 3.
+.TP
+\f4initialMode\f1 (class \f4InitialMode\f1)
+Specifies the initial input mode when conversion starts. 
+The available mode settings are as follows: 
+\f4ZenkakuHiragana\f1, \f4ZenkakuKatakana\f1, 
+\f4HankakuKatakana\f1, \f4ZenkakuAlpha\f1 and \f4HankakuAlpha\f1.
+The default is \f4ZenkakuHiragana\f1. If \f4-kana\f1 option is specified
+or \f4kanaMode\f1 resource is set to \f4True\f1, this resource is set to
+\f4ZenkakuAlpha\f1.
+.TP
+\f4defaultCode\f1 (class \f4DefaultCode\f1)
+Specifies the initial input code in code input status. 
+The available code settings are as follows:
+\f4SJIS\f1, \f4EUC\f1, \f4JIS\f1 and \f4KUTEN\f1.
+The default is \f4SJIS\f1.
+.TP
+\f4visibleHorizontalItemCount\f1 (class \f4VisibleItemCount\f1)
+Specifies the rows of conversion candidates for over-the-spot conversion.
+The default is 5.
+.TP
+\f4visibleVerticalItemCount\f1 (class \f4VisibleItemCount\f1)
+Specifies the columns of conversion candidates for over-the-spot conversion.
+The default is 5.
+
+.SH KEY BINDINGS
+Key bindings for \f4sjxa\f1 are specified by the translations 
+contained in resource files.
+.LP
+The actions that can be specified in the \f4sjxaAcceleratos\f1 resouce
+are as follows.
+.SP
+.TS
+center box tab(&);
+cb | cb
+- -
+l | l.
+Action          & Function
+add-term        & Add term to user dictionary
+alphanumeric    & Change to alphanumeric character
+cancel          & Cancel
+code-input      & Input code
+commit          & Decide
+conversion      & Kana-kanji conversion
+delete          & Delete the character preceding the cursor
+delete-term     & Delete term recorded in user dictionary
+divided-delete  & Divide character preceding the cursor into Roman letters and delete
+down            & Move cursor to next line
+edit            & Reedit conversion character string phrase
+em-alphanumeric & Change to full-width alphanumeric characters
+em-hiragana     & Change to full-width hiragana characters
+em-katakana     & Change to full-width katakana characters
+en-alphanumeric & Change to half-width alphanumeric characters
+en-katakana     & Change to half-width katakana characters
+end             & Move cursor to end of character string
+expand          & Expand length of conversion character string
+hankaku         & Change to half-width characters
+hiragana        & Change to hiragana characters
+initial-mode    & Change to input mode that specified \f4initialMode\f1 resource
+inkey           & Insert string
+input-mode-lock & Lock to input mode
+jisx0208        & Input kanji code from table
+jisx0212        & Input supplimentary kanji code from table
+katakana        & Change to katakana characters
+next            & Move cursor to next character
+no-conversion   & Change to no-conversion status
+previous        & Move cursor to previous character
+reconnect       & sj3serv change
+reconversion    & Reconvert
+reduce          & Reduce length of conversion character string
+scroll-down     & Display next group of character candidates
+scroll-up       & Display previous group of character candidates
+through         & Pass characters to application
+toggle          & Hiragana \(-> full-width katakana \(-> half-width katakana \(->
+                & full-width alphanumeric \(-> half-width alphanumeric \(-> hiragana \(-> ...
+top             & Move cursor to top of character string
+up              & Move cursor to previous line
+wrap-back       & Return to previous candidate
+zenkaku         & Change to full-width characters
+.TE
+
+By specifying arguments for actions, 
+the triggering of actions when specific \f4sjxa\f1 internal conditions 
+are valid can be limited. 
+\f4sjxa\f1 has 11 internal conditions.
+.SP
+.TS
+center box tab(&);
+cB | cB
+- -
+l | l.
+Condition    & Meaning
+INIT         & After conversion processing is activated and before kana input has been received
+INTERMEDIATE & After conversion processing is activated and kana input has being received
+CONVERSION   & Kana-kanji conversion
+CODE         & Code is input from a table
+WRAP         & Table of next conversion candidates is displayed at the phrase display position
+SELECT       & Table of conversion candidates is displayed
+ADD          & Word added to user dictionary
+DELETE       & Word deleted from user dictionary
+EDIT         & Reediting of phrase
+SERVER       & Setting of sj3serv hostname
+ERROR        & Error display
+.TE
+
+If no arguments are specified for an action, 
+it will be considered valid no matter what the internal condition. 
+The relationships between actions and internal conditions 
+are illustrated in the table below. 
+Internal conditions are identified by the first three letters 
+of their names. In cases where nothing is indicated, 
+settings are ignored even if they are made. 
+Items shown in the table in the format (\f2INTERNAL CONDITION\f1) 
+indicate that when the action in question is called, 
+the \f4sjxa\f1 internal condition changes to the condition shown 
+within parentheses. 
+Items shown in the table in the format [\f2INTERNAL CONDITION\f1] 
+indicate that in some cases the change in condition 
+can result in (*1) conversion end status or (*2) a return 
+to the preceding condition.
+The \f4delete-term\f1 action and the \f4reconnect\f1 action are
+not called when the condition of all clients is \f4INIT\f1 condition 
+or \f4INTERMEDIATE\f1.
+
+.TS
+center box tab(&);
+cbp8 | cbp8 sssssssssss
+cbp8 | cbp6 cbp6 cbp6 cbp6 cbp6 cbp6 cbp6 cbp6 cbp6 cbp6 cbp6
+
+lp8 | cp6 cp6 cp6 cp6 cp6 cp6 cp6 cp6 cp6 cp6 cp6.
+                & Internal condition
+Action          & INI & INT & CON & WRA & SEL & ADD & DEL & EDI & COD & SER & ERR
+add-term        &     &     &(ADD)&(ADD)&     &     &     &     &     &     &
+alphanumeric    &\(ci &\(ci &\(ci &(CON)&     &     &     &\(ci &     &     &
+cancel          &(*1) &(INI)&(INT)&(CON)&(CON)&(CON)&(*2) &(CON)&(*2) &(*2) &(*2)
+code-input      &\(ci &\(ci &     &     &     &     &     &\(ci &     &
+commit          &     &(INI)&(INI)&(INI)&(CON)&(CON)&[*2] &(CON)&\(ci &(*2) &(*2)
+connect         &     &     &     &     &     &     &     &     &     &     &
+conversion      &     &(CON)&(WRA)&[SEL]&\(ci &     &     &(WRA)&     &     &
+delete          &     &[INI]&     &     &     &\(ci &     &\(ci &\(ci &\(ci &
+delete-term     &     &     &(DEL)&(DEL)&     &     &     &     &     &     &
+disconnect      &(*1) &(*1) &(*1) &(*1) &(*1) &(*1) &(*1) &(*1) &(*1) &(*1) &(*1)
+divided-delete  &     &[INI]&     &     &     &\(ci &     &\(ci &\(ci &\(ci &
+down            &     &     &     &     &\(ci &     &\(ci &     &\(ci &     &
+edit            &     &     &(EDI)&(EDI)&     &     &     &     &     &     &
+em-alphanumeric &\(ci &\(ci &\(ci &(CON)&     &     &     &\(ci &     &     &
+em-hiragana     &\(ci &\(ci &\(ci &(CON)&     &     &     &\(ci &     &     &
+em-katakana     &\(ci &\(ci &\(ci &(CON)&     &     &     &\(ci &     &     &
+en-alphanumeric &\(ci &\(ci &\(ci &(CON)&     &     &     &\(ci &     &     &
+en-katakana     &\(ci &\(ci &\(ci &(CON)&     &     &     &\(ci &     &     &
+end             &     &\(ci &\(ci &(CON)&\(ci &\(ci &\(ci &\(ci &\(ci &\(ci &
+expand          &     &     &(WRA)&\(ci &     &\(ci &     &     &     &     &
+hankaku         &\(ci &\(ci &\(ci &(CON)&     &     &     &\(ci &     &     &
+hiragana        &\(ci &\(ci &\(ci &(CON)&     &     &     &\(ci &     &     &
+initial-mode    &\(ci &\(ci &     &     &     &     &     &\(ci &     &     &
+inkey           &(INT)&\(ci &(INI)&(INI)&\(ci &\(ci &     &\(ci &     &\(ci &
+input-mode-lock &\(ci &\(ci &     &     &     &     &     &     &     &     &
+jisx0208        &(COD)&(COD)&     &     &     &     &     &(COD)&     &     &
+jisx0212        &(COD)&(COD)&     &     &     &     &     &(COD)&     &     &
+katakana        &\(ci &\(ci &\(ci &(CON)&     &     &     &\(ci &     &     &
+next            &     &\(ci &\(ci &\(ci &\(ci &\(ci &\(ci &\(ci &\(ci &\(ci &
+no-conversion   &     &\(ci &\(ci &(CON)&     &     &     &     &     &     &
+previous        &     &\(ci &\(ci &\(ci &\(ci &\(ci &\(ci &\(ci &\(ci &\(ci &
+reconnect       &(SER)&(SER)&     &     &     &     &     &     &     &     &
+reconversion    &(INT)&\(ci &     &     &     &     &     &     &     &     &
+reduce          &     &     &(WRA)&\(ci &     &\(ci &     &     &     &     &
+scroll-down     &     &     &     &     &\(ci &     &\(ci &     &\(ci &     &
+scroll-up       &     &     &     &     &\(ci &     &\(ci &     &\(ci &     &
+through         &\(ci &     &     &     &     &     &     &     &     &     &
+toggle          &\(ci &\(ci &\(ci &(CON)&     &     &     &\(ci &     &     &
+top             &     &\(ci &\(ci &\(ci &\(ci &\(ci &\(ci &\(ci &\(ci &\(ci &
+up              &     &     &     &     &\(ci &     &\(ci &     &\(ci &     &
+wrap-back       &     &     &\(ci &\(ci &\(ci &     &     &     &     &     &
+zenkaku         &\(ci &\(ci &\(ci &(CON)&     &     &     &\(ci &     &     &
+.TE
+
+.SH DEFAULT KEY BINDINGS
+.TS
+center box tab(&);
+cb | cb
+- -
+l | l.
+Function | key
+conversion bigin/end & [Shift]+[Kanji], [Ctrl]+[\]
+string commit and conversion end & [Esc]
+kana-kanji conversion & [Kanji], [space]
+no conversion & [Mukenkan]
+term add & [F1]
+term delete & [F2]
+edit after conversion & [F3]
+kanji input & [F4]
+supplementary kanji & [F5]
+half-width alphabet & [F6]
+full-width alphabet & [F7]
+half-width kana & [F8]
+full-width kana & [F9]
+full-width hiragana & [F10]
+commit string & [Return], [Enter]
+right & [->], [Ctrl]+[f], [l]
+left & [<-], [Ctrl]+[b], [h]
+up & [up allow], [Ctrl]+[p], [k]
+down & [down allow], [Ctrl]+[n], [j]
+page up & [PageUp], [Alt]+[up allow], [Alt]+[z]
+page down & [PageDown], [Alt]+[down allow], [Ctrl]+[z]
+delete charactor & [Bs], [Del], [Ctrl]+[h]
+expand syllable & [up allow], [Ctrl]+[o]
+reduce syllable & [down allow], [Ctrl]+[i]
+re-conversion & [Ctrl]+[y]
+cancel & [Esc], [Ctrl]+[g]
+change sj3serv & [F11], [Ctrl]+[F1]
+space input & [Shift]+[space]
+.TE
+
+.SH ENVIRONMENT VARIABLES
+.TP 15
+\f4SJ3SERV
+Contains the hostname of the server to be connected to.
+.TP 15
+\f4SJXARK
+Contains the name of the directory containing 
+the alphabet-kana conversion rule definition file.
+.SH FILES
+.PD 0
+.TP 15
+$LIBDIR/sjxa/sjxark
+Default alphabet-kana conversion rule definition file
+.TP
+$HOME/.sjxark
+.TP
+$HOME/$LANG/.sjxark
+.TP
+$SJXARK/.sjxark
+User-defined alphabet-kana conversion rule definition files
+.TP
+$LIBDIR/$LANG/app-defaults/Sjxa
+Resource files
+
+.SH SEE ALSO
+\f4sj3serv\f1 (1),
+\f4sj3lib\f1 (3),
+\f4X\f1 (1)
+
+.SH COPYRIGHT
+Copyright (c)
+.SO year "1993-1994"
+Sony Corporation
+
+.SH AUTHOR
+Makoto Wakamatsu
+Sony Corporation.

@@ -1,0 +1,15 @@
+XCOMM Imakefile for xlax
+XCOMM
+XCOMM Take out the comment lines below for debugging
+
+XCOMM   EXTRA_LOAD_FLAGS = -Bstatic
+XCOMM        CDEBUGFLAGS = -g
+XCOMM            DEFINES = -DDEBUG
+            DEPLIBS = XawClientDepLibs
+    LOCAL_LIBRARIES = XawClientLibs
+               SRCS = xlax.c
+               OBJS = xlax.o
+
+ComplexProgramTarget(xlax)
+
+

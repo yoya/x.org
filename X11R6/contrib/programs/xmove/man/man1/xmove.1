@@ -1,0 +1,199 @@
+.\" @(#)xmove.1	1.2 04 Feb 1994
+.TH xmove 1 "11 Aug 1993"
+.SH NAME
+xmove \- pseudoserver to support mobile X11 clients
+.SH SYNOPSIS
+.B xmove 
+[
+.B -server 
+.I server_name:port
+] [
+.B -port 
+.I listen_port
+]
+
+.SH DESCRIPTION
+.I xmove
+starts a pseudoserver which allows X11 clients to
+be relocated from one display to another. Upon startup it will
+create a listening port from which it accepts new client
+connections. All such clients will be displayed on the default
+server until moved elsewhere. Several clients may connect through
+a single 
+.I xmove,
+thus requiring only one per machine.
+.PP
+.I xmove
+will assume logical default values for both the
+default listening port and the default server. Take as an
+example a typical machine named \fIchestnut\fP, with a standard X11 server
+named \fIchestnut:0\fP.
+.PP
+The default listening port is 1. In our example, this
+would mean clients should be sent to \fIchestnut:1\fP instead of
+\fIchestnut:0\fP if you wish them to be run through 
+.I xmove.
+.PP
+The default server is obtained from the environment
+variable \fBDISPLAY\fP, which would normally be set to \fIchestnut:0\fP, as
+in our example. This server is the display to which all new
+connections will be initially sent, and this default cannot be
+changed once 
+.I xmove
+is started.
+.PP
+.SH TYPICAL USAGE
+Assuming that the environment variable \fBDISPLAY\fP contains
+the name of your default server, no options need to be set. 
+.PP
+.I xmove
+will listen for new connections at localhost:1, where localhost
+is the machine on which 
+.I xmove
+is being run.
+.PP
+.I xmove
+displays messages to stdout and stderr as it runs,
+including information when a client is moved and whenever the X11
+server sends an error to a client.
+.PP
+To manipulate clients running on an 
+.I xmove,
+see 
+.I xmovectrl.
+
+.SH SECURITY
+
+.I xmove
+supports both host-level security, implemented with
+.I xhost,
+and
+.I MIT-MAGIC-COOKIE-1,
+implemented with
+.I xauth.
+A new client will only be permitted access through
+.I xmove
+if it could have been started on the default server directly.
+A client can be moved to a new server if that new server
+either permits
+.I xmove's
+host via
+.I xhost,
+or if the user moving the client has the proper cookie entry
+via
+.I xauth.
+.SH OPTIONS
+.TP
+.I -server
+Use the specified server as the default server
+to which all clients are to be displayed.
+.TP
+.I -port
+Use the specified port as the default port through
+which all clients should connect to 
+.I xmove.
+Users must specify a display of \fIlocalhost:n\fP, where \fIlocalhost\fP is
+the name of the machine on which
+.I xmove
+was executed, and n is the specified port.
+The port must be a number from 1 to 9.
+
+.SH "MULTI-HEADED DISPLAYS"
+.I xmove
+supports displays that have multiple screens. When moving a
+client it is possible to specify the screen on the destination
+machine. When starting a client through an
+.I xmove
+with a multi-headed default server, it is possible to specify the
+screen on which the client should appear, so long as both screens
+have the same characteristics (ie. both 1-bit, both 8-bit color,
+etc.) If the screens are different, it is necessary to start the
+client on screen 0 and then move to the desired screen.
+
+.SH "X TERMINALS"
+	In order to use
+.I xmove
+with an X terminal you can run
+.I xmove
+on another workstation, and specify the X terminal as the default
+server. If multiple people wish to run xmove on the same
+workstation for multiple X terminals, each xmove must have its
+own listening port.
+
+.SH "ENVIRONMENT"
+.PP
+The environment variable
+.I XMOVE_ATOMMAP_LIBPATH
+can be set to the directory where
+.I xmove's
+support libraries are located. This will override the directory
+set at compile time.
+
+.SH "SEE ALSO"
+.BR xmovectrl (1), 
+.BR X11 (7),
+.BR xhost (1),
+
+.SH BUGS
+This is a new and fairly untested product. Without
+attempting to frighten off potential users, it is recommended
+that all applications intended to be used with 
+.I xmove
+first be tested in an 
+.I xmove
+environment. This includes attempting to move
+the application to a new server.
+.PP
+.I xmove
+does not work in all environments nor with all
+programs. Although xmove does support moving clients between
+displays with different characteristics, there are limitations.
+Most notably, a client started on a 1-bit black-and-white display
+can only be moved to other 1-bit displays. Additionally, clients
+can only be started on a default server which is either 1-bit, or
+color, excepting 24-bit color.
+.PP
+.I xmove
+requires font compatibility between displays. Thus, if your
+client makes use of a certain font, that font must be available
+on all displays to which your client is moved.
+.PP
+Questions regarding
+.I xmove,
+its capabilities, limitations and future possibilities may be sent to
+that email address, or posted to comp.windows.x.
+.PP
+Bug reports and other problems may be sent to ethan@cs.columbia.edu.
+
+.SH NOTES
+Always remember that not all of your applications need to
+use 
+.I xmove.
+If some of your clients prove incompatible with 
+.I xmove,
+simply run them directly to the desired server.
+.PP
+It may sometimes be necessary to refresh your display
+after moving a new client onto it. This is provided as a standard
+option by most window managers via a menu option.
+
+.SH AUTHORS
+Ethan Solomita, Columbia University
+.PP
+Peter Skopp, Columbia University
+.PP
+Ari Shamash, Columbia University
+.PP
+This work was supported by Professor Dan Duchamp of
+Columbia University and by Dick Sillman and Jim Kempf of Sun
+Microsystems, Inc.
+.PP
+.I xmove
+is based upon
+.I xmon,
+which was written by Greg McFarlane, OTC, Australia.
+.PP
+.I xmon
+was based upon
+.I xscope,
+written by James L. Peterson, MCC.

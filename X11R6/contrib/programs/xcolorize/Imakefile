@@ -1,0 +1,13 @@
+XCOMM $Id: Imakefile,v 6.1 94/05/25 13:53:38 dd Exp $
+
+PROGRAM = xcolorize
+
+all::
+
+InstallNamedProg($(PROGRAM).sh,$(PROGRAM),$(BINDIR))
+InstallManPage($(PROGRAM),$(MANDIR))
+
+clean::
+	$(RM) $(PROGRAM)
+
+depend::

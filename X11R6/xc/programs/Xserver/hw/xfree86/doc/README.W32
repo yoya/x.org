@@ -1,0 +1,135 @@
+  Information for W32 Chipset Users
+  Glenn G. Lai glenn@cs.utexas.edu
+  24 October 1994
+
+  1.  Information for W32 Chipset Users
+
+  XF86_W32 is basically XF86_SVGA with the drawing code completely
+  replaced with one based on X11R6's mi/cfb code and modified for the
+  ET4000/W32 series.  Even though it accepts the same keywords as
+  XF86_SVGA, those not applicable to the ET4000/W32 series are silently
+  ignored; e.g., the keyword "SpeedUp" is a no-op.  The server currently
+  supports the w32, w32i, and w32p chips.  For a complete list, see the
+  sign-on message printed by XF86_W32.  The server supports only 8bpp
+  operation at present.
+
+  Just as with XF86_SVGA, you can specify a virtual world that has a
+  width that is a multiple of four.  The size of the virtual world is
+  constrained by the amount of the available video RAM.  XF86_W32 can
+  use more than 1 M of video RAM, but it reserves 1 K for internal use.
+  If you have 1 M, XF86_W32 will say you have 1023 K, and you get to
+  specify the virtual world as 1152x900, but not 1152x910.
+
+  The current maximum clock is set to 86 MHz, because this is what the
+  Tseng databooks say.
+
+  If you have problems with the server.  Try the following things:
+
+     o  Take out the Hercules monochrome adapter, if you have one.  Many
+        configurations of the ET4000/W32 series do not allow one in the
+        system.
+
+     o  Get a motherboard with its local bus running at 33 MHz.  Many,
+        if not all, ET4000/W32 boards will surely behave in a funny way
+        on a 50-MHz bus.  You may have to use a wait state or two, but
+        first try without any.
+
+  Note that the built-in power saver (for a "green" monitor) has not
+  been tested.  Also do not expect it to work on a board without a
+  w32p_rev_c or later chip.
+
+
+  2.  Acknowledgments
+
+  Jerry J. Shekhel (jerry@msi.com) gave me the 1-M Mirage ET4000/W32 VLB
+  board on which the initial development (X_W32) was done.
+
+  X11R6 and the XFree86 Project provide the base code for XF86_W32.
+
+  Hercules Computer Technology Inc. lent me a 2-M Hercules Dynamite Pro
+  VLB board for the development that led to XF86_W32.
+
+  Numerous testers have given me feedback for X_W32 and later XF86_W32.
+  I apologize for my failure to keep track of the people who tested
+  X_W32, but the names of the people involved with the XF86_W32 testing
+  are listed below:
+
+     Linux:
+        bf11620@coewl.cen.uiuc.edu (Byron Thomas Faber)
+
+        dlj0@chern.math.lehigh.edu (David Johnson)
+
+        peterc@a3.ph.man.ac.uk (Peter Chang)
+
+        dmm0t@rincewind.mech.virginia.edu (David Meyer)
+
+        nrh@philabs.Philips.COM (Nikolaus R. Haus)
+        jdooley@dbp.caltech.edu (James Dooley)
+
+        thumper@hitchcock.eng.uiowa.edu (Timothy Paul Schlie)
+
+        klatta@pkdla5.syntex.com (Ken Latta)
+
+        robinson@cnj.digex.net (Andrew Robinson)
+
+        reggie@phys.washington.edu (Reginald S. Perry)
+
+        sjm@cs.tut.fi (M{kinen Sami J)
+
+        engel@yacc.central.de (C. Engelmann) use cengelm@gwdg.de
+
+        postgate@cafe.net (Richard Postgate)
+
+        are1@cec.wustl.edu (Andy Ellsworth)
+
+        bill@celtech.com (Bill Foster)
+
+      FreeBSD:
+        ljo@ljo-slip.DIALIN.CWRU.Edu (L Jonas Olsson)
+
+
+  Generated from XFree86: xc/programs/Xserver/hw/xfree86/doc/sgml/W32.sgml,v 3.2 1995/01/20 05:21:46 dawes Exp $
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+$XFree86: xc/programs/Xserver/hw/xfree86/doc/README.W32,v 3.7 1995/01/20 06:21:56 dawes Exp $
+$XConsortium: README.W32,v 1.7 95/01/23 15:34:32 kaleb Exp $

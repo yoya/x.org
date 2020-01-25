@@ -1,0 +1,11 @@
+box /usr/spool/mail/wfp5p
+title Sometitle
+command Somecommand
+audio	Somestring
+mailbox | newsbox
+origMode | newMode
+beep | nobeep
+shortname | longname 
+headertime 10
+polltime 30
+

@@ -1,0 +1,33 @@
+#  xmandel - Mandelbrot set and Julia set tool
+#
+#    Copyright (c) 1994 Cray Research Inc.
+# 
+# The X Consortium, and any party obtaining a copy of these files from
+# the X Consortium, directly or indirectly, is granted, free of charge, a
+# full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+# nonexclusive right and license to deal in this software and
+# documentation files (the "Software"), including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons who receive
+# copies from any such party to do so.  This license includes without
+# limitation a license to do the foregoing actions under any patents of
+# the party supplying this software to the X Consortium.
+# 
+# 
+# THE SOFTWARE IS PROVIDED "AS IS". EXCEPT AS EXPRESSLY PROVIDED IN
+# THE CONTRIBUTION LETTER, ALL WARRANTIES WITH RESPECT TO THE SOFTWARE
+# ARE, EXPRESS OR IMPLIED, ARE HEREBY DISCLAIMED AND EXCLUDED, INCLUDING
+# WITHOUT LIMITATION ANY WARRANTY OF MERCHANTABILITY, FITNESS FOR A 
+# PARTICULAR PURPOSE OR USE, OR FREEDOM FROM INFRINGEMENT OR VIOLATION
+# OF THIRD PARTY INTELLECTUAL PROPERTY RIGHTS, AND ALL OBLIGATIONS
+# OR LIABILITIES FOR DAMAGES ARISING OUT OF OR IN CONNECTION WITH THE
+# PERFORMANCE OF, OR THE USE OF THE SOFTWARE.
+#
+# 
+#  author: John L Freeman (jlf@cray.com)
+#
+LOCAL_LIBRARIES = $(XAWLIB) $(XTOOLLIB) $(XMULIB) $(XLIB) 
+           SRCS = xmandel.c mandel.c julia.c
+           OBJS = xmandel.o mandel.o julia.o
+
+ComplexProgramTarget(xmandel)

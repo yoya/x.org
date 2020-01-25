@@ -1,0 +1,9 @@
+XCOMM $XConsortium: Imakefile,v 1.8 92/09/14 18:53:12 rws Exp $
+#if PatheticCpp
+        CPPDEFS = -DPATHETICCPP
+#endif
+        DEFINES = -DCPP="\"$(CPP)\"" $(CPPDEFS)
+        DEPLIBS = $(DEPXMULIB) $(DEPXLIB)
+LOCAL_LIBRARIES = $(XMULIB) $(XLIB)
+
+SimpleProgramTarget(xrdb)

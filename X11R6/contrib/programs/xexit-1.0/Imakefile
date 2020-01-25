@@ -1,0 +1,21 @@
+XCOMM $Id: Imakefile,v 1.1.1.1 1994/05/29 00:47:23 stumpf Exp $
+
+          SRCS = xexit.c delete.c
+          OBJS = xexit.o delete.o
+      BITMAPS1 = ./bitmaps/ExitSess.xbm \
+                 ./bitmaps/HaveSess.xbm
+      BITMAPS2 = ./bitmaps/haegar/ExitSess.xbm \
+                 ./bitmaps/haegar/HaveSess.xbm
+
+        DEPLIBS = XawClientDepLibs
+LOCAL_LIBRARIES = XawClientLibs
+    CDEBUGFLAGS = -g   /* -DTESTIT */
+
+ComplexProgramTarget(xexit)
+InstallAppDefaults(Xexit)
+
+/*
+ * if you would like to install the more "image-like" bitmaps instead of
+ * the "iconic-like" ones change BITMAPS1 to BITMAPS2 in the below line
+ */
+InstallMultipleDestFlags(install,$(BITMAPS1),$(INCDIR)/bitmaps,$(INSTINCFLAGS))

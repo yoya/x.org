@@ -1,0 +1,12 @@
+#!/bin/cat
+#
+#	File: monochrome.xcms
+#
+#	Christopher Alexander North-Keys
+#	Group Talisman
+#	Mon Jul  5 06:31:38 CDT 1993
+
+black					rgbi:0.0/0.0/0.0
+white					rgbi:1.0/1.0/1.0
+
+#----------------------eof

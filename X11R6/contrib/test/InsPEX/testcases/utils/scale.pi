@@ -1,0 +1,105 @@
+/* $XConsortium: scale.pi,v 5.2 94/04/17 20:47:06 rws Exp $ */
+
+/*****************************************************************
+
+Copyright (c) 1989, 1990, 1991,1990  X Consortium
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Except as contained in this notice, the name of the X Consortium shall not be
+used in advertising or otherwise to promote the sale, use or other dealings
+in this Software without prior written authorization from the X Consortium.
+
+Copyright (c) 1989, 1990, 1991,1990 by Sun Microsystems, Inc.
+
+                        All Rights Reserved
+
+Permission to use, copy, modify, and distribute this software and its 
+documentation for any purpose and without fee is hereby granted, 
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in 
+supporting documentation, and that the names of Sun Microsystems,
+and the X Consortium, not be used in advertising or publicity 
+pertaining to distribution of the software without specific, written 
+prior permission.  
+
+SUN MICROSYSTEMS DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, 
+INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT 
+SHALL SUN MICROSYSTEMS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL 
+DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
+SOFTWARE.
+
+******************************************************************/
+
+
+## scale.pi -
+## Test matrix utility functions pscale, pscale3
+## Test using different scaling vectors: <1,1,>1 in x,y,z directions
+## The resulting matrix from the utility is compared to the matrix 
+## from the same operation performed in the test code.
+
+source macro.pi
+tbegintest("scale","scale utilities");
+
+# SETUP: open phigs
+i_open_phigs(NULL,PDEF_MEM_SIZE);
+
+foreach @x @y @z (
+	1.0;1.0;1.0;
+	0.5; 0.25;0.35;
+	2.0;2.5;3.0;
+	)
+
+        # INITIALIZE: 2D scale vector
+	pt = I_Pvec(@x,@y);
+	err = i_bogus_error();
+
+        # OPERATION: pscale
+	pscale(&pt,&err,mtx1);
+	im_ifneq(err,0,"ERROR: %d in pscale",err);
+
+        # VERIFICATION: verify the resulting 2D mtx
+	i_scale(pt,mtx2);
+	status  = i_compare_Pmatrix(mtx1,mtx2);
+	if (status != 1)
+		tvprintf(1,"scale vector = (%.2f,%.2f)\n",@x,@y);
+		tfprintf("failed: pscale, resulting mtx != expected\n");
+	endif
+
+	# testing pscale3
+
+        # INITIALIZE: 3D scale vector
+	pt3 = I_Pvec3(@x,@y,@z);
+
+        # OPERATION: pscale3
+	err = i_bogus_error();
+	pscale3(&pt3,&err,mtx31);
+	im_ifneq(err,0,"ERROR: %d in pscale3",err);
+
+        # VERIFICATION: verify the resulting 3D mtx
+	i_scale3(pt3,mtx32);
+	status =  i_compare_Pmatrix3(mtx31,mtx32);
+	if (status != 1)
+		tvprintf(1,"scale vector = (%.2f,%.2f,@.2f)\n",@x,@y,@z);
+		tfprintf("failed: pscale3, resulting mtx != expected\n");
+	endif
+end
+
+tendtest();

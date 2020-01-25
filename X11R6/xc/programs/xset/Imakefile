@@ -1,0 +1,6 @@
+XCOMM $XConsortium: Imakefile,v 1.7 91/12/20 11:29:16 rws Exp $
+        DEFINES = ExtensionDefines
+        DEPLIBS = $(DEPXMULIB) $(DEPXLIB)
+LOCAL_LIBRARIES = $(XMULIB) $(XLIB)
+
+SimpleProgramTarget(xset)

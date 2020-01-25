@@ -1,0 +1,24 @@
+      SYS_LIBRARIES = MathLibrary
+
+            DEFINES =
+
+               SRCS = \
+                      LibTest.c \
+                      TestInit.c \
+                      TekCMSutil.c \
+                      TekCMSglob.c \
+                      TekCMS_LT.c \
+                      TekCMS_TCI.c
+               
+               OBJS = \
+                      LibTest.o \
+                      TestInit.o \
+                      TekCMSutil.o \
+                      TekCMSglob.o \
+                      TekCMS_LT.o \
+                      TekCMS_TCI.o
+
+    LOCAL_LIBRARIES = $(XLIB)
+            DEPLIBS = $(DEPXLIB)
+
+ComplexProgramTarget(xcmstest)

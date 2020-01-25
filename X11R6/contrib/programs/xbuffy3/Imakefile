@@ -1,0 +1,67 @@
+XCOMM Imakefile for xbuffy 3.0
+
+XCOMM If you want to use the NNTP features uncomment the following line
+XCOMM #define NNTP
+
+XCOMM
+XCOMM if you system doesn't have strdup(), uncomment this define
+XCOMM #define NEED_STRDUP
+
+XCOMM if you want to enable the NNTP stuff, uncomment this define
+XCOMM #define NNTP
+
+XCOMM uncomment this if your compiler is choking on the ANSI style stuff of if you 
+XCOMM just want to use gcc
+XCOMM CC = gcc 
+
+XCOMM Uncomment this line for AIX (or if you need/want to set anything special
+XCOMM CC=cc
+
+#define IHaveSubdirs
+#define PassCDebugFlags CDEBUGFLAGS="$(CDEBUGFLAGS)"
+
+SUBDIRS = libdyn
+
+DOC = README xbuffy.man boxfile.fmt boxfile.sample
+DEFAULTS = XBuffy.ad
+
+LOCAL_LIBRARIES = XawClientLibs libdyn/libdyn.a -lm
+        DEPLIBS = XawClientDepLibs libdyn/libdyn.a
+
+
+#ifdef NEED_STRDUP
+EXTRA_SRCS = strdup.c
+EXTRA_OBJS = strdup.o
+#else
+EXTRA_SRCS = 
+EXTRA_OBJS =
+#endif
+
+#ifndef NNTP
+
+SRCS = xbuffy.c boxfile.c realfrom.c getword.c len_next.c move_left.c strincmp.c \
+       remfirstwd.c header_cmp.c $(EXTRA_SRCS)
+OBJS = xbuffy.o boxfile.o realfrom.o getword.o len_next.o move_left.o strincmp.o \
+       remfirstwd.o header_cmp.o $(EXTRA_OBJS)
+
+HDRS = xbuffy.h xbuffy.xbm 
+
+#else
+
+STD_DEFINES = -DNNTP
+
+SRCS = xbuffy.c boxfile.c nntp.c realfrom.c getword.c len_next.c move_left.c \
+       strincmp.c remfirstwd.c header_cmp.c $(EXTRA_SRCS)
+OBJS = xbuffy.o boxfile.o nntp.o realfrom.o getword.o len_next.o move_left.o \
+       strincmp.o remfirstwd.o header_cmp.o $(EXTRA_OBJS)
+
+HDRS = xbuffy.h xbuffy.xbm
+
+
+#endif /* NNTP */
+
+MakeSubdirs($(SUBDIRS))
+DependSubdirs($(SUBDIRS))
+ComplexProgramTarget(xbuffy)
+InstallAppDefaults(XBuffy)
+CleanSubdirs(libdyn)

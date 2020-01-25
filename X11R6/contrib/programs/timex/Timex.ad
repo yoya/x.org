@@ -1,0 +1,116 @@
+! TIMEX defaults
+! All questions: Harald Tveit Alvestrand <harald.t.alvestrand@delab.sintef.no>
+!
+!     Copyright (c) 1994 Harald T. Alvestrand
+!
+!     The X Consortium, and any party obtaining a copy of these files from
+!     the X Consortium, directly or indirectly, is granted, free of charge, a
+!     full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+!     nonexclusive right and license to deal in this software and
+!     documentation files (the "Software"), including without limitation the
+!     rights to use, copy, modify, merge, publish, distribute, sublicense,
+!     and/or sell copies of the Software, and to permit persons who receive
+!     copies from any such party to do so.  This license includes without
+!     limitation a license to do the foregoing actions under any patents of
+!     the party supplying this software to the X Consortium.
+!
+! Application-level resources
+Timex.appDefaultsLoaded: true
+! Always have a project icon name
+*projectIconName: true
+! use a short, but present prefix to avoid jumping because of twm sorting
+*iconPrefix: T
+!=== ALTERING STUFF BELOW THIS LINE MAY CAUSE TIMEX TO BEHAVE STRANGELY ====
+! If you have trouble, delete all your private settings and go back to
+! this file's settings.
+!
+! General ideas:
+! Labels don't have borders.
+*Label.borderWidth: 0
+! Most things are left-chained
+*right: ChainLeft
+*top: ChainTop
+*bottom: ChainTop
+! Forms should look a bit "tight"
+*form.defaultDistance: 2
+! There is something about resizing I don't understand - try general allow
+*allowShellResize: true
+*resizable: true
+! Specific items
+*form.total.resizable: true
+*form.command.orientation: horizontal
+*form.command.plus.label: +
+*form.command.minus.label: -
+*form.command.addproject.label: add
+! Command definitions
+*form.command.quit.translations: #override\n <Btn1Down>,<Btn1Up>: quit()
+*form.command.plus.translations: #override\n <Btn1Down>,<Btn1Up>: increment(5)
+*form.command.minus.translations: #override\n <Btn1Down>,<Btn1Up>: decrement(5)
+*form.command.save.translations: #override\n <Btn1Down>,<Btn1Up>: save()
+*form.command.load.translations: #override\n <Btn1Down>,<Btn1Up>: load()
+*form.command.pause.translations: #override\n <Btn1Down>,<Btn1Up>: pause()
+*form.command.add.translations: #override\n <Btn1Down>,<Btn1Up>: add()
+*form.command.edit.translations: #override\n <Btn1Down>,<Btn1Up>: edit()
+*form.date.horizDistance: 2
+*form.date.vertDistance: 0
+! Allow vertical resizes of the viewport
+*form.viewport.allowVert: true
+! Some things must be resizable
+*form.viewport*bottom: ChainBottom
+*form.viewport.right: ChainRight
+*form.viewport.form.names.right: ChainRight
+*form.viewport.top: ChainTop
+*form.viewport.form.times.defaultColumns: 1
+*form.viewport.form.names.defaultColumns: 1
+*form.viewport.form.names.resizable: true
+*form.viewport.form.times.resizable: true
+*form.viewport.form.List.translations: #override\n\
+    <Btn2Down>,<Btn2Up>: Set() Notify() edit()
+! For some reason, the following makes the box crash the bottom line
+! when a project is added. - without it, it creates a scrollbar, which is OK
+! *form.viewport.resizable: true
+! The popup widgets' attributes
+*addpopup.dialog.label: Project to add
+*addpopup.dialog.value.resizable: true
+*addpopup.dialog.value.resize: width
+*addpopup.dialog.value.translations: #override\n\
+    <Key>Return: addok() \n\
+    <Key>Linefeed: addok() \n\
+    <Key>Escape: addcancel()
+*addpopup.dialog.done.label: OK
+*addpopup.dialog.cancel.label: Cancel
+*addpopup.allowShellResize: true
+*addpopup.dialog.done.translations: #override\n\
+     <Btn1Down>,<Btn1Up>: addok()
+*addpopup.dialog.cancel.translations: #override\n\
+     <Btn1Down>,<Btn1Up>: addcancel()
+! The edit box
+*editpopup.dialog.label: Project to edit
+*editpopup.dialog.value.translations: #override\n\
+    <Key>Return: editok() \n\
+    <Key>Linefeed: editok() \n\
+    <Key>Escape: editcancel()
+*editpopup.dialog.done.label: OK
+*editpopup.dialog.cancel.label: Cancel
+*editpopup.allowShellResize: true
+*editpopup.dialog.done.translations: #override\n\
+     <Btn1Down>,<Btn1Up>: editok()
+*editpopup.dialog.cancel.translations: #override\n\
+     <Btn1Down>,<Btn1Up>: editcancel()
+*editpopup.dialog.plus.translations: #override\n\
+     <Btn1Down>,<Btn1Up>: editincrement(5)
+*editpopup.dialog.minus.translations: #override\n\
+     <Btn1Down>,<Btn1Up>: editincrement(-5)
+*editpopup.dialog.delete.translations: #override\n\
+     <Btn1Down>,<Btn1Up>: editcancel() delete()
+! The scrollbar
+*editpopup.dialog.scrollbar.orientation: horizontal
+*editpopup.dialog.scrollbar.length: 240
+
+
+
+
+
+
+
+

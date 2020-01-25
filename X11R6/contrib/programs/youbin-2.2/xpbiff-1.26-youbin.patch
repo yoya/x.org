@@ -1,0 +1,645 @@
+diff -rc xpbiff-1.26/Imakefile xpbiff-1.26-youbin/Imakefile
+*** xpbiff-1.26/Imakefile	Wed Dec 16 09:21:46 1992
+--- xpbiff-1.26-youbin/Imakefile	Thu Sep 30 13:41:13 1993
+***************
+*** 27,32 ****
+--- 27,36 ----
+  #	For MH scan users.
+  #DEFINES = -DMHSCAN
+  
++ #       For YOUBIN
++ BINDIR = /usr/local/bin
++ DEFINES = -DYOUBIN -DBINDIR=\"$(BINDIR)\"
++ 
+         INCLUDES = -I$(TOP)/X11
+  LOCAL_LIBRARIES = $(XAWLIB) $(XMULIB) $(XTOOLLIB) $(XLIB)
+    SYS_LIBRARIES = -lm
+Only in xpbiff-1.26: Makefile
+diff -rc xpbiff-1.26/xpbiff.c xpbiff-1.26-youbin/xpbiff.c
+*** xpbiff-1.26/xpbiff.c	Wed Dec 16 09:21:47 1992
+--- xpbiff-1.26-youbin/xpbiff.c	Wed Sep 29 12:19:52 1993
+***************
+*** 70,76 ****
+  #include <X11/Label.h>
+  #include <X11/Command.h>
+  #include <X11/Cardinals.h>
+! tyoedef char* XtPointer;
+  #endif
+  
+  #include <X11/Xos.h>
+--- 70,76 ----
+  #include <X11/Label.h>
+  #include <X11/Command.h>
+  #include <X11/Cardinals.h>
+! typedef char* XtPointer;
+  #endif
+  
+  #include <X11/Xos.h>
+***************
+*** 84,89 ****
+--- 84,103 ----
+  #include <stdio.h>
+  #include <math.h>
+  
++ #ifdef YOUBIN
++ 
++ #ifdef SYSV
++ #include <string.h>                     /* For strchr(). */
++ #else /* not SYSV */
++ #include <strings.h>
++ #define strchr(x, y)        index((x), (y)) 
++ #define strrchr(x, y)       rindex((x), (y))
++ #endif /* not SYSV */
++ #include <ctype.h>			/* For isspace() */
++ #include <sys/param.h>
++ 
++ #endif /* YOUBIN */
++ 
+  #include "patchlevel.h"
+  #include "arrive.bitmap"
+  #include "no.bitmap"
+***************
+*** 97,102 ****
+--- 111,118 ----
+  #define	ROTATION	720
+  #endif
+   
++ #ifndef YOUBIN
++ 
+  #ifdef USG
+  #define SPOOLPATH	"/usr/mail/"
+  #else
+***************
+*** 103,119 ****
+  #define SPOOLPATH	"/usr/spool/mail/"
+  #endif
+  
+  XtCallbackProc  redraw_callback();
+  XtCallbackProc  BreakPopup();
+  XtCallbackProc  popup_again();
+- XtTimerCallbackProc Polling();
+- char           *GetMailHeader();
+  void            PopupMailHeader();
+  void            AnimateBiff();
+  
+  Widget          toplevel, biff, header, info_base, info, popdown_button;
+  
+  
+  /*
+   * widget tree:
+   * 
+--- 119,163 ----
+  #define SPOOLPATH	"/usr/spool/mail/"
+  #endif
+  
++ #else /* YOUBIN */
++ 
++ #define CHILD_PROGRAM_NAME	"youbin"
++ #define MESS_LEN            	256             /* Max message length. */
++ #define HEADER_LEN      	(MESS_LEN + (80 * (3 + 7)))
++ 
++ #ifndef EXIT_FAILURE
++ #define EXIT_FAILURE		1
++ #endif /* ! EXIT_FAILURE */
++ 
++ #ifndef BINDIR
++ #define	BINDIR			"."
++ #endif	/* !BINDIR */
++ 
++ #endif /* YOUBIN */
++ 
+  XtCallbackProc  redraw_callback();
+  XtCallbackProc  BreakPopup();
+  XtCallbackProc  popup_again();
+  void            PopupMailHeader();
+  void            AnimateBiff();
+  
+  Widget          toplevel, biff, header, info_base, info, popdown_button;
+  
++ #ifndef YOUBIN
+  
++ XtTimerCallbackProc Polling();
++ char           *GetMailHeader();
++ 
++ #else
++ 
++ void	        get_mail_header();
++ static void     read_from_child();
++ char            *prog_name;                     /* This program name. */
++ char            child_process[MAXPATHLEN + 1];
++ 
++ #endif /* YOUBIN */
++ 
++ 
+  /*
+   * widget tree:
+   * 
+***************
+*** 128,138 ****
+--- 172,186 ----
+  unsigned char   current_status;
+  unsigned char   showing_header = 0;
+  long            mail_size = 0;
++ #ifndef YOUBIN
+  XtIntervalId    polling_id;
++ #endif
+  
+  String          colors[4];
++ #ifndef YOUBIN
+  char            spool_path[100];
+  unsigned long   polling_time = 15000;	/* Default 15 second */
++ #endif
+  
+  Boolean		raise;
+  Boolean		stay_raised;
+***************
+*** 151,156 ****
+--- 199,209 ----
+  Boolean		mono;
+  String		popupGeometry;
+  Pixmap		noBitmap, arriveBitmap;
++ #ifdef YOUBIN
++ Boolean		use_pipe;
++ String		server;
++ Boolean		preserve;
++ #endif
+  
+  static XtResource	resources[] = {
+  {"arrivePixmap", "ArrivePixmap", XtRPixmap, sizeof(Pixmap),
+***************
+*** 181,186 ****
+--- 234,247 ----
+  	(Cardinal)&bell, XtRString, "true"},
+  {"popdown", "Popdown", XtRBoolean, sizeof(Boolean),
+  	(Cardinal)&popdown, XtRString, "true"},
++ #ifdef YOUBIN
++ {"pipe", "Pipe", XtRBoolean, sizeof(Boolean),
++ 	(Cardinal)&use_pipe, XtRString, "false"},
++ {"server", "Server", XtRString, sizeof(String),
++ 	(Cardinal)&server, XtRString, NULL},
++ {"preserve", "preserve", XtRBoolean, sizeof(Boolean),
++ 	(Cardinal)&preserve, XtRString, "true"},
++ #endif
+  };
+  
+  static Screen*	screen;
+***************
+*** 214,221 ****
+--- 275,301 ----
+  	int             i;
+  	int             count;
+  
++ #ifdef YOUBIN
++ 	FILE            *pfile;     /* For popen(). */
++ 	XtAppContext    app_con;
++ 	char            serv_name[MAXHOSTNAMELEN];
++ #else
+  	XtTimerCallbackProc Polling();
++ #endif /* !YOUBIN */
+  
++ #ifdef YOUBIN
++ 	if ((prog_name = strrchr(argv[0], '/')) != NULL) {
++ 	    prog_name++;
++ 	} else {
++ 	    prog_name = argv[0];
++ 	}
++ 
++ 	toplevel = XtAppInitialize(&app_con, "XPbiff", NULL, 0,
++ 				   &argc, argv, NULL, NULL, ZERO);
++ 	XtAppAddConverter(app_con, XtRString, XtRPixmap, XmuCvtStringToBitmap,
++ 			  convertArgs, XtNumber(convertArgs));
++ #else	/* !YOUBIN */
++ 
+  	strcpy(spool_path, SPOOLPATH);
+  #ifndef NO_CUSERID
+  	strcat(spool_path, cuserid(NULL));
+***************
+*** 224,233 ****
+  #endif
+  
+  	toplevel = XtInitialize("xpbiff", "XPbiff", NULL, 0, &argc, argv);
+  
+  	screen = XtScreen(toplevel);
+- 	XtAddConverter(XtRString, XtRPixmap, XmuCvtStringToBitmap,
+- 					convertArgs, XtNumber(convertArgs));
+  
+  	XtGetApplicationResources(toplevel, (caddr_t) NULL,
+  				resources, XtNumber(resources), NULL, 0);
+--- 304,314 ----
+  #endif
+  
+  	toplevel = XtInitialize("xpbiff", "XPbiff", NULL, 0, &argc, argv);
++ 	XtAddConverter(XtRString, XtRPixmap, XmuCvtStringToBitmap,
++ 		       convertArgs, XtNumber(convertArgs));
++ #endif /* !YOUBIN */
+  
+  	screen = XtScreen(toplevel);
+  
+  	XtGetApplicationResources(toplevel, (caddr_t) NULL,
+  				resources, XtNumber(resources), NULL, 0);
+***************
+*** 253,260 ****
+--- 334,343 ----
+  			colors[2] = argv[++count];
+  		else if ((strcmp("-abg", argv[count]) == 0) && (count + 1 <= argc))
+  			colors[3] = argv[++count];
++ #ifndef YOUBIN
+  		else if ((strcmp("-polling_time", argv[count]) == 0) && (count + 1 <= argc))
+  			polling_time = (unsigned long) atol(argv[++count]);
++ #endif
+  		else if ((strcmp("-noraise", argv[count]) == 0) && (count + 1 <= argc))
+  			raise = False;
+  		else if ((strcmp("-keepup", argv[count]) == 0) && (count + 1 <= argc))
+***************
+*** 313,325 ****
+  		} else 	if ((strcmp("-popup_geometry", argv[count]) == 0) && (count + 1 <= argc)) {
+  			popup_geometry = True;
+  			XParseGeometry(argv[++count], &popup_geometry_x, &popup_geometry_y, &dummy, &dummy);
+! 		} else {
+  			fprintf(stderr, "Usage : xpbiff [Toolkit-Options]\n");
+  			fprintf(stderr, "		[-nfg noarrive_bitmap_foreground color]\n");
+  			fprintf(stderr, "		[-nbg noarrive_bitmap_background_color]\n");
+  			fprintf(stderr, "		[-afg arrive_bitmap_foreground_color]\n");
+  			fprintf(stderr, "		[-abg arrive_bitmap_background_color]\n");
+  			fprintf(stderr, "		[-polling_time  time(msec)]\n");
+  			fprintf(stderr, "		[-noraise]\n");
+  			fprintf(stderr, "		[-nopopup]\n");
+  			fprintf(stderr, "		[-noanimate]\n");
+--- 396,423 ----
+  		} else 	if ((strcmp("-popup_geometry", argv[count]) == 0) && (count + 1 <= argc)) {
+  			popup_geometry = True;
+  			XParseGeometry(argv[++count], &popup_geometry_x, &popup_geometry_y, &dummy, &dummy);
+! 		}
+! #ifdef YOUBIN
+! 		else if ((strcmp("-pipe", argv[count]) == 0)
+! 			 && (count + 1 <= argc)) {
+! 		    use_pipe = True;
+! 		} else if ((strcmp("-server", argv[count]) == 0)
+! 			   && (count + 1 <= argc)) {
+! 		    server = argv[++count];
+! 		} else if ((strcmp("-nopreserve", argv[count]) == 0)
+! 			 && (count + 1 <= argc)) {
+! 		    preserve = False;
+! 		}
+! #endif
+! 		else {
+  			fprintf(stderr, "Usage : xpbiff [Toolkit-Options]\n");
+  			fprintf(stderr, "		[-nfg noarrive_bitmap_foreground color]\n");
+  			fprintf(stderr, "		[-nbg noarrive_bitmap_background_color]\n");
+  			fprintf(stderr, "		[-afg arrive_bitmap_foreground_color]\n");
+  			fprintf(stderr, "		[-abg arrive_bitmap_background_color]\n");
++ #ifndef YOUBIN
+  			fprintf(stderr, "		[-polling_time  time(msec)]\n");
++ #endif
+  			fprintf(stderr, "		[-noraise]\n");
+  			fprintf(stderr, "		[-nopopup]\n");
+  			fprintf(stderr, "		[-noanimate]\n");
+***************
+*** 331,336 ****
+--- 429,439 ----
+  			fprintf(stderr, "		[-no_bitmap bitmap_file]\n");
+  			fprintf(stderr, "		[-arrive_bitmap bitmap_file]\n");
+  			fprintf(stderr, "		[-popup_geometry geometry]\n");
++ #ifdef YOUBIN
++ 			fprintf(stderr, "		[-pipe]\n");
++ 			fprintf(stderr, "		[-server host]\n");
++ 			fprintf(stderr, "		[-nopreserve]\n");
++ #endif
+  			exit(0);
+  		}
+  	}
+***************
+*** 397,403 ****
+--- 500,510 ----
+  	i++;
+  	biff = XtCreateManagedWidget("biff", boxWidgetClass, toplevel, args, i);
+  
++ #ifndef YOUBIN
+  	XtAddActions(redrawActions, XtNumber(redrawActions));
++ #else
++ 	XtAppAddActions(app_con, redrawActions, XtNumber(redrawActions));
++ #endif /* YOUBIN */
+  	newTranslations = XtParseTranslationTable(overrideTranslations);
+  	XtOverrideTranslations(biff, newTranslations);
+  
+***************
+*** 475,484 ****
+--- 582,613 ----
+  	XSetGraphicsExposures(XtDisplay(toplevel), gcAnimateBack, False);
+  	XSetForeground(XtDisplay(toplevel), gcAnimateBack, backColor.pixel);
+  
++ #ifndef YOUBIN
+  	/* Interval timer start	 */
+  	polling_id = XtAddTimeOut(polling_time, Polling, NULL);
+  
+  	XtMainLoop();
++ #else
++ 	if (server == NULL) {
++ 	    gethostname(serv_name, sizeof(serv_name));
++ 	    server = serv_name;
++ 	}
++ 
++ 	if (use_pipe == False) {
++ 	    sprintf(child_process, "%s/%s -b -s %s",
++ 		    BINDIR, CHILD_PROGRAM_NAME, server);
++ 	    if ((pfile = popen(child_process, "r")) == NULL) {
++ 		perror("popen");
++ 		exit(EXIT_FAILURE);
++ 	    }
++ 	    XtAppAddInput(app_con, fileno(pfile), (XtPointer)XtInputReadMask,
++ 			  read_from_child, NULL);
++ 	} else {
++ 	    XtAppAddInput(app_con, fileno(stdin), (XtPointer)XtInputReadMask,
++ 			  read_from_child, NULL);
++ 	}
++ 	XtAppMainLoop(app_con);
++ #endif	/* YOUBIN */
+  }
+  
+  
+***************
+*** 507,512 ****
+--- 636,642 ----
+  }
+  
+  
++ #ifndef YOUBIN
+  XtTimerCallbackProc
+  Polling(client_data, id)
+  	caddr_t         client_data;
+***************
+*** 584,589 ****
+--- 714,720 ----
+  	polling_id = XtAddTimeOut(polling_time, Polling, NULL);
+  
+  }
++ #endif /* !YOUBIN */
+  
+  
+  void
+***************
+*** 680,685 ****
+--- 811,817 ----
+  }
+  
+  
++ #ifndef  YOUBIN
+  char           *
+  GetMailHeader()
+  {
+***************
+*** 756,761 ****
+--- 888,894 ----
+  	return (head);
+  
+  }
++ #endif /* !YOUBIN */
+  
+  
+  XtCallbackProc
+***************
+*** 775,780 ****
+--- 908,914 ----
+  }
+  
+  
++ #ifndef YOUBIN
+  XtCallbackProc
+  popup_again(widget, client_data, call_data)
+       Widget widget;
+***************
+*** 823,827 ****
+--- 957,1122 ----
+  
+      XtRemoveTimeOut(polling_id);
+      polling_id = XtAddTimeOut(polling_time, Polling, NULL);
++ }
++ #endif  /* !YOUBIN */
+  
++ #ifdef YOUBIN
++ /*
++  * Functions for YOUBIN
++  */
++ 
++ static char	*mail_header = NULL;
++ static long	saved_mail_size = 0;
++ 
++ static void	read_from_child(w, fid, id)
++ Widget      w;
++ int         *fid;
++ XtInputId   *id;
++ {
++     struct stat		file_stat;
++     int			len;
++     long		date;
++     char        	buff[HEADER_LEN];
++     char		*cp, *cp2;
++     long		strtol();
++ 
++     if ((len = read(*fid, buff, HEADER_LEN)) == 0) {
++         /* Erros occurs in child process. */
++         fprintf(stderr, "%s: Child process killed: %s\n",
++                 prog_name, child_process);
++         exit(EXIT_FAILURE);
++     } else if (len == -1) {                         /* Unknown error. */
++         fprintf(stderr, "%s: Can not read from child process: %s\n",
++                 prog_name, child_process);
++         exit(EXIT_FAILURE);
++     }
++ 
++     mail_size = (int)strtol(buff, &cp, 10);
++ 
++     if (popup == True || *cp == ' ') {
++ 	date = strtol(cp, &cp2, 10);
++ 	if (*cp2 == '\0' || isspace(*cp2)) {
++ 	    get_mail_header((*cp2 == '\0') ? NULL : (cp2 + 1));
++ 	}
++     }
++ 
++     if (mail_size > saved_mail_size) {
++ 	/* NEW mail */
++ 	current_status = ARRIVE;
++ 	XtResizeWidget(toplevel, Arrive_bitmap_width, Arrive_bitmap_height, 1);
++ 	XtResizeWidget(biff, Arrive_bitmap_width, Arrive_bitmap_height, 0);
++ 	if (popup == True) {
++ 	    BreakPopup(toplevel, (XtPointer) NULL, (XtPointer) NULL);
++ 	}
++ 	if (raise == True) {
++ 	    XRaiseWindow(XtDisplay(toplevel), XtWindow(toplevel));
++ 	}
++ 	if (animate == True && mail_header != NULL) {
++ 	    AnimateBiff();
++ 	}
++ 	XCopyArea(XtDisplay(toplevel), arrivePixmap, XtWindow(biff), gcBiff,
++ 		  0, 0, Arrive_bitmap_width, Arrive_bitmap_height, 0, 0);
++ 	if (popup == True) {
++ 	    if (mail_header != NULL) {
++ 		PopupMailHeader(mail_header);
++ 	    }
++ 	}
++ 	XSync(XtDisplay(toplevel), 0);
++ 	if (bell == True) {
++ 	    XBell(XtDisplay(toplevel), 0);
++ 	}
++     } else if (mail_size < saved_mail_size){
++ 	/* No mail */
++ 	current_status = NO;
++ 	XtResizeWidget(toplevel,  No_bitmap_width, No_bitmap_height, 1);
++ 	XtResizeWidget(biff,  No_bitmap_width, No_bitmap_height, 0);
++ 	XCopyArea(XtDisplay(toplevel), noPixmap, XtWindow(biff), gcBiff, 0, 0,
++ 		  No_bitmap_width, No_bitmap_height, 0, 0);
++ 	if (popup == True) {
++ 	    BreakPopup(toplevel, (XtPointer) NULL, (XtPointer) NULL);
++ 	}
++ 	if (raise == True && stay_raised == False) {
++ 	    XLowerWindow(XtDisplay(toplevel), XtWindow(toplevel));
++ 	}
++ 	free(mail_header);
++ 	mail_header = NULL;
++     }
++     saved_mail_size = mail_size;
+  }
++ 
++ #define STRLEN(x)	((x) == NULL ? -1 : strlen(x))
++ 
++ void
++ get_mail_header(buf)
++     char *buf;
++ {
++     char	*from = NULL;
++     char	*subject = NULL;
++     char	*cp;
++     int		header_count = 0;
++     char	tmp[HEADER_LEN];
++     char	*strtok();
++     char	*new_header;
++ 
++     if (buf == NULL)	return;
++     strcpy(tmp, buf);
++     cp = strtok(tmp, "\n");
++     while(cp != NULL) {
++ 	if (strncmp("From:", cp, strlen("From:")) == 0) {
++ 	    from = cp;
++ 	    header_count++;
++ 	} else if (strncmp("Subject:", cp, strlen("Subject:")) == 0) {
++ 	    subject = cp;
++ 	    header_count++;
++ 	}
++ 	if (header_count > 1 || *cp == '\0')	break;
++ 	cp = strtok(NULL, "\n");
++     }
++     if (preserve == False) {
++ 	free(mail_header);
++ 	mail_header = NULL;
++     }
++     if (header_count == 0)	return;
++     new_header = (char *)malloc(STRLEN(mail_header)
++ 				+ STRLEN(from) + STRLEN(subject) + 3);
++     *new_header = '\0';
++     if (mail_header != NULL) {
++ 	strcat(new_header, mail_header);
++ 	strcat(new_header, "\n");
++     }
++     if (from != NULL) {
++ 	strcat(new_header, from);
++     }
++     if (subject != NULL) {
++ 	strcat(new_header, "\n");
++ 	strcat(new_header, subject);
++     }
++     free(mail_header);
++     mail_header = new_header;
++ }
++ 
++ XtCallbackProc
++ popup_again(widget, client_data, call_data)
++      Widget widget;
++      caddr_t client_data;
++      caddr_t call_data;
++ {
++     struct stat file_stat;
++ 
++     if (current_status == ARRIVE) {
++ 	XCopyArea(XtDisplay(toplevel), arrivePixmap, XtWindow(biff), gcBiff,
++ 		  0, 0, Arrive_bitmap_width, Arrive_bitmap_height, 0, 0);
++ 	if (popup == True) {
++ 	    BreakPopup(toplevel, (XtPointer) NULL, (XtPointer) NULL);
++ 	    if (mail_header != NULL) {
++ 		PopupMailHeader(mail_header);
++ 	    }
++ 	}
++ 	if (raise == True) {
++ 	    XRaiseWindow(XtDisplay(toplevel), XtWindow(toplevel));
++ 	}
++ 	XSync(XtDisplay(toplevel), 0);
++     }
++ }
++ 
++ #endif /* YOUBIN */
+diff -rc xpbiff-1.26/xpbiff.man xpbiff-1.26-youbin/xpbiff.man
+*** xpbiff-1.26/xpbiff.man	Wed Dec 16 09:21:47 1992
+--- xpbiff-1.26-youbin/xpbiff.man	Thu Sep 30 13:36:37 1993
+***************
+*** 1,6 ****
+  .TH XPBIFF 1 "18 October 1990" "X Version 11"
+  .SH NAME
+! xpbiff - Popup biff for X
+  .SH SYNOPSIS
+  .B xpbiff
+  [-\fItoolkitoption\fP ...] [-option ...]
+--- 1,6 ----
+  .TH XPBIFF 1 "18 October 1990" "X Version 11"
+  .SH NAME
+! xpbiff - Popup biff for X (youbin version)
+  .SH SYNOPSIS
+  .B xpbiff
+  [-\fItoolkitoption\fP ...] [-option ...]
+***************
+*** 18,27 ****
+  Picture foreground / background color when still not arrive mail.
+  The default value is black and cyan.
+  .TP 8
+- .B \-polling_time \fItime\fP
+- Polling /usr/spool/mail interval time.
+- Default time is 15000[msec] = 15 [seconds]
+- .TP 8
+  .B \-noraise
+  Do not raise up xpbiff when arrive mail.
+  .TP 8
+--- 18,23 ----
+***************
+*** 49,54 ****
+--- 45,59 ----
+  .TP 8
+  .B \-popup_geometry \fIgeometry\fP
+  Set popup abusolute geometry in X geometry format.
++ .TP 8
++ .B \-pipe
++ Executed by other program (don't exec child process).
++ .TP 8
++ .B \-server \fIhost\fP
++ Set host name of mail server.
++ .TP 8
++ .B \-nopreserve
++ Do not preserve headers.
+  
+  .SH Application Resources
+  .TP
+***************
+*** 105,110 ****
+--- 110,124 ----
+  .TP
+  .B \XPbiff*bitmapFilePath: /usr/private/your_private_bitmap_filepath
+  
++ .B \ For youbin
++ .TP
++ .B \ Applid by yoshida@agusa.nuie.nagoya\-u.ac.jp
++ 
++ .B \XPbiff*pipe: False
++ .TP
++ .B \XPbiff*server: mail server
++ .TP
++ .B \XPbiff*preserve: True
+  .SH "SEE ALSO"
+  X(1),
+  stat(2)

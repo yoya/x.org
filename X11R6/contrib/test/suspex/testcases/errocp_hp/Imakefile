@@ -1,0 +1,153 @@
+# $XConsortium: Imakefile,v 1.0 93/11/22 12:41:04 rws Exp $
+#
+#
+#   (c) Copyright Hewlett-Packard Company, 1993, Fort Collins, Colorado       
+#                                                                            
+#                             All Rights Reserved                           
+#                                                                          
+#   Permission to use, copy, modify, and distribute this software and its 
+#   documentation for any purpose and without fee is hereby granted,     
+#   provided that the above copyright notices appear in all copies and that   
+#   both the copyright notices and this permission notice appear in          
+#   supporting documentation, and that the name of Hewlett-Packard not be   
+#   used in advertising or publicity pertaining to distribution of the     
+#   software without specific, written prior permission.                  
+#                                                                        
+#   HEWLETT-PACKARD MAKES NO WARRANTY OF ANY KIND WITH REGARD TO THIS   
+#   SOFTWARE, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
+#   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  Hewlett-Packard    
+#   shall not be liable for errors contained herein or direct, indirect,     
+#   special, incidental or consequential damages in connection with the     
+#   furnishing, performance or use of this software.                       
+#                                                                         
+#
+
+# HP OC Primitives Errors Tests
+# HP Control Module Tests
+
+#include "../../src/common_hp/Imake.include"
+
+PROGS =		    errocp.87.1 \
+                    errocp.87.2 \
+                    errocp.88.1 \
+                    errocp.88.2 \
+                    errocp.88.3 \
+                    errocp.88.4 \
+                    errocp.88.5 \
+                    errocp.88.6 \
+                    errocp.89.1 \
+                    errocp.89.2 \
+                    errocp.90.1 \
+                    errocp.90.2 \
+                    errocp.91.1 \
+                    errocp.91.2 \
+                    errocp.91.3 \
+                    errocp.91.4 \
+                    errocp.91.5 \
+                    errocp.92.1 \
+                    errocp.92.2 \
+                    errocp.92.3 \
+                    errocp.93.1 \
+                    errocp.93.2 \
+                    errocp.93.3 \
+                    errocp.94.1 \
+                    errocp.94.2 \
+                    errocp.94.3 \
+                    errocp.94.4 \
+                    errocp.94.5 \
+                    errocp.94.6 \
+                    errocp.95.1 \
+                    errocp.95.2 \
+                    errocp.95.3 \
+                    errocp.96.1 \
+                    errocp.96.2 \
+                    errocp.96.3 \
+                    errocp.96.4 \
+                    errocp.97.1 \
+                    errocp.97.2 \
+                    errocp.97.3 \
+                    errocp.97.4 \
+                    errocp.97.5 \
+                    errocp.97.6 \
+                    errocp.97.7 \
+                    errocp.97.8 \
+                    errocp.97.9 \
+                    errocp.97.10 \
+                    errocp.98.1 \
+                    errocp.98.2 \
+                    errocp.98.3 \
+                    errocp.98.4 \
+                    errocp.98.5 \
+                    errocp.98.6 \
+                    errocp.98.7 \
+                    errocp.98.8 \
+                    errocp.98.9 \
+                    errocp.98.10 \
+                    errocp.99.1 \
+                    errocp.100.1 \
+                    errocp.101.1
+         
+AllTarget($(PROGS))
+
+CommonTarget(errocp.87.1)
+CommonTarget(errocp.87.2)
+CommonTarget(errocp.88.1)
+CommonTarget(errocp.88.2)
+CommonTarget(errocp.88.3)
+CommonTarget(errocp.88.4)
+CommonTarget(errocp.88.5)
+CommonTarget(errocp.88.6)
+CommonTarget(errocp.89.1)
+CommonTarget(errocp.89.2)
+CommonTarget(errocp.90.1)
+CommonTarget(errocp.90.2)
+CommonTarget(errocp.91.1)
+CommonTarget(errocp.91.2)
+CommonTarget(errocp.91.3)
+CommonTarget(errocp.91.4)
+CommonTarget(errocp.91.5)
+CommonTarget(errocp.92.1)
+CommonTarget(errocp.92.2)
+CommonTarget(errocp.92.3)
+CommonTarget(errocp.93.1)
+CommonTarget(errocp.93.2)
+CommonTarget(errocp.93.3)
+CommonTarget(errocp.94.1)
+CommonTarget(errocp.94.2)
+CommonTarget(errocp.94.3)
+CommonTarget(errocp.94.4)
+CommonTarget(errocp.94.5)
+CommonTarget(errocp.94.6)
+CommonTarget(errocp.95.1)
+CommonTarget(errocp.95.2)
+CommonTarget(errocp.95.3)
+CommonTarget(errocp.96.1)
+CommonTarget(errocp.96.2)
+CommonTarget(errocp.96.3)
+CommonTarget(errocp.96.4)
+CommonTarget(errocp.97.1)
+CommonTarget(errocp.97.2)
+CommonTarget(errocp.97.3)
+CommonTarget(errocp.97.4)
+CommonTarget(errocp.97.5)
+CommonTarget(errocp.97.6)
+CommonTarget(errocp.97.7)
+CommonTarget(errocp.97.8)
+CommonTarget(errocp.97.9)
+CommonTarget(errocp.97.10)
+CommonTarget(errocp.98.1)
+CommonTarget(errocp.98.2)
+CommonTarget(errocp.98.3)
+CommonTarget(errocp.98.4)
+CommonTarget(errocp.98.5)
+CommonTarget(errocp.98.6)
+CommonTarget(errocp.98.7)
+CommonTarget(errocp.98.8)
+CommonTarget(errocp.98.9)
+CommonTarget(errocp.98.10)
+CommonTarget(errocp.99.1)
+CommonTarget(errocp.100.1)
+CommonTarget(errocp.101.1)
+
+DependTarget()
+

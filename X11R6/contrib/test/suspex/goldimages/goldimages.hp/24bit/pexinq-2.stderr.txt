@@ -1,0 +1,19 @@
+Enum Info for PEXETLineType
+  index    =        1  mnemonic = Solid
+  index    =        2  mnemonic = Dashed
+  index    =        3  mnemonic = Dotted
+  index    =        4  mnemonic = DashDot
+  index    =   -30975  mnemonic = HP_Centerline
+  index    =   -30974  mnemonic = HP_Phantom
+Enum Info for PEXETSurfaceEdgeType
+  index    =        1  mnemonic = Solid
+Enum Info for PEXETPickAllMethod
+  index    =        1  mnemonic = All
+Enum Info for PEXETEscape
+  index    =        1  mnemonic = SetEchoColor
+  index    =   -32511  mnemonic = QueryColorApprox
+  index    =   -31743  mnemonic = ES_ESCAPE_DBLBUFFER
+  index    =   -31742  mnemonic = ES_ESCAPE_SWAPBUFFER
+  index    =   -31741  mnemonic = ES_ESCAPE_SWAPBUFFERCONTENT
+  index    =   -30975  mnemonic = HP_ESCAPE_DFRONT
+  index    =   -30974  mnemonic = HP_ESCAPE_SET_GAMMA_CORRECTION

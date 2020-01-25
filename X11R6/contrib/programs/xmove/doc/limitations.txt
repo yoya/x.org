@@ -1,0 +1,71 @@
+	Here is a list of some of the limitations of xmove that
+you should be aware of. They are explained in the context of the
+X protocol. Feel free to ask for explanations in English. All of
+these items are problems we hope to overcome.
+
+	For a detailed discussion of xmove and its
+implementation, see The X Resource, July 1994.
+
+* A client started on a 1-bit monochrome display can only be moved to
+other 1-bit monochrome displays. Unfortunately, display
+dependencies in the X protocol make this a difficult limitation
+to overcome cleanly.
+
+* Clients which start on a server with a read-only colormap (most
+commonly grey-scale displays) may make assumptions about colors
+and not bother to allocate them. This will cause trouble when the
+client is relocated to another display with a different color
+configuration.
+
+* Clients which start on a server with a read/write colormap, and
+which are then moved to a server with a read-only colormap, will
+be unable to modify colors they previously thought they could
+change. So long as the client does not become alarmed (IslandDraw
+did not, for example) the client will appear correctly once moved
+to another server.
+
+* Overlay planes are not supported. Overlay planes are rarely
+used in standard applications, and would be difficult to support.
+
+* xmove does not adjust for different screen sizes and aspect
+ratios. A pixel is a pixel is a pixel.
+
+* X protocol extensions are not currently supported. A method for
+supporting extensions has been designed, similar to the way
+properties and selections are supported using dynamically loaded
+libraries.
+
+* Clients which grab the server exclusively can cause problems
+for xmove. Since xmove is a single-threaded pseudoserver, it is
+possible to lock xmove by trying to move a client while that
+client's server is locked by someone else.
+
+* Clients which make multiple connections to the server are only
+properly recognized if the connections make reference to each
+other before the client is moved. xmove detects when a connection
+attempts to use resources created by another and links those
+conections internally. It would be difficult to fix this problem,
+since the X protocol has no way to tell with which process a
+particular connection is associated.
+
+* Servers must have the fonts needed by clients moving to them.
+This may be a problem for some people (please let us know if it
+is one for you!), and it can be overcome with some work. We
+expect, however, that most environments will share certain common
+fonts.
+
+* xmove relies on a few of the idiosyncracies of Xlib. In
+particular, it expects that a graphics context with resource ID 0
+will be created, and that resource IDs will be allocated
+sequentially and will not be reused. We believe that, since
+nearly every client either uses Xlib or a toolkit that uses Xlib,
+this limitation will not be noticed.
+
+* Although not a limitation per se, if xmove fails for any
+reason, all clients using that xmove will also fail, exactly as
+is the case for the X server itself. Additionally, because xmove
+is single-threaded, when xmove moves a client it cannot process
+other clients until it is finished. There are a number of
+possible solutions to this problem, but none are non-trivial and
+most require the use of threads/lwp's, which would create
+compatibility problems.

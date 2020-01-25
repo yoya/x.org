@@ -1,0 +1,7 @@
+Add a "Save" command to save STDIN.
+Add actions for all buttons
+Document actions
+Let Text widget do file memory management
+Handle appropriate 'less' options & keys
+Dynamic file redisplay could be a bit nicer looking
+Track down any memory leaks

@@ -1,0 +1,8 @@
+XCOMM $XConsortium: Imakefile,v 1.2 93/09/18 16:23:30 rws Exp $
+        DEPLIBS = XawClientDepLibs
+LOCAL_LIBRARIES = XawClientLibs
+           SRCS = b4light.c
+           OBJS = b4light.o
+
+ComplexProgramTarget(beforelight)
+InstallAppDefaultsLong(B4light,Beforelight)

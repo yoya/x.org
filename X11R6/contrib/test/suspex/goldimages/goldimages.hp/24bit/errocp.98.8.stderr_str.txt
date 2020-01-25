@@ -1,0 +1,9 @@
+
+==============================================
+trim_curves.curves->knots.count = 
+   trim_curves.curves->count + trim_curves.curves->order - 1 =
+   5 + 2 - 1 = 6
+PEXError: Bad PEX OC
+OC code: 98
+Request code: 43
+==============================================

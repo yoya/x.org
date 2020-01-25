@@ -1,0 +1,335 @@
+#!/bin/ksh
+# %W% %E%
+#
+#       NOTICE TO USER: The source code in this file is copyrighted under
+#       U.S. and international laws.  SunSoft, Inc., a Sun Microsystems,
+#       Inc. business of Mountain View, California owns the copyright.
+#       Users and possessors of this source code are hereby granted a
+#       nonexclusive, royalty-free copyright and design patent license
+#       to use this code in individual and commercial software.
+#
+#       Any use of this source code must include, in the user documentation
+#       and internal comments to the code, notices to the end user as follows:
+#
+#(c) Copyright 1992, 1993 SunSoft, Inc., a Sun Microsystems, Inc. business.
+#
+#       SUNSOFT, INC. AND SUN MICROSYSTEMS, INC. MAKE NO REPRESENTATIONS
+#       ABOUT THE SUITABILITY OF THIS SOURCE CODE FOR ANY PURPOSE. IT IS
+#       PROVIDED "AS IS" WITHOUT EXPRESS OR IMPLIED WARRANTY OF ANY KIND.
+#       SUNSOFT, INC., AND SUN MICROSYSTEMS, INC., SEVERALLY AND
+#       INDIVIDUALLY, DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOURCE
+#       CODE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+#       FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT SHALL SUNSOFT, INC.
+#       OR SUN MICROSYSTEMS, INC., BE LIABLE FOR ANY SPECIAL, INDIRECT,
+#       INCIDENTAL, OR CONSEQUENTIAL DAMAGES, OR ANY DAMAGES WHATSOEVER
+#       RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
+#       OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+#       OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOURCE CODE.
+#
+
+#-----------------------------------------------
+# Usage description
+#-----------------------------------------------
+usage()
+{
+    echo "\nUsage: $0 [-m] [-c] [-n] [-hp] [-sun] [-env] [-help] [-a testarea ...]\n"
+    echo "  -a:    run only the specified test areas"
+    echo "         (this option must be specified last in the command line)"
+    echo "  -m:    build tests on the fly" 
+    echo "         (run make all before running tests in each test area)"
+    echo "  -c:    remove executables afterwards" 
+    echo "         (run make clean after running tests in each test area)"
+    echo "  -n:    do not generate log files"
+    echo "  -hp:   run hp tests only"
+    echo "  -sun:  run sun tests only\n"
+    echo "  -env:  echo test environments and exit"
+    echo "  -help: echo usage information\n"
+    echo "  Options can be combined." 
+    echo "  Default is to run all tests in all supported modes \n" 
+    echo "   available testareas:"
+    echo "      oc_sun rndr_sun struct_sun sc_sun"
+    echo "      ctl_hp errocp_hp fnt_hp inq_hp lut_hp nms_hp"
+    echo "      oca_hp ocp_hp plc_hp pick_hp rnd_hp str_hp trv_hp"
+    exit 0
+}
+
+echo_env()
+{
+    echo "TESTBASE=          $TESTBASE"
+    echo "TESTLOGFILE=       $TESTLOGFILEBASE<\$DATE>"
+    echo "BUILDLOGFILE=      $BUILDLOGFILEBASE<\$DATE>"
+    echo "DISPLAY=           $DISPLAY"
+    echo "TARGET_SYSTEM=     $TARGET_SYSTEM"
+    echo "SERVER_RESTART=    $SERVER_RESTART"
+    echo "SERVER_KILL=       $SERVER_KILL"
+    echo "SERVER_CHECK=      $SERVER_CHECK"
+    echo "EXECUTE_TEST=      $EXECUTE_TEST"
+    echo "SETUP=             $SETUP"
+    echo "CLEANUP=           $CLEANUP"
+    echo "PATH=              $PATH"
+    echo "RUN_IMM=           $RUN_IMM"
+    echo "RUN_STR=           $RUN_STR"
+    echo "RUN_NOC=           $RUN_NOC"
+    echo "RUN_PWS=           $RUN_PWS"
+    echo "RUN_FULL=          $RUN_FULL"
+    if [ $RUN_IMM = 1 ]
+    then
+        echo "REF_IMM=           $REF_IMM"
+        echo "CUR_IMM=           $CUR_IMM"
+        echo "BAD_IMM=           $BAD_IMM"
+    fi
+    if [ $RUN_STR = 1 ]
+    then
+        echo "REF_STR=           $REF_STR"
+        echo "CUR_STR=           $CUR_STR"
+        echo "BAD_STR=           $BAD_STR"
+    fi
+    if [ $RUN_NOC = 1 ]
+    then
+        echo "REF_NOC=           $REF_NOC"
+        echo "CUR_NOC=           $CUR_NOC"
+        echo "BAD_NOC=           $BAD_NOC"
+    fi
+    if [ $RUN_PWS = 1 ]
+    then
+        echo "REF_PWS=           $REF_PWS"
+        echo "CUR_PWS=           $CUR_PWS"
+        echo "BAD_PWS=           $BAD_PWS"
+    fi
+}
+
+if [ "$1" = "" ]
+then
+    usage
+fi
+
+#-----------------------------------------------
+# define test environment variables
+#-----------------------------------------------
+TESTBASE=/net/sunpex/suspex-pexic; export TESTBASE
+TESTLOGFILEBASE=$TESTBASE/logs/suspexTestLog
+BUILDLOGFILEBASE=$TESTBASE/logs/suspexBuildLog
+DATE=`date +%m\.%d\.%H""%M`
+TESTLOGFILE=$TESTLOGFILEBASE$DATE
+BUILDLOGFILE=$BUILDLOGFILEBASE$DATE
+
+SUNPEX_DIRECT_ENABLE=1; export SUNPEX_DIRECT_ENABLE
+
+DISPLAY=winter:0; export DISPLAY
+TARGET_SYSTEM=winter; export TARGET_SYSTEM
+
+# set up command path, this should include:
+# 1. current directory 
+# 2. path to basic UNIX utilities
+# 3. $TESTBASE, where all the scripts are located
+# 4. path to pexdpyinfo
+PATH=.:/usr/bin:/usr/ccs/bin:/net/lang:$TESTBASE:/usr/openwin/bin:/net/sunpex/sun4/5.x/2.1FCS01/dpexlib/client/pexdpyinfo; export PATH
+
+# default is to run test that supports IMM mode
+RUN_IMM=1; export RUN_IMM
+
+# default is to run test that supports STR mode
+RUN_STR=1; export RUN_STR
+
+# default is to run test that supports NOC mode
+RUN_NOC=1; export RUN_NOC
+
+# default is not to run test that supports PWS mode
+RUN_PWS=0; export RUN_PWS
+
+# default is to run only basic tests 
+RUN_FULL=0; export RUN_FULL
+
+# command for restarting server 
+SERVER_RESTART=server_restart; export SERVER_RESTART
+
+# command for killing server 
+SERVER_KILL=server_kill; export SERVER_KILL
+
+# command for ensuring that there is a PEX server running
+SERVER_CHECK=server_check; export SERVER_CHECK
+
+# command for executing individual test
+EXECUTE_TEST=execute_test; export EXECUTE_TEST
+
+# command for setup
+#SETUP=$SERVER_KILL
+SETUP="xstdcmap -delete default;xstdcmap -default"
+
+# command for cleanup
+#CLEANUP=$SERVER_KILL
+CLEANUP=
+
+#-----------------------------------------------
+# define image file paths
+#-----------------------------------------------
+REF_IMM=$TESTBASE/refimages/imm; export REF_IMM
+CUR_IMM=$TESTBASE/curimages/imm; export CUR_IMM
+BAD_IMM=$TESTBASE/badimages/imm; export BAD_IMM
+
+REF_STR=$TESTBASE/refimages/str; export REF_STR
+CUR_STR=$TESTBASE/curimages/str; export CUR_STR
+BAD_STR=$TESTBASE/badimages/str; export BAD_STR
+
+REF_NOC=$TESTBASE/refimages/noc; export REF_NOC
+CUR_NOC=$TESTBASE/curimages/noc; export CUR_NOC
+BAD_NOC=$TESTBASE/badimages/noc; export BAD_NOC
+
+REF_PWS=
+CUR_PWS=
+BAD_PWS=
+
+
+#-----------------------------------------------
+# define test areas
+#-----------------------------------------------
+SUN_TESTS="oc_sun \
+          rndr_sun \
+          struct_sun \
+          sc_sun"
+
+HP_TESTS="ctl_hp \
+	  errocp_hp \
+	  fnt_hp    \
+	  inq_hp    \
+	  lut_hp    \
+	  nms_hp    \
+	  oca_hp    \
+	  ocp_hp    \
+	  plc_hp    \
+	  pick_hp   \
+	  rnd_hp    \
+	  str_hp    \
+	  trv_hp"
+
+ALL_TESTS="$SUN_TESTS $HP_TESTS"
+
+#-----------------------------------------------
+# process cmd line args                          
+#----------------------------------------------- 
+
+while [ "$1" != "" ]
+do
+    case $1 in
+    -hp)
+	AREALIST="$AREALIST $HP_TESTS"
+        shift
+        ;;   
+    -sun)
+	AREALIST="$AREALIST $SUN_TESTS"
+        shift
+        ;;   
+    -a)
+        # subsequent non-flag arguments will be added to AREALIST
+        ADDING_AREAS=1
+        shift
+        ;;   
+    -m)
+        DO_MAKE=1
+        shift
+        ;;   
+    -c)
+        DO_CLEAN=1
+        shift
+        ;;   
+    -n)
+	TESTLOGFILE=/dev/null
+	BUILDLOGFILE=/dev/null
+        shift
+        ;;   
+    -env)
+        echo_env
+	exit 0
+        ;;   
+    -help) 
+	usage
+        ;;
+    -*) 
+        echo ERROR -- unknown flag, $1
+	usage
+        ;;
+    *)
+        if [ $ADDING_AREAS ] ; then
+                AREALIST="$AREALIST $1"
+        else
+                echo ERROR -- unknown argument, $1
+		usage
+        fi
+	shift
+	;;
+    esac;
+done
+
+#-----------------------------------------------
+# do initialization if necessary
+#-----------------------------------------------
+if [ "$SETUP" ]
+then
+	$SETUP
+fi
+
+#-----------------------------------------------
+# check that server is up and running, restart server if necessary
+#-----------------------------------------------
+$SERVER_CHECK
+if [ $? != 0 ]
+then
+    exit 1
+fi
+
+if [ -z "$AREALIST" ] ; then
+	AREALIST="$ALL_TESTS"
+fi
+
+#
+# dump environment variables information to log file
+#
+echo_env | tee -a $TESTLOGFILE 2>&1
+
+echo "\n# Test will include test areas: " $AREALIST  | tee -a $TESTLOGFILE 2>&1
+
+echo "# Test  results are in $TESTLOGFILE"
+
+if [ $DO_MAKE ] || [ $DO_CLEAN ] ; then
+    echo "# Build results are in $BUILDLOGFILE\n"
+fi
+
+#-----------------------------------------------
+# go to each specified test area dir to run tests
+#-----------------------------------------------
+for dir in $AREALIST
+do
+	cd ${TESTBASE}/testcases/${dir}
+	if [ $? != 0 ]
+	then
+		echo Unknown test area, exiting...
+		break
+	fi
+	echo "\n#===================" | tee -a $TESTLOGFILE 2>&1
+	echo "# Running ${dir}" | tee -a $TESTLOGFILE 2>&1
+	echo "#===================" | tee -a $TESTLOGFILE 2>&1
+
+	if [ $DO_MAKE ] ; then
+		echo "\n# Making tests in ${dir}" 
+		make all >> $BUILDLOGFILE 2>&1
+	fi
+
+	(run_tests 2>&1) | tee -a  $TESTLOGFILE 
+        rm -f core
+
+	if [ $DO_CLEAN ] ; then
+		echo "\n# Cleaning directory ${dir}" 
+		make clean >> $BUILDLOGFILE 2>&1
+	fi
+done
+
+echo "\n# SusPEX run completed on " `date` | tee -a $TESTLOGFILE 2>&1
+
+#-----------------------------------------------
+# do clean up if necessary
+#-----------------------------------------------
+if [ "$CLEANUP" ]
+then
+	$CLEANUP
+fi
+

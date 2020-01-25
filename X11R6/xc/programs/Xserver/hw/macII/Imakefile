@@ -1,0 +1,53 @@
+XCOMM $XConsortium: Imakefile,v 1.25 94/02/06 11:32:25 rws Exp $
+
+#include <Server.tmpl>
+
+SRCS =	\
+	macIIMono.c \
+	macIIIo.c \
+	macIIKbd.c \
+	macIIMouse.c \
+	macIIUtils.c \
+	macIIKMap.c \
+	macIIInitS.c \
+	macIIColor.c \
+	macIIGamma.c \
+	macII32Init.c
+
+OBJS = \
+	macIIMono.o \
+	macIIIo.o \
+	macIIKbd.o \
+	macIIMouse.o \
+	macIIUtils.o \
+	macIIKMap.o \
+	macIIInitS.o \
+	macIIColor.o \
+	macIIGamma.o \
+	macII32Init.o
+
+   DEFINES = $(SIGNAL_DEFINES) -DPASS_OPTION -DMAXSCREENS=6 -DXTESTEXT1
+   INCLUDES = -I.  -I../../include -I../../mi -I../../mfb \
+	      -I$(INCLUDESRC) -I$(FONTINCSRC) -I$(EXTINCSRC)
+   LINTLIBS = ../../dix/llib-ldix.ln ../../os/llib-los.ln \
+	      ../../mfb/llib-lmfb.ln ../../mi/llib-lmi.ln ../../cfb/llib-lcfb.ln
+
+NormalLibraryObjectRule()
+
+all:: Xrepair
+
+lintlib:
+
+NormalLibraryTarget(macII,$(OBJS))
+NormalLintTarget($(SRCS))
+SingleProgramTarget(Xrepair, Xrepair.o,,)
+InstallProgram(Xrepair,$(BINDIR))
+InstallScript(X11R6,$(BINDIR))
+InstallNamedProg(X11R6.script,X11,$(BINDIR))
+InstallNamedNonExec(def.x11start,.x11start,$(LIBDIR))
+InstallNamedNonExec(xterm.tic,xterm,$(USRLIBDIR)/terminfo/x)
+InstallNamedNonExec(xterms.tic,xterms,$(USRLIBDIR)/terminfo/x)
+InstallNonExecFile(xterm.tic,$(LIBDIR))
+InstallNonExecFile(xterms.tic,$(LIBDIR))
+DependTarget()
+InstallManPage(XmacII,$(MANDIR))

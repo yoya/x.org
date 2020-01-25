@@ -1,0 +1,26 @@
+XCOMM $XConsortium: Imakefile,v 1.2 94/10/13 13:23:01 kaleb Exp $
+XCOMM $XFree86: xc/programs/Xserver/hw/xfree86/vga256/drivers/compaq/Imakefile,v 3.0 1994/05/30 08:27:29 dawes Exp $
+#include <Server.tmpl>
+
+SRCS = cpq_driver.c cpq_bank.s
+
+OBJS = cpq_driver.o cpq_bank.o
+
+#if XF86LinkKit
+INCLUDES = -I. -I../../../include -I../..
+#else
+INCLUDES = -I. -I$(XF86COMSRC) -I$(XF86HWSRC) -I$(XF86OSSRC) \
+           -I../../vga -I$(SERVERSRC)/include  -I$(INCLUDESRC)
+#endif
+
+NormalLibraryObjectRule()
+NormalAsmObjectRule()
+
+NormalRelocatableTarget(cpq_drv,$(OBJS))
+
+InstallLinkKitNonExecFile(cpq_driver.c,$(LINKKITDIR)/drivers/vga256/compaq)
+InstallLinkKitNonExecFile(cpq_bank.s,$(LINKKITDIR)/drivers/vga256/compaq)
+InstallLinkKitNonExecFile(Imakefile,$(LINKKITDIR)/drivers/vga256/compaq)
+
+DependTarget()
+

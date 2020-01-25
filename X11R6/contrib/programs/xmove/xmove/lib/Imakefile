@@ -1,0 +1,27 @@
+#define DoNormalLib NO
+#define DoSharedLib YES
+#define DoDebugLib NO
+#define DoProfileLib NO
+#define LibName atommap
+#define LibHeaders NO
+LIBNAME = LibName
+SOATOMMAPREV = 1.1
+#define SoRev SOATOMMAPREV
+
+DEFINES = -DXMOVE -DDEBUG
+EXTRA_INCLUDES = -I..
+
+SRCS = libatommap.c
+OBJS = libatommap.o
+
+#include <Library.tmpl>
+
+AllTarget(lib$(LIBNAME).so.1)
+LinkSourceFile(libatommap.c,..)
+LinkSourceFile(libatommap.h,..)
+
+lib$(LIBNAME).so.1: lib$(LIBNAME).so.$(SOATOMMAPREV)
+	RemoveFile($@)
+	$(LN) $? $@
+
+DependTarget()

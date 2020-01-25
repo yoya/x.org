@@ -1,0 +1,9 @@
+#define IHaveSubdirs
+
+      XANCURDIR = $(LIBDIR)/xancur
+      SUBDIRS = fourpts.lrg fourpts.sml happy2 photon plus pulse terra
+
+MakeMakeSubdirs($(SUBDIRS),install)
+MakeDirectories(install,$(XANCURDIR))
+
+InstallNonExec(Script,$(XANCURDIR))

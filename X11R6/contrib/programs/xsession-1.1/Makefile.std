@@ -1,0 +1,169 @@
+# Makefile for XSession
+# Copyright (C) 1993, 1994, Alain Nissen & Raphael Quinet, University of Liege,
+#                                                                      Belgium.
+#
+# The X Consortium, and any party obtaining a copy of these files from the
+# X Consortium, directly or indirectly, is granted, free of charge, a full and
+# unrestricted irrevocable, world-wide, paid up, royalty-free, nonexclusive
+# right and license to deal in this software and documentation files (the
+# "Software"), including without limitation the rights to use, copy, modify,
+# merge, publish, distribute, sublicense, and/or sell copies of the Software,
+# and to permit persons who receive copies from any such party to do so.  This
+# license includes without limitation a license to do the foregoing actions
+# under any patents of the party supplying this software to the X Consortium.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+# X CONSORTIUM, THE AUTHORS OR THE UNIVERSITY OF LIEGE BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+# OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+# OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+#
+# Authors:
+#    Raphael Quinet <quinet@montefiore.ulg.ac.be>
+#                   <quinet@stud.montefiore.ulg.ac.be>
+#    Alain Nissen   <nissen@montefiore.ulg.ac.be>
+#                   <nissen@stud.montefiore.ulg.ac.be>
+
+# -------------------------------------------------------------------------
+# This first part of the file should be customized for your system.
+#
+
+# Use -DSOUNDS in SOUNDDEF and -lrplay in SOUNDLIB if you want to have a noisy
+# xsession.  You will need Mark Boyns' rplay library, available from
+# sounds.sdsu.edu and ftp2.montefiore.ulg.ac.be in the directory /pub/rplay.
+# Otherwise, keep SOUNDDEF and SOUNDLIB empty.
+SOUNDDEF          = 
+SOUNDLIB          = 
+
+# The second argument of the waitpid(2) system call can be either a
+# "union wait" (old definition) or a "int" (new definition) variable.  The new
+# definition is assumed by default.  If your system still has the old
+# definition, you must define -DOLD_WAITPID here in WAITPIDDEF.  Otherwise,
+# keep it empty.
+WAITPIDDEF        = 
+
+# Some System V systems do not have the vfork(2) system call in their standard
+# C library.  The "noimake.h" file has an heuristic to determine if your system
+# has vfork(2) or doesn't.  You can override this heuristic by defining
+# yourself -DNO_VFORK or -DHAS_VFORK here in FORKDEF.  Otherwise, keep it
+# empty.
+FORKDEF           = 
+
+# On most systems, cpp(1) is located in /lib, but this is not always the case.
+# The "noimake.h" file has an heuristic to determine where cpp is located on
+# your system. You can override this heuristic by defining yourself -DCPP_CMD
+# here in CPPDEF as the command to be run.  The `-P' option will be added after
+# the command, so don't add it yourself!  (For instance, you can use
+# CPPDEF = -DCPP_CMD="\"/lib/cpp\"" --- don't forget the quotes and the
+# backslashes!)  Otherwise, keep CPPDEF empty.
+CPPDEF            = 
+
+# On some systems (Linux, AIX, Irix, ...), only a root-setuid program can
+# redirect the console messages elsewhere.  If you work on such a system, it
+# will be necessary to "root-setuid" by hand the installed xsession, and you
+# must define -DENABLE_SUID here in SUIDDEF.  A setuid xsession will abort if
+# ENABLE_SUID has not been defined at compilation-time.  Otherwise, keep
+# SUIDDEF empty.
+SUIDDEF           = 
+
+# How excited are you about debugging?  This can be -g, -O, or nothing.
+CDEBUGFLAGS       = -O
+
+# Put in OTHERDEFS all other necessary defines for your system (-D... style).
+OTHERDEFS         = 
+
+# Put in INCLPATH all necessary header paths for your system (-I... style).
+INCLPATH          = 
+
+# Put in OTHERLIBS all other necessary libraries for your system (-l... style).
+# !! for Silicon Graphics (Irix), OTHERLIBS must include -lmalloc !!
+# !! for SunOS 5.x, OTHERLIBS must include -lsocket and -lnsl     !!
+OTHERLIBS         = 
+
+# Put in LIBPATH all necessary library paths for your system (-L... style).
+LIBPATH           = 
+
+# The shell script "mkdirhier" is included in this distribution, but is
+# actually part of the X11R6 distribution from the X Consortium, available for
+# "anonymous" FTP on ftp.x.org.  See the file ./utils/mkdirhier/README.
+MKDIRHIER         = /bin/sh ./utils/mkdirhier/mkdirhier
+
+# The shell script "ad2c" is included in this distribution, but is actually
+# part of the ad2c-1.7 distribution, an X11 contribution, available for
+# "anonymous" FTP on ftp.x.org.  See the file ./utils/ad2c/README.
+AD2C              = /bin/sh ./utils/ad2c/ad2c
+
+# If you don't have "install", you may use "cp" instead.  In this case, you
+# should define INSTALL_BIN_FLAGS, INSTALL_MAN_FLAGS and INSTALL_APP_FLAGS
+# as "-p".
+INSTALL           = install
+INSTALL_BIN_FLAGS = -s -m 0755
+INSTALL_MAN_FLAGS = -m 0444
+INSTALL_APP_FLAGS = -m 0444
+
+# These five definitions control where to install this software.
+MAN_SUFFIX        = 1
+DEST_DIR          = /usr/local
+DEST_BIN_DIR      = $(DEST_DIR)/bin
+DEST_XAPPLOAD_DIR = $(DEST_DIR)/lib/X11/app-defaults
+DEST_MAN_DIR      = $(DEST_DIR)/man/man$(MAN_SUFFIX)
+
+# -------------------------------------------------------------------------
+# Please don't change anything below this point - no need really - We hope.
+
+RM                = rm -f
+PROGRAM           = xsession
+SRCS              = widgets.c console.c exec.c xsession.c
+OBJS              = widgets.o console.o exec.o xsession.o
+DEFINES           = $(WAITPIDDEF) $(FORKDEF) $(CPPDEF) $(SUIDDEF) $(SOUNDDEF) $(OTHERDEFS)
+CFLAGS            = $(CDEBUGFLAGS) $(DEFINES) $(INCLPATH)
+
+all: xsession
+
+install: xsession
+	@if [ -d $(DEST_BIN_DIR) ]; then set +x; \
+	else (set -x; $(MKDIRHIER) $(DEST_BIN_DIR)); fi
+	@if [ -d $(DEST_XAPPLOAD_DIR) ]; then set +x; \
+	else (set -x; $(MKDIRHIER) $(DEST_XAPPLOAD_DIR)); fi
+	$(INSTALL) -c $(INSTALL_BIN_FLAGS) xsession $(DEST_BIN_DIR)
+	$(INSTALL) -c $(INSTALL_APP_FLAGS) XSession.ad $(DEST_XAPPLOAD_DIR)/XSession
+	$(INSTALL) -c $(INSTALL_APP_FLAGS) XSession-color.ad $(DEST_XAPPLOAD_DIR)/XSession-color
+	@echo "install done"
+
+install.man:
+	@if [ -d $(DEST_MAN_DIR) ]; then set +x; \
+	else (set -x; $(MKDIRHIER) $(DEST_MAN_DIR)); fi
+	$(INSTALL) -c $(INSTALL_MAN_FLAGS) xsession.man $(DEST_MAN_DIR)/xsession.$(MANSUFFIX)
+	@echo "install.man done"
+
+clean:
+	$(RM) $(PROGRAM) *.CKP *.ln *.BAK *.bak *.o core errs ,* *~ *.a .emacs_* tags TAGS make.log MakeOut "#"*
+
+depend:
+	makedepend -- $(CFLAGS) -- $(SRCS)
+
+xsession: $(OBJS)
+	$(RM) $@
+	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBPATH) -lXaw -lXmu -lXt -lXext -lX11 $(SOUNDLIB) $(OTHERLIBS)
+
+# You will only need the following lines if you change XSession.ad and you want
+# to hard-code the changes into xsession.  This is not needed if XSession.ad is
+# installed in the ".../lib/X11/app-defaults" directory, because the defaults
+# in XSession.ad will override the fallback resources taken from XSess-ad.h.
+# See the X(1) manual page for details.
+XSess-ad.h: XSession.ad
+	$(AD2C) XSession.ad > XSess-ad.h
+
+# -------------------------------------------------------------------------
+# DO NOT DELETE THIS LINE -- make depend depends on it.
+
+widgets.o: xsession.h
+console.o: xsession.h
+exec.o: xsession.h
+xsession.o: xsession.h resources.h XSess-ad.h

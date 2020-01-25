@@ -1,0 +1,58 @@
+/**/# Imakefile file for xdaliclock, Copyright (c) 1994 Jamie Zawinski.
+/**/#
+/**/#
+/**/# If your system doesn't have the select() system call, use -DNO_SELECT.
+/**/# This will make the usleep() system call be used instead (this pauses
+/**/# for the given number of microseconds).  If your system doesn't have
+/**/# either select() or usleep(), you've got some hacking to do...
+/**/#
+/**/# If you don't have the SHAPE extension, you shouldn't pass -DSHAPE.
+/**/# (Normally this happens automatically via `ExtensionDefines', or,
+/**/# in R6, `PervasiveExtensionDefines'.)
+/**/#
+/**/# (Jamie doesn't know anything about VMS, so don't bother asking.)
+/**/#
+/**/#
+#ifdef PervasiveExtensionDefines
+# define DaliShapeDefines PervasiveExtensionDefines ExtensionDefines
+#else
+# define DaliShapeDefines ExtensionDefines
+#endif
+          DEFINES = -DBUILTIN_FONT -DBUILTIN_FONT_2 DaliShapeDefines
+         INCLUDES = -I./numbers -I./numbers2 $(TOP_INCLUDES)
+  LOCAL_LIBRARIES = $(XTOOLLIB) $(EXTENSIONLIB) $(XLIB)
+             SRCS = xdaliclock.c digital.c colors.c resources.c \
+                    visual.c hsv.c usleep.c
+             OBJS = xdaliclock.o digital.o colors.o resources.o \
+                    visual.o hsv.o usleep.o
+         VMSFILES = xdaliclock.opt xdaliclock_build.com Makefile.mms
+         TARFILES = README xdaliclock.man Imakefile Makefile.simple $(SRCS) \
+                    version.h defaults.h xdaliclock.h vroot.h $(VMSFILES) \
+                    numbers numbers2
+              TAR = gnutar
+         COMPRESS = compress
+     COMPRESS_EXT = Z
+/**/#    COMPRESS = gzip --verbose --best
+/**/#COMPRESS_EXT = gz
+
+ComplexProgramTarget(xdaliclock)
+
+colors.o: xdaliclock.h
+digital.o: xdaliclock.h
+xdaliclock.o: version.h
+xdaliclock.o: defaults.h
+xdaliclock.o: xdaliclock.h
+
+/**/# This really makes me sick...
+tar:
+	@NAME=`sed -n							    \
+  's/.* v\([0-9]\.[0-9][0-9]*\).*/xdaliclock-\1/p' version.h` ;		    \
+  rm -f $$NAME ; ln -s . $$NAME ;					    \
+  echo creating tar file $${NAME}.tar.$(COMPRESS_EXT)... ;		    \
+   $(TAR) -vchf - `echo $(TARFILES)				    	    \
+   | sed "s|^|$$NAME/|g; s| | $$NAME/|g" `				    \
+   | $(COMPRESS) > $${NAME}.tar.$(COMPRESS_EXT) ;			    \
+  rm $$NAME ;								    \
+  echo "" ;								    \
+  ls -lgF $${NAME}.tar.$(COMPRESS_EXT) ;				    \
+  echo "" ;

@@ -1,0 +1,62 @@
+Xed is an interactive texteditor for X based on the Athena widgets.
+The program should be self explaining see the manual page for further
+informations.
+
+The program has been tested with X 11 Release 4 and Release 5 on the
+following platforms:
+
+	Sun3, SunOs 4.0.3 (use Imakefile.sun3)
+        Sun4, SunOs 4.0.3 + SunOs 4.1.1
+        Data General Aviion 200, DG/UX Release 4.31 
+        GEI C2000
+        GEI C3000, RISC/os (UMIPS) 4.52
+        NeXT, Mach (Motorola)
+        Unix PC, System V/386 Release 3.2 (use Imakefile.386)
+	Parsytec Multicluster, Helios 1.2 (use Makefile.hel)
+	Linux 1.0
+
+It also has been tested with X 11 Release 6 on the following platforms:
+
+	NeXT, Mach 3.1 (Motorola)
+
+There are still some problems with scrolling performances on Sun3. Therefore
+you should compile with -DSCROLLBREAK on this platform (see Imakefile). If
+you do so the resource MaxScrollbreak has some effect on text scrolling and
+after every linescrolling XFlush is called. Try to find the smallest value
+for MaxScrollbreak which is still big enough to stop scrolling right after
+releasing the cursor key.
+Perhaps you also have to define one of the following Defines:
+
+	-DUSEGETCWD     : Use "getcwd" instead of "getwd"
+	-DNORENAME      : Use build in "rename" instead of unix "rename"
+	-DUSEDIRENT     : Use "dirent" struct instead of "direct"
+        -DUSE_CSH_SYSTEM: Use csh syntax for "system" call.
+
+If you are building for Helios, you will have problems with headerfiles	longer
+than 8+3 characters. Parsytec has changed this filenames to work with
+MSDOS filesystems (What a stupid idea). Before building make sure that the 
+correct filenames are available (use symbolic links in the include directories).
+For example the "IntrinsicP.h" Header is named "Intrincsic.Ph".
+If your Helios system uses the MSDOS filesystem you have to change some
+"#include" in the source code. You will get lots of "warnings" and some
+"errors" but no "serious errors" from the Helios compiler. There is an extra
+makefile "Makefile.hel" which sets the necessary compiler options. This 
+makefile will only work with the GNU make ("gmake"). Imake doesn't work for
+Helios.
+
+To comiple the program:
+
+1. Edit Imakefile if necessary (see above)
+2. Make a Makefile with imake (xmkmf)
+3. Type "make"
+4. Type "make install"
+5. Type "make install.man"
+ 
+
+If you like a Motif like look you may want to use the Xaw3d library instead
+of Xaw. Simply link the program with -lXaw3d instead of -lXaw and install the
+application dafaults Xed3d.ad instead of Xed.ad.
+
+	Randolf Werner
+	(evol@infko.uni-koblenz.de)
+

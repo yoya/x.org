@@ -1,0 +1,11 @@
+/* Add a new window manager, swm                                             */
+xsession*wm_SWM:	Spiffy Window Manager, swm, .swmrc.%s, -f %s
+
+/* Specify the new list of window managers                                   */
+xsession*wmNames:	CTWM, MWM, SWM, TWM, VTWM
+
+/* Add a new application, editres                                            */
+xsession*app_EditRes:	EditRes (Resource editor), editres
+
+/* Specify the new list of applications                                      */
+xsession*appNames:	XTerm, Emacs, EditRes, XEdit, XMan

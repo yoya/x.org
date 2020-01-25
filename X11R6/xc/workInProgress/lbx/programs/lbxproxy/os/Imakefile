@@ -1,0 +1,19 @@
+XCOMM $XConsortium: Imakefile,v 1.3 94/03/17 19:46:55 dpw Exp $
+
+#include <Server.tmpl>
+
+EXTRA_DEFINES = -DLBX ConnectionFlags $(XDMAUTH_DEFINES) $(RPC_DEFINES) \
+                $(KRB5_DEFINES)  AllocateLocalDefines
+INCLUDES = -I$(TOP)/include -I$(SERVERSRC)/include -I$(EXTINCSRC) \
+           -I$(LIBSRC)/Xau $(KRB5_INCLUDES) $(XDMAUTH_INCLUDES)
+    SRCS = connection.c io.c WaitFor.c osinit.c access.c
+
+    OBJS = connection.o io.o WaitFor.o osinit.o access.o
+ 
+NormalLibraryObjectRule()
+NormalLibraryTarget(os,$(OBJS))
+LintLibraryTarget(os,$(SRCS))
+NormalLintTarget($(SRCS))
+
+DependTarget()
+

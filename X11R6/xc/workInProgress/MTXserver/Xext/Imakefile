@@ -1,0 +1,49 @@
+XCOMM $XConsortium: Imakefile,v 6.1 94/01/11 18:33:09 gildea Exp $
+#define DoThreadedServer XServerThreaded
+#include <Server.tmpl>
+
+AllTarget(NullParameter)
+
+#if HasShm
+  SHMSRCS = shm.c
+  SHMOBJS = shm.o
+LinkSourceFile(shm.c,$(SERVERSRC)/Xext)
+#endif
+#if BuildXKB
+  XKBSRCS = xkb.c xkbUtils.c xkbEvents.c xkbAccessX.c xkbStubs.c
+  XKBOBJS = xkb.o xkbUtils.o xkbEvents.o xkbAccessX.o xkbStubs.o
+LinkSourceFile(xkb.c,$(SERVERSRC)/Xext)
+LinkSourceFile(xkbUtils.c,$(SERVERSRC)Xext)
+LinkSourceFile(xkbEvents.c,$(SERVERSRC)/Xext)
+LinkSourceFile(xkbAccessX.c,$(SERVERSRC)/Xext)
+LinkSourceFile(xkbStubs.c,$(SERVERSRC)/Xext)
+#endif
+       SRCS = shape.c $(SHMSRCS) mbuf.c mbufpx.c mbufbf.c	\
+              mitmisc.c xtest.c xtest1di.c xtest1dd.c sleepuntil.c	\
+	      bigreq.c sync.c saver.c xcmisc.c $(XKBSRCS)
+       OBJS = shape.o $(SHMOBJS) mbuf.o mbufpx.o mbufbf.o	\
+              mitmisc.o xtest.o xtest1di.o xtest1dd.o sleepuntil.o	\
+              bigreq.o sync.o saver.o xcmisc.o $(XKBOBJS)
+   INCLUDES = -I../include -I$(INCLUDESRC) -I$(EXTINCSRC)
+   LINTLIBS = ../dix/llib-ldix.ln ../os/llib-los.ln
+
+NormalLibraryObjectRule()
+NormalLibraryTarget(ext,$(OBJS))
+LintLibraryTarget(ext,$(SRCS))
+NormalLintTarget($(SRCS))
+
+LinkSourceFile(shape.c,$(SERVERSRC)/Xext)
+LinkSourceFile(mbuf.c,$(SERVERSRC)/Xext)
+LinkSourceFile(mbufpx.c,$(SERVERSRC)/Xext)
+LinkSourceFile(mbufbf.c,$(SERVERSRC)/Xext)
+LinkSourceFile(mitmisc.c,$(SERVERSRC)/Xext)
+LinkSourceFile(xtest.c,$(SERVERSRC)/Xext)
+LinkSourceFile(xtest1di.c,$(SERVERSRC)/Xext)
+LinkSourceFile(sleepuntil.c,$(SERVERSRC)/Xext)
+LinkSourceFile(bigreq.c,$(SERVERSRC)/Xext)
+LinkSourceFile(sync.c,$(SERVERSRC)/Xext)
+LinkSourceFile(saver.c,$(SERVERSRC)/Xext)
+LinkSourceFile(xcmisc.c,$(SERVERSRC)/Xext)
+
+
+DependTarget()

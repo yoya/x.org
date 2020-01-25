@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# Only one thing to do: execute xsession!
+exec xsession

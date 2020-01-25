@@ -1,0 +1,27 @@
+XCOMM $XConsortium: Imakefile,v 2.1 94/01/11 18:27:34 gildea Exp $
+#define DoThreadedServer XServerThreaded
+#include <Server.tmpl>
+
+SRCS =  omronUtils.c omronDtBm.c omronFsBm.c omron88kBm.c \
+	omronInit.c omronIo.c omronKMap.c \
+	omronKbd.c omronMouse.c
+
+OBJS =  omronUtils.o omronDtBm.o omronFsBm.o omron88kBm.o \
+	omronInit.o omronIo.o omronKMap.o \
+	omronKbd.o omronMouse.o
+
+INCLUDES = -I. -I../../include -I../../mfb -I../../mi -I../../os -I$(INCLUDESRC)
+
+NormalLibraryObjectRule()
+
+NormalLibraryTarget(omron,$(OBJS))
+
+LinkSourceFile(omronKbd.h,$(SERVERSRC)/hw/omron)
+LinkSourceFile(omronMouse.h,$(SERVERSRC)/hw/omron)
+LinkSourceFile(omronUtils.c,$(SERVERSRC)/hw/omron)
+LinkSourceFile(omronDtBm.c,$(SERVERSRC)/hw/omron)
+LinkSourceFile(omronFsBm.c,$(SERVERSRC)/hw/omron)
+LinkSourceFile(omron88kBm.c,$(SERVERSRC)/hw/omron)
+LinkSourceFile(omronKMap.c,$(SERVERSRC)/hw/omron)
+
+DependTarget()

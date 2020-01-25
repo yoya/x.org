@@ -1,0 +1,49 @@
+Sun Apr 24 16:49:42 1994  Shinichirou Yamamoto  (yamamoto@togan)
+
+	* "locate_pixmap.c"と"str_to_pixmap.c"にattributes.valuemask
+	初期化を追加
+
+Wed Mar 16 01:23:56 1994  Shinichirou Yamamoto  (yamamoto@togan)
+
+	* マクロLIB_NAMEの追加．
+
+Wed Mar  9 23:50:01 1994  Shinichirou Yamamoto  (yamamoto@togan)
+
+	* "server.c"の一部を"protocol.c"に移動．
+
+Fri Jan  7 23:54:49 1994  Shinichirou Yamamoto  (yamamoto at togan)
+
+	* -tフラッグをyoubindに追加 ．
+
+Thu Jan  6 00:48:29 1994  Shinichirou Yamamoto  (yamamoto at togan)
+
+	* "xyoubin.c"にsig_cld()を追加．
+
+Wed Jan  5 18:38:41 1994  Shinichirou Yamamoto  (yamamoto at togan)
+
+	* "server.h"の追加．
+	  マクロDEBUGの除去．
+	  "log.c"の追加．
+
+Fri Nov 12 00:38:53 1993  Shinichirou Yamamoto  (yamamoto at togan)
+
+	* 牧村さんによるpopperへのパッチを追加．
+
+Wed Nov 10 19:11:02 1993  Shinichirou Yamamoto  (yamamoto at togan)
+
+	* dotted-decimalスタイルのホスト名に対応．
+
+Sun Oct 31 19:11:55 1993  Shinichirou Yamamoto  (yamamoto at togan)
+
+	* del_state()のバグを修正．
+	statがNULLのuserができてしまう(本来はuesrもdisposeされるべき)．
+
+Sun Oct 17 23:59:38 1993  Shinichirou Yamamoto  (yamamoto at togan)
+
+	* 親プロセスが死んだ場合に終了するようにyoubin_sub()を修正．
+
+Tue Oct 12 22:48:44 1993  Shinichirou Yamamoto  (yamamoto at togan)
+
+	* Added sig_quit() to "youbin_sub.c".
+	
+

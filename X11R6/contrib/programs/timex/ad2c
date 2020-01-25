@@ -1,0 +1,59 @@
+#!/bin/sh
+#
+#	ad2c : Convert app-defaults file to C strings decls.
+#
+#	George Ferguson, ferguson@cs.rcohester.edu, 12 Nov 1990.
+#	Updated 19 Mar 1991 - Made it self-contained.
+#
+# This version is for use with the Timex program.
+#
+#     Copyright (c) 1994 Harald T. Alvestrand
+#
+#     The X Consortium, and any party obtaining a copy of these files from
+#     the X Consortium, directly or indirectly, is granted, free of charge, a
+#     full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+#     nonexclusive right and license to deal in this software and
+#     documentation files (the "Software"), including without limitation the
+#     rights to use, copy, modify, merge, publish, distribute, sublicense,
+#     and/or sell copies of the Software, and to permit persons who receive
+#     copies from any such party to do so.  This license includes without
+#     limitation a license to do the foregoing actions under any patents of
+#     the party supplying this software to the X Consortium.
+#
+#
+
+sed -n '
+: read
+# remove comments
+/^!/d
+# remove blanks
+/^$/d
+# escape quotes
+s/"/\\"/g
+# escape backslash
+s/\\/\\\\/g
+# except the line continuation ones
+s/\\$//g
+# add leading quote
+s/^/"/
+#
+: test
+/\\$/b slash
+s/$/",/
+p
+n
+b read
+#
+: slash
+p
+n
+# just like "read" only does not add leading quote
+/^!/d
+/^$/d
+s/"/\\"/g
+s/\\\\/\\/g
+s/\\n/\\\\n/g
+s/\\t/\\\\t/g
+s/\\f/\\\\f/g
+s/\\b/\\\\b/g
+b test' "$@"

@@ -1,0 +1,8 @@
+*foreground: blue
+*undefined: undefined
+StyleTest*foreground: green
+StyleTest*PushButton*foreground: red
+StyleTest*mybutton*foreground: black
+*FileChooser*PushButton*foreground: purple
+*QuitDialog*PushButton*foreground: yellow
+*mychooser*PushButton*foreground: magenta

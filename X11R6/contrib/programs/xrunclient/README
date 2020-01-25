@@ -1,0 +1,68 @@
+$Id: README,v 6.1 94/05/18 15:01:33 dd Exp $
+
+README for xrunclient
+X11R6 contrib version
+May 18, 1994
+
+
+DESCRIPTION
+
+This program launches an X client and waits until it maps a window before
+exiting.  It is used in .xinitrc, .openwin-init, or a similar script to
+make X startup smoother and less of a drain on system resources.
+
+Here is a sample .xinitrc before xrunclient:
+
+	xrdb -load $HOME/.xresources
+	xterm -C -title Console -geometry 80x24+0+0 &
+	xsetroot -solid gray &
+	xclock -geometry 50x50-0+0 -bw 0 &
+	xload -geometry 50x50-50+0 -bw 0 &
+	xterm -geometry 80x24+0-0 &
+	twm
+
+All the clients try to run at once, so the system thrashes excessively,
+and it takes quite a while to settle down and be usable.  (Well, maybe not
+with only 4 clients, but if you try to start 20 clients it can be pretty
+bad.)
+
+Here is a .xinitrc which uses xrunclient to start the same clients:
+
+	xrdb -load $HOME/.xresources
+	xrunclient xterm -C -title Console -geometry 80x24+0+0
+	twm &
+	xrunclient xsetroot -solid gray
+	xrunclient xclock -geometry 50x50-0+0 -bw 0
+	xrunclient xload -geometry 50x50-50+0 -bw 0
+	xrunclient xterm -geometry 80x24+0-0
+	wait
+
+Now each client has a chance to get established before the next one tries
+to start.  The console window is usable almost immediately.
+
+Note this is especially helpful if you are trying to run multiple X
+terminals from a single compute server.
+
+xrunclient can replace the Sun OpenWindows toolwait program.
+
+
+HOW TO BUILD IT
+
+	xmkmf -a
+	make
+	make install install.man
+
+
+WHAT MACHINES IT WAS TESTED ON
+
+	DEC DS5000, Ultrix 4.2, X11R6
+	HP700, HP-UX 9.01, X11R5
+	Sun-3, SunOS 4.1.1, X11R5
+	Sun-4, SunOS 4.1.3, X11R5 and X11R6
+	Sun-4, SunOS 5.3, X11R6
+
+
+WHERE TO SEND BUGS
+
+	David DiGiacomo
+	david@slack.com

@@ -1,0 +1,40 @@
+			README for Xexit
+			----------------
+
+Description:
+------------
+  The xexit program consists of a (small) window sitting somewhere on
+your screen.  When clicking into it with the mouse pointer xexit tries
+to gracefully terminate all clients of the current session.
+  It first sends all clients participating in that protocol a WM_SAVE_YOURSELF
+message. After that, a WM_DELETE_WINDOW message is sent.  All clients still
+having windows, are now shut down with XKillClient().
+  For convenience reasons xexit per default pops up a confirmation dialog
+box.  This however can be suppressed either by commandline option or resource.
+  Xexit is assumed to be the last client in the .xsession file and not be sent
+in the background, though this is not strictly required.
+
+Install Hints:
+--------------
+  There are two alternate bitmaps for xexit in bitmaps/haegar.
+These are more "image-like" and were created by "Thomas 'TiCi' Thissen"
+(tici@uni-paderborn.de). If you there instead of the "iconic-like" ones,
+simply change in the last line of the Imakefile in InstallMultipleDestFlags()
+BITMAPS1 to BITMAPS2.
+
+Bugs, Comments:
+---------------
+  Please send bugs and comments to the email address listed below.
+
+New Versions:
+-------------
+  New versions will be of course on ftp.x.org and also on
+  ftp://ftp.informatik.tu-muenchen.de/pub/comp/X11/contrib/clients/xexit/
+
+
+	\Maex
+______________________________________________________________________________
+ Markus Stumpf                        Markus.Stumpf@Informatik.TU-Muenchen.DE 
+                                http://www.informatik.tu-muenchen.de/~stumpf/
+
+ $Id: README,v 1.1 1994/06/06 14:29:16 stumpf Exp $

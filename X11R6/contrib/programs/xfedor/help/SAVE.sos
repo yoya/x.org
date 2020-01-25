@@ -1,0 +1,16 @@
+This window allows you to give global textual information on the font,
+before saving it on a file.
+
+Text dialog boxes for giving fontname, size, etc,
+appear with mouse click on their string values.
+
+Help window is mapped with a mouse click on the left labels "FONTNAME"..
+
+Save on file is performed after a confirmation Popup on mouse click on SAVE
+label.
+
+This window disappears after the demand of saving, even if the confirmation
+is bad.
+
+
+

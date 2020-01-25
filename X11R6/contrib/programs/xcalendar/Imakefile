@@ -1,0 +1,54 @@
+XCALENDAR_LIBDIR = $(LIBDIR)/xcalendar
+        LIBFILES = larrow.xbm qmark.xbm quit.xbm rarrow.xbm xcalendar.hlp
+# Comment out the following two lines for the Motif version
+LOCAL_LIBRARIES = $(XAWLIB) $(XMULIB) $(XTOOLLIB) $(XLIB)
+  EXTRA_DEFINES = -DATHENA
+# Uncomment the following two lines for the Motif version
+# LOCAL_LIBRARIES = -L/usr/local/Motif/lib -lXm $(XMULIB) $(XTOOLLIB) $(XLIB)
+#   EXTRA_DEFINES = -I/usr/local/Motif/include
+            SRCS = xcalendar.c dayeditor.c lists.c
+            OBJS = xcalendar.o dayeditor.o lists.o
+
+#
+# for Internationalization
+#
+#EXTRA_DEFINES = -DXI18N
+##if !SharedLibXwchar
+#       _UseCat($(USRLIBDIR),$(CONTRIBSRC)/lib/Xwchar,/libXwchar.a)
+#       XWCHARLIB = LoaderLibPrefix _Use(-lXwchar,$(DEPXWCHARLIB))
+##endif
+##if !SharedLibXaw
+#       DEPXAWLIB = _UseCat($(USRLIBDIR),$(CONTRIBSRC)/lib/Xaw,/libXaw.a)
+#       XAWLIB = LoaderLibPrefix _Use(-lXaw,$(DEPXAWLIB))
+##endif
+#DEPLIBS = $(DEPXAWLIB) $(DEPXCHARLIB) $(DEPXMULIB) $(DEPXTOOLLIB) $(DEPXLIB)
+#LOCAL_LIBRARIES = $(XAWLIB) $(XWCHARLIB) $(XMULIB) $(XTOOLLIB) $(XLIB)
+
+ComplexProgramTarget(xcalendar)
+
+InstallAppDefaults(XCalendar)
+
+XCalendar.ad: XCalendar.sed
+	sed 's;%%XCALENDAR_LIBDIR%%;$(XCALENDAR_LIBDIR);'\
+	< $? \
+	> $@
+
+clean::
+	$(RM) XCalendar.ad
+
+#
+# for Internationalization
+#
+#XCal-uj.ad: XCal-uj.sed
+#	sed 's;%%XCALENDAR_LIBDIR%%;$(XCALENDAR_LIBDIR);'\
+#	< $? \
+#	> $@
+#install:: XCal-uj.ad
+#	MakeDir($(LIBDIR)/ja_JP.ujis/app-defaults)
+#	$(INSTALL) -c $(INSTAPPFLAGS) XCal-uj.ad $(LIBDIR)/ja_JP.ujis/app-defaults/XCalendar
+#
+#clean::
+#	$(RM) XCal-uj.ad
+
+MakeDirectories(install, $(XCALENDAR_LIBDIR))
+InstallMultipleFlags($(LIBFILES), $(XCALENDAR_LIBDIR), $(INSTDATFLAGS))

@@ -1,0 +1,97 @@
+.TH xtrap 1
+.SH Name
+.sp
+xhydra \- 
+a poor man's multi-headed workstation
+.SH Syntax
+.sp
+.NXR "XTrap X Server Extension Sample Clients"
+.B xhydra
+[
+.B \-d[isplay]
+.I display
+]
+[
+.B \-g[eometry]
+.I geometry
+]
+[
+.B -horizontal
+]
+[
+.I TripOptions
+]
+.I RemoteDisplays
+.SH Description
+.sp
+This utility is used to logically control multiple X servers from
+one X server's keyboard and mouse, and switch between X servers.
+This utility is made available with the XTrap distribution, although
+it can function to varying levels without XTrap being present.
+The XTest extension may be used in place of XTrap since only device
+input events are synthesized.
+.SH Options
+.PP
+.TP 4
+.B "-d[isplay] \fIdisplay\fP"
+Specifies the controlling server; see
+.PN X(1).
+.PP
+.TP 4
+.B "-g[geometry] \fIgeometry\fP"
+Specifies the placement of the GUI on each display.  The GUI is only
+mapped on the current target display, or the control display if there
+is no target display currently active.  Although this argument is optional,
+interactive placement gets tiresome.
+.PP
+.TP 4
+.B "-horizontal"
+GUI buttons are oriented horizontally;  Default is vertically.  There is
+one button for each remote display.
+.PP
+.TP 4
+.B "-trip{left,right,top,bottom} \fIfrom:to\fP"
+Set a trip wire on the
+.I from
+display at the specified side which will jump control to the specified
+.I to
+display.
+Tripwires are symmetric, and a -tripleft 0:1 implies -tripright 1:0.
+This can be disabled based on the boolean variable
+.I hyper_symetric.
+.TP 4
+.B "\fIRemoteDisplay\fP"
+Specified in the same manner as the control display, for each remote
+display.
+.PP
+.EE
+.SH Example usage
+.PP
+xhydra -g -0-0 -d :0 remote:0
+.PP
+xhydra -g -0-0 -d :0 remote:0 -tripright 0:1
+.PP
+xhydra -g -0-0 -d :0 near:0 far:0 -tripright 0:1,1:2
+.br
+.SH Bugs
+.PP
+Chaining hops of tripwires together can result in an endless loop
+of input synthesis.
+.PP
+Display sizes need not be the same, but keyboard codes ought to be.
+.br
+.SH Acknowledgements
+.PP
+Jem Treadwell of Concurrent Computer Corporation provided the
+Motif GUI for xhydra.  Ray Tice of Concurrent Computer Corporation
+provided help in using inputOnly windows and tripwires.
+.PP
+If you encounter problems, have questions, wish to contribute
+an Xaw GUI, etc. please contact me via mail, phone, etc. at:
+.sp
+rob@chesler.absol.com (Robert Chesler) (603) 88-ABSOL [882-2765]
+.br
+.SH See Also
+X(1)
+.NXE "X" 
+

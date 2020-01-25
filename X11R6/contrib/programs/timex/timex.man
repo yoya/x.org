@@ -1,0 +1,125 @@
+.TH TIMEX "24 May 1993" ""
+.SH NAME
+timex - a manager for time lists
+.SH SYNOPSIS
+.B timex
+[-\fItoolkitoption\fP ...] [-option ...] [file to edit]
+.SH DESCRIPTION
+The
+.I timex
+program displays a list of projects, with an elapsed-time clock for each
+project. The clock ajadecent to the currently highlighted project will be
+running, showing the time used as HH:MM.
+.LP
+It also saves the stuff to a file for each day.
+.LP
+The day is called YYYY-MM-DD, and is located in the $HOME/.timex directory.
+If you don't like this, set the environment variable TIMEXDIR to the
+directory you want instead.
+.LP
+If it is given a filename, it tries to locate this in the ~/.timex directory
+and gives you a chance to edit it. When doing this, "save" and "load" buttons
+appear, together with the filename, and it does NOT count the time.
+.LP
+It reads the projects from the file "projectlist" in the ~/.timex directory.
+.LP
+The auxillary PERL program "sumtimex" may be used to sum the files to
+give an hours-worked list for each week.
+.LP
+To the right of the command box is a counter that lists how much time has
+passed, in the format "HH:MM[+-]MM". The last number is how many minutes you
+have added or subtracted since TIMEX started.
+.SH COMMANDS
+The command buttons available are:
+.TP 8
+.B quit
+Self-explanatory
+
+.TP 8
+.B +
+Add 5 minutes to current project
+
+.TP 8
+.B -
+Subtract 5 minutes from current project
+
+.TP 8
+.B add project
+Give a name that will be added to the projectlist
+.br
+The new project is added after the currently selected project; if there
+is no selected project, it is added as the first project.
+
+.TP 8
+.B edit project
+Change the time worked on the project. There is also a button within
+this dialog box for
+deleting it from the projectlist.
+
+.TP 8
+.B pause
+Stop counting the time.
+
+.SH OPTIONS
+.I timex
+accepts all of the standard X Toolkit command line options along with the 
+additional options listed below:
+.TP 8
+.B \-help
+This option indicates that a brief summary of the allowed options should be
+printed on the standard error. NOT IMPLEMENTED YET.
+.TP 8
+.B \-pi, +pi
+Turns off (or on) displaying of the current project in the icon name
+.TP 8
+.B \-ip
+Icon prefix string, to avoid the timex icon jumping up and down in
+a sorted TWM iconbox when the project changes
+.TP 8
+.B \-sp
+Start in paused mode (no active project)
+.TP 8
+.B \-dir
+Work in another Timex directory
+
+.PP
+The following standard X Toolkit command line arguments are commonly used with 
+.I timex:
+.TP 8
+.B \-bg \fIcolor\fP
+This option specifies the color to use for the background of the window.  
+The default is \fIwhite\fP.
+.TP 8
+.B \-display \fIhost\fP:\fIdisplay\fP
+This option specifies the X server to contact.
+.TP 8
+.B \-xrm \fIresourcestring\fP
+This option specifies a resource string to be used.
+.SH X DEFAULTS
+This program uses the X Toolkit and Athena widgets.
+The class name for the application is Timex.
+It understands all of the core resource names and
+classes.
+
+There are a number of options that can be set by resources; read the
+app-defaults file for details.
+
+.SH "SEE ALSO"
+X(1), xrdb(1), sumtimex(1)
+.SH BUGS
+.PP
+You cannot choose the name of the projectlist.
+.PP
+The + and - buttons have only 5-minute increments.
+.PP
+The documentation doesn't tell you about the app-defaults.
+.PP
+.SH COPYRIGHT
+Copyright 1990-1993, Harald Tveit Alvestrand
+.SH AUTHORS
+Harald Tveit Alvestrand (DELAB, SINTEF, Norway)
+.br
+E-mail: Harald.T.Alvestrand@delab.sintef.no
+
+
+

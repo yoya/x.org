@@ -1,0 +1,56 @@
+/*                            xmove
+ *                            -----
+ *             A Pseudoserver For Client Mobility
+ *
+ *   Copyright (c) 1994         Ethan Solomita
+ *
+ *   The X Consortium, and any party obtaining a copy of these files from
+ *   the X Consortium, directly or indirectly, is granted, free of charge, a
+ *   full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+ *   nonexclusive right and license to deal in this software and
+ *   documentation files (the "Software"), including without limitation the
+ *   rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons who receive
+ *   copies from any such party to do so.  This license includes without
+ *   limitation a license to do the foregoing actions under any patents of
+ *   the party supplying this software to the X Consortium.
+ */
+
+	Installing xmove is fairly straightforward, it's the
+library that can be a catch. The Imakefile in this directory must
+be edited for your system. It contains a few questions at the
+beginning, along with explanatory comments. Make sure you set the
+values appropriately.
+
+	The bulk of the xmove source code should be generic
+enough that it can compile on most systems. It uses sockets for
+client/server communications. Building xmove also requires a
+properly configured Imake.
+
+	To compile xmove:
+
+$ cd xmove
+$ xmkmf
+$ make depend
+$ make
+
+	This should create the xmove executable. If you chose to
+load libraries dynamically, you should ensure that xmove is
+successfully finding its library. After building the library, run
+xmove. Make certain that it says "Loaded mapping library
+<filename>" If not, xmove is not finding its library. Make certain
+xmove's Imakefile has the full path to the library's directory.
+
+	If you are not loading the library dynamically, the
+standard libatommap library source code will be compiled
+statically into xmove. The disadvantage is that, with this
+configuration, you will be unable to use future libraries by
+simply placing them into xmove's library directory. However, if
+you are not using a Sun workstation, this may not even be an
+option as the dynamic loading of libraries via dlopen() is not
+standardized between Unix platforms. To ensure maximum
+compatibility between workstation configurations, do not load the
+library dynamically.
+
+	The xmove executable is standalone and can be relocated
+to any directory desired.

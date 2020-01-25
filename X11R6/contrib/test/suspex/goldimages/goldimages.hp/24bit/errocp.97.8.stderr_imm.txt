@@ -1,0 +1,11 @@
+
+==============================================
+  edge_flags[0] = PEXOn
+  edge_flags[1] = PEXOff
+  edge_flags[2] = BogusEdgeSwitch
+  edge_flags[3] = BogusEdgeSwitch
+  edge_flags[4] = PEXOff
+PEXError: Bad PEX OC
+OC code: 97
+Request code: 28
+==============================================

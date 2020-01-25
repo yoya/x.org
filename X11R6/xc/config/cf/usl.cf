@@ -1,0 +1,13 @@
+XCOMM platform:  $XConsortium: usl.cf,v 1.35 95/01/12 15:37:24 kaleb Exp $
+
+#define OSName			UNIX System V/386 Release 4.2 Version 1.1.1
+XCOMM operating system:  OSName
+#define OSMajorVersion		4
+#define OSMinorVersion		2
+#define OSTeenyVersion		1
+
+#define BootstrapCFlags		-DUSL
+#define NeedWidePrototypes	NO	/* experimental */
+#define ServerExtraDefines	-D__USLC__ XFree86ServerDefines
+#define ServerOSDefines		-DDDXTIME XFree86ServerOSDefines
+#include <svr4.cf>

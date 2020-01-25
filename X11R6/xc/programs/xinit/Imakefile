@@ -1,0 +1,25 @@
+XCOMM $XConsortium: Imakefile,v 1.24 93/09/21 17:58:25 kaleb Exp $
+#if HasVFork
+  VFORK_DEFINES = -DHAS_VFORK
+#endif
+        DEFINES = ConnectionFlags $(VFORK_DEFINES) $(SIGNAL_DEFINES) \
+			-DBINDIR=\"$(BINDIR)\"
+        DEPLIBS = $(DEPXMULIB) $(DEPXLIB)
+LOCAL_LIBRARIES = $(XMULIB) $(XLIB)
+          SRCS1 = xinit.c 
+          OBJS1 = xinit.o 
+  SAMPLECONFIGS = xinitrc /* xserverrc */
+       PROGRAMS = xinit startx $(SAMPLECONFIGS)
+
+
+ComplexProgramTarget_1(xinit,$(LOCAL_LIBRARIES),NullParameter)
+
+MakeScriptFromCpp(xinitrc, -DXINITDIR=$(XINITDIR))
+MakeScriptFromCpp(startx, -DXINITDIR=$(XINITDIR))
+
+InstallNamedProg(startx,startx,$(BINDIR))
+InstallManPage(startx,$(MANDIR))
+
+#if InstallXinitConfig
+InstallMultiple($(SAMPLECONFIGS),$(XINITDIR))
+#endif

@@ -1,0 +1,64 @@
+				XBuffy
+				05/12/94
+				
+
+Xbuffy was written by Bill Pemberton (wfp5p@virginia.edu) and was based on 
+Xmultibiff by John Reardon.  Xmultibiff can be found at ftp.midnight.com.
+
+I was looking for a replacement for XBiff.  I use the filter program
+(it comes with elm) to seperate my mail into several different 
+mailboxes.  I looked at a lot of replacements for XBiff until I 
+found Xmultibiff.  Xmultibiff was very promising, but it didn't
+do quite what I wanted it to do, so I modified it to create XBuffy.
+
+Basically, XBuffy (and Xmultibiff) is a XBiff-type program with a lot
+of new options.  With XBuffy you can watch multiple mailboxes.  When
+new mail arrives, you can have a pop up window showing the From: and
+Subject: lines.  You can also set it up to launch your favorite mail
+reader when you click on a box.  Currently. xbuffy is only capable of 
+watching mailboxes with the standard mailbox format (messages seperated 
+with a From line).
+
+This version also incorporates a new feature which will let you monitor
+newsgroups in the same way you monitor mailboxes.  It parses your
+.newsrc and uses NNTP to monitor any given group or groups.  It will
+keep constant track of how many unread articles are in a specified
+newsgroup(s).  Also, when new articles come in, it will pop up the From
+and Subject lines of the article just like it pops them up for
+mailboxes.  Note that this feature won't be able to see new incoming
+articles if you are using a version of NNTP prior to 1.5.11t5 (the
+problem is with the NNTP server, not Xbuffy).
+
+Xbuffy uses the Athena Widget library and the libDyn package (libDyn
+is included here).
+
+To build:
+
+	% xmkmf -a
+	% make
+
+To learn of the usefulness of multiple mailboxes and incoming mail
+processing, check out procmail written by S.R. van den Berg.  It can be
+used to sort your incoming mail into separate files, start programs when
+mail arrives, and a host of other things.  A recent version can be
+gotten from ftp.informatik.rwth-aachen.de (137.226.112.172) in
+pub/unix/procmail.tar.Z.
+
+Some mailers (including elm) cause a problem with xbuffy.  When you read 
+a mail message, a Status: header is added to the message to show that the 
+message has been read.  Many mailers will only add this header to 
+message in your real mailbox.  This means that xbuffy can not tell if you've 
+read mail in other folders.  Some mailers have configuration options that force 
+it to add Status: headers, some (like elm) don't.  I've made a patch to elm to 
+create a mode that DOES add Status: headers.  This is known as Magic mode.  
+Contact me if you want more information about the changes to elm.
+
+Xbuffy has been tested on 
+	SunOS 4.1.3
+	AIX 3.2.X
+	Irix 4.X
+	
+Please e-mail all added features (and any problems you may have) to
+wfp5p@virginia.EDU.  
+
+

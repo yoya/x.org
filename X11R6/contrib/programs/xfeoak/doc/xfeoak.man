@@ -1,0 +1,466 @@
+
+XFEOAK(1)
+
+NAME
+
+    xfeoak - X window input server (kana-kanji covertion front end)
+
+SYNOPSIS
+
+    xfeoak [-display <displayname>] [-geometry <geom>] [-nobeep] [-v[erbose]]
+    [{-none|-jis|-oya[yubi]}] [-fg <color>] [-bg <color>] [-bd <color>]
+    [-bw <number>] [-bp <bitmapfile>] [-fn <fontname>] [-fk <kanjifontname>]
+    [{-serverSync|-serverSyncNone}] [{-clientSync|-clientSyncNone}]
+    [{-Ext|-noExt}] [{-ExtSetEventMask|-noExtSetEventMask}]
+    [{-ExtForwardKey|-noExtForwardKey}] [{-ExtMove|-noExtMove}]
+    [{-static|-dynamic}] [{-backend|-frontend}] [-proto <name>] [-locale <name>]
+    [{-title [<string>]|-notitle}] [-name <string>] [-iconic]
+    [-maxClient <number>] [-workSize <number>]
+    [-transVersion <number/number>] [-divideSize <number>]
+
+DESCRIPTION
+
+    xfeoak is Japanese input server for X Window System, which comunicates 
+    with Input method library (XIM) by IM Protocol.
+    xfeoak supports trasport over the X Protocol and TCP/IP.
+    With Fujitsu's extension of X window and the dictionary, xfeoak 
+    emulates OAK operations.
+      
+OPTION
+
+    -display display
+	Specify the display to be used.
+
+    -geometry geometry
+	Specify the size and position of the window.
+
+    -nobeep
+	Specify not to beep. The default is "beep".
+
+    -v[erbose]
+	Specify to display the error messages of XLIB. 
+	The default is "NOT display".
+
+    -none | -jis | -oya[yubi]
+	Specify the kind of using KeyBoard
+	   -none	general X server
+	   -jis		JIS KeyBoard with Fujitsu's X server
+	   -oya[yubi]	OYAYUBI KeyBoard with Fujitsu's X server
+	The default is "none".
+
+    -fg color
+	Specify the foreground color. The default is white.
+
+    -bg color
+	Specify the background color. The default is black.
+
+    -bd color
+	Specify the border color. The default is white.
+
+    -bw number
+	Specify the width of border in pixel.
+
+    -bp bitmap file name
+	Specify the pixmap for the window's background.
+	If you specify the file name ".", the same background as  
+	"X11/bitmaps/1x1".
+
+    -fn font
+	Specify the font for eisuu-kana. The default is 
+	"-*-fixed-medium-r-normal--14-*-*-*-*-*-jisx0201.1976-*".
+
+    -fk font
+	Specify the font for kanji. The default is 
+	"-*-fixed-medium-r-normal--14-*-*-*-*-*-jisx0208.1983-*".
+
+    -serverSync | -serverSyncNone
+	Specify to process requests sent by xfeoak synchronously.
+	The default is "serverSync".
+
+    -clientSync | -clientSyncNone
+	Specify to process requests sent by IM library synchronously.
+	The default is "clientSyncNone".
+
+    -Ext | -noExt
+	Specify to/not to use all extensions.
+	See the following options for the default.
+
+    -ExtSetEventMask | -noExtSetEventMask
+	Specify to/not to use Extension SetEventMask.
+	If "noExtSetEventMask" is set, the FrontEnd method can not be used.
+	The default is "ExtSetEventMask".
+
+    -ExtForwardKey | -noExtForwardKey
+	Specify to/not to use Extension ForwardKey.
+	The default is "noExtForwardKey".
+
+    -ExtMove | -noExtMove
+	Specify to/not to use Extension Move.
+	The default is "noExtMove".
+
+    -static | -dynamic
+	Specify to use Static/Dynamic Event Flow.
+	The default is "static".
+
+    -backend | -frontend
+	Specify to use BackEnd/FrontEnd event method.
+	The default is "backend".
+
+    -proto transport-name
+	Specify the transport as follows:
+	    X     - X
+	    local - TCP/IP internal domain
+	    tcp   - TCP/IP internal domain
+        If multiple transports are supported, each transport-name 
+	is set apart by ",".  The default is "X".
+
+    -locale locale-name
+	Specify the locale. If multiple locale are supported,
+	each locale-name is set apart by ",". The default is "ja_JP".
+
+    -title title-name | -notitle
+	Specify the title of the window. If it is display the title,
+        you can specify the title-name.
+	The defalt is "title xfeoak".
+
+    -name resource-name
+	Specify the resource. (ex. *xfeoak.Title : ON)
+	The default is none.
+
+    -iconic
+	Specify to display as icon when xfeoak is start.
+
+    -maxClient max-client-number
+	Specify the max number of clients to connect.
+	The default is "32".
+
+    -workSize working-are-size
+	Specify the size of working area that is secured when xfeoak is
+	initialized.  The default is "4096".
+
+    -transVersion major-code/minor-code
+	Specify the major/minor transport version of X Transport Protocol.
+	The major transport version and the minor transport version
+	are set apart by "/".  The default is "0/1".
+
+	   ---------+---------+----------------------------------------
+	     major  |  minor  |             method
+	   ---------+---------+----------------------------------------
+	       0    |    0    | only-CM & Property-with-CM
+	            |    1    | only-CM & multi-CM
+	            |    2    | only-CM & multi-CM & Property-with-CM
+	   ---------+---------+----------------------------------------
+	       1    |    0    | PropertyNotify
+	   ---------+---------+----------------------------------------
+	       2    |    0    | only-CM & PropertyNotify
+	            |    1    | only-CM & multi-CM & PropertyNotify
+	   ---------+---------+----------------------------------------
+
+    -divideSize size
+	Specify the size 
+	if the above transport version is "0/2" or "2/1".
+	The default is "400".
+
+
+    See README about other options which depends on the conversion engine
+    and the dictionary.
+
+RESOURCE
+
+    xfeoak accepts the standard resources and the followings.
+
+    geometry (Geometry class)
+	Specify the size and position of the window.
+	The default is "0x0+0+0".
+
+    beep (Beep class)
+	Specify whether the bell ring with on/off. 
+	The default is "on" (ring).
+
+    verbose (Verbose class)
+	Specify whether to display the error messages of XLIB with on/off.
+	The default is "off" (not display).
+
+    keyBord (KeyBord class)
+	Specify the kind of using KeyBoard. The default is "none".
+    	    none    : general X server.
+    	    jis     : JIS KeyBoard with Fujitsu's X server only).
+    	    oyayubi : OYAYUBI KeyBoard with Fujitsu's X server 
+    
+    forground (Forground class)
+	Specify the forground color. The default is "white".
+
+    background (Background class)
+	Specify the background color. The default is "black".
+
+    borderColor (BorderColor class)
+	Specify the border color. The default is "white".
+    
+    borderWidth (BorderWidth class)
+	Specify the border width. (pixel)
+
+    backgroundPixmap (BackgroundPixmap class)
+	Specify the background pixmap of the window.
+	If "." is specified, the same background as "X11/bitmaps/1x1" is
+	displayed.
+
+    font (Font class)
+	Specify the font for eisuu-kana. The default is 
+	"-*-fixed-medium-r-normal--14-*-*-*-*-*-jisx0201.1976-*".
+
+    kanjiFont (KanjiFont class)
+	Specify the font for kanji. The default is 
+	"-*-fixed-medium-r-normal--14-*-*-*-*-*-jisx0208.1983-*".
+
+    serverSync (ServerSync class)
+	Specify whether to process requests sent by xfeoak synchronously
+	or asynchronously.
+	The default is "on" (synchronously).
+
+    clientSync (ClientSync class)
+	Specify whether to process requests sent by clients synchronously
+	or asynchronously.
+	Specify whether to send/receive protocol synchronously or 
+	asynchronously to/from clients with on/off. 
+	The default is "off" (asynchronously).
+
+    extension (Extension class)
+	Specify whether to use all extensions with on/off.
+	See the following options for the default.
+
+    extSetEventMask (ExtSetEventMask class)
+	Specify whether to use Extension SetEventMask with on/off.
+	The default is "on" (use).
+
+    extForwardKey (extForwardKey class)
+	Specify whether to use Extension ForwardKey with on/off.
+	The default is "off" (not use).
+
+    extMove (extMove class)
+	Specify whether to use Extension Move with on/off.
+	The default is "off" (not use)".
+
+    eventFlow (EventFlow class)
+	Specify the kind of event flow.  The default is "static".
+	    static    : Static Event Flow
+	    dynamic   : Dynamic Event Flow
+
+    eventMethod (EventMethod class)
+	Specify the kind of event method.  The default is "backend".
+	    backend   : BackEnd Event Method
+	    frontend  : FrontEnd Event Method
+
+    protocol (Protocol class)
+	Specify the transport to support.
+	    X         : X
+	    local     : TCP/IP internal domain
+	    tcp       : TCP/IP internal domain
+        If multiple transports are supported, each transport-name 
+	is set apart by ",".  The default is "X".
+
+    locale (Locale class)
+	Specify the locale to support. If multiple locale are supported,
+	each locale-name is set apart by ",". The default is "ja_JP".
+
+    title (Title class)
+	Specify whether to display the title of the window with on/off.
+	The default is "on" (display).
+
+    titleName (TitleName class)
+	Specify the title name, if the title is "on".
+	The defalt is "xfeoak".
+
+    iconic (Iconic class)
+	Specify whether to display as icon when xfeoak is start.
+	The default is "off" (not icon).
+
+    maxClient (MaxClient class)
+	Specify the max number of clients to connect.
+	The default is "32".
+
+    workSize (WorkSize class)
+	Specify the size of working area that is secured when xfeoak is 
+	initialized. The default is "4096".
+
+    transVersion (TransVersion class)
+	Specify the major/minor transport version of X Transport Protocol.
+	The major transport version and the minor transport version
+	are set apart by "/".  The default is "0/1".
+
+	   ---------+---------+----------------------------------------
+	     major  |  minor  |             method
+	   ---------+---------+----------------------------------------
+	       0    |    0    | only-CM & Property-with-CM
+	            |    1    | only-CM & multi-CM
+	            |    2    | only-CM & multi-CM & Property-with-CM
+	   ---------+---------+----------------------------------------
+	       1    |    0    | PropertyNotify
+	   ---------+---------+----------------------------------------
+	       2    |    0    | only-CM & PropertyNotify
+	            |    1    | only-CM & multi-CM & PropertyNotify
+	   ---------+---------+----------------------------------------
+
+    -divideSize (DivideSize classs)
+	Specify the size 
+	if the above transport version is "0/2" or "2/1".
+	The default is "400".
+
+
+ENVIRONMENT
+
+    DISPLAY  : Get the host name and the number of the default X server.
+
+
+OPERATION
+
+  1) The general operation
+
+      The operation to use KeyBoard with the general X server is 
+    the same as JIS KeyBoard.  The physical mode switch between kana 
+    key and eiji key takes priority over the logical mode switch.
+
+    The basic operation is as follows:
+       1. Starting
+            Type "xfeoak &".
+            The window is displayed below the display.
+       2. Starting for Japanese input
+            Press "Control + space" to start.
+            The indication below the display is changed to 
+            "NIHONGO     R KANA".
+       3. Sample input
+            Press "a" and "i" key, and "AI"(in HIRAGANA) are displayed in 
+            Preedit window.
+            After Press "Control + h", the characters in Preedit window are
+            converted to kanji and "AI"(in KANJI) is displayed.
+            Press "Control + h" again, and the next candidate of conversion
+            is displayed.
+            Press "Control + l", and the conversion is completed. The string 
+            is sent to the application.
+       4. Ending for Japanese input
+            Press "Control + space" to end.
+
+    For more informations:
+       
+     - Refer to Table 1 for the input mode (status).
+     - Refer to Table 2 for switching of input mode.
+     - Refer to Table 3 for every operations for conversion.
+
+  2) OAK style input operation
+
+      The operation to use JIS KeyBoard or OYAYUBI KeyBoard with Fujitsu's
+    X server is the same as OAK Japanese input.
+    However, some functions are not supported.
+
+NOTE
+   xfeoak works if kana-kanji conversion engine is not available, at this 
+   time you can operate roma-ji-henkan, kana-henkan and katakana-henkan.
+
+
+
+APPENDIX
+
+  Table 1  The input mode
+
+    -----------------------------+------------------------------------------
+    displayed string in          |input status
+    status area                  |
+    (displayed in Japanese)      |
+    -----------------------------+------------------------------------------
+    	              ANK        | not connect to input server
+    -----------------------------+------------------------------------------
+    NIHONGO           R HIRAGANA | zenkaku romaji-hiragana conversion input
+    NIHONGO           R KATAKANA | zenkaku romaji-katakana conversion input
+    NIHONGO           HIRAGANA   | zenkaku hiragana conversion input
+    NIHONGO           KATAKANA   | zenkaku katakana conversion input
+    NIHONGO           SMALL      | zenkaku small letter input
+    NIHONGO           CAPITAL    | zenkaku capital letter input
+    NIHONGO  Hankaku  R HIRAGANA | hankaku romaji-hiragana conversion input
+    NIHONGO  Hankaku  R KATAKANA | hankaku romaji-katakana conversion input
+    NIHONGO  Hankaku  HIRAGANA   | hankaku hiragana conversion input
+    NIHONGO  Hankaku  KATAKANA   | hankaku katakana conversion input
+    NIHONGO  Hankaku  SMALL      | hankaku small letter input
+    NIHONGO  Hankaku  CAPITAL    | hankaku capital letter input
+    -----------------------------+------------------------------------------
+
+
+  Table 2  The switching of input mode
+
+     ANK input(not connected to frontend)
+         A
+         |
+      Control + Space
+         |
+         V
+    +------------------ Japanese input mode ------------------------+
+    | +------------------- zenkaku input -------------------------+ |
+    | | +-------------------------------------------------------+ | |
+    | | | +-- romaji input ---+          +-- hiragana input --+ | | |
+    | | | |                   |          |                    | | | |
+    | | | |hiragana conversion|          |   hiragana input   | | | |
+    | | | |     |             |          |      |             | | | |
+    | | | |     F1            | <- F3 -> |      F1            | | | |
+    | | | |     |             |          |      |             | | | |
+    | | | |katakana conversion|          |   katakana input   | | | |
+    | | | +-------------------+          +--------------------+ | | |
+    | | +-------------------------------------------------------+ | |
+    | |                        F4   |                             | |
+    | |                        |   F1                             | |
+    | | +------------------------------------------------------+  | |
+    | | | +------------------+          +--------------------+ |  | |
+    | | | |small letter input| <- F4 -> |capital letter input| |  | |
+    | | | +------------------+          +--------------------+ |  | |
+    | | +------------------------------------------------------+  | |
+    | +-----------------------------------------------------------+ |
+    |                            |                                  |
+    |                            F2 				    |
+    |                            |                                  |
+    | +-----------------------------------------------------------+ |
+    | |                     hankaku input                         | |
+    | +-----------------------------------------------------------+ |
+    +---------------------------------------------------------------+
+
+
+ Table 3  Tabke of key assign for conversion operation 
+ 
+    --------------------+---------------------------------------
+     keysim		|function
+    --------------------+---------------------------------------
+     Control + "h"	| convert/convert again
+     Control + "p"	| back to previous candidate
+     Control + "m"	| undo conversion
+     Control + "l"	| completion of convert
+     Control + "w"	| candidates select
+     Control + "u"	| cancel
+     Control + "d"	| delete one character
+     Control + "i"	| insert one character
+     Control + "b"	| move the cursol to the left
+     Control + "f"	| move the cursol to the right
+     Control + "a"	| move the cursol to the beginnig of 
+  			| the sentence
+     Control + "e"	|  move the cursol to the end of the
+  			| sentence
+    --------------------+---------------------------------------
+     Kanji		| convert/convert again
+     Muhenkan		| undo conversion
+     Control + Kanji	| candidates select
+     Control + Muhenkan	| back to previous candidate
+     Cancel		| cancel
+     Escape		| cancel
+     Delete		| delete one character
+     F28		| delete one character
+     Insert		| insert one character
+     Execute		| completion of convert
+     Linefeed		| completion of convert and linefeed
+     Return		| completion of convert and return
+     BackSpace		| move the cursol to the left
+     Left		| move the cursol to the left
+     Right		| move the cursol to the right
+     Up			| move the cursol to the beginnig of 
+  			| the sentence
+     Down		| move the cursol to the end of the 
+     			| sentence
+     Tab		| move the cursol to the end of the
+  			| sentence
+    --------------------+----------------------------------------
+
+

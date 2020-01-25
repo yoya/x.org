@@ -1,0 +1,24 @@
+*XHydra.geometry:		-0-0
+
+*xhTripThickness:		5
+*xhConnectTimeout:		5
+
+*background:			Gray
+*foreground:			Blue
+*XmToggleButton.selectColor:	Blue
+
+*XmText.traversalOn:		True
+*XmText.marginHeight:		2
+
+*traversalOn:			False
+*highlightThickness:		0
+*radio_frame.shadowThickness:	2
+*radio.spacing:			0
+
+*trip_radio.orientation:	HORIZONTAL
+*trip_radio.numColumns:		2
+*trip_radio.spacing:		0
+
+*warp_radio.spacing:		0
+
+*fontList:			*-helvetica-bold-r-normal--12*

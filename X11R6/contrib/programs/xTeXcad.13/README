@@ -1,0 +1,123 @@
+
+/* 
+     Copyright (c) 1991 xtexcad  V1.3 by K. Zitzmann
+	  
+     The X Consortium, and any party obtaining a copy of these files from
+     the X Consortium, directly or indirectly, is granted, free of charge, a
+     full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+     nonexclusive right and license to deal in this software and
+     documentation files (the "Software"), including without limitation the
+     rights to use, copy, modify, merge, publish, distribute, sublicense,
+     and/or sell copies of the Software, and to permit persons who receive
+     copies from any such party to do so.  This license includes without
+     limitation a license to do the foregoing actions under any patents of
+     the party supplying this software to the X Consortium.
+*/
+
+------------
+INTRODUCTION
+------------
+
+What is xTeXcad Version 1.3 ?
+
+...LaTeX is a professional document-preparation system for 
+nearly all kinds of documents like books, articles etc. !
+It is quiet obvious that those documents can contain graphics like
+technical drawings/diagrams. Although LaTeX offers some graphic
+primitives, it is difficult and awkward to produce a picture with them.
+The TeXcad package is a comfortable editor for those LaTeX pictures.
+It translates the drawn images into pure LaTeX code and also
+allows a subsequent editing.
+
+
+The package comes with the following files:
+
+-rw-r--r--  1 ZZZ    1765 Jun  3 15:58 Imakefile
+-rw-r--r--  1 ZZZ    1688 Jun  3 16:00 Imakefile.R5
+-rw-r--r--  1 ZZZ    4207 Jun  3 13:37 README
+-rw-r--r--  1 ZZZ    2098 Jun  3 13:26 README.R6
+-rw-r--r--  1 ZZZ      61 May 24 17:54 Xtexcad.ad
+-rw-r--r--  1 ZZZ   17753 May 24 17:54 ereignis.c
+-rw-r--r--  1 ZZZ    2176 May 24 17:54 ereignis.h
+-rw-r--r--  1 ZZZ     965 May 24 17:54 extdef.h
+-rw-r--r--  1 ZZZ   38382 May 24 17:54 file_sel.c
+-rw-r--r--  1 ZZZ     949 May 24 17:54 file_sel.h
+-rw-r--r--  1 ZZZ  139328 May 24 17:55 graphics.c
+-rw-r--r--  1 ZZZ    5427 May 24 17:55 graphics.h
+-rw-r--r--  1 ZZZ   36756 May 24 17:55 io_trans.c
+-rw-r--r--  1 ZZZ    2242 May 24 17:55 io_trans.h
+-rw-r--r--  1 ZZZ      22 May 24 17:55 mk
+-rw-r--r--  1 ZZZ   36313 May 24 17:55 oberfl.c
+-rw-r--r--  1 ZZZ    5008 May 24 17:55 oberfl.h
+-rw-r--r--  1 ZZZ    1270 May 24 17:56 oldextdef.h
+-rw-r--r--  1 ZZZ   91520 May 24 17:56 pickedit.c
+-rw-r--r--  1 ZZZ    2618 May 24 17:56 pickedit.h
+-rw-r--r--  1 ZZZ   65934 May 24 17:56 pics.h
+-rw-r--r--  1 ZZZ    1554 May 24 17:56 stdmake
+-rwxr-xr-x  1 ZZZ      20 May 24 17:56 texcad
+-rw-r--r--  1 ZZZ   11143 May 24 17:54 texcad13.tex
+-rw-r--r--  1 ZZZ    1417 May 24 17:56 x_stuff.h
+-rw-r--r--  1 ZZZ     936 May 24 17:56 xtexcad.man
+-rw-r--r--  1 ZZZ    2478 May 24 17:56 yyscan.h
+-rw-r--r--  1 ZZZ    7085 May 24 17:56 yyscan.l
+
+     Imakefile					% with SysV/BSD switch ! 
+     stdmake					% old makefile		
+     
+     ereignis.c				% event distribution...
+     ereignis.h
+     
+     graphics.c				% the main graphic functions
+     graphics.h
+     
+     file_sel.c				% the file select box
+     file_sel.h
+     
+     io_trans.c				% the i/o functions
+     io_trans.h
+     
+     oberfl.c					% void main() ...
+     oberfl.h
+     
+     pickedit.c				%
+     pickedit.h
+     
+     yyscan.l					% lex scanner definition
+     yyscan.h
+     
+     extdef.h					% external functions
+	  oldextdef.h				% contributed for compatibility
+	  
+     pics.h						% icons, about-sign and pictures
+     x_stuff.h					% what TeXcad requires from X
+     
+     texcad13.tex				% program description (TeX format) for version 1.2
+     xtexcad.man				% manual page
+     Xtexcad.ad 				% the resources for TeXcad
+
+
+
+On my system 'make -f stdmake cad' compiles and links the whole
+thing. Better use the Imakefile !
+
+Please use the GNU ANSI-C Compiler !
+I`ve successfully tested TeXcad with Versions 1.37.1 on SUN3, 1.39 on SUN4 
+and 1.40 on NeXT !
+
+
+
+THIS VERSION IS THE FINAL VERSION OF XTEXCAD! NO FURTHER VERSIONS WILL BE 
+DEVELOPED. XTEXCAD 1.3 IS RELEASED AS FREEWARE. ALL KNOWN BUGS WERE FIXED -
+THE PALETTE OF FUNCTIONS WAS SLIGHTLY IMPROVED.
+IN CASE OF DIFFICULTIES WITH THIS SOFTWARE FEEL FREE TO CONTACT ME VIA
+ELECTRONIC MAIL !
+5/24/94 K.Zitzmann (zitzmann@informatik.uni-koblenz.de)
+
+
+
+	
+
+
+
+
+

@@ -1,0 +1,4 @@
+#define pulse1_width 5
+#define pulse1_height 5
+static char pulse1_bits[] = {
+   0x04, 0x0e, 0x1b, 0x0e, 0x04};

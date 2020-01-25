@@ -1,0 +1,30 @@
+XCOMM $XConsortium: Imakefile,v 1.3 94/04/09 19:48:38 rws Exp $
+
+  SHAPESRCS = shapetest.c
+  SHAPEOBJS = shapetest.o
+#if HasShm
+    SHMSRCS = shmtest.c
+    SHMOBJS = shmtest.o
+    SHMPROG = ProgramTargetName(shmtest)
+#endif
+   MBUFSRCS = xmbufinfo.c
+   MBUFOBJS = xmbufinfo.o
+  XTESTSRCS = xtesttest.c
+  XTESTOBJS = xtesttest.o
+  SYNCTESTSRCS = synctest.c
+  SYNCTESTOBJS = synctest.o
+
+       SRCS = $(SHAPESRCS) $(SHMSRCS) $(MBUFSRCS) $(XTESTSRCS) $(SYNCTESTSRCS)
+       OBJS = $(SHAPEOBJS) $(SHMOBJS) $(MBUFOBJS) $(XTESTOBJS) $(SYNCTESTOBJS)
+
+all:: ProgramTargetName(shapetest) $(SHMPROG) ProgramTargetName(xmbufinfo) ProgramTargetName(xtesttest) ProgramTargetName(synctest)
+
+NormalProgramTarget(xmbufinfo,$(MBUFOBJS),$(DEPXLIB),$(XLIB),NullParameter)
+NormalProgramTarget(shapetest,$(SHAPEOBJS),$(DEPXLIB),$(XLIB),NullParameter)
+#if HasShm
+NormalProgramTarget(shmtest,$(SHMOBJS),$(DEPXLIB),$(XLIB),NullParameter)
+#endif
+NormalProgramTarget(xtesttest,$(XTESTOBJS),$(DEPXILIB) $(DEPXTESTLIB) $(DEPXLIB),$(XILIB) $(XTESTLIB) $(XLIB),NullParameter)
+NormalProgramTarget(synctest,$(SYNCTESTOBJS),$(DEPXLIB),$(XLIB),NullParameter)
+
+DependTarget()

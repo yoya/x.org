@@ -1,0 +1,388 @@
+# $SonyId: sjxark,v 1.1 1994/05/30 13:07:49 makoto Exp $
+# ******************************************************************
+#
+#           Copyright 1993, 1994 by Sony Corporation
+#
+# Permission is hereby granted, free of charge, to any person
+# obtaining a copy of this software and associated documentation files
+# (the "Software"), to deal in the Software without restriction,
+# including without limitation the rights to use, copy, modify, merge,
+# publish, distribute, sublicense, and/or sell copies of the Software,
+# and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be in
+# cluded in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT.  IN NO EVENT SHALL SONY CORPORATION BE LIABLE FOR
+# ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+# CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# Except as contained in this notice, the name of Sony Corporation
+# shall not be used in advertising or otherwise to promote the sale,
+# use or ot her dealings in this Software without prior written
+# authorization from Sony Corporation.
+#
+# ******************************************************************
+#
+#	ローマ字かな変換規則定義デフォルトファイル
+#
+# 区切りはスペースもしくはタブ
+# 行の最初が "#" の時はコメント行
+# 
+#[in_romaji]	[out_kana]	[out_romaji]
+a		あ
+i		い
+u		う
+e		え
+o		お
+#
+ka		か
+ki		き
+ku		く
+ke		け
+ko		こ
+ca		か
+ci		き
+cu		く
+ce		け
+co		こ
+kya		きゃ
+kyi		き
+kyu		きゅ
+kye		きぇ
+kyo		きょ
+qya		きゃ
+qyi		き
+qyu		きゅ
+qye		きぇ
+qyo		きょ
+#
+sa		さ
+si		し
+su		す
+se		せ
+so		そ
+sya		しゃ
+syi		し
+syu		しゅ
+sye		しぇ
+syo		しょ
+sha		しゃ
+shi		し
+shu		しゅ
+she		しぇ
+sho		しょ
+#
+ta		た
+ti		ち
+tu		つ
+te		て
+to		と
+tsa		た
+tsi		ち
+tsu		つ
+tse		て
+tso		と
+tha		たぁ
+thi		てぃ
+thu		とぅ
+tya		ちゃ
+tyi		ち
+tyu		ちゅ
+tye		ちぇ
+tyo		ちょ
+tsya		ちゃ
+tsyi		ち
+tsyu		ちゅ
+tsye		ちぇ
+tsyo		ちょ
+cha		ちゃ
+chi		ち
+chu		ちゅ
+che		ちぇ
+cho		ちょ
+cya		ちゃ
+cyi		ち
+cyu		ちゅ
+cye		ちぇ
+cyo		ちょ
+#
+na		な
+ni		に
+nu		ぬ
+ne		ね
+no		の
+nya		にゃ
+nyi		に
+nyu		にゅ
+nye		にぇ
+nyo		にょ
+#
+ha		は
+hi		ひ
+hu		ふ
+he		へ
+ho		ほ
+hya		ひゃ
+hyi		ひ
+hyu		ひゅ
+hye		ひぇ
+hyo		ひょ
+fa		ふぁ
+fi		ふぃ
+fu		ふ
+fe		ふぇ
+fo		ふぉ
+fya		ふゃ
+fyi		ふぃ
+fyu		ふゅ
+fye		ふぇ
+fyo		ふょ
+#
+ma		ま
+mi		み
+mu		む
+me		め
+mo		も
+mya		みゃ
+myi		み
+myu		みゅ
+mye		みぇ
+myo		みょ
+#
+ya		や
+yi		い
+yu		ゆ
+ye		いぇ
+yo		よ
+ra		ら
+ri		り
+ru		る
+re		れ
+ro		ろ
+la		ら
+li		り
+lu		る
+le		れ
+lo		ろ
+rya		りゃ
+ryi		り
+ryu		りゅ
+rye		りぇ
+ryo		りょ
+lya		りゃ
+lyi		り
+lyu		りゅ
+lye		りぇ
+lyo		りょ
+#
+wa		わ
+wi		うぃ
+wu		う
+we		うぇ
+wo		を
+#
+ga		が
+gi		ぎ
+gu		ぐ
+ge		げ
+go		ご
+gya		ぎゃ
+gyi		ぎ
+gyu		ぎゅ
+gye		ぎぇ
+gyo		ぎょ
+#
+za		ざ
+zi		じ
+zu		ず
+ze		ぜ
+zo		ぞ
+zya		じゃ
+zyi		じ
+zyu		じゅ
+zye		じぇ
+zyo		じょ
+ja		じゃ
+ji		じ
+ju		じゅ
+je		じぇ
+jo		じょ
+jya		じゃ
+jyi		じ
+jyu		じゅ
+jye		じぇ
+jyo		じょ
+#
+da		だ
+di		ぢ
+du		づ
+de		で
+do		ど
+dya		ぢゃ
+dyi		ぢ
+dyu		ぢゅ
+dye		ぢぇ
+dyo		ぢょ
+dha		だぁ
+dhi		でぃ
+dhu		どぅ
+dhyu		でゅ
+#
+ba		ば
+bi		び
+bu		ぶ
+be		べ
+bo		ぼ
+bya		びゃ
+byi		び
+byu		びゅ
+bye		びぇ
+byo		びょ
+va		ヴぁ
+vi		ヴぃ
+vu		ヴ
+ve		ヴぇ
+vo		ヴぉ
+vya		びゃ
+vyi		び
+vyu		びゅ
+vye		びぇ
+vyo		びょ
+#
+pa		ぱ
+pi		ぴ
+pu		ぷ
+pe		ぺ
+po		ぽ
+pya		ぴゃ
+pyi		ぴ
+pyu		ぴゅ
+pye		ぴぇ
+pyo		ぴょ
+#
+qa		くぁ
+qi		くぃ
+qu		くぅ
+qe		くぇ
+qo		くぉ
+#
+n		ん
+nn		ん
+n'		ん
+N		ん
+#mb		ん		b
+#mm		ん		m
+#mp		ん		p
+#
+kk		っ		k
+ss		っ		s
+tt		っ		t
+hh		っ		h
+mm		っ		m
+yy		っ		y
+rr		っ		r
+ll		っ		l
+ww		っ		w
+gg		っ		g
+zz		っ		z
+dd		っ		d
+bb		っ		b
+pp		っ		p
+cc		っ		c
+ff		っ		f
+jj		っ		j
+vv		っ		v
+qq		っ		q
+xx		っ		x
+#tch		っ		ch
+#
+xa		ぁ
+xi		ぃ
+xu		ぅ
+xe		ぇ
+xo		ぉ
+xya		ゃ
+xyi		ぃ
+xyu		ゅ
+xye		ぇ
+xyo		ょ
+xtu		っ
+xtsu		っ
+xwa		ゎ
+xka		ヵ
+xke		ヶ
+#
+Xa		ァ
+Xi		ィ
+Xu		ゥ
+Xe		ェ
+Xo		ォ
+Xya		ャ
+Xyi		ィ
+Xyu		ュ
+Xye		ェ
+Xyo		ョ
+Xtu		ッ
+Xtsu		ッ
+Xwa		ヮ
+Xka		ヵ
+Xke		ヶ
+#
+\ 		　
+!		！
+"		”
+\#		＃
+$		＄
+%		％
+&		＆
+'		’
+(		（
+)		）
+*		＊
++		＋
+,		、
+-		ー
+.		。
+/		／
+#/		・
+@		＠
+0		０
+1		１
+2		２
+3		３
+4		４
+5		５
+6		６
+7		７
+8		８
+9		９
+:		：
+;		；
+<		＜
+=		＝
+>		＞
+?		？
+[		「
+\\		￥
+]		」
+^		＾
+_		＿
+`		‘
+{		｛
+|		｜
+}		｝
+~		〜
+#
+x,		゛
+x.		゜
+#
+#@		・
+#z-		…
+#z.		．
+#sony		ソニー

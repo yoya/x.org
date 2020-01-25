@@ -1,0 +1,6 @@
+// $XConsortium: misc,v 1.2 94/04/08 15:54:52 erik Exp $
+xkb_compatibility "misc" 
+
+// Interpretations miscellaneous other keys that might be usefule
+
+interpret Terminate_Server     { action = Terminate(); };

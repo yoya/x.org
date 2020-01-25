@@ -1,0 +1,10 @@
+XCOMM $XConsortium: Imakefile,v 1.6 94/07/12 18:15:34 dpw Exp $
+        DEPLIBS = $(DEPXTESTLIB) $(DEPXIELIB) $(DEPXMULIB) $(DEPXLIB)
+LOCAL_LIBRARIES = $(XTESTLIB) $(XIELIB) $(XMULIB) $(XLIB)
+  SYS_LIBRARIES = MathLibrary
+
+#if HasShm
+        DEFINES = -DMITSHM
+#endif
+
+SimpleProgramTarget(xdpyinfo)

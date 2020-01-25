@@ -1,0 +1,7 @@
+echo "Making tags files"
+make tags
+echo "Backing up previous shar file, if any"
+[ -f lyap.shar ] && mv lyap.shar backups/lyap.shar-
+echo "Creating new shar file"
+shar README Imakefile Makefile.std Package *.c *.h lyap.LOCAL lyap.man tags TAGS params/* testit > lyap.shar
+echo "Done"

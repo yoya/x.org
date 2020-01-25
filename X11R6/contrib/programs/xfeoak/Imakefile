@@ -1,0 +1,70 @@
+XCOMM @(#)Imakefile      6.1 94/06/01 20:04:29 FUJITSU LIMITED.
+#define IHaveSubdirs
+#define PassCDebugFlags 'CDEBUGFLAGS=$(CDEBUGFLAGS)'
+
+  DEBUG_DEFINES =
+
+#ifdef FUJITSU_OAK
+# FUJITSU UXP/DS or SX/G (OAK dictionary)
+        SUBDIRS = sxc
+        SUBDIRS = oak
+        SUBDIRS = sxc oak fjextensions
+    SXG_DEFINES = -DFUJITSU_OAK -DFUJITSU_SERVER_EXTENSION -DUSE_SIGNAL \
+ 		  $(DEBUG_DEFINES) $(XVL_DEFINES)
+    SXG_DEFINES = -DFUJITSU_OAK -DUSE_SIGNAL $(DEBUG_DEFINES) $(XVL_DEFINES)
+        OAKLIBS = oak/liboak.a
+       CMODLIBS = fjextensions/libcmod.a
+  SYS_LIBRARIES = -lsxc -lsocket
+
+#else /* FUJITSU_OAK */
+#ifdef SJ3_DICTIONARY
+# SJ3 dictionary (provided by Sony)
+        SUBDIRS = sj3 sxc
+    SJ3_DEFINES = -DSJ3_DICTIONARY -DUSE_SIGNAL $(DEBUG_DEFINES)
+#
+XCOMM libsj3lib.a directory path is appoint place by sony
+     SYSSJ3PATH = /usr/lib
+#
+     SYSSJ3LIBS = $(SYSSJ3PATH)/libsj3lib.a
+        SXCLIBS = sxc/libsxc.a
+        SJ3LIBS = sj3/libsj3.a $(SYSSJ3LIBS)
+
+#else /* SJ3_DICTIONARY */
+# Defalut  HIRAGANA/KATAKANA conversion only
+        SUBDIRS = sxc
+    SXG_DEFINES = -DUSE_SIGNAL $(DEBUG_DEFINES)
+        SXCLIBS = sxc/libsxc.a
+
+#endif /* SJ3_DICTIONARY */
+#endif /* FUJITSU_OAK */
+
+MakeSubdirs($(SUBDIRS))
+DependSubdirs($(SUBDIRS))
+
+        DEFINES = $(SXG_DEFINES) $(SJ3_DEFINES)
+       INCLUDES = $(LOCAL_INCLUDES) -I/X11/include -I$(TOP)/lib -I$(TOP)/include
+ LOCAL_INCLUDES = -I.
+   TOP_INCLUDES = -I$(TOP)
+
+XFEOAKLIBRARIES = $(OAKLIBS) $(SXCLIBS) $(SJ3LIBS) $(CMODLIBS)
+LOCAL_LIBRARIES = $(XFEOAKLIBRARIES) $(XMULIB) $(XLIB)
+
+        XIM_INCS = XimProto.h
+           SRCS = Convert.c Display.c FXlib.c  Henkan.c KanjiWork.c KeyPress.c \
+		  Main.c    Message.c Mode.c SelectKanji.c ToUtil.c  \
+		  TransTbl.c XimUtil.c DmyHenkan.c Keybord.c  Xim.c \
+		  XimExten.c XimFormat.c XimSocket.c XimSwap.c XimTrans.c XimX.c 
+           OBJS = Convert.o Display.o FXlib.o  Henkan.o KanjiWork.o KeyPress.o \
+		  Main.o    Message.o Mode.o SelectKanji.o ToUtil.o \
+		  TransTbl.o XimUtil.o DmyHenkan.o Keybord.o  Xim.o \
+		  XimExten.o XimFormat.o XimSocket.o XimSwap.o XimTrans.o XimX.o 
+       PROGRAMS = xfeoak
+
+ComplexProgramTarget(xfeoak)
+
+includes::
+	@(set -x; for i in $(XIM_INCS); do \
+		RemoveFile($$i); \
+		$(LN) $(XLIBSRC)/$$i .; \
+	done)
+

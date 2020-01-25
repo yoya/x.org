@@ -1,0 +1,113 @@
+match all names
+pattern = "*", max_names = 1000, count = 15
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-hp-roman8
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-p-0-hp-roman8
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-p-0-hp-roman8
+	-hp-PEX polygonal sans serif-bold-r-normal-normal-0-0-0-0-p-0-hp-roman8
+	-hp-PEX polygonal serif-bold-r-normal-normal-0-0-0-0-p-0-hp-roman8
+	-hp-PEX polygonal serif-bold-r-normal-accel-0-0-0-0-p-0-hp-roman8
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-hp-japaneseeuc
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-p-0-hp-japaneseeuc
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-p-0-hp-japaneseeuc
+	-hp-PEX polygonal sans serif-bold-r-normal-normal-0-0-0-0-p-0-hp-japaneseeuc
+	-hp-PEX polygonal serif-bold-r-normal-normal-0-0-0-0-p-0-hp-japaneseeuc
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-iso8859-1
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-p-0-iso8859-1
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-m-0-iso8859-1
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-p-0-iso8859-1
+
+match simple
+pattern = "*-medium-*", max_names = 1000, count = 10
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-hp-roman8
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-p-0-hp-roman8
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-p-0-hp-roman8
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-hp-japaneseeuc
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-p-0-hp-japaneseeuc
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-p-0-hp-japaneseeuc
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-iso8859-1
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-p-0-iso8859-1
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-m-0-iso8859-1
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-p-0-iso8859-1
+
+match simple
+pattern = "*-medium-*-hp-roman8", max_names = 1000, count = 3
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-hp-roman8
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-p-0-hp-roman8
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-p-0-hp-roman8
+
+match simple
+pattern = "-*-medium-*", max_names = 1000, count = 10
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-hp-roman8
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-p-0-hp-roman8
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-p-0-hp-roman8
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-hp-japaneseeuc
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-p-0-hp-japaneseeuc
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-p-0-hp-japaneseeuc
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-iso8859-1
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-p-0-iso8859-1
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-m-0-iso8859-1
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-p-0-iso8859-1
+
+match none
+pattern = "*-medium-*-accel-*", max_names = 1000, count = 0
+
+match exact
+pattern = "-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-hp-roman8", max_names = 1000, count = 1
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-hp-roman8
+
+match with ?
+pattern = "*-medium-?-normal-*", max_names = 1000, count = 10
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-hp-roman8
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-p-0-hp-roman8
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-p-0-hp-roman8
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-hp-japaneseeuc
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-p-0-hp-japaneseeuc
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-p-0-hp-japaneseeuc
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-iso8859-1
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-p-0-iso8859-1
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-m-0-iso8859-1
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-p-0-iso8859-1
+
+redundant '*'
+pattern = "**", max_names = 1000, count = 15
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-hp-roman8
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-p-0-hp-roman8
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-p-0-hp-roman8
+	-hp-PEX polygonal sans serif-bold-r-normal-normal-0-0-0-0-p-0-hp-roman8
+	-hp-PEX polygonal serif-bold-r-normal-normal-0-0-0-0-p-0-hp-roman8
+	-hp-PEX polygonal serif-bold-r-normal-accel-0-0-0-0-p-0-hp-roman8
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-hp-japaneseeuc
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-p-0-hp-japaneseeuc
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-p-0-hp-japaneseeuc
+	-hp-PEX polygonal sans serif-bold-r-normal-normal-0-0-0-0-p-0-hp-japaneseeuc
+	-hp-PEX polygonal serif-bold-r-normal-normal-0-0-0-0-p-0-hp-japaneseeuc
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-iso8859-1
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-p-0-iso8859-1
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-m-0-iso8859-1
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-p-0-iso8859-1
+
+* matches nothing
+pattern = "*-hp-roman8*", max_names = 1000, count = 6
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-hp-roman8
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-p-0-hp-roman8
+	-hp-PEX simplex sans serif-medium-r-normal-normal-0-0-0-0-p-0-hp-roman8
+	-hp-PEX polygonal sans serif-bold-r-normal-normal-0-0-0-0-p-0-hp-roman8
+	-hp-PEX polygonal serif-bold-r-normal-normal-0-0-0-0-p-0-hp-roman8
+	-hp-PEX polygonal serif-bold-r-normal-accel-0-0-0-0-p-0-hp-roman8
+
+* matches nothing
+pattern = "*-hp-PEX stick-*", max_names = 1000, count = 6
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-hp-roman8
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-p-0-hp-roman8
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-hp-japaneseeuc
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-p-0-hp-japaneseeuc
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-iso8859-1
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-p-0-iso8859-1
+
+limit to max
+pattern = "*", max_names = 1, count = 1
+	-hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-hp-roman8
+
+limit to none
+pattern = "*", max_names = 0, count = 0
+

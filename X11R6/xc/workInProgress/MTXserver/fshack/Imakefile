@@ -1,0 +1,23 @@
+XCOMM $XConsortium: Imakefile,v 1.2 94/01/21 14:06:55 rob Exp $
+XCOMM
+XCOMM Make file for font handling routines
+XCOMM
+#include <Server.tmpl>
+
+        INCLUDES = -I$(FONTLIBSRC)/fc -I$(FONTLIBSRC)/include -I$(FONTINCSRC) -I../include
+         HEADERS = 
+            SRCS = fserve.c
+            OBJS = fserve.o
+         DEFINES = -DXTHREADS $(SIGNAL_DEFINES)
+    CONN_DEFINES = ConnectionFlags -DFONT
+#if HasBSD44Sockets
+    SOCK_DEFINES = -DBSD44SOCKETS
+#endif
+  DEPEND_DEFINES = $(TRANS_INCLUDES) $(CONN_DEFINES)
+
+SubdirLibraryRule($(OBJS))
+NormalLibraryObjectRule()
+
+NormalLintTarget($(SRCS))
+
+DependTarget()

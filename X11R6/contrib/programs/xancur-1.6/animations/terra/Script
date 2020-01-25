@@ -1,0 +1,57 @@
+#	Christoph. Alex. North-Keys, Group Talisman
+#	Tue Jan 28 05:02:09 EST 1992
+#	Xancur : X11 Animated Cursor
+#
+#	Animation of a rotating Earth in color.  Center is hotspot.
+#
+#	This particular animation based on a submission by:
+#	| -Ralph Betza (FM),
+#	| Systems Strategies Inc,
+#	| 225 West 34th Street, NY NY  10001,
+#	| 1-212-279 8400
+#	| uunet!ssiny!gnohmon
+#
+#	Bitmaps based on terra.xbm, from the package available on ftp.uu.net:
+#		~ftp/packages/X/contrib/osf_contrib.tar.Z
+#
+#	Thanks to uunet!fascet.msi.com!dcmartin (David C. Martin) for forwarding.
+#
+#	Colors for forest and sea
+#
+-fg ForestGreen
+-bg MediumBlue
+#
+#	Animation list with mask
+#
+terra-00.xbm	terramsk.xbm
+terra-01.xbm	terramsk.xbm
+terra-02.xbm	terramsk.xbm
+terra-03.xbm	terramsk.xbm
+terra-04.xbm	terramsk.xbm
+terra-05.xbm	terramsk.xbm
+terra-06.xbm	terramsk.xbm
+terra-07.xbm	terramsk.xbm
+terra-08.xbm	terramsk.xbm
+terra-09.xbm	terramsk.xbm
+terra-10.xbm	terramsk.xbm
+terra-11.xbm	terramsk.xbm
+terra-12.xbm	terramsk.xbm
+terra-13.xbm	terramsk.xbm
+terra-14.xbm	terramsk.xbm
+terra-15.xbm	terramsk.xbm
+terra-16.xbm	terramsk.xbm
+terra-17.xbm	terramsk.xbm
+terra-18.xbm	terramsk.xbm
+terra-19.xbm	terramsk.xbm
+terra-20.xbm	terramsk.xbm
+terra-21.xbm	terramsk.xbm
+terra-22.xbm	terramsk.xbm
+terra-23.xbm	terramsk.xbm
+terra-24.xbm	terramsk.xbm
+terra-25.xbm	terramsk.xbm
+terra-26.xbm	terramsk.xbm
+terra-27.xbm	terramsk.xbm
+terra-28.xbm	terramsk.xbm
+terra-29.xbm	terramsk.xbm
+#
+#-------------eof

@@ -1,0 +1,27 @@
+XCOMM $XConsortium: Imakefile,v 1.3 95/01/06 20:58:23 kaleb Exp $
+XCOMM $XFree86: xc/programs/Xserver/hw/xfree86/vga2/misc/Imakefile,v 3.2 1994/12/26 01:10:43 dawes Exp $
+#include <Server.tmpl>
+
+SRCS =	 dixfonts.c mibitblt.c
+OBJS =	 dixfonts.o mibitblt.o
+
+INCLUDES = -I$(SERVERSRC)/mfb -I$(SERVERSRC)/mi -I$(SERVERSRC)/include \
+           -I$(INCLUDESRC) -I$(FONTINCSRC)
+
+DEFINES = -DXF86MONOVGA
+
+/* This is for dixfonts.c */
+#if BuildLBXCompatible
+EXTRA_DEFINES = -DLBX
+#endif
+
+NormalLibraryObjectRule()
+
+NormalRelocatableTarget(vga2misc, $(OBJS))
+
+LinkSourceFile(dixfonts.c,$(SERVERSRC)/dix)
+LinkSourceFile(mibitblt.c,$(SERVERSRC)/mi)
+
+InstallLinkKitNonExecFile(vga2misc.o,$(LINKKITDIR)/drivers)
+
+DependTarget()

@@ -1,0 +1,52 @@
+.\" $Id: youbind.man,v 4.2 1994/06/12 09:32:58 yamamoto Exp $
+.TH YOUBIND 8 "26 September 1993"
+.SH "NAME"
+youbind \- Server of youbin service
+.SH "SYNOPSIS"
+\fByoubind\fP
+[ \fB\-d\fP ]
+[ \fB\-h\fP ]
+[ \fB\-A \fIport\fP ]
+.SH "DESCRIPTION"
+youbind is a server of the youbin protocol which is a
+derivation of "biff" protocol suitable for Network age. It has upward
+compatibility to "biff". youbind accepts the client request to
+observe the mail spool of the user specified. When youbind detects the
+change of the mail spool, it will notify the client so. youbin
+communicates with clients periodically to maintain the connection.  It
+detects writing in the spool by receiving the "biff" packet from
+/bin/mail. It detects reading from the spool by polling mechanism.
+However, this polling period is quite long to lighten the load of the
+server. Therefore, it is requested to be informed to the server that
+the mail have read from the spool. Modified version of POP is provided
+to inform youbind when reading mails, since youbin protocol is
+considered to work with POP. mh-inc-hook for this is also provided for
+the user of mh-e of emacs.
+.SH "OPTIONS"
+.TP 8
+.B \-d
+Various debugging information will be output with this option.
+This information includes log of communication with clients,
+registration and removal of clients, status changes of clients.
+.TP 8
+.B \-h
+Simple explanation of youbind will be output.
+.TP 8
+.B \-A\fI port\fP
+youbind will receive the packet from the specified
+port besides the "biff" port. This option is for the machine which
+uses ports except the "biff" port to inform of the arrival of mail. At
+this time, only MIPS's RISC/os uses the different port named "mbiff".
+.SH "FILES"
+.br
+/usr/spool/mail         Mail spool directory
+.SH "SEE ALSO"
+biff(1), youbin(1), xyoubin(1)
+.SH "BUGS"
+The number of the registered user is limited to 256. The number of
+mail clients is limited to 1024.
+.SH "AUTHORS"
+Kiyoshi Agusa           agusa@nuie.nagoya-u.ac.jp
+.br
+Shinichirou Yamamoto    yamamoto@nuie.nagoya-u.ac.jp
+

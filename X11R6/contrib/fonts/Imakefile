@@ -1,0 +1,11 @@
+OBJS = FontObj(8x13-2) FontObj(ter7x14) FontObj(ter7x14B)
+
+FONTINSTDIR = $(FONTDIR)/misc
+
+MakeFonts()
+
+FontTarget(8x13-2)
+FontTarget(ter7x14)
+FontTarget(ter7x14B)
+
+InstallFonts($(FONTINSTDIR))

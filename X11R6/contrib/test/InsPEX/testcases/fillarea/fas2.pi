@@ -1,0 +1,93 @@
+
+/* $XConsortium: fas2.pi,v 5.3 94/04/17 20:47:56 hersh Exp $ */
+
+/*****************************************************************
+
+Copyright (c) 1989, 1990, 1991,1990  X Consortium
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Except as contained in this notice, the name of the X Consortium shall not be
+used in advertising or otherwise to promote the sale, use or other dealings
+in this Software without prior written authorization from the X Consortium.
+
+Copyright (c) 1989, 1990, 1991,1990 by Sun Microsystems, Inc.
+
+                        All Rights Reserved
+
+Permission to use, copy, modify, and distribute this software and its 
+documentation for any purpose and without fee is hereby granted, 
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in 
+supporting documentation, and that the names of Sun Microsystems,
+and the X Consortium, not be used in advertising or publicity 
+pertaining to distribution of the software without specific, written 
+prior permission.  
+
+SUN MICROSYSTEMS DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, 
+INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT 
+SHALL SUN MICROSYSTEMS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL 
+DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
+SOFTWARE.
+
+******************************************************************/
+
+
+## fas2.pi -  
+## Test normal fill area set geometry, with 2-set and n-set, n=150
+source macro.pi
+
+tbegintest("fas2","fill area set geometry with n-set, n>1");
+
+# initialize: various fill area set geometry data
+fa_triangle = IA_Ppoint3(3, 0.2,0.9,0.0, 0.1,0.7,0.0, 0.0,0.8,0.0);
+fa_quad = IA_Ppoint3(4, 0.3,0.8,0.0, 0.5,0.9,0.0, 0.45,0.8,0.5, 0.3,0.7,0.5);
+triangle = I_Ppoint_list3(3,fa_triangle);
+quad = I_Ppoint_list3(4,fa_quad);
+fset2 = IA_Ppoint_list3(2,triangle,quad);
+fset2_l = I_Ppoint_list_list3(2,fset2);
+fset260 = i_generate_n_Ppoint_list3(10,15);
+fset260_l = I_Ppoint_list_list3(150,fset260);
+
+# setup: open phigs and a workstation, open a structure
+i_open_phigs(NULL,PDEF_MEM_SIZE); 
+i_open_x_ws(1,&xdisplay,&xwindow,0,0,200,200);
+popen_struct(1);
+
+# draw the various fill areas
+pset_int_style(PSTYLE_SOLID);
+pset_int_colr_ind(2);
+pset_edge_flag(PEDGE_ON);
+pset_edgetype(PLINE_DASH);
+pset_edge_colr_ind(3);
+pfill_area_set3(&fset2_l);
+pfill_area_set3(&fset260_l);
+
+# close and post structure
+pclose_struct();
+ppost_struct(1,1,1.0);
+
+# verify image
+i_check_image("fas2",xdisplay,xwindow,0,0,199,199,"fillareaset geometry with n-set, n>1");
+
+im_def_grid();
+i_pause();
+
+tendtest();

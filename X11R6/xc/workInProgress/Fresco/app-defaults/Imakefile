@@ -1,0 +1,12 @@
+XCOMM
+XCOMM data files for defining application defaults
+XCOMM $XConsortium: Imakefile,v 1.3 94/02/10 10:02:54 matt Exp $
+XCOMM
+
+all::
+
+InstallAppDefaults(Fresco)
+
+depend::
+
+clean:: 

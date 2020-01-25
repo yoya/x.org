@@ -1,0 +1,13 @@
+XCOMM $XConsortium: Imakefile,v 1.2 95/01/06 20:59:07 kaleb Exp $
+XCOMM $XFree86: xc/programs/Xserver/hw/xfree86/xf86config/Imakefile,v 3.1 1995/01/02 05:02:57 dawes Exp $
+
+            SRCS = xf86config.c cards.c
+            OBJS = xf86config.o cards.o
+ LOCAL_LIBRARIES =
+         DEPLIBS =
+      CARDDBFILE = $(LIBDIR)/Cards
+         DEFINES = -DCARD_DATABASE_FILE='"$(CARDDBFILE)"'
+
+InstallNonExecFile(Cards,$(LIBDIR))
+ComplexProgramTarget(xf86config)
+

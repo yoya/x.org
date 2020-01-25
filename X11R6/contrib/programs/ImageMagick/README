@@ -1,0 +1,316 @@
+  "I swear by my life and my love of it that I will never live for
+   the sake of another man, nor ask another man to live for mine."
+
+                        John Galt in "Atlas Shrugged", by Ayn Rand
+
+
+AUTHOR
+
+  The author is cristy@dupont.com.  This software is NOT shareware.
+  However, I am interested in who might be using it.  Please consider
+  sending me a picture postcard of the area where you live.  Send
+  postcards to
+
+    John Cristy
+    5 Middleton Lane
+    Landenberg, PA  19350
+    USA
+
+
+AVAILABILITY
+
+  Anonymous FTP at ftp.x.org, file
+  contrib/applications/ImageMagick/ImageMagick-3.0.tar.gz.  I want
+  ImageMagick to be of high quality, so if you encounter a problem I
+  will investigate.  However, be sure you are using the most recent
+  version from ftp.x.org before submitting any bug reports or
+  suggestions.
+
+
+UNIX COMPILATION
+
+  Type:
+
+    gunzip ImageMagick-3.0.tar.gz
+    tar xvf ImageMagick-3.0.tar
+    cd ImageMagick
+    xmkmf
+    make Makefiles
+    make depend
+    make
+
+  If you do not have gunzip(1), it is available as
+  prep.ai.mit.edu:pub/gnu/gzip-1.2.4.shar.  If you do not have xmkmf(1),
+  or if xmkmf(1) fails to produce usable Makefiles, get 
+  ftp.x.org:contrib/applications/ImageMagick/ImageMagick.configure and
+  type
+
+    cd ImageMagick
+    sh ImageMagick.configure -c
+    configure
+    make
+
+  Finally type:
+
+    display images/aquarium.miff
+    display -monochrome -dither images/aquarium.miff
+
+  The aquarium and other images are available from anonymous FTP at
+  ftp.x.org, file contrib/applications/ImageMagick/ImageMagick.images.tar.gz.
+
+  If the image colors are not correct use this command:
+
+    display -visual default images/aquarium.miff
+
+  You can find other example images in the 'images' directory.
+
+  Be sure to read the manual pages for the display(1), animate(1), montage(1),
+  import(1), mogrify(1), and convert(1) utilities.
+
+  The ImageMagick utilities read and write MIFF images.  Refer to the
+  end of this message for more information about MIFF.  Use convert(1)
+  to convert images to and from the MIFF format.
+
+  ImageMagick utilities recognizes these image formats:
+
+       Tag       Description
+       ----------------------------------------------------
+       AVS       AVS X image file
+       BMP       Microsoft Windows bitmap image file
+       CMYK      Raw cyan, magenta, yellow, and black bytes
+       EPS       Adobe Encapsulated Postscript
+       FAX       Group 3
+       FITS      Flexible Image Transport System
+       GIF       Compuserve Graphics image file
+       GRAY      Raw gray bytes
+       JPEG
+       MAP       colormap intensities and indices
+       MATTE     Raw matte bytes
+       MIFF      Magick image file format
+       MTV
+       PCX       ZSoft IBM PC Paintbrush file
+       PICT      Apple Macintosh QuickDraw/PICT file
+       PNM       Portable bitmap
+       PS        Adobe PostScript file
+       PS2       Adobe PostScript Level II file
+       RGB       Raw red, green, and blue bytes
+       RLE       Utah Raster Toolkit
+       SUN       SUN raster
+       TGA       Truevision Targa image file
+       TEXT      raw text file;  read only
+       TIFF      Tagged Image File Format
+       VICAR
+       VIFF      Khoros Visualization image file.
+       X         select image from X server screen
+       XC        constant image of X server background color
+       XBM       X11 bitmap
+       XPM       X11 pixmap
+       XWD       X11 window dump
+       YUV       CCIR 601 1:1:1 file.
+       YUV3      CCIR 601 2:1:1 files.
+
+  and for your convenience automatically converts most of these alien image
+  format to MIFF at execution time.  However, the MIFF image format has
+  several advantages over most image formats (i.e. runlength encoding,
+  digital signature on an image colormap, etc.).  ImageMagick is
+  designed to exploit these advantages.  Whenever possible convert an
+  alien image format to the MIFF format before using the various
+  ImageMagick programs.
+
+  Other formats may also be recognized.  See CONVERT(1) for a list of
+  valid image formats.  You can specify a particular image format by
+  prefixing the image filename with the image type and a colon (i.e.
+  ps:image.ps).
+
+  ImageMagick requires GNU's Ghostscript software available via FTP as
+  ftp.uu.net:systems/gnu/ghostscript-2.6.1.tar.gz to read the
+  Postscript format.  For ImageMagick to read Postscript files, gs(1)
+  must be in your execution path and the `pbmraw' and `ppmraw' devices
+  must be recognized (try gs -h to verify).  If they are not defined, add
+  them to your DEVICE_DEVS define in your Ghostscript Makefile and
+  recompile (i.e. DEVICE_DEVS=x11.dev pbmraw.dev ppmraw.dev).
+
+  ImageMagick requires picttoppm from R5contrib/netpbm-1mar1994.tar.gz on
+  ftp.x.org to read Macintosh PICT images.
+
+  ImageMagick requires hpcdtoppm from R5contrib/netpbm-1mar1994.tar.gz on
+  ftp.x.org to read Photo CD images.
+
+  ImageMagick requires ra_ppm from Greg Ward's Radiance software
+  available via FTP as hobbes.lbl.gov:Radiance2R4.tar.Z to read the
+  Radiance image format.
+
+  ImageMagick requires the Independent JPEG Group's software available via
+  FTP as ftp.uu.net:graphics/jpeg/jpegsrc.v4.tar.Z to read the JPEG image
+  format.
+
+  ImageMagick requires Sam Leffler's TIFF software available via FTP as
+  sgi.com:graphics/tiff/v3.2beta.tar.Z to read the TIFF image format. If
+  you have an ANSI compiler, try sgi.com:graphics/tiff/v3.3beta002.src.tar.Z.
+
+  ImageMagick requires Arnaud Le Hors XPM software available via FTP as
+  ftp.x.org:contrib/libraries/xpm-3.4b.tar.gz to read the XPM image format.
+
+  To display images in the JPEG, TIFF, or XPM format, get the JPEG, TIFF,
+  or XPM archives and build ImageMagick as follows:
+
+    cd ImageMagick
+    mkdir jpeg
+    cd jpeg
+    zcat jpegsrc.v4.tar.Z | tar xvof -
+    cp jmemnobs.c jmemsys.c
+    cp makefile.unix Makefile
+    make libjpeg.a
+    cd ..
+    mkdir tiff
+    cd tiff
+    zcat v3.2beta.tar.Z | tar xvof -
+    cd libtiff
+    cp Makefile.sun Makefile
+    make
+    cd ../..
+    mkdir xpm
+    mv xpm-3.4b/lib/* .
+    cd xpm
+    xmkmf
+    make
+    cd ..
+    < edit Magick.tmpl and define HasJPEG, HasTIFF, or HasXPM as instructed >
+    xmkmf
+    make Makefiles
+    make clean
+    make
+
+  If you do not have xmkmf, try
+
+    < edit Makefile.in and define HasJPEG, HasTIFF, or HasXPM as instructed >
+    configure
+    make clean
+    make
+
+  You can now display images in the JPEG, TIFF, or XPM format.
+
+
+VMS COMPILATION
+
+  Type
+
+    @make
+    set display/create/node=node_name::
+
+  where node_name is the DECNET X server to contact.
+
+  Finally type:
+
+    display [.images]aquarium.miff
+    display -monochrome -dither [.images]aquarium.miff
+
+
+ANIMATION
+
+  An example animation sequence is available from anonymous FTP at
+  ftp.x.org, file contrib/ImageMagick.animation.tar.gz.  Or
+  alternatively, you can create this sequence yourself.  Just look at
+  README in the scenes directory.
+
+  To prevent color flashing on visuals that have colormaps, animate(1)
+  creates a single colormap from the image sequence.  This can be
+  rather time consuming.  You can speed this operation up by reducing
+  the colors in the image before you `animate' them.  Use mogrify(1) to
+  color reduce the images:
+
+    mogrify -colors 256 scenes/dna.[0-9]*
+
+  Note, the image sequence in ImageMagick.animation.tar.gz is already
+  reduced.  Alternatively, you can use a Standard Colormap; or a
+  static, direct, or true color visual.  You can define a Standard
+  Colormap with xstdcmap(1).  For example, to use the "best" Standard
+  Colormap, type:
+
+    xstdcmap -best
+    animate -map best scenes/dna.[0-9]*
+
+  or to use a true color visual:
+
+    animate -visual truecolor scenes/dna.[0-9]*
+
+  Image filenames can appear in any order on the command line if the
+  scene keyword is specified in the MIFF image.  Otherwise the images
+  display in the order they appear on the command line.  A scene is
+  specified when converting from another image format to MIFF by using
+  the "scene" option with any filter.  Be sure to choose a scene number
+  other than zero.  For example, to convert a TIFF image to a MIFF
+  image as scene #2, type:
+
+    convert -scene 2 image.tiff image.miff
+
+
+MIFF IMAGE FORMAT
+
+  MIFF is an image format which I developed.  I like it because it
+
+    1) It is machine independent.  It can be read on virtually any
+       computer.  No byte swapping is necessary.
+
+    2) It has a text header.  Most image formats are coded in binary
+       and you cannot easily tell attributes about the image.  Use
+       more(1) on MIFF image files and the attributes are displayed in
+       text form.
+
+    3) It can handle runlength-encoded images.  Although most scanned
+       images do not benefit from runlength-encoding, most
+       computer-generated images do.  Images of mostly uniform colors
+       have a high compression ratio and therefore take up less memory
+       and disk space.
+
+    4) It allows a scene number to be specified.  This allows you to
+       specify an animation sequence out-of-order on the command line.
+       The correct order is determined by the scene number of each
+       image.
+
+    5) MIFF computes a digital signature for colormapped images.  This
+       is useful for animating a sequence of images on a colormapped X
+       server.  If all signatures match in the image sequence,
+       computing a global colormap is not necessary.
+
+    6) There is a `montage' keyword allowing an image to act as a visual
+       image directory.  See display(1) for more details.
+
+  One way to get an image into MIFF format is to use convert(1).  or
+  read it from an X window using the 'import' program.  Alternatively,
+  type the necessary header information in a file with a text editor.
+  Next, dump the binary bytes into another file.  Finally, type
+
+    cat header binary_image | display -write image.miff -
+
+  For example, suppose you have a raw red, green, blue image file on
+  disk that is 640 by 480.  The header file would look like this:
+
+    id=ImageMagick columns=640 rows=480 :
+
+  The image file would have red, green, blue tuples (rgbrgbrgb...).
+
+  Refer to the display(1) manual page for more details.
+
+COPYRIGHT
+
+  Copyright 1994 E. I. du Pont de Nemours and Company
+
+  Permission to use, copy, modify, distribute, and sell this software and
+  its documentation for any purpose is hereby granted without fee,
+  provided that the above copyright notice appear in all copies and that
+  both that copyright notice and this permission notice appear in
+  supporting documentation, and that the name of E. I. du Pont de Nemours
+  and Company not be used in advertising or publicity pertaining to
+  distribution of the software without specific, written prior
+  permission.  E. I. du Pont de Nemours and Company makes no representations
+  about the suitability of this software for any purpose.  It is provided
+  "as is" without express or implied warranty.
+
+  E. I. du Pont de Nemours and Company disclaims all warranties with regard
+  to this software, including all implied warranties of merchantability
+  and fitness, in no event shall E. I. du Pont de Nemours and Company be
+  liable for any special, indirect or consequential damages or any
+  damages whatsoever resulting from loss of use, data or profits, whether
+  in an action of contract, negligence or other tortious action, arising
+  out of or in connection with the use or performance of this software.

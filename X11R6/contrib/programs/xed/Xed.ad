@@ -1,0 +1,74 @@
+Xed*input:				TRUE
+
+Xed*filename*preferredPaneSize:	525
+Xed*editWindow*preferredPaneSize:	500
+
+Xed*labelWindow*justify:		center
+Xed*labelWindow*label:			no file yet
+
+Xed*buttons*orientation:		horizontal
+Xed*buttons*showGrip:			False
+
+Xed*messageWindow.autoFill:		True
+Xed*messageWindow.scrollVertical:	WhenNeeded
+
+Xed*editWindow.autoFill:		True
+Xed*editWindow.scrollVertical:	        Always
+
+! AutoIndent Yes or No
+Xed*AutoIndent:				True
+
+! Command for printing
+! %t will be replaced with real filename
+! %f will be replaced with temporary filename witch is to be printed
+Xed*PrintCommand:			lpr -p -T %t %f
+
+! Default Tabsize
+Xed*Tabsize:				8
+
+! Creating backup file
+Xed*EnableBackups:			FALSE
+Xed*BackupNameSuffix:			.bak
+
+! Usefull for slow machines
+Xed*MaxScrollbreak:			3
+
+! Clear Inputfield with Escape Key
+Xed*value.translations:  #override \
+                                <Key>Escape: select-all() delete-selection()
+Xed*tab_text.translations: #override \
+                                <Key>Escape: select-all() delete-selection()
+Xed*sed_text.translations: #override \
+                                <Key>Escape: select-all() delete-selection()
+Xed*search_text.translations: #override \
+                                <Key>Escape: select-all() delete-selection()
+Xed*replace_text.translations: #override \
+                                <Key>Escape: select-all() delete-selection()
+
+! Additional Keybindings for textwindow
+! L10,R7,R9,R13,R15 are special for sun Keyboards
+! Next,Prior,Home,End are special for MFII Keyboards
+! Meta<key>x ist special for NeXT Keyboards
+Xed*editWindow.translations:  #override \
+				  Meta<Key>x: kill-selection() \n \
+                                  <Key>L10:kill-selection() \n \
+                                  <Key>R7: beginning-of-file() \n \
+                                  <Key>R9: previous-page() \n \
+                                  <Key>R13: end-of-file() \n \
+                                  <Key>R15: next-page() \n \
+                                  <Key>Home: beginning-of-file() \n \
+                                  <Key>Prior: previous-page() \n \
+                                  <Key>End: end-of-file() \n \
+                                  <Key>Next: next-page() \n \
+				  Shift<Key>Up: previous-page() \n \
+				  Shift<Key>Down: next-page() \n \
+				  Shift<Key>Left: backward-word() \n \
+				  Shift<Key>Right: forward-word() \n \
+				  Ctrl<Key>Up: beginning-of-file() \n \
+				  Ctrl<Key>Down: end-of-file() \n \
+				  Ctrl<Key>Left: beginning-of-line() \n \
+				  Ctrl<Key>Right: end-of-line() \n \
+				  <Key>BackSpace: delete-previous-character() \n \
+				  <Key>Delete: delete-previous-character()
+
+

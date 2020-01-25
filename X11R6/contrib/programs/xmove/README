@@ -1,0 +1,110 @@
+/*                            xmove
+ *                            -----
+ *             A Pseudoserver For Client Mobility
+ *
+ *   Copyright (c) 1994         Ethan Solomita
+ *
+ *   The X Consortium, and any party obtaining a copy of these files from
+ *   the X Consortium, directly or indirectly, is granted, free of charge, a
+ *   full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+ *   nonexclusive right and license to deal in this software and
+ *   documentation files (the "Software"), including without limitation the
+ *   rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons who receive
+ *   copies from any such party to do so.  This license includes without
+ *   limitation a license to do the foregoing actions under any patents of
+ *   the party supplying this software to the X Consortium.
+ */
+
+	This is the second release of xmove, a pseudoserver for
+client mobility. All of the files entitled "README" discuss the
+steps to install xmove on your system. All discussion of features
+and usage are left in the doc and man subdirectories. Please make
+certain to read the README files located in each of the following
+subdirectories:
+
+	xmove
+	xmove/lib
+	xmovectrl
+
+	You should also determine whether you have the most
+recent release of xmove. The current release will be available
+for anonymous ftp from ftp.cs.columbia.edu:/pub/xmove. The third
+release of xmove is anticipated in late 1994/early 1995.
+
+	As of today (June 6, 1994) we have tested xmove on Sun
+platforms, using both SunOS 4.1.x and Solaris 2.x. xmove supports
+monochrome and color displays, excepting 24-bit color. We expect
+that xmove should port easily to other Unix platforms, although
+it may be necessary to disable dynamic loading of libraries. See
+xmove/README for details.
+
+	The xmove hierarchy consists of the above three
+directories which contain source code that must be compiled, a
+man directory containing man pages, and a doc directory
+containing text files which discuss operating xmove, xmove's
+features, and xmove's limitations.
+
+	The directory xmove contains the main source code for
+xmove. It contains an Imakefile which should work for most users.
+That Imakefile contains a header section which contains options
+that must be configured before xmove will compile. The result of
+a successful make will be the executable xmove, which is the
+pseudoserver.
+
+	The directory xmove/lib contains a support library
+(libatommap.c) for xmove which allows xmove to handle many of the
+properties and selections defined in the ICCCM and by OpenLook.
+Xmove's Imakefile can be configured to compile this source code
+into xmove directly, thus not requiring the library to be built.
+Although this is functionally equivalent, xmove is designed to
+extend its functionality by simply dropping additional libraries
+into a specified subdirectory. If xmove is told to load libraries
+dynamically, then the library in this directory must be made.
+
+	The directory xmovectrl contains the source code for the
+program used to issue commands to xmove (eg. move my xterm to
+machine foo). The compilation is straightforward, as the source
+consists of one .c file and two header files. A successful make
+creates the executable xmovectrl.
+
+	After building xmove, you should have two executables
+(xmove and xmovectrl), plus a library depending upon compilation
+choices. The executables should be installed in an appropriate
+directory. The library must be placed in the directory specified
+in xmove's Imakefile. Additionally, the man pages should be
+placed in the standard man path.
+
+	It is recommended that users additionally read the
+documentation located in the doc subdirectory. Although the man
+pages describe how to start xmove, an understanding of its
+features and limitations is required in order to use it
+effectively. Xmove is inherently limited by the fact that it must
+deduce an application's desires by watching the bits it transmits
+and receives, and that it must attempt to make new servers look
+identical to the application's first server. Much has been done,
+and much has yet to be done.
+
+
+	We are extemely interested in your comments (constructive
+criticism is always preferred 8). Even if you don't have much to
+say, we'd like to hear from you, just to know whether people are
+interested. If you experiment with xmove, we'd love to hear what
+applications and configurations work, and which cause trouble.
+
+	Please send all comments, bug reports (detailed, please!)
+and suggestions for future enhancements to:
+
+	ethan@cs.columbia.edu
+
+	We will also attempt to monitor discussion on
+comp.windows.x, but responses are only guaranteed through email.
+	
+	Support for xmove development has been provided by Daniel
+Duchamp at Columbia University and by James Kempf and Dick
+Sillman at Sun Microsystems.
+
+	We hope you enjoy the product!
+
+	Sincerely,
+	Ethan Solomita

@@ -1,0 +1,31 @@
+1)  If you have a correctly installed imake, simply type 
+
+    ~X11/bin/xmkmf -a
+
+    and watch imake do its thing.  Otherwise, you will have to hack the 
+    Makefile.sun to appropriately configure xpd for your system.  Note that
+    the current program will NOT run on Sparc systems with OpenWindows
+    2.0 or above as not all necessary X libraries are present.
+
+2)  make all
+
+3)  If there aren't any errors, run make -n install.  If you are satisfied
+    with where it is going to install, run make install.   This will install
+    the executable and application defaults file (the application defaults  
+    file must be installed or in a directory referenced by XAPPLRESDIR).
+
+4)  Run make install.man to install the man page.
+
+5)  Note that  the Makefile will automatically set ownership of xpd in the 
+    ~X11/bin directory as root with the setuid bit turned on.  If you do NOT
+    want a setuid program in that directory, simply execute the following
+    commands as root:
+
+        chmod u-s ~X11/bin/xpd
+        chgrp kmem ~X11/bin/xpd
+        chmod g+s ~X11/bin/xpd
+
+    since xpd MUST have the setgid bit on as group kmem to read kernel data
+    (for systems other than Suns, modify the group as appropriate).
+
+   

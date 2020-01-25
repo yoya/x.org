@@ -1,0 +1,189 @@
+.TH TKPOSTAGE 1 "Tcl/Tk" "TkPostage 1.3"
+.SH NAME
+tkpostage - fancy mailbox message counter (like xbiff)
+.SH SYNOPSIS
+.B tkpostage
+[-\fItoolkitoption\fP ...] [-option ...]
+.SH DESCRIPTION
+.I tkpostage
+is a replacement for
+.I xbiff
+and similar programs.  It shows a picture similar to a U.S.A. metered stamp
+with a count of how many messages are in your mail spool.  Clicking on
+this window will bring up a window with one line per mail message, containing
+the subject and author.
+.SH OPTIONS
+.I tkpostage
+accepts all of the standard Tk Toolkit command line options along with the
+additional options listed below:
+.TP 8
+.B \-help
+This option gives the usual \fIwish\fP help summary which isn't really what you want.
+To get detailed help on \fItkpostage\fP, use some other unused option, like \-foo.
+This message is printed to standard error.
+.TP 8
+.B \-delay \fIseconds\fP
+This option specifies the frequency in seconds at which \fItkpostage\fP
+should check if you have new mail.
+The default is 2 seconds.
+.TP 8
+.B \-mailDrop \fIfilename\fP
+This option specifies the name of the file which should be monitored.  By
+default, it watches /usr/spool/mail/\fIusername\fP, where \fIusername\fP
+is your login name, or a number of other typical directories if it can't
+find /usr/spool/mail.
+\fItkpostage\fP will also try your MAILDROP environment variable, if set.
+.TP 8
+.B \-fg \fIcolor\fP
+This option specifies the foreground color of the postage window.  The
+color is specified in the usual X syntax.
+.TP 8
+.B \-bg \fIcolor\fP
+This option specifies the background color of the postage window.
+.TP 8
+.B +/\-flip
+This option tells \fItkpostage\fP to invert its colors when new mail arrives.
+This is the default behavior.  \fB-flip\fP disables flipping, and \fB+flip\fP
+forces flipping.
+.TP 8
+.B +/\-beep
+This option tells \fItkpostage\fP to beep when new mail arrives.  By
+default, it's quiet.  \fB+beep\fP enables beeping, and \fB-beep\fP disables it.
+This won't always work, though.  See the \fIBUGS\fP section for more details.
+.TP 8
+.B +/\-paranoid
+This option tells \fItkpostage\fP to watch the file access time on the mail
+spool, which it normally ignores.  \fB+paranoid\fP enables file access time
+checking, and \fB-paranoid\fP disables it.
+.sp
+For most people, this is unnecessary,
+but if you think \fItkpostage\fP isn't rescanning when things change, try
+this flag out.  If you're running more than one copy of \fItkpostage\fP
+or other application which accesses your mail spool, and you use the
+\fB+paranoid\fP option, you may notice a substantial slowdown, or a full rescan
+every so many seconds.  This isn't so much a bug as a problem with checking
+the file access times.
+.PP
+The following options are intended more for the tinkerer than for general
+usage.  They're included for completeness:
+.TP 8
+.B \-bitmap \fIbitmap-file\fP
+This option specifies the path a different bitmap, if you don't want to use
+the usual postage meter.
+.TP 8
+.B \-numberFont \fIfont-specification\fP
+This option specifies the font to use for the counter.
+.TP 8
+.B \-numberAnchor \fIanchor-direction\fP
+This option specifies the corner from which the following offsets are relative.
+\fIanchor-direction\fP may be one of \fIc, sw, s, se, e, ne, n,
+nw,\fP or \fIw\fP.
+.TP 8
+.B \-numberXOffset \fIinteger\fP
+This option specifies the x-offset of the counter in the bitmap, relative
+to the anchor.
+.TP 8
+.B \-numberYOffset \fIinteger\fP
+This option specifies the y-offset of the counter in the bitmap, relative
+to the anchor.
+.TP 8
+.B \-detailFont \fIfont-specification\fP
+This option specifies the font to use for the message details window.
+.TP 8
+.B \-postageGeometry \fIgeometry-spec\fP
+This option specifies the geometry of the main postage window.
+.TP 8
+.B \-detailGeometry \fIgeometry-spec\fP
+This option specifies the geometry of the message details window.  The
+width and height are specified as numbers of characters rather than pixels,
+in the same way as \fIxterm\fP's geometry specification.
+.SH X DEFAULTS
+The application class is the same as the program name (usually "tkpostage").
+Setting a resource like "tkpostage.beep: true" is equivalent to running
+"tkpostage +beep".  Command line options will override any X resources set.
+.sp
+For convincing your window manager what borders you want on each toplevel
+window, use \fItkpostage\fP to refer to the small postage window, and
+\fITkPostageDetails\fP to refer to the message details window.
+.sp
+For more information about this, see the \fIBUGS\fP section below.
+.PP
+.I tkpostage
+understands all of the core resource names and classes that Tk supports
+as well as resources corresponding to all of the above flags.
+.PP
+.ta 3i
+.nf
+\fIX Resource	Command Line Option\fP
+
+paranoid	+/-paranoid
+beep	+/-beep
+flip	+/-flip
+bitmap	-bitmap
+delay	-delay
+mailDrop	-mailDrop
+foreground	-fg (or) -foreground
+background	-bg (or) -background
+numberXOffset	-numberXOffset
+numberYOffset	-numberYOffset
+numberAnchor	-numberAnchor
+numberFont	-numberFont
+detailFont	-detailFont
+postageGeometry	-postageGeometry
+detailGeometry	-detailGeometry
+.fi
+.sp
+.SH ENVIRONMENT
+.PP
+.TP 8
+.B DISPLAY
+to get the default host and display number.
+.TP 8
+.B MAILDROP
+if set, this overrides the usual checks of /usr/spool/mail/\fIusername\fP
+and /usr/mail/\fIusername\fP.
+.TP 8
+.B XENVIRONMENT
+to get the name of a resource file that overrides the global resources
+stored in the RESOURCE_MANAGER property.
+.SH "SEE ALSO"
+X(1),
+xterm(1),
+xbiff(1),
+wish(1),
+Tcl(n),
+xrdb(1),
+stat(2)
+.SH BUGS
+Tk3.3 has a bug with setting the application class of the top-level
+window.  Although Tk3.4 fixed this bug, I'm not going to "fix" tkpostage
+in a way that breaks it under Tk3.3.  You can always use the program
+name ("tkpostage") as the class, and this works fine.
+.sp
+Tk3.6 and earlier versions don't directly support ringing the X bell.  The
+\fB+beep\fP option is currently a hack which sends a \fIcontrol-G\fP to
+standard output.  If you ran \fItkpostage\fP from a session manager, or
+some other program not attached to a tty, you won't hear the beep.
+Ousterhout says Tk4.0 will directly support beeping.  It is also fairly
+easy to add a command to call \fIXBell\fP into your own \fIwish\fP
+interpreter.  Since current \fIwish\fP interpreters don't support
+\fIXBell\fP, \fItkpostage\fP doesn't either.
+.SH AUTHOR
+Dan Wallach <dwallach@cs.princeton.edu>
+.SH COPYRIGHT
+Copyright (c) 1994    Dan Wallach
+.sp
+The X Consortium, and any party obtaining a copy of these files from
+the X Consortium, directly or indirectly, is granted, free of charge, a
+full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+nonexclusive right and license to deal in this software and
+documentation files (the "Software"), including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons who receive
+copies from any such party to do so.  This license includes without
+limitation a license to do the foregoing actions under any patents of
+the party supplying this software to the X Consortium.
+.SH INSPIRATION
+\fIxpostage\fP, by Cliff Herod, Convex Computer Corp, 1989.
+.br
+128x64 bitmap image (Postage.xbm) used with permission.

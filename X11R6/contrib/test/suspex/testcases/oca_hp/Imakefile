@@ -1,0 +1,72 @@
+# $XConsortium: Imakefile,v 1.0 93/11/22 12:30:24 rws Exp $
+#
+#
+#   (c) Copyright Hewlett-Packard Company, 1993, Fort Collins, Colorado       
+#                                                                            
+#                             All Rights Reserved                           
+#                                                                          
+#   Permission to use, copy, modify, and distribute this software and its 
+#   documentation for any purpose and without fee is hereby granted,     
+#   provided that the above copyright notices appear in all copies and that   
+#   both the copyright notices and this permission notice appear in          
+#   supporting documentation, and that the name of Hewlett-Packard not be   
+#   used in advertising or publicity pertaining to distribution of the     
+#   software without specific, written prior permission.                  
+#                                                                        
+#   HEWLETT-PACKARD MAKES NO WARRANTY OF ANY KIND WITH REGARD TO THIS   
+#   SOFTWARE, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
+#   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  Hewlett-Packard    
+#   shall not be liable for errors contained herein or direct, indirect,     
+#   special, incidental or consequential damages in connection with the     
+#   furnishing, performance or use of this software.                       
+#                                                                         
+#
+
+# HP OC Attributes Tests
+
+#include "../../src/common_hp/Imake.include"
+PROGS = attr_errors \
+	            clip_attrs \
+	            clip_attrs_push \
+	            dq_attrs \
+	            dq_attrs_push \
+	            hlhsr_attrs \
+	            hlhsr_attrs_push \
+	            idle_renderer \
+	            line_attrs \
+	            line_attrs_push \
+	            marker_attrs \
+	            marker_attrs_push \
+	            misc_attrs \
+	            refl_attrs \
+	            struct_attrs \
+	            surf_attrs \
+	            surf_attrs_push \
+	            xform_attrs \
+	            xform_attrs_push
+
+
+AllTarget($(PROGS))
+
+CommonTarget(attr_errors)
+CommonTarget(clip_attrs)
+CommonTarget(clip_attrs_push)
+CommonTarget(dq_attrs)
+CommonTarget(dq_attrs_push)
+CommonTarget(hlhsr_attrs)
+CommonTarget(hlhsr_attrs_push)
+CommonTarget(idle_renderer)
+CommonTarget(line_attrs)
+CommonTarget(line_attrs_push)
+CommonTarget(marker_attrs)
+CommonTarget(marker_attrs_push)
+CommonTarget(misc_attrs)
+CommonTarget(refl_attrs)
+CommonTarget(struct_attrs)
+CommonTarget(surf_attrs)
+CommonTarget(surf_attrs_push)
+CommonTarget(xform_attrs)
+CommonTarget(xform_attrs_push)
+
+DependTarget()
+

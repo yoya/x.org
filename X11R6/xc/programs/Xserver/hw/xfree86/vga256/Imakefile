@@ -1,0 +1,31 @@
+XCOMM $XConsortium: Imakefile,v 1.2 94/10/12 21:30:32 kaleb Exp $
+XCOMM $XFree86: xc/programs/Xserver/hw/xfree86/vga256/Imakefile,v 3.4 1994/09/25 12:30:27 dawes Exp $
+#include <Server.tmpl>
+
+#define IHaveSubdirs
+
+SUBDIRS = vga drivers vgainit
+
+SRCS = vga/?*.c vgainit/?*.c
+
+OBJS = vga/?*.o vgainit/?*.o
+
+DONES = vga/DONE
+
+INCLUDES = -Ivga -I$(XF86COMSRC) -I$(XF86OSSRC) -I$(SERVERSRC)/include \
+           -I$(INCLUDESRC)
+
+VGADRIVERS = XF86SvgaDrivers
+
+NormalDepLibraryTarget(vga256,$(SUBDIRS) $(DONES),$(OBJS))
+
+ConfigTargetNoDepend(vga256Conf,$(ICONFIGFILES),confvga256.sh,$(VGADRIVERS))
+
+NormalLibraryObjectRule()
+
+ForceSubdirs($(SUBDIRS))
+
+InstallLinkKitLibrary(vga256,$(LINKKITDIR)/drivers)
+InstallLinkKitNonExecFile(confvga256.sh,$(LINKKITDIR))
+
+DependSubdirs($(SUBDIRS))

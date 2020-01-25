@@ -1,0 +1,25 @@
+XCOMM $XConsortium: Imakefile,v 1.10 94/04/07 15:07:44 rws Exp $
+#define DoNormalLib NormalLibXtst
+#define DoSharedLib SharedLibXtst
+#define DoDebugLib DebugLibXtst
+#define DoProfileLib ProfileLibXtst
+#define LibName Xtst
+#define SoRev SOXTESTREV
+#define LibHeaders NO
+
+#include <Threads.tmpl>
+
+#ifdef SharedXtstReqs
+REQUIREDLIBS = SharedXtstReqs
+#endif
+
+INCLUDES = -I$(XLIBSRC) -I$(EXTINCSRC)
+
+SRCS = XTest.c
+OBJS = XTest.o
+
+LINTLIBS = $(LINTXLIB)
+
+#include <Library.tmpl>
+
+DependTarget()

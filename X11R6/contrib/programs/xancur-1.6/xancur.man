@@ -1,0 +1,183 @@
+.TH XANCUR 1.6 "30 May 1994" "X11R6" "Talisman User Commands"
+.ds p xancur
+.SH NAME
+xancur \- root cursor animation program for X
+.SH SYNOPSIS
+.B \*p
+[-help]
+[-display \fIdisplay\fP]
+[-usleep \fImicroseconds\fP]
+[-fg \fIcolor\fP] [-bg \fIcolor\fP] [-rv]
+[-script \fIscriptname\fP]
+[-iter \fIiterations\fP]
+[\fIcursorfile maskfile\fP]...
+.SH DESCRIPTION
+The 
+.I \*p
+program
+allows the user to animate the background ("root") cursor
+on a workstation display running X.  Normally, one experiments with
+.I \*p
+until one finds a pleasing, personalized look, then puts the
+.I \*p
+command that produces it into an X startup file.  If
+no options are specified,
+.I \*p
+will attempt to read a scriptfile named
+.I .\*p
+in the user's home directory for a list of cursor/mask filenames.  Failing
+that, \*p will look for a system scriptfile defined at compilation --- see
+.I FILES
+below.
+.br
+.I \*p
+can also be used for program-to-user communication (although this is really
+pushing things), by using a meaningful batch animation through a finite
+number of iterations to indicate, for example, the completion of a batch
+job.  It can also run until the \*p process is killed by a catch on the end
+of a task.  The program will \fBnot\fP, however, pause another invocation
+of itself while running, so improper use could be less than esthetic.
+.SH OPTIONS
+.PP
+The various options are as follows:
+.IP \fB-help\fP
+Print a usage message and exit.
+.IP "\fIcursorfile\fP \fImaskfile\fP"
+Filename pairs in this form are used to set the root cursor animation frame
+sequence.  The enables the user to specify the complete animation cycle with
+standard cursor and mask bitmaps as used by
+.I xsetroot(1).
+Cursor and mask files are bitmaps (little pictures), and can be made with the
+.I bitmap(1)
+program.  One usually wants the mask files to be all black until one
+becomes more familiar with the way masks work.
+.IP "\fB-script\fP \fIscriptname\f"
+File \fIscriptname\f contains commands (similar to those used
+on the the command line) and either cursor/mask
+filename pairs or merely the name of the cursor files to which \fB.mask\fP
+will be added to create the maskfile names.
+.IP "\fB-iter\fP \fIiterations\f"
+This option sets the number of iterations for the complete animation loop.
+If left unset, the program will loop until interrupted.
+.IP "\fB-fg\fP \fIcolor\fP"
+Use \fIcolor\fP as the foreground color.
+.IP "\fB-bg\fP \fIcolor\fP"
+Use \fIcolor\fP as the background color.  
+.IP \fB-rv\fP
+This exchanges the foreground and background colors.  Normally the foreground
+color is black and the background color is white.
+.IP "\fB-display\fP \fIdisplay\fP"
+Specifies the server to which to connect; see \fIX(1)\fP.
+.PP
+For convenience, \*p interprets the \fI~\fP (tilde)
+character in the same way as that seen in the \fIcsh(1)\fP.
+This is also true within scripts.
+.PP
+It is not currently known precisely how many frames long an animation loop
+can be.  User should probably be warned that, like many other aspects of
+customization, many days can be lost in exploring such limits.
+.SH EXAMPLE
+.LP
+To have
+.I \*p
+cycle through the two cursor/masks pairs for frames
+.I bm1
+and
+.I bm2
+one might run the following command.
+.LP
+.nf
+	\*p -usleep 400000 bm1 bm1.mask bm2 bm2.mask
+.fi
+.LP
+More commonly, one might run the following in the
+.I \*p
+source directory.
+.LP
+.nf
+	\*p -script animations/fourpoints/Script
+.fi
+.SH SCRIPTS
+The \fBscriptfiles\fP may contain image/mask filename pairs, image filenames
+with assumed \fB.mask\fP suffixes for mask filenames, and command switches.
+The command switches comprise a subset of the command line options, and
+include:
+.PP
+.IP "\fB-script\fP \fIscriptname\f"
+.IP "\fB-fg\fP \fIcolor\fP"
+.IP "\fB-bg\fP \fIcolor\fP"
+.IP "\fB-rv\fP
+.PP
+It is important to note that the dash-commands do
+.I not
+get saved or re-executed, but rather merely affect a particular
+cursor construction.  One should also note that the script below
+will only work with the requisite X bitmaps resident in the same
+directory as the script file.
+.PP
+A variation of the default pointer, showing color reversal:
+.IP
+.nf
+-bg white
+-fg black
+fourpoints0
+fourpoints15
+fourpoints30
+fourpoints45
+fourpoints60
+fourpoints75
+-rv
+fourpoints0
+fourpoints15
+fourpoints30
+fourpoints45
+fourpoints60
+fourpoints75
+.fi
+.PP
+It should be noted that any pathname within a script file which is not
+a fully-rooted pathname will be resolved relative to the script file's
+location rather than relative to the current working directory.
+.SH NOTES
+Running \*p tends to prevent one's X server from being swapped out as often.
+This has been known to significantly improve response time on some machines.
+.SH FILES
+.nf
+/usr/lib/X11/\*p/Script                  default (system) script.
+$\s-1HOME\s0/.\*p                      default (personal) script.
+$\s-1HOME\s0/.xinitrc        typical place for first \*p command.
+.fi
+.SH "SEE ALSO"
+csh(1), X(1), xinit(1), xset(1), xsetroot(1), xrdb(1), XDefineCursor(3)
+.SH BUGS
+.PP
+This version probably can't handle individual files of over 64K in length.
+.PP
+The program makes no use of the X resources for anything.
+.SH COPYRIGHT
+.IP "Copyright (c) 1993, 1994 Christopher Alexander North-Keys"
+.PP
+The X Consortium, and any party obtaining a copy of these files from
+the X Consortium, directly or indirectly, is granted, free of charge, a
+full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+nonexclusive right and license to deal in this software and
+documentation files (the "Software"), including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons who receive
+copies from any such party to do so.  This license includes without
+limitation a license to do the foregoing actions under any patents of
+the party supplying this software to the X Consortium.
+.SH AUTHOR
+Christopher Alexander North-Keys, Group Talisman
+.br
+.PP
+erlkonig@gnu.ai.mit.edu
+.br
+.PP
+Special thanks to Mark Lillibridge, MIT Project Athena, for having written
+the code for \fIxsetroot\fP(1), thanks to the other members of group Talisman
+for beta testing this program and offering comments, and
+thanks to Mic Kaczmarczik (UT@Austin CCWF) for proofreading this
+documentation, checking the installation process, and checking the
+spelling of his surname.
+.br

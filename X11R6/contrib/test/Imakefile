@@ -1,0 +1,13 @@
+XCOMM $XConsortium: Imakefile,v 1.31 94/04/17 09:12:40 rws Exp $
+
+#define IHaveSubdirs
+#define PassCDebugFlags CDEBUGFLAGS="$(CDEBUGFLAGS)"
+
+#if BuildXKBlib
+XKBDIRS = Xkb
+#endif
+
+      SUBDIRS = Xcms Xext Xi $(XKBDIRS)
+
+MakeSubdirs($(SUBDIRS))
+DependSubdirs($(SUBDIRS))

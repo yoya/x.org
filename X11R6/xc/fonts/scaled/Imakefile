@@ -1,0 +1,8 @@
+XCOMM $XConsortium: Imakefile,v 1.4 91/10/10 13:51:28 rws Exp $
+#define IHaveSubdirs
+#define PassCDebugFlags /* as nothing */
+
+        SUBDIRS = Speedo Type1
+
+MakeSubdirs($(SUBDIRS))
+DependSubdirs($(SUBDIRS))

@@ -1,0 +1,443 @@
+.de EX		\"Begin example
+.ne 5
+.if n .sp 1
+.if t .sp .5
+.nf
+.in +.5i
+..
+.de EE
+.fi
+.in -.5i
+.if n .sp 1
+.if t .sp .5
+..
+.TH xcalendar 1 "6 June 1994" "X Version 11"
+.SH NAME
+xcalendar - calendar with a notebook for X11
+.SH SYNTAX
+.PP
+\fBxcalendar \fP[month \fp[year\fp]\fP]
+.PP
+.SH DESCRIPTION
+.PP
+\fIxcalendar\fP is a simple interactive calendar program with a notebook
+capability. It is built on the X Toolkit and the Athena or Motif Widgets
+(compile time option).
+.PP
+If month and year are not provided on the command line they are assumed
+to be current. 
+.PP
+.SH INTERACTIONS
+.PP
+Clicking the left mouse button on a day will start a text editor.
+You can edit and save a text.  This text will be associated with the
+day. You can later on read and edit this text when you open the editor
+for the same day. The text is saved in a file in the directory
+specified by the calendarDir resource (default ~/Calendar). The editor 
+lets you also clear an entry associated with a particular day.   You 
+can also scroll through days while in the editor by clicking on the 
+arrows on either side of the date label.  If an already open day is 
+scrolled to, an appropriate message is displayed and the editor is 
+brought upin read only mode.
+.PP
+It is also possible to scroll through months in the main window by clicking
+on the arrows on either side of the current date label.
+.PP
+You can highlight all entries in a month by invoking
+the function ShowEntries. By default this function is
+called when the left mouse button is pressed in the
+title window (where month and a year are displayed).
+Pressing again the same button will unhighlight the entries.
+.PP
+"Holidays" are shown in a text widget near the bottom of the day 
+editor.  Holidays are read from a holiday file (see holidayFile
+below).  The format of the file is mm/dd/yyyy holidaytext where the 
+date and text are separated by a tab.  Currently there is no 
+wildcarding done.
+.SH MISSING FEATURES
+.PP
+One can imagine many useful features. For example
+automatic parsing of the current day entry in search for
+appointments to trigger alarms (reminders) at the approriate
+time.  Actually, there is a perl script called \fIxcalendar+\fP that
+will do this sort of thing.  Maybe one day \fIxcalendar\fP will do it
+internally.
+.PP
+.SH RESOURCES
+.PP
+The resource data base lets you alter the visual appearance
+of the program. You can change fonts, border widths, labels, 
+and other resources used by widgets. One use of this facility is
+to change names of week days and months.
+.PP
+Here are the names of widgets you can use to set 
+various resources: 
+.PP
+.EX 0
+XCalendar    - class of the application
+xcalendar    - top level pane
+controls     - control panel
+quitButton   - quit button
+helpButton   - help button
+date         - date label
+calendar     - calendar pane
+daynumbers   - day numbers frame
+1-49         - day number buttons
+daynames     - day names frame
+MON,TUE,WED,THU,FRI,SAT,SUN - day name buttons
+helpWindow   - help window
+bcontrols    - month buttons frame
+prev         - previous month button
+succ         - succeeding month button
+cdate        - current date widget
+dayEditor    - editor popup
+editorFrame  - editor frame
+editorTitle  - editor title
+editor       - editor
+holiday      - holiday text
+daybuttons   - day buttons frame
+prevday      - previous day button
+succday      - succeeding day button
+editorControls - control panel
+doneButton   - done button
+saveButton   - save button
+clearEntry   - clear entry button
+.EE
+.PP
+Application specific resources:
+.PP
+.EX 0
+reverseVideoMark  - if True the entries are highlighted in reverse
+                    video;  default True for monochrome displays
+                    and False for color displays;
+
+setMarkBackground - if True and reverseVideoMark is False the 
+                    entries are highlighted by setting 
+                    background to markBackground ;
+
+markBackground    - background color for highlighting entries;
+
+setMarkForeground - analogous to setMarkBackground;
+
+markForeground    - foreground color for highlighting entries;
+
+\fIsetMarkBackground\fP and \fIsetMarkForeground\fP can take any 
+combination of values.
+
+january,february,..,december - these resources can be used for
+                    changing names of months in the month label
+                    (date) and for filename determination under
+                    oldStyle (see below);
+
+firstDay          - an integer between 1-7,  indicating the day to 
+                    start a week with, default:  7 (Sunday);
+
+markOnStartup     - if True mark the entries upon startup, 
+                    default: False;
+
+helpFile          - full pathname of the xcalendar.hlp file,
+                    default: /usr/lib/X11/xcalendar/xcalendar.hlp;
+
+textBufferSize    - maximum size of the text buffer in the day editor,
+                    default: 2048;
+
+calendarDir       - path name of directory to use for storing calendar 
+                    files instead of keeping them in $HOME/Calendar;
+
+holidayFile       - path name of file to use for determining holiday,
+                    default: /usr/lib/X11/xcalendar/xcalendar.hol;
+
+oldStyle          - uses version 3.0 and prior file naming convention, 
+                    (xcDAYmonYEAR), where DAY and YEAR are numeric and
+                    mon is the first three letters of the month, 
+                    instead of the "new style" (xcyyyymmdd), 
+                    default: True;
+
+markCurrent       - if True mark the current day (if visible; useful
+                    on color displays only), default: False;
+
+updateCurrent     - number of seconds between attempts to update the 
+                    marking of the current day, default: 60;
+
+currentForeground - foreground color for current day highlight;
+
+markHoliday       - if True mark holidays (if visible; useful on
+                    color displays only), default: False;
+
+holidayForeground - foreground color for holiday highlight;
+
+monthnames        - string of '/' separated month names used for
+                    formatting the date in cdate;
+
+monthnms          - string of '/' separated month abbreviations used
+                    for formatting the date in cdate;
+
+daynames          - string of '/' separated day names used for
+                    formatting the date in cdate;
+
+daynms            - string of '/' separated day abbreviations used
+                    for formatting the date in cdate;
+
+date              - format string for date in cdate.  The formatting 
+                    characters that are understood are:
+
+.in +9
+.nf
+%W      Full weekday name
+%w      Three-char weekday name 
+%M      Full month name
+%m      Three-char abbreviation for that month 
+%d      The date (numerical day number of the month)
+%Y      Full year (4 digits)
+%y      2-digit year number
+.fi
+.in -9
+
+                    default: "%W, %M %d";
+.EE
+.SH DEFAULT RESOURCE DATA BASE:
+.EX 0
+!
+*showGrip:		False
+*calendar*internalBorderWidth: 0
+*input:		True
+*resize: False
+*resizable: True
+*title: XCalendar v.4.0
+*dayEditor.title: Day Editor
+*helpWindow.title: XCalendar Help
+*Font: 8x13
+*FontList: 8x13
+
+*helpFile:	/p/X11R6/lib/X11/xcalendar/xcalendar.hlp
+*holidayFile:	/p/X11R6/lib/X11/xcalendar/xcalendar.hol
+
+*firstDay:		7
+
+! bitmaps
+
+*prev*bitmap: /p/X11R6/lib/X11/xcalendar/larrow.xbm
+*succ*bitmap: /p/X11R6/lib/X11/xcalendar/rarrow.xbm
+*prevday*bitmap: /p/X11R6/lib/X11/xcalendar/larrow.xbm
+*succday*bitmap: /p/X11R6/lib/X11/xcalendar/rarrow.xbm
+*helpButton*bitmap: /p/X11R6/lib/X11/xcalendar/qmark.xbm
+*quitButton*bitmap: /p/X11R6/lib/X11/xcalendar/quit.xbm
+*prev*labelType: XmPIXMAP
+*prev*labelPixmap: /usr/local/X11R5/lib/X11/xcalendar/larrow.xbm
+*succ*labelType: XmPIXMAP
+*succ*labelPixmap: /usr/local/X11R5/lib/X11/xcalendar/rarrow.xbm
+*prevday*labelType: XmPIXMAP
+*prevday*labelPixmap: /usr/local/X11R5/lib/X11/xcalendar/larrow.xbm
+*succday*labelType: XmPIXMAP
+*succday*labelPixmap: /usr/local/X11R5/lib/X11/xcalendar/rarrow.xbm
+*quitButton*labelType: XmPIXMAP
+*quitButton*labelPixmap: /usr/local/X11R5/lib/X11/xcalendar/quit.xbm
+*helpButton*labelType: XmPIXMAP
+*helpButton*labelPixmap: /usr/local/X11R5/lib/X11/xcalendar/qmark.xbm
+
+
+! colors
+! Note: These may cause problems using the -rv option on monochrome displays
+
+*Background: lightgray
+*markBackground: gray
+*daynames*Background: lightgray
+*daynames.SUN*Foreground: Red
+*daynames.SAT*Foreground: Black
+*daynumbers*Foreground:   Black
+*daynumbers.1*Foreground: Red
+*daynumbers.8*Foreground: Red
+*daynumbers.15*Foreground: Red
+*daynumbers.22*Foreground: Red
+*daynumbers.29*Foreground: Red
+*daynumbers.36*Foreground: Red
+*helpButton*Background: slategray
+*helpButton*Foreground: White
+*quitButton*Background: slategray
+*quitButton*Foreground: White
+*editorTitle*Background: lightgray
+*editorTitle*Foreground: Black
+*editorControls*Background: lightgray
+*editorControls*Command.Background: slategray
+*editorControls*Command.Foreground: White
+*editorControls*XmPushButton.Background: slategray
+*editorControls*XmPushButton.Foreground: White
+
+*setMarkBackground: True
+*markOnStartup: True
+*markCurrent: True
+*currentForeground: Blue
+*markHoliday: True
+*holidayForeground: Red
+*holiday*fontList: 6x13
+
+*BorderWidth:		2
+*calendar.borderWidth:	1
+*borderWidth: 0
+*date*borderWidth: 0
+*date*vertDistance: 5
+
+*date*font:				8x13bold
+*daynames*font:			8x13bold
+*dayEditor*editorTitle*font: 		8x13bold
+*helpWindow*editorTitle*font: 		8x13bold
+*date*fontList:			8x13bold
+*daynames*fontList:			8x13bold
+*dayEditor*editorTitle*fontList: 	8x13bold
+*helpWindow*editorTitle*fontList: 	8x13bold
+
+*helpButton*vertDistance: 12
+*quitButton*vertDistance: 12
+*editorTitle*vertDistance: 5
+
+*editorControls*doneButton*label: Done
+*editorControls*saveButton*label: Save
+*editorControls*clearEntry*label: Clear Entry
+*doneButton*labelString: Done
+*saveButton*labelString: Save
+*clearEntry*labelString: Clear Entry
+
+*helpWindow*editorTitle*label: Help
+*helpWindow*editorTitle*labelString: Help
+*helpWindow*rows: 15
+*helpWindow*columns: 80
+*rows:7
+*columns: 30
+
+*dayEditor*Paned*editor.width: 300
+*dayEditor*Paned*editor.height: 150
+*helpWindow*Paned*editor.width: 600
+*helpWindow*Paned*editor.height: 350
+
+*bcontrols*borderWidth: 0
+*prev*highlightThickness: 0
+*succ*highlightThickness: 0
+
+*prevday*highlightThickness: 0
+*succday*highlightThickness: 0
+*daybuttons*borderWidth: 0
+
+*Scrollbar.borderWidth: 1
+*Text*scrollVertical: whenNeeded
+*scrollHorizontal: False
+*helpWindow*scrollHorizontal: True
+*holiday*cursorPositionVisible: False
+*holiday*displayCaret: False
+*helpWindow*cursorPositionVisible: False
+*helpWindow*displayCaret: False
+
+!! Keyboard accelerators for Athena version
+
+*Box*doneButton*accelerators: #override \\n\\
+	Meta<Key>q: set() notify() reset() \\n
+*Box*saveButton*accelerators: #override \\n\\
+	Meta<Key>s: set() notify() reset() \\n
+*Box*clearEntry*accelerators: #override \\n\\
+	Meta<Key>c: set() notify() reset() \\n
+
+*Form*prevday*accelerators: #override \\n\\
+	Meta<Key>p: set() notify() reset() \\n
+*Form*succday*accelerators: #override \\n\\
+	Meta<Key>n: set() notify() reset() \\n
+
+*Form*prev*accelerators: #override \\n\\
+	<Key>p: set() notify() reset() \\n
+*Form*succ*accelerators: #override \\n\\
+	<Key>n: set() notify() reset() \\n
+*Form*quitButton*accelerators: #override \\n\\
+	<Key>q: set() notify() \\n
+
+
+! Motif text translations to make it work like emacs
+
+*XmText.translations: #override\\n\\ 
+.in +9
+.nf
+Ctrl <Key>b:            backward-character()\\n\\ 
+Alt <Key>b:             backward-word()\\n\\ 
+Meta <Key>b:            backward-word()\\n\\ 
+Shift Alt <Key>b:       backward-word(extend)\\n\\ 
+Shift Meta <Key>b:      backward-word(extend)\\n\\ 
+Alt <Key>[:             backward-paragraph()\\n\\ 
+Meta <Key>[:            backward-paragraph()\\n\\ 
+Shift Alt <Key>[:       backward-paragraph(extend)\\n\\ 
+Shift Meta <Key>[:      backward-paragraph(extend)\\n\\ 
+Alt <Key><:             beginning-of-file()\\n\\ 
+Meta <Key><:            beginning-of-file()\\n\\ 
+Ctrl <Key>a:            beginning-of-line()\\n\\ 
+Shift Ctrl <Key>a:      beginning-of-line(extend)\\n\\ 
+Ctrl <Key>osfInsert:    copy-clipboard()\\n\\ 
+Shift <Key>osfDelete:   cut-clipboard()\\n\\ 
+Shift <Key>osfInsert:   paste-clipboard()\\n\\ 
+Alt <Key>>:             end-of-file()\\n\\ 
+Meta <Key>>:            end-of-file()\\n\\ 
+Ctrl <Key>e:            end-of-line()\\n\\ 
+Shift Ctrl <Key>e:      end-of-line(extend)\\n\\ 
+Ctrl <Key>f:            forward-character()\\n\\ 
+Alt <Key>]:             forward-paragraph()\\n\\ 
+Meta <Key>]:            forward-paragraph()\\n\\ 
+Shift Alt <Key>]:       forward-paragraph(extend)\\n\\ 
+Shift Meta <Key>]:      forward-paragraph(extend)\\n\\ 
+Ctrl Alt <Key>f:        forward-word()\\n\\ 
+Ctrl Meta <Key>f:       forward-word()\\n\\ 
+Ctrl <Key>d:            kill-next-character()\\n\\ 
+Alt <Key>BackSpace:     kill-previous-word()\\n\\ 
+Meta <Key>BackSpace:    kill-previous-word()\\n\\ 
+Ctrl <Key>w:            key-select() kill-selection()\\n\\ 
+Ctrl <Key>y:            unkill()\\n\\ 
+Ctrl <Key>k:            kill-to-end-of-line()\\n\\ 
+Alt <Key>Delete:        kill-to-start-of-line()\\n\\ 
+Meta <Key>Delete:       kill-to-start-of-line()\\n\\ 
+Ctrl <Key>o:            newline-and-backup()\\n\\ 
+Ctrl <Key>j:            newline-and-indent()\\n\\ 
+Ctrl <Key>n:            next-line()\\n\\  
+Ctrl <Key>osfLeft:      page-left()\\n\\ 
+Ctrl <Key>osfRight:     page-right()\\n\\ 
+Ctrl <Key>p:            previous-line()\\n\\ 
+Ctrl <Key>g:            process-cancel()\\n\\ 
+Ctrl <Key>l:            redraw-display()\\n\\ 
+Ctrl <Key>osfDown:      next-page()\\n\\ 
+Ctrl <Key>osfUp:        previous-page()\\n\\ 
+Ctrl <Key>space:        set-anchor()\\n 
+.fi 
+.in -9 
+.EE
+.SH FILES
+.PP
+$HOME/Calendar/*, /usr/lib/X11/xcalendar/xcalendar.hlp,
+/usr/lib/X11/xcalendar/xcalendar.hol
+.PP
+.SH SEE ALSO
+xrdb(1), xcalendar+(1)
+.PP
+.SH BUGS
+.PP
+I'm sure there are some.  If you find any, let me (bingle@cs.purdue.edu) know.
+.PP
+.SH AUTHORS
+.PP
+Copyright 1988 by Massachusetts Institute of Technology
+.br
+Roman J. Budzianowski, MIT Project Athena
+
+Copyright 1990-1994 by Purdue University
+.br
+Richard Bingle, Department of Computer Sciences
+
+Enhancements/Suggestions by:
+.br
+Beth Chaney
+.br
+Purdue University, Department of Computer Sciences
+
+Mike Urban
+.br
+Jet Propulsion Labs, NASA
+
+Joel Neisen
+.br
+Minnesota Supercomputer Center
+
+Hiroshi Kuribayashi
+.br
+Omron Corp.

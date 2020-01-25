@@ -1,0 +1,23 @@
+SRCS = mazewar.c display.c init.c winX11.c
+OBJS = mazewar.o display.o init.o winX11.o
+LOCAL_LIBRARIES = $(XTOOLLIB) $(XLIB)
+BROAD_DEFINES =  -DBROAD_ADDR=INADDR_BROADCAST -DBSD_43
+MCAST_DEFINES =  -I. -DMULTICAST -DGAME_ADDR=\"224.0.11.11\" -DBSD_43
+DEFINES = $(BROAD_DEFINES)
+CDEBUGFLAGS = -g
+
+ComplexProgramTarget(mazewar)
+
+all :: mazewar mazefind
+
+mazefind: 	mazefind.o
+		${CC} ${CFLAGS} mazefind.o -o mazefind
+
+clean ::
+	$(RM) mazewar mazefind
+
+mazewar.o: mazewar.h
+display.o: mazewar.h
+init.o: mazewar.h
+winX11.o: mazewar.h
+mazefind.o: mazewar.h

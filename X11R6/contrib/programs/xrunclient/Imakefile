@@ -1,0 +1,6 @@
+XCOMM $Id: Imakefile,v 6.1 94/05/18 14:59:02 dd Exp $
+
+ LOCAL_LIBRARIES = $(XLIB)
+         DEPLIBS = $(DEPXLIB)
+
+SimpleProgramTarget(xrunclient)

@@ -1,0 +1,45 @@
+#ifndef XCOMM
+#define XCOMM #
+#endif
+
+#ifndef NullParameter
+#define NullParameter
+#endif
+
+XCOMM
+XCOMM   Imakefile for xtp.
+XCOMM
+XCOMM   Copyright 1994 E. I. du Pont de Nemours and Company
+XCOMM
+XCOMM   Permission to use, copy, modify, distribute, and sell this software and
+XCOMM   its documentation for any purpose is hereby granted without fee,
+XCOMM   provided that the above Copyright notice appear in all copies and that
+XCOMM   both that Copyright notice and this permission notice appear in
+XCOMM   supporting documentation, and that the name of E. I. du Pont de Nemours
+XCOMM   and Company not be used in advertising or publicity pertaining to
+XCOMM   distribution of the software without specific, written prior
+XCOMM   permission.  E. I. du Pont de Nemours and Company makes no representations
+XCOMM   about the suitability of this software for any purpose.  It is provided
+XCOMM   "as is" without express or implied warranty.
+XCOMM
+XCOMM   E. I. du Pont de Nemours and Company disclaims all warranties with regard
+XCOMM   to this software, including all implied warranties of merchantability
+XCOMM   and fitness, in no event shall E. I. du Pont de Nemours and Company be
+XCOMM   liable for any special, indirect or consequential damages or any
+XCOMM   damages whatsoever resulting from loss of use, data or profits, whether
+XCOMM   in an action of contract, negligence or other tortious action, arising
+XCOMM   out of or in connection with the use or performance of this software.
+XCOMM
+
+#include "../Magick.tmpl"
+
+XTPObjects= xtp.o network.o regular.o
+
+PROGRAMS= xtp
+
+AllTarget($(PROGRAMS))
+
+NormalProgramTarget(xtp,$(XTPObjects),NullParameter,NullParameter,NullParameter)
+InstallProgram(xtp,$(LOCALDIR))
+InstallManPage(xtp,$(MANDIR))
+DependTarget()

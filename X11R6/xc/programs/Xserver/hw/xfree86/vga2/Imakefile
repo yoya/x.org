@@ -1,0 +1,37 @@
+XCOMM $XConsortium: Imakefile,v 1.2 94/10/12 21:13:49 kaleb Exp $
+XCOMM $XFree86: xc/programs/Xserver/hw/xfree86/vga2/Imakefile,v 3.1 1994/06/05 05:59:28 dawes Exp $
+#include <Server.tmpl>
+
+#define IHaveSubdirs
+
+#if XF86Vga2Banked
+MFBDIR = mfb.banked
+#else
+MFBDIR = mfb
+#endif
+
+SUBDIRS = vga $(MFBDIR) misc drivers
+
+SRCS = vga/?*.c $(MFBDIR)/?*.c
+
+OBJS = vga/?*.o $(MFBDIR)/?*.o
+
+DONES = vga/DONE $(MFBDIR)/DONE
+
+INCLUDES = -I../vga256/vga -I$(XF86COMSRC) -I$(XF86OSSRC) \
+	    -I$(SERVERSRC)/include -I$(INCLUDESRC)
+
+VGA2DRIVERS = XF86Vga2Drivers
+
+NormalDepLibraryTarget(vga2,$(SUBDIRS) $(DONES),$(OBJS))
+
+ConfigTargetNoDepend(vga2Conf,$(ICONFIGFILES),configvga2.sh,$(VGA2DRIVERS))
+
+NormalLibraryObjectRule()
+
+ForceSubdirs($(SUBDIRS))
+
+InstallLinkKitLibrary(vga2,$(LINKKITDIR)/drivers)
+InstallLinkKitNonExecFile(configvga2.sh,$(LINKKITDIR))
+
+DependSubdirs($(SUBDIRS))

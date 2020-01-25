@@ -1,0 +1,31 @@
+XCOMM $XConsortium: Imakefile,v 1.4 94/03/25 19:54:08 matt Exp $
+
+#define IHaveSubdirs
+#define PassCDebugFlags /**/
+
+SUBDIRS = Interfaces
+
+HEADERS = \
+  directory.h  host.h       math.h       table.h      thread.h     types.h \
+  file.h       list.h       memory.h     table2.h     threads.h
+
+DEST = $(INCDIR)/Fresco/OS
+
+all::
+
+BuildIncludes($(HEADERS),Fresco/OS,../..)
+
+InstallMultipleFlags($(HEADERS),$(DEST),$(INSTINCFLAGS))
+
+
+XCOMM  The stuff from here down is related to running the ixx translator
+XCOMM  to build header files from IDL definitions.  You should not have 
+XCOMM  to use this part unless you are rebuilding the Fresco headers.
+
+#include <Ixx.tmpl>
+
+IXFLAGS = -s BaseObject -m TypeObj -refobjs
+
+MakeHeaderFlags(thread, -i '<X11/Fresco/Ox/object.h>')
+
+DependHeaders()

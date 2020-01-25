@@ -1,0 +1,273 @@
+! XPd Application Defaults File
+!
+XPd*QuitButton.label: Quit
+!
+XPd*ButtonForm.skipAdjust:  True
+XPd*ButtonForm.showGrip:    False
+!
+XPd*RescanButton.label: Rescan
+XPd*RescanButton.fromHoriz:  QuitButton
+!
+XPd*KillLevelButton.label: Kill Level
+XPd*KillLevelButton.fromHoriz: RescanButton
+XPd*KillLevelButton.MenuName: KillMenu
+!
+XPd*KillButton.label: Kill
+XPd*KillButton.sensitive: False
+XPd*KillButton.fromHoriz: KillLevelButton
+!
+XPd*AllButton.label: All
+XPd*AllButton.sensitive: False
+XPd*AllButton.fromHoriz:  KillButton
+!
+XPd*TraceButton.label: Trace
+XPd*TraceButton.sensitive: False
+XPd*TraceButton.fromHoriz: AllButton
+!
+XPd*DefunctButton.label: Defunct
+XPd*DefunctButton.sensitive: True
+XPd*DefunctButton.fromHoriz: TraceButton
+!
+XPd*StatusArea.label: 
+XPd*StatusArea.fromHoriz: DefunctButton
+XPd*StatusArea.width: 200
+XPd*StatusArea.borderWidth: 2
+XPd*StatusArea.justify: left
+!
+XPd*RunAsRootButton.label: Run As Root
+XPd*RunAsRootButton.sensitive: False
+XPd*RunAsRootButton.fromVert: QuitButton
+!
+XPd*RunAsUserButton.label: Run As User
+XPd*RunAsUserButton.fromHoriz: RunAsRootButton
+XPd*RunAsUserButton.sensitive: True
+XPd*RunAsUserButton.fromVert: QuitButton
+!
+XPd*RunAsArea.label: Running as user...
+XPd*RunAsArea.fromHoriz: RunAsUserButton
+XPd*RunAsArea.borderWidth: 0
+XPd*RunAsArea.fromVert: QuitButton
+!
+XPd*ProcessesArea.label: XXX processes
+XPd*ProcessesArea.fromHoriz: RunAsArea
+XPd*ProcessesArea.borderWidth: 0
+XPd*ProcessesArea.fromVert: QuitButton
+!
+XPd*listVport0.height: 300
+XPd*listVport0.width: 120
+XPd*listVport0.allowVert: True
+!
+XPd*list0.defaultColumns: 1
+XPd*list0.verticalList: True
+XPd*list0.forceColumns: True
+XPd*list0.pasteBuffer: True
+XPd*list0.internalWidth: 8
+XPd*list0.columnSpacing: 20
+!
+XPd*listVport1.height: 300
+XPd*listVport1.width: 300
+XPd*listVport1.allowVert: True
+XPd*listVport1.allowHoriz: True
+XPd*listVport1.useBottom: True
+!
+XPd*list1.defaultColumns: 1
+XPd*list1.verticalList: True
+XPd*list1.forceColumns: True
+XPd*list1.pasteBuffer: True
+XPd*list1.internalWidth: 8
+XPd*list1.columnSpacing: 20
+!
+XPd*listVport2.height: 300
+XPd*listVport2.width: 200
+XPd*listVport2.allowVert: True
+XPd*listVport2.allowHoriz: True
+XPd*listVport2.useBottom: True
+!
+XPd*list2.defaultColumns: 1
+XPd*list2.verticalList: True
+XPd*list2.forceColumns: True
+XPd*list2.pasteBuffer: True
+XPd*list2.internalWidth: 8
+XPd*list2.columnSpacing: 20
+!
+!XPd*browserPane.orientation: Horizontal
+XPd*browserPane.allowResize: True
+!
+XPd*BottomForm.skipAdjust: True
+XPd*BottomForm.showGrip: False
+!
+XPd*euidTitle.label: Effective UID
+XPd*euidTitle.borderWidth: 0
+XPd*euidLabel.label: 
+XPd*euidLabel.fromHoriz: euidTitle
+XPd*euidLabel.width: 150
+!
+XPd*eunameTitle.label: User Name
+XPd*eunameTitle.fromHoriz: euidLabel
+XPd*eunameTitle.borderWidth: 0
+XPd*eunameLabel.label: 
+XPd*eunameLabel.fromHoriz: eunameTitle
+XPd*eunameLabel.width: 200
+!
+XPd*pidTitle.label: PID
+XPd*pidTitle.fromVert: euidTitle
+XPd*pidTitle.borderWidth: 0
+XPd*pidLabel.label: 
+XPd*pidLabel.fromHoriz: pidTitle
+XPd*pidLabel.fromVert: euidTitle
+XPd*pidLabel.width: 60
+!
+XPd*ppidTitle.label: PPID
+XPd*ppidTitle.fromHoriz: pidLabel
+XPd*ppidTitle.fromVert: euidTitle
+XPd*ppidTitle.borderWidth: 0
+XPd*ppidLabel.label: 
+XPd*ppidLabel.fromHoriz: ppidTitle
+XPd*ppidLabel.fromVert: euidTitle
+XPd*ppidLabel.width: 60
+!
+XPd*pgrpTitle.label: PGRP
+XPd*pgrpTitle.fromHoriz: ppidLabel
+XPd*pgrpTitle.fromVert: euidTitle
+XPd*pgrpTitle.borderWidth: 0
+XPd*pgrpLabel.label: 
+XPd*pgrpLabel.fromHoriz: pgrpTitle
+XPd*pgrpLabel.fromVert: euidTitle
+XPd*pgrpLabel.width: 60
+!
+XPd*statTitle.label: STAT
+XPd*statTitle.fromHoriz: pgrpLabel
+XPd*statTitle.fromVert: euidTitle
+XPd*statTitle.borderWidth: 0
+XPd*statLabel.label: 
+XPd*statLabel.fromHoriz: statTitle
+XPd*statLabel.fromVert: euidTitle
+XPd*statLabel.width: 60
+!
+XPd*ttyTitle.label: TTY
+XPd*ttyTitle.fromHoriz: statLabel
+XPd*ttyTitle.fromVert: euidTitle
+XPd*ttyTitle.borderWidth: 0
+XPd*ttyLabel.label: 
+XPd*ttyLabel.fromHoriz: ttyTitle
+XPd*ttyLabel.fromVert: euidTitle
+XPd*ttyLabel.width: 60
+!
+XPd*levelLabel.label: Kill Level?
+XPd*levelLabel.borderWidth: 0
+XPd*levelText.fromVert: levelLabel
+XPd*levelText.width: 80
+XPd*levelText*editType: edit
+XPd*levelCancelButton.label: Cancel
+XPd*levelCancelButton.fromVert: levelText
+XPd*levelDoneButton.label: Done
+XPd*levelDoneButton.fromVert: levelText
+XPd*levelDoneButton.fromHoriz: levelCancelButton
+!
+XPd*reportLabel.label: message
+XPd*reportLabel.borderWidth: 0
+!XPd*reportCancelButton.label: Cancel
+!XPd*reportCancelButton.fromVert: reportLabel
+XPd*reportOkButton.label: OK
+XPd*reportOkButton.fromVert: reportLabel
+!XPd*reportOkButton.fromHoriz: reportCancelButton
+!
+XPd*traceShell.label: Trace...
+!
+XPd*quitConfirmShell.label: Quit...
+!
+XPd*quitLabel.label:  Really Quit?
+XPd*quitLabel.borderWidth:  0
+!
+XPd*quitYesButton.label: Yes
+XPd*quitYesButton.fromVert: quitLabel
+!
+XPd*quitNoButton.label: No
+XPd*quitNoButton.fromHoriz: quitYesButton
+XPd*quitNoButton.fromVert: quitLabel
+!
+XPd*allConfirmShell.label: Quit...
+!
+XPd*allLabel.label:  Kill All Processes?
+XPd*allLabel.borderWidth:  0
+!
+XPd*allYesButton.label: Yes
+XPd*allYesButton.fromVert: allLabel
+!
+XPd*allNoButton.label: No
+XPd*allNoButton.fromHoriz: allYesButton
+XPd*allNoButton.fromVert: allLabel
+!
+XPd*traceLabel.label: Ancestry
+XPd*traceLabel.borderWidth: 0
+!
+XPd*traceVport1.height: 200
+XPd*traceVport1.width: 140
+XPd*traceVport1.allowVert: True
+XPd*traceVport1.fromVert: traceLabel
+!
+XPd*traceList1.defaultColumns: 1
+XPd*traceList1.verticalList: True
+XPd*traceList1.forceColumns: True
+XPd*traceList1.pasteBuffer: True
+XPd*traceList1.internalWidth: 8
+XPd*traceList1.columnSpacing: 20
+!
+XPd*sibtraceLabel.fromVert: traceVport1
+XPd*sibtraceLabel.label: Children
+XPd*sibtraceLabel.borderWidth:0 
+!
+XPd*traceVport2.height: 200
+XPd*traceVport2.width: 140
+XPd*traceVport2.allowVert: True
+XPd*traceVport2.fromVert: sibtraceLabel
+!
+XPd*traceList2.defaultColumns: 2
+XPd*traceList2.verticalList: True
+XPd*traceList2.forceColumns: True
+XPd*traceList2.pasteBuffer: True
+XPd*traceList2.internalWidth: 8
+XPd*traceList2.columnSpacing: 20
+!
+XPd*traceCloseButton.fromVert: traceVport2
+XPd*traceCloseButton.label: Close
+!
+XPd*defunctLabel.label: Defunct
+XPd*defunctLabel.borderWidth: 0
+!
+XPd*defunctVport1.height: 200
+XPd*defunctVport1.width: 80
+XPd*defunctVport1.allowVert: True
+XPd*defunctVport1.fromVert: defunctLabel
+!
+XPd*defunctList1.defaultColumns: 1
+XPd*defunctList1.verticalList: True
+XPd*defunctList1.forceColumns: True
+XPd*defunctList1.pasteBuffer: True
+XPd*defunctList1.internalWidth: 8
+XPd*defunctList1.columnSpacing: 20
+!
+XPd*defunctCloseButton.fromVert: defunctVport1
+XPd*defunctCloseButton.label: Close
+!
+XPd*Text.translations:#override\n\
+        <Enter>:        display-caret(True) \n\
+        <Leave>:        display-caret(False) \n\
+        <Key>Return:    leveldone() \n
+!
+XPd*QuitButton.translations:#override\n\
+          <Btn1Down>, <Btn1Up>:  confirm() reset() \n\
+          <Btn2Down>:            set()\n\
+          <Btn2Down>, <Btn2Up>:  quit()\n
+!
+XPd*AllButton.translations:#override\n\
+          <Btn1Down>, <Btn1Up>:  all() reset()\n
+!
+XPd*KillButton.translations:#override\n\
+          <Btn1Down>, <Btn1Up>:  kill() reset()\n
+!
+! Enable the following translation if you want xpd to update everytime
+! you enter the window.
+!
+!XPd.translations:#override\n\
+!          <Enter>:  rescan()\n

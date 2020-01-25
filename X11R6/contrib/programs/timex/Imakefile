@@ -1,0 +1,110 @@
+# NOTE: Contrary to X11R6 guidelines, the # char is used as a comment
+# sign in this file.
+# This is because:
+# - I see no reason why NOT to include the comments in the Makefile
+# - With this style, things STILL work on X11R4, which XCOMM will break.
+#
+#     Copyright (c) 1994 Harald T. Alvestrand
+#
+#     The X Consortium, and any party obtaining a copy of these files from
+#     the X Consortium, directly or indirectly, is granted, free of charge, a
+#     full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+#     nonexclusive right and license to deal in this software and
+#     documentation files (the "Software"), including without limitation the
+#     rights to use, copy, modify, merge, publish, distribute, sublicense,
+#     and/or sell copies of the Software, and to permit persons who receive
+#     copies from any such party to do so.  This license includes without
+#     limitation a license to do the foregoing actions under any patents of
+#     the party supplying this software to the X Consortium.
+#
+# Installation options
+#=====================
+# The place where you install local programs (not X)
+NONXBINDIR = /local/bin
+#
+# PERLLIBDIR should be the output from perl -e 'print "@INC[0]\n"'
+PERLLIBDIR = /local/lib/perl
+# PERL - where your Perl library is located (is in sumtimex)
+PERL = $(NONXBINDIR)/perl
+#
+# Uncomment this line if you have XAw3d and want to use it
+# XAWLIB = -lXaw3d
+#
+# If you want to stop UDP packets to the author, uncomment this
+# CDEBUGFLAGS = -DDO_NOT_TELL_ABOUT_ME
+#
+# If you have problems with undefined variables, you may have
+# hit the linker bug with SunOS 4.1.2 and X11R4; uncomment this line
+# LDOPTIONS = $(CDEBUGFLAGS) $(CCOPTIONS) -Bstatic
+#
+#
+# Timex configuration - touch only if you know what you are doing
+#================================================================
+LOCAL_LIBRARIES = XawClientLibs
+DEPLIBS = XawClientDepLibs
+SRCS = timex.c projectlist.c udping.c
+OBJS = timex.o projectlist.o udping.o
+
+SHAR1 = README  Imakefile  $(SRCS)
+SHAR2 = patchlevel.h timex.h timex.xbm \
+        Timex.ad timex.man sumtimex.man \
+	sumtimex.src weekno.perl .indent.pro ad2c \
+	TODO CONTRIBUTIONS
+SHARS = $(SHAR1) $(SHAR2)
+
+LASTVERSION = V1_95
+# Do not use -x option, because this gives too many errors with X
+# functions that are declared, but not used
+LINTOPTS = -az
+
+all:: timex xtimex
+ComplexProgramTarget(timex)
+InstallAppDefaults(Timex)
+InstallProgram(sumtimex,$(NONXBINDIR))
+InstallManPage(sumtimex,$(MANDIR))
+# A weird rule for making 2 names for the same program
+InstallProgram(xtimex,$(BINDIR))
+InstallNonExec(weekno.perl,$(PERLLIBDIR))
+xtimex: timex
+	ln -s timex xtimex
+Timex.ad.h: Timex.ad
+	./ad2c  Timex.ad >Timex.ad.h || rm Timex.ad.h
+timex.o: Timex.ad.h
+# Generating the correct first line of sumtimex
+sumtimex: sumtimex.src
+	echo "#!$(PERL)" > sumtimex
+	tail +2 sumtimex.src >> sumtimex
+#------------------------------------------------------------------
+# Everything below this line should be only for release and debugging,
+# and not terribly interesting!
+#-------------------------------------------------------------------
+# Testing the program
+test: timex test.timex
+	sed -e 's/^\*/Timex*/' Timex.ad | xrdb -merge
+	TIMEXDIR=`pwd`/test.timex;export TIMEXDIR;./timex
+etags: $(SRCS)
+	etags --typedefs $(SRCS)
+# This should go away once timex creates its own directories
+test.timex:
+	mkdir test.timex
+shar: timex-1.shar timex-2.shar
+timex-1.shar:    $(SHAR1)
+	shar -o timex-1.shar -n1 -e2 $(SHAR1)
+timex-2.shar:    $(SHAR2)
+	shar -o timex-2.shar -n2 -e2 $(SHAR2)
+timex.diff: $(SHARS)
+	rcsdiff -cb -r$(LASTVERSION) $(SHARS) > timex.diff
+indent: $(SRCS)
+	indent timex.c
+	indent projectlist.c
+	indent timex.h
+tar: $(SHARS)
+	tar chf timex.tar $(SHARS)
+	rm -f timex.tar.Z
+	compress timex.tar
+
+# Some make commands for stuff that is not distributed
+udplisten: udplisten.o
+	$(CC) -o $@ udplisten.o
+udping: udpingtest.o udping.o
+	$(CC) -o $@ udpingtest.o udping.o

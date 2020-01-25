@@ -1,0 +1,120 @@
+
+                FUJITSU Japanese Language Input Server
+
+                           3 June, 1994
+
+
+1. Introduction
+
+xfeoak is a Japanese input server developed by FUJITSU LIMTIED.
+xfeoak supports both the FrontEnd and BackEnd methods and multiple
+dictionaries.  
+
+   * Supporting protocols
+
+         - The Input Method Protocol 
+              Version 1.0  X Version 11, Release 6
+
+         - Transport Layer Protocol
+              - X Protocol
+              - TCP Protocol
+
+   * Supportied conversion engines and dictionaries
+
+         - OAK dictionary (FUJITSU proprietary) 
+              (NOTE: Not supported by the current release.)
+         - SJ3 dictionary (provided by Sony)
+
+       xfeoak can switch between dictionaries at run time.
+   
+   * Directories
+
+        This directory contains the following subdirectories:
+
+           sxc/  : source code for romaji-henkan.
+           oak/  : source code for accessing the OAK dictionary 
+                    (NOTE: Not supported by the current release.)
+           sj3/  : source code for accessing the SJ3 conversion engine.
+           doc/  : documents (English and Japanese)
+
+This Server has been tested on the following systems:
+
+    FUJITSU DS       7230, 7742  OS: UXP/DS V10L20
+    FUJITSU FM-G     1600        OS: SX/G E17
+    Sony    NWS-5000             OS: NEWS-OS 6.0.2
+    HP      HP9000 S700          OS: HP-UX9.01
+    IBM     RS/6000 320H         OS: AIX 3.2.5
+
+
+2. Compiling and installing xfeoak
+
+(1) Make Makefile for xfeoak
+
+        % imake -I'configration file directory' -DTOPDIR='xc directory path'
+                 -DCURDIR='current directory path from xc directory'
+               (in this directory)
+
+        You may add the following definitions.
+
+           -DFUJITSU_OAK    : Support OAK dictionary (FUJITSU proprietary)
+           -DSJ3_DICTIONARY : Support SJ3 conversion engine (libsj3.a)
+
+        If you don't specify either of the above definitions,
+        xfeoak supports only hiragana/katakana conversion.
+
+(2) Link source files under xc/lib/X11 to this directory
+
+        % make includes
+
+(3) Make Makefiles for sub-directories
+
+        % make Makefiles
+
+(4) If necessary,
+
+        % make depend
+
+(5) Make xfeoak in this directory
+
+        % make
+
+
+3. Note
+
+If you would like to use SJ3, you can specify the following option
+when xfeoak is started.
+
+     -uname "user name"
+          Specify the user name.  The default is "xfeoak".
+
+4. Bugs
+
+If you find a bug or need any information, please send a bug report or
+your question to
+
+     fujiwara@a80.tech.yk.fujitsu.co.jp
+
+
+5. Credit
+
+I would like to thank the following people for their help and participation
+in testing: 
+
+   Hideki Hiura (SunSoft), Yoshio Horiuchi (IBM),
+   Makoto Inada (DEC), Hiromu Inukai (SunSoft),
+   Hiroyuki Miyamoto (DEC), Hidetoshi Tajima (HP),
+   Nobuyuki Tanaka (Sony), Makoto Wakamatsu (Sony) and
+   Katsuhisa Yano (Toshiba)
+
+I would also like to offer special thanks to the following members of my 
+implementation team:
+
+   Kazuhiro Asakuma, Riki Kawaguchi, Kiyoaki Oya, 
+   Makiko Shimamura, Takanori Tateno and Toshimitsu Terazono.
+
+
+
+				Takashi Fujiwara     
+				FUJITSU LIMITED 
+				fujiwara@a80.tech.yk.fujitsu.co.jp
+

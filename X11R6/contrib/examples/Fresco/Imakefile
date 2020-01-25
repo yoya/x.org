@@ -1,0 +1,32 @@
+XCOMM $XConsortium: Imakefile,v 1.7 94/04/01 16:57:37 matt Exp $
+
+#define IHaveSubdirs
+#define PassCDebugFlags /**/
+
+SUBDIRS = stubs
+
+#include <Fresco.tmpl>
+
+    SRCS = barrier.CCsuf hello.CCsuf mtcircles.CCsuf styles.CCsuf xtf.CCsuf 
+    OBJS = barrier.o hello.o mtcircles.o styles.o xtf.o 
+EXAMPLES = barrier hello mtcircles styles xtf
+
+all:: $(EXAMPLES)
+
+#define FrescoExample(name)			@@\
+NormalCplusplusProgramTarget(name,name.o,$(DEPLIBS),$(LOCAL_LIBRARIES),NullParameter)
+
+#define FrescoExampleWithLibs(name,libs)	@@\
+NormalCplusplusProgramTarget(name,name.o,$(DEPLIBS),libs $(LOCAL_LIBRARIES),NullParameter)
+
+FrescoExample(barrier)
+FrescoExample(hello)
+FrescoExample(mtcircles)
+FrescoExample(styles)
+
+FrescoExampleWithLibs(xtf, $(XTFLIB) XawClientLibs)
+
+DependTarget()
+
+MakeSubdirs($(SUBDIRS))
+DependSubdirs($(SUBDIRS))

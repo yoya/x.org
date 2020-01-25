@@ -1,0 +1,208 @@
+Tue Jun  7 01:21:22 1994  Raphael Quinet  (quinet@micro4.montefiore.ulg.ac.be)
+
+	* Version 1.1 released.
+
+	* (all): we now use the X Consortium License instead of the GNU GPL.
+
+	* widgets.c, console.c: new ascii_text2 widget.
+
+	* (all): new options: -quiet (quiet) and -split (splitWindow).
+
+	* widgets.c, console.c: replaced the clear button by a menu.
+
+Mon Jun  6 09:47:18 1994  Alain Nissen    (nissen@verif6.montefiore.ulg.ac.be)
+
+	* console.c (get_pty): fixed a compilation problem on IRIX 5.2.
+
+	* exec.c (grimreaper): fixed a bug about console_id when the OSM dies.
+
+	* xsession.c: added code to conform to the XConsole selection protocol.
+
+	* xsession.man & other files: doc fixes.
+
+Fri Jun  3 09:58:16 1994  Alain Nissen    (nissen@georges.montefiore.ulg.ac.be)
+
+	* exec.c (launch_prog): fixed a bug in the process table management.
+
+	* xsession.c: added root-setuid support for console redirection.
+
+	* Imakefile, Makefile.std: added rules for root-suid support.
+	
+Thu Jun  2 14:31:08 1994  Alain Nissen    (nissen@georges.montefiore.ulg.ac.be)
+
+	* widgets.c, console.c: added a clear command button.
+
+	* exec.c (grimreaper): fixed a bug about the death of unknown children.
+
+	* xsession.c, console.c, exec.c: added support for console redirection.
+	
+Tue May 31 09:35:28 1994  Alain Nissen    (nissen@verif6.montefiore.ulg.ac.be)
+
+	* XSess-ad.h: formely known as XSession.ad.h.
+
+	* XSession.adc: formely known as XSession-color.ad.
+
+	* resources.h, Imakefile: taken into account the name changes above.
+
+	* examples: removed the first dot of the file names of this directory.
+
+	* utils: reorganization of this directory; added copyright notices.
+
+	* Makefile.std, Imakefile: taken into account the reorganization above.
+
+Mon May 30 10:49:04 1994  Alain Nissen    (nissen@verif6.montefiore.ulg.ac.be)
+
+	* Makefile.std, Imakefile: added rules vfork() & cpp features.
+
+	* Imakefile, exec.c: choosing between cpp & m4 is now done at run-time.
+
+Sun May 29 12:56:38 1994  Alain Nissen    (nissen@verif6.montefiore.ulg.ac.be)
+
+	* noimake.h: added this file for systems without imake.
+
+	* Makefile.std: formely known as Makefile.noimake.
+
+	* (all): doc fixes (E-mail and FTP addresses).
+
+Sat May 28 16:08:18 1994  Alain Nissen    (nissen@verif6.montefiore.ulg.ac.be)
+
+	* (all): replaced #ifdef __STDC__ by #if __STDC__.
+
+	* (all): added some missing prototypes.
+
+	* exec.c, widgets.c: fixed the prototype problems about play_sound.
+
+	* exec.c, console.c, xsession.c: added a handler for SIGHUP signals.
+
+Wed May 25 17:35:20 1994  Alain Nissen    (nissen@verif6.montefiore.ulg.ac.be)
+
+	* widgets.c (timeout_callback): fixed the cast problems about >.
+
+	* exec.c: fixed the prototype problems about tempnam with Solaris 2.x.
+
+	* xsession.c (main): check for sgi, __sgi or __sgi__ instead of SGI.
+
+Tue May  3 16:26:08 1994  Alain Nissen    (nissen@micro4.montefiore.ulg.ac.be)
+
+	* xsession.c (main): fixed the prototype problems about argc.
+
+Fri Apr 29 05:36:18 1994  Raphael Quinet  (quinet@micro2.montefiore.ulg.ac.be)
+
+	* exec.c (write_preprocessor_defs): added XSESSION_VERSION and ..._PID.
+
+Wed Apr 27 12:48:53 1994  Alain Nissen    (nissen@micro4.montefiore.ulg.ac.be)
+
+	* exec.c (startup): changed action.sa_flags from SA_NOCLDSTOP to 0.
+
+	* resources.h, XSession.ad: fixed wmNames, added default lockCommand.
+
+Thu Apr  7 18:03:03 1994  Raphael Quinet  (quinet@verif1.montefiore.ulg.ac.be)
+
+	* Version 1.0 released.
+
+	* exec.c (write_preprocessor_defs): added "changequote([,])" for m4.
+
+Thu Apr  7 00:09:43 1994  Alain Nissen    (nissen@verif5.montefiore.ulg.ac.be)
+
+	* xsession.man & other files: doc fixes.
+
+Tue Apr  5 18:10:00 1994  Raphael Quinet  (quinet@verif1.montefiore.ulg.ac.be)
+
+	* xsession.c (play_sound): added a test on resources.sounds.
+
+	* exec.c (execsh): new parameter for stderr.
+
+	* widgets.c (timeout_callback): xsession tries to remain visible.
+
+Tue Mar 22 11:57:35 1994  Alain Nissen    (nissen@verif5.montefiore.ulg.ac.be)
+
+	* exec.c (write_preprocessor_defs): fixed a bug with the COLOR symbol.
+
+Sat Mar 19 02:14:24 1994  Raphael Quinet  (quinet@verif1.montefiore.ulg.ac.be)
+
+	* Version 0.5 released.
+
+	* xsession.c (zmalloc): new, helps with memory allocation errors.
+	(zrealloc): same as zmalloc, but for reallocation.
+	(main): check for SGI and define argc as unsigned.  Nice prototype...
+
+	* exec.c (startup): replaced the call to signal() by sigaction().
+	(child_dies): removed the call to signal().  Brain-damaged AIX got me!
+
+Sat Mar 19 00:26:29 1994  Alain Nissen    (nissen@verif6.montefiore.ulg.ac.be)
+
+	* exec.c: use fork() on systems without vfork().
+
+Fri Mar 18 22:01:01 1994  Raphael Quinet  (quinet@verif1.montefiore.ulg.ac.be)
+
+	* (all): rewritten all function prototypes (for ANSI C or K&R).
+
+	* exec.c (write_preprocessor_defs): put the defines in the pp file.
+
+	* xsession.c (main): added a "-D..." command line argument ("defines").
+
+	* exec.c (startup): changed the path for .X11Startup (if $HOME exists).
+
+Mon Feb 14 11:23:13 1994  Raphael Quinet  (quinet@verif1.montefiore.ulg.ac.be)
+
+	* xsession.c (play_sound): added sound support.
+
+	* exec.c: added sound support.
+
+	* widgets.c (notify): added sound support.
+
+	* exec.c: initialize current_wm to NONE.
+
+	* xsession.c (fatal_error): more specific ERR_SYNTAX message.
+	(main): new command-line options "-version" and "-help".
+	(quit_callback): end_current_wm() first.
+
+Wed Feb  9 17:38:44 1994  Raphael Quinet  (quinet@verif1.montefiore.ulg.ac.be)
+
+	* exec.c (write_preprocessor_defs): use DisplayString, not disp->name.
+
+Mon Feb  7 21:29:04 1994  Raphael Quinet  (quinet@madness)
+
+	* xsession.man & other files: doc fixes.
+
+	* examples: this new directory contains some startup files.
+
+Mon Feb  7 16:10:38 1994  Alain Nissen    (nissen@verif1.montefiore.ulg.ac.be)
+
+	* Makefile.noimake: added this file for systems without imake.
+
+	* utils: this new directory contains ad2c and mkdirhier.
+
+Fri Feb  4 10:16:23 1994  Raphael Quinet  (quinet@verif1.montefiore.ulg.ac.be)
+
+	* xsession.c (quit_callback): shut down "rsh" socket if "-remote".
+
+	* xsession.c (main): removed the old code for the "-remote" option.
+
+Thu Jan 27 01:29:23 1994  Raphael Quinet  (quinet@madness)
+
+	* xsession.c (quit_callback): fixed bug (test input_id and top_shell).
+
+Wed Jan 19 04:05:34 1994  Raphael Quinet  (quinet@madness)
+
+	* Version 0.4 released.
+
+	* ChangeLog: Today, I discovered the use of the "M-x add-change-"
+	command in Emacs.  That's why this file begins here.  The current
+	XSession distribution contains the following files:
+
+		17982 Dec 21 13:36 COPYING	      - GNU GPL
+		  203 Jan 19 05:09 ChangeLog	      - This file
+		 2955 Jan 10 02:56 Imakefile	      - config. file for xmkmf
+		  320 Jan 17 18:49 README	      - Read this!
+		 1556 Jan 18 04:46 TODO		      - Read this too...
+		  262 Jan 13 14:39 XSession-color.ad  - X resources (color)
+		 1912 Jan 17 18:54 XSession.ad	      - X resources
+		 1969 Jan 17 19:04 XSession.ad.h      - generated by ad2c
+		 7988 Jan 16 01:35 console.c	      - "console" routines
+		30795 Jan 17 19:04 exec.c	      - process execution, etc.
+		 2996 Dec  3 08:19 resources.h	      - how to use X resources
+		12319 Dec 21 13:33 widgets.c	      - widgets creation
+		 8301 Jan 17 19:00 xsession.c	      - main(), etc.
+		  882 Jan 18 04:45 xsession.h	      - misc. definitions
+		11760 Jan 18 05:03 xsession.man	      - manual page

@@ -1,0 +1,81 @@
+XCOMM $XConsortium: Imakefile,v 6.1 94/01/11 18:36:15 gildea Exp $
+#define DoThreadedServer XServerThreaded
+#include <Server.tmpl>
+
+SRCS =  mivaltree.c mipolyseg.c mipolyrect.c \
+	mipoly.c mipolycon.c mipolygen.c mipolyutil.c \
+	mifillrct.c miwideline.c mispans.c \
+ 	miarc.c mizerarc.c mifillarc.c \
+	miwindow.c micursor.c miregion.c \
+	mipolytext.c mibitblt.c mipolypnt.c mipushpxl.c\
+	miexpose.c miglblt.c mizerline.c mifpolycon.c \
+	midash.c mibstore.c miinitext.c mieq.c \
+	mipointer.c misprite.c midispcur.c miscrinit.c miclipn.c migc.c
+
+OBJS =	mivaltree.o mipolyseg.o mipolyrect.o \
+	mipoly.o mipolycon.o mipolygen.o mipolyutil.o \
+	mifillrct.o miwideline.o mispans.o \
+	miarc.o mizerarc.o mifillarc.o \
+	miwindow.o micursor.o miregion.o \
+	mipolytext.o mibitblt.o mipolypnt.o mipushpxl.o\
+	miexpose.o miglblt.o mizerline.o mifpolycon.o \
+	midash.o mibstore.o miinitext.o mieq.o \
+	mipointer.o misprite.o midispcur.o miscrinit.o miclipn.o migc.o
+
+EXT_DEFINES = ExtensionDefines
+
+INCLUDES = -I. -I../include -I$(INCLUDESRC) -I$(FONTINCSRC)
+LINTLIBS = ../dix/llib-ldix.ln ../os/llib-los.ln
+
+NormalLibraryObjectRule()
+NormalLibraryTarget(mi,$(OBJS))
+LintLibraryTarget(mi,$(SRCS))
+NormalLintTarget($(SRCS))
+
+all:: cbrt.o
+
+SpecialCObjectRule(miinitext,$(ICONFIGFILES),$(EXT_DEFINES))
+SpecialCObjectRule(miscrinit,$(ICONFIGFILES),$(EXT_DEFINES))
+
+LinkSourceFile(mi.h,$(SERVERSRC)/mi)
+LinkSourceFile(mibstore.h,$(SERVERSRC)/mi)
+LinkSourceFile(mibstorest.h,$(SERVERSRC)/mi)
+LinkSourceFile(mifillarc.h,$(SERVERSRC)/mi)
+LinkSourceFile(mifpoly.h,$(SERVERSRC)/mi)
+LinkSourceFile(migc.h,$(SERVERSRC)/mi)
+LinkSourceFile(mipointer.h,$(SERVERSRC)/mi)
+LinkSourceFile(mipoly.h,$(SERVERSRC)/mi)
+LinkSourceFile(miscanfill.h,$(SERVERSRC)/mi)
+LinkSourceFile(mispans.h,$(SERVERSRC)/mi)
+LinkSourceFile(misprite.h,$(SERVERSRC)/mi)
+LinkSourceFile(mistruct.h,$(SERVERSRC)/mi)
+LinkSourceFile(mivalidate.h,$(SERVERSRC)/mi)
+LinkSourceFile(miwideline.h,$(SERVERSRC)/mi)
+LinkSourceFile(mizerarc.h,$(SERVERSRC)/mi)
+LinkSourceFile(mipolyseg.c,$(SERVERSRC)/mi)
+LinkSourceFile(mipolyrect.c,$(SERVERSRC)/mi)
+LinkSourceFile(mipoly.c,$(SERVERSRC)/mi)
+LinkSourceFile(mipolycon.c,$(SERVERSRC)/mi)
+LinkSourceFile(mipolygen.c,$(SERVERSRC)/mi)
+LinkSourceFile(mipolyutil.c,$(SERVERSRC)/mi)
+LinkSourceFile(mifillrct.c,$(SERVERSRC)/mi)
+LinkSourceFile(mispans.c,$(SERVERSRC)/mi)
+LinkSourceFile(miarc.c,$(SERVERSRC)/mi)
+LinkSourceFile(mizerarc.c,$(SERVERSRC)/mi)
+LinkSourceFile(mifillarc.c,$(SERVERSRC)/mi)
+LinkSourceFile(miwindow.c,$(SERVERSRC)/mi)
+LinkSourceFile(mipolytext.c,$(SERVERSRC)/mi)
+LinkSourceFile(mibitblt.c,$(SERVERSRC)/mi)
+LinkSourceFile(mipolypnt.c,$(SERVERSRC)/mi)
+LinkSourceFile(mipushpxl.c,$(SERVERSRC)/mi)
+LinkSourceFile(miglblt.c,$(SERVERSRC)/mi)
+LinkSourceFile(mizerline.c,$(SERVERSRC)/mi)
+LinkSourceFile(mifpolycon.c,$(SERVERSRC)/mi)
+LinkSourceFile(midash.c,$(SERVERSRC)/mi)
+LinkSourceFile(miinitext.c,$(SERVERSRC)/mi)
+LinkSourceFile(midispcur.c,$(SERVERSRC)/mi)
+LinkSourceFile(miscrinit.c,$(SERVERSRC)/mi)
+LinkSourceFile(miclipn.c,$(SERVERSRC)/mi)
+LinkSourceFile(migc.c,$(SERVERSRC)/mi)
+
+DependTarget()

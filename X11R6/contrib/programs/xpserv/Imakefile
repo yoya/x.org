@@ -1,0 +1,10 @@
+XCOMM $XConsortium: Imakefile,v 1.14 93/08/17 21:16:19 rws Exp $
+DEPLIBS = $(DEPXMULIB) $(DEPXTOOLLIB) $(DEPXLIB)
+LOCAL_LIBRARIES = $(XMULIB) $(XTOOLLIB) $(XLIB)
+
+SRCS = pserver.c decode11.c drawcmd.c tcpip.c
+OBJS = pserver.o decode11.o drawcmd.o tcpip.o
+INCLUDES = -I$(XLIBSRC) -I$(EXTINCSRC)
+
+ComplexProgramTarget(pserver)
+NormalLibraryTarget(print,printlib.o)

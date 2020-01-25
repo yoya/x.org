@@ -1,0 +1,76 @@
+#!/bin/cat
+#
+#	File:	syms.xcms        (support for dark backgrounds)
+#
+#	Christopher Alexander North-Keys
+#	Group Talisman
+#	Wed Jul 7 08:46:59 CDT 1993
+#	Thu Jun  2 00:50:35 MET DST 1994
+
+					#	not expected to appear in source code
+notice				yellow			#	notification (read-me)
+notice/dark			yellow/dark		#	notification (read-me)
+notice/pale			yellow/pale		#	notification (read-me)
+warning				orange			#	warning (possible problem)
+warning/dark		orange/dark		#	warning (possible problem)
+warning/pale		orange/pale		#	warning (possible problem)
+error				red				#	interruption
+error/dark			red/dark		#	interruption
+error/pale			red/pale		#	interruption
+
+					#	inactive information
+information			white			#	mere information
+information/dark	black			#	mere information
+information/pale	white			#	mere information
+admin				red				#	code tracking, accountability, etc.
+admin/dark			red/dark		#	code tracking, accountability, etc.
+admin/pale			red/pale		#	code tracking, accountability, etc.
+comment				cyan			#	commentary on surrounding information
+comment/dark		cyan/dark		#	commentary on surrounding information
+comment/pale		cyan/pale		#	commentary on surrounding information
+
+					#	actives
+function			orange			#	make:target-rules
+function/dark		orange/dark		#	make:target-rules
+function/pale		orange/pale		#	make:target-rules
+converter			goldenrod		#	make:pattern-rules
+converter/dark		goldenrod/dark	#	make:pattern-rules
+converter/pale		goldenrod/pale	#	make:pattern-rules
+
+					#	static - dynamic
+static				spring			#	unchangables
+static/dark			spring/dark		#	unchangables
+static/pale			spring/pale		#	unchangables
+constant			static			##	<alias>
+constant/dark		static/dark		##	<alias>
+constant/pale		static/pale		##	<alias>
+dynamic				yellow			#	variables
+dynamic/dark		yellow/dark		#	variables
+dynamic/pale		yellow/pale		#	variables
+variable			dynamic			##	<alias>
+variable/dark		dynamic/dark	##	<alias>
+variable/pale		dynamic/pale	##	<alias>
+
+					#	interconnections
+interlink			green			#	references into other modules or files
+interlink/dark		green/dark		#	references into other modules or files
+interlink/pale		green/pale		#	references into other modules or files
+superlayer			sky				#	preprocessors
+superlayer/dark		sky/dark		#	preprocessors
+superlayer/pale		sky/pale		#	preprocessors
+
+					#	intrinsic - extension
+intrinsic			purple			#	keywords
+intrinsic/dark		purple/dark		#	keywords
+intrinsic/pale		purple/pale		#	keywords
+macro				fuchsia			#	LISP macros, yes---not cpp macros in C
+macro/dark			fuchsia/dark	#	LISP macros, yes---not cpp macros in C
+macro/pale			fuchsia/pale	#	LISP macros, yes---not cpp macros in C
+extension			magenta			#	typedefs, classes
+extension/dark		magenta/dark	#	typedefs, classes
+extension/pale		magenta/pale	#	typedefs, classes
+privileged			maroon			#	running as god, otherwise restricted(?)
+privileged/dark		maroon/dark		#	running as god, otherwise restricted(?)
+privileged/pale		maroon/pale		#	running as god, otherwise restricted(?)
+
+#----------------------eof

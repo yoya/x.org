@@ -1,0 +1,12 @@
+This mode allows you to:
+    - resize and repositioning the current drawing with MB1
+    - clipping or extending it with the Mouse Button 2.
+These two modes need the definition a new bounding box
+before operate (same interface as for rectangle drawing: upper-left
+corner with a mouse press, lower-right with the release).
+
+SCALE(MB1) "adapt" the current drawing to this box.
+ADJUST(MB2) just adds or removes pixels from the current drawing.
+
+You can then modify the metric, if needed, with the metric command (P).
+

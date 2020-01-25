@@ -1,0 +1,53 @@
+font name doesn't exist
+PEXError: Bad PEX Font
+Request code: 88
+unload null font
+PEXError: Bad PEX Font
+Request code: 89
+unload non-font resource
+PEXError: Bad PEX Font
+Request code: 89
+query non-font resource
+PEXError: Bad PEX Font
+Request code: 90
+unload same font twice
+PEXError: Bad PEX Font
+Request code: 89
+pass bogus pointer to unload
+PEXError: Bad PEX Font
+Request code: 89
+unload already freed font
+PEXError: Bad PEX Font
+Request code: 89
+null resource id
+X Error: Bad Value
+Request code: 93
+
+non-LUT resource id
+X Error: Bad Value
+Request code: 93
+
+bad text path -1
+X Error: Bad Value
+Request code: 93
+
+bad text path 4
+X Error: Bad Value
+Request code: 93
+
+bad horizontal alignment -1
+X Error: Bad Value
+Request code: 93
+
+bad horizontal alignment 4
+X Error: Bad Value
+Request code: 93
+
+bad vertical alignment -1
+X Error: Bad Value
+Request code: 93
+
+bad vertical alignment 6
+X Error: Bad Value
+Request code: 93
+

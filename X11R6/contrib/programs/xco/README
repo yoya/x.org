@@ -1,0 +1,76 @@
+
+xco uses the database of standard X11 named colors to display name-color 
+pairs.  Appearance is based on the X10 xcolors program.  To change the
+foreground color, click the left mouse button in the color window you
+want.  To change the background color, click the right mouse button in the
+color window you want.  Clicking the middle mouse button sets the colors
+back to the original foreground and background.  You can switch quickly 
+through colors by holding down the left or right button and sliding the 
+cursor through the colored windows.  More colors can be seen by clicking on 
+the arrows at the bottom of the screen
+
+Notes
+=====
+It reads the clients copy of the rgb database instead of getting the colors
+from the server.
+
+It is written using pure Xlib.
+
+Please feel free to send bug report/fixes and enhancements to me at the address
+below.
+
+Installation
+============
+
+If you have imake:
+	"xmkmf -a"
+	"make"
+
+If you don't have imake
+	Edit makefile.noi and change RGBDATABASE (and the location of
+	the X11 headers and libraries (if necessary)).
+	"make -f makefile.noi"
+
+History
+=======
+	7/18/91	- Version 1.0 - Initial public release
+
+ 	7/23/91 - Version 1.1 - Fixed some errors in some of the 
+		  	string manipulations
+
+	10/3/91	- Version 1.2 -	R5 contrib tape release
+		  non-named colors allowed as initial foreground 
+			and background
+			(welch@graft.berkeley.edu)
+		  Imakefile changes
+			(gildea@expo.lcs.mit.edu)
+		  added registry iso8859 to font specifications
+			(kim@grendel.lut.fi)
+
+	6/6/94	- Version 1.3 - R6 contrib tape release
+		  always uses the color names when allocating new colors
+		  	instead of using the RGB values retrieved (from
+		  	the possibly conflicting) client side rgb.txt
+		  no longer complains about colors that aren't found exactly
+		  no longer exits if color in rgb.txt file isn't found on
+		  	server side
+
+Other
+=====
+	This version was compiled and tested under X11R6 under
+		Sun4 - SunOS 4.1.x
+		Sun4 - Solaris 2.3
+		SGI - IRIX 5.2
+
+        If you install it/find it useful, please drop a line to me
+        at bingle@cs.purdue.edu telling me how wonderful it is.
+
+        Updates will appear in ftp.cs.purdue.edu:/pub/bingle/xco*
+        and on ftp.x.org.
+
+------------------------------------------------------------------------
+Richard Bingle                                      bingle@cs.purdue.edu
+Computer Science Department                     {backbone}!purdue!bingle
+Purdue University                                         (317) 494-0893
+West Lafayette, IN 47907
+

@@ -1,0 +1,3 @@
+-bap -bad -bbb -nbc -br -c33 -cd33 -cdb -ce -ci4
+-cli0 -di16 -nfc1 -i3 -lp
+-npcs -psl -sc -nsob

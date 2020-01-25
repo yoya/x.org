@@ -1,0 +1,82 @@
+.\" $Id: youbin_sub.man,v 4.1 1994/05/31 08:44:02 yamamoto Exp $
+.TH YOUBIN_SUB 3
+.SH "NAME"
+youbin_sub \- Communication library for client of youbin protocol
+.SH "SYNOPSIS"
+.nf
+.ft B
+#include <local/youbin.h>
+.ft
+.fi
+.LP
+.nf
+.ft B
+youbin_sub(server_name, option_list, user_func, file_id)
+char  \(**server_name;
+char  \(**option_list;
+void  (\(**user_func)(size, date, mess);
+int   file_id;
+.ft
+.fi
+.SH "DESCRITPTION"
+youbin_sub is an interface for client program which communicates by
+the youbin protocol. Once this function is called, the control does not
+return to the call routine until the communication with the mail
+server terminates. youbin_sub requests the connection with the user
+name to the host specified by server_name. After the connection is
+established, the watch of user's mail spool starts. The state of the
+mail spool will be informed of from the server at change of the state
+and regular intervals of time. youbin_sub informs the call routine of
+received information through user_func. At this time, the first
+argument is the size of the spool, the second is the modified time of
+the spool, and the third is the content of a header and the first part
+of the arrival mail. The third argument is a pointer to the NULL
+string when the mail is read out or when the sever checks the spool
+periodically.  It is specified with option_list whether information
+such as headers is necessary or not. Because user_func is called even
+when there is no change in the size of the sool file, it is necessary
+to preserve size and date to examine whether the call is cause by the
+change of the spool state or by the periodic call.
+
+To pass information to youbin_sub after the control is passed to
+youbin_sub, the caller writes some command to the file number
+specified with file_id. The command "Update" demands re-check on the
+state of the spool. This command is prepared to inform the server of
+reading out from the spool. The server checks the current state of the
+spool. Another command, "Quit" is provided to inform of the
+termination of client program. Because the server removes the user
+name from the administration table if there is no response from
+clients within the fixed time, "Quit" need not be necessarily sent to
+terminate. If these information need not be sent to youbin_sub, -1
+will be specified for file_id.
+
+Being prepared as option are "Debug" and "Biff" at this moment. If
+both are specified, the notation is "Debug,Biff" ("Biff,Debug" is
+another notation)  If Debug is specified, the content of the packet
+from/to the server will be displayed. If Biff is specified, some
+information such as headers and a part of contents will be sent to
+user_func as the third argument.
+
+.SH "RETURN VALUE"
+0 will be returned when youbin_sub ends normally. Other values
+indicate error return.
+
+.RS
+.LP
+.nf
+.ta \w'ERR_SERVICE 'u +w'15*  'u
+\fB\s-1ERR_USER    1  : Illegal user name
+\fB\s-1ERR_HOST    2  : No daemon at the specified server host.
+\fB\s-1ERR_SERVICE 3  : Service ("biff" in general) is not found.
+\fB\s-1ERR_SOCKET  4  : The socket cannot be opened.
+\fB\s-1ERR_BIND    5  : Can not bind with teh socket.
+\fB\s-1ERR_NAK     6  : The connection was refused by the server.
+\fB\s-1ERR_RTRY    7  : There is no response from the server.
+\fB\s-1RET_QUIT    91 : Receive of "Quit" from the server.
+.fi
+.SH "SEE ALSO"
+youbin(1), youbind(1), xyoubin(1)
+.SH "AUTHORS"
+Kiyoshi Agusa           agusa@nuie.nagoya-u.ac.jp
+.br
+Shinichirou Yamamoto    yamamoto@nuie.nagoya-u.ac.jp

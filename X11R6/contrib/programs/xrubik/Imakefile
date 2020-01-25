@@ -1,0 +1,58 @@
+XCOMM X-BASED RUBIK'S CUBE
+XCOMM
+XCOMM	Imakefile
+XCOMM
+XCOMM ##
+XCOMM
+XCOMM Copyright (c) 1994 	David Bagley
+XCOMM
+XCOMM			All Rights Reserved
+XCOMM
+XCOMM The X Consortium, and any party obtaining a copy of these files from
+XCOMM the X Consortium, directly or indirectly, is granted, free of charge, a
+XCOMM full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+XCOMM nonexclusive right and license to deal in this software and
+XCOMM documentation files (the "Software"), including without limitation the
+XCOMM rights to use, copy, modify, merge, publish, distribute, sublicense,
+XCOMM and/or sell copies of the Software, and to permit persons who receive
+XCOMM copies from any such party to do so.  This license includes without
+XCOMM limitation a license to do the foregoing actions under any patents of
+XCOMM the party supplying this software to the X Consortium.
+XCOMM
+XCOMM This program is distributed in the hope that it will be "playable",
+XCOMM but WITHOUT ANY WARRANTY; without even the implied warranty of
+XCOMM MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+XCOMM
+
+SCOREFILE	= ./rubik.scores
+
+XCOMM Set "RANDOM" to:
+XCOMM	-DHAS_48	if has lrand48() and srand48()
+XCOMM	-DHAS_RANDOM	if has random() and srandom()
+XCOMM			otherwise, set to empty
+
+RANDOM		= -DHAS_48
+
+XCOMM Set your C compiler if necessary
+XCOMM CC		= gcc -g -DDEBUG
+XCOMM CC		= gcc -O
+
+XCOMM #############################################################
+
+wIDGET		= rubik
+WIDGET		= Rubik
+WIDGET2		= $(WIDGET)2d
+WIDGET3		= $(WIDGET)3d
+
+DEFINES		= -I. -DSCOREFILE=\"${SCOREFILE}\" ${RANDOM}
+LOCAL_LIBRARIES	= ${XTOOLLIB} ${XLIB}
+SRCS		= ${WIDGET}.c ${WIDGET2}.c ${WIDGET3}.c x${wIDGET}.c
+OBJS		= ${WIDGET}.o ${WIDGET2}.o ${WIDGET3}.o x${wIDGET}.o
+PROGRAMS	= x${wIDGET}
+
+ComplexProgramTarget(${PROGRAMS})
+
+${WIDGET}.o: ${WIDGET}.c ${WIDGET}P.h ${WIDGET}.h
+${WIDGET2}.o: ${WIDGET2}.c ${WIDGET}P.h ${WIDGET}.h ${WIDGET2}P.h ${WIDGET2}.h
+${WIDGET3}.o: ${WIDGET3}.c ${WIDGET}P.h ${WIDGET}.h ${WIDGET3}P.h ${WIDGET3}.h
+x${wIDGET}.o: x${wIDGET}.c ${WIDGET}.h ${WIDGET2}.h ${WIDGET3}.h

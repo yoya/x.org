@@ -1,0 +1,8 @@
+XCOMM $XConsortium: Imakefile,v 1.1 94/03/28 21:01:57 dpw Exp $
+#include <Server.tmpl>
+#define IHaveSubdirs
+
+SUBDIRS = XF86AccelServerDirs cache
+
+MakeSubdirs($(SUBDIRS))
+DependSubdirs($(SUBDIRS))

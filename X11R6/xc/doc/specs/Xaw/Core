@@ -1,0 +1,100 @@
+Simple Resources
+
+.IN "Simple widget" "resources"
+.ps 9
+.nr PS 9
+.vs 11
+.nr VS 11
+.TS H
+lw(1.5i) lw(1i) lw(1i) lw(2i).
+_
+.sp 3p
+.TB
+Name	Class	Type	Default Value
+.sp 3p
+_
+.TH
+.R
+.sp 3p
+accelerators	Accelerators	AcceleratorTable	NULL
+ancestorSensitive	AncestorSensitive	Boolean	True
+background	Background	Pixel	XtDefaultBackground
+backgroundPixmap	Pixmap	Pixmap	XtUnspecifiedPixmap
+borderColor	BorderColor	Pixel	XtDefaultForeground
+borderPixmap	Pixmap	Pixmap	XtUnspecifiedPixmap
+borderWidth	BorderWidth	Dimension	1
+colormap	Colormap	Pointer	Parent's Colormap
+cursor	Cursor	Cursor	XC_xterm
+depth	Depth	int	Parent's Depth
+destroyCallback	Callback	XtCallbackList	NULL
+height	Height	Dimension	Font height + margins
+insensitiveBorder	Insensitive	Pixmap	GreyPixmap
+mappedWhenManaged	MappedWhenManaged	Boolean	True
+screen	Screen	Pointer	Parent's Screen
+sensitive	Sensitive	Boolean	True
+translations	Translations	TranslationTable	See above
+width	Width	Dimension	100
+x	X	Position	0
+y	Y	Position	0
+.sp 3p
+_
+.TE
+.ps 11
+.nr PS 11
+.vs 13
+.nr VS 13
+.IP accelerators 1.5i
+A list of actions to be executed by this widget, even though the
+event occurred in another widget.  See section 10.4 in the \fI\*(xT\fP.
+.IP ancestorSensitive 1.5i
+The sensitivity state of the ancestors of this widget.  A widget is
+insensitive if either it or any of its ancestors is insensitive.
+This resource is not settable with \fBXtSetValues\fP.  It may
+however be queried.
+.IP background 1.5i
+The background color of this widget.
+.IP backgroundPixmap 1.5i
+The background pixmap of this widget.  If this resource is set to
+anything other than \fBXtUnspecifiedPixmap\fP the pixmap specified will be
+used instead of a background color.
+.IP borderColor 1.5i
+The color of this widget's border.
+.IP borderPixmap 1.5i
+The border pixmap of this widget.  If this resource is set to
+anything other than \fBXtUnspecifiedPixmap\fP the pixmap specified will be
+used instead of a background color.
+.IP borderWidth 1.5i
+This is the width of the border of the AsciiText's widget.
+.IP colormap 1.5i
+The colormap that this widget will use to display all of its colors.
+.IP cursor 1.5i
+The cursor that will be displayed as the mouse pointer, whenever the mouse
+pointer is in this widget.
+.IP depth 1.5i
+The depth of this widgets window.
+.IP destroyCallback 1.5i
+All callback functions on this list are called when this widget is destroyed.
+.IP height 1.5i
+.br
+.ns
+.IP width 1.5i
+The height and width of this widget in pixels.
+.IP insensitiveBorder 1.5i
+This pixmap will be tiled into the widget's border if it becomes insensitive.
+.IP mappedWhenManaged 1.5i
+If this resource is \fBtrue\fP then the widget will automatically be
+mapped by the Toolkit when it is realized and managed.
+.IP screen 1.5i
+The screen that this widget is displayed on.  This is not a settable resource.
+.IP sensitive 1.5i
+Whether or not the toolkit will pass events to this widget.  The
+widget will not get events if either \fBancestorSensitive\fP or 
+\fBsensitive\fP is \fBfalse\fP.
+.IP translation 1.5i
+The translations associated with this widget.
+.IP x 1.5i
+.br
+.ns
+.IP y 1.5i
+The location of the upper left corner of this widget in its parent.
+

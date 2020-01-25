@@ -1,0 +1,14 @@
+XCOMM $XConsortium: Imakefile,v 1.30 93/09/04 16:17:06 rws Exp $
+#define IHaveSubdirs
+#define PassCDebugFlags CDEBUGFLAGS="$(CDEBUGFLAGS)"
+
+FONTDIRS = bdf scaled
+
+#if BuildPexExt
+PEXDIR = PEX
+#endif
+
+SUBDIRS = bdf scaled $(PEXDIR)
+
+MakeSubdirs($(SUBDIRS))
+DependSubdirs($(SUBDIRS))

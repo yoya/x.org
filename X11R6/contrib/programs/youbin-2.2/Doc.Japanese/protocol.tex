@@ -1,0 +1,262 @@
+% Program:	$RCSfile: protocol.tex,v $  $Revision: 4.1 $
+% 
+% Purpose:	Protocol specification.
+% 
+% Author:       K.Agusa     agusa@nuie.nagoya-u.ac.jp
+%         	S.Yamamoto  yamamoto@nuie.nagoya-u.ac.jp
+% 
+% Date:		1993/08/18
+% Modified:	$Date: 1994/05/31 08:44:02 $
+
+% Documment style.
+\documentstyle[eclepsf,12pt]{jarticle}
+
+% Paper size.
+\setlength{\textwidth}{16cm}
+\setlength{\textheight}{24cm}
+
+% Margins.
+\setlength{\topmargin}{-1.2cm}
+\setlength{\oddsidemargin}{-0.2cm}
+\setlength{\footskip}{1.2cm}
+
+% Offsets.
+% \setlength{\hoffset}{0.5cm}
+% \setlength{\voffset}{-4.5cm}
+
+% Change style parameter.
+% \renewcommand{\baselinestretch}{0.9}
+% \renewcommand{\arraystretch}{0.9}
+% \setlength{\itemsep}{-3pt} 
+
+% Beginning of document. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+% Title. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{youbinプロトコル仕様\\
+{\normalsize\tt Protocol Ver. 2}}
+\author{阿草 清滋，山本 晋一郎}
+\date{1993/09/02}
+
+\maketitle
+
+% Section %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{はじめに}
+
+youbinプロトコルのパケットには以下の7種類のパケットがあり，パケットはそ
+の頭文字で識別される．
+
+\begin{itemize}
+  \item	Wake up\ (client$ \rightarrow $server)\\
+サービスの開始(登録)を要求する
+  \item Registered\ (server$\rightarrow $client)\\
+登録の許可を表すWパケットへの返答
+  \item NAK\ (server$ \rightarrow $client)\\
+登録の不許可を表すWパケットへの返答
+  \item Status report\ (server$ \rightarrow $client)\\
+メールスプールの状態(サイズと修正時間)
+  \item	Thanks\ (client$ \rightarrow $server)\\
+Sパケットへの返答(クライアントが動作していることのチェックも兼ねる)
+  \item	Update request\ (client$ \rightarrow $server)\\
+メールスプールの最新状態の要求\\
+サーバはこのパケットを受けとるとSパケットを送信する
+  \item biff packet\ (/bin/mail$ \rightarrow $server)\\
+メールの到着をサーバへ知らせるパケット
+  \item Quit packet\ (server$ \leftrightarrow $client)\\
+サービスの終了
+\end{itemize}
+% 
+youbinプロトコルは便宜的に
+
+\begin{itemize}
+  \item	登録フェーズ
+  \item	ST(Status-Thanks)フェーズ
+  \item	終了フェーズ
+\end{itemize}
+% 
+のフェーズに分けることができる．以下では，youbinプロトコルを各フェーズご
+とにパケットの流れで説明する．
+
+% Section %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{登録フェーズ}
+
+\begin{itemize}
+  \item メールの到着を知りたいクライアントは，ユーザ名をWパケットで知
+らせる．Wパケットの形式を以下に示す．
+% 
+\begin{center}% 
+\verb*|W <userName> <protocolVersion>|\\
+\verb*|W <userName> <protocolVersion> <options>|
+\end{center}
+
+Wパケットにはユーザ名のほかにプロトコル・バージョンを付加し，これによっ
+てプロトコル・バージョンの不一致を回避する．
+また，以下のオプションを付加することにより，到着の事実のみでなく，ヘッ
+ダーとメールの最初の一部を送ることを要求することができる．
+
+\begin{center}% 
+\verb*|W <userName> <protocolVersion> B|
+\end{center}
+
+  \item Wパケットを受け取ったサーバは，ユーザ名の認証，バージョンのチェッ
+クを行ない，登録を許可するクライアントには，クライアントの登録id\,(以下
+ではこの登録idを\\
+\verb|<userId>|と呼ぶ)を付けたRパケットを送り返す．Rパ
+ケットの第2引数はサーバの応答が途切れた時に，再びWパケットを出すまでの
+待ち時間を表す．
+% 
+登録が拒否されたクライアントには，その理由と共にNAKパケットを送り返す．R
+とNAKパケットの形式を以下に示す．
+% 
+\begin{center}% 
+\verb*|R <userId> <interval>|\\
+\verb*|NAK <reason>|
+\end{center}
+
+  \item クライアントは1単位時間(一般には3分)以内に，Rパケット，あるいは
+NAKパケットが送り返されることを期待し，この時間内にサーバからの返答が
+ない場合は再度Wパケットを送る．サーバは同じクライアントからの2重登録を
+避けるようになっているが，クライアントが1単位時間内に繰り返しWパケット
+を送ることは望ましくない．
+
+\end{itemize}
+
+% Section %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{ST(Status-Thanks)フェーズ}
+
+\begin{itemize}
+
+  \item サーバはクライアントの生死の確認とudpパケットの消失，未到達に
+対応するために，最後にクライアントからTパケットを受け取ってから，1単位
+を越え2単位時間を越えない間に，メールスプールの状態(サイズと修正時間)
+をSパケットとしてクライアントに送る．Sパケットの形式を以下に示す．
+% 
+\begin{center}% 
+\verb*|S <size> <date>|\\
+\verb*|S <size> <date> <mailHeader>|
+\end{center}
+
+  \item Sパケットを受け取ったクライアントは，受け取ってから2/3単位時間
+以内にTパケットを送り返す．ここで，サーバはすべてのクライアントに一斉
+にSパケットを送るため，Tパケットによる応答が集中することを避けることが
+望まれる．よって，クライアントのTパケットによる応答は2/3単位時間
+以内においてランダムに可変にすることが望まれる．
+Tパケットの形式を以下に示す．
+% 
+\begin{center}% 
+\verb*|T <userId>|
+\end{center}
+
+Tパケットを送る時間を待っているときに，再度Sパケットが受け取られたとき
+には，非同期なSパケットと見なして直ちにTパケットで返答するものとする．
+
+  \item サーバはSパケットを送って，2単位時間を越えてTパケットを送ってこ
+ないクライアントに対して，再度Sパケットを送ると共に，その後は1単位時間
+毎に2回までTパケットを送り，クライアントの応答を促す．それでも応答がな
+いときは，最後のSパケットを送って1単位時間後にクライアントの登録を抹消
+する．
+
+  \item 6単位時間を待っても，Sパケットを受け取らないクライアントは，サー
+バとの接続が切れたものとして登録フェーズに移る．この6単位時間は，正常
+な待時間が2単位時間，サーバがクライアントとの接続確認を試みている3単位
+時間，1単位時間の余裕の合計である．
+
+  \item メールの到着，読み出しによるスプール状態の変化が認められると，
+サーバはSパケットでクライアントに知らせる．これは非同期的に行なわれる．
+また，メール到着時にヘッダー等の情報を要求するクライアントにはそれらも
+送る．
+% 
+メールの読み出しはyoubin対応のPOPから送られるユーザ名を引き数とするUパケッ
+ト，あるいはクライアントからクライアントidを引き数としたUパケットでサー
+バに伝えられる．Uパケットの形式を以下に示す．
+% 
+\begin{center}% 
+\verb*|U /<userId>|\\
+\verb*|U <userName>|
+\end{center}
+
+メールの到着は/bin/mailからのbiffパケットを受けることで知る．
+biffパケットの形式を以下に示す．
+% 
+\begin{center}% 
+\verb*|<userName>@<offset>|
+\end{center}
+
+\end{itemize}
+
+% Section %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{終了フェーズ}
+
+\begin{itemize}
+
+  \item サーバはTパケットの到着がないことでクライアントの終了を知るこ
+とができる．しかし，正常終了時には積極的にクライアントの終了をサーバに
+知らせることが望ましい．このためにQパケットが用意されている．Qパケット
+の形式を以下に示す．
+% 
+\begin{center}% 
+\verb*|Q <userId>|
+\end{center}
+
+Qパケットにはクライアントの登録idを付加する．このパケットを受け取ると，
+サーバはクライアントを登録リストから削除する．
+
+  \item サーバの終了もQパケットでクライアントに通知される．サーバの再
+初期化を行なうためにサービスを一時中断する場合は\verb*|hup|が，サーバ
+が終了する場合は\verb*|quit|がQパケットの引数として付加される．
+\verb|hup|の場合はクライアントは適当な時間をおいて，再度，登録フェーズに入
+ってもよい．
+% 
+\begin{center}% 
+\verb*|Q hup|\\
+\verb*|Q quit|
+\end{center}
+
+\end{itemize}
+
+% Section %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{状態遷移図}
+
+youbinプロトコルをサーバとクライアントの状態遷移図で表す．ここ
+で，TOは単位時間の経過を表すイベントであり，TO'は6単位時間の経
+過を表すイベントである．TO'はWパケットの第2引数の
+\verb|<interval>|によってサーバからクライアントに与えられる．
+
+\begin{figure}[hbt]
+  \begin{center}
+  \epsfile{file=state.eps,scale=0.8}
+  \end{center}
+  \caption{状態遷移図}
+\end{figure}
+
+% Section %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% <user> = /<user id>|<user name>
+% <user name> = [^/ ]+
+% <user id> = [0-9]+
+% 
+% Q <quit option> = quit|hup
+% 
+% Note, Command (such as W, T and so on) are followed exactly one space.
+% 
+% Note, we assume below UNIX conventions:
+% User name does not have neither ' ' (space) nor '/' (slash) characters.
+
+% Section %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{参考}
+
+\noindent
+xyoubin(1), youbin(1), youbind(1), youbin\_sub(3)\\
+biff(1), comsat(1), mail(1)
+
+% End of document. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}

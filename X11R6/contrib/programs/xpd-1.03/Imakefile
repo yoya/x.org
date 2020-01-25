@@ -1,0 +1,22 @@
+   STD_INCLUDES = -I/usr/kvm
+				 CC = gcc
+         CFLAGS = -fpcc-struct-return $(ALLINCLUDES) 
+LOCAL_LIBRARIES = $(XAWLIB) $(XMULIB) $(XTOOLLIB) $(XLIB) 
+           SRCS = xpd_kvm.c xpd.c 
+           OBJS = xpd_kvm.o xpd.o
+EXTRA_LOAD_FLAGS = -lm -lkvm
+
+default:  all
+
+XPd.ad:
+
+xpd.man:
+
+ComplexProgramTarget(xpd)
+
+install:: $(BINDIR)/xpd
+	chmod u+s $(BINDIR)/xpd
+
+InstallAppDefaults(XPd)
+
+

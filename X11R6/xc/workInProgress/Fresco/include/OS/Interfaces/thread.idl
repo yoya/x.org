@@ -1,0 +1,188 @@
+/*
+ * Copyright (c) 1992 Silicon Graphics, Inc.
+ *
+ * Permission to use, copy, modify, distribute, and sell this software and 
+ * its documentation for any purpose is hereby granted without fee,
+ * provided that (i) the above copyright notices and this permission notice
+ * appear in all copies of the software and related documentation, and
+ * (ii) the name of Silicon Graphics may not be used in any advertising or
+ * publicity relating to the software without the specific, prior written
+ * permission of Silicon Graphics.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
+ * EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
+ * WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ * IN NO EVENT SHALL SILICON GRAPHICS BE LIABLE FOR
+ * ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
+ * OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+ * WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF 
+ * LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE 
+ * OF THIS SOFTWARE.
+ */
+
+#ifndef Fresco_os_thread_idl
+#define Fresco_os_thread_idl
+
+/*
+ * Simple thread interface.  Intended to be implemented
+ * in a straightforward manner on top of POSIX threads
+ * or similar functionality.
+ */
+
+#include <X11/Fresco/Interfaces/types.idl>
+
+//- BaseThreadsObj
+interface BaseThreadsObj {
+    //. BaseThreadsObj only exists as a way to get reference counting
+    //. for thread-related objects without deriving from FrescoObject.
+    //. This interface may go away in the future.
+
+    long ref__(in long references);
+};
+
+//- ThreadObj*
+interface ThreadObj : BaseThreadsObj {
+    //. The ThreadObj interface defines a simple set of operations
+    //. that are intended to be similar to a subset of the
+    //. POSIX thread functionality.
+
+    //- run
+    void run();
+	//. Execute the thread's main function, as defined by the action
+	//. passed when the thread was created.  The thread will exit
+	//. when the function completes.
+
+    //- terminate
+    void terminate();
+	//. Stop execution of the thread and reclaim its storage.
+	//. The thread cannot be restarted after termination.
+
+    //- wait
+    void wait(out long status, out long exitcode);
+	//. Wait for the thread to exit.  If the thread was terminated
+	//. by a signal, the status will be non-zero and contains
+	//. the signal number.  If the status is zero, then the exitcode
+	//. contains the thread's exit code.
+};
+
+//- LockObj*
+interface LockObj : BaseThreadsObj {
+    //. Locks implement mutual exclusion for serialization of
+    //. thread execution.  Locks typically are used to ensure
+    //. that only one thread executes a critical section of code
+    //. at any one time.
+
+    //- acquire
+    void acquire();
+	//. If no thread currently holds it, then the calling
+	//. thread acquires the lock.  Otherwise, the caller
+	//. will block until the lock is released by
+	//. the current holder.  No guarantee is made that
+	//. the first of several threads to block on a lock
+	//. will be the first to be unblocked.
+
+    //- release
+    void release();
+	//. If the calling thread holds the lock, then the lock
+	//. is released and a thread waiting to acquire the lock
+	//. will be unblocked.  If the caller does not hold a lock,
+	//. then this operation may fail in a system-dependent way.
+	//. [Note: we should define an exception to raise in this
+	//. situation.]
+
+    //- try_acquire
+    boolean try_acquire();
+	//. Attempt to acquire the lock, returning true
+	//. if the lock is successfully acquired.  If the lock
+	//. is currently held by a thread, then this operation
+	//. will return false immediately rather than wait
+	//. for the lock.
+};
+
+//- ConditionVariable*
+interface ConditionVariable : BaseThreadsObj {
+    //. A condition variable enables threads to block atomically
+    //. until a condition is satisfied.  The condition is tested
+    //. under the protection of a mutual exclusion lock.  When
+    //. the condition is false, a thread typically blocks on
+    //. a condition variable, which atomically releases the lock and
+    //. waits for the condition variable to be notified.
+    //. When another thread signals a change in the condition,
+    //. one or more of the waiting threads may wake up.
+
+    //- wait
+    void wait(in LockObj lock);
+	//. Automatically release the given lock and sleep,
+	//. then re-acquire the lock after waking.  Threads
+	//. that call the wait operation should re-check
+	//. the condition after wait returns, as another thread
+	//. could affect condition between the time when
+	//. the waiting thread is awakened and actually
+	//. starts execution.
+
+    //- notify
+    void notify();
+	//. Wakeup one (or more) arbitrarily-chosen threads waiting
+	//. on this condition.
+
+    //- broadcast
+    void broadcast();
+	//. Wakeup all threads waiting on this condition.
+};
+
+//- Semaphore*
+interface Semaphore : BaseThreadsObj {
+    //. Semaphores can coordinate access to resources.
+    //. A semaphore is created with an initial count that
+    //. corresponds to the number of free resources.
+    //. Threads can then atomically increment the count
+    //. with the wait operation and atomically decrement the count
+    //. with the signal operation.
+
+    //- wait
+    void wait();
+	//. Wait until the semaphore's count is positive,
+	//. then decrement it.
+
+    //- signal
+    void signal();
+	//. If one or more threads are waiting on the semaphore,
+	//. then wake one up (chosen arbitrarily).  Otherwise,
+	//. increment the count.
+};
+
+//- ThreadKit*
+interface ThreadKit : BaseThreadsObj {
+    //. ThreadKit provides operations for creating threads,
+    //. mutual exclusion locks, condition variables, and semaphores.
+
+    //- thread
+    ThreadObj thread(in Action a);
+	//. Create a thread that will execute the given action
+	//. as its main function when the thread is run.
+	//. If the host system does not support threads,
+	//. this operation will return nil.
+
+    //- lock
+    LockObj lock();
+	//. Create a mutual exclusion lock.
+
+    //- condition
+    ConditionVariable condition();
+	//. Create a condition variable.
+
+    //- semaphore
+    Semaphore general_semaphore(in long count);
+	//. Create a general semaphore with the given initial count.
+
+    //- mutex_semaphore
+    Semaphore mutex_semaphore();
+	//. Create a semaphore with an initial count of one.
+
+    //- wait_semaphore
+    Semaphore wait_semaphore();
+	//. Create a semaphore with an initial count of zero.
+};
+
+#endif

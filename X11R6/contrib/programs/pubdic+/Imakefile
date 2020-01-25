@@ -1,0 +1,56 @@
+XCOMM $Id: Imakefile,v 1.8 1994/05/31 11:58:47 Exp $
+
+      CANNAROOT = ..
+        TARGETS = pod ctopd wtopd
+        PUBDICS = pubdic.p special.p
+        WNNDICS = bio.u chimei.u computer.u jinmei.u kihon.u koyuu.u \
+                  setsuji.u symbol.u tankan.u
+
+AllTarget($(TARGETS))
+SingleProgramTarget(pod,pod.o,,)
+SingleProgramTarget(ctopd,ctopd.o,,)
+SingleProgramTarget(wtopd,wtopd.o,,)
+DependTarget()
+LintTarget()
+
+canna: iroha.t
+wnn: $(WNNDICS)
+sj3: visual.dic
+
+iroha.t: $(PUBDICS) pod
+	cat $(PUBDICS) | ./pod - -p -i -2 > iroha.spl
+	mergeword < iroha.spl > iroha.t
+	$(RM) iroha.spl
+
+visual.dic: pubdic.p pod
+	./pod pubdic.p -p -v -3 > $@
+
+bio.u: pod pubdic.p
+	./pod pubdic.p -w -1 -k bio > $@
+
+chimei.u: pod pubdic.p
+	./pod pubdic.p -w -1 -k chimei > $@
+
+computer.u: pod pubdic.p
+	./pod pubdic.p -w -1 -k computer > $@
+
+jinmei.u: pod pubdic.p
+	./pod pubdic.p -w -1 -k jinmei > $@
+
+kihon.u: pod pubdic.p
+	./pod pubdic.p -w -1 -k kihon > $@
+
+koyuu.u: pod pubdic.p
+	./pod pubdic.p -w -1 -k koyuu > $@
+
+setsuji.u: pod pubdic.p
+	./pod pubdic.p -w -1 -k setsuji > $@
+
+symbol.u: pod pubdic.p
+	./pod pubdic.p -w -1 -k symbol > $@
+
+tankan.u: pod pubdic.p
+	./pod pubdic.p -w -1 -k tankan > $@
+
+clean::
+	$(RM) $(WNNDICS) iroha.t visual.dic

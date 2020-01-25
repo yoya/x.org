@@ -1,0 +1,30 @@
+.TH xdvorak 1
+.\" This is xdvorak.man version 1.2 of 94/05/20: the manual page template for xdvorak.
+.SH NAME
+xdvorak \- Dvorak keyboard layout for X11.
+.SH SYNOPSIS
+.B xdvorak
+[optional arguments]
+.SH DESCRIPTION
+.B xdvorak
+installs a Dvorak keyboard map on an X11 server.
+With no arguments, the program toggles between a Dvorak and a qwerty
+keyboard map.
+Any arguments force the installation of a qwerty
+keyboard map.
+.PP
+Here is the ANSI Standard Dvorak layout:
+.PP
+.nf
+	! @ # $ % ^ & * ( ) [ +
+	1 2 3 4 5 6 7 8 9 0 ] =
+
+	 " , . P Y F G C R L ?
+	 ' , . p y f g c r l /
+
+	  A O E U I D H T N S _
+	  a o e u i d h t n s -
+
+	   : Q J K X B M W V Z
+	   ; Q J K X B M W V Z
+.fi

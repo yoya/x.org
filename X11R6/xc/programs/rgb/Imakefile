@@ -1,0 +1,64 @@
+XCOMM $XConsortium: Imakefile,v 1.31 94/12/08 02:28:20 kaleb Exp $
+
+#if UseRgbTxt
+   RGB_DEFINES = -DUSE_RGB_TXT
+#else
+      RGB_PROG = rgb
+#endif
+        RGB_DB = DefaultRGBDatabase
+   SITE_RGB_DB = -DRGB_DB=\"$(RGB_DB)\"
+      DEPLIBS = 
+      DEFINES = NdbmDefines $(SITE_RGB_DB) $(RGB_DEFINES)
+     INCLUDES = -I$(SERVERSRC)/include
+#if !UseRgbTxt
+        SRCS1 = rgb.c
+        OBJS1 = rgb.o
+#endif
+        SRCS2 = showrgb.c
+        OBJS2 = showrgb.o
+         SRCS = $(SRCS1) $(SRCS2)
+         OBJS = $(OBJS1) $(OBJS2)
+     PROGRAMS = $(RGB_PROG) showrgb
+#if !UseRgbTxt
+#ifdef BSD386Architecture
+    DATAFILES = rgb.db
+      DATADEP = rgb.db
+#else
+    DATAFILES = rgb.pag rgb.dir
+      DATADEP = rgb.dir		/* just want one run of rgb */
+#if !(defined(SGIArchitecture) || defined(SVR4Architecture))
+       DBMLIB = -ldbm
+#endif
+#endif
+#if defined(SparcArchitecture) && HasGcc && !HasGcc2
+           CC = cc
+    CCOPTIONS = /**/
+    EXTRA_LOAD_FLAGS = /**/
+#endif
+#if defined(i386Architecture) && defined(SVR4Architecture)
+       DBMLIB = -ldbm -lucb
+#endif
+#endif /*!UseRgbTxt */
+
+all:: $(PROGRAMS) $(DATADEP)
+
+#if !UseRgbTxt
+SingleProgramTarget(rgb,$(OBJS1),NullParameter,$(DBMLIB))
+SpecialCObjectRule(rgb,$(ICONFIGFILES),$(_NOOP_))
+#endif
+SingleProgramTarget(showrgb,$(OBJS2),NullParameter,$(DBMLIB))
+SpecialCObjectRule(showrgb,$(ICONFIGFILES),$(_NOOP_))
+InstallMultiple($(DATAFILES) rgb.txt,$(LIBDIR))
+InstallProgramWithFlags(showrgb,$(BINDIR),NullParameter)
+InstallManPage(showrgb,$(MANDIR))
+
+#if !UseRgbTxt
+$(DATADEP):  rgb rgb.txt
+	RemoveFile($(DATAFILES))
+	./rgb rgb < rgb.txt
+
+clean::
+	RemoveFile($(DATAFILES))
+#endif
+
+DependTarget()

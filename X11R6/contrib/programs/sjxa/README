@@ -1,0 +1,132 @@
+
+           sjxa - Japanese Input Method Server for X Window System
+
+				30 May, 1994
+
+
+1. Introduction
+
+    The Japanese language input method server sjxa performs kana-kanji
+    conversions for applications running under X Window System using
+    sj3serv.
+
+    The protocols supported by sjxa are following:
+	+ X11R6 XIM Protocol
+		The protocol layer is X ClientMessage and PropertyChange.
+		Dynamic Event Flow model / BackEnd Method
+	+ X11R5 XIMP version 3.5
+		Supported FrontEnd Method and BackEnd Method
+	+ X11R5 XIMP version 4.0
+		Supported all XIMP_TYPE type (FrontEnd Type1/Type2/Type3,
+		BackEnd Type1/Type2, BackEnd Sync Type1/Type2)
+	+ XLC (Kinput protocol upper conpatible protocol)
+	+ SJX protocol (Sony proprietary protocol)
+
+    See also doc/Sjxa.ps. Sjxa.ps is Japanese document:-).
+
+
+2. Compile
+
+    If you want to compile sjxa, you should install X11R5 or X11R6.
+
+  0) Before you will compile sjxa, you should make libsj3lib.a via sj3
+     and install. If you do not install sj3lib.a, you can not use
+     kana-kanji conversions.
+     Allthough you compile on NEWS-OS 6.0.2 or NEWS-OS 4.2.1, you can
+     use libsj3lib.a on that OS.
+
+  1) Edit sjxa/CONFIG. The configuration parameters is following that:
+
+	+ UseInstalledSj3Lib
+		boolean for using installed libsj3lib.a.
+
+	+ Sj3LibDir
+		directory which installed libsj3lib.a.
+
+	+ HasSjisLocale
+		boolean for system has SJIS locale.
+
+	+ HasJlsFunction
+		boolean for system has following function
+
+		  euc2jis	convert from EUC to JIS code
+		  jis2euc	convert from JIS code to EUC
+		  kuten2euc	convert from KUTEN code to EUC
+		  kuten2sjis	convert from KUTEN code ShiftJIS code
+		  iseuc		kanji character of EUC
+		  issjis1	first byte of ShiftJIS code
+		  issjis2	second byte of ShiftJIS code
+		  iskana2	hankaku-kana
+
+	+ UseXIMCP
+		boolean for using X11R6 XIM Protocol
+
+	+ UseXIMP
+		boolean for using XIMP 3.5/4.0
+
+	+ UseXLC
+		boolean for using XLC Protocol
+
+	+ UseSJX
+		boolean for SJX protocol
+
+	+ JapeneseManLocale
+		locale for Japanese man page. "sjis" or "eucJP"
+
+	+ JapaneseManDir
+		directory in which to install Japanese man page
+
+	+ ManDir
+		directory in which to install man page
+
+  2) Make Makefile
+
+	% xmkmf -a
+
+  3) Compile for sjxa
+
+	% make
+
+  4) If the build is successful, you can install most of it with:
+
+	% make install
+
+  5) You can install manual pages with:
+
+	% make install.man
+
+
+3. Test
+
+    sjxa has been built and tested on the following systems:
+
+	Sony	NWS-5000	NEWS-OS 4.2.1	X11R5
+	Sony	NWS-5000	NEWS-OS 6.0.2	X11R6 / X11R5
+	FUJITSU	DS 7742		UXP/DS V10L20	X11R6
+	SUN	SPARCstation	Solaris 2.3	X11R6
+	HP	HP9000S700	HP-UX9.01	X11R6
+
+
+4. Bug Reports
+
+    If you find a bug in sjxa, please send a bug report to sj3-bugs
+    using the form in the file xc/bug-report and this destination
+    address:
+
+	sj3-bugs@sm.sony.co.jp
+
+
+5. Acknowledgements
+
+    I whould like to thank to the following people for compiled
+    and tested:
+
+	Takashi Fujiwara (Fujitsu)
+	Katsuhisa Yano (Toshiba)
+	Hidetoshi Tajima (HP)
+
+
+						Makoto Wakamatsu
+						Sony Corporation
+						makoto@sm.sony.co.jp
+

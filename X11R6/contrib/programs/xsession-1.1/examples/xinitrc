@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Read the X resources first, because some of them may be used for xsession.
+if [ -r "$HOME"/.Xdefaults ]
+then
+	xrdb -load "$HOME"/.Xdefaults
+fi
+
+# Execute xsession.  Other startup programs are in the user's .X11Startup file.
+if [ "$DISPLAY" = ":0" -o "$DISPLAY" = ":0.0" ]
+then
+	exec xsession -console
+else
+	exec xsession
+fi

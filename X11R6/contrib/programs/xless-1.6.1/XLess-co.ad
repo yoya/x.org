@@ -1,0 +1,10 @@
+#include "XLess"
+
+XLess*Background:		ivory
+
+XLess*Command.background:	cornsilk
+
+XLess*confirm.background:	sea green
+
+XLess*Cancel.background:	orange red
+XLess*Ok !.background:		spring green

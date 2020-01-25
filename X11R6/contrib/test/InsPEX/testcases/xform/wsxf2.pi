@@ -1,0 +1,93 @@
+/* $XConsortium: wsxf2.pi,v 5.3 94/04/17 20:47:31 hersh Exp $ */
+
+/*****************************************************************
+
+Copyright (c) 1989, 1990, 1991,1990  X Consortium
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Except as contained in this notice, the name of the X Consortium shall not be
+used in advertising or otherwise to promote the sale, use or other dealings
+in this Software without prior written authorization from the X Consortium.
+
+Copyright (c) 1989, 1990, 1991,1990 by Sun Microsystems, Inc.
+
+                        All Rights Reserved
+
+Permission to use, copy, modify, and distribute this software and its 
+documentation for any purpose and without fee is hereby granted, 
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in 
+supporting documentation, and that the names of Sun Microsystems,
+and the X Consortium, not be used in advertising or publicity 
+pertaining to distribution of the software without specific, written 
+prior permission.  
+
+SUN MICROSYSTEMS DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, 
+INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT 
+SHALL SUN MICROSYSTEMS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL 
+DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
+SOFTWARE.
+
+******************************************************************/
+
+
+## wsxf2.pi -  
+## Verify the consistency of 2D/3D workstation transformation
+## Set workstation transformation(2D), inquire workstation transformation (3D)
+## Set workstation transformation(3D), inquire workstation transformation (2D)
+## verify by comparing the values inquired against expected
+
+source macro.pi
+source xpmacro.pi
+
+tbegintest("wsxf2","2D/3D workstation transformation consistency");
+
+
+# INITIALIZE: workstation type, 2D & 3D ws window and viewport
+wstype = i_get_ws_type("phigs_ws_type_x_drawable");
+wswindow1 = I_Plimit(0.25,1.0, 0.0,0.5);
+wsviewport1 = I_Plimit(0.0,75.0, 20.0,100.0);
+wswindow31 = I_Plimit3(0.25,1.0, 0.0,0.5, 0.0,1.0);
+wsviewport31 = I_Plimit3(0.0,75.0, 20.0,100.0, 0.0,1.0);
+wswindow2 = I_Plimit(0.25,0.5, 0.15,0.5);
+wsviewport2 = I_Plimit(0.0,70.0, 25.0,75.0);
+wswindow32 = I_Plimit3(0.25,0.50, 0.15,0.5, 0.0,0.5);
+wsviewport32 = I_Plimit3(0.0,70.0, 25.0,75.0, 0.0,0.5);
+
+# SETUP: open phigs, workstation
+i_open_phigs(NULL,PDEF_MEM_SIZE);
+i_make_xwindow(&display,&window1,&conn1,0,0,100,100);
+popen_ws(1,&conn1,wstype);
+
+# OPERATION and VERIFICATION begins:
+# set 2D and inquire 3D ws transformation 
+pset_ws_win(1,&wswindow1);
+pset_ws_vp(1,&wsviewport1);
+im_confirm_wsxform3(PUPD_NOT_PEND,wswindow31,wswindow31,wsviewport31,wsviewport31,
+	"failed: set(2D) and inquire(3D) ws window,viewport != exp\n");
+
+# set 3D and inquire 2D ws transformation 
+pset_ws_win3(1,&wswindow32);
+pset_ws_vp3(1,&wsviewport32);
+im_confirm_wsxform(PUPD_NOT_PEND,wswindow2,wswindow2,wsviewport2,wsviewport2,
+	"failed: set(3D) and inquire(2D) ws window,viewport != exp\n");
+
+tendtest()

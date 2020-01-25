@@ -1,0 +1,99 @@
+.\" $Id: xcolorize.man,v 6.1 94/05/25 13:53:50 dd Exp $
+.\" Copyright (c) 1994 David DiGiacomo
+.\"
+.\" The X Consortium, and any party obtaining a copy of these files from
+.\" the X Consortium, directly or indirectly, is granted, free of charge, a
+.\" full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+.\" nonexclusive right and license to deal in this software and
+.\" documentation files (the "Software"), including without limitation the
+.\" rights to use, copy, modify, merge, publish, distribute, sublicense,
+.\" and/or sell copies of the Software, and to permit persons who receive
+.\" copies from any such party to do so.  This license includes without
+.\" limitation a license to do the foregoing actions under any patents of
+.\" the party supplying this software to the X Consortium.
+.TH XCOLORIZE 1 "Release 6" "X Version 11"
+.SH NAME
+xcolorize \- start X client with pleasant background color
+.SH SYNOPSIS
+.B xcolorize
+[\fB\-help\fP]
+[\fB\-dark\fP]
+[\fB\-only\fP]
+[\fB\-rv\fP]
+[\fB\-old\fP|\fB\-oldsh\fP|\fB\-sun\fP]
+[\fIcommand\fP [\fIargs ...\fP]]
+.SH DESCRIPTION
+The
+.I xcolorize
+program is used to give an X client program 
+a pleasant randomly generated background color.
+It inserts the appropriate
+.B \-fg
+and
+.B \-bg
+options in the client command line.
+.SH OPTIONS
+.TP 8
+.B \-help
+Prints a help message.
+.TP 8
+.B \-dark
+Generates a dark color background and white foreground instead of the
+default pastel color background and black foreground.
+.TP 8
+.B \-only
+Generates only a random color specification instead of complete
+foreground and background color options.
+.TP 8
+.B \-rv
+Reverses the generated foreground and background colors.
+.TP 8
+.B \-old
+Generates the old #RRGGBB syntax instead of the newer rgb:RR/GG/BB syntax.
+Useful for pre-X11R5 clients which don't understand the new syntax.
+.TP 8
+.B \-oldsh
+Same as \fB\-old\fP, but prefixes the \fB#\fP character with a backslash
+to prevent it from being treated as a shell comment character.  This is
+sometimes useful when the X client being colorized is implemented as a
+shell script.
+.TP 8
+.B \-sun
+Generates \fIXView\fP/\fISunView\fP decimal RGB syntax.  Useful when
+colorizing \fISunView\fP and some \fIXView\fP clients which don't
+understand X color syntax.
+.TP 8
+\fIcommand\fP [\fIargs ...\fP]
+The generated color options are inserted
+between the command and the first argument supplied (if any).  If no
+command is given, the generated color options are written to stdout.
+.SH EXAMPLE
+Below is an example
+.I .xinitrc
+file which uses
+.I xcolorize
+to make the screen more attractive:
+.sp
+.in 1.0i
+.nf
+xrdb \-load $HOME/.Xresources
+xcolorize -dark xterm \-C \-title Console \-geometry 80x24+0+0 &
+xsetroot \-solid `xcolorize -dark -only`
+xcolorize xclock \-geometry 50x50\-0+0 \-bw 0 &
+xcolorize -dark xload \-geometry 50x50\-50+0 \-bw 0 &
+xcolorize xterm \-geometry 80x24+0\-0 &
+twm
+.fi
+.in -1.0i
+.sp
+.SH "SEE ALSO"
+.IR X (1)
+.SH AUTHOR
+David DiGiacomo, david@slack.com
+.SH BUGS
+The random color generation algorithm is not very good.
+.sp 1
+There should be a way to generate both foreground and background colors
+(non-clashing).
+.sp 1
+If you colorize too many applications you'll fill up your colormap.

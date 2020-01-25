@@ -1,0 +1,262 @@
+.TH XBUFFY 1 4/20/94
+.uc 4.2
+.SH NAME
+xbuffy \- yet another biff for the X Window System
+.SH SYNOPSIS
+.B xbuffy  
+[X toolkit options] [-help] [-version] [-horiz]
+[-poll \fIseconds\fR]  [-header \fIseconds\fR] 
+[-acmd \fIsound file\fR]  [-nobeep] [-names] [-orig]
+[-priority \fIpriority\fR]
+[-command \fIcommand\fR] [-shortnames] 
+[-mail <mailbox files...>] 
+[-news <newsgroup names...>]
+
+.SH DESCRIPTION
+Xbuffy is based on Xmultibiff by John Reardon. 
+
+Xbuffy keeps track of multiple mailboxes.  You can
+either specify mailbox files on the command line, in a
+Xresources file, in a text configuration file, or set your 
+MAILPATH environment variable (a colon separated list of 
+files).  It will display the number of new messages in each 
+mail file in a box.
+
+Another key feature of xbuffy is that it will use NNTP
+to watch newsgroups in the same way it watches mailboxes.
+You can also specify newsgroups on the command line, in 
+Xresources, in a text configuration file (the same file 
+can specify both mailboxes and newsboxes), or set your 
+NEWSPATH environment variable using the same format as 
+the MAILPATH environment variable.
+
+By specifying certain command line options and/or
+Xresources, xbuffy can show the From and Subject lines in 
+each box.  It can also invoke shell commands on button 
+clicks.  Each box can be configured differently by using 
+a \fIboxfile.\fR  In general, it is a very extensible biff.  
+Read on for details on what it can do.
+
+.SH OPTIONS
+The following options are recognized:
+.TP 10
+.B -help
+Print a brief help message and exit
+.TP
+.B -version
+Print the current version and exit
+.TP
+.B -poll \fIsecs\fR
+How often the mailbox files are polled for new mail.  If this is not
+specified, it will use the \fBMAILCHECK\fR environment variable.
+.I(default: 60)
+.TP
+.B -header \fIsecs\fR
+This will display the \fBFrom:\fR and \fBSubject:\fR
+lines from incoming mail messages in a popup window
+when button 1 is pressed in the box label.  The mail
+header will also popup automatically for the amount of
+time indicated in \fIsecs\fR when new mail arrives.  If
+\fIsecs\fR is 0, the mail header will not pop up when
+new mail arrives.  Clicking in the popup window when mail
+arrives (if the argument is non-zero) will instantly popdown
+the window.  This feature was borrowed from xpbiff.
+.TP
+.B -acmd \fIsound command\fR
+This will run a command instead of ringing the bell when new mail arrives.
+For example, you could "cat meow >/dev/audio".  This option could also
+be used to automatically open a mail reader when new mail arrives.
+.TP
+.B -horiz
+This will line up the boxes horizontally 
+.I(default: vertical)
+.TP
+.B -nobeep
+This will disable the beep (or sound command) when new 
+mail arrives
+.TP
+.B -boxfile \fIfilename\fR
+The name of a file containing configuration information for the boxes.  The
+boxfile is an alternative way of specifying what to watch.  The boxfile also
+allows each box to have different polltime, headertime, etc.
+.TP
+.B -origMode
+This will show all messages in each mailbox.  It has no effect on 
+news groups.
+.TP
+.B -names
+Will display the full pathname of all the mailboxes 
+it is watching.
+.TP
+.B -shortnames
+Will display the file names of all the mailboxes 
+it is watching.
+.TP
+.B -priority \fIpriority\fR
+Nice level at which xbuffy and its child processes will run.
+.TP
+.B -command \fIcommand\fR
+This is the default command that is to be executed when Button 2 is pressed 
+on a box.
+.TP
+.I X Options
+Standard X windows options (e.g. -fn, -display, etc.)
+.SH ENVIRONMENT
+The names and purpose of the some of the following environment 
+variables were borrowed from Bash, the GNU Shell.
+.TP 5
+.B MAILCHECK
+This specifies the amount of seconds to wait in between 
+polling for mail.
+.TP
+.B MAILPATH
+This is a colon separated list of files to check for mail.
+.TP
+.B NEWSPATH
+This is a colon separated list of newsgroups to monitor.
+.TP
+.B NNTPSERVER
+This is the name of the NNTP server to use for news boxes.
+
+.SH X DEFAULTS
+The application class is XBuffy.
+Almost all the arguments above can be set in the X resource
+database, allowing for one-time configuration and eliminating
+long command lines.  The environment variables described
+above take precedence over any X resources that are
+specified.  Also, any command line arguments take precedence
+over both X resources and environment variables. 
+
+.SH BOXFILE FORMAT
+The boxfile contains configuration information for each box.  Any line
+that begins with '#' is considered a comment and is ignored.  The
+definition of a box begins with the keyword \fIbox\fR followed by 
+the filename or newsgroup for that box.  All subsequent lines are then 
+used to configure that box until either another \fIbox\fR command or
+the end of file.  Note that these options are NOT case sensitive.
+
+The following are settable on a per box basis by using
+the \fIboxfile\fR option (note that the boxfile may also be set in
+the Xresources with the resource Xbuffy.boxfile: <filename>).  
+
+When using a \fIboxfile\fR, only the \fIbox\fR line is required.  All options
+that are not given in the boxfile will default to the command line 
+(or built in) value.
+.TP 10
+.B box \fIfile name\fR 
+The filename or newsgroup for this box.  This also marks the beginning of
+a box definition.
+.TP
+.B title \fIbox title\fR
+The title that you want for this box.  This will override the shortname or 
+longname option.
+.TP
+.B mailbox 
+Specify that the box is a mailbox (a file).  If neither mailbox or 
+newsbox is specified, mailbox is the default.
+.TP
+.B newsbox
+Specify that the box is a newsbox (a NNTP newsgroup).
+.TP
+.B origMode 
+origMode will make Xbuffy try to act like Xmultibiff and count ALL messages
+instead of just NEW message.  
+.TP
+.B newMode 
+newMode will make Xbuffy count only new messages (this is the default).
+.TP
+.B nobeep
+This will disable the beep (or sound command) when new 
+mail arrives
+in the specified mailbox to be counted.  
+.TP
+.B beep
+This will enable the beep (or sound) when new 
+mail arrives
+in the specified mailbox to be counted.  
+.TP
+.B shortname
+This will cause the specified box to be prefaced with the filename.
+.TP
+.B longname
+This will cause the specified box to 
+be prefaced with a full path name.
+.TP
+.B audio \fIcommand string\fR
+Set to the command string to be used automatically when
+new mail arrives.  
+.TP
+.B polltime \fIsecs\fR
+Set to the time (in seconds) in between polling the box.
+.TP
+.B headertime \fIsecs\fR
+Set to the time (in seconds) to display the header when new 
+things arrive.
+.TP
+.B command  \fIcommand string\fR
+Specifies a UNIX shell command to be executed by
+\fBsh\fR when the middle mouse button is pushed in a
+box.  Take care to escape characters correctly.
+
+.TP 0
+The following resources are settable on a per application basis
+in the Xresources:
+
+.TP 10
+.B horiz
+Set to TRUE or FALSE.  Same as the -horiz option.
+.TP
+.B mailboxes
+Set to a colon separated list of mailboxes (files).  This
+is the same as specifying files on the command line.
+.TP
+.B newsboxes
+Set to a colon separated list of news groups.  This
+is the same as specifying files on the command line.
+
+.SH EXAMPLES
+The following examples demonstrate how to configure xbuffy to do the
+same thing from both the command-line and X resources.  Although, for
+maximum flexibility on a per-box basis, I suggest using a boxfile.
+
+The following example will watch 2 mailboxes in a home directory:
+.nf
+	\fI% xbuffy -mail ~/box1 ~/box2 &\fR
+.fi
+
+ boxfile:
+.nf
+	box ~/box1
+	box ~/box2
+.fi
+
+The following example will watch a mailbox and a newsgroup:
+.nf
+	\fI% xbuffy -mail /usr/spool/mail/you -news comp.windows.x &\fR
+.fi
+
+ boxfile:
+.nf
+	box /usr/spool/mail/you
+	box comp.windows.x
+	newsbox
+.fi
+
+.SH GRATITUDE
+Thanks to John Reardon for writing the original Xmultibiff and Xmultibiff
+2.0.  Xbuffy is a modified version of Xmultibiff 2.0 (although the
+code is looking less and less similar everyday).
+.SH BUGS
+
+There is a bug with the NNTP stuff that isn't really Buffy's fault.  Most 
+versions of the NNTP server will not dynamically update the high message
+number (you must disconnect from the server and re-connect to get a
+new high message).  If your server is running one of these versions of
+NNTP then you will not get told of new articles in your newsboxes.
+
+.SH AUTHOR
+
+xbuffy:	Bill Pemberton, wfp5p@virginia.EDU
+.TP
+xmultibiff: John Reardon, Midnight Networks Inc., 
+	badger@midnight.com

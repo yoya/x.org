@@ -1,0 +1,14 @@
+       DEFINES = -DHELPFILE=\"${LIBDIR}/xed.help\" 
+
+XCOMM Please check for some aditional DEFINES
+XCOMM -DSCROLLBREAK -DUSEGETCWD -DNORENAME -DUSEDIRENT -DUSE_CSH_SYSTEM
+
+        DEPLIBS = XawClientDepLibs
+LOCAL_LIBRARIES = XawClientLibs
+  SYS_LIBRARIES = -lm
+           SRCS = xedit.c jump.c edit.c file.c warning.c search.c file_sel.c special.c
+           OBJS = xedit.o jump.o edit.o file.o warning.o search.o file_sel.o special.o
+
+ComplexProgramTarget(xed)
+InstallNonExec(xed.help, $(LIBDIR))
+InstallAppDefaults(Xed)

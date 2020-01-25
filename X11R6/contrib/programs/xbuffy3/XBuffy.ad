@@ -1,0 +1,11 @@
+!
+! Application Defaults file for XBuffy
+!
+*nobeep:	FALSE
+*horiz:		TRUE
+*names:		FALSE
+*shortnames:	TRUE
+*polltime:	30
+*priority:	15
+*headertime:	10
+*mailboxes:	/usr/spool/mail/wfp5p:/home/wfp5p/.Mail/elmProblems

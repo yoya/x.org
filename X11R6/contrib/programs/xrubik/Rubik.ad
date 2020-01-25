@@ -1,0 +1,14 @@
+!!!!
+! Rubik: Class resource for xrubik
+!!!!
+Rubik*size: 3
+Rubik*orient: false
+Rubik*mono: false
+Rubik*foreground: cyan
+Rubik*background: navyblue
+Rubik*faceColor0: Red
+Rubik*faceColor1: Yellow
+Rubik*faceColor2: White
+Rubik*faceColor3: Green
+Rubik*faceColor4: Orange
+Rubik*faceColor5: Blue

@@ -1,0 +1,21 @@
+XCOMM $XConsortium: Imakefile,v 1.4 94/11/21 18:30:24 kaleb Exp $
+XCOMM build dixie archive
+#include <Server.tmpl>
+
+#define	IHaveSubdirs
+
+SUBDIRS = request import process export
+OBJS = request/?*.o import/?*.o process/?*.o export/?*.o 
+DONES = request/DONE import/DONE process/DONE export/DONE 
+
+NormalDepLibraryTarget(dixie,$(SUBDIRS) $(DONES),$(OBJS))
+
+ForceSubdirs($(SUBDIRS))
+
+DependSubdirs($(SUBDIRS))
+
+MakeLintLibSubdirs($(SUBDIRS))
+LintSubdirs($(SUBDIRS))
+
+InstallLinkKitLibrary(dixie,$(LINKKITDIR)/lib)
+

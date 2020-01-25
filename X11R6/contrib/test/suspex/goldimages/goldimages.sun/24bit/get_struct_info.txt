@@ -1,0 +1,18 @@
+str_info: 
+	element_count: 2
+	         size: 4
+	     has_refs: 0
+	    edit_mode: 0
+	element_pointer: 2
+str_info: 
+	element_count: 2
+	         size: 4
+	     has_refs: 0
+	    edit_mode: 1
+	element_pointer: 2
+str_info: 
+	element_count: 2
+	         size: 4
+	     has_refs: 1
+	    edit_mode: 1
+	element_pointer: 2

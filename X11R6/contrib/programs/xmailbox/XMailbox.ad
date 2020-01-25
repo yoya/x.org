@@ -1,0 +1,12 @@
+!--------------------
+! XMailbox defaults
+!--------------------
+xmailbox*geometry:		 -3+75
+xmailbox*volume:			50
+xmailbox*update:			60
+xmailbox*onceOnly:		true
+! xmailbox*mailapp:		echo "setenv LINES 25; xterm -e elm" | /bin/tcsh -s -f
+! xmailbox*mailSndFile:	/usr/public/lib/sounds/bong.au
+! xmailbox*nomailXpmFile:	/usr/applic/X/lib/pixmaps/mail0.xpm
+! xmailbox*mailXpmFile:	/usr/applic/X/lib/pixmaps/mail1.xpm
+

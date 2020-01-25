@@ -1,0 +1,432 @@
+.NH 1
+Calendar Widget
+.XS
+	Calendar Widget
+.XE
+.Ds 0
+.TA 2.0i
+.ta 2.0i
+.sp
+Application Header file	"Cal.h"
+Class Header file	"Cal.h"
+Class		CalendarWidgetClass
+Class Name	Calendar
+Superclass	Core
+.sp
+.De
+.LP
+The Calendar Widget is a widget that displays a one month calendar for a
+specified date.  It is designed to be used in applications that need to be
+driven by calendar input, as well as applications that simply want to display
+calendars.
+.NH 2
+Resources
+.LP
+When creating a Calendar widget instance, the following resources are
+retrieved from the argument list or from the resource database:
+.LP
+.ps 9
+.nr PS 9
+.vs 11
+.nr VS 11
+.TS H
+lw(1i) lw(1i) lw(1i) lw(.5i) lw(2i).
+_
+.sp 3p
+.TB
+Name	Class	Type	Notes	Default Value
+.sp 3p
+_
+.TH
+.R
+.sp 3p
+background	Background	Pixel		XtDefaultBackground
+backgroundPixmap	Pixmap	Pixmap		XtUnspecifiedPixmap
+borderWidth	BorderWidth	Dimension		1
+callback	CallbackList	XtCallbackList		NULL
+digitFont	CalendarFont	XFontStruct		fixed
+digitGravity	DigitGravity	Gravity		Center
+digitNames	DigitNames	StringTable		XtDefaultDigitNames
+foreground	Foreground	Pixel		XtDefaultForegrond
+height	Height	Dimension		Minimum height needed
+highlight	Highlight	Boolean		True
+lineWidth	LineWidth	int		1
+mappedWhenManaged	MappedWhenManaged	Boolean		True
+monthNames	MonthNames	StringTable		XtDefaultMonthNames
+showYear	ShowYear	Boolean		True
+startingWeekday	StartingWeekday	DayName		Sunday
+titleFont	CalendarFont	XFontStruct		fixed
+translations	Translations	TranslationTable		See below
+weekdayFont	CalendarFont	XFontStruct		fixed
+weekdayNames	WeekdayNames	StringTable		XtDefaultWeekdayNames
+width	Width	Dimension		Minimum width needed
+x	X	Position		0
+y	Y	Position		0
+.sp 3p
+_
+.TE
+.ps 11
+.nr PS 11
+.vs 13
+.nr VS 13
+.Bg
+.Gp
+.Bw
+.Cb
+.IP \fBdigitFont\fP 1.5i
+The font to be used for drawing the digit text in the calendar.
+.IP \fBdigitGravity\fP 1.5i
+Specifies the gravity used to determine where the digits that are drawn in
+the calendar cells will be located within the cells.  
+.Rs "NorthWest, North, NorthEast, West, Center, East, SouthWest, South, \
+\fPand\fP SouthEast".
+.IP \fBdigitNames\fP 1.5i
+The text to be used for the digits in the calendar cells, specified as a
+StringTable.
+.Fg
+.Hw
+.IP \fBhighlight\fP 1.5i
+If this is \fBFalse\fP then the calendar will never highlight any dates.
+.IP \fBlineWidth\fP 1.5i
+Determines the number of pixels wide the lines composing the grid in the
+calendar should be.  Acceptable values are 1 through 10 inclusive.
+.Mm
+.IP \fBmonthNames\fP 1.5i
+The text to be used for the month names that appear in the title above the
+calendar, specified as a StringTable.
+.IP \fBshowYear\fP 1.5i
+If this is \fBFalse\fP then the year number will not appear in the title of
+the calendar.
+.IP \fBstartingWeekday\fP 1.5i
+The day of the week that will correspond to the days in the left-most column
+of the calendar.
+.Rs "Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, \fPand\fP Saturday".
+.IP \fBtitleFont\fP 1.5i
+The font to be used for drawing the month and year text above the calendar
+grid.
+.IP \fBweekdayFont\fP 1.5i
+The font to be used for drawing the weekday names above each column of
+calendar cells in the calendar grid.
+.IP \fBweekdayNames\fP 1.5i
+The text to be used for the weekday names, specified as a StringTable.
+.Tr
+.Xy
+.NH 2
+Resource Defaults
+.LP
+Following are the default string tables used by the calendar widget when
+drawing all of its text:
+.IP \fBXtDefaultDayNames\fP  0.5i
+"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+.IP \fBXtDefaultMonthNames\fP 0.5i
+"January", "February", "March", "April", "May", "June"
+"July", "August", "September", "October", "November",
+"December"
+.IP \fBXtDefaultDigitNames\fP 0.5i
+"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", 
+"11", "12", "13", "14", "15", "16", "17", "18", "19", "20", 
+"21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"
+.NH 2
+Defined Types and Converters
+.IP \fBDate\fP 1.0i
+Typedef of a structure with a numeric month, day, and year field.  The
+\fBDateConverter\fP public function is included with this widget.  This is not
+a normal resource converter and is described below under Convenience Routines.
+.IP \fBGravity\fP 1.0i
+Typedef of an enumerated type.  This may have one of the following values:
+\fBNorthWest, North, NorthEast, West, Center, East, SouthWest, South, \fPand
+\fBSouthEast\fP.  The \fBGravityConverter\fP resource converter is
+automatically included with this widget:
+.FD 0
+void GravityConverter(\fIargs\fP, \fInum_args\fP, \fIfromVal\fP, \fItoVal\fP)
+.br
+      XrmValuePtr \fIargs\fP;
+      Cardinal * \fInum_args\fP;
+      XrmValuePtr \fIfromVal\fP;
+      XrmValuePtr \fItoVal\fP;
+.FN
+.IP \fIargs\fP 1i
+This argument is ignored, but should be specified as NULL.
+.IP \fInum_args\fP 1i
+This argument is ignored, but should be specified as NULL.
+.IP \fIfromVal\fP 1i
+A pointer to the XrmValue structure that has been filled with a pointer to
+the string to be converted.
+.IP \fItoVal\fP 1i
+A pointer to the XrmValue structure that will be filled with a pointer to
+the corresponding Gravity.
+.LP
+.IP \fBStringTable\fP 1.0i
+A NULL terminated array of string pointers.  \fBThe StringTableConverter\fP
+resource converter is automatically included with this widget:
+.FD 0
+void StringTableConverter(\fIargs\fP, \fInum_args\fP, \fIfromVal\fP, \fItoVal\fP)
+.br
+      XrmValuePtr \fIargs\fP;
+      Cardinal * \fInum_args\fP;
+      XrmValuePtr \fIfromVal\fP;
+      XrmValuePtr \fItoVal\fP;
+.FN
+.IP \fIargs\fP 1i
+This argument is ignored, but should be specified as NULL.
+.IP \fInum_args\fP 1i
+This argument is ignored, but should be specified as NULL.
+.IP \fIfromVal\fP 1i
+A pointer to the XrmValue structure that has been filled with a pointer to
+the string to be converted.
+.IP \fItoVal\fP 1i
+A pointer to the XrmValue structure that will be filled with a pointer to
+the resulting StringTable.
+.LP
+The string to be converted must be specified as a comma separated list of 
+double quoted sub-strings.
+.LP
+.IP \fBDayName\fP 1i
+Typedef of an enumerated type.  This may have one of the following values:
+\fBSunday, Monday, Tuesday, Wednesday, Thursday, Friday, \fPand
+\fBSaturday\fP.  The \fBDayNameConverter\fP resource converter is
+automatically included with this widget:
+.FD 0
+void DayNameConverter (\fIargs\fP, \fInum_args\fP, \fIfromVal\fP, \fItoVal\fP)
+.br
+      XrmValuePtr \fIargs\fP;
+      Cardinal * \fInum_args\fP;
+      XrmValuePtr \fIfromVal\fP;
+      XrmValuePtr \fItoVal\fP;
+.FN
+.IP \fIargs\fP 1i
+This argument is ignored, but should be specified as NULL.
+.IP \fInum_args\fP 1i
+This argument is ignored, but should be specified as NULL.
+.IP \fIfromVal\fP 1i
+A pointer to the XrmValue structure that has been filled with a pointer to
+the string to be converted.
+.IP \fItoVal\fP 1i
+A pointer to the XrmValue structure that will be filled with a pointer to
+the corresponding DayName.
+.NH 2
+Calendar Actions
+.LP
+The Calendar widget supports the following actions:
+.IP \(bu 5
+Unhighlight the previously highlighted calendar cell and highlight the
+calendar cell currently beneath the pointer with \fBselect\fP.
+.IP \(bu 5
+Process calendar selection callbacks with \fBnotify\fP.
+.sp
+.LP
+The following are the default translation bindings used by the Calendar
+widget:
+.LP
+.sp
+.Ds 0
+.TA .5i 2.25i
+.ta .5i 2.25i
+	<Btn1Down>:	select()
+	<Btn1Motion>:	select()
+	<Btn1Up>:	notify()
+.De
+.sp
+.LP
+.NH 2
+Convenience Routines
+.LP
+For convenience and speed reasons, all of the date related resources of the
+calendar widget are only accesible via public functions.
+.LP
+In order to use the convenience routines effectively, it is important to
+understand that a calendar widget has two \fIunrelated\fP resources of type
+\fBDate\fP:
+.IP \fBmonth\fP 1i
+The date specified for this resource determines what month the calendar widget
+is to display.  A month and year are required to specify a unique \fBmonth\fP.
+.IP \fBdate\fP 1i
+The date specified for this resource determines what specific day the calendar
+widget is to highlight.  A month, day, and year are required to specify a
+unique \fBdate\fP.
+.NH 3
+Setting the Calendar Widget's month
+.LP
+The \fBmonth\fP for the calendar widget to display can be set by calling:
+.FD 0
+void CalendarShowMonth(\fIwidget\fP, \fIdate\fP)
+.br
+      CalendarWidget \fIwidget\fP;
+      Date \fIdigit\fP;
+.FN
+.IP \fIwidget\fP 1i
+Specifies the calendar widget.
+.IP \fIdate\fP 1i
+Specifies the new date whose month and year fields will determine the new
+\fBmonth\fP for the calendar to display.
+.LP
+Calling this function will change the \fBmonth\fP that is currently being
+displayed on the specified calendar widget, if it differs from the \fBmonth\fP
+that the calendar widget is currently displaying.  The day field is ignored
+and may be zero.  If the specified \fBmonth\fP corresponds to the \fBdate\fP
+specified by the last call to \fBCalendarSetDate\fP, and the \fBhighlight\fP
+resource is \fBTrue\fP, then that specified \fBdate\fP will appear
+highlighted.
+.NH 3
+Setting the Calendar Widget's date
+.LP
+To set the \fBdate\fP for the calendar widget to highlight use the following
+function:
+.FD 0
+void CalendarSetDate(\fIwidget\fP, \fIdate\fP)
+.br
+      CalendarWidget \fIwidget\fP;
+      Date \fIdate\fP;
+.FN
+.IP \fIwidget\fP 1i
+Specifies the calendar widget.
+.IP \fIdate\fP 1i
+Specifies the new date for the calendar to highlight.
+.LP
+The specified \fBdate\fP will appear highlighted on the specified calendar
+widget whenever the widget has been told to display the corresponding
+\fBmonth\fP, if the \fBhighlight\fP resource is \fBTrue\fP.
+.NH 3
+Getting the Calendar Widget's Current date
+.LP
+To get the current \fBdate\fP of a calendar widget use the following function:
+.FD 0
+void CalendarGetDate(\fIwidget\fP, \fIdate_ptr\fP)
+.br
+      CalendarWidget \fIwidget\fP;
+      Date * \fIdate_ptr\fP;
+.FN
+.IP \fIwidget\fP 1i
+Specifies the calendar widget.
+.IP \fIdate_ptr\fP 1i
+Specifies a pointer to the date structure to be filled in with the specified
+calendar widget's current \fBdate\fP.
+.NH 3
+Other Ways to Change the Calendar Widget's date
+.LP
+To increment or decrement the \fBdate\fP for the calendar widget to highlight
+by one day use the following functions:
+.FD 0
+void CalendarIncDay(\fIwidget\fP, \fIshow\fP)
+void CalendarDecDay(\fIwidget\fP, \fIshow\fP)
+.br
+      CalendarWidget \fIwidget\fP;
+      Boolean \fIshow\fP;
+.FN
+.IP \fIwidget\fP 1i
+Specifies the Calendar widget.
+.IP \fIshow\fP 1i
+Flag to control behavior on month rollover.
+.LP
+If \fIshow\fP is \fBTrue\fP, then these routines will automatically call
+\fBCalendarShowMonth\fP with the resultant \fBmonth\fP.  Thus, the calendar
+widget will always display the resultant \fBdate\fP, and if the
+\fBhighlight\fP resource is \fBTrue\fP, it will be highlighted.
+.LP
+If \fIshow\fP is \fBFalse\fP, the \fBmonth\fP the calendar is currently
+displaying will be unaffected.  However, because the \fBdate\fP has changed,
+the highlighted day could visibly move, disappear into another month, or
+appear in the current month, depending on what \fBmonth\fP the calendar widget
+is currently displaying.
+.NH 3
+Other Ways to Change the Calendar Widget's Month
+.LP
+To increment or decrement the \fBmonth\fP of a calendar widget by a month or a
+year use the following functions:
+.FD 0
+void CalendarIncMonth(\fIwidget\fP)
+void CalendarDecMonth(\fIwidget\fP)
+void CalendarIncYear(\fIwidget\fP)
+void CalendarDecYear(\fIwidget\fP)
+.br
+      CalendarWidget \fIwidget\fP;
+.FN
+.IP \fIwidget\fP 1i
+Specifies the calendar widget.
+.LP
+The calendar widget's \fBdate\fP is unaffected by these functions.
+.NH 3
+Getting Today's Date
+.LP
+.FD 0
+Date GetTodaysDate()
+.br
+.FN
+Most applications are going to need this, so it has been provided.
+.NH 3
+Getting the Calendar Widget's date in a Pretty Format
+.LP
+.FD 0
+char * CalendarPrettyDate(\fIwidget\fP)
+.br
+      CalendarWidget \fIwidget\fP;
+.FN
+.IP \fIwidget\fP 1i
+Specifies the calendar widget.
+.LP
+This function returns a string like "Sat September 17, 1966" based on the
+current \fBdate\fP of the specified calendar widget.  The weekday and month
+text will be gotten from the string tables specified for the
+\fBweekdayNames\fP and \fBmonthNames\fP resources.
+.LP
+.NH 3
+To convert a string to a Date structure
+.FD 0
+Date DateConverter(\fIwidget\fP, \fIstring\fP)
+.br
+      CalendarWidget \fIwidget\fP;
+      char * \fIstring\fP;
+.FN
+.IP \fIwidget\fP 1i
+Specifies the calendar widget whose \fBmonthNames\fP resource will be used to
+convert any month name in the specified \fIstring\fP into an integer in the
+month field of the returned Date structure.
+.IP \fIstring\fP 1i
+Specifies the string to be converted.
+.LP
+Several date formats are accepted.  If the \fIstring\fP specified does not
+correspond to a valid date, then the Date structure returned will have zero
+for the month, day, and year fields.  Remember that only a month and a year
+are required to specify a unique month.  As an extension, if only a year is
+specified, a Date will be returned corresponding to January of that year.
+.NH 2
+Copyright
+.LP
+Copyright (c) 1994  Harris Computer Systems Division
+.LP
+The X Consortium, and any party obtaining a copy of these files from the X
+Consortium, directly or indirectly, is granted, free of charge, a full and
+unrestricted irrevocable, world-wide, paid up, royalty-free, nonexclusive
+right and license to deal in this software and documentation files (the
+"Software"), including without limitation the rights to use, copy, modify,
+merge, publish, distribute, sublicense, and/or sell copies of the Software,
+and to permit persons who receive copies from any such party to do so.
+This license includes without limitation a license to do the foregoing
+actions under any patents of the party supplying this software to the X
+Consortium.
+.LP
+BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY FOR
+THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN
+OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
+PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED
+OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS
+TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE
+PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING,
+REPAIR OR CORRECTION.
+.LP
+IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING WILL
+ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR REDISTRIBUTE
+THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY
+GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE
+USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF
+DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD
+PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
+EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
+.NH 2
+Author
+.LP
+.nf
+Jason Baietto
+Jason.Baietto@mail.csd.harris.com

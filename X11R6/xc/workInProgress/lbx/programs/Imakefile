@@ -1,0 +1,8 @@
+XCOMM $XConsortium: Imakefile,v 1.1 94/04/13 18:06:27 rws Exp $
+#define IHaveSubdirs
+#define PassCDebugFlags CDEBUGFLAGS="$(CDEBUGFLAGS)"
+
+SUBDIRS = Xserver lbxproxy
+
+MakeSubdirs($(SUBDIRS))
+DependSubdirs($(SUBDIRS))

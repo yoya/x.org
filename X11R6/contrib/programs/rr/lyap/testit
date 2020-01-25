@@ -1,0 +1,69 @@
+#! /bin/sh
+# Test Harness for Lyapunov Space Exploring Program
+
+S=4
+D=8
+W=128
+H=120
+V=$1
+
+[ "$V" = "demo" ] && {
+	S=40
+	D=80
+	W=350
+	H=300
+}
+
+[ "$V" = "vista" ] &&
+	echo "vista:hits 1.3" >> hits
+
+# testing function
+test_case() 
+{
+
+    [ "$V" = "vista" ] && echo partition "$1" >> hits
+
+    if [ "$V" = "demo" ] ; then
+        $1
+    else
+        $1 > /dev/null 2>&1
+    fi
+    if [ $? = 0 ] ; then
+	[ "$V" = "demo" ] || echo $1 : PASS
+    else
+	[ "$V" = "demo" ] || echo $1 : FAIL
+    fi
+}
+
+[ "$V" = "demo" ] || {
+	echo ""
+	echo "	Running Suite of Test Cases for Lyap"
+	echo ""
+}
+
+[ "$V" = "demo" ] || {
+	echo "Usage message should report as test FAIL"
+	test_case "./lyap -u -d -S $S -D $D -W $W -H $H"
+	echo ""
+}
+
+test_case "./lyap -d -S $S -D $D -W $W -H $H"
+test_case "./lyap -d -f aaaaaabbbbbb -S $S -D $D -W $W -H $H"
+test_case "./lyap -d -f aaaaaabbbbbb -F 000000111111 -S $S -D $D -W $W -H $H"
+test_case "./lyap -d -f abbabaab -m 1 -S $S -D $D -W $W -H $H"
+test_case "./lyap -d -m 2 -S $S -D $D -W $W -H $H"
+test_case "./lyap -d -m 3 -S $S -D $D -W $W -H $H"
+test_case "./lyap -d -m 4 -S $S -D $D -W $W -H $H"
+
+[ "$V" = "demo" ] || {
+	echo ""
+	echo "Map index too high should report as test FAIL"
+	test_case "./lyap -d -m 5 -S $S -D $D -W $W -H $H"
+	echo ""
+	echo "	Test Cases Complete "
+	echo ""
+}
+
+[ "$V" = "vista" ] &&
+	echo "  Run ViSTA Reports MetGen, AudGen & CovGen"
+echo ""

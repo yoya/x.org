@@ -1,0 +1,4 @@
+! $XConsortium: Xmessage.ad,v 1.2 94/04/11 14:44:01 gildea Exp $
+*baseTranslations: 		#override :<Key>Return: default-exit()
+*Command.shapeStyle:		oval
+*Command.highlightThickness:	1

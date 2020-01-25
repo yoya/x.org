@@ -1,0 +1,41 @@
+
+      XANCURDIR = $(LIBDIR)/xancur
+        THISDIR = terra
+        THATDIR = $(XANCURDIR)/$(THISDIR)
+
+MakeDirectories(install,$(THATDIR))
+
+InstallNonExec(Script,$(THATDIR))
+
+InstallNonExec(terramsk.xbm,$(THATDIR))
+InstallNonExec(terra-00.xbm,$(THATDIR))
+InstallNonExec(terra-01.xbm,$(THATDIR))
+InstallNonExec(terra-02.xbm,$(THATDIR))
+InstallNonExec(terra-03.xbm,$(THATDIR))
+InstallNonExec(terra-04.xbm,$(THATDIR))
+InstallNonExec(terra-05.xbm,$(THATDIR))
+InstallNonExec(terra-06.xbm,$(THATDIR))
+InstallNonExec(terra-07.xbm,$(THATDIR))
+InstallNonExec(terra-08.xbm,$(THATDIR))
+InstallNonExec(terra-09.xbm,$(THATDIR))
+InstallNonExec(terra-10.xbm,$(THATDIR))
+InstallNonExec(terra-11.xbm,$(THATDIR))
+InstallNonExec(terra-12.xbm,$(THATDIR))
+InstallNonExec(terra-13.xbm,$(THATDIR))
+InstallNonExec(terra-14.xbm,$(THATDIR))
+InstallNonExec(terra-15.xbm,$(THATDIR))
+InstallNonExec(terra-16.xbm,$(THATDIR))
+InstallNonExec(terra-17.xbm,$(THATDIR))
+InstallNonExec(terra-18.xbm,$(THATDIR))
+InstallNonExec(terra-19.xbm,$(THATDIR))
+InstallNonExec(terra-20.xbm,$(THATDIR))
+InstallNonExec(terra-21.xbm,$(THATDIR))
+InstallNonExec(terra-22.xbm,$(THATDIR))
+InstallNonExec(terra-23.xbm,$(THATDIR))
+InstallNonExec(terra-24.xbm,$(THATDIR))
+InstallNonExec(terra-25.xbm,$(THATDIR))
+InstallNonExec(terra-26.xbm,$(THATDIR))
+InstallNonExec(terra-27.xbm,$(THATDIR))
+InstallNonExec(terra-28.xbm,$(THATDIR))
+InstallNonExec(terra-29.xbm,$(THATDIR))
+

@@ -1,0 +1,210 @@
+This patch file makes some changes to existing X11R6/xc files
+(mainly Imakefiles, but also programs/Xserver/os/connection.c)
+to install the XTrap extension.
+
+Add BuildXtrap in the config/{site,host}.def files to enable these changes.
+
+To apply this patch:
+
+cd to the top of the source tree (to the directory containing the "xc"
+and "contrib" subdirectories) and do:
+	patch -p -s < ThisFile
+
+--Robert
+
+==============================================================================
+Robert Chesler		rob@chesler.absol.com			(603) 882-2765
+Software Consultant	     UNIX X Mosaic XTrap xrc RealTimeX CSLIP PPP Annex
+
+*** /X11R6-dist/xc/programs/Xserver/Xext/Imakefile	Fri Apr  8 17:47:24 1994
+--- xc/programs/Xserver/Xext/Imakefile	Wed May  4 22:06:26 1994
+***************
+*** 5,16 ****
+    SHMSRCS = shm.c
+    SHMOBJS = shm.o
+  #endif
+!        SRCS = shape.c $(SHMSRCS) mbuf.c mbufpx.c mbufbf.c	\
+                mitmisc.c xtest.c xtest1di.c xtest1dd.c sleepuntil.c	\
+! 	      bigreq.c sync.c xcmisc.c
+!        OBJS = shape.o $(SHMOBJS) mbuf.o mbufpx.o mbufbf.o	\
+                mitmisc.o xtest.o xtest1di.o xtest1dd.o sleepuntil.o	\
+!               bigreq.o sync.o xcmisc.o
+     INCLUDES = -I../include -I$(INCLUDESRC) -I$(EXTINCSRC)
+     LINTLIBS = ../dix/llib-ldix.ln ../os/llib-los.ln
+  
+--- 5,24 ----
+    SHMSRCS = shm.c
+    SHMOBJS = shm.o
+  #endif
+! #if BuildXtrap
+!   XTRAPSRCS = xtrapddmi.c xtrapdi.c xtrapdiswp.c xtrapditbl.c
+!   XTRAPOBJS = xtrapddmi.o xtrapdi.o xtrapdiswp.o xtrapditbl.o
+! #endif
+! #if Record
+!   RECORDSRCS = record.c
+!   RECORDOBJS = record.o
+! #endif
+!        SRCS = shape.c $(SHMSRCS) $(XTRAPSRCS) mbuf.c mbufpx.c mbufbf.c	\
+                mitmisc.c xtest.c xtest1di.c xtest1dd.c sleepuntil.c	\
+! 	      bigreq.c sync.c xcmisc.c $(RECORDSRCS)
+!        OBJS = shape.o $(SHMOBJS) $(XTRAPOBJS) mbuf.o mbufpx.o mbufbf.o	\
+                mitmisc.o xtest.o xtest1di.o xtest1dd.o sleepuntil.o	\
+!               bigreq.o sync.o xcmisc.o $(RECORDOBJS)
+     INCLUDES = -I../include -I$(INCLUDESRC) -I$(EXTINCSRC)
+     LINTLIBS = ../dix/llib-ldix.ln ../os/llib-los.ln
+  
+*** /X11R6-dist/xc/programs/Xserver/mi/Imakefile	Tue Feb 22 08:51:43 1994
+--- xc/programs/Xserver/mi/Imakefile	Fri May  6 15:05:41 1994
+***************
+*** 21,27 ****
+  	midash.o mibstore.o miinitext.o mieq.o \
+  	mipointer.o misprite.o midispcur.o miscrinit.o miclipn.o migc.o
+  
+! EXT_DEFINES = ExtensionDefines
+  
+  INCLUDES = -I. -I../include -I$(INCLUDESRC) -I$(FONTINCSRC)
+  LINTLIBS = ../dix/llib-ldix.ln ../os/llib-los.ln
+--- 21,31 ----
+  	midash.o mibstore.o miinitext.o mieq.o \
+  	mipointer.o misprite.o midispcur.o miscrinit.o miclipn.o migc.o
+  
+! #if BuildXtrap
+! EXT_DEFINES = ExtensionDefines -DXTRAP -DXRECORD
+! #else
+! EXT_DEFINES = ExtensionDefines -DXRECORD
+! #endif
+  
+  INCLUDES = -I. -I../include -I$(INCLUDESRC) -I$(FONTINCSRC)
+  LINTLIBS = ../dix/llib-ldix.ln ../os/llib-los.ln
+*** /X11R6-dist/xc/programs/Xserver/os/connection.c	Sun Apr 17 20:26:56 1994
+--- xc/programs/Xserver/os/connection.c	Sun May  1 01:37:58 1994
+***************
+*** 912,917 ****
+--- 912,950 ----
+      BITCLEAR(AllSockets, fd);
+  }
+  
++ /* for new version of XTrap */
++ void
++ AlsoListenToClient(client)
++     ClientPtr client;
++ {
++     if (client && GrabInProgress && (GrabInProgress != client->index))
++     {
++ 	OsCommPtr oc = (OsCommPtr)client->osPrivate;
++ 	int connection = oc->fd;
++ 	BITSET(AllClients, connection);
++ 	BITSET(AllSockets, connection);
++ 	BITSET(LastSelectMask, connection);
++ 	if (GETBIT(SavedClientsWithInput, connection))
++ 	    BITSET(ClientsWithInput, connection);
++     }
++ }
++ 
++ /* for new version of XTrap */
++ void
++ AlsoUnListenToClient(client)
++     ClientPtr client;
++ {
++     if (client && GrabInProgress && (GrabInProgress != client->index))
++     {
++ 	OsCommPtr oc = (OsCommPtr)client->osPrivate;
++ 	int connection = oc->fd;
++ 	BITCLEAR(AllClients, connection);
++ 	BITCLEAR(AllSockets, connection);
++ 	BITCLEAR(LastSelectMask, connection);
++ 	BITCLEAR(ClientsWithInput, connection);
++     }
++ }
++ 
+  /*****************
+   * OnlyListenToOneClient:
+   *    Only accept requests from  one client.  Continue to handle new
+*** /X11R6-dist/xc/programs/Imakefile	Thu Apr  7 15:10:14 1994
+--- xc/programs/Imakefile	Thu May  5 01:25:40 1994
+***************
+*** 4,9 ****
+--- 4,13 ----
+  
+  #ifndef Win32Architecture
+  
++ #if BuildXtrap
++ XTRAPDIRS = xtrap
++ #endif
++ 
+  #if HasXServer
+  XINIDIR = xinit
+  #endif
+***************
+*** 24,30 ****
+  	xcmsdb xconsole xdm xdpyinfo xfd $(XFSDIR) xhost xieperf \
+  	$(XINIDIR) $(XKBCOMP) xkill xlogo xlsatoms xlsclients xlsfonts \
+  	xmag xmh xmodmap xprop xrdb xrefresh xset xsetroot xstdcmap xterm \
+! 	xwd xwininfo xwud $(XSDIR) scripts
+  
+  #else
+  
+--- 28,34 ----
+  	xcmsdb xconsole xdm xdpyinfo xfd $(XFSDIR) xhost xieperf \
+  	$(XINIDIR) $(XKBCOMP) xkill xlogo xlsatoms xlsclients xlsfonts \
+  	xmag xmh xmodmap xprop xrdb xrefresh xset xsetroot xstdcmap xterm \
+! 	xwd xwininfo xwud $(XSDIR) scripts $(XTRAPDIRS)
+  
+  #else
+  
+***************
+*** 34,40 ****
+  	xcmsdb xdpyinfo xfd $(XFSDIR) \
+  	xieperf xkill xlogo xlsatoms xlsclients xlsfonts \
+  	xmag xmodmap xprop xrdb xrefresh xset xsetroot xstdcmap \
+! 	xwd xwininfo xwud
+  
+  #endif
+  
+--- 38,44 ----
+  	xcmsdb xdpyinfo xfd $(XFSDIR) \
+  	xieperf xkill xlogo xlsatoms xlsclients xlsfonts \
+  	xmag xmodmap xprop xrdb xrefresh xset xsetroot xstdcmap \
+! 	xwd xwininfo xwud $(XTRAPDIRS)
+  
+  #endif
+  
+*** /X11R6-dist/xc/lib/Imakefile	Thu Apr  7 15:02:07 1994
+--- xc/lib/Imakefile	Thu May  5 02:06:07 1994
+***************
+*** 11,17 ****
+  #endif
+  
+  LINTSUBDIRS = Xau Xdmcp X11 oldX ICE SM Xext Xt Xmu Xaw XIE Xi \
+! 	      Xtst FS PEX5
+  
+  SUBDIRS = $(BERKDIR) xtrans $(LINTSUBDIRS) font
+  
+--- 11,17 ----
+  #endif
+  
+  LINTSUBDIRS = Xau Xdmcp X11 oldX ICE SM Xext Xt Xmu Xaw XIE Xi \
+! 	      Xtst FS PEX5 Xtrap
+  
+  SUBDIRS = $(BERKDIR) xtrans $(LINTSUBDIRS) font
+  
+*** /X11R6-dist/xc/include/extensions/Imakefile	Thu Apr  7 15:03:20 1994
+--- xc/include/extensions/Imakefile	Thu Jun  2 17:57:57 1994
+***************
+*** 2,8 ****
+  
+  HEADERS = Xext.h multibuf.h shape.h XShm.h MITMisc.h XI.h XInput.h XIproto.h \
+  	XTest.h xtestext1.h XIE.h XIEproto.h XIEprotost.h \
+! 	sync.h XKB.h XKBproto.h XKBstr.h
+  
+  all::
+  
+--- 2,9 ----
+  
+  HEADERS = Xext.h multibuf.h shape.h XShm.h MITMisc.h XI.h XInput.h XIproto.h \
+  	XTest.h xtestext1.h XIE.h XIEproto.h XIEprotost.h \
+! 	sync.h XKB.h XKBproto.h XKBstr.h \
+! 	bits.h xemacros.h xtrapdi.h xtraplib.h xtraplibp.h
+  
+  all::
+  

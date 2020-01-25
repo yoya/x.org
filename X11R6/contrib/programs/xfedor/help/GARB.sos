@@ -1,0 +1,11 @@
+The garbage window has 8 cells numbered from 0 to 7.
+Mouse is used to change the current cell (press in the cell drawing area).
+
+PUT       : transfert from edit window to this garbage cell (number shown).
+GET       : transfert from the current garbage cell to the edit window.
+RASTER    : logical operation between the current edited character and
+            the current garbage cell. The result replaces the edited one
+            and you can use UNDO if you want.
+            There are only three modes : OR, AND, XOR.
+RAZGARB   : After a confirmation Popup, delete all the cells.
+

@@ -1,0 +1,218 @@
+.TH XCMDMENU 1.6 "31 May 1994" "X11R6" "Talisman User Commands"
+.ds p xcmdmenu
+.ds c .\*p
+.ds C <X11LibDir>/\*p.cfg
+.SH NAME
+xcmdmenu \- command menu utility for X
+.SH SYNOPSIS
+.B \*p
+[\-help]
+[\-debug]
+[\-ghost|\-noghost]
+[\-boxed|\-paned]
+[\-oneshot|\-persist]
+[\fIfilename\fP]
+.SH DESCRIPTION
+The
+.I \*p
+program allows the user to run a user-configured command menu on a
+workstation display running X.
+Each \*p is composed of buttons, each of which may be configured to
+run a shell command using the Bourne shell sh(1).
+Buttons without associated commands are merely used as labels.
+.SH OPTIONS
+.PP
+The various options may appear in any order:
+.IP \fIfilename\f"
+A file containing the label/command pairs and comments
+used to configure an invocation of \*p.  Defaults to \*c in the current
+directory or ~/\*c in the home directory if \*c is unavailable, or the
+\*C file if neither is available.
+.IP \fB-help\fP
+Print a usage message and exit.
+.IP \fB-ghost\fP
+Allow each button to be activated only once, whereafter that button will
+be \fIghosted\fP to indicate that it is no longer valid.
+.IP \fB-noghost\fP
+Don't use ghosting, instead allow multiple use of all command buttons
+(the default).
+.IP \fB-boxed\fP
+Use the boxedWidget to manage the buttons.  This causes the
+buttons to appear in a tray-style arrangement.
+.IP \fB-paned\fP
+Use the panedWidget to manage the buttons (the default).  This
+causes the buttons to appear in a single column.
+.IP \fB-oneshot\fP
+The menu will exit after the first button is activated and its
+command, if any, completed.
+.IP \fB-persist\fP
+Don't use oneshot, that is, the menu persists until explicitly
+exited (the default).
+.PP
+\*p will also accept the standard X Toolkit options; see the
+.B xterm(1)
+manual page, subsection
+.B RESOURCES.
+.SH USAGE
+.PP
+The \*p has been used to ease project management, to pop up automatically
+generated menus, and to handle menu hierarchies.  It is characterized by
+small, project- and directory-specific menus, generally run at need rather
+than from
+.B xinit(1)
+or the like.
+.PP
+Output from a particular invocation of \*p will generally show up in the
+.B xterm(1)
+from which it was invoked.  Hence the parent terminal is often used as
+a display window for
+.B ls(1)
+and
+.B make(1)
+output.
+.PP
+The configuration file is composed of labels and commands in parentheses,
+and comments (any not in parentheses).  Nesting of parentheses is observed
+unless a parenthesis is escaped with a backslash, which itself may be so
+escaped (see \fBSCRIPTS\fP).
+.PP
+All text outside of parentheses is ignored.
+.PP
+Parenthesized strings are automatically paired, ignoring newlines.  Any
+.I label
+associated with an empty
+.I command
+string is considered to be a text button rather than a title button,
+and is automatically ghosted.  \fILabel\fPs may also be empty strings,
+and will produce blank text boxes in the resulting menu.
+.SH EXAMPLES
+.PP
+To use the underlying X Toolkit options to select a particular font:
+.IP
+\*p -fn '*sony*24*'
+.PP
+Another example using explicit resources:
+.IP
+\*p -xrm '*font: *sony*24*'
+.PP
+To get the same effect through an
+.B "X RESOURCES"
+file, include the following line in your resources file:
+.IP
+\*p*font: *sony*24*
+.SH SCRIPTS
+.PP
+A project menu:
+.IP
+.nf
+    Label   Command
+
+(Title)         ()
+( ( \\) ) )      ()     a test label showing parens
+()              ()
+(Clear)         (clear &)
+(Make)          (make &)
+(Edit File)     (${EDITOR} `ifc .` &)   InterViews only
+(Run a.out)     (a.out &)               execute
+(List)          (echo listing ; ls -Flasg &)
+(Du)            (du . &)
+(Update Menu)   (xcmdmenu -debug &)
+(Time Test)     (sleep 5)
+.fi
+.PP
+Generating an audio menu on a Sun SPARC in csh(1):
+.IP
+.nf
+rm \*c
+foreach file ( *.au )
+    echo -n "(`expr $file : '\\(.*\\).au'`)" >> \*c
+    echo    "(cat $file > /dev/audio)"     >> \*c
+end
+\*p -boxed &
+.fi
+.PP
+Generating an audio menu on a Sun SPARC in sh(1):
+.IP
+.nf
+for file in *.au
+do
+    echo -n "(`expr $file : '\\(.*\\).au'`)"
+    echo    "(cat $file > /dev/audio)"
+done > \*c
+\*p -boxed &
+.fi
+.SH "X RESOURCES"
+.PP
+\*p uses the following X resources:
+.PP
+.TP 14
+.B paned (class Paned)
+Indicates whether to use the \fBpanedWidget\fP.   Defaults to \fBtrue\fP.
+If \fBfalse\fP, the \fBboxedWidget\fP is used instead.
+.PP
+.TP 14
+.B ghost (class Ghost)
+Indicates whether buttons are to be ghosted after selection.
+Defaults to \fBfalse\fP. 
+.PP
+.TP 14
+.B debug (class Debug)
+Whether or not to do debugging.  Defaults to \fBfalse\fP.
+.PP
+.TP 14
+.B oneshot (class Oneshot)
+Determines whether the menu exits after first button activation.
+Defaults to \fBfalse\fP. 
+.PP
+\*p also uses the resources of its subwidgets, including the
+.BR commandWidget,
+.BR panedWidget,
+.BR boxWidget,
+and
+.BR textWidget.
+.SH FILES
+.PD 0
+.TP 20
+.B \*c
+The usual configuration file (in the current dir) for an invocation of \*p.
+.TP
+.B ~/\*c
+User-specific configuration file to be read by \*p when a directory-specific
+configuration file is not available.
+.TP
+.B \*C
+Default configuration file to be read by \*p when no other appropriate
+file is available.
+.PD
+.SH "SEE ALSO"
+.BR X(1),
+.BR xinit(1),
+.BR sh(1),
+.BR system(3)
+.SH BUGS
+Probably.
+.SH COPYRIGHT
+.IP "Copyright (c) 1993, 1994 Christopher Alexander North-Keys"
+.PP
+The X Consortium, and any party obtaining a copy of these files from
+the X Consortium, directly or indirectly, is granted, free of charge, a
+full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+nonexclusive right and license to deal in this software and
+documentation files (the "Software"), including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons who receive
+copies from any such party to do so.  This license includes without
+limitation a license to do the foregoing actions under any patents of
+the party supplying this software to the X Consortium.
+.SH AUTHOR
+Christopher Alexander North-Keys
+.br
+<erlkonig@gnu.ai.mit.edu>
+.PP
+Director/Instructor of OS and Software Design
+.br
+RDA Computer Training
+.br
+.SH NOTES
+The \*p program was produced under the auspices of Group Talisman
+.br

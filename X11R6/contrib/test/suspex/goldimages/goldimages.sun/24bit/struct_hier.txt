@@ -1,0 +1,74 @@
+descentants from picture - PEXTopPart, depth = 0
+numPaths= 3
+num elements= 3
+  [3 1]
+  [2 2]
+  [1 0]
+num elements= 3
+  [3 1]
+  [2 4]
+  [1 0]
+num elements= 2
+  [3 3]
+  [1 0]
+descentants from picture - PEXTopPart, depth = 1
+numPaths= 2
+num elements= 1
+  [3 1]
+num elements= 1
+  [3 3]
+descentants from picture - PEXBottomPart, depth = 1
+numPaths= 1
+num elements= 1
+  [1 0]
+ancestors of nothing - PEXTopPart, depth = 0
+numPaths= 1
+num elements= 1
+  [0 0]
+ancestors of line - PEXTopPart, depth = 0
+numPaths= 4
+num elements= 2
+  [4 1]
+  [1 0]
+num elements= 3
+  [3 1]
+  [2 2]
+  [1 0]
+num elements= 3
+  [3 1]
+  [2 4]
+  [1 0]
+num elements= 2
+  [3 3]
+  [1 0]
+ancestors of line - PEXTopPart, depth = 1
+numPaths= 3
+num elements= 1
+  [4 1]
+num elements= 1
+  [3 1]
+num elements= 1
+  [3 3]
+ancestors of line - PEXBottomPart, depth = 2
+numPaths= 4
+num elements= 2
+  [4 1]
+  [1 0]
+num elements= 2
+  [2 2]
+  [1 0]
+num elements= 2
+  [2 4]
+  [1 0]
+num elements= 2
+  [3 3]
+  [1 0]
+all structures reference of picture
+numStruct= 3
+  3
+  2
+  1
+orphan structures reference of picture
+numStruct= 2
+  3
+  2

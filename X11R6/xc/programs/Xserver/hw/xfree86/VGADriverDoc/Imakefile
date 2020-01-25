@@ -1,0 +1,14 @@
+XCOMM $XConsortium: Imakefile,v 1.3 95/01/06 20:56:44 kaleb Exp $
+XCOMM $XFree86: xc/programs/Xserver/hw/xfree86/VGADriverDoc/Imakefile,v 3.2 1994/12/26 01:08:43 dawes Exp $
+
+all::
+
+#if !HasLinuxDoc
+InstallLinkKitNonExecFile(VGADriver.Doc,$(LINKKITDIR)/VGADriverDoc)
+InstallLinkKitNonExecFile(VGADriver.Doc,$(XFREE86DOCDIR))
+#endif
+InstallLinkKitNonExecFile(Imakefile.stub,$(LINKKITDIR)/VGADriverDoc)
+InstallLinkKitNonExecFile(stub_driver.c,$(LINKKITDIR)/VGADriverDoc)
+InstallLinkKitNonExecFile(stub_bank.s,$(LINKKITDIR)/VGADriverDoc)
+
+DependTarget()

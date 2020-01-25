@@ -1,0 +1,212 @@
+#!/bin/sh
+#
+#	File: chromatic.xcms
+#
+#	RGBi color model
+#
+#	Christopher Alexander North-Keys
+#	Group Talisman
+#	Thu Jul  8 03:51:28 CDT 1993 (begun)
+#		24 hues, 12 unique color basenames, auto-greying
+#	Tue Aug 24 02:00:21 CDT 1993
+#       72 hues, 24 unique color basenames, auto-grey, auto-light
+#		vast speed improvement
+#
+
+#	TODO:
+#
+#	naming should be such that grepping can easily produce all
+#	non-greyed's            - egrep -v for '(grey|mist|mute|dull)$'
+#	non-lightness-altered.  - grep for '-pure'
+#	unaltered               - grep for '-pure$'
+
+#	This traces paths from cone-tip to cone-tip, along 24 different points
+#	along the central disk's circumference
+#
+#	now subpaths are needed deeper (greyer) inside the cones.
+
+vary ()	#	name Rcol Gcol Bcol -- (triangle betwixt white, black, and hue)
+{
+	#	1		2		3		4		5		6
+	awk '
+		BEGIN \
+		{
+			Delimiter = "/"
+			White = 1 ; Black = 0 ;
+			i = 0     ; Ln[i] = "full"		# base case
+			i = i + 1 ; Ln[i] = "soft"
+			i = i + 1 ; Ln[i] = "softer"
+			i = i + 1 ; Ln[i] = "softest"
+			i = i + 1 ; Ln[i] = "light"
+			i = i + 1 ; Ln[i] = "lighter"
+			i = i + 1 ; Ln[i] = "lightest"
+			i = i + 1 ; Ln[i] = "weak"
+			i = i + 1 ; Ln[i] = "weaker"
+			i = i + 1 ; Ln[i] = "weakest"
+			WhiteLevels = i
+			i = 0                     		# base case same as for Light
+			i = i - 1 ; Ln[i] = "deep"
+			i = i - 1 ; Ln[i] = "deeper"
+			i = i - 1 ; Ln[i] = "deepest"
+			i = i - 1 ; Ln[i] = "dark"
+			i = i - 1 ; Ln[i] = "darker"
+			i = i - 1 ; Ln[i] = "darkest"
+			i = i - 1 ; Ln[i] = "dim"
+			i = i - 1 ; Ln[i] = "dimmer"
+			i = i - 1 ; Ln[i] = "dimmest"
+			i = i - 1 ; Ln[i] = "grim"
+			i = i - 1 ; Ln[i] = "grimmer"
+			i = i - 1 ; Ln[i] = "grimmest"
+			BlackLevels = 0 - i;
+			i = 0     ; Sn[0] = "pure"		# base case
+			i = i + 1 ; Sn[i] = "dull"
+			i = i + 1 ; Sn[i] = "mute"
+			i = i + 1 ; Sn[i] = "mist"
+			i = i + 1 ; Sn[i] = "grey"
+			GreyLevels = i ;
+		}
+		{
+			base = $1 ; R = $2 ; G = $3 ; B = $4 ;
+
+			printf("%-s\t\t\t\trgbi:%4.2f/%4.2f/%4.2f\n", base, R, G, B);
+
+			for (S = 0 ; S <= GreyLevels ; S += 1)
+			{
+				Grey = ( 0 + R + G + B ) / 3 ;
+				P = 1 + GreyLevels - S;	# purity bias
+				printf("%-s%s%-s\t\t\trgbi:%4.2f/%4.2f/%4.2f\n", \
+					base, Delimiter, Sn[S], \
+					(P * R + S * Grey) / (1 + GreyLevels), \
+					(P * G + S * Grey) / (1 + GreyLevels), \
+					(P * B + S * Grey) / (1 + GreyLevels) \
+					);
+			}
+
+			for (L = 0 - BlackLevels ; L <= WhiteLevels ; L += 1)
+			{
+				#	C varies from (L=+/-1) *Levels to (L=*Levels) 1
+				#	so, while L diverges from 0, C converges on 1
+				if (L > 0)
+				{
+					C = 1 + WhiteLevels - L;	# color bias
+					Lr = (C * R + L * White) / (1 + WhiteLevels);
+					Lg = (C * G + L * White) / (1 + WhiteLevels);
+					Lb = (C * B + L * White) / (1 + WhiteLevels);
+				}
+				if (L < 0)
+				{
+					C = 1 + BlackLevels + L;	# color bias
+					Lr = (C * R - L * Black) / (1 + BlackLevels);
+					Lg = (C * G - L * Black) / (1 + BlackLevels);
+					Lb = (C * B - L * Black) / (1 + BlackLevels);
+				}
+				if (L == 0)
+				{
+					Lr = R ; Lg = G ; Lb = B;
+				}
+				printf("%-s%s%-s\t\t\trgbi:%4.2f/%4.2f/%4.2f\n", \
+					base, Delimiter, Ln[L], Lr, Lg, Lb);
+
+				for (S = 0 ; S <= GreyLevels ; S += 1)
+				{
+					Grey = ( 0 + Lr + Lg + Lb ) / 3 ;
+					P = 1 + GreyLevels - S;	# purity bias
+					printf("%-s%s%-s%s%-s\t\trgbi:%4.2f/%4.2f/%4.2f\n", \
+						base, Delimiter, Ln[L], Delimiter, Sn[S], \
+						(P * Lr + S * Grey) / (1 + GreyLevels), \
+						(P * Lg + S * Grey) / (1 + GreyLevels), \
+						(P * Lb + S * Grey) / (1 + GreyLevels) \
+						);
+				}
+			}
+		}
+	'
+}
+
+#----------------------------------------------------------------------Hues.
+
+# spring, lime, and bluegrass are a bit arbitrary, level 5 derivation by 3rds.
+
+#	color	intermediates			R	G	B			primary, etc.
+#
+
+d=- # delimiter
+
+cat <<... | vary
+	red								1	0	0			# 1
+			red${d}tangerine		1	.08	0			#     5
+			tangerine${d}red		1	.16	0			#     5
+	tangerine						1	.25	0			#    4
+			tangerine${d}orange		1	.33	0			#     5
+			orange${d}tangerine		1	.41	0			#     5
+	orange							1	.50	0			#   3
+			orange${d}goldenrod		1	.58	0			#     5
+			goldenrod${d}orange		1	.66	0			#     5
+	goldenrod						1	.75	0			#    4
+			goldenrod${d}yellow		1	.83	0			#     5
+			yellow${d}goldenrod		1	.91	0			#     5
+	yellow							1	1	0			#  2
+			yellow${d}chartreuse	.91	1	0			#     5
+			chartreuse${d}yellow	.83	1	0			#     5
+	chartreuse						.75	1	0			#    4
+			chartreuse${d}spring	.66	1	0			#     5
+			spring${d}chartreuse	.58	1	0			#     5
+	spring							.50	1	0			#   3
+			spring${d}lime			.41	1	0			#     5
+			lime${d}spring			.33	1	0			#     5
+	lime							.25	1	0			#    4
+			lime${d}green			.16	1	0			#     5
+			green${d}lime			.08	1	0			#     5
+	green							0	1	0			# 1
+			green${d}bluegrass		0	1	.08			#     5
+			bluegrass${d}green		0	1	.16			#     5
+	bluegrass						0	1	.25			#    4
+			bluegrass${d}sea		0	1	.33			#     5
+			sea${d}bluegrass		0	1	.41			#     5
+	sea								0	1	.50			#   3
+			sea${d}aquamarine		0	1	.58			#     5
+			aquamarine${d}sea		0	1	.66			#     5
+	aquamarine						0	1	.75			#    4
+			aquamarine${d}cyan		0	1	.83			#     5
+			cyan${d}aquamarine		0	1	.91			#     5
+	cyan							0	1	1			#  2
+			cyan${d}sky				0	.91	1			#     5
+			sky${d}cyan				0	.83	1			#     5
+	sky								0	.75	1			#    4
+			sky${d}torquoise		0	.66	1			#     5
+			torquoise${d}sky		0	.58	1			#     5
+	torquoise						0	.50	1			#   3
+			torquoise${d}azure		0	.41	1			#     5
+			azure${d}torquoise		0	.33	1			#     5
+	azure							0	.25	1			#    4
+			azure${d}blue			0	.16	1			#     5
+			blue${d}azure			0	.08	1			#     5
+	blue							0	0	1			# 1
+			blue${d}thistle			.08	0	1			#     5
+			thistle${d}blue			.16	0	1			#     5
+	thistle							.25	0	1			#    4
+			thistle${d}purple		.33	0	1			#     5
+			purple${d}thistle		.41	0	1			#     5
+	purple							.50	0	1			#   3
+			purple${d}plum			.58	0	1			#     5
+			plum${d}purple			.66	0	1			#     5
+	plum							.75	0	1			#    4
+			plum${d}magenta			.83	0	1			#     5
+			magenta${d}plum			.91	0	1			#     5
+	magenta							1	0	1			#  2
+			magenta${d}mulberry		1	0	.91			#     5
+			mulberry${d}magenta		1	0	.83			#     5
+	mulberry						1	0	.75			#    4
+			mulberry${d}fuchsia		1	0	.66			#     5
+			fuchsia${d}mulberry		1	0	.58			#     5
+	fuchsia							1	0	.50			#   3
+			fuchsia${d}maroon		1	0	.41			#     5
+			maroon${d}fuchsia		1	0	.33			#     5
+	maroon							1	0	.25			#    4
+			maroon${d}red			1	0	.16			#     5
+			red${d}maroon			1	0	.08			#     5
+...
+
+exit $?
+
+-----------------------------------------eof

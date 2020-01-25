@@ -1,0 +1,45 @@
+// $XConsortium: mousekeys,v 1.2 94/04/08 15:54:52 erik Exp $
+xkb_compatibility "mousekeys" 
+
+// Interpretations for arrow keys and a few other common keysyms which
+// make it possible to bind "mouse" keys using xmodmap and activate
+// or deactivate them from the keyboard.
+
+ClickPointerButton.count= 2;
+
+interpret.repeat= True;
+interpret Left     { action = MovePtr(x= -1,y= 0); };
+interpret Right    { action = MovePtr(x= 1,y= 0); };
+interpret Up       { action = MovePtr(x= 0,y=-1); };
+interpret Down     { action = MovePtr(x= 0,y= 1); };
+interpret.repeat= False;
+
+interpret Pointer_Button_Dflt	{ action= PointerButton(button=default); };
+interpret Pointer_Button1	{ action= PointerButton(button=1); };
+interpret Pointer_Button2	{ action= PointerButton(button=2); };
+interpret Pointer_Button3	{ action= PointerButton(button=3); };
+interpret Pointer_DblClick_Dflt	{ action= ClickPointerButton(button=default); };
+interpret Pointer_DblClick1 	{ action= ClickPointerButton(button=1); };
+interpret Pointer_DblClick2 	{ action= ClickPointerButton(button=2); };
+interpret Pointer_DblClick3 	{ action= ClickPointerButton(button=3); };
+interpret Pointer_Drag_Dflt	{ action= LockPointerButton(button=default); };
+interpret Pointer_Drag1 	{ action= LockPointerButton(button=1); };
+interpret Pointer_Drag2 	{ action= LockPointerButton(button=2); };
+interpret Pointer_Drag3 	{ action= LockPointerButton(button=3); };
+
+interpret Pointer_EnableKeys {
+	action= LockControls(controls=MouseKeys);
+};
+interpret Pointer_Accelerate {
+	action= LockControls(controls=MouseKeysAccel);
+};
+interpret Pointer_DfltBtnNext {
+	action= SetPtrDflt(affect=defaultButton,button= +1);
+};
+interpret Pointer_DfltBtnPrev {
+	action= SetPtrDflt(affect=defaultButton,button= -1);
+};
+indicator "Mouse Keys" {
+    !allowExplicit;
+    controls= MouseKeys;
+};

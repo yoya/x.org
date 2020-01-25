@@ -1,0 +1,209 @@
+# Program:  	$RCSfile: Makefile.dist,v $  $Revision: 1.3 $
+# 
+# Purpose:  	"Makefile" of the Internet "youbin" service.
+# 
+# Author:       K.Agusa     agusa@nuie.nagoya-u.ac.jp
+#               S.Yamamoto  yamamoto@nuie.nagoya-u.ac.jp
+# 
+# Date:     	1993/07/24
+# Modified:  	$Date: 1994/06/13 12:38:52 $
+
+#
+# Directories.
+#
+
+# Directory for server.
+SERVER_BINDIR = /etc
+
+# Directory for clients.
+BINDIR = /usr/local/bin
+
+# 
+# Configurations.
+# 
+
+# Note, use reserved port for authentification.
+# SERVICE_NAME = biff
+
+# Clock tic in sec.
+UNIT_TIME = 180
+
+# Syslog. Comment following lines, if you don't want to use syslog.
+SYSLOG = -DSYSLOG
+
+# Facility of syslog. 
+# LOG_FACILITY = -DLOG_FACILITY=LOG_LOCAL0	  # Just for debug.
+
+# Uncomment following lines, if you want to use pixmap.
+# XPM_DEFS = -DUSE_XPM
+# XPM_LIBS = str_to_pixmap.o locate_pixmap.o
+# XPM_FLAGS = -lXpm -lXwchar
+
+#
+# Files.
+#
+
+TARGETS = $(SERVER) $(CLIENTS)
+SERVER = youbind
+CLIENTS = sendto xyoubin youbin
+
+OBJS = base.o client.o list.o log.o protocol.o \
+	sendto.o server.o sound.o youbin_sub.o xyoubin.o
+
+HEADERS = youbin.h server.h
+C_SRCS = base.c client.c list.c log.c protocol.c \
+	sendto.c server.c sound.c youbin_sub.c xyoubin.c 
+SRCS = $(HEADERS) $(C_SRCS)
+XPM_SRCS = xpm.h xpmP.h locate_pixmap.c str_to_pixmap.c 
+
+DOCDIR = Doc
+
+CATMANS = $(DOCDIR)/youbin.cat $(DOCDIR)/youbind.cat $(DOCDIR)/youbin_sub.cat
+MANS = $(DOCDIR)/youbin.man $(DOCDIR)/youbind.man $(DOCDIR)/youbin_sub.man 
+
+# 
+# Commands.
+# 
+
+CC = cc
+# CC = gcc
+
+CFLAGS = $(OPTIMIZE) $(DEFINITIONS) $(PB_CFLAGS)
+
+# For MIPS.
+# CFLAGS = -systype bsd43 $(OPTIMIZE) $(DEFINITIONS)
+
+OPTIMIZE = -g
+# OPTIMIZE = -O
+
+DEFINITIONS = -DBINDIR=\"$(BINDIR)\" -DUNIT_TIME=$(UNIT_TIME) \
+	$(LOG_FACILITY) $(SYSLOG) $(XPM_DEFS)
+
+LDFLAGS =
+# X_LDFLAGS = -lXaw -lXmu -lXt -lXext -lX11 -lmld
+X_LDFLAGS = -lXaw -lXmu -lXt -lXext -lX11
+
+# From ProjectBuilder on NeXT.
+PB_CFLAGS =
+
+# 
+# Debug. 
+#
+
+# BINDIR = .
+# SERVICE_NAME = youbin
+# UNIT_TIME = 5
+# CC = cc -systype bsd43		  # For MIPS.
+# LINT_FLAGS =	-abnuv -systype bsd43	  # For MIPS
+
+# 
+# Target entries.
+# 
+
+all: $(TARGETS)
+
+youbind: base.o list.o log.o protocol.o server.o
+	$(CC) $(CFLAGS) -o $@ base.o list.o log.o protocol.o server.o $(LDFLAGS)
+
+youbin: base.o client.o youbin_sub.o
+	$(CC) $(CFLAGS) -o $@ base.o client.o youbin_sub.o $(LDFLAGS)
+
+xyoubin: base.o sound.o xyoubin.o
+# This entry should be produced from Imakefile.
+	$(CC) $(CFLAGS) -o $@ base.o sound.o xyoubin.o $(LDFLAGS) $(X_LDFLAGS)
+
+install:
+	install -c -o root -g daemon $(SERVER) $(SERVER_BINDIR)
+	install -c $(CLIENTS) $(BINDIR)
+
+depend:
+	makedepend -- $(CFLAGS) -- $(SRCS) 
+
+clean:
+	rm -f *~ .*~ ,* $(TARGETS) $(OBJS)
+
+# Dependency list.
+# DO NOT DELETE THIS LINE -- make depend depends on it.
+
+youbin.o: /bsd43/usr/include/strings.h /bsd43/usr/include/bsd43/bsd43_.h
+base.o: /bsd43/usr/include/sys/types.h /bsd43/usr/include/bsd43/bsd43_.h
+base.o: /bsd43/usr/include/sys/socket.h /bsd43/usr/include/netinet/in.h
+base.o: /bsd43/usr/include/stdio.h /bsd43/usr/include/varargs.h youbin.h
+base.o: /bsd43/usr/include/strings.h
+client.o: /bsd43/usr/include/sys/param.h /bsd43/usr/include/bsd43/bsd43_.h
+client.o: /bsd43/usr/include/bsd43/machine/machparam.h
+client.o: /bsd43/usr/include/bsd43/signal.h
+client.o: /bsd43/usr/include/bsd43/sys/types.h
+client.o: /bsd43/usr/include/netinet/in.h /bsd43/usr/include/errno.h
+client.o: /bsd43/usr/include/sysv/sys/errno.h /bsd43/usr/include/pwd.h
+client.o: /bsd43/usr/include/sgtty.h /bsd43/usr/include/bsd43/sys/ioctl.h
+client.o: /bsd43/usr/include/bsd43/sys/ttychars.h
+client.o: /bsd43/usr/include/bsd43/sys/ttydev.h /bsd43/usr/include/stdio.h
+client.o: /bsd43/usr/include/sys/file.h /bsd43/usr/include/bsd43/sys/fcntl.h
+client.o: youbin.h /bsd43/usr/include/strings.h
+list.o: /bsd43/usr/include/sys/param.h /bsd43/usr/include/bsd43/bsd43_.h
+list.o: /bsd43/usr/include/bsd43/machine/machparam.h
+list.o: /bsd43/usr/include/bsd43/signal.h
+list.o: /bsd43/usr/include/bsd43/sys/types.h /bsd43/usr/include/netinet/in.h
+list.o: /bsd43/usr/include/netdb.h /bsd43/usr/include/pwd.h
+list.o: /bsd43/usr/include/stdio.h youbin.h /bsd43/usr/include/strings.h
+list.o: server.h
+log.o: /bsd43/usr/include/sys/types.h /bsd43/usr/include/bsd43/bsd43_.h
+log.o: /bsd43/usr/include/sys/socket.h /bsd43/usr/include/netinet/in.h
+log.o: /bsd43/usr/include/stdio.h /bsd43/usr/include/varargs.h youbin.h
+log.o: /bsd43/usr/include/strings.h server.h /bsd43/usr/include/syslog.h
+sendto.o: /bsd43/usr/include/sys/types.h /bsd43/usr/include/bsd43/bsd43_.h
+sendto.o: /bsd43/usr/include/sys/socket.h /bsd43/usr/include/sys/param.h
+sendto.o: /bsd43/usr/include/bsd43/machine/machparam.h
+sendto.o: /bsd43/usr/include/bsd43/signal.h
+sendto.o: /bsd43/usr/include/bsd43/sys/types.h
+sendto.o: /bsd43/usr/include/netinet/in.h /bsd43/usr/include/netdb.h
+sendto.o: /bsd43/usr/include/stdio.h /bsd43/usr/include/strings.h
+server.o: /bsd43/usr/include/sys/types.h /bsd43/usr/include/bsd43/bsd43_.h
+server.o: /bsd43/usr/include/sys/param.h
+server.o: /bsd43/usr/include/bsd43/machine/machparam.h
+server.o: /bsd43/usr/include/bsd43/signal.h
+server.o: /bsd43/usr/include/bsd43/sys/types.h
+server.o: /bsd43/usr/include/sys/socket.h /bsd43/usr/include/sys/stat.h
+server.o: /bsd43/usr/include/sys/time.h /bsd43/usr/include/sys/time.h
+server.o: /bsd43/usr/include/netinet/in.h /bsd43/usr/include/errno.h
+server.o: /bsd43/usr/include/sysv/sys/errno.h /bsd43/usr/include/fcntl.h
+server.o: /bsd43/usr/include/bsd43/sys/fcntl.h /bsd43/usr/include/netdb.h
+server.o: /bsd43/usr/include/pwd.h /bsd43/usr/include/signal.h
+server.o: /bsd43/usr/include/stdio.h youbin.h /bsd43/usr/include/strings.h
+server.o: server.h
+sound.o: /bsd43/usr/include/sys/types.h /bsd43/usr/include/bsd43/bsd43_.h
+sound.o: /bsd43/usr/include/sys/stat.h /bsd43/usr/include/stdio.h
+youbin_sub.o: /bsd43/usr/include/sys/types.h
+youbin_sub.o: /bsd43/usr/include/bsd43/bsd43_.h
+youbin_sub.o: /bsd43/usr/include/sys/socket.h /bsd43/usr/include/sys/param.h
+youbin_sub.o: /bsd43/usr/include/bsd43/machine/machparam.h
+youbin_sub.o: /bsd43/usr/include/bsd43/signal.h
+youbin_sub.o: /bsd43/usr/include/bsd43/sys/types.h
+youbin_sub.o: /bsd43/usr/include/sys/time.h /bsd43/usr/include/sys/time.h
+youbin_sub.o: /bsd43/usr/include/netinet/in.h /bsd43/usr/include/ctype.h
+youbin_sub.o: /bsd43/usr/include/netdb.h /bsd43/usr/include/pwd.h
+youbin_sub.o: /bsd43/usr/include/setjmp.h /bsd43/usr/include/signal.h
+youbin_sub.o: /bsd43/usr/include/stdio.h youbin.h
+youbin_sub.o: /bsd43/usr/include/strings.h
+xyoubin.o: /bsd43/usr/include/sys/param.h /bsd43/usr/include/bsd43/bsd43_.h
+xyoubin.o: /bsd43/usr/include/bsd43/machine/machparam.h
+xyoubin.o: /bsd43/usr/include/bsd43/signal.h
+xyoubin.o: /bsd43/usr/include/bsd43/sys/types.h
+xyoubin.o: /bsd43/usr/include/netinet/in.h /bsd43/usr/include/signal.h
+xyoubin.o: /bsd43/usr/include/stdio.h /bsd43/usr/include/X11/Intrinsic.h
+xyoubin.o: /bsd43/usr/include/X11/Xlib.h /bsd43/usr/include/sys/types.h
+xyoubin.o: /bsd43/usr/include/X11/X.h /bsd43/usr/include/X11/Xutil.h
+xyoubin.o: /bsd43/usr/include/X11/Xresource.h /bsd43/usr/include/X11/Xos.h
+xyoubin.o: /bsd43/usr/include/strings.h /bsd43/usr/include/sys/file.h
+xyoubin.o: /bsd43/usr/include/bsd43/sys/fcntl.h /bsd43/usr/include/sys/time.h
+xyoubin.o: /bsd43/usr/include/sys/time.h /bsd43/usr/include/X11/Core.h
+xyoubin.o: /bsd43/usr/include/X11/Composite.h
+xyoubin.o: /bsd43/usr/include/X11/Constraint.h
+xyoubin.o: /bsd43/usr/include/X11/Object.h /bsd43/usr/include/X11/RectObj.h
+xyoubin.o: /bsd43/usr/include/X11/StringDefs.h
+xyoubin.o: /bsd43/usr/include/X11/Xaw/Command.h
+xyoubin.o: /bsd43/usr/include/X11/Xaw/Label.h
+xyoubin.o: /bsd43/usr/include/X11/Xaw/Simple.h
+xyoubin.o: /bsd43/usr/include/X11/Xmu/Converters.h
+xyoubin.o: /bsd43/usr/include/X11/Xaw/Cardinals.h youbin.h

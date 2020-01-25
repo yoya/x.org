@@ -1,0 +1,677 @@
+This is the README file for the PEXlib programming utilities provided by
+Hewlett-Packard.  This file has the following major sections:
+
+    General Information
+    Colormap and Visual Utilities for PEXlib
+    Double-Buffering Utilities for PEXlib
+    Motif Widget for PEXlib
+
+
+
+    (c) Copyright Hewlett-Packard Company, 1993, Fort Collins, Colorado 
+
+    Permission to use, copy, modify, and distribute this documentation, and
+    its associated software, for any purpose and without fee is hereby 
+    granted provided that the above copyright notices appear in all copies
+    and that both the copyright notices and this permission notice appear in
+    supporting documentation, and that the name of Hewlett-Packard not be
+    used in advertising or publicity pertaining to distribution of the
+    software without specific, written prior permission.
+
+    HEWLETT-PACKARD MAKES NO WARRANTY OF ANY KIND WITH REGARD TO THIS
+    SOFTWARE, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. Hewlett-Packard
+    shall not be liable for errors contained herein or direct, indirect,
+    special, incidental or consequential damages in connection with the
+    furnishing, performance or use of this software.
+
+
+General Information
+-------------------
+
+The PEXlib programming utilities provided in this directory are intended to
+ease the task of producing portable and interoperable PEXlib applications.
+The utilities are provided as C source.  Please read the copyright
+notice above regarding this source code.
+
+IMPORTANT NOTE:  At the time of this release of HP-PEXlib, interoperability 
+conventions for PEX clients and servers in the areas of Visual and color 
+approximation selection are not yet firmly established.  Hewlett-Packard and 
+other PEX-IC participants have been working together in the first part of 
+1993 to establish conventions.  As these conventions are defined, and in 
+order to make defect fixes to the utility code, updated versions of the 
+source will be made available via anonymous ftp from the export.lcs.mit.edu 
+system.  Due to these evolving conventions and the source changes they will 
+require, applications developers are cautioned that they may need to track 
+upcoming changes, and therefore it may be more practical to create program 
+link sequences that include the utilities as a library, rather than embedding 
+or modifying the utility procedures in other application source files.  
+
+In the PEXlib community, there is also an intent to develop a utility interface
+that could become part of the PEXlib standard.  How closely it might resemble
+the interface provided by these HP-furnished utilities is not yet known.
+
+You can use the following sequence of commands to fetch the updated source
+into a directory on your system (say, $PEXUTILS):
+
+    cd $PEXUTILS
+    ftp export.lcs.mit.edu
+	<enter "ftp" for the user name>
+	<enter your name and internet address for the password>
+	cd /contrib/PEXlib
+	binary
+	get HP.PEXUt.tar.Z
+	bye
+
+The compressed tar(1) archive can be uncompressed and unpacked as follows:
+
+    uncompress HP.PEXUt.tar.Z
+    tar -xvf HP.PEXUt.tar
+
+Individual man pages for each utility function are provided in $PEXUTILS/man3.  
+These man pages can be accessed using the man(1) command by adding the 
+parent directory to your MANPATH shell environment variable.  For example, 
+in /bin/sh:
+
+    MANPATH=$MANPATH:$PEXUTILS
+    export MANPATH
+
+    man PEXUtDBConfig
+
+
+Alternatively, the pages can be formatted using nroff -man, e.g.
+
+    nroff -man $PEXUTILS/man3/PEXUtDBConfig.3g
+
+
+You can build the utilities library file, pexut.a, in the 
+$PEXUTILS directory by using the provided Makefile, as follows:
+
+    cd $PEXUTILS
+    make
+
+This will also make the example PEXlib Motif widget object file, PEXSimple.o,
+and a simple demonstration program.
+
+You may want to edit the Makefile to change the compile options, or you
+can override them from the command line or from enviroment using the -e option.
+Specifically, if you are on a non-HP system, you may need to modify the MYCFLAGS
+and DEFINES variables in the Makefile.
+
+In the Makefile, the MBX_HEADER_FILE_NOT_INSTALLED symbol is defined because HP
+does not ship the multibuf.h include file. If the symbol is defined, the
+utilities will obtain the necessary include file contents from the pexutdbint.h
+file.  However, if your system has the multibuf.h include file installed, you
+should not define the MBX_HEADER_FILE_NOT_INSTALLED symbol so that the utilities
+will include the installed include file. See the Makefile for comments on other
+options.
+
+Note that the directory is writeable so that the various .o and .a files
+can be created here.  Be careful that you do not unintentionally remove
+the source or header files.  If you plan to modify the source, it is 
+recommended that you modify a copy of the source in another directory.
+However, it is recommended that you use the utilities
+in an unmodified form if possible, because future releases may 
+include defect fixes and/or additional functionality.  If you copy the source,
+you may need to track defect fixes and improvements in your copy later.
+
+
+To use these utilities in your application, you will need include the
+appropriate header files that are named in the sections below.  You can use
+the -I option of the C compiler to access the header files:
+
+    cc ... -I$PEXUTILS ...
+
+
+You must include the pexut.a file in your link sequence before the
+PEXlib library.  The pexut.a file also requires the Xext library (or whatever
+library implements the MBX extension library entrypoints) to be included
+in your link sequence:
+
+    ld ... myprogram.o ... $PEXUTILS/pexut.a -lXext ... -lPEX5 ...
+
+The example PEXlib Motif widget will also be built by the "make" command 
+shown above, but will not be included in pexut.a.  You must explicitly link 
+$PEXUTILS/PEXSimple.o into your application in order to utilize it.
+
+
+Notes about this Release dated June 18, 1993
+--------------------------------------------
+
+Here is a list of known problems and deviations in this code,
+and changes from the first release dated March 2, 1993.
+
+1.  This code makes use of the PEXEscapeQueryColorApprox opcode on 5.1 servers
+    that support it, using the 6/10/93 specification.
+
+2.  Also in the most recent color interoperability discussions, a set of
+    standard colormap properties has been mentioned for use in aiding clients
+    in using PEX, but the exact set and search order of the properties
+    have not been defined.  These utilities search the following properties
+    in the listed order:  RGB_BEST_MAP, RGB_DEFAULT_MAP.
+
+3.  It has been agreed that it is improper for a standard colormap property
+    to exist without a Colormap resource ID in it.  The Hewlett-Packard server
+    in first release possesses properties that have ID None in them.  To handle
+    this case, these utilities contain code to create and initialize
+    a Colormap when no ID is found in the standard colormap property.
+
+    Separately, a well-known contributed client program (xstdcmap) has been
+    modified to generate standard colormap properties describing color
+    space samplings that are supported for PEX color approximation.  The source
+    for this client and the procedures it uses is available from
+
+    export.lcs.mit.edu: ~ftp/contrib/PEXlib/pexstdcmap.tar.Z.
+
+4.  It is known that the relative priority of red, green, and blue in the
+    setup of a color "ramp" varies from vendor to vendor.  In other words,
+    some vendors require a ramp where red values vary the slowest and blue
+    the fastest (we will term this "red-major"), others where blue varies the
+    fastest, and yet others where green varies the fastest.  This utility
+    source has code to support some cases, but it has not been tested.
+
+    It is recommended that the xstdcmap client mentioned in item three
+    be used to create properties and colormaps.  It supports a -ramp option
+    that allows any color channel ordering in PseudoColor Colormaps.
+
+5.  It is generally agreed that static Visuals are preferable to dynamic
+    Visuals, because they reduce Colormap flashing.  This implementation
+    of PEXUtFindVisual does implements this preference.
+
+6.  It should be noted that at the time of this release of HP-PEX, complete
+    interoperability conventions regarding PEX color issues have not yet
+    been established.  The released source for the utilities supports 
+    conventions that have been discussed and tentatively adopted within 
+    the PEX community.  Also, be aware that no guarantee can be made that 
+    other vendors' implementations of PEX or PEXlib are well-supported by 
+    the utilities as released.  HP is working together with other PEX vendors 
+    to refine the interoperability conventions and the utility code needed to 
+    support them.  As these conventions evolve, HP may make updated versions 
+    of the utility source code available.
+
+    These utilities conform to the conventions that have been established:
+
+    - Standard colormap properties can be used to acquire a color "ramp" 
+      description and Colormap ID.  The properties used are RGB_BEST_MAP and
+      RGB_DEFAULT_MAP.  (The application must include 
+      PEXUtStandardColormapProperty as a criterion to ensure use of properties
+      in the Visual selection utilities.)
+
+    - The PEXEscapeQueryColorApprox is used to verify the support for a 
+      color approximation "ramp".  This code is included in order to 
+      interoperate well with systems that have restrictions on color 
+      approximation, including HP systems.)
+
+    - No ordering is implied in either the targets returned by 
+      PEXMatchRenderingTargets, nor the entries in a multiple-entry property
+      such as RGB_DEFAULT_MAP.
+
+    - All else being equal, TrueColor Visuals are preferred over DirectColor
+      in order to avoid color flashing.
+
+7.  A defect in the first release involving inadvertent freeing of a Colormap 
+    on TrueColor, StaticColor, and StaticGray Visuals has been corrected.
+
+8.  Use of MBX has been disallowed on 5.0 servers.
+
+
+Colormap and Visual Utilities for PEXlib
+----------------------------------------
+
+    Introduction
+    ------------
+
+    Programming a PEXlib application to handle the variations in PEX
+    support for visuals and color approximation, and setting up color
+    maps that match the supported color approximation, are all
+    difficult problems that can complicate the programming task.
+    Porting programs from one vendor's implementation of PEXlib to another
+    can be especially difficult, especially if a particular vendor's
+    implementation does not support the assumptions made in the PEXlib
+    program source.  However, even on a single vendor's platforms, there
+    may be enough variation in color capabilities to require significant
+    programming effort.
+
+    This utility interface is intended to provide a stable and usable 
+    interface to code that solves these programming tasks.  The implementation 
+    of the utilities can be modified as necessary to solve problems and 
+    expand interoperability; as long as the interface is stable, 
+    user source programs will not have to be changed.
+
+    The interface addresses these common PEXlib color programming tasks:
+
+    *	Given an X connection on which PEXlib has been successfully
+    	initialized, find a Visual that supports PEX and meets some set of
+    	criteria specified by the application.  Some criteria may be
+    	"hard", i.e. it is considered a failure if they cannot be met.
+    	Other criteria may be "soft".  (The requirement that PEXInitialize
+    	be called before the utilities allows them to make PEXlib inquiries
+    	in the process of accomplishing their tasks.)
+
+    *	Determinine and set up a PEX color approximation method that is 
+	supported on a chosen Visual and meets the application's needs.
+
+    *   Create and set up an X Colormap that matches a chosen color 
+	approximation method.
+
+    *	Support and allow for colormap sharing among X and PEX clients
+	via standard colormap properties.
+
+    *	Adjust colormap contents for vendor-dependent idiosyncrasies in Visual, 
+	color approximation, and Colormap support.
+
+    *	Create a window in a chosen Visual, with a PEX-usable Colormap.
+
+
+    Overview of the Colormap and Visual Utilities
+    ---------------------------------------------
+
+    The $PEXUTILS/pexutcmap.h include file defines 
+    constants and structure types for use with the utility functions,
+    and includes extern function prototypes for all the procedures.
+
+    These utilities are organized into a two-level hierarchy.  
+    The higher level only has two utility procedures defined right now.
+
+    * PEXUtCreateWindowAndColormap
+
+	This procedure is intended to be a one-call interface that satisfies 
+	the needs of many PEXlib applications.  It chooses a PEX-capable 
+	Visual based on criteria passed in, together with interoperability 
+	conventions used to guide Visual selection.  It generates a PEX color 
+	approximation Lookup Table entry that represents a supported colormap 
+	setup, creates a Colormap for use in that Visual, and initializes the 
+	Colormap to match the color approximation entry.  Finally, it creates 
+	a Window that uses the Colormap.
+
+    * PEXUtCreateColormap
+
+	Given a color approximation entry and a Visual, this procedure
+	accomplishes the three steps of creating a writeable Colormap, 
+	modifying it for vendor dependencies, and converting to read-only.  
+	This procedure is useful in many applications that have chosen a 
+	Visual themselves.
+
+
+    The lower level of the utilities consists of building-block procedures 
+    that have a one-to-one correspondence to programming tasks for color
+    interoperability.  A programmer who does not wish to use the
+    higher-level utility may be able to use some subset of these
+    building-block routines.  Here is the natural sequence in which
+    they are intended to be used:
+
+    * PEXUtFindVisual
+
+	takes a specification for hard and soft criteria, selects a Visual
+	according to the criteria and PEX interoperability conventions, and
+	returns an XStandardColormap structure and a color approximation
+	entry that matches it.
+
+    * PEXUtGetStandardColormapInfo
+
+	takes a preselected Visual, fetches standard colormap information 
+	(if any is available), and returns an XStandardColormap structure
+	and a color approximation entry that matches it.
+
+    * PEXUtVerifyColorApproximation
+
+	takes a PEXColorApproxEntry structure, tries to determine if the 
+	specified color approximation method and color "ramp" is supported, 
+	and returns a success/failure flag.
+
+    * PEXUtCreateWriteableColormap
+
+	takes a PEXColorApproxEntry description of a ramp and information about
+	the corresponding Visual, creates a Colormap, initializes the ramp,
+	returns the Colormap ID.
+
+    * PEXUtModifyColormapForVendorDependencies
+
+	takes a Colormap ID and other info, and makes any adjustment to 
+	its contents due to color idiosyncrasies of the particular
+	hardware and software configuration.
+
+    * PEXCopyColormapAsReadOnly
+
+	takes a Colormap that has been set up correctly, but in which all 
+	cells are read/write, and makes an equivalent colormap that has 
+	read-only cells so that XAllocColor can succeed.
+
+    * PEXUtCreateWindow
+
+	takes a Colormap ID, Visual, and window setup information, 
+	and creates and maps a Window.
+
+
+    External Specification
+    ----------------------
+
+    Please see the individual man pages for each function provided in
+    $PEXUTILS/man3.  There are nine files:
+
+	PEXUtCopyColormapAsReadOnly.3g
+	PEXUtCreateColormap.3g
+	PEXUtCreateWindow.3g
+	PEXUtCreateWindowAndColormap.3g
+	PEXUtCreateWriteableColormap.3g
+	PEXUtFindVisual.3g
+	PEXUtGetStandardColormapInfo.3g
+	PEXUtModifyColormapForVendorDependencies.3g
+	PEXUtVerifyColorApproximation.3g
+
+
+    Example Usage
+    -------------
+
+    Here is an example usage of the main "do-it-all" utility, 
+    PEXUtCreateWindowAndColormap.  This example uses the recommended criteria 
+    set to a cause a relatively unrestricted search for the "best" Visual
+    for PEX rendering (see the man page for more details):
+
+
+    #include "pexutcmap.h"
+
+    ...
+
+    main( ... )
+    {
+	Display 			*display;
+	Window 				window;
+	PEXExtensionInfo 		*ext_info;
+
+	XVisualInfo 			vis_info;
+	XStandardColormap 		cmap_info;
+	PEXColorApproxEntry 		capx_info;
+
+	int 				screen;
+	XSizeHints 			hints;
+	PEXUtVisualCriteria  		criteria;
+	PEXUtWindowSpecification 	window_info;
+
+	unsigned int 			unmet;
+	Atom 				prop_atom;
+	int 				result;
+	XColor 				returned_background;
+
+
+	...
+
+	/*
+	    Open display.
+	*/
+
+	...
+
+
+	if (PEXInitialize (display, &ext_info, 0, NULL))
+	{
+	    fprintf (stderr, "ERROR:  PEXInitialize failed on %s\n", 
+			getenv("DISPLAY"));
+	    exit (1);
+	}
+
+	...
+
+
+	/*
+	    Verify subset support, etc.
+	*/
+
+	...
+
+	screen = DefaultScreen(display);
+	hints.x = XPOS;
+	hints.y = YPOS;
+	hints.width = WIDTH;
+	hints.height = HEIGHT;
+	hints.flags = (USSize|USPosition);
+
+	criteria.hard_criteria_mask = 0;
+	criteria.soft_criteria_mask = PEXUtStandardColormapProperty;
+	criteria.standard_colormap_property = True;
+
+	window_info.attr_mask = 0;
+	window_info.title = "PEXlib Demo";
+	window_info.size_hints = hints;
+	window_info.parent = RootWindow (display, screen);
+	window_info.border_width = 0;
+	window_info.background_color_name = "black";
+	window_info.border_color_name = "white";
+
+	result = PEXUtCreateWindowAndColormap (display, screen, 
+						&criteria,
+						&window_info, &window,
+						&vis_info, 
+						&cmap_info, 
+						&capx_info,
+						&unmet, &prop_atom,
+						&returned_background);
+
+	if ((result != PEXUtSuccess) && (result != PEXUtQualifiedSuccess)) {
+
+	    fprintf (stderr, "ERROR:  Failed to create window\n");
+	    exit (1);
+	}
+
+	...
+
+	/*
+	    Go on to use the Window for PEX rendering and picking.
+	    Don't forget to free the created Colormap when it is no longer
+	    needed.
+	*/
+
+	...
+    }
+
+
+    As an additional example of how the criteria structure might be used,
+    these lines would add a hard requirement for PEX double-buffering
+    capability to the Visual selection criteria shown in the example.
+
+	criteria.hard_criteria_mask = PEXUtDoubleBufferingCapability;
+	criteria.double_buffering_capability = PEXUtDbufferPEX;
+	criteria.soft_criteria_mask = PEXUtStandardColormapProperty;
+	criteria.standard_colormap_property = True;
+
+
+Double-Buffering Utilities for PEXlib
+-------------------------------------
+
+    Introduction
+    ------------
+
+    PEXlib currently has no portable interface for double-buffering. This
+    lack is caused by the failure of the Multi-Buffering extension to X
+    (MBX) to stabilize in time for some vendors to ship MBX implementations
+    with PEX and PEXlib, resulting in the introduction of non-portable
+    methods for double-buffering.  The utilities proposed here provide a
+    portable interface to double-buffering of X and PEX rendering.
+
+    The utilities support the use of the Multi-Buffering extension to X
+    (MBX), the PEX escapes defined by Hewlett-Packard and Evans&Sutherland,
+    and the use of pixmaps.
+
+    The functions in the utility are:
+
+     * PEXUtDBConfig - configure the specified window for turning double-
+                       buffering on or off
+
+     * PEXUtDBSwap   - display the window's back buffer
+
+     * PEXUtDBClear  - clear the window's back buffer
+
+     * PEXUtDBFront  - reconfigure the window for rendering into the front
+                       or back buffer
+
+     * PEXUtDBResize - reconfigure window buffers in response to a change in
+                       the window's size
+
+    The pexutdb.h include file defines constants for use with the utility
+    functions.
+
+
+    Requirements Addressed by the Utilities
+    ---------------------------------------
+
+     * Provide a simple interface for double-buffering. Target the utilities
+       for usability in the most common cases (yes, this is ill-defined).
+       Users with complex requirements will not be able to use these
+       utilities without modification.  Assertion: users with complex
+       requirements are willing to do the extra work.
+
+     * Hide, as much as possible, the details related to the type of
+       drawable used to perform double-buffering.  This includes the
+       idiosyncrasies of clearing the buffers.
+
+     * Enable, where possible, the usage of X rendering, in addition to PEX,
+       into the double-buffered window.
+
+     * Support both 5.0 and 5.1 PEX servers.
+
+
+    External Specification
+    ----------------------
+
+    Please see the individual man pages for each function provided in
+    $PEXUTILS/man3.  There are five files:
+
+	PEXUtDBConfig.3g
+	PEXUtDBSwap.3g
+	PEXUtDBClear.3g
+	PEXUtDBFront.3g
+	PEXUtDBResize.3g
+
+
+    Example Usage
+    -------------
+
+    #include ...
+    #include "pexutdb.h"
+
+    static Display      *dpy;
+    static Window       window;
+    static Drawable     rendering_buffer;
+    static PEXRenderer  renderer;
+
+
+    redraw( ... )
+    {
+        ...
+
+        /*
+        ** redraw into the off-screen buffer
+        */
+        PEXBeginRendering( dpy, rendering_buffer, renderer );
+            ... /* render attributes and primitives */
+        PEXEndRendering( dpy, renderer, True );
+
+        /*
+        ** display the new image
+        */
+        rendering_buffer = PEXUtDBSwap( dpy, window, False );
+    }
+
+    main( ... )
+    {
+        ...
+        XColor                 bg_color;
+        PEXRendererAttributes  rattrs;
+        unsigned long          mask;
+
+        /*
+        ** open display, initialize PEX, verify subset support, determine
+        ** best visual to use, get colormap for visual, set up color
+        ** approximation, allocate background color, create window and
+        ** renderer
+        */
+        ...
+
+
+        /*
+        ** turn double buffering on
+        */
+        if ( PEXUtDBConfig( dpy, window, True, &bg_color, False,
+                            &rendering_buffer )) {
+            fprintf( stderr, "No double-buffering available.\n" );
+            exit( 1 );
+        }
+
+        /*
+        ** set renderer's background color and clear-image flag
+        */
+        rattrs.clear_image = True;
+        rattrs.background_color.type = PEXColorTypeRGB;
+        rattrs.background_color.value.rgb.red = (float)bg_color.red/65535;
+        rattrs.background_color.value.rgb.green = (float)bg_color.green/65535;
+        rattrs.background_color.value.rgb.blue = (float)bg_color.blue/65535;
+        mask = PEXRAClearImage | PEXRABackgroundColor;
+        PEXChangeRenderer( dpy, renderer, mask, &rattrs );
+
+        /*
+        ** main loop
+        */
+        ...
+
+        /*
+        ** exit program
+        */
+        PEXUtDBConfig( dpy, window, False, &bg_color, False, &rendering_buffer );
+        XCloseDisplay( dpy );
+        exit( 0 );
+    }
+
+
+    Decisions on Issues
+    -------------------
+
+    The only way to correctly clear on 5.1 servers when using the PEX
+    escapes is to do PEXBeginRendering with clear_image set to True, so the
+    application should call PEXEndRendering before swapping buffers
+    (PEXUtDBSwap) or clearing the back buffer (PEXUtDBClear).  This is
+    actually only necessary if the PEX server is 5.1 and the escapes are
+    being used, but the decision was made to impose this restriction in
+    order to meet the requirement of hiding the details.  A renderer is
+    maintained internal to the utilities (only if using the escapes). Note
+    that the utilities recommend against clearing in PEXUtDBSwap if the PEX
+    server is version 5.1.
+
+    The window's background attribute cannot be inquired, so the application
+    has to specify the background color to PEXUtDBConfig.  The decision to
+    have the application specified an XColor was made because this data
+    should be available to the application (should have determined it during
+    window creation and set up).
+
+    PEXUtDBFront can be called between PEXBeginRendering and PEXEndRendering
+    on HP; but has undefined behavior on other platforms. So, a restriction
+    was imposed that PEXUtDBFront can not be called between
+    PEXBeginRendering and PEXEndRendering.
+
+
+
+Motif Widget for PEXlib
+-----------------------
+
+    Introduction
+    ------------
+
+    This widget is provided to ease the task of integrating PEXlib and Motif.
+    XgPEXSimple has not yet been reviewed or accepted by other PEXlib vendors
+    and is in a preliminary form.  However, though internal implementation of
+    the widget may change (and such actions as visual selection may produce
+    different results in future implementations of the widget), the interface
+    to the PEXSimple widget should be upwards-compatible to any future
+    implementations.
+
+    Additionally, developers can leverage the PEXSimple widget source code to
+    implement PEXlib Motif widgets of their own if needed, using other names
+    for these new widgets.
+
+    An example program that uses the widget, widgetdemo.c, is also provided.
+
+    External Specification
+    ----------------------
+
+    See the man page for the widget provided in $PEXUTILS/man3:
+
+	XgPEXSimple.3g

@@ -1,0 +1,301 @@
+\documentstyle[11pt, titlepage]{article}
+
+\parindent0pt
+
+\begin{document}
+
+
+\title{{\Huge TeXcad}\\
+       {\large Version 1.3 \\
+               {\sc FreeWare}}}
+               
+\author{Dokumentation}
+
+\maketitle
+
+\section{Preface}
+
+     This is TeXcad Version 1.3\footnote{This document dscribes xtexcad 1.2}
+     
+  
+     TeXcad is distributed under the concept of FreeWare.\\ \\
+     Copyright (c) 1991 xtexcad  V1.3 by K. Zitzmann
+
+     The X Consortium, and any party obtaining a copy of these files from
+     the X Consortium, directly or indirectly, is granted, free of charge, a
+     full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+     nonexclusive right and license to deal in this software and
+     documentation files (the "Software"), including without limitation the
+     rights to use, copy, modify, merge, publish, distribute, sublicense,
+     and/or sell copies of the Software, and to permit persons who receive
+     copies from any such party to do so.  This license includes without
+     limitation a license to do the foregoing actions under any patents of
+     the party supplying this software to the X Consortium.\\ \\
+
+     The author makes no guarantees with this program and
+     is not responsible for any damage caused by it.
+     
+     
+
+\section{Introduction}
+
+\LaTeX~is a professional '{\it document preparation system}' for all
+kinds of documents like books, articles etc.
+It is obvious that those documents can contain graphics.
+Although \LaTeX~offers some graphics primitives, it is 
+difficult and awkward to produce a picture with them.
+The TeXcad package is a comfortable editor for \LaTeX~ pictures
+which translates the drawn images into pure \LaTeX~ code and also
+allows a subsequent editing.\\
+\newline
+
+  \hfill    Klaus Zitzmann,\hfill Koblenz/Germany in Oktober 91 \\
+  
+\newpage
+  
+\section{User Guide}
+
+\subsection{Installation}
+
+The program is written in ANSI-C and compiled with the\\
+GNU-C-Compiler.
+It uses the MIT's X-Window-System and includes the major
+part of the ATHENA Widget Set. It runs under UNIX.
+I've developed and tested this program on a SUN 3 and 4 (Sparc Sun).\\
+\\
+The underlying version of TeXcad is distributed with the files given in the README file. Please check these file before installing this package.\\
+
+
+If you use the {\it standardmakefile}, type 'make -f stdmake cad' to produce the
+code named 'xtexcad'.\\
+Type {\it xrdb -load Xtexcad.ad} to load the resources.
+You can start the program by typing 'xtexcad [filename] \{toolkit options\}'\\
+or 'texcad [filename] \{toolkit options\}'.
+If you use the Imakefile just type 'xmkmf' to
+generate a makefile from the imakefile. Then type 'make all' to produce the code\footnote{or better type 'make install' if you have got the permission !}.
+
+\subsection{Particularities}
+
+The biggest picture the present program normally creates is of A4 size.\\
+If this is not large enough, you have to use the {\bf move image} option {\it (see below)}
+or just modify the '{\it unitlength-parameter}' within your TeX file\footnote{Manipulating 
+the {\it unitlength} parameter always leads to a complete recomputation
+of circle diameters. Since these diameters are limited, it is possible that the results of this
+recomputation are invalid diameters, which are not displayed in the output.\\
+Nevertheless it is possible to abuse this modification as a {\it n-level zoom}.}.
+The internal unit of measurement is points (pt). All relevant
+values of an external picture will be transformed while reading
+it into the database.
+
+During the development of TeXcad, I tried to keep the code as
+portable as possible\footnote{TeXcad was successfully installed on NeXT and Data General
+computers at the University of Koblenz.}.
+Nevertheless, there occurred multiple 
+problems, especially when using the {\it NeWS} Server with the {\it twm} Window Manager.
+
+
+
+\subsection{Commands}
+
+TeXcad supports the following commands:
+
+\begin{itemize}
+  \item line 
+  \item vector
+  \item box (normal, framed, filled)
+  \item circle (normal,oval,filled) 
+  \item b\'{e}zier
+  \item text
+\end{itemize}
+
+
+     {\bf {\it CONVENTION:}}
+\\
+     Pressing button 1 on an icon selects the function.
+     Watch the status line of the window manager. The current
+     context and possible user actions are shown there.
+     When moving the pointer into the {\bf canvas}\footnote{The area in which the picture is drawn.}
+     area, the selected command becomes active. Move the pointer out of
+     the canvas to cancel the current command.
+
+
+Sometimes the computer displays certain messages in a
+popup window.
+If there is no other possibility, you can close this window
+by moving the pointer (in and) out of this window.
+
+
+\begin{description}
+  \item{\bf The line and vector functions:} \\
+     The start and end points of a line are specified by pressing
+     button 1 on the canvas.
+     Press one of the other buttons to start drawing a new line.
+  \item{\bf The box function:} \\
+     Hold button 1 on the box icon to pop up a menu.
+     Move the pointer on one of the options ({\bf framed, filled,
+     dashed}). Release the button to select the desired function.
+     After the rectangle has been drawn, you are prompted for the
+     box text and its position.
+
+  \item{\bf The circle function:} \\
+     (see {\it function box} !)
+
+  \item{\bf The b\'{e}zier function:} \\
+     Draws a quadratic B-Spline curve.
+     After determining start and end points of the curve ({\it see line/vector}) 
+     you have to control its curvature.
+     Be sure to add the b\'{e}zier style option to the header of your document
+     (e.g.~{\it documentstyle[11pt, bezier]\{book\}}).
+     
+  \item{\bf The text function:} \\
+     After pressing button 1 on the canvas, you are prompted for
+     textual input.
+     You can specify the text position relative to the 
+     selected point.\\
+     Examples:\\
+     Press BOTTOM to center the text relative to this point.\\
+     Press TOP RIGHT and this point will be the upper right edge
+     of the text.
+\end{description}
+
+
+
+The following commands allow a convenient editing of the
+picture:
+
+
+\begin{description}
+  \item{\bf zoom:} \\
+     A constant zoom area is supported.
+     There is only one zoom level possible (and necessary !).
+  \item{\bf refresh:} \\
+     Redraws the screen.
+     Leaves the zoom function.
+  \item{\bf erase:} \\
+     Holding button 1 on the 'erase' icon pops up a menu
+     with the options {\bf erase entire database} and {\bf pick erase}.\\
+     The first option deletes all objects.\\
+     With the second option, you can erase individual
+     objects from a complex picture by picking them with
+     the pointer: move the pointer close to the desired object
+     and press button 1. The object will be marked on the
+     screen and you can delete it by pressing the second button.
+     Sometimes, when editing complex pictures where objects
+     are very close to each other or overlapping, it can occur
+     that the computer picks the wrong object. In this case,
+     use button 3 to select the next possible object in the
+     vicinity.
+  \item{\bf copy:} \\
+     Copies the object.\\
+     First you have to pick the desired object ( see {\it erase} !).
+     Hold button 2 and move the pointer to position the object
+     on the screen.
+     
+    
+  \item{\bf pickedit:} \\
+     Holding button 1 on the erase icon pops up a menu
+     with the option {\bf pick object} and some {\bf TEXT-edit} options.
+
+     What concerns the first option:\\
+          Pick the desired object!
+          To move the object, just hold button 2 and move the
+          pointer.
+          The object gets markers (little circles). Move the
+          pointer into one of these markers and hold button 1 to
+          edit the object. Only circle objects don't get
+          markers. It is sufficient to move the pointer close to
+          the arc.\\
+
+     The other options:\\
+          These options ({\bf TEXT, framedBox Text, dashedBox Text})
+          allow a comfortable editing of text.
+
+  \item{\bf Settings:} \\
+     It is possible to switch between different default settings within
+     the `settings` menu:
+     \begin{itemize}
+        \item Unlimited Slopes \\
+          \LaTeX~offers only limited vector and line slopes.
+          This option turns this restriction off but be sure
+          that your TeX Version can handle these slopes.
+        \item Watch Line Length \\
+          The minimum length of a line or a vector is 10 points.
+          By turning this option on, the computer will not allow to
+          draw a shorter line/vector.
+
+        \item Enable Raster \\
+          Shows a raster.
+        \item Snap Pointer \\
+          If the raster is active, the pointer will be snapped
+          on the\\
+          knot-points of the raster.
+        \item Cross Wire \\
+          Creates an additional pointer - a cross wire.
+
+        \item Center DIN A4 \\
+          The computer suggests that the picture shall be
+          centered horizontally and vertically on the screen.
+          The final adjustment can be done 'by hand' only!
+          Some hints are generated within the *.tex file.
+
+        \item Automatic Refresh \\
+          Some floating point operations cause an internal
+          rounding error so that sometimes individual objects
+          cannot be deleted correctly.
+          The refresh removes this garbage automatically.
+        \item Enable Ruler\\
+          Shows a ruler.
+          The unit of measurement is pt (points).
+     \end{itemize}
+
+
+  \item{\bf The function file:} \\
+     This function manages the i/o of pictures.
+     The file format is pure \LaTeX~code.
+     The structure of a file, created by TeXcad, is the
+     following:
+     \begin{verbatim}
+          %
+          % /* comments */
+          %
+          begin{picture}(xdim,ydim)(xref,yref)
+               .
+               .
+               /* LaTeX graphic commands */
+               .
+               .
+          end{picture}
+     \end{verbatim}
+
+     While reading an external document into the database,
+     TeXcad skips all unknown commands until it recognizes the
+     picture environment. This environment will be extracted
+     from the document.
+
+  \item{\bf Coordinates: } \\
+     The absolute and relative (relative to the zoom area) coordinates
+     are displayed at the top right corner of the screen.
+     Sometimes this is useful for a correct positioning of the
+     pointer.
+
+  \item{\bf Move picture: } \\
+     Select one of the four arrows diplayed below the coordinates box to move the
+     entire picture to the corresponding direction. Selecting the square will center
+     your picture.
+     
+\end{description}
+
+\section{Credits}
+
+	There are many people who were involved in producing TeXcad, among them are Randolf Werner who wrote the file-select box, 
+	Ulrich Koch who developed  the scanner definition for lex, Karl Heinz Staudt who wrote the basic routines of module file\_sel.c, Juergen Marenda
+	and Fritz Haubensak. I want to thank them all for their invaluable support.
+	
+\section{Bibliography}
+
+	Just read all manuals on X.
+	
+	
+
+\end{document}
+ 

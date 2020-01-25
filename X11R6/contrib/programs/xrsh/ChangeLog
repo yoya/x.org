@@ -1,0 +1,65 @@
+Mon Jun 13 11:38:43 1994  James J Dempsey  (jjd@spchp17.BBN.COM)
+
+	* Fixed bug introduced in 5.7 where -auth xauth would not take
+	input from pipe, but from /dev/null instead.  Fixed bug and upped
+	version to 5.8.  Thanks to Charles Karney <Karney@Princeton.EDU>
+	for finding and reporting the bug.
+
+Mon Jun  6 11:10:23 1994  James J Dempsey  (jjd@spchp17.BBN.COM)
+
+	* Added some /dev/null redirections to rsh commands to fix hanging
+	problem when using csh as login shell and xrsh'ing to some remote
+	OSes like HP-UX.  Upped version to 5.7.
+
+	* Changed Imakefile comments from # to XCOMM as per gildea@x.org. 
+	* Added double quotes around assignment of xcmdargs at gildea's
+	suggestion.
+
+Fri Jun  3 11:10:23 1994  James J Dempsey  (jjd@spchp17.BBN.COM)
+
+	* Released version 5.6 to X Consortium for X11R6 contrib after
+	making only minor cosmetic changes from the version called 5.6
+	below.  Most (all?) of the changes were in the supporting README
+	type files and man pages.
+
+Fri Mar 18 17:22:46 1994  James J Dempsey  (jjd@spchp17)
+
+	* Added -version feature at the request of rws@x.org
+	Now at version 5.6.
+
+Mon Sep 14 09:57:27 1992  James J Dempsey  (jjd at spchp17)
+
+	* Fixed a bug in xrlogin reported by dave@csis.dit.csiro.au.
+	The problem was that if xterm options were sent in on the xrlogin
+	cmd line, $item wasn't set and generates a "test: arg expected"
+	error.  Replaced with [ ! -z ""].  Updated version to 5.3.
+
+Fri Jun  5 10:06:39 1992  James J Dempsey  (jjd@spchp17)
+
+	* Fixed line in xrsh.man which caused groff to barf due to 
+	quoting.  Reported by Paul Eggert <eggert@twinsun.com>	 
+
+Thu Apr 16 15:32:39 1992  James J Dempsey  (jjd@spchp17)
+
+	* Changed the xrsh man page to remove the restriction that ultrix
+	should run with /bin/sh5.  Now that I use "set -" instead of "set
+	--" it works with the old Ultrix /bin/sh again.
+
+Mon Mar  9 15:28:09 1992  James J Dempsey  (jjd@spchp17)
+
+	* made some changes to xrsh and xrlogin due to suggestions
+	by Charles Karney <karney@theory.pppl.gov>. 
+
+	Changed xrlogin to take arbitrary xterm options.  Made those
+	options be after "-name -title" so users can override.
+
+	Fixed a bug where client host was checking to see if it was the
+	same as localhost in order to set display to :0, when it should
+	have been checking to see if it was the same as displayhost.
+
+	Added default_auth_type so sites can customize the default
+	authorization to be something other than xhost.
+
+	New xrsh version 5.3.
+	New xrlogin version 5.2.
+

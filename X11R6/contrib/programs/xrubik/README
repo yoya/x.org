@@ -1,0 +1,130 @@
+	X-BASED RUBIK'S CUBE
+	====================	Rubik's cube X widgets, V4.2
+
+
+    Prior to R6, it was tested on the following platforms:
+
+	HP 3xx & 700		HP-UX 9.0x	X11R5
+	Sun4, SPARC		SunOS 4.1.3	X11R4
+	PC, 486 (*)		Linux 1.0	X11R5
+
+    *	Keypad 5 key may not work, in which case, try it with the
+	Num-Lock on.
+
+    The most updated source could be found on ftp.x.org under
+    /contrib/games/puzzles.
+
+HOW TO BUILD?
+
+    It should be easy. Edit the Imakefile for appropriate settings of
+    variables SCOREFILE, RANDOM, then do:
+	xmkmf
+	make
+	xrubik
+
+    You should have Rubik.ad (or Stupid.ad) copied to $(HOME)/Rubik or 
+    /usr/lib/X11/app-defaults/Rubik to run, especially if the background
+    is similar to one of the faces. Edit this file for your preferences.
+    You might want to move xrubik into /usr/bin/X11 (or wherever your
+    X binaries are).
+    You might also want to move xrubik.man to /usr/man/man6/xrubik.6
+
+ANYTHING SPECIAL IN USING?
+
+    Click on the left mouse button to move CCW.
+    Click on the middle mouse button toggle the practice mode. (This is
+      good for learning moves).  Also 'P' or 'p' does the same thing.
+      One must double click on the middle mouse button if the puzzle is
+      being worked on.
+    Click on the right mouse button if you want to randomize the cube.
+      Also 'R' or 'r' does the same thing.  One must double click on
+      the right mouse button if the puzzle is being worked on.
+    'U', 'u', 'I', or 'i' to increase or move up the number of cubes.
+    'D' or 'd' to decrease or move down the number of cubes.
+    'O' or 'o' to toggle orient mode. (I prefer the orient mode since
+      it is slightly more challenging).
+    'Q', 'q', Control-C to kill program.
+
+    Key pad is defined for 2d rubik as:
+        8
+        ^
+    4 < 5 > 6
+        v
+        2
+
+    The key pad along with the use of the mouse will allow you to move the
+    cube more than just CCW ie.,
+		KP_8=>TOP
+    KP=>LEFT	KP_5=>CW	KP_6=>RIGHT
+   		KP_2=>BOTTOM
+
+    Key pad for 3d rubik, use your intuition (is this a cop out or what?).
+    The key pad is defined differently depending on which side of the cube
+    your mouse is pointing at. One thing that stays the same is KP_5=>CW.
+
+    The new control feature allows you to move the whole cube at once
+    without being entered as a move.  Hold down the control key while
+    using the left mouse button or the keypad.
+ 
+    One has to orient the faces in orient mode, besides getting all the
+    faces to be the same color. To do this one has to get the lines to
+    be oriented in the same direction, this only matters with center
+    cubes (ie. those cubes not on a corner or edge). This does add
+    complexity so there are 2 sets of records.
+
+    Try resizing the cube. Notice the puzzle resizes to take advantage
+    of the "room" available.
+
+    The title is in the following format:
+	xrubik{2|3}d: {1|2|3|4|5|6} @ (<Number of moves>/\
+		{<Record number of moves>|NEVER|PRACTICE}) - <Comment>
+    {2|3}: current dimensional view
+    {1|2|3|4|5|6}: number of cubes per edge
+    {<Record...}: puzzle is either in practice mode or record mode
+       In record mode, if there is no record of the current puzzle, it
+       displays "NEVER".
+
+    If you were looking for a self-solver, sorry. One of the problems in
+    self-solvers the generally don't work for different number of cuts.
+    If you know of one let me know. There is a real neat 3x3x3 cube called
+    "magiccube" with a better 3-D look, a self-solver, and Motif. Use
+    "archie" to find "magiccube" at the site nearest you.
+
+    Also a tesseract (4D cube) would be nice. (I heard a 3^N cube has been
+    built in software and solved!)
+
+    Personally, I have solved 1-3 using this program, 2-5 using the
+    physical cubes, and 6 to my knowledge have never been done (be the
+    first on your block). If you want you can play with MAXCUBES and
+    set it for 7 but then the graphics start messing up. 7 is neat
+    because if it was a physical cube corner pieces would fall off when
+    a face is turned.
+
+    Refer to the man page for detailed command line options.
+
+    If you want further information on puzzles, I'll be glad :-) to send
+    it to you.
+
+FOUND A BUG?
+
+    Send bugs reports and fixes to the author. For bugs, please include
+    as much information as to their location as possible, since I may not
+    have the resources to duplicate the them.
+
+	David Bagley,	bagleyd@source.asset.com
+
+HISTORY
+
+   [Jun 02, 94]	V4.2: Minor changes, R6.
+   [May 31, 94]	V4.1: Minor changes, record sometimes displayed "32767"
+		instead of "NONE".
+   [May 10, 94]	V4.0: Xt version.
+		I got some good ideas from oclock.
+   [May 20, 93]	V3.0: Motif version.
+		I got some good ideas from Douglas A. Young's
+		book: "The X Window System Programming and Applications
+		with Xt OSF/Motif Edition", particularly his dial widget.
+		I got some good ideas on presentation from Q. Zhao's
+		tetris.
+   [Jan 16, 92]	V2.0: XView version.
+   [Jan 16, 91]	V1.0: SunView version.

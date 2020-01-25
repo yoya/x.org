@@ -1,0 +1,6 @@
+// $XConsortium: default,v 1.2 94/04/08 16:00:44 erik Exp $
+xkb_types "default"
+
+include "basic"
+override "cancel"
+augment "ibmpc"

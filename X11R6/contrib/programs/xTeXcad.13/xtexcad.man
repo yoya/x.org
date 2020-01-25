@@ -1,0 +1,25 @@
+.TH XTEXCAD 1 "Release 6" " X Version 11"
+.SH NAME
+xtexcad - a graphic editor for portable LaTeX diagrams
+.SH SYNTAX
+\fBxtexcad\fP { \fI-toolkitoption\fP ...} [ filename ]
+.SH OPTIONS
+.I xtexcad 
+accepts all of the standard X Toolkit command line 
+options. The order of the command line options is arbitrary.
+.TP 8
+.I filename
+Possibly, you may want to load a \fILaTeX picture\fP file 
+during the start-up of \fIxtexcad\fP. This file will be 
+displayed immediately. Alternatively, you can load 
+a file via the built-in menu functions.
+.SH DESCRIPTION
+.I xtexcad 
+reads and writes \fILaTeX picture environments\fP and allows 
+for their subsequent editing. For more information on xtexcad and its 
+usage see the \fIxtexcad reference handbook\fP coming together with the sources of \fIversion 1.3\fP !
+.SH COPYRIGHT
+See X(1) for a full statement of rights and permissions.
+.SH AUTHORS
+Klaus Zitzmann,  The University Koblenz, Germany
+     

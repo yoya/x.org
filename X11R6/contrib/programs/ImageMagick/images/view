@@ -1,0 +1,37 @@
+#!/usr/local/bin/perl
+#
+# Display one or more images as a montage to an X server.
+#
+# Author: John Cristy (cristy@dupont.com)
+#
+
+chop($pwd=`pwd`);
+$directory=$pwd;
+@filenames=@ARGV;
+if ($#filenames < 1)
+  {
+    #
+    # Read filenames within a DIRECTORY.
+    #
+    $directory=$pwd unless $directory=shift;
+    opendir(DIRECTORY,$directory) || 
+      die "Images directory is not available: $!\n";
+    @filenames=sort(grep(!/^\.\.?$/,readdir(DIRECTORY)));
+    closedir(DIRECTORY);
+    chdir($directory) || die "image directory is not available: $!\n";
+  }
+#
+# Display 20 images at a time as a montage image.
+#
+while ($#filenames > 20)
+{
+  system 'montage', '-verbose', '-label', '%f   %wx%h', @filenames[0..19],
+    "montage.$$";
+  system 'display', '-iconic', '-title', "$directory/*", "montage.$$";
+  unlink "montage.$$";
+  @filenames=@filenames[20..$#filenames];
+}
+system 'montage', '-verbose', '-label', '%f   %wx%h', @filenames, "montage.$$";
+system 'display', '-iconic', '-title', "$directory/*", "montage.$$";
+unlink "montage.$$";
+exit(0);

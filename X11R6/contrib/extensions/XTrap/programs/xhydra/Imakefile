@@ -1,0 +1,18 @@
+XCOMM Imakefile for Xhydra - rob
+
+XMLIB = -lXm
+
+XTRAPLIB = -lXETrap
+XTESTLIB = -lXtst
+
+LOC_EXT = $(XTRAPLIB) $(XTESTLIB)
+
+EXTRA_LIBRARIES = -lm
+
+SRCS = xhydra.c
+OBJS = xhydra.o
+
+LOCAL_LIBRARIES = $(XMLIB) $(XTOOLLIB) $(XMULIBONLY) $(LOC_EXT) $(XLIB)
+
+ComplexProgramTarget(xhydra)
+InstallAppDefaults(XHydra)

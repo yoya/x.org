@@ -1,0 +1,37 @@
+XCOMM
+XCOMM   @(#) Imakefile 11.1 93/11/24 SCOINC
+XCOMM
+XCOMM
+XCOMM                                                                       *
+XCOMM     Copyright (c) 1992-1993                  Ronald Joe Record        *
+XCOMM                                                                       *
+XCOMM              Ronald Joe Record                        (408) 458-3718  *
+XCOMM              212 Owen St., Santa Cruz, California 95062 USA           *
+XCOMM                                                                       *
+XCOMM
+
+XCOMM
+XCOMM        Imakefile for lyap, by Ron Record
+XCOMM
+        DEPLIBS = $(DEPXLIB)
+         MANDIR = /usr/man/man.CONTRIB
+  LYAP_INST_DIR = $(DESTDIR)/usr/local/lib/lyap
+      MANSUFFIX = CONTRIB
+XCOMM    Uncomment the following line if your system doesn't support prototypes 
+XCOMM    PROTODEFINE = -D_NO_PROTO
+XCOMM    -DMAPS includes code to support "Function forcing". See lyap.man (-F)
+      MAPDEFINE = -DMAPS
+        DEFINES = $(MAPDEFINE) $(PROTODEFINE)
+       INCLUDES = -I. -I../libXrr
+LOCAL_LIBRARIES = ../libXrr/libXrr.a $(XLIB) 
+  SYS_LIBRARIES = -lm $(NAPLIB)
+           SRCS = lyap.c
+           OBJS = lyap.o
+
+ComplexProgramTarget(lyap)
+
+install:: install.man
+	@if [ ! -d $(LYAP_INST_DIR) ]; then mkdir -p $(LYAP_INST_DIR); fi
+	@cd ./params; set -x; for file in *; do \
+		$(INSTALL) -c $(INSTDATFLAGS) $$file $(LYAP_INST_DIR); \
+	done

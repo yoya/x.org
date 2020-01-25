@@ -1,0 +1,14 @@
+DOIT applies the current command (set with a Popup on "Command" label)
+on the current range (First-Last) of characters.
+
+First and Last can be choose with the keyboard (mouse click on their
+labels) or directly by mouse in the window itself when the current mode 
+is not "Put/Get".
+
+When the mode is "Put/Get", mouse click transfert image between edit window
+and font window (MB1=Put and MB2=Get). Automatic resize of the font window
+is done with Put (and the old character is put in the garbage window)
+
+DOIT with mode="Put/Get" initialize First=0 and Last=255.
+
+Depend on the mouse button, the scrollbar inverts the sense of translation.

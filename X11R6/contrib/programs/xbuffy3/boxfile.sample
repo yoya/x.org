@@ -1,0 +1,30 @@
+# Spool directory
+box /usr/spool/mail/wfp5p
+title mail
+command xterm -sb -title "mail" -e "elm"&
+beep
+polltime 45
+newMode
+headertime 10
+
+box /home/wfp5p/.Mail/pepband
+title Pep Band
+beep
+command xterm -sb -title "Pep Band" -e elm -Mf /home/wfp5p/.Mail/pepband&
+polltime 45
+newMode
+headertime 10
+
+box /home/wfp5p/.Mail/sonic-life-l
+title Sonic Life
+command xterm -sb -title "Sonic Life" -e elm -Mf /home/wfp5p/.Mail/sonic-life-l&
+beep
+polltime 120
+newMode
+
+#box uva.general
+#newsbox
+#beep
+#polltime 30
+#newMode
+

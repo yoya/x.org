@@ -1,0 +1,165 @@
+$XConsortium: README,v 1.2 95/01/06 19:12:51 gildea Exp $
+
+				Low Bandwidth X
+				     (LBX)
+
+This tree contains a snapshot of the code for Low Bandwidth X, the effort to
+develop a standard for running X applications over serial lines, wide-area
+networks, and other low-bandwidth, high-latency transports.  While many of
+the major pieces of the eventual standard are represented here, LBX is *not*
+done yet; this code should be treated as an "alpha" or "prototype" for people
+who are interested in seeing the overall form that LBX is expected to take.
+
+             ******************************************************
+             *                                                    *
+             *                      WARNING                       *
+             *                                                    *
+             *    This version of LBX is *NOT* a standard of      *
+             *    the X Consortium and will *NOT* be compatible   *
+             *    with the final version.                         *
+             *                                                    *
+             ******************************************************
+
+The goal of LBX is to improve the startup time, performance, and interactive
+feel of X applications run over low bandwidth transports.  LBX does this by
+interposing a "pseudo-server" (called the "proxy") between the X clients and
+the X server.  The proxy caches data flowing between the server and the
+clients, merges the X protocol streams, and compresses the data that is sent
+over the low bandwidth wire.  The X server at the other end uncompresses the
+data and splits it back out into separate request streams.  The target is to
+transparently make many X applications usable over 9600 baud modems.
+
+This code snapshot contains the following features:
+
+    o	LZW compression of the binary data stream.  Since commercial use
+	of LZW requires licensing patented technology, we are also looking
+	for an unencumbered algorithm and implementation to provide as well.
+
+    o	Delta compression of X packets (representing packets as "diffs"
+	against previously sent packets).
+
+    o	Re-encoding of some graphics requests (points, lines, segments,
+	rectangles, and arcs).
+
+    o	Motion event throttling (to keep from flooding the wire).
+
+    o	Caching of data in the proxy for large data objects that otherwise
+	would be transmitted over the wire multiple times (e.g. properties,
+	font metrics, keyboard mappings, connection startup data, etc.).
+
+    o	Short-circuiting of requests for constant data (e.g. atoms,
+	colorname/rgb mappings, and read-only color cells).
+
+However, the following items have yet to be implemented (which is why it
+isn't a standard yet...):
+
+    o	Re-encoding of a number of requests (e.g. QueryFont), events, etc.
+
+    o	Support for BIG-REQUESTS extension.
+
+    o	A non-networked serial protocol for environments which cannot
+	support os-level networking over serial lines.
+
+    o	A full specification needs to be written describing the network
+	protocol used between the proxy and the server.
+
+The LBX team is continuing to work on both the implementation of the remaining
+items and the full specification.  The goal is to have all of the pieces ready
+for final review by the public later this year.  Since the specification for
+LBX *will* change, vendors are discouraged from building products based on
+this prototype.
+
+However, everyone is strongly encouraged to work with the code, examine the
+concepts, comments on alternatives, and volunteer to help finish it up!
+
+				Dave Lemke <lemke@ncd.com>
+				Dale Tonogai <dct@ncd.com>
+				Keith Packard <keithp@ncd.com>
+				Jim Fulton <jim@ncd.com>
+				Chris Kanterjiev <cak@parc.xerox.com>
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+				  Code Layout
+
+programs/Xserver/lbx contains the majority of the LBX modifications to
+the X server.  Xserver/os has been modified to allow LBX to multiplex
+clients over a single connection.  There are also occasional hooks in
+Xserver/dix and some changes in Xserver/include.
+
+lib/lbxutil contains the LZW and delta encoding libraries, which
+are used by both the Xserver and the lbxproxy.
+
+The LZW library contains code to handle (de)compression of a byte stream.
+Note that Unisys owns the patent covering the compression algorithm used.
+
+The delta library contains the code to further compress a series of
+protocol packets by replacing those packets with deltas to previous
+packets.
+
+programs/lbxproxy contains the LBX pseudo-server.
+The di subdirectory contains the device-independent code.  This includes
+code to support several forms of data caching and request-specific
+changes.
+
+The communication layer is in the os subdirectory.  It handles all
+connection initiation and communication, and multiplexes the data from
+many X clients onto a single connection.
+
+
+				  Building LBX
+
+To use it, you need both an R6 Xserver and the lbxproxy.
+
+Add this line to $(TOP)/config/cf/site.def:
+
+#define	BuildLBX YES
+
+You may then do a "make World" or "make Everything" at top level.
+
+To rebuild just the X server:
+
+    %  cd programs/Xserver
+    %  make clean
+    %  make Makefile
+    %  make Makefiles
+    %  make includes
+    %  make depend
+    %  make
+
+To build lbxproxy:
+
+    %  cd workInProgress
+    %  make Makefile
+    %  make Makefiles SUBDIRS=lbx
+    %  cd lbx
+    %  make includes
+    %  make depend
+    %  make
+
+
+				     Usage
+
+Start the X server as usual, and then start the proxy.  The lbxproxy
+is a pseudo-server, so any clients that wish to use it need to adjust
+their DISPLAY.  By default, the proxy will listen on hostname:1.
+This can be changed by using the ':portnum' argument.
+
+Example:
+
+If the proxy is to be running on a host named "sharedhost", connecting
+to an LBX-capable X server on a desktop machine named "mydesktop", you 
+could use the following command to start the proxy (which would be 
+known as display "sharedhost:7"):
+
+    mydesktop%  rlogin sharedhost
+    sharedhost%  lbxproxy -display mydesktop:0 :7 &
+    sharedhost%  xclient -display sharedhost:7
+
+
+
+			      Other Documentation
+
+programs/lbxproxy/design contains rough design notes for the implementation.  
+More detailed comments can be found in the code.

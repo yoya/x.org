@@ -1,0 +1,14 @@
+
+==============================================
+connectivity[0].list[0].shorts[1] = 13 and is > vertex_count = 3!
+PEXError: Bad PEX OC
+OC code: 97
+Request code: 28
+==============================================
+
+==============================================
+connectivity[0].list[0].shorts[1] = -3 and is < 0!
+PEXError: Bad PEX OC
+OC code: 97
+Request code: 28
+==============================================

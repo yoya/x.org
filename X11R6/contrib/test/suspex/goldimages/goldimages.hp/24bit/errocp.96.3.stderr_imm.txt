@@ -1,0 +1,51 @@
+
+==============================================
+  vertex_attributes = PEXGANone;
+==============================================
+
+==============================================
+  vertex_attributes = PEXGAColor;
+==============================================
+
+==============================================
+  vertex_attributes = PEXGANormal;
+==============================================
+
+==============================================
+  vertex_attributes = PEXGAEdges;
+PEXError: Bad PEX OC
+OC code: 96
+Request code: 28
+==============================================
+
+==============================================
+  vertex_attributes = PEXGAColor | PEXGANormal;
+==============================================
+
+==============================================
+  vertex_attributes = PEXGAColor | PEXGAEdges;
+PEXError: Bad PEX OC
+OC code: 96
+Request code: 28
+==============================================
+
+==============================================
+  vertex_attributes = PEXGANormal | PEXGAEdges;
+PEXError: Bad PEX OC
+OC code: 96
+Request code: 28
+==============================================
+
+==============================================
+  vertex_attributes = PEXGAColor | PEXGANormal | PEXGAEdges;
+PEXError: Bad PEX OC
+OC code: 96
+Request code: 28
+==============================================
+
+==============================================
+  vertex_attributes = BogusVertexAttribute;
+PEXError: Bad PEX OC
+OC code: 96
+Request code: 28
+==============================================

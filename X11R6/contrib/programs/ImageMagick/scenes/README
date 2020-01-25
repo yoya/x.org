@@ -1,0 +1,12 @@
+DNA sequence useful for testing the animate(1) program from
+contrib/apllications/ImageMagick/ImageMagick-3.0.tar.gz on ftp.x.org.
+Animate(1) is a program that can display image sequences on any X
+server.  Type:
+
+  make -i
+  animate dna.[0-9]*
+
+ImageMagick requires POV to generate the DNA image sequence.
+Alternately, you can get the image sequence from
+contrib/applications/ImageMagick/ImageMagick.animation.tar.gz on
+ftp.x.org.

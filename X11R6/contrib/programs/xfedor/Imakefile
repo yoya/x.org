@@ -1,0 +1,34 @@
+XCOMM Specify here your Xpm installation directories
+        XPM_INCLUDEDIR = /project/motif/build/Xpm3.4/source/lib
+        XPM_LIBDIR = /project/motif/build/Xpm3.4/sun/lib
+
+        EXTRA_INCLUDES = -I$(XPM_INCLUDEDIR)
+
+        DEPLIBS = $(DEPXLIB)
+LOCAL_LIBRARIES = $(XLIB) -L$(XPM_LIBDIR) -lXpm
+  SYS_LIBRARIES = -lm
+
+           SRCS = couchex.c myrast.c dialogue.c popup.c\
+        tr_tabbord.c tr_garb.c tr_num.c tr_save.c\
+        tr_font.c tr_edit.c tr_extra.c tr_test.c\
+        tr_grille.c tr_colormap.c otheredit.c otherfont.c\
+        filer.c bitmap.c\
+        rubber.c sos.c\
+        ed_point.c ed_line.c ed_rect.c ed_cercle.c\
+        ed_write.c ed_metric.c ed_cutap.c ed_resize.c\
+        ed_fill.c ed_transl.c ed_rotate.c ed_beziers.c\
+        main.c
+
+           OBJS = couchex.o myrast.o dialogue.o popup.o\
+        tr_tabbord.o tr_garb.o tr_num.o tr_save.o\
+        tr_font.o tr_edit.o tr_extra.o tr_test.o\
+        tr_grille.o tr_colormap.o otheredit.o otherfont.o\
+        filer.o bitmap.o\
+        rubber.o sos.o\
+        ed_point.o ed_line.o ed_rect.o ed_cercle.o\
+        ed_write.o ed_metric.o ed_cutap.o ed_resize.o\
+        ed_fill.o ed_transl.o ed_rotate.o ed_beziers.o\
+        main.o
+
+
+ComplexProgramTarget(xfedor)

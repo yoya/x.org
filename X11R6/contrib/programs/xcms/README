@@ -1,0 +1,200 @@
+Christopher Alexander North-Keys                     <erlkonig@gnu.ai.mit.edu>
+Mon Jun  6 17:04:01 MET DST 1994
+52° 32' 00'' N -- 13° 25' 00'' E
+
+/* Copyright (c) 1994, Christopher Alexander North-Keys
+ * 
+ * The X Consortium, and any party obtaining a copy of these files from
+ * the X Consortium, directly or indirectly, is granted, free of charge, a
+ * full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+ * nonexclusive right and license to deal in this software and
+ * documentation files (the "Software"), including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons who receive
+ * copies from any such party to do so.  This license includes without
+ * limitation a license to do the foregoing actions under any patents of
+ * the party supplying this software to the X Consortium.
+ */
+
+Talisman Color Database, for use as server default or through XCMSDB
+
+Color Formats:  supports all Xcms formats, including:
+
+    RGB, RGBi, CIEXYZ, CIExyY, CIEuvY, CIELab, CIELuv, TekHVC
+
+Contents:
+
+    10762 colors, generated from the following source files
+
+    chrom.xcms     chromatics (colors)
+    greys.xcms     gr[ae]yscale
+    monochr.xcms   monochrome (black and white)
+    netrek.xcms    netrek (team colors)
+    sundry.xcms    miscellany
+    syms.xcms      symbolically-named colors
+    Others/*       earlier .rgb databases, with grey??'s removed
+
+    and two programs:
+
+    col2rgb (properly generates RGB's from all color formats)
+    rgb     (generates dbm format database, if needed)
+
+    and a gamma correction etc. file:
+
+    talisman.dcc
+
+	and several utility scripts.
+
+Build Warning:
+	Most of the distributed files were built using the GNUmakefile and GNU make
+	version 3.70.  The Imakefile is only capable of building the final database
+	layer, and doing the installs.  The Imakefile is *not* capable of building
+	new gamma-corrected databases---you must go to gmake to do that.
+
+Extensions:
+
+    .xcms      a program or script to generate Xcms colorname/colorspec pairs.
+    .col       the output from the corresponding .xcms script/exec.
+    .rgb       rgb.txt-format files: "%d %d %d\t\t%s", r, g, b, name
+    .xcmsdb    Xcms-pairs, in a form readable by X11R6/xc/lib/X11/cmsColNm.c
+               I don't recommend editting .xcmsdb files directly...
+	.txt       same as .rgb
+
+Generation of files:
+
+    foo.xcms -> foo.col
+
+    *.col -> rgb.xcmsdb
+
+ ...set XCMSDB to color.xcmsdb and DISPLAY to an accessible one for col2rgb
+    then setup decent gamma by running:
+
+    xcmsdb talisman.dcc
+  
+    foo.col -> foo.rgb 
+
+    *.rgb -> rgb.txt -(if_used)-> rgb.pag & rgb.dir
+
+Problems solved:
+
+    Paucity of in-between named color shades.
+    Greyscales too dark, subjectively uneven distribution.
+    Unable to display colorspace slices in xcolors(1).
+    Unable to predicably grep(1) for color subsets.
+    No tools provided for building RGB files from broader colorspaces.
+
+Interesting new ideas made possible:
+
+    Use of the XCMSDB environment variable could allow any user to
+    selectively override symbolically-named default colors, such
+    as a default color for warnings, errors, comments, strings, etc.
+    This is, of course, how the TCD was developed.
+
+Color model for chrom.xcms:
+
+    I had originally intended to use the TekHVC color space.  This
+    didn't quite work.  Oh well.
+
+    Two cones, base to base.  One point is white, the other black.  All
+    shades of grey lie between.  The perimeter of the central circle
+    is fully saturated color, varying continuously in hue throughout the
+    spectrum as the circle is circumnavigated.
+
+    Twenty-four roughly equidistant points were chosen, and named with
+    debatably obvious colornames.  Each arch is then trisected by two
+    additional names.  Assuming A and B as the two major hues, the names
+    for the four points along the arc A--B are A, AB, BA, B, the leading
+    name in the intermediate hues showing towards which of the major
+    hues the minor is baised.  Total named hues: seventy-two.
+
+    For each named hue H of the 72, the triangle in space described by
+    the points { White, Black, H }  has further subpoints chosen, based
+    upon the two subcomponents of the color within the given hue H,
+    1)  the offset towards White (Black is -1, Grey 0, White +1), and
+    2)  the offset parallel to the central disk, from the Grey in (1)
+    to the surface of the cone.
+
+    One odd side effect of this approach is a denser distribution of colors
+    near White and Black, and a sparser distribution towards the edge of
+    the central disk.
+
+Huenames:  of course, the color naming standard was not available, but:
+
+                                    R     G     B
+I         
+    red                             1     0     0  
+    green                           0     1     0  
+    blue                            0     0     1  
+                                                   
+II                                                 
+    yellow                          1     1     0  
+    cyan                            0     1     1  
+    magenta                         1     0     1
+                                                   
+III                                                
+    orange                          1     .50   0  
+    spring                          .50   1     0  
+    sea                             0     1     .50
+    torquoise                       0     .50   1  
+    purple                          .50   0     1       ?
+    fuchsia                         1     0     .50     ?
+                                                   
+IV                                                 
+    tangerine                       1     .25   0  
+    goldenrod                       1     .75   0  
+    chartreuse                      .75   1     0       ??
+    lime                            .25   1     0  
+    bluegrass                       0     1     .25
+    aquamarine                      0     1     .75
+    sky                             0     .75   1  
+    azure                           0     .25   1  
+    thistle                         .25   0     1  
+    plum                            .75   0     1  
+    mulberry                        1     0     .75
+    maroon                          1     0     .25
+
+V
+    The aforementioned intermediates...
+
+
+Dominance:  Those names overposed by ": . ." have comparative and
+            superlative forms (eg:  soft, softer, softest).
+
+                      0     :     :     :     :    1    
+    Grey Dominance:   pure  dull  mute  mist  grey
+    
+                      0     : . . : . . : . . +1
+    White Dominance:  full  soft  light weak
+    
+                      0     : . . : . . : . . : . . -1
+    Black Dominance:  full  deep  dark  dim  grim
+
+Greys:  Basenames of both "grey" and "gray", immediately followed by
+        number "0" to "100".  "grey" is an alternative to "grey50"
+        (and likewise "gray" to gray50").
+
+
+Symbolics:  Three levels of each default symbolic colorname are provided
+            for a color intended for <notices>:
+
+    notices             # normal bright color, suitable for dark backgrounds
+    notices/dark        # a dark version, suitable for light backgrounds
+    notices/light       # a light (less obnoxious) version, for dark backgrds
+
+    Given:
+
+    admin       comment     constant    converter   dynamic     error
+    extension   function    interlink   intrinsic   macro       notice
+    privileged  static      superlayer  variable    warning
+
+
+Netrek:  For the addicted.  Provided are:
+
+    orion       klingon     federation  romulan
+
+Sundry:  Heraldry and miscellaneous.
+
+___________________________________________________________________________
+Christopher Alex. North-Keys                           Unix Systems Analyst
+erlkonig@gnu.ai.mit.edu                                      Group Talisman
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

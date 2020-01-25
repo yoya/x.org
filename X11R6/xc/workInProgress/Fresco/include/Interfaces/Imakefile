@@ -1,0 +1,22 @@
+XCOMM $XConsortium: Imakefile,v 1.3 94/03/18 18:03:05 matt Exp $
+
+IDLS =	display.idl \
+	drawing.idl \
+	figures.idl \
+	glyph.idl \
+	layouts.idl \
+	types.idl \
+	viewer.idl \
+	widgets.idl
+
+DEST = $(INCDIR)/Fresco/Interfaces
+
+all::
+
+BuildIncludes($(IDLS),Fresco/Interfaces,../..)
+
+InstallMultipleFlags($(IDLS),$(DEST),$(INSTINCFLAGS))
+
+headers::
+
+clean_headers::

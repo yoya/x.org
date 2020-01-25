@@ -1,0 +1,155 @@
+.TH XMAILBOX++ 1 "Release 5" "X Version 11"
+.SH NAME
+xmailbox - mailbox checker for X using XPM icons
+.SH SYNOPSIS
+.B xmailbox
+[-\fItoolkitoption\fP ...] [-option ...]
+.SH DESCRIPTION
+The
+.I xmailbox
+program displays (by default) an image of a mailbox.  When there is no mail,
+the image shown is that of a mailbox with its flag down.  When mail arrives,
+the image changes to that of a mailbox with the flag up, its door open and a
+letter visible inside.  It can also optionally play a sound through the SUN 
+workstation's internal speaker.  The NCD audio server, the rplay sound package,
+and the standard SUN audio driver are supported.
+By default,
+pressing any mouse button in the image forces \fIxmailbox\fP to remember the
+current size of the mail file as being the ``empty'' size and to change
+its image accordingly.  In addition, the user can optionally invoke his/her
+favourite mail retrieving program.
+.PP
+This program is nothing more than a wrapper around the \fIMailbox++\fP
+widget included with the program's source distribution.
+.SH OPTIONS
+.I xmailbox
+accepts all of the standard X Toolkit command line options along with the
+additional options listed below:
+.TP 8
+.B \-help
+This option indicates that a brief summary of the allowed options should be
+printed on the standard error.
+.TP 8
+.B \-update \fIseconds\fP
+This option specifies the frequency in seconds at which \fIxmailbox\fP
+should update its display.  If the mailbox is obscured and then exposed,
+it will be updated immediately.  The default is 30 seconds.
+.TP 8
+.B \-file \fIfilename\fP
+This option specifies the name of the file which should be monitored.  By
+default, it watches /usr/spool/mail/\fIusername\fP, where \fIusername\fP
+is your login name.
+.TP 8
+.B \-volume \fIpercentage\fP
+This option specifies how loud the bell should be rung when new mail
+comes in, or, if the sound option is used, how high the playing volume
+should be. The default is 33 percent.
+.PP
+The following standard X Toolkit command line arguments are commonly used with 
+.I xmailbox:
+.TP 8
+.B \-display \fIdisplay\fP
+This option specifies the X server to contact.
+.TP 8
+.B \-xrm \fIresourcestring\fP
+This option specifies a resource string to be used.  This is especially
+useful for setting resources that do not have separate command line options.
+.SH X DEFAULTS
+The application class name is XMailbox.
+This program uses the 
+.I Mailbox++
+widget.  It understands all of the core resource names and
+classes as well as:
+.PP
+.TP 8
+.B checkCommand (\fPclass\fB CheckCommand)
+Specifies a shell command to be executed to check for new mail rather than
+examining the size of \fBfile\fP.  The specified string value is used as the
+argument to a \fIsystem\fP(3) call and may therefore contain i/o redirection.
+An exit status of 0 indicates that new mail is waiting, 1 indicates that there
+has been no change in size, and 2 indicates that the mail has been cleared.
+By default, no shell command is provided.
+.TP 8
+.B file (\fPclass\fB File)
+Specifies the name of the file to monitor.  The default is to watch
+/usr/spool/mail/\fIusername\fP, where \fIusername\fP is your login name.
+.TP 8
+.B onceOnly (\fPclass\fB Boolean)
+Specifies that the bell is only rung the first time new mail is found
+and is not rung again until at least one interval has passed with
+no mail waiting.  The window will continue to indicate the presence
+of new mail until it has been retrieved.  The default is false.
+.TP 8
+.B update (\fPclass\fB Interval)
+Specifies the frequency in seconds at which the mail should be checked.
+The default is 30.
+.TP 8
+.B volume (\fPclass\fB Volume)
+Specifies how loud the bell should be rung, or, if the sound option
+is used, how high the playing volume should be. The default is 33 percent.
+.TP 8
+.B mailXpmFile (\fPclass\fB MailXpmFile)
+Specifies the XPM file used when mail exists in the mailbox.
+.TP 8
+.B nomailXpmFile (\fPclass\fB NomailXpmFile)
+Specifies the XPM file used when there is no mail (or no new
+mail) in the mailbox.
+.TP 8
+.B mailSndFile (\fPclass\fB MailSndFile)
+Specifies the sound file used when mail exists in the mailbox. If no
+file is specified, the standard X Window beep sound is used.
+.TP 8
+.B mailapp (\fPclass\fB MailApp)
+Specifies the mail retrieving application to run when the user clicks on
+the mailbox image. The specified string value is used as the argument to
+a \fIsystem\fP(3) call.
+.TP 8
+.SH ACTIONS
+The \fIMailbox++\fP widget provides the following actions for use in event
+translations:
+.TP 8
+.B check()
+This action causes the widget to check for new mail and display the flag
+appropriately.
+.TP 8
+.B unset()
+This action causes the widget to lower the flag until new mail comes in.
+.TP 8
+.B set()
+This action causes the widget to raise the flag until the user resets it.
+.PP
+The default translation is 
+.sp
+.nf
+        <ButtonPress>:  unset()
+.fi
+.sp
+.SH ENVIRONMENT
+.PP
+.TP 8
+.B DISPLAY
+to get the default host and display number.
+.TP 8
+.B XENVIRONMENT
+to get the name of a resource file that overrides the global resources
+stored in the RESOURCE_MANAGER property.
+.SH "SEE ALSO"
+X(1),
+xrdb(1),
+stat(2)
+.SH AUTHORS
+Dimitrios P. Bouras 
+.br
+The first version of xmailbox was a hack based on the X11R5
+XBiff written by Jim Fulton, MIT X Consortium, and Ralph Swick,
+DEC/MIT Project Athena.
+.PP
+William K. W. Cheung
+.br
+Added optional sound output using the standard SUN audio
+driver, the rplay sound package, or the NCD audio server, as well as 
+optional mail application execution upon clicking on the mail icon.
+.br
+.SH COPYRIGHT
+Xbiff is Copyright 1988, Massachusetts Institute of Technology.
+See \fIX(1)\fP for a full statement of rights and permissions.

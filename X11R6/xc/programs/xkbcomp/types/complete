@@ -1,0 +1,7 @@
+// $XConsortium: complete,v 1.2 94/04/08 16:00:44 erik Exp $
+xkb_types "complete"
+
+include "basic"
+override "cancel"
+augment "ibmpc"
+augment "iso9995"

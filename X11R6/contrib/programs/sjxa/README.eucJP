@@ -1,0 +1,137 @@
+
+           sjxa - X Window System 日本語入力サーバー
+
+
+☆ はじめに
+
+    sjxa は、仮名漢字変換サーバとして sj3serv を使用し X Window アプリ
+    ケーションに日本語を入力するための IM Server です。
+
+    sjxa はクライアントとの通信プロトコルとして以下のものをサポートし
+    ています。
+	・ X11R6 XIM Protocol
+		通信経路は X Protocol のみ。
+		Dynamic Event Flow model / BackEnd Methodのみ対応
+	・X11R5 XIMP version 3.5
+		FrontEnd Method と BackEnd Method に対応
+	・X11R5 XIMP version 4.0
+		XIMP_TYPE 全 type (FrontEnd Type1/Type2/Type3,
+		BackEnd Type1/Type2, BackEnd Sync Type1/Type2) 対応
+	・XLC (Kinput protocol 上位互換性のあるプロトコル)
+	・SJX protocol (ソニー独自のプロトコル)
+
+    詳しい使い方は doc/Sjxa.ps をご参照ください。
+
+
+☆ コンパイル
+
+    コンパイルするには X11R5 または X11R6 がインストールされている必要
+    があります。
+
+  0) sjxa をコンパイルする前に sj3 の tree をコンパイルし、libsj3lib.a 
+     をインストールしてください。libsj3lib.a が無ければ仮名漢字変換は
+     できません。NEWS-OS でコンパイルする場合には OS の libsj3lib.a を
+     利用してもかまいません。
+
+  1) CONFIG ファイルを必要に応じて設定してください。
+     設定できるものは以下のものがあります。
+
+	・UseInstalledSj3Lib
+		インストールされている libsj3lib.a の利用可否を指定し
+		ます。NO に設定すると、仮名漢字変換が行えません。
+
+	・Sj3LibDir
+		libsj3lib.a が置かれているディレクトリを指定します。
+		sj3 をコンパイルし、インストールせずに sjxa をコンパイ
+		ルする場合に指定してください。
+
+	・HasSjisLocale
+		OS がサポートしている locale として SJIS locale がある
+		場合は YES に設定してください。
+
+	・HasJlsFunction
+		OS が以下の関数をサポートしていない場合は NO に指定し
+		てください。
+
+		  euc2jis	euc から JIS code への変換
+		  jis2euc	JIS code から euc への変換
+		  kuten2euc	区点コードから euc への変換
+		  kuten2sjis	区点コードから ShiftJIS への変換
+		  iseuc		EUC の漢字コード
+		  issjis1	ShiftJIS の第１バイト
+		  issjis2	ShiftJIS の第２バイト
+		  iskana2	半角カタカナ
+
+	・UseXIMCP
+		X11R6 XIM protocol 認識可否を指定。
+
+	・UseXIMP
+		XIMP 3.5/4.0 認識可否を指定。
+
+	・UseXLC
+		XLC Protocol 認識可否を指定。
+
+	・UseSJX
+		SJX protocol 認識可否を指定。
+
+	・JapeneseManLocale
+		インストールする日本語オンラインマニュアルの lang を指
+		定する。指定可能なものは "sjis" または "eucJP"。
+
+	・JapaneseManDir
+		日本語マニュアルをインストールするディレクトリを指定す
+		る。
+
+	・ManDir
+		英語マニュアルをインストールするディレクトリを指定する。
+
+  2) Makefile を作る。
+
+	% xmkmf -a
+
+  3) sjxa をコンパイルします。
+
+	% make
+
+  4) sjxa をインストールします。
+
+	% make install
+
+  5) オンラインマニュアルを必要に応じてインストールします。
+
+	% make install.man
+
+
+☆ テスト
+
+    sjxa は以下のマシンでのコンパイルテスト、動作確認を行ってます。
+
+	Sony	NWS-5000	NEWS-OS 4.2.1	X11R5
+	Sony	NWS-5000	NEWS-OS 6.0.2	X11R6 / X11R5
+	FUJITSU	DS 7742		UXP/DS V10L20	X11R6
+	SUN	SPARCstation	Solaris 2.3	X11R6
+	HP	HP9000S700	HP-UX9.01	X11R6
+
+
+☆ バグレポートとメイリングリスト
+
+    sjxa のバグを見つけた方は $(TOP)/xc/bug-report 形式で以下の mail
+    address に報告していただけると助かります。レポートは日本語又は英語
+    でお願いします。
+
+	sj3-bugs@sm.sony.co.jp
+
+
+☆ 謝辞
+
+    sjxa のテストに協力していただいた 藤原＠富士通さん、矢野＠東芝さん、
+    田島＠ＨＰさん にここに記して感謝申し上げます。
+
+	＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊
+	   ∩∩	   若松 真＠ＳＯＮＹ システムビジネスカンパニー
+	  （..）   コンピュータシステム設計部 設計１課
+	  (    )   E-mail: makoto@sm.sony.co.jp
+	    UU         	   makoto@7k1hqu.muken.prug.or.jp
+	＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊
+
+                                       1994年5月30日 春 ANビルにて

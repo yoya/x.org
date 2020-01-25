@@ -1,0 +1,20 @@
+XCOMM $XConsortium: Imakefile,v 1.2 94/04/11 16:44:19 rws Exp $
+#include <Server.tmpl>
+
+   SRCS = xkb.c xkbUtils.c xkbEvents.c xkbAccessX.c xkbStubs.c xkbSwap.c \
+            xkbInit.c xkbPrKeyEv.c xkbReadXkm.c
+   OBJS = xkb.o xkbUtils.o xkbEvents.o xkbAccessX.o xkbStubs.o xkbSwap.o \
+            xkbInit.o xkbPrKeyEv.o xkbReadXkm.o
+   INCLUDES = -I../include -I$(INCLUDESRC) -I$(EXTINCSRC)
+   LINTLIBS = ../dix/llib-ldix.ln ../os/llib-los.ln
+
+XKB_DEFINES = -DXKB_BASE_DIRECTORY=\"$(LIBDIR)/xkb\"
+
+NormalLibraryObjectRule()
+NormalLibraryTarget(xkb,$(OBJS))
+LintLibraryTarget(xkb,$(SRCS))
+NormalLintTarget($(SRCS))
+
+SpecialCObjectRule(xkbInit,$(ICONFIGFILES),$(XKB_DEFINES))
+
+DependTarget()

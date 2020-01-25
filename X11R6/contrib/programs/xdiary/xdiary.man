@@ -1,0 +1,503 @@
+.TH xdiary 1 "Release 6" "X Version 11"
+.SH NAME
+xdiary \- interactive daily diary and calendar for X
+.SH SYNOPSIS
+\fIxdiary\fP [options] [date-string]
+.SH DESCRIPTION
+\fIxdiary\fP is an X application that displays a calendar in one of two
+formats and/or an interactive daily diary.
+.SH OPTIONS
+\fIxdiary\fP accepts all of the standard toolkit command line options along
+with the following:
+.IP "\fB-lineWidth\fP \fIpixels\fP" 12
+This option indicates how many pixels wide the lines composing the calendar
+grid should be.  This value must be between 1 and 10 inclusive.  By default,
+the grid lines are one pixel wide.
+.IP "\fB-fullYearGeometry\fP \fIgeometry\fP" 12
+This option indicates the geometry to be used when determining the
+size and position of the full year calendar.  The full year
+calendar will default to the minimum size needed to hold calendars
+for all twelve months based on the specified font,
+abbreviation, and language options.
+.IP "\fB-oneMonthGeometry\fP \fIgeometry\fP" 12
+This option indicates the geometry to be used when determining the
+size and position of the one month calendar.  The one month
+calendar will default to the minimum size needed to hold a calendar
+for one month based on the specified font, abbreviation,
+and language options.
+.IP "\fB-diaryGeometry\fP \fIgeometry\fP" 12
+This option indicates the geometry to be used when determining the
+size and position of the diary.
+.IP "\fB-digitFont\fP \fIfont-name\fP" 12
+This option indicates the font to be used for the digits that will
+appear in the calendar cells.
+.IP "\fB-weekdayFont\fP \fIfont-name\fP" 12
+This option indicates the font to be used for the weekday names
+that will appear above each column of cells in the calendar.
+.IP "\fB-titleFont\fP \fIfont-name\fP" 12
+This option indicates the font to be used for the calendar
+title(s) that will appear above each calendar specifying the
+calendar's month and year.
+.IP "\fB-digitGravity\fP \fIgravity\fP" 12
+This option indicates the placement of the digits within the cells
+of the calendars, where \fIgravity\fP is one of the following:
+.IP
+NorthWest, North, NorthEast, West, Center, East, SouthWest, South, SouthEast
+.IP
+The default \fIgravity\fP is Center.
+.IP "\fB-startingWeekday\fP \fIday-name\fP" 12
+This option indicates which day of the week should correspond to
+the days in the left-most column of the calendar.  Sunday is the
+default.
+.IP "\fB-language\fP \fIlanguage-name\fP" 12
+This option indicates what language the calendar should display all of its
+text in.  Currently English, Spanish, French, and German are available.  Be
+sure to specify fonts with complete Latin-1 character specifications when
+specifying languages other than English.
+.IP "\fB-diaryFile\fP \fIdiary-filename\fP" 12
+This option indicates the filename that will be used to read the
+diary daily information from.  Any changes to the diary will be
+saved to this file when the Save menu option is selected.
+By default, the file ~/.xdiary will be used.
+.IP "\fB-templateFile\fP \fItemplate-filename\fP" 12
+This option indicates the filename that will be used to read the diary entry
+template from.  By default, the file ~/.xdiary-template will be used.
+If that file does not exist and if this option is not specified, then no diary
+entry template will be used.
+.IP \fB-noCalendar\fP 12
+This option indicates that upon startup no calendar is to be
+displayed along with the diary.  By default, a calendar will be displayed.
+.IP \fB-noDiary\fP 12
+This option indicates that upon startup no diary is to be
+displayed along with the calendar.  By default, a diary will be displayed.
+.IP "\fB-abbreviate\fP \fIcount\fP" 12
+This option indicates that the weekday names that will appear
+above each column in the calendar(s) should be abbreviated to \fIcount\fP
+characters.  By default, weekday names will be abbreviated to three characters.
+.IP \fB-long\fP 12
+This option indicates that the weekday names that will appear
+above each column in the calendar(s) should not be abbreviated.
+.IP \fB-fullYear\fP 12
+This option indicates that a full year calendar is to be displayed.  This
+option and the \fB-oneMonth\fP option are mutually exclusive.
+.IP \fB-oneMonth\fP 12
+This option indicates that only a one month calendar is to be displayed.  This
+is true by default.  This option and the \fB-fullYear\fP option are mutually
+exclusive.
+.IP \fIdate-string\fP 12
+A string specifying the date for the calendar and diary to display
+upon startup.  If no string is specified, the current date is
+used.  The string may be completely numeric or it may contain a
+month name.  However, if a language option is specified, the month
+name must be in the specified language.
+.IP
+Several formats are accepted, as well as incomplete dates:
+.nf
+.IP
+	9/17/66
+	17.9.66
+	Sep 17, 1966
+	17 september 66
+	Sept 66
+	1966
+.fi
+.PP
+Case is ignored and non-ambiguous abbreviations for the options and
+arguments are accepted.
+.SH OPERATION
+The \fBday\fP left and right arrows make the calendar and diary
+display the previous day and next day respectively.
+.PP
+The \fBmonth\fP left and right arrows make the calendar display the
+previous month and next month respectively.  However, the diary
+remains unchanged.
+.PP
+The \fByear\fP left and right arrows make the calendar display the
+previous year and next year respectively.  However, the diary remains
+unchanged.
+.PP
+The \fBentry\fP left and right arrows make the diary display the previous
+diary entry and next diary entry respectively.  The calendar is kept in sync
+with the current diary entry.
+.PP
+You can click with the left mouse button to select any date on the calendar
+that is currently visible.  The diary will then display the entry (if any) for
+the selected date.  The arrow keys may also be used to move around the
+calendar.
+.PP
+When the pointer is in the diary text window, any text typed will
+become part of the diary entry for the currently displayed date.
+.PP
+Clicking on the \fBOption\fP button will pull down a menu with the
+following selections:
+.IP "\fBGo To Today\fP" 12
+Make the calendar display today's date and make the diary display
+the corresponding diary entry.
+.IP "\fBGo To Date ...\fP" 12
+Pops up a dialog box and enables the user to type in a date for
+the calendar and diary to display.  The format of this date is
+identical to that of the \fIdate-string\fP described above.  Any month
+strings must be in the language specified.  Pressing the return
+key terminates input.  Bogus dates will be quietly ignored.
+.IP "\fBHide (or Show) Diary\fP" 12
+Hides (or Shows) the diary window.  If the \fB-noDiary\fP command line option
+was specified, or if the diary has already been hidden, this menu item brings
+the diary back into view.  If the diary is currently visible, this menu item
+hides the diary.
+.IP "\fBHide (or Show) Calendar\fP" 12
+Hides (or Shows) the calendar window.  If the \fB-noCalendar\fP command line
+option was specified, or if the calendar has already been hidden, this menu
+item brings the calendar back into view.  If the calendar is currently
+visible, this menu item hides the calendar.
+.IP "\fBOne Month Calendar\fP" 12
+Change the default calendar to a one month calendar.  If the full year
+calendar is currently being displayed, this menu item changes the full year
+calendar into a one month calendar.  If the \fB-noCalendar\fP option was
+specified, or if the calendar is currently hidden, then the one month calendar
+may be brought into view by selecting the Show Calendar menu item.
+.IP "\fBFull Year Calendar\fP" 12
+Change the default calendar to a full year calendar.  If the one month
+calendar is currently being displayed, this menu item changes the one month
+calendar into a full year calendar.  If the \fB-noCalendar\fP option was
+specified, or if the calendar is currently hidden, then the full year calendar
+may be brought into view by selecting the Show Calendar menu item.
+.IP \fBSave\fP 12
+Save the diary changes made during this session in the
+diary file.
+.IP \fBQuit\fP 12
+Exit the \fIxdiary\fP application.
+.SH TEMPLATES
+A template is a plain text file whose contents will be used for any diary
+entry that did not exist prior to the invocation of the \fIxdiary\fP
+application.
+.PP
+Templates allow you to customize the format of the diary entries.  For
+example, a template file could be created with the following contents:
+.PP
+.nf
+\fL	 7:00
+	 8:00
+	 9:00
+	10:00
+	11:00
+	 noon
+	 1:00
+	 2:00
+	 3:00
+	 4:00
+	 5:00\fP
+.fi
+.PP
+The above template would be useful for appointment scheduling and time
+management.  The following template would be useful for logging work:
+.PP
+.nf
+\fL	Things to do today:
+	1.
+	2.
+	3.
+
+	Things done today:
+	1.
+	2.
+	3.\fP
+.fi
+.PP
+Once text is added to the template, the template becomes part of the diary
+entry and can be edited for further customization.
+.PP
+If no template file is specified, and if the file ~/.xdiary-template does not
+exist, then all diary entries that did not exist prior
+to the invocation of the \fIxdiary\fP application will initially be empty.
+.SH DIARY FILE FORMAT
+The format chosen for the diary file is very simple so that it is
+possible to delete, add or change diary entries easily from a text
+editor.  The entry format is a newline terminated date string
+followed by a newline terminated double quote enclosed information
+string.  Double quotes within the information string are
+allowed, but they must be doubled (i.e. "").  A series of these
+entries make up the diary file.
+.PP
+The following two diary entries illustrate the format of the diary file:
+.PP
+.nf
+	9/17/1966
+	"Meeting with Steve and Sally went as expected."
+.PP
+	9/18/1966
+	"Dave said, ""Buy stock in Harris.""  Tom
+	and Jane are for selling IBM short."
+.fi
+.PP
+The entries may initially appear in any order, however they are
+always saved in ascending order by the \fIxdiary\fP application.
+.SH CUSTOMIZATION
+The \fIxdiary\fP application class name is XDiary.
+.PP
+The \fIxdiary\fP application is divided into three independent parts:
+.IP xdiary.fullYear
+This references the top level window of the full year calendar part.
+.IP xdiary.oneMonth
+This references the top level window of the one month calendar
+part.
+.IP xdiary.diary
+This references the top level window of the diary calendar part.
+.PP
+The fullYear and oneMonth calendar parts have a large number of resources
+that can be specified to customize their appearance.  See the documentation
+for the CalendarWidget for a list of these resources.
+.PP
+The diary's appearance can also be customized.  In addition, the text
+widget has few hard coded resources and can be customized in many ways.
+.PP
+.SH WIDGET HIERARCHY
+In order to specify resources, it is useful to know the hierarchy of the
+widgets that compose \fIxdiary\fP.  In the notation below, indentation
+indicates hierarchical structure.  The widget class name is given first,
+followed by the widget instance name.
+.PP
+.nf
+XDiary xdiary
+
+   Shell oneMonth
+      Paned paned
+         ButtonBox buttons
+            MenuButton option
+            Form form
+               Label month
+               Command dec
+               Command inc
+            Form form
+               Label year
+               Command dec
+               Command inc
+         Form form
+            Calendar calendar
+
+   Shell fullYear
+      Paned paned
+         ButtonBox buttons
+            MenuButton option
+            Form form
+               Label year
+               Command dec
+               Command inc
+         Form form
+            Calendar january
+            Calendar february
+            Calendar march
+            Calendar april
+            Calendar may
+            Calendar june
+            Calendar july
+            Calendar august
+            Calendar september
+            Calendar october
+            Calendar november
+            Calendar december
+
+   Shell diary
+      Paned paned
+         ButtonBox buttons
+            MenuButton option
+            Form form
+               Label day
+               Command dec
+               Command inc
+            Form form
+               Label entry
+               Command dec
+               Command inc
+            Label label
+         Form form
+            AsciiText text
+
+   Shell menu
+      SimpleMenu menuGoToToday
+      SimpleMenu menuGoToDate
+      SimpleMenu menuToggleDiary
+      SimpleMenu menuToggleCalendar
+      SimpleMenu menuOneMonth
+      SimpleMenu menuFullYear
+      SimpleMenu menuSave
+      SimpleMenu menuQuit
+
+   Shell enterDate
+      Dialog dialog
+         Command okay
+         Command cancel
+
+   Shell diaryModified
+      Dialog dialog
+         Command save
+         Command quit
+         Command cancel
+.fi
+.SH APPLICATION RESOURCES
+Resources that reflect command line options:
+.PP
+.IP "xdiary*noCalendar: \fIBoolean\fP"
+Same as the \fB-noCalendar\fP option.
+.IP "xdiary*noDiary: \fIBoolean\fP"
+Same as the \fB-noDiary\fP option.
+.IP "xdiary*language: \fILanguage\fP"
+Same as the \fB-language\fP option.
+.IP "xdiary*abbreviate: \fIInteger\fP"
+Same as the \fB-abbreviate\fP option.
+.IP "xdiary*long: \fIBoolean\fP"
+Same as the \fB-long\fP option.
+.IP "xdiary*diaryFile: \fIFilename\fP"
+Same as the \fB-diaryFile\fP option.
+.IP "xdiary*templateFile: \fIFilename\fP"
+Same as the \fB-templateFile\fP option.
+.IP "xdiary*fullYear: \fIBoolean\fP"
+Same as the \fB-fullYear\fP option.
+.IP "xdiary*oneMonth: \fIBoolean\fP"
+Same as the \fB-oneMonth\fP option.
+.IP "xdiary*Calendar*lineWidth: \fIInteger\fP"
+Same as the \fB-lineWidth\fP option.
+.IP "xdiary*fullYear.geometry: \fIGeometry\fP"
+Same as the \fB-fullYearGeometry\fP option.
+.IP "xdiary*oneMonth.geometry: \fIGeometry\fP"
+Same as the \fB-oneMonthGeometry\fP option.
+.IP "xdiary*diary.geometry: \fIGeometry\fP"
+Same as the \fB-diaryGeometry\fP option.
+.IP "xdiary*oneMonth*digitFont: \fIFont\fP"
+Same as the \fB-digitFont\fP option.
+.IP "xdiary*oneMonth*weekdayFont: \fIFont\fP"
+Same as the \fB-weekdayFont\fP option.
+.IP "xdiary*oneMonth*titleFont: \fIFont\fP"
+Same as the \fB-titleFont\fP option.
+.IP "xdiary*digitGravity: \fIGravity\fP"
+Same as the \fB-digitGravity\fP option.
+.IP "xdiary*startingWeekday: \fIWeekday\fP"
+Same as the \fB-startingWeekday\fP option.
+.PP
+The following resources may be specified in a resource file as a comma
+separated list of quoted strings:
+.IP "xdiary*Calendar*weekdayNames: \fIStringTable\fP"
+Specify the names of the weekdays to be used in the calendar(s).
+Seven strings must be specified.  When specifying weekday names as
+a resource, the \fB-language\fP, \fB-long\fP, and \fB-abbreviate\fP
+options must not be specified (they will override the resources).
+.IP "xdiary*Calendar*monthNames: \fIStringTable\fP"
+Specify the names of the months to be used in the calendar(s).
+Twelve strings must be specified.
+.IP "xdiary*Calendar*digitNames: \fIStringTable\fP"
+Specify the names of the digits to be used in the calendar(s).
+Thrity-one strings must be specified.  Added mostly for orthogonality,
+but could be used to specify characters in a specialized calendar
+font or to specify Roman numerals, etc.
+.SH ACTIONS
+The following actions are available for use in translations:
+.PP
+.IP "\fBday-inc\fP"
+Causes the calendar to select and highlight the date after the currently
+selected date.  The diary will change accordingly.
+.IP "\fBday-dec\fP"
+Causes the calendar to select and highlight the date before the currently
+selected date.  The diary will change accordingly.
+.IP "\fBweek-inc\fP"
+Causes the calendar to select and highlight the date one week after the
+currently selected date.  The diary will change accordingly.
+.IP "\fBweek-dec\fP"
+Causes the calendar to select and highlight the date one week before the
+currently selected date.  The diary will change accordingly.
+.IP "\fByear-inc\fP"
+Causes the calendar to show the month one year after the currently showing
+month.  The diary is unaffected.
+.IP "\fByear-dec\fP"
+Causes the calendar to show the month one year before the currently showing
+month.  The diary is unaffected.
+.IP "\fBmonth-inc\fP"
+Causes the calendar to show the month one month after the currently showing
+month.  The diary is unaffected.
+.IP "\fBmonth-dec\fP"
+Causes the calendar to show the month one month before the currently showing
+month.  The diary is unaffected.
+.IP "\fBentry-inc\fP"
+Causes the calendar to select and highlight the next date with a diary entry
+that occurs after the currently selected date.  The diary will change
+accordingly.
+.IP "\fBentry-dec\fP"
+Causes the calendar to select and highlight the previous date with a diary entry
+that occurs before the currently selected date.  The diary will change
+accordingly.
+.IP "\fBgoto-today\fP"
+Causes the calendar to display today's date and make the diary display
+the corresponding diary entry.
+.IP "\fBgoto-date\fP"
+Causes a dialog box to pop up enabling the user to type in a date for
+the calendar and diary to display.
+.IP "\fBsave\fP"
+Save the diary changes made during this session in the diary file.
+.IP "\fBtoggle-calendar\fP"
+If the calendar is currently showing, it will be hidden.  If it is currently
+hidden, it will be shown.
+.IP "\fBtoggle-diary\fP"
+If the diary is currently showing, it will be hidden.  If it is currently
+hidden, it will be shown.
+.PP
+You can set the \fI*oneMonth*translations\fP, \fI*fullYear*translations\fP and
+\fI*diary*translations\fP resources individually, or simply use "*translations" to
+apply translations to the entire application.
+.SH FILES
+.IP ~/.xdiary
+The default diary file.
+.IP ~/.xdiary-template
+The default template file.
+.SH SEE ALSO
+X(1), xrdb(1), the Athena Widget Set, Cal.ps
+.SH DIAGNOSTICS
+\fIxdiary\fP attempts to recover from syntax errors in the diary file, however
+there's no limit to the number of error messages produced so feeding it an
+entirely bogus file is not recommended.
+.PP
+Specifying fonts that do not exist will result in an X Protocol BadName
+fatal error.
+.SH BUGS
+\fIxdiary\fP doesn't do any file locking, so if multiple \fIxdiaries\fP are
+running based off the same diary file, the last one to save its diary wins.
+.PP
+The diary entries in the diary file do not append, therefore the last
+entry with a given date will replace any previous entries with the same
+date, and the previous entries will be lost after \fIxdiary\fP saves the diary
+(if any changes have been made).  This is only a problem if the diary
+file is edited by a text editor other than the one provided by \fIxdiary\fP.
+.SH COPYRIGHT
+Copyright (c) 1994  Harris Computer Systems Division
+.PP
+The X Consortium, and any party obtaining a copy of these files from the X
+Consortium, directly or indirectly, is granted, free of charge, a full and
+unrestricted irrevocable, world-wide, paid up, royalty-free, nonexclusive
+right and license to deal in this software and documentation files (the
+"Software"), including without limitation the rights to use, copy, modify,
+merge, publish, distribute, sublicense, and/or sell copies of the Software,
+and to permit persons who receive copies from any such party to do so.
+This license includes without limitation a license to do the foregoing
+actions under any patents of the party supplying this software to the X
+Consortium.
+.PP
+BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY FOR
+THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN
+OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
+PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED
+OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS
+TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE
+PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING,
+REPAIR OR CORRECTION.
+.PP
+IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING WILL
+ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR REDISTRIBUTE
+THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY
+GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE
+USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF
+DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD
+PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
+EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
+.SH AUTHOR
+.nf
+Jason Baietto
+Jason.Baietto@mail.csd.harris.com

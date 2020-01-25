@@ -1,0 +1,99 @@
+
+/* $XConsortium: tx1.pi,v 5.2 94/04/17 20:48:21 rws Exp $ */
+
+/*****************************************************************
+
+Copyright (c) 1989, 1990, 1991,1990  X Consortium
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Except as contained in this notice, the name of the X Consortium shall not be
+used in advertising or otherwise to promote the sale, use or other dealings
+in this Software without prior written authorization from the X Consortium.
+
+Copyright (c) 1989, 1990, 1991,1990 by Sun Microsystems, Inc.
+
+                        All Rights Reserved
+
+Permission to use, copy, modify, and distribute this software and its 
+documentation for any purpose and without fee is hereby granted, 
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in 
+supporting documentation, and that the names of Sun Microsystems,
+and the X Consortium, not be used in advertising or publicity 
+pertaining to distribution of the software without specific, written 
+prior permission.  
+
+SUN MICROSYSTEMS DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, 
+INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT 
+SHALL SUN MICROSYSTEMS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL 
+DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
+SOFTWARE.
+
+******************************************************************/
+
+
+## tx1.pi -  
+## Test text geometry
+
+source macro.pi
+
+tbegintest("tx1","text geometry");
+
+# setup: open phigs and a workstation, open a structure
+i_open_phigs(NULL,PDEF_MEM_SIZE); 
+i_open_x_ws(1,&xdisplay,&xwindow,0,0,200,200);
+popen_struct(1);
+
+# to enlarge text size
+pset_char_ht(0.03);
+
+# 2D text
+txpos = I_Ppoint(0.6,0.2);
+ptext(&txpos,"PEX-SI");
+
+# 3D text
+foreach @px @py @pz @ux @uy @uz @vx @vy @vz( 
+	0.1;0.8;0.0; 1.0;0.0;0.0;  0.0;1.0;0.0;  # normal
+	0.6;0.8;0.0; 0.0;1.0;0.0;  1.0;0.0;0.0;  # 90 deg anticlockwise,flipped
+	0.1;0.6;0.0; 1.0;1.0;0.0;  -1.0;1.0;0.0; # 45 deg anticlockwise
+	0.6;0.6;0.0; 1.0;0.0;0.0;  1.0;1.0;0.0;  # v not perpendicular to u
+	0.1;0.4;0.0; 0.0;0.0;1.0;  0.0;1.0;0.0;  # u going out
+	0.6;0.4;0.0; 2.0;1.0;0.0;  0.0;0.0;-1.0; # v going in 
+	0.1;0.2;0.0; 1.0;0.0;0.0;  1.0;0.0;0.0;  # u,v in same direction
+)
+	# initialize: various text direction vectors data, and test position 
+	txpos3 = I_Ppoint3(@px,@py,@pz);
+	dir = IA_Pvec3(2, @ux,@uy,@uz, @vx,@vy,@vz);
+
+	# draw text
+	ptext3(&txpos3,dir,"PEX-SI");
+end
+
+ppost_struct(1,1,1.0);
+
+
+# verify image
+i_check_image("tx1",xdisplay,xwindow,0,0,199,199,"text geometry");
+
+im_def_grid();
+i_pause();
+
+tendtest();

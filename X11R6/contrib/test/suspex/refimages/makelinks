@@ -1,0 +1,5 @@
+#!/bin/sh
+ln -s shared imm
+ln -s shared noc
+ln -s shared pws
+ln -s shared str

@@ -1,0 +1,30 @@
+XCOMM NEW for R6 XTrap
+#define DoNormalLib NormalLibXext
+#define DoSharedLib SharedLibXext
+#define DoDebugLib DebugLibXext
+#define DoProfileLib ProfileLibXext
+#define LibName XETrap
+#define SoRev SOXEXTREV
+#define LibHeaders NO
+
+#include <Threads.tmpl>
+
+#ifdef SharedXETrapReqs
+REQUIREDLIBS = SharedXETrapReqs
+#endif
+
+XCOMM wish this weren't necessary, but need xlib and xt internals...
+INCLUDES=-I../../include -I../Xt
+
+
+      EXTRA_DEFINES = -DX11R6
+      SRCS = XECallBcks.c XEConTxt.c XEDsptch.c XEKeybCtrl.c XEPrInfo.c \
+	XERqsts.c XEStrMap.c XETrapInit.c XEWrappers.c chparse.c sleep.c
+      OBJS = XECallBcks.o XEConTxt.o XEDsptch.o XEKeybCtrl.o XEPrInfo.o \
+	XERqsts.o XEStrMap.o XETrapInit.o XEWrappers.o chparse.o sleep.o
+
+LINTLIBS = $(LINTXLIB)
+
+#include <Library.tmpl>
+
+DependTarget()

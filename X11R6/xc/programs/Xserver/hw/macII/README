@@ -1,0 +1,65 @@
+These Apple X11 drivers support 1, 8, and 24 bit deep screens on the Macintosh
+hardware running A/UX. Multiple screens of any size and both depths are 
+accomodated. The 24 bit default visual is DirectColor, and there is
+significant color flash when shifting between TrueColor and DirectColor
+visuals in 24 bit mode.
+
+To run X you'll need a "network" kernel. Either the B-NET or the NFS kernel
+described in the A/UX Release Notes is sufficient. As a check, you must
+be able to successfully "rlogin" to A/UX from its own console. This
+requirement holds whether or not you have an Ethernet card or connection.
+
+Running the X server and the usual suite of clients requires at least 4MB
+of RAM. A 4MB system will thrash if the A/UX kernel tables are too large.
+The default table sizes do not lead to thrashing, but if you have adjusted
+these sizes using "kconfig" you may wish to restore the moderate default
+allocations.
+
+Build the system by:
+
+1)	In the top-level directory, type:
+
+	alias make "make SHELL=/bin/sh"
+	make BOOTSTRAPCFLAGS=-DmacII -k World >>& world.log
+
+	This takes several hours.  Many files will generate warnings about
+	"enumeration type clashes".  This is a misfeature in the C compiler 
+	and can safely be ignored.
+
+2)	As super-user, in the top-level directory, type:
+
+	make -k install
+
+3)	Copy the file /usr/lib/X11/.x11start to your home directory 
+	(.x11start invokes the initial clients and determines their
+	positions on the screen.) .x11start attempts to use the "twm"
+	window manager. You may choose to run another window manager by 
+	simply adjusting .x11start.
+
+4)	On the console put /usr/bin/X11, $X11BINDIR, (or whatever else you may
+	have chosen for BINDIR in Imake.tmpl) in your search path, and then
+	start the server:
+
+	    X11R6 (or X11)
+
+5)	X11R6 should start up an xterm window named "console" that acts as a
+	console.  When this xterm terminates, the xinit will kill the server.  
+	You can also start up client programs from a terminal or rlogin, 
+	but be sure the DISPLAY environment variable is set:
+
+	    setenv DISPLAY unix:0.0
+	    xterm &
+
+
+Many X clients assume the mouse has three buttons. The A/UX X server simulates
+the middle and right mouse buttons with keystrokes -- the left-arrow key
+generates middle button events, and the right-arrow key generates right button
+events -- the real mouse button generates left button events. The 
+open-apple or cloverleaf key is the "Meta" modifier, Meta can also be obtained
+by pressing the up-arrow key. The down-arrow key duplicates the Control key.
+Meta, Control, and Shift are often used in combination with other keystrokes
+or mouse clicks. For example, the terminal emulator xterm pops up menus in
+response to control-left and control-middle. The original function of the
+arrow keys may be obtained by holding down the Option key while pressing
+one of the arrow keys. This Option key behavior can be reversed by the
+-optionmouse command line option. See the man page for XmacII.

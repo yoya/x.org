@@ -1,0 +1,14 @@
+UP      : distance from baseline to character up
+DOWN    : ----------------------------------- down
+HSIZE   : width of the character being edited
+HINCR   : position of the next character relative to the origin of the current
+HADJ    : approach added to the origin of the bitmap: origin of the character
+NAME    : string character name
+
+FONT column gives maximal values for the current font with ASCII values
+of the characters giving these maxima.
+
+There are two different help for this window: standard text with a mouse click
+in the "SOS" label and graphic one with a click in the "CHAR" or "FONT" labels.
+
+This last one disappears with a simple click on it.

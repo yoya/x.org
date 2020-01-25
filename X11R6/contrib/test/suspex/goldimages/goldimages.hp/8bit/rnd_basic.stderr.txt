@@ -1,0 +1,48 @@
+------------------------------
+script number = 0
+create windows = 0, num_windows = 0, destroy_windows = 0
+initialize_pex = 0
+create renderers = 0, num_renderers = 0, free_renderers = 0
+check_renderer_attributes = 0
+bind renderers = 0, unbind_renderers = 0
+
+------------------------------
+script number = 1
+create windows = 1, num_windows = 1, destroy_windows = 1
+initialize_pex = 1
+create renderers = 0, num_renderers = 0, free_renderers = 0
+check_renderer_attributes = 0
+bind renderers = 0, unbind_renderers = 0
+
+------------------------------
+script number = 2
+create windows = 1, num_windows = 1, destroy_windows = 1
+initialize_pex = 1
+create renderers = 1, num_renderers = 1, free_renderers = 1
+check_renderer_attributes = 1
+bind renderers = 0, unbind_renderers = 0
+
+------------------------------
+script number = 3
+create windows = 1, num_windows = 1, destroy_windows = 1
+initialize_pex = 1
+create renderers = 1, num_renderers = 1, free_renderers = 1
+check_renderer_attributes = 1
+bind renderers = 1, unbind_renderers = 1
+
+------------------------------
+script number = 4
+create windows = 1, num_windows = 2, destroy_windows = 1
+initialize_pex = 1
+create renderers = 1, num_renderers = 2, free_renderers = 1
+check_renderer_attributes = 0
+bind renderers = 0, unbind_renderers = 0
+
+------------------------------
+script number = 5
+create windows = 1, num_windows = 2, destroy_windows = 1
+initialize_pex = 1
+create renderers = 1, num_renderers = 2, free_renderers = 1
+check_renderer_attributes = 1
+bind renderers = 1, unbind_renderers = 1
+

@@ -1,0 +1,69 @@
+  Information for Western Digital Chipset Users
+  The XFree86 Project, Inc.
+  16 December 1994
+
+  1.  Supported chipsets
+
+  XFree86 supports the following Western Digital SVGA chipsets: PVGA1,
+  WD90C00, WD90C10, WD90C11, WD90C30, WD90C31, WD90C33.  Note that the
+  WD90C2x series of LCD-controller chipsets (common on laptops) is still
+  not supported.  The WD90C24 is an exception to this.  It appears to be
+  compatible with the WD90C30, and the server will treat it as one of
+  these.  The WD90C24A is compatible with the WD90C31.  To use it, add a
+  `Chipset "wd90c31"' to your XF86Config file.  There may be some
+  problems on some OSs when returning to text mode when using the
+  WD90C24.  The WD90C31 and WD90C33 are now supported as an accelerated
+  chipset in the SVGA server; the accelerated features are automatically
+  activated when a WD90C31 or WD90C33 is detected, or specified in the
+  XF86Config file.
+
+
+  2.  Special considerations
+
+  All of the Western Digital chipsets after the PVGA1 support the
+  ability to use the memory-refresh clock as an alternate dot-clock for
+  video timing.  Hence for all of these chipsets, the server will detect
+  one more clocks than ``normal''.  What this means is that if you have
+  an old `Clocks' line in your XF86Config file, you should comment it
+  out, and rerun the server with the `-probeonly' option to find all of
+  the clock values.  All but the last should be the same as what you had
+  before; the last will be new.
+
+  For the WD90C00 chipset, the chipset will only support 640x480 in
+  256-color mode.  Even though 512k of memory should allow better than
+  800x600, the chipset itself cannot do this.  This is stated in the
+  databook (which lists 1024x768x16 and 640x480x256 for specifications).
+  We have also witnessed this behavior.
+
+  The server will now detect 17 clocks for the WD90C30 and WD90C31
+  chipsets.  If you have one of these chipsets, you should let the
+  server re-probe the clocks and update your XF86Config.
+
+  There is an `Option' flag available for the XF86Config file that is
+  specific to the Western Digital chipsets.  This option is
+  "swap_hibit".  We have determined via experimentation that the WD90C1x
+  and WD90C3x chipsets need the high-order clock-select bit inverted,
+  and the PVGA1 and WD90C00 need it non-inverted.  This is hardcoded
+  into the driver.  Since our sample-set was rather small, we have
+  provided the "swap_hibit" option to invert this behavior.  If the
+  clocks detected by the server show a very low last clock (under
+  28Mhz), then this option is likely needed.
+
+  Generated from XFree86: xc/programs/Xserver/hw/xfree86/doc/sgml/WstDig.sgml,v 3.1 1995/01/11 09:47:54 dawes Exp $
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+$XFree86: xc/programs/Xserver/hw/xfree86/doc/README.WstDig,v 3.5 1995/01/15 10:59:05 dawes Exp $
+$XConsortium: README.WstDig,v 1.5 95/01/16 13:17:27 kaleb Exp $

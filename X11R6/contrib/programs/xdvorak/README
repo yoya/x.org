@@ -1,0 +1,33 @@
+Xdvorak -- Dvorak keyboard layout for X.
+
+This is README version 1.2 of 94/05/20.
+
+USAGE
+
+Xdvorak installs a Dvorak keyboard map with the command:
+
+		xdvorak
+
+With no arguments, the program toggles between a Dvorak and a qwerty
+keyboard map.  Any arguments force the installation of a qwerty
+keyboard map.  Execute "xdvorak -qwerty" when you log out.
+
+INSTALLATION
+
+There are no special installation instructions.
+
+TESTING
+
+The program was tested on a Sun4 running SunOS 4.1.3 and X11R6 with
+fix01 applied on 20 May 1994.
+
+HISTORY
+
+The original program was distributed as contributed software in X11R3.
+Jim Blandy donated some patches that allow it to work on servers with
+a keymaps that were not anticipated.  He also rewrote some parts of
+the code so as to make it easier to understand.  This version replaces
+references to display structure components by a call to
+XDisplayKeycodes.
+
+John D. Ramsdell --- ramsdell@mitre.org

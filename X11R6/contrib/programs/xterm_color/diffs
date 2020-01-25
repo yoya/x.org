@@ -1,0 +1,1886 @@
+diff -c ../Tekproc.c ./Tekproc.c
+*** ../Tekproc.c	Sun Apr 17 19:23:23 1994
+--- ./Tekproc.c	Thu Apr 28 13:52:15 1994
+***************
+*** 1481,1486 ****
+--- 1481,1533 ----
+      if (!Ttoggled) TCursorToggle(TOGGLE);
+  }
+  
++ void
++ ChangeTekColors(screen,pNew)
++ register TScreen *screen;
++ ScrnColors *pNew;
++ {
++ 	register int i;
++ 	XGCValues gcv;
++ 	 
++ 
++ 	if (COLOR_DEFINED(pNew,TEK_FG)) {
++ 	    screen->Tforeground=	COLOR_VALUE(pNew,TEK_FG);
++ 	    XSetForeground(screen->display,screen->TnormalGC,
++ 					   screen->Tforeground);
++ 	}
++ 	if (COLOR_DEFINED(pNew,TEK_BG)) {
++ 	    screen->Tbackground=	COLOR_VALUE(pNew,TEK_BG);
++ 	    XSetBackground(screen->display,screen->TnormalGC,
++ 					   screen->Tbackground);
++ 	}
++ 
++ 
++ 	if (tekWidget) {
++ 	    if (tekWidget->core.border_pixel == screen->Tbackground) {
++ 		tekWidget->core.border_pixel = screen->Tforeground;
++ 		tekWidget->core.parent->core.border_pixel =
++ 		  screen->Tforeground;
++ 		if (tekWidget->core.parent->core.window)
++ 		  XSetWindowBorder (screen->display,
++ 				    tekWidget->core.parent->core.window,
++ 				    tekWidget->core.border_pixel);
++ 	    }
++ 	}
++ 
++ 	for(i = 0 ; i < TEKNUMLINES ; i++) {
++ 		XSetForeground(screen->display, screen->linepat[i], 
++ 		 screen->Tforeground);
++ 	}
++ 
++ 	screen->Tcursorcolor = screen->Tforeground;
++ 
++ 	gcv.plane_mask = screen->xorplane = (screen->Tbackground ^
++ 					     screen->Tcursorcolor);
++ 	XChangeGC (screen->display, screen->TcursorGC, GCPlaneMask, &gcv);
++ 	TekBackground(screen);
++ 	return;
++ }
++ 
+  TekReverseVideo(screen)
+  register TScreen *screen;
+  {
+diff -c ../button.c ./button.c
+*** ../button.c	Sat Apr  2 11:42:00 1994
+--- ./button.c	Thu Apr 28 13:52:16 1994
+***************
+*** 753,759 ****
+  	register Char *ch;
+  
+  	for ( i = screen->max_col,
+! 	        ch = screen->buf[2 * (row + screen->topline) + 1] + i ;
+  	      i >= 0 && !(*ch & CHARDRAWN) ;
+  	      ch--, i--)
+  	    ;
+--- 753,759 ----
+  	register Char *ch;
+  
+  	for ( i = screen->max_col,
+! 	        ch = screen->buf[4 * (row + screen->topline) + 1] + i ;
+  	      i >= 0 && !(*ch & CHARDRAWN) ;
+  	      ch--, i--)
+  	    ;
+***************
+*** 892,898 ****
+  				startSCol = 0;
+  				startSRow++;
+  			} else {
+! 				ptr = screen->buf[2*(startSRow+screen->topline)]
+  				 + startSCol;
+  				class = charClass[*ptr];
+  				do {
+--- 892,898 ----
+  				startSCol = 0;
+  				startSRow++;
+  			} else {
+! 				ptr = screen->buf[4*(startSRow+screen->topline)]
+  				 + startSCol;
+  				class = charClass[*ptr];
+  				do {
+***************
+*** 907,913 ****
+  				endSRow++;
+  			} else {
+  				length = LastTextCol(endSRow);
+! 				ptr = screen->buf[2*(endSRow+screen->topline)]
+  				 + endSCol;
+  				class = charClass[*ptr];
+  				do {
+--- 907,913 ----
+  				endSRow++;
+  			} else {
+  				length = LastTextCol(endSRow);
+! 				ptr = screen->buf[4*(endSRow+screen->topline)]
+  				 + endSCol;
+  				class = charClass[*ptr];
+  				do {
+***************
+*** 1334,1340 ****
+      int *eol;
+  {
+  	register int i = 0;
+! 	register Char *ch = screen->buf[2 * (row + screen->topline)];
+  	Char attr;
+  	register int c;
+  
+--- 1334,1340 ----
+      int *eol;
+  {
+  	register int i = 0;
+! 	register Char *ch = screen->buf[4 * (row + screen->topline)];
+  	Char attr;
+  	register int c;
+  
+diff -c ../charproc.c ./charproc.c
+*** ../charproc.c	Sun Apr 17 19:23:26 1994
+--- ./charproc.c	Fri Apr 29 12:50:19 1994
+***************
+*** 117,122 ****
+--- 117,130 ----
+  #define XtNcurses "curses"
+  #define XtNhpLowerleftBugCompat "hpLowerleftBugCompat"
+  #define XtNcursorColor "cursorColor"
++ #define XtNcolor0 "color0"
++ #define XtNcolor1 "color1"
++ #define XtNcolor2 "color2"
++ #define XtNcolor3 "color3"
++ #define XtNcolor4 "color4"
++ #define XtNcolor5 "color5"
++ #define XtNcolor6 "color6"
++ #define XtNcolor7 "color7"
+  #define XtNcutNewline "cutNewline"
+  #define XtNcutToBeginningOfLine "cutToBeginningOfLine"
+  #define XtNeightBitInput "eightBitInput"
+***************
+*** 382,388 ****
+  	XtRString, "XtDefaultForeground"},
+  {XtNcursorColor, XtCForeground, XtRPixel, sizeof(Pixel),
+  	XtOffsetOf(XtermWidgetRec, screen.cursorcolor),
+! 	XtRString, "XtDefaultForeground"},
+  {XtNeightBitInput, XtCEightBitInput, XtRBoolean, sizeof(Boolean),
+  	XtOffsetOf(XtermWidgetRec, screen.input_eight_bits), 
+  	XtRBoolean, (XtPointer) &defaultTRUE},
+--- 390,420 ----
+  	XtRString, "XtDefaultForeground"},
+  {XtNcursorColor, XtCForeground, XtRPixel, sizeof(Pixel),
+  	XtOffsetOf(XtermWidgetRec, screen.cursorcolor),
+! 	XtRString, "Green"},
+! {XtNcolor0, XtCForeground, XtRPixel, sizeof(Pixel),
+!         XtOffsetOf(XtermWidgetRec, screen.colors[COLOR_0]),
+!         XtRString, "Black"},
+! {XtNcolor1, XtCForeground, XtRPixel, sizeof(Pixel),
+!         XtOffsetOf(XtermWidgetRec, screen.colors[COLOR_1]),
+!         XtRString, "Red"},
+! {XtNcolor2, XtCForeground, XtRPixel, sizeof(Pixel),
+!         XtOffsetOf(XtermWidgetRec, screen.colors[COLOR_2]),
+!         XtRString, "Green"},
+! {XtNcolor3, XtCForeground, XtRPixel, sizeof(Pixel),
+!         XtOffsetOf(XtermWidgetRec, screen.colors[COLOR_3]),
+!         XtRString, "Yellow"},
+! {XtNcolor4, XtCForeground, XtRPixel, sizeof(Pixel),
+!         XtOffsetOf(XtermWidgetRec, screen.colors[COLOR_4]),
+!         XtRString, "Blue"},
+! {XtNcolor5, XtCForeground, XtRPixel, sizeof(Pixel),
+!         XtOffsetOf(XtermWidgetRec, screen.colors[COLOR_5]),
+!         XtRString, "Magenta"},
+! {XtNcolor6, XtCForeground, XtRPixel, sizeof(Pixel),
+!         XtOffsetOf(XtermWidgetRec, screen.colors[COLOR_6]),
+!         XtRString, "Cyan"},
+! {XtNcolor7, XtCForeground, XtRPixel, sizeof(Pixel),
+!         XtOffsetOf(XtermWidgetRec, screen.colors[COLOR_7]),
+!         XtRString, "White"},
+  {XtNeightBitInput, XtCEightBitInput, XtRBoolean, sizeof(Boolean),
+  	XtOffsetOf(XtermWidgetRec, screen.input_eight_bits), 
+  	XtRBoolean, (XtPointer) &defaultTRUE},
+***************
+*** 514,519 ****
+--- 546,554 ----
+  {"font6", "Font6", XtRString, sizeof(String),
+  	XtOffsetOf(XtermWidgetRec, screen.menu_font_names[fontMenu_font6]),
+  	XtRString, (XtPointer) NULL},
++ {"dynamicColors", "DynamicColors", XtRBoolean, sizeof(Boolean),
++         XtOffsetOf(XtermWidgetRec, misc.dynamicColors),
++         XtRBoolean, (XtPointer) &defaultTRUE}
+  };
+  
+  static void VTClassInit();
+***************
+*** 589,594 ****
+--- 624,631 ----
+  			}
+  			if(screen->curss) {
+  				dotext(screen, term->flags,
++ 				 term->cur_foreground,
++ 				 term->cur_background,
+  				 screen->gsets[screen->curss], bptr, bptr + 1);
+  				screen->curss = 0;
+  				bptr++;
+***************
+*** 595,600 ****
+--- 632,639 ----
+  			}
+  			if(bptr < cp)
+  				dotext(screen, term->flags,
++ 				 term->cur_foreground,
++ 				 term->cur_background,
+  				 screen->gsets[screen->curgl], bptr, cp);
+  			bptr = cp;
+  			break;
+***************
+*** 889,905 ****
+  				switch (param[row]) {
+  				 case DEFAULT:
+  				 case 0:
+! 					term->flags &= ~(INVERSE|BOLD|UNDERLINE);
+  					break;
+  				 case 1:
+  				 case 5:	/* Blink, really.	*/
+  					term->flags |= BOLD;
+  					break;
+  				 case 4:	/* Underscore		*/
+  					term->flags |= UNDERLINE;
+  					break;
+  				 case 7:
+  					term->flags |= INVERSE;
+  				}
+  			}
+  			parsestate = groundtable;
+--- 928,972 ----
+  				switch (param[row]) {
+  				 case DEFAULT:
+  				 case 0:
+! 					term->flags &=
+! 					  ~(INVERSE|BOLD|UNDERLINE|FG_COLOR|
+! 					    BG_COLOR|DIM);
+  					break;
+  				 case 1:
+  				 case 5:	/* Blink, really.	*/
+  					term->flags |= BOLD;
+  					break;
++ 				 case 2:
++ 					term->flags |= DIM;
++ 					break;
+  				 case 4:	/* Underscore		*/
+  					term->flags |= UNDERLINE;
+  					break;
+  				 case 7:
+  					term->flags |= INVERSE;
++ 					break;
++ 				 case 30:
++ 				 case 31:
++ 				 case 32:
++ 				 case 33:
++ 				 case 34:
++ 				 case 35:
++ 				 case 36:
++ 				 case 37:
++ 					term->flags |= FG_COLOR;
++ 					term->cur_foreground = param[row] - 30;
++ 					break;
++ 				 case 40:
++ 				 case 41:
++ 				 case 42:
++ 				 case 43:
++ 				 case 44:
++ 				 case 45:
++ 				 case 46:
++ 				 case 47:
++ 					term->flags |= BG_COLOR;
++ 					term->cur_background = param[row] - 40;
++ 					break;
+  				}
+  			}
+  			parsestate = groundtable;
+***************
+*** 998,1006 ****
+  			if(screen->cursor_state)
+  				HideCursor();
+  			for(row = screen->max_row ; row >= 0 ; row--) {
+! 				bzero(screen->buf[2 * row + 1],
+  				 col = screen->max_col + 1);
+! 				for(cp = (unsigned char *)screen->buf[2 * row] ; col > 0 ; col--)
+  					*cp++ = (unsigned char) 'E';
+  			}
+  			ScrnRefresh(screen, 0, 0, screen->max_row + 1,
+--- 1065,1073 ----
+  			if(screen->cursor_state)
+  				HideCursor();
+  			for(row = screen->max_row ; row >= 0 ; row--) {
+! 				bzero(screen->buf[4 * row + 1],
+  				 col = screen->max_col + 1);
+! 				for(cp = (unsigned char *)screen->buf[4 * row] ; col > 0 ; col--)
+  					*cp++ = (unsigned char) 'E';
+  			}
+  			ScrnRefresh(screen, 0, 0, screen->max_row + 1,
+***************
+*** 1405,1413 ****
+   * by charset.  worry about end of line conditions (wraparound if selected).
+   */
+  static void
+! dotext(screen, flags, charset, buf, ptr)
+      register TScreen	*screen;
+      unsigned	flags;
+      char	charset;
+      char	*buf;		/* start of characters to process */
+      char	*ptr;		/* end */
+--- 1472,1481 ----
+   * by charset.  worry about end of line conditions (wraparound if selected).
+   */
+  static void
+! dotext(screen, flags, fg, bg, charset, buf, ptr)
+      register TScreen	*screen;
+      unsigned	flags;
++     unsigned	fg, bg;
+      char	charset;
+      char	*buf;		/* start of characters to process */
+      char	*ptr;		/* end */
+***************
+*** 1456,1462 ****
+  		if (len < n)
+  			n = len;
+  		next_col = screen->cur_col + n;
+! 		WriteText(screen, ptr, n, flags);
+  		/*
+  		 * the call to WriteText updates screen->cur_col.
+  		 * If screen->cur_col != next_col, we must have
+--- 1524,1530 ----
+  		if (len < n)
+  			n = len;
+  		next_col = screen->cur_col + n;
+! 		WriteText(screen, ptr, n, flags, fg, bg);
+  		/*
+  		 * the call to WriteText updates screen->cur_col.
+  		 * If screen->cur_col != next_col, we must have
+***************
+*** 1473,1488 ****
+   * the current cursor position.  update cursor position.
+   */
+  static void
+! WriteText(screen, str, len, flags)
+      register TScreen	*screen;
+      register char	*str;
+      register int	len;
+      unsigned		flags;
+  {
+  	register int cx, cy;
+  	register unsigned fgs = flags;
+  	GC	currentGC;
+   
+     if(screen->cur_row - screen->topline <= screen->max_row) {
+  	/*
+  	if(screen->cur_row == screen->cursor_row && screen->cur_col <=
+--- 1541,1562 ----
+   * the current cursor position.  update cursor position.
+   */
+  static void
+! WriteText(screen, str, len, flags, fg, bg)
+      register TScreen	*screen;
+      register char	*str;
+      register int	len;
+      unsigned		flags;
++     unsigned		fg, bg;
+  {
+  	register int cx, cy;
+  	register unsigned fgs = flags;
++         register Pixel fg_pix, bg_pix;
+  	GC	currentGC;
++         extern XtermWidget term;
+   
++    fg_pix = (fgs&FG_COLOR) ? screen->colors[fg] : screen->foreground;
++    bg_pix = (fgs&BG_COLOR) ? screen->colors[bg] : term->core.background_pixel;
++ 
+     if(screen->cur_row - screen->topline <= screen->max_row) {
+  	/*
+  	if(screen->cur_row == screen->cursor_row && screen->cur_col <=
+***************
+*** 1496,1510 ****
+  	 *	make sure that the correct GC is current
+  	 */
+  
+! 	if (fgs & BOLD)
+! 		if (fgs & INVERSE)
+  			currentGC = screen->reverseboldGC;
+! 		else	currentGC = screen->normalboldGC;
+! 	else  /* not bold */
+! 		if (fgs & INVERSE)
+! 			currentGC = screen->reverseGC;
+  		else	currentGC = screen->normalGC;
+  
+  	if (fgs & INSERT)
+  		InsertChar(screen, len);
+        if (!(AddToRefresh(screen))) {
+--- 1570,1593 ----
+  	 *	make sure that the correct GC is current
+  	 */
+  
+! 	if (fgs & INVERSE) {
+! 		if (fgs & BOLD)
+  			currentGC = screen->reverseboldGC;
+! 		else	currentGC = screen->reverseGC;
+! 
+! 		    XSetForeground(screen->display, currentGC, bg_pix);
+! 		    XSetBackground(screen->display, currentGC, fg_pix);
+! 		  
+! 	} else {  /* not inverse */
+! 		if (fgs & BOLD)
+! 			currentGC = screen->normalboldGC;
+  		else	currentGC = screen->normalGC;
+  
++ 		    XSetForeground(screen->display, currentGC, fg_pix);
++ 		    XSetBackground(screen->display, currentGC, bg_pix);
++ 
++ 	}
++ 
+  	if (fgs & INSERT)
+  		InsertChar(screen, len);
+        if (!(AddToRefresh(screen))) {
+***************
+*** 1512,1517 ****
+--- 1595,1602 ----
+  			FlushScroll(screen);
+  	cx = CursorX(screen, screen->cur_col);
+  	cy = CursorY(screen, screen->cur_row)+screen->fnt_norm->ascent;
++ 
++ 
+   	XDrawImageString(screen->display, TextWindow(screen), currentGC,
+  			cx, cy, str, len);
+  
+***************
+*** 1533,1539 ****
+  	++ntotal;
+        }
+      }
+! 	ScreenWrite(screen, str, flags, len);
+  	CursorForward(screen, len);
+  }
+   
+--- 1618,1624 ----
+  	++ntotal;
+        }
+      }
+! 	ScreenWrite(screen, str, flags, fg, bg, len);
+  	CursorForward(screen, len);
+  }
+   
+***************
+*** 2072,2083 ****
+      register TScreen *screen;
+  {
+      register int rows = screen->max_row + 1;
+!     char *save [2 * MAX_ROWS];
+  
+!     memmove( (char *)save, (char *)screen->buf, 2 * sizeof(char *) * rows);
+      memmove( (char *)screen->buf, (char *)screen->altbuf, 
+! 	  2 * sizeof(char *) * rows);
+!     memmove( (char *)screen->altbuf, (char *)save, 2 * sizeof(char *) * rows);
+  }
+  
+  VTRun()
+--- 2157,2168 ----
+      register TScreen *screen;
+  {
+      register int rows = screen->max_row + 1;
+!     char *save [4 * MAX_ROWS];
+  
+!     memmove( (char *)save, (char *)screen->buf, 4 * sizeof(char *) * rows);
+      memmove( (char *)screen->buf, (char *)screen->altbuf, 
+! 	  4 * sizeof(char *) * rows);
+!     memmove( (char *)screen->altbuf, (char *)save, 4 * sizeof(char *) * rows);
+  }
+  
+  VTRun()
+***************
+*** 2211,2217 ****
+      screen->allbuf = Allocate (nrows, screen->max_col + 1,
+       &screen->sbuf_address);
+      if (screen->scrollWidget)
+!       screen->buf = &screen->allbuf[2 * screen->savelines];
+      else
+        screen->buf = screen->allbuf;
+      return;
+--- 2296,2302 ----
+      screen->allbuf = Allocate (nrows, screen->max_col + 1,
+       &screen->sbuf_address);
+      if (screen->scrollWidget)
+!       screen->buf = &screen->allbuf[4 * screen->savelines];
+      else
+        screen->buf = screen->allbuf;
+      return;
+***************
+*** 2275,2280 ****
+--- 2360,2368 ----
+     for (i = fontMenu_font1; i <= fontMenu_lastBuiltin; i++) {
+         new->screen.menu_font_names[i] = request->screen.menu_font_names[i];
+     }
++    for (i = 0; i < MAXCOLORS; i++) {
++        new->screen.colors[i] = request->screen.colors[i];
++    }
+     /* set default in realize proc */
+     new->screen.menu_font_names[fontMenu_fontdefault] = NULL;
+     new->screen.menu_font_names[fontMenu_fontescape] = NULL;
+***************
+*** 2582,2588 ****
+  
+  	if (screen->cur_row - screen->topline > screen->max_row)
+  		return;
+! 	c = screen->buf[y = 2 * (screen->cursor_row = screen->cur_row)]
+  	 [x = screen->cursor_col = screen->cur_col];
+  	flags = screen->buf[y + 1][x];
+  	if (c == 0)
+--- 2670,2676 ----
+  
+  	if (screen->cur_row - screen->topline > screen->max_row)
+  		return;
+! 	c = screen->buf[y = 4 * (screen->cursor_row = screen->cur_row)]
+  	 [x = screen->cursor_col = screen->cur_col];
+  	flags = screen->buf[y + 1][x];
+  	if (c == 0)
+***************
+*** 2669,2675 ****
+  
+  	if(screen->cursor_row - screen->topline > screen->max_row)
+  		return;
+! 	c = screen->buf[y = 2 * screen->cursor_row][x = screen->cursor_col];
+  	flags = screen->buf[y + 1][x];
+  
+  	if (screen->cursor_row > screen->endHRow ||
+--- 2757,2763 ----
+  
+  	if(screen->cursor_row - screen->topline > screen->max_row)
+  		return;
+! 	c = screen->buf[y = 4 * screen->cursor_row][x = screen->cursor_col];
+  	flags = screen->buf[y + 1][x];
+  
+  	if (screen->cursor_row > screen->endHRow ||
+***************
+*** 3121,3127 ****
+      xgcv.graphics_exposures = TRUE;	/* default */
+      xgcv.function = GXcopy;
+  
+!     new_normalGC = XtGetGC((Widget)term, mask, &xgcv);
+      if (!new_normalGC) goto bad;
+  
+      if (nfs == bfs) {			/* there is no bold font */
+--- 3209,3216 ----
+      xgcv.graphics_exposures = TRUE;	/* default */
+      xgcv.function = GXcopy;
+  
+!     new_normalGC = XCreateGC(screen->display,
+!                            DefaultRootWindow(screen->display), mask, &xgcv);
+      if (!new_normalGC) goto bad;
+  
+      if (nfs == bfs) {			/* there is no bold font */
+***************
+*** 3128,3134 ****
+  	new_normalboldGC = new_normalGC;
+      } else {
+  	xgcv.font = bfs->fid;
+! 	new_normalboldGC = XtGetGC((Widget)term, mask, &xgcv);
+  	if (!new_normalboldGC) goto bad;
+      }
+  
+--- 3217,3225 ----
+  	new_normalboldGC = new_normalGC;
+      } else {
+  	xgcv.font = bfs->fid;
+!         new_normalboldGC = XCreateGC(screen->display,
+!                                    DefaultRootWindow(screen->display),
+!                                    mask, &xgcv);
+  	if (!new_normalboldGC) goto bad;
+      }
+  
+***************
+*** 3135,3141 ****
+      xgcv.font = nfs->fid;
+      xgcv.foreground = term->core.background_pixel;
+      xgcv.background = screen->foreground;
+!     new_reverseGC = XtGetGC((Widget)term, mask, &xgcv);
+      if (!new_reverseGC) goto bad;
+  
+      if (nfs == bfs) {			/* there is no bold font */
+--- 3226,3233 ----
+      xgcv.font = nfs->fid;
+      xgcv.foreground = term->core.background_pixel;
+      xgcv.background = screen->foreground;
+!     new_reverseGC = XCreateGC(screen->display,
+!                             DefaultRootWindow(screen->display), mask, &xgcv);
+      if (!new_reverseGC) goto bad;
+  
+      if (nfs == bfs) {			/* there is no bold font */
+***************
+*** 3142,3157 ****
+  	new_reverseboldGC = new_reverseGC;
+      } else {
+  	xgcv.font = bfs->fid;
+! 	new_reverseboldGC = XtGetGC((Widget)term, mask, &xgcv);
+  	if (!new_reverseboldGC) goto bad;
+      }
+  
+      if (screen->normalGC != screen->normalboldGC)
+! 	XtReleaseGC ((Widget) term, screen->normalboldGC);
+!     XtReleaseGC ((Widget) term, screen->normalGC);
+      if (screen->reverseGC != screen->reverseboldGC)
+! 	XtReleaseGC ((Widget) term, screen->reverseboldGC);
+!     XtReleaseGC ((Widget) term, screen->reverseGC);
+      screen->normalGC = new_normalGC;
+      screen->normalboldGC = new_normalboldGC;
+      screen->reverseGC = new_reverseGC;
+--- 3234,3253 ----
+  	new_reverseboldGC = new_reverseGC;
+      } else {
+  	xgcv.font = bfs->fid;
+!         new_reverseboldGC = XCreateGC(screen->display,
+!                                        DefaultRootWindow(screen->display),
+!                                        mask, &xgcv);
+  	if (!new_reverseboldGC) goto bad;
+      }
+  
+      if (screen->normalGC != screen->normalboldGC)
+!         XFreeGC (screen->display, screen->normalboldGC);
+!     if (screen->normalGC)
+!         XFreeGC (screen->display, screen->normalGC);
+      if (screen->reverseGC != screen->reverseboldGC)
+!         XFreeGC (screen->display, screen->reverseboldGC);
+!     if (screen->reverseGC)
+!         XFreeGC (screen->display, screen->reverseGC);
+      screen->normalGC = new_normalGC;
+      screen->normalboldGC = new_normalboldGC;
+      screen->reverseGC = new_reverseGC;
+***************
+*** 3179,3191 ****
+    bad:
+      if (tmpname) free (tmpname);
+      if (new_normalGC)
+!       XtReleaseGC ((Widget) term, screen->normalGC);
+      if (new_normalGC && new_normalGC != new_normalboldGC)
+!       XtReleaseGC ((Widget) term, new_normalboldGC);
+      if (new_reverseGC)
+!       XtReleaseGC ((Widget) term, new_reverseGC);
+      if (new_reverseGC && new_reverseGC != new_reverseboldGC)
+!       XtReleaseGC ((Widget) term, new_reverseboldGC);
+      if (nfs) XFreeFont (screen->display, nfs);
+      if (nfs && nfs != bfs) XFreeFont (screen->display, bfs);
+      return 0;
+--- 3275,3287 ----
+    bad:
+      if (tmpname) free (tmpname);
+      if (new_normalGC)
+!         XFreeGC (screen->display, screen->normalGC);
+      if (new_normalGC && new_normalGC != new_normalboldGC)
+!         XFreeGC (screen->display, new_normalboldGC);
+      if (new_reverseGC)
+!         XFreeGC (screen->display, new_reverseGC);
+      if (new_reverseGC && new_reverseGC != new_reverseboldGC)
+!         XFreeGC (screen->display, new_reverseboldGC);
+      if (nfs) XFreeFont (screen->display, nfs);
+      if (nfs && nfs != bfs) XFreeFont (screen->display, bfs);
+      return 0;
+diff -c ../cursor.c ./cursor.c
+*** ../cursor.c	Mon Sep 20 16:42:25 1993
+--- ./cursor.c	Thu Apr 28 13:52:20 1994
+***************
+*** 203,208 ****
+--- 203,213 ----
+  CarriageReturn(screen)
+  register TScreen *screen;
+  {
++ /*	extern void ScrnSetAttributes();
++ 	
++ 	ScrnSetAttributes(screen, screen->cur_row, screen->cur_col,
++ 			  ENDLINE, ENDLINE, 1);
++ */
+  	screen->cur_col = 0;
+  	screen->do_wrap = 0;
+  	_CheckSelection(screen);
+diff -c ../main.c ./main.c
+*** ../main.c	Sun Apr 17 19:23:29 1994
+--- ./main.c	Fri Apr 29 13:00:10 1994
+***************
+*** 358,363 ****
+--- 358,366 ----
+  #ifdef TIOCSLTC
+  static struct ltchars d_ltc;
+  #endif	/* TIOCSLTC */
++ #if defined(sun) && defined(SVR4)
++ #undef TIOCLSET
++ #endif
+  #ifdef TIOCLSET
+  static unsigned int d_lmode;
+  #endif	/* TIOCLSET */
+***************
+*** 564,569 ****
+--- 567,574 ----
+  {"-cr",		"*cursorColor",	XrmoptionSepArg,	(caddr_t) NULL},
+  {"-cu",		"*curses",	XrmoptionNoArg,		(caddr_t) "on"},
+  {"+cu",		"*curses",	XrmoptionNoArg,		(caddr_t) "off"},
++ {"-dc",		"*dynamicColors",XrmoptionNoArg,	(caddr_t) "off"},
++ {"+dc",		"*dynamicColors",XrmoptionNoArg,	(caddr_t) "on"},
+  {"-e",		NULL,		XrmoptionSkipLine,	(caddr_t) NULL},
+  {"-fb",		"*boldFont",	XrmoptionSepArg,	(caddr_t) NULL},
+  {"-j",		"*jumpScroll",	XrmoptionNoArg,		(caddr_t) "on"},
+***************
+*** 688,693 ****
+--- 693,699 ----
+  { "-C",                    "intercept console messages (not supported)" },
+  #endif
+  { "-Sxxd",                 "slave mode on \"ttyxx\", file descriptor \"d\"" },
++ { "-/+dc",                 "turn off/on dynamic color selection" },
+  { NULL, NULL }};
+  
+  static char *message[] = {
+***************
+*** 852,858 ****
+  	** of the various terminal structures (which may change from
+  	** implementation to implementation).
+  	*/
+! #if defined(macII) || defined(ATT) || defined(CRAY)
+  	d_tio.c_iflag = ICRNL|IXON;
+  	d_tio.c_oflag = OPOST|ONLCR|TAB3;
+      	d_tio.c_cflag = B9600|CS8|CREAD|PARENB|HUPCL;
+--- 858,864 ----
+  	** of the various terminal structures (which may change from
+  	** implementation to implementation).
+  	*/
+! #if defined(macII) || defined(ATT) || defined(CRAY) || (defined(sun) && defined(SVR4))
+  	d_tio.c_iflag = ICRNL|IXON;
+  	d_tio.c_oflag = OPOST|ONLCR|TAB3;
+      	d_tio.c_cflag = B9600|CS8|CREAD|PARENB|HUPCL;
+***************
+*** 2064,2070 ****
+  		 */
+  		{
+  #ifdef USE_SYSV_TERMIO
+! #if defined(umips) || defined(CRAY)
+  		    /* If the control tty had its modes screwed around with,
+  		       eg. by lineedit in the shell, or emacs, etc. then tio
+  		       will have bad values.  Let's just get termio from the
+--- 2070,2076 ----
+  		 */
+  		{
+  #ifdef USE_SYSV_TERMIO
+! #if defined(umips) || defined(CRAY) || (defined(sun) && defined(SVR4))
+  		    /* If the control tty had its modes screwed around with,
+  		       eg. by lineedit in the shell, or emacs, etc. then tio
+  		       will have bad values.  Let's just get termio from the
+diff -c ../misc.c ./misc.c
+*** ../misc.c	Mon Mar 28 17:27:03 1994
+--- ./misc.c	Thu Apr 28 13:52:23 1994
+***************
+*** 682,687 ****
+--- 682,696 ----
+  		Changename(buf);
+  		Changetitle(buf);
+  		break;
++ 	 case 10:	case 11:	case 12:
++ 	 case 13:	case 14:	case 15:
++ 	 case 16:
++ 		{
++ 		    extern Boolean ChangeColorsRequest();
++ 		    if (term->misc.dynamicColors)
++ 			ChangeColorsRequest(term,mode-10,buf);
++ 		}
++ 		break;
+  
+  	 case 1:	/* new icon name only */
+  		Changename(buf);
+***************
+*** 744,749 ****
+--- 753,937 ----
+  {
+      ChangeGroup( XtNtitle, (XtArgVal)name );
+  }
++ 
++ /***====================================================================***/
++ 
++ ScrnColors	*pOldColors= NULL;
++ 
++ Boolean
++ GetOldColors(pTerm)
++ XtermWidget	pTerm;
++ {
++ int	i;
++     if (pOldColors==NULL) {
++ 	pOldColors=	(ScrnColors *)XtMalloc(sizeof(ScrnColors));
++ 	if (pOldColors==NULL) {
++ 	    fprintf(stderr,"allocation failure in GetOldColors\n");
++ 	    return(FALSE);
++ 	}
++ 	pOldColors->which=	0;
++ 	for (i=0;i<NCOLORS;i++) {
++ 	    pOldColors->colors[i]=	0;
++ 	    pOldColors->names[i]=	NULL;
++ 	}
++ 	GetColors(pTerm,pOldColors);
++     }
++     return(TRUE);
++ }
++ 
++ Boolean
++ UpdateOldColors(pTerm,pNew)
++ XtermWidget	pTerm;
++ ScrnColors	*pNew;
++ {
++ int	i;
++ 
++     /* if we were going to free old colors, this would be the place to
++      * do it.   I've decided not to (for now), because it seems likely
++      * that we'd have a small set of colors we use over and over, and that
++      * we could save some overhead this way.   The only case in which this
++      * (clearly) fails is if someone is trying a boatload of colors, in
++      * which case they can restart xterm
++      */
++     for (i=0;i<NCOLORS;i++) {
++ 	if (COLOR_DEFINED(pNew,i)) {
++ 	    if (pOldColors->names[i]!=NULL) {
++ 		XtFree(pOldColors->names[i]);
++ 		pOldColors->names[i]= NULL;
++ 	    }
++ 	    if (pNew->names[i]) {
++ 		pOldColors->names[i]= pNew->names[i];
++ 	    }
++ 	    pOldColors->colors[i]=	pNew->colors[i];
++ 	}
++     }
++     return(TRUE);
++ }
++ 
++ void
++ ReverseOldColors()
++ {
++ register ScrnColors	*pOld= pOldColors;
++ Pixel	 tmpPix;
++ char	*tmpName;
++ 
++     if (pOld) {
++ 	/* change text cursor, if necesary */
++ 	if (pOld->colors[TEXT_CURSOR]==pOld->colors[TEXT_FG]) {
++ 	    pOld->colors[TEXT_CURSOR]=	pOld->colors[TEXT_BG];
++ 	    if (pOld->names[TEXT_CURSOR]) {
++ 		XtFree(pOldColors->names[TEXT_CURSOR]);
++ 		pOld->names[TEXT_CURSOR]= NULL;
++ 	    }
++ 	    if (pOld->names[TEXT_BG]) {
++ 		tmpName= XtMalloc(strlen(pOld->names[TEXT_BG])+1);
++ 		if (tmpName) {
++ 		    strcpy(tmpName,pOld->names[TEXT_BG]);
++ 		    pOld->names[TEXT_CURSOR]= tmpName;
++ 		}
++ 	    }
++ 	}
++ 
++ 	/* swap text FG and BG */
++ 	tmpPix=		pOld->colors[TEXT_FG];
++ 	tmpName=	pOld->names[TEXT_FG];
++ 	pOld->colors[TEXT_FG]=	pOld->colors[TEXT_BG];
++ 	pOld->names[TEXT_FG]=	pOld->names[TEXT_BG];
++ 	pOld->colors[TEXT_BG]=	tmpPix;
++ 	pOld->names[TEXT_BG]=	tmpName;
++ 
++ 	/* swap mouse FG and BG */
++ 	tmpPix=		pOld->colors[MOUSE_FG];
++ 	tmpName=	pOld->names[MOUSE_FG];
++ 	pOld->colors[MOUSE_FG]=	pOld->colors[MOUSE_BG];
++ 	pOld->names[MOUSE_FG]=	pOld->names[MOUSE_BG];
++ 	pOld->colors[MOUSE_BG]=	tmpPix;
++ 	pOld->names[MOUSE_BG]=	tmpName;
++ 
++ 	/* swap Tek FG and BG */
++ 	tmpPix=		pOld->colors[TEK_FG];
++ 	tmpName=	pOld->names[TEK_FG];
++ 	pOld->colors[TEK_FG]=	pOld->colors[TEK_BG];
++ 	pOld->names[TEK_FG]=	pOld->names[TEK_BG];
++ 	pOld->colors[TEK_BG]=	tmpPix;
++ 	pOld->names[TEK_BG]=	tmpName;
++     }
++     return;
++ }
++ 
++ Boolean
++ AllocateColor(pTerm,pNew,ndx,name)
++ XtermWidget	 pTerm;
++ ScrnColors	*pNew;
++ int		 ndx;
++ char		*name;
++ {
++ XColor			 def;
++ register TScreen	*screen=	&pTerm->screen;
++ Colormap		 cmap=		pTerm->core.colormap;
++ char			*newName;
++ 
++     if ((XParseColor(screen->display,cmap,name,&def))&&
++ 	(XAllocColor(screen->display,cmap,&def))) {
++ 	SET_COLOR_VALUE(pNew,ndx,def.pixel);
++ 	newName= XtMalloc(strlen(name)+1);
++ 	if (newName) {
++ 	    strcpy(newName,name);
++ 	    SET_COLOR_NAME(pNew,ndx,newName);
++ 	}
++ 	return(TRUE);
++     }
++     return(FALSE);
++ }
++ 
++ Boolean
++ ChangeColorsRequest(pTerm,start,names)
++ XtermWidget	pTerm;
++ int		start;
++ register char	*names;
++ {
++ char		*thisName;
++ ScrnColors	newColors;
++ int		i,ndx;
++ 
++     if ((pOldColors==NULL)&&(!GetOldColors(pTerm))) {
++ 	return(FALSE);
++     }
++     newColors.which=	0;
++     for (i=0;i<NCOLORS;i++) {
++ 	newColors.names[i]=	NULL;
++     }
++     for (i=start;i<NCOLORS;i++) {
++ 	if (term->misc.re_verse)	ndx=	OPPOSITE_COLOR(i);
++ 	else				ndx=	i;
++ 	if ((names==NULL)||(names[0]=='\0')) {
++ 	    newColors.names[ndx]=	NULL;
++ 	}
++ 	else {
++ 	    if (names[0]==';') 
++ 		 thisName=	NULL;
++ 	    else thisName=	names;
++ 	    names=	index(names,';');
++ 	    if (names!=NULL) {
++ 		*names=	'\0';
++ 		names++;
++ 	    }
++ 	    if ((!pOldColors->names[ndx])||
++ 		(thisName&&(strcmp(thisName,pOldColors->names[ndx])))) {
++ 		AllocateColor(pTerm,&newColors,ndx,thisName);
++ 	    }
++ 	}
++     }
++ 
++     if (newColors.which==0)
++ 	return(TRUE);
++ 
++     ChangeColors(pTerm,&newColors);
++     UpdateOldColors(pTerm,&newColors);
++     return(TRUE);
++ }
++ 
++ /***====================================================================***/
+  
+  #ifndef DEBUG
+  /* ARGSUSED */
+diff -c ../ptyx.h ./ptyx.h
+*** ../ptyx.h	Mon Feb  7 07:49:25 1994
+--- ./ptyx.h	Thu Apr 28 13:52:25 1994
+***************
+*** 191,197 ****
+--- 191,241 ----
+  #define	SAVELINES		64      /* default # lines to save      */
+  #define SCROLLLINES 1			/* default # lines to scroll    */
+  
++ /***====================================================================***/
++ 
++ #define	TEXT_FG		0
++ #define	TEXT_BG		1
++ #define	TEXT_CURSOR	2
++ #define	MOUSE_FG	3
++ #define	MOUSE_BG	4
++ #define	TEK_FG		5
++ #define	TEK_BG		6
++ #define	NCOLORS		7
++ 
++ #define	COLOR_DEFINED(s,w)	((s)->which&(1<<(w)))
++ #define	COLOR_VALUE(s,w)	((s)->colors[w])
++ #define	SET_COLOR_VALUE(s,w,v)	(((s)->colors[w]=(v)),((s)->which|=(1<<(w))))
++ 
++ #define	COLOR_NAME(s,w)		((s)->names[w])
++ #define	SET_COLOR_NAME(s,w,v)	(((s)->names[w]=(v)),((s)->which|=(1<<(w))))
++ 
++ #define	UNDEFINE_COLOR(s,w)	((s)->which&=(~((w)<<1)))
++ #define	OPPOSITE_COLOR(n)	(((n)==TEXT_FG?TEXT_BG:\
++ 				 ((n)==TEXT_BG?TEXT_FG:\
++ 				 ((n)==MOUSE_FG?MOUSE_BG:\
++ 				 ((n)==MOUSE_BG?MOUSE_FG:\
++ 				 ((n)==TEK_FG?TEK_BG:\
++ 				 ((n)==TEXT_BG?TEK_FG:(n))))))))
++ 
+  typedef struct {
++ 	unsigned	which;
++ 	Pixel		colors[NCOLORS];
++ 	char		*names[NCOLORS];
++ } ScrnColors;
++ 
++ /***====================================================================***/
++ 
++ #define MAXCOLORS 8
++ #define COLOR_0		0
++ #define COLOR_1		1
++ #define COLOR_2		2
++ #define COLOR_3		3
++ #define COLOR_4		4
++ #define COLOR_5		5
++ #define COLOR_6		6
++ #define COLOR_7		7
++ 
++ typedef struct {
+  /* These parameters apply to both windows */
+  	Display		*display;	/* X display for screen		*/
+  	int		respond;	/* socket for responses
+***************
+*** 210,215 ****
+--- 254,260 ----
+  	Pixel		cursorcolor;	/* Cursor color			*/
+  	Pixel		mousecolor;	/* Mouse color			*/
+  	Pixel		mousecolorback;	/* Mouse color background	*/
++ 	Pixel		colors[MAXCOLORS]; /* ANSI color emulation	*/
+  	int		border;		/* inner border			*/
+  	Cursor		arrow;		/* arrow cursor			*/
+  	unsigned short	send_mouse_pos;	/* user wants mouse transition  */
+***************
+*** 397,402 ****
+--- 442,448 ----
+      Boolean scrollbar;
+      Boolean titeInhibit;
+      Boolean tekSmall;	/* start tek window in small size */
++     Boolean dynamicColors;
+      Boolean appcursorDefault;
+      Boolean appkeypadDefault;
+  } Misc;
+***************
+*** 430,435 ****
+--- 476,483 ----
+      TKeyboard	keyboard;	/* terminal keyboard		*/
+      TScreen	screen;		/* terminal screen		*/
+      unsigned	flags;		/* mode flags			*/
++     unsigned    cur_foreground;	/* current foreground color	*/
++     unsigned    cur_background;	/* current background color	*/
+      unsigned	initflags;	/* initial mode flags		*/
+      Tabs	tabs;		/* tabstops of the terminal	*/
+      Misc	misc;		/* miscellaneous parameters	*/
+***************
+*** 451,457 ****
+   * term->flags and screen->save_modes.  This need only fit in an unsigned.
+   */
+  
+! #define	ATTRIBUTES	0x07	/* mask: user-visible attributes */
+  /* global flags and character flags (visible character attributes) */
+  #define INVERSE		0x01	/* invert the characters to be output */
+  #define UNDERLINE	0x02	/* true if underlining */
+--- 499,505 ----
+   * term->flags and screen->save_modes.  This need only fit in an unsigned.
+   */
+  
+! #define	ATTRIBUTES	0x67	/* mask: user-visible attributes */
+  /* global flags and character flags (visible character attributes) */
+  #define INVERSE		0x01	/* invert the characters to be output */
+  #define UNDERLINE	0x02	/* true if underlining */
+***************
+*** 468,473 ****
+--- 516,524 ----
+  #define CHARDRAWN	0x10    /* a character has been drawn here on the
+  				   screen.  Used to distinguish blanks from
+  				   empty parts of the screen when selecting */
++ #define FG_COLOR        0x20    /* true if background set */
++ #define BG_COLOR        0x40    /* true if foreground set */
++ #define DIM             0x80     
+  /* global flags */
+  #define WRAPAROUND	0x400	/* true if auto wraparound mode */
+  #define	REVERSEWRAP	0x800	/* true if reverse wraparound mode */
+diff -c ../screen.c ./screen.c
+*** ../screen.c	Sat Apr  2 16:35:27 1994
+--- ./screen.c	Thu Apr 28 16:23:45 1994
+***************
+*** 52,59 ****
+  /*
+     allocates memory for a 2-dimensional array of chars and returns a pointer
+     thereto
+!    each line is formed from a pair of char arrays.  The first (even) one is
+!    the actual character array and the second (odd) one is the attributes.
+   */
+  register int nrow, ncol;
+  Char **addr;
+--- 52,60 ----
+  /*
+     allocates memory for a 2-dimensional array of chars and returns a pointer
+     thereto
+!    each line is formed from four char arrays.  The first one is the actual
+!    character array, the second one is the attributes, the third is the
+!    foreground color, and the fourth is the background color.
+   */
+  register int nrow, ncol;
+  Char **addr;
+***************
+*** 62,68 ****
+  	register Char *tmp;
+  	register int i;
+  
+! 	if ((base = (ScrnBuf) calloc ((unsigned)(nrow *= 2), sizeof (char *))) == 0)
+  		SysError (ERROR_SCALLOC);
+  
+  	if ((tmp = calloc ((unsigned) (nrow * ncol), sizeof(char))) == 0)
+--- 63,69 ----
+  	register Char *tmp;
+  	register int i;
+  
+! 	if ((base = (ScrnBuf) calloc ((unsigned)(nrow *= 4), sizeof (char *))) == 0)
+  		SysError (ERROR_SCALLOC);
+  
+  	if ((tmp = calloc ((unsigned) (nrow * ncol), sizeof(char))) == 0)
+***************
+*** 95,101 ****
+  	if (sbuf == NULL || *sbuf == NULL)
+  		return 0;
+  
+! 	oldrow *= 2;
+  	oldbuf = *sbufaddr;
+  
+  	/*
+--- 96,102 ----
+  	if (sbuf == NULL || *sbuf == NULL)
+  		return 0;
+  
+! 	oldrow *= 4;
+  	oldbuf = *sbufaddr;
+  
+  	/*
+***************
+*** 110,116 ****
+  	 * If the screen shrinks, remove lines off the top of the buffer
+  	 * if resizeGravity resource says to do so.
+  	 */
+! 	nrow *= 2;
+  	if (nrow < oldrow  &&  term->misc.resizeGravity == SouthWestGravity) {
+  	    /* Remove lines off the top of the buffer if necessary. */
+  	    move_up = oldrow-nrow 
+--- 111,117 ----
+  	 * If the screen shrinks, remove lines off the top of the buffer
+  	 * if resizeGravity resource says to do so.
+  	 */
+! 	nrow *= 4;
+  	if (nrow < oldrow  &&  term->misc.resizeGravity == SouthWestGravity) {
+  	    /* Remove lines off the top of the buffer if necessary. */
+  	    move_up = oldrow-nrow 
+***************
+*** 156,162 ****
+  	return move_down ? move_down/2 : -move_up/2; /* convert to rows */
+  }
+  
+! ScreenWrite (screen, str, flags, length)
+  /*
+     Writes str into buf at row row and column col.  Characters are set to match
+     flags.
+--- 157,163 ----
+  	return move_down ? move_down/2 : -move_up/2; /* convert to rows */
+  }
+  
+! ScreenWrite (screen, str, flags, cur_fg, cur_bg, length)
+  /*
+     Writes str into buf at row row and column col.  Characters are set to match
+     flags.
+***************
+*** 164,172 ****
+  TScreen *screen;
+  char *str;
+  register unsigned flags;
+  register int length;		/* length of string */
+  {
+! 	register Char *attrs, *attrs0;
+  	register int avail  = screen->max_col - screen->cur_col + 1;
+  	register Char *col;
+  	register int wrappedbit;
+--- 165,177 ----
+  TScreen *screen;
+  char *str;
+  register unsigned flags;
++ register unsigned cur_fg, cur_bg;
+  register int length;		/* length of string */
+  {
+! 	register Char *attrs;
+! 	register Char *attrs0;
+! 	register Char *fgs;
+! 	register Char *bgs;
+  	register int avail  = screen->max_col - screen->cur_col + 1;
+  	register Char *col;
+  	register int wrappedbit;
+***************
+*** 176,189 ****
+  	if (length <= 0)
+  		return;
+  
+! 	col = screen->buf[avail = 2 * screen->cur_row] + screen->cur_col;
+! 	attrs = attrs0 = screen->buf[avail + 1] + screen->cur_col;
+  	wrappedbit = *attrs0&LINEWRAPPED;
+  	flags &= ATTRIBUTES;
+  	flags |= CHARDRAWN;
+  	memmove( col, str, length);
+! 	while(length-- > 0)
+  		*attrs++ = flags;
+  	if (wrappedbit)
+  	    *attrs0 |= LINEWRAPPED;
+  }
+--- 181,200 ----
+  	if (length <= 0)
+  		return;
+  
+! 	col = screen->buf[avail = 4 * screen->cur_row] + screen->cur_col;
+! 	attrs = screen->buf[avail + 1] + screen->cur_col;
+! 	fgs = screen->buf[avail + 2] + screen->cur_col;
+! 	bgs = screen->buf[avail + 3] + screen->cur_col;
+! 	attrs0 = attrs;
+  	wrappedbit = *attrs0&LINEWRAPPED;
+  	flags &= ATTRIBUTES;
+  	flags |= CHARDRAWN;
+  	memmove( col, str, length);
+! 	while(length-- > 0) {
+  		*attrs++ = flags;
++                 *fgs++ = cur_fg;
++                 *bgs++ = cur_bg;
++ 	}
+  	if (wrappedbit)
+  	    *attrs0 |= LINEWRAPPED;
+  }
+***************
+*** 200,214 ****
+  register int where, n, size;
+  {
+  	register int i;
+! 	char *save [2 * MAX_ROWS];
+  
+  
+  	/* save n lines at bottom */
+! 	memmove( (char *) save, (char *) &sb [2 * (last -= n - 1)], 
+! 		2 * sizeof (char *) * n);
+  	
+  	/* clear contents of old rows */
+! 	for (i = 2 * n - 1; i >= 0; i--)
+  		bzero ((char *) save [i], size);
+  
+  	/*
+--- 211,225 ----
+  register int where, n, size;
+  {
+  	register int i;
+! 	char *save [4 * MAX_ROWS];
+  
+  
+  	/* save n lines at bottom */
+! 	memmove( (char *) save, (char *) &sb [4 * (last -= n - 1)], 
+! 		4 * sizeof (char *) * n);
+  	
+  	/* clear contents of old rows */
+! 	for (i = 4 * n - 1; i >= 0; i--)
+  		bzero ((char *) save [i], size);
+  
+  	/*
+***************
+*** 220,230 ****
+  	 *
+  	 *   +--------|---------|----+
+  	 */
+! 	memmove( (char *) &sb [2 * (where + n)], (char *) &sb [2 * where], 
+! 		2 * sizeof (char *) * (last - where));
+  
+  	/* reuse storage for new lines at where */
+! 	memmove( (char *) &sb[2 * where], (char *)save, 2 * sizeof(char *) * n);
+  }
+  
+  
+--- 231,241 ----
+  	 *
+  	 *   +--------|---------|----+
+  	 */
+! 	memmove( (char *) &sb [4 * (where + n)], (char *) &sb [4 * where], 
+! 		4 * sizeof (char *) * (last - where));
+  
+  	/* reuse storage for new lines at where */
+! 	memmove( (char *) &sb[4 * where], (char *)save, 4 * sizeof(char *) * n);
+  }
+  
+  
+***************
+*** 240,261 ****
+  int where;
+  {
+  	register int i;
+! 	char *save [2 * MAX_ROWS];
+  
+  	/* save n lines at where */
+! 	memmove( (char *)save, (char *) &sb[2 * where], 2 * sizeof(char *) * n);
+  
+  	/* clear contents of old rows */
+! 	for (i = 2 * n - 1 ; i >= 0 ; i--)
+  		bzero ((char *) save [i], size);
+  
+  	/* move up lines */
+! 	memmove( (char *) &sb[2 * where], (char *) &sb[2 * (where + n)], 
+! 		2 * sizeof (char *) * ((last -= n - 1) - where));
+  
+  	/* reuse storage for new bottom lines */
+! 	memmove( (char *) &sb[2 * last], (char *)save, 
+! 		2 * sizeof(char *) * n);
+  }
+  
+  
+--- 251,272 ----
+  int where;
+  {
+  	register int i;
+! 	char *save [4 * MAX_ROWS];
+  
+  	/* save n lines at where */
+! 	memmove( (char *)save, (char *) &sb[4 * where], 4 * sizeof(char *) * n);
+  
+  	/* clear contents of old rows */
+! 	for (i = 4 * n - 1 ; i >= 0 ; i--)
+  		bzero ((char *) save [i], size);
+  
+  	/* move up lines */
+! 	memmove( (char *) &sb[4 * where], (char *) &sb[4 * (where + n)], 
+! 		4 * sizeof (char *) * ((last -= n - 1) - where));
+  
+  	/* reuse storage for new bottom lines */
+! 	memmove( (char *) &sb[4 * last], (char *)save, 
+! 		4 * sizeof(char *) * n);
+  }
+  
+  
+***************
+*** 268,275 ****
+      register int col, n;
+  {
+  	register int i, j;
+! 	register Char *ptr = sb [2 * row];
+! 	register Char *attrs = sb [2 * row + 1];
+  	int wrappedbit = attrs[0]&LINEWRAPPED;
+  
+  	attrs[0] &= ~LINEWRAPPED; /* make sure the bit isn't moved */
+--- 279,286 ----
+      register int col, n;
+  {
+  	register int i, j;
+! 	register Char *ptr = sb [4 * row];
+! 	register Char *attrs = sb [4 * row + 1];
+  	int wrappedbit = attrs[0]&LINEWRAPPED;
+  
+  	attrs[0] &= ~LINEWRAPPED; /* make sure the bit isn't moved */
+***************
+*** 296,303 ****
+      register int row, size;
+      register int n, col;
+  {
+! 	register Char *ptr = sb[2 * row];
+! 	register Char *attrs = sb[2 * row + 1];
+  	register nbytes = (size - n - col);
+  	int wrappedbit = attrs[0]&LINEWRAPPED;
+  
+--- 307,314 ----
+      register int row, size;
+      register int n, col;
+  {
+! 	register Char *ptr = sb[4 * row];
+! 	register Char *attrs = sb[4 * row + 1];
+  	register nbytes = (size - n - col);
+  	int wrappedbit = attrs[0]&LINEWRAPPED;
+  
+***************
+*** 336,348 ****
+  	for (row = toprow; row <= maxrow; y += FontHeight(screen), row++) {
+  	   register Char *chars;
+  	   register Char *attrs;
+  	   register int col = leftcol;
+  	   int maxcol = leftcol + ncols - 1;
+  	   int lastind;
+  	   int flags;
+  	   int x, n;
+  	   GC gc;
+! 	   Boolean hilite;	
+  
+  	   if (row < screen->top_marg || row > screen->bot_marg)
+  		lastind = row;
+--- 347,363 ----
+  	for (row = toprow; row <= maxrow; y += FontHeight(screen), row++) {
+  	   register Char *chars;
+  	   register Char *attrs;
++ 	   register Char *fgs, *bgs;
+  	   register int col = leftcol;
+  	   int maxcol = leftcol + ncols - 1;
+  	   int lastind;
+  	   int flags;
++ 	   int fg, bg;
+  	   int x, n;
+  	   GC gc;
+! 	   Boolean hilite;
+! 	   Pixel fg_pix, bg_pix;
+! 	   extern XtermWidget term;
+  
+  	   if (row < screen->top_marg || row > screen->bot_marg)
+  		lastind = row;
+***************
+*** 352,359 ****
+  	   if (lastind < 0 || lastind > max)
+  	   	continue;
+  
+! 	   chars = screen->buf [2 * (lastind + topline)];
+! 	   attrs = screen->buf [2 * (lastind + topline) + 1];
+  
+  	   if (row < screen->startHRow || row > screen->endHRow ||
+  	       (row == screen->startHRow && maxcol < screen->startHCol) ||
+--- 367,376 ----
+  	   if (lastind < 0 || lastind > max)
+  	   	continue;
+  
+! 	   chars = screen->buf [4 * (lastind + topline)];
+! 	   attrs = screen->buf [4 * (lastind + topline) + 1];
+! 	   fgs = screen->buf [4 * (lastind + topline) + 2];
+! 	   bgs = screen->buf [4 * (lastind + topline) + 3];
+  
+  	   if (row < screen->startHRow || row > screen->endHRow ||
+  	       (row == screen->startHRow && maxcol < screen->startHCol) ||
+***************
+*** 390,411 ****
+  	   if (col > maxcol) continue;
+  
+  	   flags = attrs[col];
+  
+  	   if ( (!hilite && (flags & INVERSE) != 0) ||
+! 	        (hilite && (flags & INVERSE) == 0) )
+  	       if (flags & BOLD) gc = screen->reverseboldGC;
+  	       else gc = screen->reverseGC;
+! 	   else 
+  	       if (flags & BOLD) gc = screen->normalboldGC;
+  	       else gc = screen->normalGC;
+  
+  	   x = CursorX(screen, col);
+  	   lastind = col;
+  
+  	   for (; col <= maxcol; col++) {
+! 		if (attrs[col] != flags) {
+  		   XDrawImageString(screen->display, TextWindow(screen), 
+! 		        	gc, x, y, (char *) &chars[lastind], n = col - lastind);
+  		   if((flags & BOLD) && screen->enbolden)
+  		 	XDrawString(screen->display, TextWindow(screen), 
+  			 gc, x + 1, y, (char *) &chars[lastind], n);
+--- 407,448 ----
+  	   if (col > maxcol) continue;
+  
+  	   flags = attrs[col];
++ 	   fg = fgs[col];
++ 	   bg = bgs[col];
+  
++ 	   fg_pix = (flags & FG_COLOR) ? screen->colors[fg]
++ 				       : screen->foreground;
++ 	   bg_pix = (flags & BG_COLOR) ? screen->colors[bg]
++ 				       : term->core.background_pixel;
++ 
+  	   if ( (!hilite && (flags & INVERSE) != 0) ||
+! 	        (hilite && (flags & INVERSE) == 0) ) {
+  	       if (flags & BOLD) gc = screen->reverseboldGC;
+  	       else gc = screen->reverseGC;
+! 
+! 	       XSetForeground(screen->display, gc, bg_pix);
+! 	       XSetBackground(screen->display, gc, fg_pix);
+! 
+! 	   } else {
+  	       if (flags & BOLD) gc = screen->normalboldGC;
+  	       else gc = screen->normalGC;
+  
++ 	       XSetForeground(screen->display, gc, fg_pix);
++ 	       XSetBackground(screen->display, gc, bg_pix);
++ 	   }
++ 
++ 
+  	   x = CursorX(screen, col);
+  	   lastind = col;
+  
+  	   for (; col <= maxcol; col++) {
+! 		if (attrs[col] != flags ||
+! 		    (flags & FG_COLOR && fgs[col] != fg) ||
+! 		    (flags & BG_COLOR && bgs[col] != bg)) {
+! 
+  		   XDrawImageString(screen->display, TextWindow(screen), 
+! 				    gc, x, y, (char *) &chars[lastind],
+! 				    n = col - lastind);
+  		   if((flags & BOLD) && screen->enbolden)
+  		 	XDrawString(screen->display, TextWindow(screen), 
+  			 gc, x + 1, y, (char *) &chars[lastind], n);
+***************
+*** 418,431 ****
+  		   lastind = col;
+  
+  		   flags = attrs[col];
+  
+! 	   	   if ((!hilite && (flags & INVERSE) != 0) ||
+! 		       (hilite && (flags & INVERSE) == 0) )
+! 	       		if (flags & BOLD) gc = screen->reverseboldGC;
+! 	       		else gc = screen->reverseGC;
+! 	  	    else 
+! 	      		 if (flags & BOLD) gc = screen->normalboldGC;
+! 	      		 else gc = screen->normalGC;
+  		}
+  
+  		if(chars[col] == 0)
+--- 455,484 ----
+  		   lastind = col;
+  
+  		   flags = attrs[col];
++ 		   fg = fgs[col];
++ 		   bg = bgs[col];
+  
+! 		   fg_pix = (flags & FG_COLOR) ? screen->colors[fg]
+! 					       : screen->foreground;
+! 		   bg_pix = (flags & BG_COLOR) ? screen->colors[bg]
+! 					       : term->core.background_pixel;
+! 
+! 		   if ( (!hilite && (flags & INVERSE) != 0) ||
+! 		       (hilite && (flags & INVERSE) == 0) ) {
+! 		       if (flags & BOLD) gc = screen->reverseboldGC;
+! 		       else gc = screen->reverseGC;
+! 
+! 		       XSetForeground(screen->display, gc, bg_pix);
+! 		       XSetBackground(screen->display, gc, fg_pix);
+! 
+! 		   } else {
+! 		       if (flags & BOLD) gc = screen->normalboldGC;
+! 		       else gc = screen->normalGC;
+! 
+! 		       XSetForeground(screen->display, gc, fg_pix);
+! 		       XSetBackground(screen->display, gc, bg_pix);
+! 
+! 		   }
+  		}
+  
+  		if(chars[col] == 0)
+***************
+*** 434,445 ****
+  
+  
+  	   if ( (!hilite && (flags & INVERSE) != 0) ||
+! 	        (hilite && (flags & INVERSE) == 0) )
+  	       if (flags & BOLD) gc = screen->reverseboldGC;
+  	       else gc = screen->reverseGC;
+! 	   else 
+  	       if (flags & BOLD) gc = screen->normalboldGC;
+  	       else gc = screen->normalGC;
+  	   XDrawImageString(screen->display, TextWindow(screen), gc, 
+  	         x, y, (char *) &chars[lastind], n = col - lastind);
+  	   if((flags & BOLD) && screen->enbolden)
+--- 487,508 ----
+  
+  
+  	   if ( (!hilite && (flags & INVERSE) != 0) ||
+! 	       (hilite && (flags & INVERSE) == 0) ) {
+  	       if (flags & BOLD) gc = screen->reverseboldGC;
+  	       else gc = screen->reverseGC;
+! 
+! 	       XSetForeground(screen->display, gc, bg_pix);
+! 	       XSetBackground(screen->display, gc, fg_pix);
+! 
+! 	   } else {
+  	       if (flags & BOLD) gc = screen->normalboldGC;
+  	       else gc = screen->normalGC;
++ 
++ 	       XSetForeground(screen->display, gc, fg_pix);
++ 	       XSetBackground(screen->display, gc, bg_pix);
++ 
++ 	   }
++ 
+  	   XDrawImageString(screen->display, TextWindow(screen), gc, 
+  	         x, y, (char *) &chars[lastind], n = col - lastind);
+  	   if((flags & BOLD) && screen->enbolden)
+***************
+*** 459,466 ****
+  register TScreen *screen;
+  register int first, last;
+  {
+! 	first *= 2;
+! 	last = 2 * last + 1;
+  	while (first <= last)
+  		bzero (screen->buf [first++], (screen->max_col + 1));
+  }
+--- 522,529 ----
+  register TScreen *screen;
+  register int first, last;
+  {
+! 	first *= 4;
+! 	last = 4 * last + 3;
+  	while (first <= last)
+  		bzero (screen->buf [first++], (screen->max_col + 1));
+  }
+***************
+*** 540,546 ****
+  					  rows + savelines, cols,
+  					  screen->max_row + 1 + savelines,
+  					  screen->max_col + 1);
+! 		screen->buf = &screen->allbuf[2 * savelines];
+  
+  		screen->max_row += delta_rows;
+  		screen->max_col = cols - 1;
+--- 603,609 ----
+  					  rows + savelines, cols,
+  					  screen->max_row + 1 + savelines,
+  					  screen->max_col + 1);
+! 		screen->buf = &screen->allbuf[4 * savelines];
+  
+  		screen->max_row += delta_rows;
+  		screen->max_col = cols - 1;
+***************
+*** 639,645 ****
+  	    length = avail;
+  	if (length <= 0)
+  		return;
+! 	attrs = screen->buf[2 * row + 1] + col;
+  	value &= mask;	/* make sure we only change the bits allowed by mask*/
+  	while(length-- > 0) {
+  		*attrs &= ~mask;	/* clear the bits */
+--- 702,708 ----
+  	    length = avail;
+  	if (length <= 0)
+  		return;
+! 	attrs = screen->buf[4 * row + 1] + col;
+  	value &= mask;	/* make sure we only change the bits allowed by mask*/
+  	while(length-- > 0) {
+  		*attrs &= ~mask;	/* clear the bits */
+***************
+*** 670,676 ****
+  	if (length <= 0)
+  		return 0;
+  	ret = length;
+! 	attrs = screen->buf[2 * row + 1] + col;
+  	while(length-- > 0) {
+  		*str++ = *attrs++;
+  	}
+--- 733,739 ----
+  	if (length <= 0)
+  		return 0;
+  	ret = length;
+! 	attrs = screen->buf[4 * row + 1] + col;
+  	while(length-- > 0) {
+  		*str++ = *attrs++;
+  	}
+***************
+*** 682,688 ****
+  register int row, col, len;
+  {
+  	register int	i;
+! 	register Char *ptr = sb [2 * row];
+  
+  	for (i = col; i < len; i++)	{
+  		if (ptr[i])
+--- 745,751 ----
+  register int row, col, len;
+  {
+  	register int	i;
+! 	register Char *ptr = sb [4 * row];
+  
+  	for (i = col; i < len; i++)	{
+  		if (ptr[i])
+diff -c ../scrollbar.c ./scrollbar.c
+*** ../scrollbar.c	Sat Apr  2 11:42:02 1994
+--- ./scrollbar.c	Thu Apr 28 14:32:16 1994
+***************
+*** 337,351 ****
+  	if (doalloc && screen->allbuf) {
+  	    if((screen->allbuf =
+  		(ScrnBuf) realloc((char *) screen->buf,
+! 				  (unsigned) 2*(screen->max_row + 2 +
+  						screen->savelines) *
+  				  sizeof(char *)))
+  	       == NULL)
+  	      Error (ERROR_SBRALLOC);
+! 	    screen->buf = &screen->allbuf[2 * screen->savelines];
+  	    memmove( (char *)screen->buf, (char *)screen->allbuf, 
+! 		   2 * (screen->max_row + 2) * sizeof (char *));
+! 	    for(i = 2 * screen->savelines - 1 ; i >= 0 ; i--)
+  	      if((screen->allbuf[i] =
+  		  calloc((unsigned) screen->max_col + 1, sizeof(char))) ==
+  		 NULL)
+--- 337,351 ----
+  	if (doalloc && screen->allbuf) {
+  	    if((screen->allbuf =
+  		(ScrnBuf) realloc((char *) screen->buf,
+! 				  (unsigned) 4*(screen->max_row + 2 +
+  						screen->savelines) *
+  				  sizeof(char *)))
+  	       == NULL)
+  	      Error (ERROR_SBRALLOC);
+! 	    screen->buf = &screen->allbuf[4 * screen->savelines];
+  	    memmove( (char *)screen->buf, (char *)screen->allbuf, 
+! 		   4 * (screen->max_row + 2) * sizeof (char *));
+! 	    for(i = 4 * screen->savelines - 1 ; i >= 0 ; i--)
+  	      if((screen->allbuf[i] =
+  		  calloc((unsigned) screen->max_col + 1, sizeof(char))) ==
+  		 NULL)
+diff -c ../util.c ./util.c
+*** ../util.c	Thu Jun 20 17:35:41 1991
+--- ./util.c	Thu Apr 28 13:52:24 1994
+***************
+*** 616,627 ****
+  		 FontHeight(screen));
+  	    }
+  	}
+! 	bzero(screen->buf [2 * screen->cur_row] + screen->cur_col,
+  	       (screen->max_col - screen->cur_col + 1));
+! 	bzero(screen->buf [2 * screen->cur_row + 1] + screen->cur_col,
+  	       (screen->max_col - screen->cur_col + 1));
+  	/* with the right part cleared, we can't be wrapping */
+! 	screen->buf [2 * screen->cur_row + 1] [0] &= ~LINEWRAPPED;
+  }
+  
+  /*
+--- 616,631 ----
+  		 FontHeight(screen));
+  	    }
+  	}
+! 	bzero(screen->buf [4 * screen->cur_row] + screen->cur_col,
+  	       (screen->max_col - screen->cur_col + 1));
+! 	bzero(screen->buf [4 * screen->cur_row + 1] + screen->cur_col,
+  	       (screen->max_col - screen->cur_col + 1));
++         bzero(screen->buf [4 * screen->cur_row + 2] + screen->cur_col,
++                (screen->max_col - screen->cur_col + 1));
++         bzero(screen->buf [4 * screen->cur_row + 3] + screen->cur_col,
++                (screen->max_col - screen->cur_col + 1));
+  	/* with the right part cleared, we can't be wrapping */
+! 	screen->buf [4 * screen->cur_row + 1] [0] &= ~LINEWRAPPED;
+  }
+  
+  /*
+***************
+*** 679,686 ****
+  		     Width(screen), FontHeight(screen));
+  	    }
+  	}
+! 	bzero (screen->buf [2 * screen->cur_row], (screen->max_col + 1));
+! 	bzero (screen->buf [2 * screen->cur_row + 1], (screen->max_col + 1));
+  }
+  
+  ClearScreen(screen)
+--- 683,692 ----
+  		     Width(screen), FontHeight(screen));
+  	    }
+  	}
+! 	bzero (screen->buf [4 * screen->cur_row], (screen->max_col + 1));
+! 	bzero (screen->buf [4 * screen->cur_row + 1], (screen->max_col + 1));
+! 	bzero (screen->buf [4 * screen->cur_row + 2], (screen->max_col + 1));
+! 	bzero (screen->buf [4 * screen->cur_row + 3], (screen->max_col + 1));
+  }
+  
+  ClearScreen(screen)
+***************
+*** 921,926 ****
+--- 927,1033 ----
+  	return (0);
+  }
+  
++ /***====================================================================***/
++ 
++ void
++ GetColors(term,pColors)
++ 	XtermWidget term;
++ 	ScrnColors *pColors;
++ {
++ 	register TScreen *screen = &term->screen;
++ 	GC tmpGC;
++ 	Window tek = TWindow(screen);
++ 	unsigned long tmp;
++ 
++ 
++ 	pColors->which=	0;
++ 	SET_COLOR_VALUE(pColors,TEXT_FG,	screen->foreground);
++ 	SET_COLOR_VALUE(pColors,TEXT_BG,	term->core.background_pixel);
++ 	SET_COLOR_VALUE(pColors,TEXT_CURSOR,	screen->cursorcolor);
++ 	SET_COLOR_VALUE(pColors,MOUSE_FG,	screen->mousecolor);
++ 	SET_COLOR_VALUE(pColors,MOUSE_BG,	screen->mousecolorback);
++ 
++ 
++ 	SET_COLOR_VALUE(pColors,TEK_FG,		screen->Tforeground);
++ 	SET_COLOR_VALUE(pColors,TEK_BG,		screen->Tbackground);
++ }
++ 
++ 
++ ChangeColors(term,pNew)
++ 	XtermWidget term;
++ 	ScrnColors *pNew;
++ {
++ 	register TScreen *screen = &term->screen;
++ 	GC tmpGC;
++ 	Window tek = TWindow(screen);
++ 	unsigned long tmp;
++ 	Bool	newCursor=	TRUE;
++ 
++ 
++ 	if (COLOR_DEFINED(pNew,TEXT_BG)) {
++ 	    term->core.background_pixel=	COLOR_VALUE(pNew,TEXT_BG);
++ 	}
++ 
++ 	if (COLOR_DEFINED(pNew,TEXT_CURSOR)) {
++ 	    screen->cursorcolor=	COLOR_VALUE(pNew,TEXT_CURSOR);
++ 	}
++ 	else if ((screen->cursorcolor == screen->foreground)&&
++ 		 (COLOR_DEFINED(pNew,TEXT_FG))) {
++ 	    screen->cursorcolor=	COLOR_VALUE(pNew,TEXT_FG);
++ 	}
++ 	else newCursor=	FALSE;
++ 
++ 	if (COLOR_DEFINED(pNew,TEXT_FG)) {
++ 	    Pixel	fg=	COLOR_VALUE(pNew,TEXT_FG);
++ 	    screen->foreground=	fg;
++ 	    XSetForeground(screen->display,screen->normalGC,fg);
++ 	    XSetBackground(screen->display,screen->reverseGC,fg);
++ 	    XSetForeground(screen->display,screen->normalboldGC,fg);
++ 	    XSetBackground(screen->display,screen->reverseboldGC,fg);
++ 	}
++ 
++ 	if (COLOR_DEFINED(pNew,TEXT_BG)) {
++ 	    Pixel	bg=	COLOR_VALUE(pNew,TEXT_BG);
++ 	    term->core.background_pixel=	bg;
++ 	    XSetBackground(screen->display,screen->normalGC,bg);
++ 	    XSetForeground(screen->display,screen->reverseGC,bg);
++ 	    XSetBackground(screen->display,screen->normalboldGC,bg);
++ 	    XSetForeground(screen->display,screen->reverseboldGC,bg);
++ 	    XSetWindowBackground(screen->display, TextWindow(screen), 
++ 						  term->core.background_pixel);
++ 	}
++ 
++ 	if (COLOR_DEFINED(pNew,MOUSE_FG)||(COLOR_DEFINED(pNew,MOUSE_BG))) {
++ 	    if (COLOR_DEFINED(pNew,MOUSE_FG))
++ 		screen->mousecolor=	COLOR_VALUE(pNew,MOUSE_FG);
++ 	    if (COLOR_DEFINED(pNew,MOUSE_BG))
++ 		screen->mousecolorback=	COLOR_VALUE(pNew,MOUSE_BG);
++ 
++ 	    recolor_cursor (screen->pointer_cursor, 
++ 		screen->mousecolor, screen->mousecolorback);
++ 	    recolor_cursor (screen->arrow,
++ 		screen->mousecolor, screen->mousecolorback);
++ 	    XDefineCursor(screen->display, TextWindow(screen), 
++ 					   screen->pointer_cursor);
++ 	    if(tek)
++ 		XDefineCursor(screen->display, tek, screen->arrow);
++ 	}
++ 
++ 	if ((tek)&&(COLOR_DEFINED(pNew,TEK_FG)||COLOR_DEFINED(pNew,TEK_BG))) {
++ 	    ChangeTekColors(screen,pNew);
++ 	}
++ 	set_cursor_gcs(screen);
++ 	XClearWindow(screen->display, TextWindow(screen));
++ 	ScrnRefresh (screen, 0, 0, screen->max_row + 1,
++ 	 screen->max_col + 1, False);
++ 	if(screen->Tshow) {
++ 	    XClearWindow(screen->display, tek);
++ 	    TekExpose((XExposeEvent *) NULL);
++ 	}
++ }
++ 
++ /***====================================================================***/
++ 
+  ReverseVideo (termw)
+  	XtermWidget termw;
+  {
+***************
+*** 973,978 ****
+--- 1080,1086 ----
+  	    XClearWindow(screen->display, tek);
+  	    TekExpose((Widget)NULL, (XEvent *)NULL, (Region)NULL);
+  	}
++         ReverseOldColors();
+  	update_reversevideo();
+  }
+  

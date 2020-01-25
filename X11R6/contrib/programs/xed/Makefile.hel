@@ -1,0 +1,30 @@
+# You cannot use imake for damned helios !!!!
+
+CC = c
+CCOPTIONS =  -DHELPFILE=\"/helios/lib/X11/xed.help\" -DUSEGETCWD -DUSE_CSH_SYSTEM -DXTFUNCPROTO -D_BSD -s64000 -wA -T8
+# Please check for some aditional DEFINES
+# -DSCROLLBREAK -DUSEGETCWD -DNORENAME -DUSEDIRENT
+
+xed : xedit.o jump.o edit.o file.o warning.o search.o file_sel.o special.o
+	$(CC) $(CCOPTIONS) xedit.o jump.o edit.o file.o warning.o search.o file_sel.o special.o -lXaw -lXt -lXmu -lXext -lX11 -lX -lbsd -o xed
+
+.c.o: 
+	$(CC) $(CCOPTIONS) -c $*.c -o $*.o
+
+xedit.o : xedit.c xedit.h
+jump.o : jump.c xedit.h
+edit.o : edit.c xedit.h
+file.o : file.c xedit.h
+warning.o : warning.c xedit.h
+search.o : search.c xedit.h
+file_sel.o : file_sel.c
+special.o : special.c xedit.h
+
+install : xed
+	cp xed /helios/bin/X11/xed
+	cp xed.help /helios/lib/X11/xed.help
+	cp Xed.ad /helios/lib/X11/app-defaults/Xed
+
+clean:
+	rm *.o xed
+

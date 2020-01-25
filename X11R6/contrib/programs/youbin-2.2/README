@@ -1,0 +1,652 @@
+#
+# Program:	$RCSfile: README,v $  $Revision: 4.5 $
+#
+# Purpose: 	Guidance of youbin service
+#
+# Author:	K.Agusa	    agusa@nuie.nagoya-u.ac.jp
+#		S.Yamamoto  yamamoto@nuie.nagoya-u.ac.jp
+#
+# Version:	2.2
+# Protocol:	2
+#
+# Date:		1993/07/24
+# Modified:	$Date: 1994/06/14 05:47:02 $
+#
+
+Contents
+
+	1 Introduction
+	2 Outline of youbin service
+	3 Fruits
+	4 Outline of protocol
+	5 Use of Server
+	6 Use of Client
+		6.1 xyoubin (client for X Window System)
+		6.2 YouBin.app (client for NeXT)
+		6.3 youbin (client for of character base system)
+	7 Other programs
+		7.1 Patch for popd
+		7.2 Patch for popper
+		7.3 Hook of mh-e
+		7.4 Patch for xpbiff
+	8 Installation
+		8.1 Environment
+		8.2 Newest release (FTP and HTML)
+		8.3 Directory organization
+		8.4 Configuration
+		8.5 Compilation
+		8.6 Test
+		8.7 Installation and operation
+		8.8 Compilation and installation of YouBin.app
+	9 Problems
+       10 Change point
+       11 Quotation
+       12 Author
+
+
+1 Introduction
+
+The conventional mail arrival notification service (biff) which
+assumes that the user is logging in at mail server becomes late in the
+age as the network technology has advanced. The number of users for
+such service is decreasing. Xbiff is widely used in X Window System
+environment. However, it has the following problems. (1) NFS mount or
+msgchk of POP alternatively, (2) checking mail with polling instead
+event driven, (3) fully dependency on X Window System. Moreover, many
+users who operate with a character based terminal do not use "biff"
+because it may disturb the screen when mail arrives. Instead, they
+prefer the shell service of "You have new mail.". This service is not
+available when we use the network based mail delivery protocol such
+that POP, since shell can not access mail spool directly.
+
+youbin (it means mail in Japanese) protocol to make the biff protocol
+correspond to the network environment as a protocol to notify of the
+arrival of mail. youbin includes all the function of conventional biff
+and xbiff.
+
+
+2 Outline of youbin service
+
+youbin is a kind of biff in the network age. When youbin is used, the
+mail spool of a certain, specific machine (mail server) is observed to
+inform the arrival of mail to a user at an arbitrary machine through
+the network.  On the other hands, the conventional "biff" informs only
+the user who logs in at the machine with the mail spool. Combining
+with POP, youbin eliminate a lot of NFS mount of mail spool for mail
+arrival checking.
+
+Since youbin is designed with event driven, the user is promptly
+informed of status change of mail spool caused by mail arriving and
+reading.
+
+
+3 Fruits
+
+(1) The "biff" service can be available in network environments.
+
+(2) Useless polling is cleared away. Instead, the status change is
+detected with an event from mail delivery program (/bin/mail) and mail
+reading program (e.g. POP). As a result, troublesome file export of
+mail server can be omitted. This contributes the security also.
+
+(3) Because the protocol is light compared with xbiff, the load of the
+mail server can be decreased.
+
+
+4 Outline of protocol
+
+In the following, the server of youbin is called youbind.
+
+(1) Arrival of mail
+
+/bin/mail puts out the packet to the biff port (512/udp) to inform the
+mail arrival when newly arrived mail is written in the spool of mail
+server.  Comsat daemon running on mail server usually receives this
+packet and displays the message of the mail arrival on the terminal of
+the user who ordered "biff y". Or, the dummy file is updated so that
+the shell may know the arrival of mail.
+
+The arrival of mail is notified of youbin client on an arbitrary
+machine everywhen youbind receives the notification from /bin/mail in
+the youbin service. The following client programs are available.
+
+	xyoubin		client like xbiff
+	YouBin.app 	client like xbiff for NeXT
+	youbin		client for character base user
+
+(2) Detection of reading mail
+
+The biff service notifies only of the arrival of mail. On the other
+hand, xbiff requires the event of the mail reading to display the mail
+spool status (whether mail is in spool or not). To detect mail read
+with some command such as "inc" of POP, the youbin package includes
+two programs. They exclude polling and gives quick notification of the
+mail spool status change.
+
+However, because the less reliable but light communication based on
+UDP is adopted, the change of the spool is actually examined once at a
+specified seconds (usually 180 seconds) to deal with the case of
+transmission loss. The polling interval of xbiff is 30 seconds
+typically.
+
+(1) A patch is applied to popd to add the function to notify youbind
+of the change of the spool (or possible change). youbind informs of
+youbin client when finding the spool's actual change.
+
+(2) The change of the spool is informed of youbind with the hook of
+mh-e. 
+
+
+5 Use of Server
+
+(1) Starting service
+youbin server is invoked as a daemon. Usually, youbind is started at
+boot time. In some file of /etc/rc.*, please add below one line.
+
+/etc/youbind &
+
+(2) Options
+    -d       Debug mode.
+    -h       Help: print out the usage.
+    -t       Trace: print out beginning and end of service.
+    -A port  Auxiliary Service port name
+
+If /bin/mail on your system informs of the arrival of mail via
+different port, use -A option. For instance, MIPS requires the
+following option. 
+
+
+	/etc/youbind -A mbiff
+
+
+6 Use of Client
+
+6.1 xyoubin (client for X Window System)
+
+xyoubin replaces with xbiff.
+
+    -empty pixmap  Pixmap to be shown when no new mail is present.
+    -flip/-nofilp  Specifies whether or not the image should be  
+		   inverted.
+    -full pixmap   Pixmap to be shown when new mail has arrived.
+    -help    	   Help: print out the usage.
+    -pipe    	   Executed by other program (don't exec child process).
+    -server host   Server host name.
+    -sound file    Sound file (SunOS only)
+    -volume %      Specifies how loud the bell should be rung.
+
+Almost all options are the same as xbiff.
+
+(1) Mail server is specified by the server option. It is assumed  
+that a local machine is the mail server if this option is not specified.
+
+(2) With sound option, xyougin informs of the mail arrival by the
+specified sound data via /dev/audio device of Sun.
+
+(3) empty and full option specify the pixmap displyed when there is a
+mail and no mail respectively.
+
+(4) Flip controls reversing the bit map. By default, the display is
+reversed when mail arriving.
+
+These options can be specified as the following resources.
+
+XYoubin*emptyPixmap:		<pixmap>
+XYoubin*fullPixmap:		<pixmap>
+XYoubin*flip:			<boolean>
+XYoubin*server:			<string>
+XYoubin*sound:			<string>
+XYoubin*volume:			<int>
+
+6.2 YouBin.app (client for NeXT)
+
+YouBin.app is started by a double clicking its icon. Refer to
+NeXTclient/Japanese.lproj/Help/TableOfContents.rtf for more
+information.
+
+6.3 youbin (client for of character base system)
+
+(1) Run youbin as a background job.
+
+% youbin -s <server name> &
+
+Then, the message will be displayed when mail arrives, just as "biff"
+program is used like
+
+New mail for <user name>@<mail server> has arrived:
+
+When -b option is applied, From header, Subject header will be
+displayed accompanied with up to seven lines of mail content. 
+Moreover, this program is used in xyoubin, YouBin.app and so on as a
+child process.
+
+(2) The screen is disturbed when mail arriving notification is sent
+asynchronously. Therefore, a lot of users are using the check mail of
+the shell function. This function can be made the best use of by using
+youbin. The -m option specifies the file to which the message informed
+of the mail arrival is written. youbin imitates the state of the
+informed spool from the server with this file. The file size is
+changed to 0 when there is no mail at mail server. The file size grows
+when the mail is appended at mail server. If this file is specified as
+a mail check file for the shell, the shell displays "You have new
+mail." as for the arrival of mail when the shell prompts user commands.
+In the case of csh, add below two lines to <HOME>/.cshrc.
+
+youbin -m ~/.mail_check_file -s server_name &
+set mail = ~/.mail_check_file
+
+(3) Options for youbin
+
+    -b	     Biff mode: send From, Subject and the first 7 lines.
+    -d	     Debug mode.
+    -h	     Help: print out the usage.
+    -m path  Mail Check File.
+    -p prog  Program to be executed and connected via pipe.
+    -s host  Host name of mail server.
+
+
+7 Other programs
+
+Reading mail can be instantaneously notified of youbind by using one
+of following patches.
+
+7.1 Patch for popd
+
+Mh-6.8-youbin.patch is prepared as a patch for popd attached to MH6.8.
+This patch enables to notify youbind of the change of the size of the
+spool by inc etc. 
+
+
+How to patch is in the following. <MHTOP> shows a top directory of the
+source tree of MH6.8.
+
+(1) Patch to
+    <MHTOP>/conf/mhconfig.c
+    <MHTOP>/conf/makefiles/support/pop
+    <MHTOP>/conf/support/pop/popser.c
+
+	% cd <MHTOP>
+	% patch -p1 < mh-6.8-youbin.patch
+
+(2) Copy Sendto.c of the youbin package to <MHTOP>/support/pop.
+
+(3) To <MHTOP>/conf/MH, add 
+
+	options YOUBIN
+
+(If this option is omitted, the original popd is obtained.)
+
+(4) Change directory to <MHTOP>/conf. And modify mhconfig and Makefile.
+
+	% cd <MHTOP>/conf
+	% make
+	% mhconfig MH
+
+The following operation is the same as usual MH installation.
+
+7.2 Patch for popper
+
+The following files are prepared as patchs to popper.
+
+popper-1.831beta-youbin.patch:  	patch to popper-1.831beta.
+popper-1.831b-rpop-youbin.patch:	patch to popper-1.831beta
+					patched with RPOP
+
+How to patch is shown in the following.
+<TOP> is a top directory of the source tree of popper.
+
+(1) Patch to 
+    <TOP>/Makefile
+    <TOP>/pop_updt.c
+    <TOP>/version.c.
+
+	% cd <TOP>
+	% patch -p1 < popper-1.831beta-youbin.patch
+
+(2) Copy sendto.c of the youbin package to <TOP>.
+
+(3) Confirm -DYOUBIN in the line of "CFLAGS=..." of <TOP>/Makefile.
+If not, it generates original popper.
+
+(4) The following operation is the same as usual popper installation.
+
+Note: Use popper-1.831b-rpop.youbin.patch as a patch file if the patch
+for RPOP is applied.
+
+7.3 Hook of mh-e
+
+The change of the mail spool status can be informed of youbind
+explicitly and immediately when mh-e "inc"s by adding the following  
+codes to <HOME>/.emacs.
+
+(setq mh-inc-folder-hook 
+      '((lambda ()
+	   (let ((program	"<BINDIR>/sendto")
+		 (server	"<mail server>")
+		 (service	"biff")
+		 (user		(user-login-name)))
+	      (start-process "" nil
+			     program server service (concat "U " user))))))
+
+Set <BINDIR> and <mail server> appropriately. These are site
+dependent. Especially, <BINDIR> should be the same as $(BINDIR) of
+Imakefile.
+
+7.4 Patch for xpbiff
+
+xpbiff-1.26-youbin.patch is prepared as a patch to xpbiff of youbin
+protocol. xpbiff with this patch responds quickly to changes of the
+mail spool because of event driven operation. The difference of the
+original xpbiff is that patched xpbiff displays only newly arrived
+mail headers. That means this does not disply the mail headers which
+had arrived before xpbiff is activated.
+
+How to patch and compile is shown in the following. <XPBIFF> is the
+directory holding the source of xpbiff.
+
+(1) Patch xpbiff-1.26-youbin.patch to xpbiff.c, Imakefile, and  
+xpbiff.man.
+
+	% cd <XPBIFF>
+	% patch -p1 < xpbiff-1.26-youbin.patch
+
+(2) Change Imakefile if necessary. Following definitions are added in
+Imakefile with the patch.
+
+	BINDIR = /usr/local/bin
+	DEFINES = -DYOUBIN -DBINDIR=\"$(BINDIR)\"
+
+BINDIR specifies the directory in which youbin is installed. Add
+-DX11R3, -DSYSV, and -DSLOW_MACHINE to DEFINES according to the
+environment. -DNO_CUSERID, -DMHSCAN are not needed.
+
+(3) Making Makefile and compilation
+
+	% xmkmf
+	% make
+
+(4) Installation
+
+	% make install
+
+The options added for youbin are the following.
+
+	-pipe	     Executed by other program (don't exec child process).
+	-server host Server host name.
+	-nopreserve  Not preserve headers
+
+-pipe and - server are the same as xyoubin. -nopreserve displays only
+the headers of the newly arrived mail. It does not display the
+headers stored in the mail spool. These options can be specified with
+the resources.
+
+XPbiff*pipe:		<boolean>
+XPbiff*server:		<string>
+XPbiff*preserve		<boolean>
+
+Because polling is no more used with youbin protocol, the options
+
+	-polling_time  time (msec)
+
+is invalid.
+
+Other options and the resources are the same as xpbiff. Refer to the
+manual of xpbiff for details.
+
+
+8 Installation
+
+8.1 Environment
+
+youbin Ver.2 works on these environment.
+
+HP 9000/712, HP-UX 09.03
+
+Sun SPARCstation, SunOS 4.1.1, X11R5 and X11R6
+Sun SPARCstation, SunOS 5.3, X11R6
+Solbourne Series5/600E (Sun compatible), OS/MP4.1A.3, X11R6
+
+MIPS RC6280, RISC/os 4.52C, RISCwindows4.0 (cc with either sysv or bsd43) 
+MIPS RC6280, RISC/os 4.52C, X11R5 (gcc)
+MIPS RS4440, RISC/os 5.0B, RISCwindows4.1 (cc with either sysv or bsd43)
+
+NEC EWS4800/360AD, EWS-UX/V(Rel4.2 R8.1)
+
+NeXT NeXTstation, NEXTSTEP 3.0, CnX (X11R5)
+
+OMRON LUNA-2, Mach 2.5 Ver 1.20
+
+8.2 Newest release (FTP and HTML)
+
+You can get the newest release of youbin package with FTP from
+
+	nuis.nuie.nagoya-u.ac.jp:/nagoya-u/youbin-<version>.tar
+
+You can also see newest information in HTML format. Access to
+
+	http://www.nagoya-u.ac.jp/software/index.html
+
+with a WWW client.
+
+8.3 Directory organization
+
+<YOUBIN_TOP>			Source programs including header files
+				Imakefile
+				Makefile.dist
+				README (this file)
+				README.Japanese
+				ChangeLog (in Japanese)
+				FAQ.Japanese
+				patches to popd, popper and xpbiff
+<YOUBIN_TOP>/Doc 		Online manual
+ 				Specifications of youbin protocol
+				State transition diagram
+<YOUBIN_TOP>/Doc.Japanese	Online manual
+ 				Specifications of youbin protocol
+				State transition diagram
+<YOUBIN_TOP>/Bitmap 		youbin standard pixmap (color)
+		    			youbinEmpty.xpm youbinFull.xpm
+					and ones magnified 1.5 and 2
+	    			Bitmaps by Takashi Kawamura
+					youbinNai.xbm, youbinKita.xbm
+
+8.4 Configuration
+
+Set the variables of Imakefile appropriately.
+
+	BINDIR = /usr/local/bin
+	SERVER_BINDIR = /etc
+
+BINDIR is a directory in which xyoubin, youbin, and sendto are
+installed. SERVER_BINDIR is a directory for youbind.
+
+When Pixmap is used for display, the beginning # of the following lines
+should be removed.
+
+	# Uncomment following lines, if you want to use pixmap.
+	# XPM_DEFS = -DUSE_XPM
+	# XPM_LIBS = str_to_pixmap.o locate_pixmap.o
+	# XPM_FLAGS = -lXpm -lXwchar
+
+Because Xpm library (libXpm.a) is used, it is possible to compile only
+when X11R5/contrib/lib/xpm has been installed.
+
+8.5 Compilation
+Execute the followings.
+
+% xmkmf
+% make
+
+8.6 Test
+
+It is necessary to stop comsat when comsat is in inetd.conf or having
+already been running. Add '#' at the first column of the line 
+
+	comsat dgram  udp  wait  root /usr/etc/in.comsat  in.comsat
+
+in the file /etc/inetd.conf. Then send HUP signal to inetd to reread
+/etc/inetd.conf.
+
+% kill -HUP <process id of inetd>
+
+(1) Start of server
+
+Login as root. Execute 
+
+% youbind -d
+
+(2) Start of client
+
+Execute youbin. Send mail to the user who execute youbin. If he gets a
+message 
+
+	New mail for <user name>@<mail server> has arrived:
+
+then youbin and youbind operate well. When you want to test client
+from a different machine than mail server, please specify the host
+name of mail server with -s option.
+
+	youbin -s <mail server>
+
+8.7 Installation and operation
+
+The command 
+
+% make install
+
+will install all related files.
+Add following lines to /etc/rc.local in the case of BSD, and to
+/etc/rc.* in the case of SYSV. They start youbin services.
+
+if [ -f <SERVER_BIN>/youbind ]; then
+	<SERVER_BIN>/youbind;	(echo -n ' youbind')	>/dev/console
+fi
+
+Here, <SERVER_BINDIR> is a directory specified in Imakefile.
+
+8.8 Compilation and installation of YouBin.app
+
+(1) Change directory to NeXTclient with FileViewer. Double click the
+icon of PB.project. Then Project Builder is activated. Push the button
+"Builder". To field "Argument", type in
+
+	install INSTALLDIR=/LocalApps
+
+Then push the "BUILD" button.
+
+If you have not installed Developer Package, you can install the
+attached binary package.
+
+% cd NeXTclient
+% tar cf - ./YouBin.app | (cd /LocalApps; tar xf -)
+
+(2) retrieve
+Use Terminal.app and change directory to NeXTclient/retrieve.
+
+% make
+
+It makes "retrieve". Then
+
+% su
+Password: 
+
+% cp retrieve /LocalApps/YouBin.app/retrieve
+% chown root /LocalApps/YouBin.app/retrieve
+% chmod 4755 /LocalApps/YouBin.app/retrieve
+
+(3) youbin
+Change directory to where (2) is done (if you did not execute (2), do
+% make youbin first).
+
+% cp youbin /LocalApps/YouBin.app/youbin
+% chown root /LocalApps/YouBin.app/youbin
+% chmod 4755 /LocalApps/YouBin.app/youbin
+
+
+9 Problems and ToDo
+
+9.1 Problem
+
+Nothing.
+
+9.2 ToDo
+
+(10) Add options to xyoubin. -debug may be needed.  It should accept
+all options which can be used for youbin.
+(13) Client program for Macintosh and Windows.
+(16) Default server name should be defined at compilation time, instead
+hard coding as LOCAL_HOST.
+(17) terminfo should be used in the case of SYSV since it has no
+struct sgttyb
+(19) No default resource file.
+
+
+10 Changes
+
+Ver. 0.9 -> 1.0 and/or protocol ver. 1 -> 2.
+
+(1) -A option is added for youbind
+It enables server on MIPS to accept client requests via biff port. The
+message from /bin/mail is accepted via mbiff port specified with -A
+option.
+
+(2) Quit packet is added.
+
+(3) Option field is added to Wake up packet.
+It enable to receive the summary of an arrived mail from server.
+
+(4) Add Security check.
+Authentification mechanism is the same as RPOP.
+
+(5) Add the display function of Pixmap (Thanks to H.Ariga)
+
+Ver. 1.0 -> 2.0
+
+(1) Patches for popper (Thanks to K.Makimura)
+
+(2) Add syslog feature to youbind.
+
+(3) Add -t option to youbind.
+
+11 Quotation
+
+The converter from String to Pixmap and the include files for xpm are
+quoted and corrected the following files.
+
+	Former file name 		Distribution file name
+	--------------------------------------------------
+	X11R5/mit/lib/Xmu/StrToBmap.c	str_to_pixmap.c
+	X11R5/mit/lib/Xmu/LocBitmap.c	locate_pixmap.c
+	X11R5/contrib/lib/xpm/xpm.h	xpm.h
+	X11R5/contrib/lib/xpm/xpmP.h	xpmP.h
+
+
+12 Authors
+
+Kiyoshi Agusa 		agusa@nuie.nagoya-u.ac.jp
+Shinichirou Yamamoto  	yamamoto@nuie.nagoya-u.ac.jp
+
+Department of Information Engineering
+Nagoya University
+Chikusa, Nagoya, 464-01
+JAPAN
+
+Tel. +81 52 789 3649
+Fax. +81 52 789 3810
+
+The authors express their thanks to many members of Software lab.
+
+Takeshi Hamaguchi 	Contributes for xyoubin, State transition diagram
+Hiroaki Ariga		Improvements of xyoubin, sound function,
+			mouse sensitive, Pixmap
+Atsuhi Yoshida		Patche to xpbiff
+Ken Makimura		Patches to popd and popper, syslog
+Akira Ishikawa		YouBin.app
+Takayuki Miyazawa	HTML format document
+Atushi Kokune		Prototype of protocol
+
+The usable comments and extensions from:
+
+S.Sugisawa (HAG01365@niftyserve.or.jp) provides patches to error
+checking of mail spool and modification to enable easy transportation
+to SVR4 systems.

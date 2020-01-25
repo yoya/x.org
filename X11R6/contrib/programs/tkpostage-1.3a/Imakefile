@@ -1,0 +1,19 @@
+XCOMM ** If your wish isn't in the same place as all your other X programs
+XCOMM ** then you'll want to change WishPathname to the correct path
+
+#ifndef WishPathname
+#define WishPathname $(BINDIR)/wish
+#endif
+
+WISH = WishPathname
+
+AllTarget()
+
+InstallScript(tkpostage,$(BINDIR))
+InstallManPage(tkpostage,$(MANDIR))
+InstallNonExecFile(Postage.xbm,$(INCDIR)/bitmaps)
+
+tkpostage.script: tkpostage
+	sed -e 's@^#!/usr/local/bin/wish -f@#!$(WISH) -f@' \
+	    -e 's@^set bitmap "./Postage.xbm";@set bitmap "$(INCDIR)/bitmaps/Postage.xbm";@' \
+	    < tkpostage > $@

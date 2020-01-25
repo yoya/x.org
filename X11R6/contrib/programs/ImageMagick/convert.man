@@ -1,0 +1,522 @@
+.ad l
+.nh
+.TH convert 1 "1 May 1994" "ImageMagick"
+.SH NAME
+convert - converts an input file using one image format to an output
+file with a differing image format.
+.SH SYNOPSIS
+.B "convert"
+[ \fIoptions\fP ... ] \fIinput_file\fP \fIoutput_file\fP
+.SH DESCRIPTION
+\fBconvert\fP converts an input file using one image format to an output file
+with a differing image format.
+
+\fBconvert\fP recognizes the following image formats:
+
+.TP 6
+.B Tag
+\fBDescription\fP
+.PP
+-------------------------------------------------------------------------------
+.TP 6
+.B AVS
+AVS X image file.
+.TP 6
+.B BMP
+Microsoft Windows bitmap image file.
+.TP 6
+.B CMYK
+Raw cyan, magenta, yellow, and black bytes.
+.TP 6
+.B EPS
+Adobe Encapsulated PostScript file.
+.TP 6
+.B EPSF
+Adobe Encapsulated PostScript file.
+.TP 6
+.B EPSI
+Adobe Encapsulated PostScript Interchange format.
+.TP 6
+.B FAX
+Group 3.
+.TP 6
+.B FITS
+Flexible Image Transport System.
+.TP 6
+.B GIF
+Compuserve Graphics image file.
+.TP 6
+.B GIF87
+Compuserve Graphics image file (version 87a).
+.TP 6
+.B GRAY
+Raw gray bytes.
+.TP 6
+.B HISTOGRAM
+.TP 6
+.B IRIS
+SGI RGB image file.
+.TP 6
+.B JPEG
+.TP 6
+.B MAP
+Red, green, and blue colormap bytes followed by the image colormap indexes.
+.TP 6
+.B MATTE
+Raw matte bytes.
+.TP 6
+.B MIFF
+Magick image file format.
+.TP 6
+.B MTV
+.TP 6
+.B PCD
+Photo CD.
+.TP 6
+.B PCX
+ZSoft IBM PC Paintbrush file.
+.TP 6
+.B PICT
+Apple Macintosh QuickDraw/PICT file.
+.TP 6
+.B PNM
+Portable bitmap.
+.TP 6
+.B PS
+Adobe PostScript file.
+.TP 6
+.B PS2
+Adobe Level II PostScript file.
+.TP 6
+.B RGB
+Raw red, green, and blue bytes.
+.TP 6
+.B RLE
+Utah Run length encoded image file; read only.
+.TP 6
+.B SUN
+SUN Rasterfile.
+.TP 6
+.B TEXT
+raw text file; read only.
+.TP 6
+.B TGA
+Truevision Targa image file.
+.TP 6
+.B TIFF
+Tagged Image File Format.
+.TP 6
+.B VICAR
+read only.
+.TP 6
+.B VIFF
+Khoros Visualization image file.
+.TP 6
+.B X
+select image from X server screen.
+.TP 6
+.B XC
+constant image of X server color.  Specify the desired color as the filename.
+.TP 6
+.B XBM
+X11 bitmap file.
+.TP 6
+.B XPM
+X11 pixmap file.
+.TP 6
+.B XWD
+X Window System window dump image file.
+.TP 6
+.B YUV
+CCIR 601 1:1:1 file.
+.TP 6
+.B YUV3
+CCIR-601 2:1:1 files.
+.PP
+.SH EXAMPLES
+.PP
+To convert a \fIMIFF\fP image of a cockatoo to a SUN raster image, use:
+.PP
+.B
+     convert cockatoo.miff sun:cockatoo.ras
+.PP
+To convert a multi-page \fIPostscript\fP document to individual FAX pages, use:
+.PP
+.B
+     convert -monochrome document.ps fax:page
+.PP
+To convert a TIFF image to a \fIPostscript\fP A4 page with the image in
+the lower left-hand corner, use:
+.PP
+.B
+     convert -page 595x842+0+0 image.tiff document.ps
+.PP
+To convert a raw \fBGRAY\fP image to a portable graymap, use:
+.PP
+.B
+     convert -geometry 768x512 gray:raw image.pgm
+.SH OPTIONS
+.TP 5
+.B "-blur"
+blur the image.
+.TP 5
+.B "-border \fI<width>x<height>fP"
+surround the image with a border or color.  See \fBX(1)\fP for details
+about the geometry specification.
+
+The color of the border is obtained from the X server and is defined as
+\fBbordercolor\fP (class \fBborderColor\fP).  See \fBX(1)\fP for details.
+.TP 5
+.B "-clip \fI<width>x<height>{\+-}<x offset>{\+-}<y offset>\fP"
+preferred size and location of the clipped image.  See \fBX(1)\fP for details
+about the geometry specification.
+
+Use clipping to crop a particular area of an image.   Use \fB-clip
+0x0\fP to remove edges that are the background color.
+.TP 5
+.B "-colors \fIvalue\fP"
+preferred number of colors in the image.
+
+The actual number of colors in the image may be less than your request,
+but never more.  Note, this is a color reduction option.  Images with
+less unique colors than specified with this option will remain unchanged.
+Refer to \fBquantize(9)\fP for more details.
+
+Note, options \fB-dither\fP, \fB-colorspace\fP, and \fB-treedepth\fP affect
+the color reduction algorithm.
+.TP 5
+.B "-colorspace \fIvalue\fP"
+the type of colorspace: \fBGRAY\fP, \fBOHTA\fP, \fBRGB\fP, \fBXYZ\fP,
+\fBYCbCr\fP, \fBYIQ\fP, or \fBYUV\fP.
+
+Color reduction, by default, takes place in the RGB color space.
+Empirical evidence suggests that distances in color spaces such as YUV
+or YIQ correspond to perceptual color differences more closely
+than do distances in RGB space.  These color spaces may give better
+results when color reducing an image.  Refer to \fBquantize(9)\fP for
+more details.
+
+The \fB-colors\fP or \fB-monochrome\fP option is required for this option
+to take effect.
+.TP 5
+.B "-comment \fIstring\fP"
+annotate an image with a comment.
+
+By default, each image is commented with its file name.  Use this
+option to assign a specific comment to the image.  Optionally you can
+include the image filename, type, width, height, or scene number by
+embedding special format characters.  Embed \fB%f\fP for filename,
+\fB%m\fP for magick, \fB%w\fP for width, \fB%h\fP for height, \fB%s\fP
+for scene number, or \fB\\n\fP for newline.  For example,
+
+.nf
+     -comment "%m:%f %wx%h"
+.fi
+
+produces an image comment of \fBMIFF:bird.miff 512x480\fP for an image
+titled \fBbird.miff\fP and whose width is 512 and height is 480.
+
+If the first character of \fIstring\fP is \fB@\fP, the image comment is read
+from a file titled by the remaining characters in the string.
+.TP 5
+.B "-compress \fItype\fP"
+the type of image compression: \fIQEncoded\fP or \fIRunlengthEncoded\fP.
+
+Specify \fB\+compress\fP to store the binary image in an uncompressed format.
+The default is the compression type of the specified image file.
+.TP 5
+.B "-density \fI<width>x<height>
+vertical and horizontal density of the image.
+
+This option specifies an image density for a Postscript page.
+The default is 72 dots per inch in the horizontal and vertical direction.
+Use this option to alter the default density.
+.TP 5
+.B "-despeckle"
+reduce the speckles within an image.
+.TP 5
+.B "-display \fIhost:display[.screen]\fP"
+specifies the X server to contact; see \fBX(1)\fP.
+.TP 5
+.B "-dither"
+apply Floyd/Steinberg error diffusion to the image.
+
+The basic strategy of dithering is to trade intensity resolution for
+spatial resolution by averaging the intensities of several neighboring
+pixels.  Images which suffer from severe contouring when reducing colors
+can be improved with this option.
+
+The \fB-colors\fP option is required for dithering to take effect.
+.TP 5
+.B "-edge"
+detect edges with an image.
+.TP 5
+.B "-enhance"
+apply a digital filter to enhance a noisy image.
+.TP 5
+.B "-equalize"
+perform histogram equalization to the image.
+.TP 5
+.B "-flip"
+create a "mirror image" by reflecting the image scanlines in the vertical
+direction.
+.TP 5
+.B "-flop"
+create a "mirror image" by reflecting the image scanlines in the horizontal
+direction.
+.TP 5
+.B "-font \fIname\fP"
+This option specifies the font to be used for displaying normal text.
+The default is \fBfixed\fP.
+.TP 5
+.B "-gamma \fIvalue\fP"
+level of gamma correction.
+
+The same color image displayed on two different workstations may look
+different due to differences in the display monitor.  Use gamma
+correction to adjust for this color difference.  Reasonable values
+extend from 0.8 to 2.3.
+
+You can apply separate gamma values to the red, green, and blue
+channels of the image with a gamma value list delineated with commas
+(i.e. 1.7,2.3,1.2).
+.TP 5
+.B "-geometry \fI<width>{%}x<height>{%}{+colors}{!}"
+the width and height of the image.
+
+By default, the width and height are maximum values.  That is, the
+image is expanded or contracted to fit the width and height value while
+maintaining the aspect ratio of the image.  Append an exclamation point
+to the geometry to force the image size to exactly the size you
+specify.  For example, if you specify \fB640x480!\fP the image width is
+set to 640 pixels and height to 480.  If only one factor is
+specified, both the width and height assume the value. 
+
+To specify a percentage width or height instead, append \fB%\fP.  The
+image size is multiplied by the width and height percentages to obtain
+the final image dimensions.  To increase the size of an image, use a
+value greater than 100 (e.g. 125%).  To decrease an image's size, use a
+percentage less than 100.
+
+Use this option to specify the width and height of raw images whose
+dimensions are unknown such as \fBGRAY\fP, \fBRGB\fP, or \fBCMYK\fP.
+In addition to width and height, use \fB-geometry\fP to tell the number
+of colors in a \fBMAP\fP image file, (e.g. -geometry 640x512+256).
+.TP 5
+.B "-interlace \fItype\fP"
+the type of interlacing scheme: \fBNONE\fP, \fBLINE\fP, or \fBPLANE\fP.
+
+This option is used to specify the type of interlacing scheme for raw
+image formats such as \fBRGB\fP or \fBYUV\fP.  \fBNONE\fP means do not
+interlace (RGBRGBRGBRGBRGBRGB...), \fBLINE\fP uses scanline
+interlacing (RRR...GGG...BBB...RRR...GGG...BBB...), and \fBPLANE\fP uses
+plane interlacing (RRRRRR...GGGGGG...BBBBBB...).
+.B "-label \fIname\fP"
+assign a label to an image.
+
+Use this option to assign a specific label to the image.  Optionally
+you can include the image filename, type, width, height, or scene
+number in the label by embedding special format characters.   Embed
+\fB%f\fP for filename, \fB%m\fP for magick, \fB%w\fP for width,
+\fB%h\fP for height, or \fB%s\fP for scene number.  For example,
+.nf
+     -label "%m:%f %wx%h"
+.fi
+produces an image label of \fBMIFF:bird.miff 512x480\fP for an image
+titled \fBbird.miff\fP and whose width is 512 and height is 480.
+
+If the first character of \fIstring\fP is \fB@\fP, the image label is read
+from a file titled by the remaining characters in the string.
+
+When converting to Postscript, use this option to specify a header string
+to print above the image.
+.TP 5
+.B "-matte"
+store matte channel if the image has one.
+.TP 5
+.B "-monochrome"
+transform the image to black and white.
+.TP 5
+.B "-negate"
+apply color inversion to image.
+
+The red, green, and blue intensities of an image are negated.
+.TP 5
+.TP 5
+.B "-noise"
+reduce the noise in an image with a noise peak elimination filter.
+
+The principal function of noise peak elimination filter is to smooth
+the objects within an image without losing edge information and without
+creating undesired structures.  The central idea of the algorithm is to
+replace a pixel with its next neighbor in value within a 3 x 3 window,
+if this pixel has been found to be noise.  A pixel is defined as noise
+if and only if this pixel is a maximum or minimum within the 3 x 3 window.
+.TP 5
+.B "-normalize"
+transform image to span the full range of color values.
+
+This is a contrast enhancement technique.
+.TP 5
+.B "-page \fI<width>x<height>{\+-}<x offset>{\+-}<y offset>\fP"
+preferred size and location of the Postscript page.
+
+Use this option to specify the dimensions of the Postscript page in
+picas or a TEXT page in pixels.  The default for a Postscript page is
+to center the image on a letter page 612 by 792 dots per inch.  The
+left and right margins are 18 picas and the top and bottom 94 picas
+(i.e.  612x792+18+94).  Other common sizes are:
+
+    540x720   Note
+    612x1008  Legal
+    842x1190  A3
+    595x842   A4
+    421x595   A5
+    297x421   A6
+    709x1002  B4
+    612x936   U.S. Foolscap
+    612x936   European Foolscap
+    396x612   Half Letter
+    792x1224  11x17
+    1224x792  Ledger
+
+The page geometry is relative to the vertical and horizontal density of the
+Postscript page.  See \fB-density\fP for details.
+
+The default page dimensions for a TEXT image is 612x792+36+36.
+.TP 5
+.B "-quality \fIvalue\fP"
+JPEG quality setting.
+
+Quality is 0 (worst) to 100 (best). The default is 85.
+.TP 5
+.B "-roll \fI{\+-}<x offset>{\+-}<y offset>\fP"
+roll an image vertically or horizontally.  See \fBX(1)\fP for details
+about the geometry specification.
+ 
+A negative \fIx offset\fP rolls the image left-to-right.  A negative
+\fIy offset\fP rolls the image top-to-bottom.
+.TP 5
+.B "-rotate \fIdegrees\fP"
+apply Paeth image rotation to the image.
+
+Empty triangles left over from rotating the image are filled with
+the color defined as \fBbordercolor\fP (class \fBborderColor\fP).
+See \fBX(1)\fP for details.
+.TP 5
+.B "-scene \fIvalue\fP"
+image scene number.
+.TP 5
+.B "-sharpen"
+sharpen the image.
+.TP 5
+.B "-shear \fI<x degrees>x<y degrees>\fP"
+shear the image along the X or Y axis by a positive or negative shear angle.
+
+Shearing slides one edge of an image along the X or Y axis, creating a
+parallelogram.  An X direction shear slides an edge along the X axis,
+while a Y direction shear slides an edge along the Y axis.  The amount
+of the shear is controlled by a shear angle.  For X direction shears,
+\fIx degrees\fP is measured relative to the Y axis, and similarly, for
+Y direction shears \fIy degrees\fP is measured relative to the X axis.
+
+Empty triangles left over from shearing the image are filled with
+the color defined as \fBbordercolor\fP (class \fBborderColor\fP).
+See \fBX(1)\fP for details.
+.TP 5
+.B "-treedepth \fIvalue\fP"
+Normally, this integer value is zero or one.  A zero or one tells
+\fBconvert\fP to choose a optimal tree depth for the color reduction
+algorithm.
+
+An optimal depth generally allows the best representation of the source
+image with the fastest computational speed and the least amount of
+memory.  However, the default depth is inappropriate for some images.
+To assure the best representation, try values between 2 and 8 for this
+parameter.  Refer to \fBquantize(9)\fP for more details.
+
+The \fB-colors\fP option is required for this option to take effect.
+.TP 5
+.B "-undercolor \fI<undercolor factor>x<black-generation factor>\fP"
+control undercolor removal and black generation on CMYK images.
+
+This option enables you to perform undercolor removal and black
+generation on CMYK images-- images to be printed on a four-color
+printing system. You can control how much cyan, magenta, and yellow
+to remove from your image and how much black to add to it.
+The standard undercolor removal is \fB1.0x1.0\fP.  You'll
+frequently get better results, though, if the percentage of black you
+add to your image is slightly higher than the percentage of C, M, and Y
+you remove from it.  For example you might try \fB0.5x0.7\fP.
+.TP 5
+.B -verbose
+print detailed information about the image.
+
+This information is printed: image scene number;  image name;  converted
+image name;  image size;  the image class (\fIDirectClass\fP or 
+\fIPseudoClass\fP);  the total number of unique colors;  and the number
+of seconds to read and convert the image.
+.PP
+Change '-' to '+' in any option above to reverse its effect.  For
+example, specify +matte to store the image without its matte channel.
+.PP
+By default, the image format is determined by its magic number. To
+specify a particular image format, precede the filename with an image
+format name and a colon (i.e. ps:image) or specify the image type as
+the filename suffix (i.e. image.ps).  See \fBDESCRIPTION\fP for a list
+of valid formats.
+.PP
+When you specify \fBX\fP as your image type, the filename has special
+meaning.  It specifies an X window by id, name, or \fBroot\fP.  If no
+filename is specified, the window is selected by clicking the mouse in
+the desired window.
+.PP
+Specify \fIinput_file\fP as \fI-\fP for standard input,
+\fIoutput_file\fP as \fI-\fP for standard output.  If \fIinput_file\fP
+has the extension \fB.Z\fP or \fB.gz\fP, the file is uncompressed with
+\fBuncompress\fP or \fBgunzip\fP respectively.  If \fIoutput_file\fP
+has the extension \fB.Z\fP or \fB.gz\fP, the file size is compressed
+using with \fBcompress\fP or \fBgzip\fP respectively.  Finally, precede
+the image file name with \fI|\fP to pipe to or from a system command.
+.PP
+Single images are written with the filename you specify.  However,
+multi-part images (i.e. a multi-page Postscript document) are written
+with the filename followed by a period (\fB.\fP) and the
+scene number.  You can change this behavior by embedding a \fBprintf\fP
+format specification in the file name.  For example,
+.nf
+	image%02d.miff
+.fi
+converts files image00.miff, image01.miff, etc.
+.SH ENVIRONMENT
+.PP
+.TP 5
+.B display
+To get the default host, display number, and screen.
+.SH SEE ALSO
+.B
+display(1), animate(1), import(1), montage(1), mogrify(1), 
+segment(1), combine(1), xtp(1)
+.SH COPYRIGHT
+Copyright 1994 E. I. du Pont de Nemours and Company
+.PP
+Permission to use, copy, modify, distribute, and sell this software and
+its documentation for any purpose is hereby granted without fee,
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in
+supporting documentation, and that the name of E. I. du Pont de Nemours
+and Company not be used in advertising or publicity pertaining to
+distribution of the software without specific, written prior
+permission.  E. I. du Pont de Nemours and Company makes no representations
+about the suitability of this software for any purpose.  It is provided
+"as is" without express or implied warranty.
+.PP
+E. I. du Pont de Nemours and Company disclaims all warranties with regard
+to this software, including all implied warranties of merchantability
+and fitness, in no event shall E. I. du Pont de Nemours and Company be
+liable for any special, indirect or consequential damages or any
+damages whatsoever resulting from loss of use, data or profits, whether
+in an action of contract, negligence or other tortuous action, arising
+out of or in connection with the use or performance of this software.
+.SH AUTHORS
+John Cristy, E.I. du Pont De Nemours and Company Incorporated

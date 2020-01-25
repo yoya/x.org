@@ -1,0 +1,12 @@
+// $XConsortium: cancel,v 1.2 94/04/08 16:00:43 erik Exp $
+xkb_types "Shift_Cancels_Caps"
+
+override type "TWO_LEVEL" {
+    modifiers = Shift+Lock;
+    map[Shift] = Level2;
+    preserve[Lock]= Lock;
+    level_name[Level1] = "Base";
+    level_name[Level2] = "Shift";
+};
+
+

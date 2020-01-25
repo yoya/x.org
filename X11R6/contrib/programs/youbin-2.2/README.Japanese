@@ -1,0 +1,647 @@
+#
+# Program:	$RCSfile: README.Japanese,v $  $Revision: 4.5 $
+#
+# Purpose:	youbinサービス利用の手引
+#
+# Author:	K.Agusa	    agusa@nuie.nagoya-u.ac.jp
+#		S.Yamamoto  yamamoto@nuie.nagoya-u.ac.jp
+#
+# Version:	2.2
+# Protocol:	2
+#
+# Date:		1993/07/24
+# Modified:	$Date: 1994/06/14 05:47:02 $
+#
+
+目次
+
+	1 はじめに
+	2 youbinサービスの概要 
+	3 メリット
+	4 プロトコルの概要
+	5 サーバーの使用法
+	6 クライアントの使用方法
+		6.1 xyoubin(X Window Systemのクライアント)
+		6.2 YouBin.app(NeXTのクライアント)
+		6.3 youbin(キャラクタベースのクライアント)
+	7 その他のプログラム
+		7.1 popdへのパッチ
+		7.2 popperへのパッチ
+		7.3 mh-eのフック
+		7.4 xpbiffへのパッチ
+	8 インストール
+		8.1 動作環境
+		8.2 最新版(FTP and HTML)
+		8.3 ディレクトリ構成
+		8.4 コンフィグレーション
+		8.5 コンパイル
+		8.6 テスト
+		8.7 インストールと運用
+		8.8 YouBin.appのコンパイルとインストール
+	9 問題点と今後の課題
+       10 変更点
+       11 引用
+       12 著者
+
+
+1 はじめに
+
+ネットワーク技術の発展に伴い，ユーザーがメールサーバーにログインしてい 
+ることを前提として作られた旧来のメール到着通知サービス(biff)は時代遅れ 
+になり，その利用者は限られたものとなっている．現在，ウインドウ環境で広 
+く利用されているxbiffは，ある意味でネットワーク対応であるが，(1)基本的 
+にスプールを直接マウントして調べる(POPのmsgchkを使うことは可能である)， 
+(2)非同期に到着するメールをポーリングを用いて調べている，(3)X Window
+Systemに依存している，などの問題がある．また，キャラクタ端末で計算機を
+使っている人がメールの到着を知るには，biffを使うと画面が乱れるために
+シェルが"You have new mail."を出してくれる機能を使うのが一般的である．
+しかしこれもPOP等のネットワーク時代のメール配送においてはスプールに直
+接アクセスできないために利用が制限される．
+
+このような背景のもとで，メールの到着を告知するためのプロトコルとして 
+biffプロトコルをネットワークに対応させた youbin(ゆうびんと読む)プロト
+コルを開発した．youbinはこれまでのbiffおよびxbiffの機能を包含する．
+
+
+2 youbinサービスの概要 
+
+youbinはネットワーク時代のbiffである．biffはメールスプールを持つマシン
+のユーザにメールの到着を知らせるのみであるが，youbinを使うと，ある特定
+のマシンのメールスプールを監視し，メールの到着をネットワークを介して任
+意のマシンのユーザに知らせることが出来る．POPと組み合わせると，メール
+スプールの検査のためにスプールをNFSマウントする必要がなくなる．
+
+また，非同期に起きるメール到着と読みだし(によるスプールファイルの変更)
+を即時的にユーザに知らせることが出来る．
+
+
+3 メリット
+
+(1) biffサービスをネットワーク対応にできる
+
+(2) 無駄なポーリングを排し，メールの到着とPOP等による読み込みをイベン
+トとして検知する．これによりメールサーバーの不必要なファイルexportを省
+くことが出来る．
+
+(3) xbiffと比べて，プロトコルが軽いのでメール管理する機械の負荷を減らす 
+ことが出来る．
+
+
+4 プロトコルの概要
+
+以下ではyoubinのサーバーをyoubindと呼ぶ．
+
+(1) メールの到着
+
+/bin/mailはメールの到着を知らせるために，メールサーバのスプールに新着
+メールを書き込むとき，biffポートにメールの到着を知らせるパケットを出す．
+普通は メールサーバでデーモンとして動いているcomsatがこれを受けとり，
+"biff y"を指示したユーザーの端末にメール到着のメッセージを表示する．あ
+るいはシェルがメールの到着を監視できるようにダミーのファイルを更新する．
+
+youbinサービスではyoubindが/bin/mailからの通知を受けとり，(一般には)別
+の計算機で実行されているyoubinクライアントにメールの到着を通知する．ク
+ライアントとして，
+
+	xyoubin		xbiffを置き換えるためのクライアント
+	YouBin.app	NeXTでxbiffと同じ働きをするアプリケーション
+	youbin		キャラクタベースのクライアント
+
+が用意されている
+
+(2) メールが読まれたことの検知
+
+biffサービスはメールの到着のみを通知する．一方，xbiffはメールスプール
+の状態(未読メールの有無)を表示するため，メールが読まれたことをイベント
+として検知する必要がある．youbinサービスではメールがPOP対応のincなどで
+読まれたことを検知するために以下の2つの方法を用意している．これらの機
+構のどちらかを用いることでポーリングを排除し即時変化を知ることも出来る．
+
+ただし，信頼性のない通信路を用いているため，実際には規定秒(180秒)に1回
+スプールの変化を調べている．参考までにxbiffのポーリング間隔は30秒であ
+る．
+
+(1) popdにパッチを当てて，スプールの変化(の可能性)をyoubindに通知する
+機能を追加する．youbindはスプールを調べて実際に変化している場合に
+youbinクライアントに知らせる．
+
+(2) mh-eのフックでスプールの変化を，明示的にyoubindに知らせる．
+
+
+5 サーバーの使用法
+
+(1) 起動方法
+youbinサーバーはデーモンとして立ちあげる．普通はマシンの立ち上げ時の実
+行ファイルに
+
+/etc/youbind &
+
+を追加することによりこれを行う．
+
+(2) オプション
+以下のオプションがある．
+
+    -d	     Debug mode.
+    -h	     Help: print out the usage.
+    -t       Trace: print out beginning and end of service.
+    -A port  Auxiliary Service port name.
+
+MIPSのように/bin/mailがbiffポート以外のポートにメールの到着を知らせる
+場合は-Aオプションで指定する．例えば，MIPSの場合は
+
+	/etc/youbind -A mbiff
+
+として起動する．
+
+
+6 クライアントの使用方法
+
+6.1 xyoubin(X Window Systemのクライアント)
+
+xbiffと同様に使うことができる．
+
+    -empty pixmap  Pixmap to be shown when no new mail is present.
+    -flip/-nofilp  Specifies whether or not the image should be inverted.
+    -full pixmap   Pixmap to be shown when new mail has arrived.
+    -help	   Help: print out the usage.
+    -pipe	   Executed by other program (don't exec child process).
+    -server host   Server host name.
+    -sound file	   Sound file (SunOS only)
+    -volume %	   Specifies how loud the bell should be rung.
+
+多くのオプションはxbiffと同じものである．
+
+(1) serverオプションによりメールサーバーを指定する．このオプションを指定
+しないとローカルマシンがメールサーバーであると仮定する．
+
+(2) soundオプションはSunの/dev/audioデバイスを用いて，音によるメール到
+着を知らせる．使用するaudio dataを指定する．
+
+(3) emptyとfullオプションは表示されるpixmapを指定する．
+
+(4) flipはビットマップの反転を制御する．デフォルトは到着時に反転表示を
+行う．
+
+これらのオプションは以下のリソースとして指定することもできる．
+
+XYoubin*emptyPixmap:		<pixmap>
+XYoubin*fullPixmap:		<pixmap>
+XYoubin*flip:			<boolean>
+XYoubin*server:			<string>
+XYoubin*sound:			<string>
+XYoubin*volume:			<int>
+
+6.2 YouBin.app(NeXTのクライアント)
+
+ファイルビューアからYouBin.appをダブルクリックにより起動する．詳細につ
+いてはNeXTclient/Japanese.lproj/Help/TableOfContents.rtfを参照すること．
+
+6.3 youbin(キャラクタベースのクライアント)
+
+(1) バックグラウンドジョブとして，
+
+% youbin -s <server name> &
+
+と実行することにより，メールが到着するとbiffコマンドと同様に
+
+New mail for <user name>@<mail server> has arrived:
+
+のメッセージを表示する．-bオプションを付けるとFrom, Subjectフィール
+ドとメールの最初の7行も表示される．また，このコマンドは
+xyoubin, YouBin.appなどから子プロセスとして起動される．
+
+(2) キャラクタ端末にメールの到着が非同期に通知されると，作業中の画面が
+乱される．このため多くのユーザはシェルのメールチェック機能を使っている．
+youbinを使ってこの機能を生かすことも出来る．-mオプションによってメー
+ルの到着を知らせるメッセージを書き込むファイルを指定する．youbinはサー
+バから知らされるスプールの状態をこのファイルで模擬する．サーバにメール
+がなくなるとこのファイルは，その大きさが0に変更され，サーバのスプール
+のサイズが大きくなるとこのファイルのサイズを増加させる．このファイルを
+シェルのメールチェックのファイルとすることで，シェルがメールの到着を利
+用者にプロンプトを返す時点で"You have new mail."と知らせる．例えば，
+cshでこれを使うには，<HOME>/.cshrcに
+
+youbin -m ~/.mail_check_file -s server_name &
+set mail = ~/.mail_check_file
+
+と書く．
+
+(3) youbin には以下のオプションがある．
+
+    -b	     Biff mode: send From, Subject and the first 7 lines.
+    -d	     Debug mode.
+    -h	     Help: print out the usage.
+    -m path  Mail Check File.
+    -p prog  Program to be executed and connected via pipe.
+    -s host  Host name of mail server.
+
+
+7 その他のプログラム
+
+以下のどれかのパッチを用いることにより，メールの読みだしを瞬時に
+youbindに通知することができる．
+
+7.1 popdへのパッチ
+
+MH6.8に付属しているpopdへのパッチとして，mh-6.8-youbin.patchが用意され
+ている．このパッチを当てたpopdを使うことにより，incなどによるスプール
+サイズの変化をyoubindに通知することが可能になる．
+
+パッチの当て方を以下に示す．<MHTOP>はMH6.8のソースツリーのトップディレ
+クトリを表す．
+
+(1) <MHTOP>/conf/mhconfig.c
+    <MHTOP>/conf/makefiles/support/pop
+    <MHTOP>/conf/support/pop/popser.c
+にパッチを当てる．
+
+	% cd <MHTOP>
+	% patch -p1 < mh-6.8-youbin.patch
+
+(2) youbinパッケージのsendto.cを<MHTOP>/support/popにコピーする．
+
+(3) <MHTOP>/conf/MHに
+
+	options YOUBIN
+
+を追加する(これを追加しないと通常のpopdができる)．
+
+(4) <MHTOP>/confに移動し，mhconfigとMakefileを作り直す．
+
+	% cd <MHTOP>/conf
+	% make
+	% mhconfig MH
+
+以降は，通常のMHと同様である．
+
+7.2 popperへのパッチ
+
+popperへのパッチとして以下のファイルが用意されている．
+
+popper-1.831beta-youbin.patch:		popper-1.831betaに対するパッチ．
+popper-1.831b-rpop-youbin.patch: 	RPOPパッチをあてたpopper-1.831beta
+					に対するパッチ．
+パッチの当て方を以下に示す．<TOP>はpopperのソースツリーのトップディレ
+クトリを表す．
+
+(1) <TOP>/Makefile
+    <TOP>/pop_updt.c
+    <TOP>/version.c
+にパッチを当てる．
+
+	% cd <TOP>
+	% patch -p1 < popper-1.831beta-youbin.patch
+
+(2) youbinパッケージのsendto.cを<TOP>にコピーする．
+
+(3) <TOP>/Makefileの "CFLAGS=..."の行に-DYOUBINが含まれていることを確
+認する．-DYOUBINがなければ，通常のpopperになる．
+
+(4) 以降は，通常のpopperと同様である．
+
+RPOP対応にするためのパッチが当たっている時は，パッチファイルとして
+popper-1.831b-rpop.youbin.patchを使うこと．
+
+7.3 mh-eへのフック
+
+<HOME>/.emacsに以下のコードを追加することにより，mh-eでincした場合にス
+プールの変化を明示的にyoubindに知らせることができる．
+
+(setq mh-inc-folder-hook 
+      '((lambda ()
+	   (let ((program	"<BINDIR>/sendto")
+		 (server	"<mail server>")
+		 (service	"biff")
+		 (user		(user-login-name)))
+	      (start-process "" nil
+			     program server service (concat "U " user))))))
+
+<BINDIR>と<mail server>はサイト毎に適切に設定すること．特に<BINDIR>は
+Imakefileの$(BINDIR)と同じにすること．
+
+7.4 xpbiffへのパッチ
+
+xpbiff(Ver. 1.26)をyoubinプロトコルに対応するためのパッチとして
+xpbiff-1.26-youbin.patchが用意されている．このパッチを当てたxpbiffは
+スプールの変化と同時に動作する．ただし，従来のxpbiffと異なり，表示され
+るメールヘッダはxpbiffが起動されたあとから届いたメールのみであり，起動
+時にスプールに溜っているメールのヘッダは表示されない．
+
+パッチの当て方，およびコンパイルの仕方を以下に示す．<XPBIFF>はxpbiffの
+ソースが展開されているディレクトリを表す．
+
+(1) xpbiff.c,Imakefile,xpbiff.manにxpbiff-1.26-youbin.pachを当てる．
+
+	% cd <XPBIFF>
+	% patch -p1 < xpbiff-1.26-youbin.pach
+
+(2) Imakefileを必要に応じて変更する．パッチがあたったImakefileでは次の
+ような定義が追加されている．
+
+	BINDIR = /usr/local/bin
+	DEFINES = -DYOUBIN -DBINDIR=\"$(BINDIR)\"
+
+BINDIR はyoubinがインストールされているディレクトリを指定する．DEFINES
+には環境に合わせて -DX11R3,-DSYSV,-DSLOW_MACHINE を追加すること．
+-DNO_CUSERID, -DMHSCAN を追加する必要ない．
+
+(3) Makefileの作成とコンパイル
+
+	% xmkmf
+	% make
+
+(4) インストール
+
+	% make install
+
+youbin対応により追加されたオプションを以下に示す．
+
+	-pipe	     Executed by other program (don't exec child process).
+	-server host Server host name.
+	-nopreserve  Not preserve headers
+
+-pipe,-serverはxyoubinに同じである．-nopreserveはメールが届いたときに
+その届いたメールのヘッダだけを表示し，それ以前に届いたメールのヘッダは
+表示しない．これらのオプションは以下のリソースとして指定することもでき
+る．
+
+XPbiff*pipe:		<boolean>
+XPbiff*server:		<string>
+XPbiff*preserve		<boolean>
+
+なお，youbin対応によりポーリングを行わないため，以下のオプションは無
+効である．
+
+	-polling_time  time (msec)
+
+その他のオプション，リソースはxpbiffと同じである．詳細はxpbiffのマニュ
+アルを参考にすること．
+
+
+8 インストール
+
+8.1 動作環境
+
+以下の環境でyoubin package Ver.2の動作を確認した．
+
+HP 9000/712, HP-UX 09.03
+
+Sun SPARCstation, SunOS 4.1.1, X11R5 and X11R6
+Sun SPARCstation, SunOS 5.3, X11R6
+Solbourne Series5/600E (Sun compatible), OS/MP4.1A.3, X11R6
+
+MIPS RC6280, RISC/os 4.52C, RISCwindows4.0 (cc with either sysv or bsd43) 
+MIPS RC6280, RISC/os 4.52C, X11R5 (gcc)
+MIPS RS4440, RISC/os 5.0B, RISCwindows4.1 (cc with either sysv or bsd43)
+
+NEC EWS4800/360AD, EWS-UX/V(Rel4.2 R8.1)
+
+NeXT NeXTstation, NEXTSTEP 3.0, CnX
+
+OMRON LUNA-2, Mach 2.5 Ver 1.20
+
+8.2 最新版(FTP and HTML)
+
+youbin packageの最新リリースは，名古屋大学のanonymous FTP
+
+	nuis.nuie.nagoya-u.ac.jp:/nagoya-u/youbin-<version>.tar
+
+におかれる．また，WWWのクライアントで 
+
+	http://www.nagoya-u.ac.jp/software/index.html
+
+をアクセスすることにより，youbin packageに関する最新の情報を得ることが
+できる．
+
+8.3 ディレクトリ構成
+
+<YOUBIN_TOP>			Cのソースファイルとヘッダファイル
+				Imakefile
+				Makefile.dist
+				README
+				README.Japanese (このファイル)
+				ChangeLog (日本語のみ)
+				FAQ.Japanese
+				popd, popper, xpbiffに対するパッチ
+<YOUBIN_TOP>/Doc		オンラインマニュアル
+				プロトコルの仕様書
+				状態遷移図
+<YOUBIN_TOP>/Doc.Japanese	オンラインマニュアル
+				プロトコルの仕様書
+				状態遷移図
+<YOUBIN_TOP>/Bitmap		youbin標準のpixmap (カラー)
+					youbinEmpty.xpm, youbinFull.xpm
+					上のpixmapを1.5倍と2倍したファイル
+				河村 崇さんによるbitmap
+					youbinNai.xbm, youbinKita.xbm
+
+8.4 コンフィグレーション
+
+Imakefileの変数を適切に設定する．
+
+	BINDIR = /usr/local/bin
+	SERVER_BINDIR = /etc
+
+ここで，BINDIRはxyoubin,youbin,sendtoがインストールされるディレクトリ
+であり，SERVER_BINDIRはyoubindがインストールされるディレクトリである．
+
+表示にPixmapを使用する場合は，
+
+	# Uncomment following lines, if you want to use pixmap.
+	# XPM_DEFS = -DUSE_XPM
+	# XPM_LIBS = str_to_pixmap.o locate_pixmap.o
+	# XPM_FLAGS = -lXpm -lXwchar
+
+のコメントを外す．ただし，Xpmライブラリ(libXpm.a)を用いるので，
+X11R5/contrib/lib/xpmをインストール済みの場合のみコンパイル可能である．
+
+8.5 コンパイル
+
+% xmkmf
+% make
+
+を行う．
+
+8.6 テスト
+
+comsatがinetdにより起動される，あるいは既に起動されている場合はcomsat
+を停止する必要がある．そのために/etc/inetd.confの
+
+	comsat	dgram  udp  wait  root	/usr/etc/in.comsat  in.comsat
+
+行の先頭に '#' を追加してから
+
+% kill -HUP <process id of inetd>
+
+によって inetd に HUP シグナルを送る．
+
+(1) サーバーの起動
+
+ルートの権限でyoubind -dを実行する．
+
+(2) クライアントの起動
+
+youbinを実行する．ここで，youbinを実行したユーザーにメールを出した時に，
+
+	New mail for <user name>@<mail server> has arrived:
+
+のメッセージが表示された場合は正常である．また，メールサーバーと異なる
+マシンでクライアントをテストする場合は，youbin -s <mail server>に
+よってクライアントを起動する．
+
+8.7 インストールと運用
+
+% make install
+
+によってインストールを行う．
+
+BSDの場合は/etc/rc.localに以下の項目を追加する．
+SYSVの場合は/etc/rc.*に郵便の起動ファイルを作る．
+
+if [ -f <SERVER_BIN>/youbind ]; then
+	<SERVER_BIN>/youbind;	(echo -n ' youbind')	>/dev/console
+fi
+
+ただし，<SERVER_BINDIR>はImakefileで指定したディレクトリである．
+
+8.8 YouBin.appのコンパイルとインストール
+
+(1) YouBin.app
+ファイルビューアでディレクトリNeXTclientに移り，
+	PB.project	
+をダブルクリックする．プロジェクトビルダが立ち上がるのでボタン
+	「ビルダ」
+を押す．
+	「引数:」
+のフィールドに
+	「install INSTALLDIR=/LocalApps」
+と書き，
+	「BUILD」
+ボタンを押す．
+
+ディベロッパーパッケージがインストールしていない場合，
+
+% cd NeXTclient
+% tar cf - ./YouBin.app | (cd /LocalApps; tar xf -)
+
+を行い付属のバイナリをインストールする．
+
+(2) retrieve
+Terminal.appでディレクトリNeXTclient/retrieveに移り
+
+% make
+
+によってretrieveを作る．次に
+
+% su
+Password: 
+% cp retrieve /LocalApps/YouBin.app/retrieve
+% chown root /LocalApps/YouBin.app/retrieve
+% chmod 4755 /LocalApps/YouBin.app/retrieve
+
+を行う．
+
+(3) youbin
+(2)を行ったディレクトリに移り
+((2)を行っていない場合は % make youbin を行った後に)
+
+% cp youbin /LocalApps/YouBin.app/youbin
+% chown root /LocalApps/YouBin.app/youbin
+% chmod 4755 /LocalApps/YouBin.app/youbin
+
+を行う．
+
+
+9 問題点と今後の課題
+
+9.1 問題点
+
+特になし．
+
+9.2 今後の課題
+
+(10) xyoubinのオプションを整理する(-debugを追加する)，youbinの全てのオ
+プションを受け入れる．
+(13) MacintoshとWindowsのクライアント．
+(16) デフォルトのサーバーをコンパイル時に決定する．現在はlocalhostになっ
+てしまう
+(17) SYSVにstruct sgttybが存在しないので，terminfoで代替する必要がある．
+(19) デフォルトのリソースファイルがない．
+
+
+10 変更点
+
+Ver. 0.9 -> 1.0 and/or Protocol ver. 1 -> 2
+
+(1) youbindに対する-Aオプションの追加
+これにともない，MIPS上のサーバーもbiffポートでクライアントの要求を受け
+付けるように変更された．また，youbind -A mbiffによって，mbiffポートで
+/bin/mailからのメッセージを受け付ける．
+
+(2) Quitパケットの追加 
+
+(3) Wパケットにオプションフィールドを追加
+これに伴い到着メールのサーベイを要求することが可能になった
+
+(4) 認証機構の追加
+
+(5) 有賀 寛朗さんによるPixmapの表示機能の追加
+
+Ver. 1.0 -> 2.0
+
+(1) 牧村 顕さんによるpopperに対するパッチ
+
+(2) youbindがsyslogへ対応．
+
+(3) youbindに-tオプションを追加．
+
+11 引用
+
+StringからPixmapへのコンバータとxpmのインクルードファイルは，以下のファ
+イルを引用，修正しました．
+
+	元ファイル名			配布ファイル名
+	--------------------------------------------------
+	X11R5/mit/lib/Xmu/StrToBmap.c	str_to_pixmap.c
+	X11R5/mit/lib/Xmu/LocBitmap.c	locate_pixmap.c
+	X11R5/contrib/lib/xpm/xpm.h	xpm.h
+	X11R5/contrib/lib/xpm/xpmP.h	xpmP.h
+
+記して感謝します．
+
+
+12 著者
+
+阿草 清滋	agusa@nuie.nagoya-u.ac.jp
+山本 晋一郎	yamamoto@nuie.nagoya-u.ac.jp
+
+〒464-01 名古屋市千種区不老町
+名古屋大学 工学部 情報工学科
+tel. (052) 789 3649
+
+name:		Kiyoshi Agusa
+		Shinichirou Yamamoto
+E-mail:		agusa@nuie.nagoya-u.ac.jp
+		yamamoto@nuie.nagoya-u.ac.jp
+telephone:	+81 52 789 3649
+address:	Nagoya University,
+		Dept. of Information Engineering,
+		Furo-cho, Chikusa-ku, Nagoya, JAPAN
+
+協力して頂いた阿草研究室の方に感謝します．
+
+濱口 毅		xyoubinの作成，状態遷移図の作成
+有賀 寛朗	xyoubinの改良
+		サウンド機能，マウスセンシティブ，Pixmap対応など
+吉田 敦		xpbiffに対するパッチの提供
+牧村 顕		popdとpopperに対するパッチの提供
+		syslogへの対応
+石川 亮		YouBin.appの作成
+宮澤 隆幸	HTML形式のドキュメントの作成
+古久根 敦	プロトコルのプロトタイプの作成
+
+御指摘やパッチを頂いた方に感謝します．
+
+杉澤 資進	HAG01365@niftyserve.or.jp
+		メールスプールのエラーチェックに関するパッチの提供
+		SVR4への移植と移植性向上のための変更

@@ -1,0 +1,36 @@
+CC = gcc
+RM = rm -f
+CP = cp
+BINDIR = /usr/local/X11R5//bin
+MANDIR = /usr/local/X11R5//man/man1
+APPDIR = /usr/local/X11R5//lib/X11/app-defaults
+
+GCCFLAGS = -fpcc-struct-return
+CFLAGS = -g
+
+INCLUDE = -I/usr/kvm -I/usr/local/X11R5/include
+LDOPTIONS = -L/usr/local/X11R5/lib
+LDLIBS = -lkvm -lXaw -lXmu -lXt -lXext -lX11
+
+default: all
+
+install: all
+	$(CP) xpd $(BINDIR)
+	$(CP) XPd.ad $(APPDIR)/XPd
+
+install.man:
+	$(CP) xpd.man $(MANDIR)
+
+all: xpd_kvm.o xpd.o
+	$(CC) $(GCCFLAGS) $(CFLAGS) $(INCLUDE) $(LDOPTIONS) xpd_kvm.o xpd.o \
+	    $(LDFLAGS) $(LDLIBS) -o xpd
+
+xpd_kvm.o: xpd_kvm.c
+	$(CC) -c $(GCCFLAGS) $(CFLAGS) $(INCLUDE) $(LDOPTIONS) xpd_kvm.c
+
+xpd.o: xpd.c
+	$(CC) -c $(GCCFLAGS) $(CFLAGS) $(INCLUDE) $(LDOPTIONS) xpd.c
+
+clean:
+	$(RM) a.out core *.o *~ xpd *.aux *.log *.dvi *.dlg
+

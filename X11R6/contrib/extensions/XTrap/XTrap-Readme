@@ -1,0 +1,84 @@
+This distribution contains XTrap for X11R6, sample clients, and the
+Xhydra utility.  This distribution is based on the following pieces
+of the X11R5 contrib collection:
+	XTrapV33_X11R5.tar.Z	- the R5 distribution of XTrap
+	XTrap_GrabPatch		- enhancement for less-intrusive grab fix
+	XTrap_SleepPatch	- bug fix for XTrap library sleep time
+	XTrapClients-3.3.tar.Z	- an update to the xtrap clients
+	XTrapV32_DOC.tar.Z	- architecture specifications for XTrap v3.2
+
+XTrap is an extension to X that facilitates user emulation.  Device input
+synthesis, device input monitoring, and grapics request output monitoring
+are supported by XTrap.  XTrap's official name is DEC-XTRAP.
+
+XTrap comes with a client-side library which makes the new functionality
+easier to use in an X application.  XTrap also comes with sample clients
+which demonstrate the various capabilities of the extension and library.
+Please see the man page within programs/xtrap/xtrap.man for more information.
+
+Xhydra is a utility to assemble multiple X workstations into a poor man's 
+multi-headed workstation.  A user at a single workstation's keyboard and
+mouse can interface with clients displaying on multiple X displays.  Please
+see the man page within programs/xhydra/xhydra.man for more information.
+Xhydra is new to this XTrap public release.
+
+This distribution contains:
+
+./XTrap-Readme				- this file
+./XTrap-patch				- patch the X11R6 tree to include XTrap
+./doc/XTrap_Arch.ps.gz			- somewhat stale (v3.2) documentation
+./doc/XTrap_Arch.txt.gz				" "
+./include/extensions/bits.h		- new files to dir: include/extensions
+./include/extensions/xemacros.h			" "
+./include/extensions/xtrapdi.h			" "
+./include/extensions/xtrapddmi.h		" "
+./include/extensions/xtraplib.h			" "
+./include/extensions/xtraplibp.h		" "
+./include/extensions/xtrapproto.h		" "
+./lib/Xtrap/Imakefile			- a new dir, with the XTrap lib
+./lib/Xtrap/XECallBcks.c			" "
+./lib/Xtrap/XEConTxt.c				" "
+./lib/Xtrap/XEDsptch.c				" "
+./lib/Xtrap/XEKeybCtrl.c			" "
+./lib/Xtrap/XEPrInfo.c				" "
+./lib/Xtrap/XERqsts.c				" "
+./lib/Xtrap/XEStrMap.c				" "
+./lib/Xtrap/XETrapInit.c			" "
+./lib/Xtrap/XEWrappers.c			" "
+./lib/Xtrap/chparse.c				" "
+./lib/Xtrap/sleep.c				" "
+./programs/Xserver/Xext/xtrapddmi.c	- new files to dir: Xserver/Xext
+./programs/Xserver/Xext/xtrapdi.c		" "
+./programs/Xserver/Xext/xtrapdiswp.c		" "
+./programs/Xserver/Xext/xtrapditbl.c		" "
+./programs/xhydra/Imakefile		- a new dir, with the Xhydra utility
+./programs/xhydra/XHydra.ad			" "
+./programs/xhydra/xhydra.c			" "
+./programs/xhydra/xhydra.man			" "
+./programs/xtrap/Imakefile		- a new dir, with XTrap sample clients
+./programs/xtrap/xtrap.man			" "
+./programs/xtrap/xtrapchar.c			" "
+./programs/xtrap/xtrapin.c			" "
+./programs/xtrap/xtrapinfo.c			" "
+./programs/xtrap/xtrapout.c			" "
+./programs/xtrap/xtrapproto.c			" "
+./programs/xtrap/xtrapreset.c			" "
+./programs/xtrap/xtrapstats.c			" "
+
+
+
+X11R6 files to be modified by XTrap-patch:
+    ./xc/programs/Xserver/Xext/Imakefile
+    ./xc/programs/Xserver/mi/Imakefile
+    ./xc/programs/Xserver/os/connection.c
+    ./xc/programs/Imakefile
+    ./xc/lib/Imakefile
+    ./xc/include/extensions/Imakefile
+
+
+Notes on building:
+
+A weakness in the packaging of this release of XTrap for X11R6 is
+that although these files may reside in the contrib tree, it
+is assumed that they will be compiled in the xc tree.  If there
+is a next release, hopefully this will be improved.

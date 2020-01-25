@@ -1,0 +1,111 @@
+#
+# Makefile for xlbiff
+#
+
+#
+# Where your mail file is.  
+#
+#	BSD systems should probably define it as /usr/spool/mail/%s
+#	SYSV systems will probably want /usr/mail/%s
+#	I'm sure someone else will have /%s/incoming-mail/temp/../geewhiz/.x
+#
+#MAILPATH=	/udir/%s/.maildrop
+#MAILPATH=	/usr/mail/%s
+MAILPATH=	/usr/spool/mail/%s
+
+#
+# Build with debugging enabled or disabled.  Note that you can build
+# with -O and -DDEBUG together if you like.
+#
+DEBUG=		-O
+#DEBUG=		-g -DDEBUG
+
+
+#
+# Where to put the binary,		eg, /usr/local/bin
+#
+BINDIR=		/usr/local/bin
+
+#
+# Where to put the app-defaults file,	eg, /usr/lib, /usr/local/lib
+#
+LIBDIR=		/usr/local/lib
+XAPPLOADDIR=	$(LIBDIR)/X11/app-defaults
+
+#
+# Where to put the man page,		eg, /usr/man/man1
+#
+MANDIR=		/usr/local/man/man1
+MANEXT=		1X
+
+#
+# MH library directory,			eg, /usr/new/lib/mh, /usr/local/lib/mh
+#
+MHLIBDIR=	/usr/new/lib/mh
+
+#
+# SYSV systems might need to link with the stuff below
+#
+#EXTRALIBS=	-lnsl_s
+EXTRALIBS= 
+
+#
+# Systems that don't have strerror() (eg, SunOS) should uncomment this:
+#
+
+# NEED_STRERROR = -DNEED_STRERROR
+
+#
+# Systems that don't have memcpy() should uncomment this
+#
+
+# USE_BCOPY = -DUSE_BCOPY
+
+###############################################################################
+# DO NOT MODIFY ANYTHING UNDER HERE
+###############################################################################
+CFLAGS=		$(DEBUG)   $(NEED_STRERROR)  $(USE_BCOPY)  \
+		-DMAILPATH="\"$(MAILPATH)\""
+
+EXE=	xlbiff
+OBJ=	xlbiff.o
+SRC=	xlbiff.c
+HDRS=	patchlevel.h
+MAN=	xlbiff.man
+APPRES= XLbiff
+
+LIBS=	-lXaw -lXmu -lXt -lX11 -lXext $(EXTRALIBS)
+
+
+$(EXE):	$(OBJ)
+	$(CC) $(CFLAGS) -o $@ $?  $(LIBS)
+
+
+install: $(EXE) $(APPRES).ad
+	cp $(EXE)	$(BINDIR)/$(EXE)
+	cp $(APPRES).ad	$(XAPPLOADDIR)/$(APPRES)
+	cp $(MAN)	$(MANDIR)/$(EXE).$(MANEXT)
+	cp $(EXE).form	$(MHLIBDIR)/$(EXE).form
+
+
+clean:
+	$(RM) -f $(EXE) *~ *.o
+
+
+SHAR_LIMIT = 50
+
+shar:
+	shar -l $(SHAR_LIMIT) -o  $(EXE).shar 				\
+		README TODO Imakefile Makefile.std $(APPRES).ad	\
+		$(MAN)  $(HDRS) $(SRC) $(EXE).form
+
+patch:
+	@-if [ -z "$(PREVIOUS)" ]; then\
+		echo "must define PREVIOUS when making patch";\
+		exit 1;\
+	fi
+	echo >patch-$(PREVIOUS)
+	@-for i in patchlevel.h README TODO Imakefile Makefile.std	\
+			$(APPRES).ad $(MAN) $(SRC) $(EXE).form; do	\
+		   rcsdiff -c -r$(PREVIOUS) $$i >>patch-$(PREVIOUS);	\
+	done

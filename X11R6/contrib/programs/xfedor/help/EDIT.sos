@@ -1,0 +1,17 @@
+Possible resolutions: 16,32,64,128. You can change it with mouse press 
+in the resolution label itself.
+BACK      : put the current drawing in the background plane
+MOUSE     : build the mouse mask of the current image in the bakcground plane
+UNDO      : restore the last drawing preceding a global command
+OTHER     : Popup menu for immediate command or state full mode
+CLEAR     : delete the current drawing (MB1) or the background plane (MB2)
+
+You can change the grid color with the MB2 in the mouse help area:
+"gridcolor" label appears. The other button, "abort", re-init the
+point to point drawing mode.
+The drawing color can be modified with a palette, mapped with a MB2 press in
+the drawing zone (This palette is unmapped by clicking MB2 on it, while MB1
+select a color). In this same zone, MB1 change the drawing mode itself 
+(white, flip or solid)
+On the right of the edit window, a vertical bar stand for positionning the
+baseline (MB1) or some toggle guidelines (MB2).

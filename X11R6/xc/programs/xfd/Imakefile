@@ -1,0 +1,8 @@
+XCOMM $XConsortium: Imakefile,v 1.9 93/09/04 19:54:12 rws Exp $
+        DEPLIBS = XawClientDepLibs
+LOCAL_LIBRARIES = XawClientLibs
+           SRCS = xfd.c grid.c 
+           OBJS = xfd.o grid.o 
+
+ComplexProgramTarget(xfd)
+InstallAppDefaults(Xfd)

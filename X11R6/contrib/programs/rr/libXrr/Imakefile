@@ -1,0 +1,22 @@
+
+XCOMM	Uncomment the following line if you want to delay when color spinning
+          DELAY = -DUSE_DELAY
+XCOMM If you are using the delay functionality (above line uncommented), then
+XCOMM comment out the next line if you want to use nap() rather than itimers
+          SLEEP = -DHAS_ITIMER
+XCOMM and uncomment the next line if you're using nap() on an SCO system
+XCOMM        NAPLIB = -lx
+
+ DEFINES = $(DELAY) $(SLEEP)
+INCLUDES = -I.
+
+    SRCS = bezier.c bspline.c buffer.c clip.c hls2rgb.c init_color.c misc.c \
+		spin.c
+
+    OBJS = bezier.o bspline.o buffer.o clip.o hls2rgb.o init_color.o misc.o \
+		spin.o
+
+NormalLibraryObjectRule()
+NormalLibraryTarget(Xrr, $(OBJS))
+
+DependTarget()

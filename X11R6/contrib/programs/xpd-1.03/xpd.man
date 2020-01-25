@@ -1,0 +1,169 @@
+.de EX		\"Begin example
+.ne 5
+.if n .sp 1
+.if t .sp .5
+.nf
+.in +.5i
+..
+.de EE
+.fi
+.in -.5i
+.if n .sp 1
+.if t .sp .5
+..
+.TH XPD 1 "Release 5" "X Version 11"
+.SH NAME
+xpd \- process manager for X
+.SH SYNOPSIS
+.B xpd
+[X Toolkitoption]
+.SH DESCRIPTION
+.I xpd
+is designed to provide an easy-to-use, point-and-click interface to a
+correlation of process information available through 
+.B ps.
+.SH OPTIONS
+.PP
+\fIxpd\fP accepts all of the standard toolkit command line options.
+.SH OPERATION
+.PP
+Buttons:
+.PP
+.IP Quit:
+Terminate the application.
+.IP Rescan: 
+Update process list to reflect current process table.
+.IP Kill\ Level:
+Menu to select signal see, kill(1).
+.IP Kill:
+Send signal to selected process.
+.IP All: 
+Send signal to all processes owned by selected user.
+.IP Trace: 
+Display ancestry and descendant list for selected process.
+.IP Defunct:
+Display list of defunct processes.
+.IP Run\ As\ Root: 
+Change effective user id to root (see permissions below).
+.IP Run\ As\ User:
+Change effective user id to real user id.
+.PP
+Panes & Lists:
+.PP
+.IP User\ List:
+List of all process owners (* displays all)
+.IP Pid\ List: 
+List of processes for a selected user.
+.IP Argument\ List:
+List of arguments for a selected process.
+.IP Trace\ Ancestry\ List:
+List of process ancestry (enabled with trace button).
+.IP Trace\ Descendant\ List:
+List of process descendants (enabled with trace button).
+.IP Defunct\ List: 
+List of defunct process (enabled with defunct button).
+.PP
+Information:
+.IP Signal\ Status:
+Current signal and process selected.
+.IP Running\ As:
+Current effective user id of application.
+.IP Processes:
+Number of processes.
+.IP Effective\ UID:
+Effective user id and login name of process owner.
+.IP Effective\ Name: 
+Name of process owner.
+.IP PID:
+Process ID of selected process.
+.IP PPID: 
+Parent Process ID of selected process.
+.IP PGRP:
+Process Group of selected process.
+.IP STAT:
+Process State of selected process, see ps(1).
+.IP TTY:
+TTY process is associated with.
+.PP
+To select a user click on the user name in the User List.
+This will display all of the processes associated with that users and update
+the detailed user information.
+To select a process click on the process id in the PID List.
+This will display all of the arguements for a selected process and update
+the detailed process information.
+.PP
+To signal or kill a selected process, select the appropriate signal to be 
+sent and click on the Kill button.  If the process is terminated, xpd will
+perform a Rescan.  If the process is not terminated a dialogue box will appear
+explaining the error and the process will remain selected.
+.PP
+To signal or kill all of a users processes, select the appropriate signal to 
+be sent and click on the All button.  The processes will be signaled children
+first (post order).
+If no errors are encountered, xpd will perform a Rescan.  If errors
+are encountered a dialogue box will appear explaining the error and the user
+will remain selected.
+.PP
+Xpd does not use ps(1).  It acquires it's process information from the kernel
+through kvm_nextproc(3), kvm_getproc(3), kvm_getu(3) and kvm_getcmd(3).
+.SH PERMISSIONS
+.PP
+Upon startup xpd checks to see if the user is a member of the wheel 
+group (group 0).  If the user is a member of the wheel group,  the program
+is enabled to run as root.  For this to work, the ownership of the executable
+must be set to root and the set uid bit on.
+Since xpd reads from the kernel it needs permission to
+read /dev/kmem.  This can be accomplished two ways.  If xpd
+is owned by root and the set uid bit is on, xpd will set it's effective
+group id to kmem (group 2).  If xpd is not owned by root, the group
+ownership must be set to kmem and the set gid bit must be on.
+.SH SEE ALSO
+.PP
+ps(1) kill(1)
+.SH FILES
+.PP
+.PD 0
+.TP 20
+.B /vmunix
+system namelist
+.TP
+.B /dev/kmem
+kernel memory
+.TP
+.B /dev/drum
+swap device
+.TP
+.B /vmcore
+core file
+.PD 1
+.SH BUGS
+.PP
+Much like 
+.B ps,
+things can change while xpd is running.  xpd does not update it's list
+automatically, therefore, these changes will not be reflected through 
+it's interface.
+.SH COMMENTS
+.PP
+This program will not function without it's application defaults file.
+The application defaults file must be in the system application defaults
+directory or in a directory referenced by XAPPLRESDIR environmental
+variable.
+.SH AUTHOR
+.PP
+Vincent M. Tkac
+.br
+Computer and Information Sciences
+.br
+Youngstown State University
+.br
+Youngstown, Ohio 44555
+.PP
+vmtkac@acm.org
+.PP
+
+
+
+
+
+

@@ -1,0 +1,199 @@
+total 55
+   1 drwxrwxr-x  3 erlkonig staff         512 May 31 14:20 ./
+   1 drwxr-xr-x 22 erlkonig staff         512 May 30 19:39 ../
+   1 -rw-r--r--  1 erlkonig staff         430 Jan  2  1992 Imakefile
+   0 -rw-r--r--  1 erlkonig staff           0 May 31 14:20 MANIFEST
+  15 -rw-r--r--  1 erlkonig staff       15014 May 30 19:27 Makefile.dst
+   3 -rw-r--r--  1 erlkonig staff        2774 May 31 14:10 README
+   1 -rw-r--r--  1 erlkonig staff          26 Apr 25  1991 Script
+   1 drwxrwxr-x  9 erlkonig staff         512 May 31 14:20 animations/
+   1 -rw-r--r--  1 erlkonig staff         275 May 30 19:30 patchlevel.h
+  16 -rw-r--r--  1 erlkonig staff       15797 May 30 19:46 xancur.c
+   7 -rw-r--r--  1 erlkonig staff        6333 May 30 19:47 xancur.man
+   8 -rw-r--r--  1 erlkonig staff        7962 May 31 14:19 xancur.txt
+
+animations:
+total 13
+   1 drwxrwxr-x  9 erlkonig staff         512 May 31 14:20 ./
+   1 drwxrwxr-x  3 erlkonig staff         512 May 31 14:20 ../
+   1 -rw-r--r--  1 erlkonig staff         240 May 31 14:07 Imakefile
+   1 -rw-r--r--  1 erlkonig staff         161 May 30 19:37 README
+   1 -rw-r--r--  1 erlkonig staff          27 May 31 14:17 Script
+   1 -rw-r--r--  1 erlkonig staff         164 May 30 19:06 Script.all
+   1 drwxrwxr-x  2 erlkonig staff         512 May 31 14:20 fourpts.lrg/
+   1 drwxrwxr-x  2 erlkonig staff         512 May 31 14:20 fourpts.sml/
+   1 drwxrwxr-x  2 erlkonig staff        1024 May 31 14:20 happy2/
+   1 drwxrwxr-x  2 erlkonig staff        1024 May 31 14:20 photon/
+   1 drwxrwxr-x  2 erlkonig staff         512 May 31 14:20 plus/
+   1 drwxrwxr-x  2 erlkonig staff         512 May 31 14:20 pulse/
+   1 drwxrwxr-x  2 erlkonig staff        1024 May 31 14:20 terra/
+
+animations/fourpts.lrg:
+total 54
+   1 drwxrwxr-x  2 erlkonig staff         512 May 31 14:20 ./
+   1 drwxrwxr-x  9 erlkonig staff         512 May 31 14:20 ../
+   1 -rw-r--r--  1 erlkonig staff         640 May 31 13:55 Imakefile
+   1 -rw-r--r--  1 erlkonig staff         132 May 31 14:00 Script
+   1 -rw-r--r--  1 erlkonig staff         290 May 31 14:00 Script.inv
+   1 -rw-r--r--  1 erlkonig staff         132 May 31 14:00 Script.rev
+   4 -rw-r--r--  1 erlkonig staff        3303 Mar 29  1990 fourpts0
+   4 -rw-r--r--  1 erlkonig staff        3303 Mar 29  1990 fourpts0.msk
+   4 -rw-r--r--  1 erlkonig staff        3308 Mar 29  1990 fourpts1
+   4 -rw-r--r--  1 erlkonig staff        3308 Mar 29  1990 fourpts1.msk
+   4 -rw-r--r--  1 erlkonig staff        3308 Mar 29  1990 fourpts2
+   4 -rw-r--r--  1 erlkonig staff        3308 Mar 29  1990 fourpts2.msk
+   4 -rw-r--r--  1 erlkonig staff        3308 Mar 29  1990 fourpts3
+   4 -rw-r--r--  1 erlkonig staff        3308 Mar 29  1990 fourpts3.msk
+   4 -rw-r--r--  1 erlkonig staff        3308 Mar 29  1990 fourpts4
+   4 -rw-r--r--  1 erlkonig staff        3308 Mar 29  1990 fourpts4.msk
+   4 -rw-r--r--  1 erlkonig staff        3308 Mar 29  1990 fourpts5
+   4 -rw-r--r--  1 erlkonig staff        3308 Mar 29  1990 fourpts5.msk
+
+animations/fourpts.sml:
+total 18
+   1 drwxrwxr-x  2 erlkonig staff         512 May 31 14:20 ./
+   1 drwxrwxr-x  9 erlkonig staff         512 May 31 14:20 ../
+   1 -rw-r--r--  1 erlkonig staff         640 May 31 13:53 Imakefile
+   1 -rw-r--r--  1 erlkonig staff         132 May 31 13:58 Script
+   1 -rw-r--r--  1 erlkonig staff         290 May 31 13:59 Script.inv
+   1 -rw-r--r--  1 erlkonig staff         132 May 31 13:59 Script.rev
+   1 -rw-r--r--  1 erlkonig staff         939 May 30 18:58 fourpts0
+   1 -rw-r--r--  1 erlkonig staff         881 May 30 18:32 fourpts0.msk
+   1 -rw-r--r--  1 erlkonig staff         944 May 30 18:58 fourpts1
+   1 -rw-r--r--  1 erlkonig staff         884 May 30 18:48 fourpts1.msk
+   1 -rw-r--r--  1 erlkonig staff         944 May 30 18:59 fourpts2
+   1 -rw-r--r--  1 erlkonig staff         884 May 30 18:49 fourpts2.msk
+   1 -rw-r--r--  1 erlkonig staff         944 May 30 18:59 fourpts3
+   1 -rw-r--r--  1 erlkonig staff         884 May 30 18:36 fourpts3.msk
+   1 -rw-r--r--  1 erlkonig staff         944 May 30 18:59 fourpts4
+   1 -rw-r--r--  1 erlkonig staff         884 May 30 18:51 fourpts4.msk
+   1 -rw-r--r--  1 erlkonig staff         944 May 30 18:59 fourpts5
+   1 -rw-r--r--  1 erlkonig staff         884 May 30 18:52 fourpts5.msk
+
+animations/happy2:
+total 22
+   1 drwxrwxr-x  2 erlkonig staff        1024 May 31 14:20 ./
+   1 drwxrwxr-x  9 erlkonig staff         512 May 31 14:20 ../
+   1 -rw-r--r--  1 erlkonig staff         864 May 31 14:13 Imakefile
+   1 -rw-r--r--  1 erlkonig staff         368 May 31 14:01 Script
+   1 -rw-r--r--  1 erlkonig staff         349 May  9  1991 happy2-1
+   1 -rw-r--r--  1 erlkonig staff         349 May  9  1991 happy2-1.msk
+   1 -rw-r--r--  1 erlkonig staff         349 May  9  1991 happy2-2
+   1 -rw-r--r--  1 erlkonig staff         349 May  9  1991 happy2-2.msk
+   1 -rw-r--r--  1 erlkonig staff         349 May  9  1991 happy2-3
+   1 -rw-r--r--  1 erlkonig staff         349 May  9  1991 happy2-3.msk
+   1 -rw-r--r--  1 erlkonig staff         349 May  9  1991 happy2-4
+   1 -rw-r--r--  1 erlkonig staff         299 May  9  1991 happy2-4.msk
+   1 -rw-r--r--  1 erlkonig staff         349 May  9  1991 happy2-5
+   1 -rw-r--r--  1 erlkonig staff         349 May  9  1991 happy2-5.msk
+   1 -rw-r--r--  1 erlkonig staff         349 May  9  1991 happy2-6
+   1 -rw-r--r--  1 erlkonig staff         349 May  9  1991 happy2-6.msk
+   1 -rw-r--r--  1 erlkonig staff         349 May  9  1991 happy2-7
+   1 -rw-r--r--  1 erlkonig staff         349 May  9  1991 happy2-7.msk
+   1 -rw-r--r--  1 erlkonig staff         349 May  9  1991 happy2-8
+   1 -rw-r--r--  1 erlkonig staff         349 May  9  1991 happy2-8.msk
+   1 -rw-r--r--  1 erlkonig staff         349 May  9  1991 happy2-9
+   1 -rw-r--r--  1 erlkonig staff         349 May  9  1991 happy2-9.msk
+
+animations/photon:
+total 38
+   1 drwxrwxr-x  2 erlkonig staff        1024 May 31 14:20 ./
+   1 drwxrwxr-x  9 erlkonig staff         512 May 31 14:20 ../
+   1 -rw-r--r--  1 erlkonig staff         858 May 31 14:05 Imakefile
+   1 -rw-r--r--  1 erlkonig staff         384 May 31 14:05 Script
+   2 -rw-r--r--  1 erlkonig staff        1658 May 21  1991 photon.xbm
+   2 -rw-r--r--  1 erlkonig staff        1658 May 21  1991 photon00.msk
+   2 -rw-r--r--  1 erlkonig staff        1668 May 21  1991 photon01.msk
+   2 -rw-r--r--  1 erlkonig staff        1668 May 21  1991 photon02.msk
+   2 -rw-r--r--  1 erlkonig staff        1668 May 21  1991 photon03.msk
+   2 -rw-r--r--  1 erlkonig staff        1668 May 21  1991 photon04.msk
+   2 -rw-r--r--  1 erlkonig staff        1668 May 21  1991 photon05.msk
+   2 -rw-r--r--  1 erlkonig staff        1668 May 21  1991 photon06.msk
+   2 -rw-r--r--  1 erlkonig staff        1668 May 21  1991 photon07.msk
+   2 -rw-r--r--  1 erlkonig staff        1668 May 21  1991 photon08.msk
+   2 -rw-r--r--  1 erlkonig staff        1668 May 21  1991 photon09.msk
+   2 -rw-r--r--  1 erlkonig staff        1668 May 21  1991 photon10.msk
+   2 -rw-r--r--  1 erlkonig staff        1668 May 21  1991 photon11.msk
+   2 -rw-r--r--  1 erlkonig staff        1668 May 21  1991 photon12.msk
+   2 -rw-r--r--  1 erlkonig staff        1668 May 21  1991 photon13.msk
+   2 -rw-r--r--  1 erlkonig staff        1668 May 21  1991 photon14.msk
+   2 -rw-r--r--  1 erlkonig staff        1668 May 21  1991 photon15.msk
+
+animations/plus:
+total 16
+   1 drwxrwxr-x  2 erlkonig staff         512 May 31 14:20 ./
+   1 drwxrwxr-x  9 erlkonig staff         512 May 31 14:20 ../
+   1 -rw-r--r--  1 erlkonig staff         656 May 30 19:19 Imakefile
+   1 -rw-r--r--  1 erlkonig staff         155 May 21  1991 Script
+   1 -rw-r--r--  1 erlkonig staff         310 May 21  1991 plus0.d.cbm
+   1 -rw-r--r--  1 erlkonig staff         310 May 21  1991 plus0.m.cbm
+   1 -rw-r--r--  1 erlkonig staff         315 May 21  1991 plus15.d.cbm
+   1 -rw-r--r--  1 erlkonig staff         315 May 21  1991 plus15.m.cbm
+   1 -rw-r--r--  1 erlkonig staff         315 May 21  1991 plus30.d.cbm
+   1 -rw-r--r--  1 erlkonig staff         315 May 21  1991 plus30.m.cbm
+   1 -rw-r--r--  1 erlkonig staff         315 May 21  1991 plus45.d.cbm
+   1 -rw-r--r--  1 erlkonig staff         315 May 21  1991 plus45.m.cbm
+   1 -rw-r--r--  1 erlkonig staff         315 May 21  1991 plus60.d.cbm
+   1 -rw-r--r--  1 erlkonig staff         315 May 21  1991 plus60.m.cbm
+   1 -rw-r--r--  1 erlkonig staff         315 May 21  1991 plus75.d.cbm
+   1 -rw-r--r--  1 erlkonig staff         315 May 21  1991 plus75.m.cbm
+
+animations/pulse:
+total 18
+   1 drwxrwxr-x  2 erlkonig staff         512 May 31 14:20 ./
+   1 drwxrwxr-x  9 erlkonig staff         512 May 31 14:20 ../
+   1 -rw-r--r--  1 erlkonig staff         739 May 30 19:20 Imakefile
+   1 -rw-r--r--  1 erlkonig staff         182 May 21  1991 Script
+   1 -rw-r--r--  1 erlkonig staff         145 May 21  1991 pulse0.d.cbm
+   1 -rw-r--r--  1 erlkonig staff         145 May 21  1991 pulse0.m.cbm
+   1 -rw-r--r--  1 erlkonig staff         157 May 21  1991 pulse1.d.cbm
+   1 -rw-r--r--  1 erlkonig staff         111 May 21  1991 pulse1.m.cbm
+   1 -rw-r--r--  1 erlkonig staff         169 May 21  1991 pulse2.d.cbm
+   1 -rw-r--r--  1 erlkonig staff         123 May 21  1991 pulse2.m.cbm
+   1 -rw-r--r--  1 erlkonig staff         238 May 21  1991 pulse3.d.cbm
+   1 -rw-r--r--  1 erlkonig staff         192 May 21  1991 pulse3.m.cbm
+   1 -rw-r--r--  1 erlkonig staff         264 May 21  1991 pulse4.d.cbm
+   1 -rw-r--r--  1 erlkonig staff         218 May 21  1991 pulse4.m.cbm
+   1 -rw-r--r--  1 erlkonig staff         291 May 21  1991 pulse5.d.cbm
+   1 -rw-r--r--  1 erlkonig staff         245 May 21  1991 pulse5.m.cbm
+   1 -rw-r--r--  1 erlkonig staff         315 May 21  1991 pulse6.d.cbm
+   1 -rw-r--r--  1 erlkonig staff         269 May 21  1991 pulse6.m.cbm
+
+animations/terra:
+total 132
+   1 drwxrwxr-x  2 erlkonig staff        1024 May 31 14:20 ./
+   1 drwxrwxr-x  9 erlkonig staff         512 May 31 14:20 ../
+   2 -rw-r--r--  1 erlkonig staff        1416 May 31 14:14 Imakefile
+   2 -rw-r--r--  1 erlkonig staff        1453 May 31 13:57 Script
+   2 -rw-r--r--  1 erlkonig staff        1154 Jan 29  1992 splitterra.c
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-00.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-01.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-02.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-03.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-04.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-05.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-06.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-07.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-08.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-09.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-10.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-11.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-12.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-13.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-14.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-15.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-16.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-17.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-18.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-19.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-20.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-21.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-22.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-23.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-24.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-25.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-26.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-27.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-28.xbm
+   4 -rw-r--r--  1 erlkonig staff        3247 Jan 28  1992 terra-29.xbm
+   4 -rw-r--r--  1 erlkonig staff        3349 Jan 28  1992 terramsk.xbm

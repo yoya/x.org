@@ -1,0 +1,34 @@
+This distribution contains two programs, xrsh and xrlogin. 
+
+Both are shell scripts.
+
+Xrsh is designed to allow you to start an X client on a remote machine
+with the window displayed on the current server's $DISPLAY.  It has
+many options that give you the ability to propagate environment
+variables (including DISPLAY) to the remote system and works with
+various types of X server access control including xauth and xhost.
+
+In X11R4 and previous, xrsh was called "xon".  There was a script in
+X11R5 by Keith Packard by that name which has no relation to the
+originally distributed xon script.
+
+Xrlogin opens a local xterm window and runs rlogin or telnet to
+connect to a remote machine.
+
+Starting with the X11R5 version, xrsh has many new features
+including a multitude of X access control methods, the ability to pass
+arbitrary environment variables to the remote host and the ability to
+start a client on a different screen than the current one.
+
+To install on your system, the usual thing is to do an "xmkmf"
+followed by a "make install".
+
+IMPORTANT:
+
+If you are running a System V variant, you may need to change the
+first line of both scripts from "#!/bin/sh" to ": ".
+
+James J. Dempsey
+jjd@bbn.com
+4 October 1991
+Updated for X11R6: 3 June 1994

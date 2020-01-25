@@ -1,0 +1,13 @@
+// $XConsortium: us102_ibmpc,v 1.2 94/04/08 15:57:21 erik Exp $
+xkb_keymap "ibmpc default"
+
+xkb_keycodes		{ include "ibmpc"	};
+xkb_types		{ include "default"	};
+xkb_compatibility	{ include "default"	};
+xkb_symbols { 
+    include "us"	
+    override key <DELE> {
+	type= "CTRL+ALT",
+	symbols[Group1]= [ Delete, Terminate_Server ]
+    };
+};

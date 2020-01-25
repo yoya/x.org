@@ -1,0 +1,94 @@
+・SJ3 とは
+	SJ3 は、ソニー（株）で開発された日本語入力システムです。
+	SJ3 は、仮名漢字変換サーバ(sj3serv)と、端末用仮名漢字
+	クライアント(sj3)、仮名漢字変換ライブラリ(sj3lib)で構成
+	されています。
+
+
+・コンフィグレーション
+	サーバ／クライアント間の通信のインターフェースについて
+	は、BSD の場合はソケット、System V の場合は TLI を使用
+	するようになっています。System V でソケットインターフェー
+	スを使用したい場合は、server/Imakefile と sj3lib/Imakefile
+	の -DTLI を削除してください。
+
+
+・make の手順
+	このディレクトリにおいて以下のようにしてください。
+
+	Makefile を作成する
+	# xmkmf
+	# make Makefiles
+
+	make する
+	# make
+
+	インストールする
+	# make install
+
+	この操作によりインストールされるファイルをいかに示します。
+
+	/usr/dict/sj3/sj3main.dic	sj3serv が使用するメイン辞書
+	/usr/bin/sj3serv		仮名漢字変換サーバ
+	/usr/bin/sj3			端末用仮名漢字変換クライアント
+	/usr/bin/sj3dic			ユーザ辞書ユーティリティ
+	/usr/include/sj3lib.h		仮名漢字変換ライブラリのヘッダファイル
+	/usr/lib/libsj3lib.a		仮名漢字変換ライブラリ
+	/usr/lib/sj3/serverrc		sj3serv の設定ファイル
+	/usr/lib/sj3/sjrc		sj3 の設定ファイル
+	/usr/lib/sj3/sjrk		sj3 のローマ字仮名変換設定ファイル
+	/usr/lib/sj3/cvtkey.xterm	sj3 のファンクションキーとエスケープ
+	/usr/lib/sj3/cvtkey.news	シーケンスの対応を設定するファイル。
+	/usr/lib/sj3/cvtkey.nws511
+	/usr/lib/sj3/cvtkey.nws517
+
+
+・ディレクトリ構成
+	dict/dict	メイン辞書のテキストファイル
+	dict/tool	辞書のテキストファイルをバイナリファイルに
+			変換するツール
+	dict/include	上記のツールのソースで使用するヘッダファイル
+
+	server		仮名漢字変換サーバ
+	kanakan		仮名漢字変換サーバの仮名漢字変換部
+	include		サーバで使用するヘッダファイル
+
+	sj3lib		仮名漢字変換ライブラリ
+
+	sj3		端末用仮名漢字変換クライアント
+	sj3rkcv		端末用仮名漢字変換クライアントのローマ字仮名変換部
+	sj3h		クライアントとライブラリで使用するヘッダファイル
+
+	sj3dic		ユーザ辞書ユーティリティ
+
+	demo		仮名漢字変換ライブラリのデモプログラム
+
+	doc/man		オンラインマニュアル
+	doc/doc		SJ3 日本語入力ガイドとその他ドキュメント
+
+
+・テスト機種
+	Sony NEWS Workstation		NEWS-OS 4.2.1 
+					NEWS-OS 6.0.2	
+
+
+・バグレポート
+	SJ3 のバグを見つけた方は $(TOP)/xc/bug-report 形式で以下の mail
+	address に報告していただけると助かります。レポートは日本語又は
+	英語でお願いします。
+
+		sj3-bugs@sm.sony.co.jp
+
+
+・その他
+	X Window System 上の日本語入力サーバの sjxa をコンパイル
+	するには、このツリーに含まれる sj3lib が必要です。詳しくは sjxa の
+	README をご参照ください。
+
+
+                                                          １９９４年６月３日
+
+                                                              ソニー株式会社
+                                                  システムビジネスカンパニー
+                                                  コンピュータシステム設計部
+                                                                    田中信行

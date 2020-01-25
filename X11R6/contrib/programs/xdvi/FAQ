@@ -1,0 +1,73 @@
+This file answers the following questions about installing xdvi:
+
+    1.	I have font files cmr10.tfm, etc.  Why can't xdvi use them?
+    2.	I can't seem to set the font path correctly.  Can you help me?
+    3.	xdvi claims to support virtual fonts, but I can't use PostScript
+	virtual fonts (such as helv.vf or phvr.vf) with xdvi.  Why not?
+    4.	Instead of displaying PostScript specials with -DPS_GS, I get the
+	message `gs: gs: Malformed ghostview color property.'
+
+----------
+
+1.  I have font files cmr10.tfm, etc.  Why can't xdvi use them?
+
+tfm files contain only minimal information about the characters
+in a font:  just the height, width, depth, and kerning and ligature
+information.  To obtain information about the shapes of the
+characters, xdvi needs pk or gf files.  (pxl files also contain
+this information, but are obsolete.  There are utilities to convert
+them to pk files though.)
+
+----------
+
+2.  I can't seem to set the font path correctly.  Can you help me?
+
+Try
+	xdvi -d 32 file.dvi
+to find out where xdvi is looking for the fonts.
+
+----------
+
+3.  xdvi claims to support virtual fonts, but I can't use PostScript
+    virtual fonts (such as helv.vf or phvr.vf) with xdvi.  Why not?
+
+The short answer is to quote the man page:
+
+	Virtual fonts are also supported, although xdvi does not
+	have any built-in fonts to which they can refer.
+
+As further explanation, let me begin by pointing out:
+
+	VIRTUAL FONTS ARE NOT FONTS.
+
+Virtual fonts are recipes for building fonts from other fonts.
+In the case of PostScript fonts, those other fonts reside on
+your printer.  Which is fine for dvi-to-PostScript programs
+such as dvips, but it presents a problem for xdvi since it cannot
+access your printer.
+
+There are some solutions, however.
+
+The first solution is to install gsftopk, which uses
+ghostscript to approximate the fonts.  It is made for sites that
+use both xdvi and dvips, although if you just use xdvi it should
+be useful, too.
+
+Another solution is to get these fonts pre-made in common sizes.
+These were made by a program called gsrenderfont (part of the Gnu
+font utilities).
+
+These are all available via anonymous ftp:
+
+gsftopk from math.berkeley.edu:pub/TeX/gsftopk.tar.Z
+pre-made fonts from ftp.cs.umb.edu:pub/tex/psfonts.tar
+gsrenderfont from prep.ai.mit.edu:pub/gnu/fontutils-0.6.tar.gz
+
+----------
+
+4.  Instead of displaying PostScript specials with -DPS_GS, I get the
+    message `gs: gs: Malformed ghostview color property.'
+
+xdvi needs the newest version of ghostscript.  This means that you must
+get ghostscript 2.6.1 from prep.ai.mit.edu (or any of its mirror sites),
+_and_ you must also apply patches 1-4 from that same location.

@@ -1,0 +1,17 @@
+This directory contains FrameMaker sources for documentation on the Fresco
+user interface system.  The sources here are used to build two different
+documents:
+
+  spec.mf	A FrameMaker book file that generates version 0.7
+		of the the Fresco working group's draft specification.
+		It is important to understand that this document is 
+		only a working draft, not a Consortium standard.
+
+  firm.mf	A FrameMaker book file that generates the Sample
+		Implementation Reference Manual for version 0.7 of
+		the Fresco sample implementation.  The Fresco SI
+		implments everything in version 0.7 of the working
+		draft specification, plus many other objects and
+		interfaces that may or may not become standards in
+		the future.
+

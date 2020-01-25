@@ -1,0 +1,34 @@
+#!/bin/sh
+#
+#	File: greyscale.xcms
+#
+#	Christopher Alexander North-Keys
+#	Group Talisman
+#	Mon Jul  5 06:31:38 CDT 1993
+
+echo 'fluff' | awk '
+	BEGIN \
+	{
+		i  = 0 ; greys[i] = "grey"		# spelling 1
+		i += 1 ; greys[i] = "gray"		# spelling 2
+	#	i += 1 ; greys[i] = "grau"		# german
+		maxgreys = i
+		for(g = 0 ; g <= maxgreys ; g += 1)
+		{
+			for(idx = 0 ; idx <= 100 ; idx += 1)
+			{
+				printf("%s%s\t\trgbi:%4.2f/%4.2f/%4.2f\n", \
+						greys[g], \
+						idx, \
+						idx / 100, \
+						idx / 100, \
+						idx / 100);
+			}
+			printf("%s%s\t\trgbi:%4.2f/%4.2f/%4.2f\n", \
+					greys[g], \
+					"", \
+					0.5, 0.5, 0.5);
+		}
+	}'
+
+#----------------------eof

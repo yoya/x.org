@@ -1,0 +1,25 @@
+XCOMM $XConsortium: Imakefile,v 1.1 94/03/28 21:28:45 dpw Exp $
+#include <Server.tmpl>
+
+SRCS = lnx_init.c lnx_video.c IO_utils.c lnx_io.c bios_devmem.c mapVT_noop.c \
+       VTsw_usl.c std_kbdEv.c posix_tty.c std_mouse.c std_mseEv.c
+
+OBJS = lnx_init.o lnx_video.o IO_utils.o lnx_io.o bios_devmem.o mapVT_noop.o \
+       VTsw_usl.o std_kbdEv.o posix_tty.o std_mouse.o std_mseEv.o
+
+INCLUDES = -I$(XF86COMSRC) -I$(XF86OSSRC) -I. -I$(SERVERSRC)/include \
+           -I$(INCLUDESRC)
+
+SubdirLibraryRule($(OBJS))
+NormalLibraryObjectRule()
+
+ObjectFromSpecialSource(bios_devmem,../shared/bios_devmem,/**/)
+ObjectFromSpecialSource(IO_utils,../shared/IO_utils,/**/)
+ObjectFromSpecialSource(mapVT_noop,../shared/mapVT_noop,/**/)
+ObjectFromSpecialSource(VTsw_usl,../shared/VTsw_usl,/**/)
+ObjectFromSpecialSource(std_kbdEv,../shared/std_kbdEv,/**/)
+ObjectFromSpecialSource(posix_tty,../shared/posix_tty,/**/)
+ObjectFromSpecialSource(std_mouse,../shared/std_mouse,/**/)
+ObjectFromSpecialSource(std_mseEv,../shared/std_mseEv,/**/)
+
+DependTarget()

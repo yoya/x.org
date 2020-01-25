@@ -1,0 +1,174 @@
+/* $XConsortium: modelxf1.pi,v 5.2 94/04/17 20:47:19 rws Exp $ */
+
+/*****************************************************************
+
+Copyright (c) 1989, 1990, 1991,1990  X Consortium
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Except as contained in this notice, the name of the X Consortium shall not be
+used in advertising or otherwise to promote the sale, use or other dealings
+in this Software without prior written authorization from the X Consortium.
+
+Copyright (c) 1989, 1990, 1991,1990 by Sun Microsystems, Inc.
+
+                        All Rights Reserved
+
+Permission to use, copy, modify, and distribute this software and its 
+documentation for any purpose and without fee is hereby granted, 
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in 
+supporting documentation, and that the names of Sun Microsystems,
+and the X Consortium, not be used in advertising or publicity 
+pertaining to distribution of the software without specific, written 
+prior permission.  
+
+SUN MICROSYSTEMS DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, 
+INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT 
+SHALL SUN MICROSYSTEMS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL 
+DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
+SOFTWARE.
+
+******************************************************************/
+
+
+## modelxf1.pi -  
+## Test requirements:
+##   Test that local transformation, set with different compositiion types, 
+##   is correctly applied to an output primitive
+#  Setup:
+#    Open phigs and a workstation, open and post a structure
+#    The initial local transformation is set with certain rotation
+#  Operations:
+#    The local transformation is updated with certain translation using each 
+#    one of the composition types and a line is drawn.
+#    PTYPE_REPLACE: line will be translated only
+#    PTYPE_PRECONCAT: line will be translated then rotated
+#    PTYPE_POSTCONCAT: line will be rotated then translated 
+#  Verifications:
+#    Calculate the locations of the transformed line and verify their 
+#    existence using i_check_pixel3().
+
+source macro.pi
+
+/*
+ * im_localxf_test <case 2D>
+ */
+macro im_localxf_test(@comptype,@text,@xformed_pt3)
+	# set local xform with translation and draw polyline
+	pset_local_tran(xlate_mtx,@comptype);
+	ppolyline(&pl);
+	# verify the transfromed line
+	status = i_check_pixel3(xdisplay,xwindow,1,0,@xformed_pt3,5,1);
+	im_ifneq(status,1,"failed: 2D local transformation with %s\n",@text); 
+	i_pause();
+	# delete the setlocaltran and polyline elements
+	pdel_elem();
+	pdel_elem();
+endmacro
+
+macro im_localxf3_test(@comptype,@text,@xformed_pt3)
+	# set local xform with translation and draw polyline
+	pset_local_tran3(xlate_mtx3,@comptype);
+	ppolyline3(&pl3);
+	# verify the transfromed line
+	status = i_check_pixel3(xdisplay,xwindow,1,0,@xformed_pt3,5,1);
+	im_ifneq(status,1,"failed: 3D local transformation with %s\n",@text); 
+	i_pause();
+	# delete the setlocaltran and polyline elements
+	pdel_elem();
+	pdel_elem();
+endmacro
+
+tbegintest("modelxf1","local modelling transformation");
+
+# set up phigs, a workstation , post and open a structure 
+
+i_open_phigs(NULL,PDEF_MEM_SIZE);
+i_open_x_ws(1,&xdisplay,&xwindow,0,0,200,200);
+popen_struct(1);
+ppost_struct(1,1,1.0);
+
+
+# initialize matrices for rotation and translation
+
+vector = I_Pvec(0.5, 0.0);
+vector3 = I_Pvec3(0.5, 0.0, 0.0);
+
+err = i_bogus_error();
+ptranslate(&vector, &err, xlate_mtx);
+im_ifneq(err,0,"ERROR: %d in ptranslate\n",err);
+
+err = i_bogus_error();
+ptranslate3(&vector3, &err, xlate_mtx3);
+im_ifneq(err,0,"ERROR: %d in ptranslate3\n",err);
+
+err = i_bogus_error();
+protate(0.75, &err, rotate_mtx);
+im_ifneq(err,0,"ERROR: %d in protote\n",err);
+
+err = i_bogus_error();
+protate_z(0.75, &err, rotate_mtx3);
+im_ifneq(err,0,"ERROR: %d in protote\n",err);
+
+# initialize data for the lines to be drawn 
+
+line = IA_Ppoint(2, 0.1,0.1, 0.2,0.1);
+line3 = IA_Ppoint3(2, 0.1,0.1,0.0, 0.2,0.1,0.0);
+pl = I_Ppoint_list(2,line);
+pl3 = I_Ppoint_list3(2,line3);
+
+
+# calculate the xlated point
+xlated_pt3 = I_Ppoint3(0.6,0.1,0.0);
+
+# calculate the xlated then rotated point
+err = i_bogus_error();
+ptran_point3(&xlated_pt3,rotate_mtx3,&err,&xlated_rotated_pt3);
+im_ifneq(err,0,"ERROR: %d in ptran_point3\n",err);
+
+# calculate the rotated then xlated point
+
+original_pt3 = I_Ppoint3(0.1,0.1,0.0);
+ptran_point3(&original_pt3,rotate_mtx3,&err,&rotated_pt3);
+im_ifneq(err,0,"ERROR: %d in ptran_point3\n",err);
+ptran_point3(&rotated_pt3,xlate_mtx3,&err,&rotated_xlated_pt3);
+im_ifneq(err,0,"ERROR: %d in ptran_point3\n",err);
+
+
+# testing 2D case:
+
+# set up initial local xform with rotation
+pset_local_tran(rotate_mtx,PTYPE_REPLACE);
+im_localxf_test(PTYPE_REPLACE,"PTYPE_REPLACE",xlated_pt3);
+im_localxf_test(PTYPE_PRECONCAT,"PTYPE_PRECONCAT",xlated_rotated_pt3);
+im_localxf_test(PTYPE_POSTCONCAT,"PTYPE_POSTCONCAT",rotated_xlated_pt3);
+
+# testing 3D case:
+
+# delete pset_local_tran element
+pdel_elem();
+# set up initial local xform3 with rotation
+pset_local_tran3(rotate_mtx3,PTYPE_REPLACE);
+im_localxf3_test(PTYPE_REPLACE,"PTYPE_REPLACE",xlated_pt3);
+im_localxf3_test(PTYPE_PRECONCAT,"PTYPE_PRECONCAT",xlated_rotated_pt3);
+im_localxf3_test(PTYPE_POSTCONCAT,"PTYPE_POSTCONCAT",rotated_xlated_pt3);
+
+tendtest();

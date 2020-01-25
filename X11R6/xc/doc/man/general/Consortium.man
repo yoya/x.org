@@ -1,0 +1,209 @@
+.\" $XConsortium: Consortium.man,v 1.36 94/04/18 22:43:14 rws Exp $
+.\" Copyright (c) 1993, 1994  X Consortium
+.\" 
+.\" Permission is hereby granted, free of charge, to any person obtaining a
+.\" copy of this software and associated documentation files (the "Software"), 
+.\" to deal in the Software without restriction, including without limitation 
+.\" the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+.\" and/or sell copies of the Software, and to permit persons to whom the 
+.\" Software furnished to do so, subject to the following conditions:
+.\" 
+.\" The above copyright notice and this permission notice shall be included in
+.\" all copies or substantial portions of the Software.
+.\" 
+.\" THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+.\" IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+.\" FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL 
+.\" THE X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
+.\" WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
+.\" OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+.\" SOFTWARE.
+.\" 
+.\" Except as contained in this notice, the name of the X Consortium shall not 
+.\" be used in advertising or otherwise to promote the sale, use or other 
+.\" dealing in this Software without prior written authorization from the 
+.\" X Consortium.
+.TH XCONSORTIUM 1 "Release 6"  "X Version 11"
+.SH NAME
+X Consortium \- X Consortium information
+.SH SYNOPSIS
+Release 6 of X Version 11 is brought to you by X Consortium, Inc.
+.SH DESCRIPTION
+The X Consortium is an independent, not-for-profit Delaware membership
+corporation.  It was formed in 1993 as the successor to the MIT X Consortium.
+The purpose of the X Consortium is to foster the development, evolution, and
+maintenance of the X Window System, a comprehensive set of vendor-neutral,
+system-architecture neutral, network-transparent windowing and user interface
+standards.
+.PP
+The X Window System was created in the mid-1980s at the Massachusetts
+Institute of Technology.  In 1988, MIT formed a member-funded consortium to
+provide the technical and administrative leadership necessary to support
+further development of the X Window System.  In 1992, MIT and the membership
+decided it was in their best interests to move the consortium out of MIT and
+create an independent, stand-alone organization.  All rights to the
+X Window System were assigned by MIT to X Consortium, Inc. on January 1, 1994.
+.PP
+The X Consortium is financially self-supporting through membership fees.
+There are no license fees associated with the use of X Window System standards
+and code developed by the X Consortium.  Membership in the X Consortium is
+open to any organization willing to execute a membership agreement.
+.PP
+The X Consortium is a highly participative body.  Members are encouraged to
+actively cooperate with the staff and other members in the design and review
+of proposed specifications, and in the design, coding and testing of sample
+implementations of those specifications.
+.PP
+The X Consortium accomplishes most of its work using electronic mail over the
+Internet, with individual mailing lists for working groups.  Internet
+electronic mail connectivity should be viewed as a requirement for useful
+participation in X Consortium activities.  Meetings are held as necessary,
+often in conjunction with industry conferences and trade shows.
+.SH STAFF
+.nf
+President:
+Bob Scheifler, rws@x.org, phone: (617) 374-1010
+
+Office Manager:
+Janet O'Halloran, joh@x.org, phone: (617) 374-1011
+
+Technical Director, Integration Technology:
+Ralph Swick, swick@x.org
+
+Technical Director, Application Toolkits:
+Matt Landau, matt@x.org
+
+Technical Staff:
+
+Donna Converse, converse@x.org
+Stephen Gildea, gildea@x.org
+Jay Hersh, hersh@x.org
+Kaleb Keithley, kaleb@x.org
+Ralph Mor, mor@x.org
+Dave Wiggins, dpw@x.org
+
+SysAdmin:
+Gary Cutbill, rgary@x.org
+.fi
+
+.SH "BOARD OF DIRECTORS"
+The X Consortium's activities and affairs are managed under the direction and
+oversight of a Board of Directors, elected annually by the Members.  The Board
+is responsible for reviewing the achievements of the Consortium, approving
+planned work, appointing a President and other officers of the Consortium, and
+setting membership dues.  The current Directors are:
+
+.nf
+Robert W. Scheifler, President, X Consortium
+Dr. Forest Baskett, Senior VP of R&D, Silicon Graphics Computer Systems
+Harold D. Blair, Partner, Partnerwerks
+Roger S. Gourd, VP and Chief of Staff, Open Software Foundation
+David Harris, Director, Adobe Systems [ex officio as Chairman, X Industry Association]
+Dr. Robin Hillyard, Chairman and Chief Technical Officer, Novasoft Systems
+Dr. Chong Lee, President and CEO, Phase X Systems, Inc.
+Don McGovern, Vice President - UNIX Systems Group, Novell, Inc.
+Therese E. Myers, President and CEO, Quarterdeck Office Systems
+Peter J. Shaw, President and CEO, AGE Logic, Inc.
+Dan N. Turner, President and CEO, Petrotechnical Open Software Corporation
+.fi
+
+.SH "ADDRESS"
+The X Consortium can be reached at:
+.nf
+
+X Consortium
+One Memorial Drive
+Cambridge MA 02142-1301
+Tel: (617) 374-1000
+Fax: (617) 374-1025
+membership@x.org
+
+To reach the X Consortium public Wide World Web server, use the URL:
+http://www.x.org/
+
+To reach the X Consortium public ftp machine, use anonymous ftp to:
+ftp.x.org
+.fi
+.SH FULL MEMBERS
+
+.nf
+Adobe Systems Inc.
+Apple Computer, Inc.
+Cray Research, Inc.
+Digital Equipment Corp.
+Fujitsu Limited
+Hewlett-Packard Company
+Hitachi Ltd.
+Hughes Aircraft Company
+IBM Corporation
+Kubota Corp.
+Megatek Corp.
+Motorola, Inc.
+NCR Corporation (representing ADDS/NCR/AT&T)
+NEC Corporation
+Nippon Telegraph and Telephone Corporation
+Oki Electric Industry Co., Ltd.
+OMRON Corporation
+The Santa Cruz Operation, Inc.
+Siemens Nixdorf Informationssysteme AG
+Silicon Graphics, Inc.
+Sony Corporation
+Sun Microsystems, Inc.
+Tektronix, Inc.
+Unix Systems Laboratories (includes Novell)
+.fi
+
+.SH ASSOCIATE MEMBERS
+
+.nf
+CETIA - Compagnie Europeene des Techniques de l'Ingenierie Assistee
+Network Computing Devices
+Quarterdeck Office Systems
+Walker Richer & Quinn, Inc.
+.fi
+
+.SH AFFILIATE MEMBERS
+
+.nf
+AGE Logic, Inc.
+ASTEC, Inc.
+ATR
+BARCO Chromatics, Inc.
+Congruent Corp.
+Diagnostic/Retrieval Systems, Inc.
+Gallium Software, Inc.
+Georgia Institute of Technology
+Human Designed Systems, Inc.
+Hummingbird Communications Ltd.
+Integrated Computer Solutions, Inc.
+Investment Management Services, Inc.
+IXI Limited
+Japan Computer Corporation
+Jupiter Systems
+KAIST - Korean Advanced Institute of Science and Technology
+Labtam Australia
+Locus Computing Corporation
+Mercury Interactive Corp.
+Metheus Corporation
+Metro Link, Inc.
+M3i Systems, Inc.
+Object Management Group, Inc.
+Open Software Foundation
+O'Reilly & Associates, Inc.
+ParcPlace Systems
+Performance Awareness Corp.
+Peritek Corp.
+Petrotechnical Open Software Corp.
+Phase X Systems, Inc.
+SOUM Corporation
+Tatung Science and Technology
+Tech-Source, Inc.
+User Interface Technologies Ltd.
+Veritas Software, Inc.
+VisiCom Laboratories, Inc.
+VisionWare Ltd.
+Visix Software, Inc.
+Visual Information Technologies, Inc.
+White Pine Software, Inc.
+The XFree86 Project, Inc.
+.fi

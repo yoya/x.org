@@ -1,0 +1,30 @@
+Xdiary version 1.1 -- An X application that displays a one month calendar or a
+                      full year calendar and/or an interactive daily diary.
+
+Xdiary is a simple tool for associating text with a specific date, useful for
+keeping a daily diary or work log.  By using templates, the diary entries can
+be configured or personalized to be suitabile for a wide range of needs.
+Several languages are also supported.  See the xdiary man page for details.
+
+Xdiary is now written completely in ANSI C, without any attempt to be backward
+compatible with K&R C compilers.  To build xdiary, first run "xmkmf" in the
+xdiary directory.  Then type "make".
+
+Xdiary was developed and tested on Harris Night Hawk 4000 and 5000 systems,
+running Harris' CX/RT real-time operating system.  It has been tested with R6
+on an NCR 3445 running NCR SVR4.0 MP (Thanks to Garry Paxinos at Metrolink).
+
+Xdiary was written by Jason Baietto (Jason.Baietto@mail.csd.harris.com).
+Version 1.0 originally appeared for X11 R4 in late 1990.  Version 1.1 is
+basically a cleaned up version with a slightly better GUI for X11 R6.
+
+A large part of the xdiary coding effort was devoted to the CalendarWidget in
+hopes that other developers might use it in their own applications.  See the
+Cal.ps document for more information on using the CalendarWidget.
+
+Thanks are due to Chela Diaz de Villegas, Theresia Buesser, Joel Brogniart,
+Erwan David, Thilo Gramlich, Vasco Lopes Paulo, John T. McCranie and Silvio
+Bichisecchi for help with the multiple language support.  Many thanks also to
+Jim Burmeister for GUI and documentation guidance.
+
+-Jason 5/9/94

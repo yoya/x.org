@@ -1,0 +1,23 @@
+font name roman
+font name roman_c
+font name roman_d
+font name roman_m
+font name roman_t
+font name : cartographic
+	1st glyph 0
+	all exist 1
+font name : cartographic_m
+	1st glyph 0
+	all exist 1
+font name : english_g
+	1st glyph 0
+	all exist 1
+font name : greek
+	1st glyph 0
+	all exist 1
+font name : greek_c
+	1st glyph 0
+	all exist 1
+font name : greek_m
+	1st glyph 0
+	all exist 1

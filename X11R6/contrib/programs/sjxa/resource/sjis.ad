@@ -1,0 +1,298 @@
+! $SonyId: sjis.ad,v 1.1 1994/05/30 13:07:49 makoto Exp $
+!
+! Copyright (c) 1993, 1994  Sony Corporation
+!
+! Permission is hereby granted, free of charge, to any person
+! obtaining a copy of this software and associated documentation files
+! (the "Software"), to deal in the Software without restriction,
+! including without limitation the rights to use, copy, modify, merge,
+! publish, distribute, sublicense, and/or sell copies of the Software,
+! and to permit persons to whom the Software is furnished to do so,
+! subject to the following conditions:
+!
+! The above copyright notice and this permission notice shall be
+! included in all copies or substantial portions of the Software.
+!
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+! EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+! MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+! NONINFRINGEMENT. IN NO EVENT SHALL SONY CORPORATION BE LIABLE
+! FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+! CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+! WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+!
+! Except as contained in this notice, the name of Sony Corporation
+! shall not be used in advertising or otherwise to promote the sale,
+! use or other dealings in this Software without prior written
+! authorization from Sony Corporation.
+
+*geometry:				-0-0
+*iconic:				True
+
+!*foreground:				#000000
+!*background:				#c4c4c4
+*foreground:				#228b22
+*background:				#f0fff0
+
+*fontSet:		-*-fixed-*-*-*-*-14-*-*-*-*-*-*-*
+!*fontSet:		-*-fixed-*-*-*-*-16-*-*-*-*-*-*-*
+*encoding:		2
+
+!*server:				localhost
+!*autoReplace:				False
+!*autoRaise:				False
+!*kanaMode:				True
+*wrapToSelect:				3
+*initialMode:				ZenkakuHiragana
+*defaultCode:				sjis
+
+Sjxa.XmwPreedit.borderWidth:		0
+
+*horizDistance:				2
+*vertDistance:				2
+
+*F1Label:				登録
+*F2Label:				削除
+*F3Label:				修正
+*F4Label:				表
+*F5Label:				code
+*F6Label:				半ア
+*F7Label:				全ア
+*F8Label:				半カ
+*F9Label:				全カ
+*F10Label:				かな
+
+*sjxa:					【 ＳＪＸＡ 】
+
+*hankakuAlpha:				〔半カナ英数〕
+*zenkakuAlpha:				〔全かな英数〕
+*hankakuKatakana:			〔半角カナＲ〕
+*zenkakuKatakana:			〔全角カナＲ〕
+*zenkakuHiragana:			〔全角かなＲ〕
+*lockHankakuAlpha:			【半カナ英数】
+*lockZenkakuAlpha:			【全かな英数】
+*lockHankakuKatakana:			【半角カナＲ】
+*lockZenkakuKatakana:			【全角カナＲ】
+*lockZenkakuHiragana:			【全角かなＲ】
+
+*shiftJis:				〔 ShiftJIS 〕
+*euc:					〔  ＥＵＣ  〕
+*jis:					〔  ＪＩＳ  〕
+*kuten:					〔   区点   〕
+*supplementaryEuc:			〔 補ＥＵＣ 〕
+*supplementaryJis:			〔 補ＪＩＳ 〕
+*supplementaryKuten:			〔  補区点  〕
+
+*baseSjxaAccelerators:						\
+    Shift<Key>Kanji:	connect()wrapback()			\
+			disconnect(!CONVERSION,!WRAP,!SELECT)	\n\
+    Ctrl<Key>Kanji:	connect()disconnect()			\n\
+    ~s ~c<Key>Kanji:	connect()initial-mode(INIT)conversion()	\n\
+    Shift<Key>Select:	connect()disconnect()			\n\
+    Ctrl<Key>Select:	connect()disconnect()			\n\
+    ~s ~c<Key>Select:	connect()initial-mode(INIT)conversion()	\n\
+    Ctrl<Key>backslash:	connect()disconnect()			\n\
+    <Key>Muhenkan:	cancel(SELECT)no-conversion(!SELECT)	\n\
+    <Key>Cancel:	cancel(SELECT)no-conversion(!SELECT)	\n\
+    <Key>Execute:	disconnect(INIT)commit()		\n\
+    <Key>Left:		through()previous()			\n\
+    <Key>Right:		through()next()				\n\
+    ~Alt<Key>Up:	through()up()expand()			\
+			jisx0208(INTERMEDIATE,EDIT)		\n\
+    ~Alt<Key>Down:	through()down()reduce()			\
+			jisx0212(INTERMEDIATE,EDIT)		\n\
+    Alt<Key>Up:		scroll-up()				\n\
+    Alt<Key>Down:	scroll-down()				\n\
+    <Key>Prior:		scroll-up()				\n\
+    <Key>Next:		scroll-down()				\n\
+    <Key>Begin:		through()top()				\n\
+    <Key>Home:		through()top()				\n\
+    <Key>End:		through()top()				\n\
+    <Key>Clear:		cancel(SELECT)cancel(CONVERSION,WRAP)	\
+			cancel(INTERMEDIATE)			\n\
+    s<Key>Hankaku:	cancel(SELECT)hankaku()			\n\
+    ~s<Key>Zenkaku:	cancel(SELECT)zenkaku()			\n\
+    s<Key>Katakana:	cancel(SELECT)katakana()		\n\
+    ~s<Key>Hiragana:	cancel(SELECT)hiragana()		\n\
+    <Key>Eisu_Shift:	cancel(SELECT)alphanumeric()		\n\
+    Ctrl<Key>F1:	reconnect()				\n\
+    ~Ctrl<Key>F1:	add-term()				\n\
+    <Key>F2:		delete-term()				\n\
+    <Key>F3:		cancel(SELECT)edit(!SELECT)		\n\
+    ~Shift<Key>F4:	jisx0208()				\n\
+    Shift<Key>F4:	jisx0212()				\n\
+    <Key>F5:		code-input()				\n\
+    <Key>F6:		cancel(SELECT)en-alphanumeric()		\n\
+    <Key>F7:		cancel(SELECT)em-alphanumeric()		\n\
+    <Key>F8:		cancel(SELECT)en-katakana()		\n\
+    <Key>F9:		cancel(SELECT)em-katakana()		\n\
+    <Key>F10:		cancel(SELECT)em-hiragana()		\n\
+    <Key>F11:		reconnect()				\n\
+    <Key>BackSpace:	through()cancel(CONVERSION,WRAP)	\
+			divided-delete()			\n\
+    <Key>Delete:	through()cancel(CONVERSION,WRAP)	\
+			delete()				\n\
+    ~Ctrl ~Alt<Key>h:	previous(CODE,SELECT)inkey()		\n\
+    ~Ctrl ~Alt<Key>j:	down()inkey()				\n\
+    ~Ctrl ~Alt<Key>k:	up()inkey()				\n\
+    ~Ctrl ~Alt<Key>l:	next(CODE,SELECT)inkey()		\n\
+    Alt<Key>l:		input-mode-lock()			\n\
+    Ctrl<Key>a:		through()top()				\n\
+    Ctrl<Key>b:		through()previous()			\n\
+    Ctrl<Key>d:		through()scroll-down()			\
+			previous(!INIT,!CODE,!DELETE,!SELECT)	\n\
+    Ctrl<Key>e:		through()end()				\n\
+    Ctrl<Key>f:		through()next()				\n\
+    Ctrl<Key>g:		through()cancel(!INIT)			\n\
+    Ctrl<Key>h:		through()cancel(CONVERSION,WRAP)	\
+			divided-delete()			\n\
+    Ctrl<Key>i:		through()reduce()			\n\
+    Ctrl<Key>m:		through()commit()			\n\
+    Ctrl<Key>n:		through()down()				\n\
+    Ctrl<Key>o:		through()expand()			\n\
+    Ctrl<Key>p:		through()up()edit()			\n\
+    Ctrl<Key>r:		through()expand()			\n\
+    Ctrl<Key>t:		toggle()				\n\
+    Ctrl<Key>u:		through()cancel(INTERMEDIATE,CONVERSION)\
+			scroll-up()				\n\
+    Ctrl ~Alt<Key>v:	through()reduce()scroll-down()		\n\
+    ~Ctrl Alt<Key>v:	through()scroll-up()			\n\
+    Ctrl<Key>w:		through()wrapback()			\n\
+    Ctrl<Key>y:		reconversion()				\n\
+    <Key>Return:	through()commit()			\n\
+    <Key>KP_Enter:	through()commit()			\n\
+    ~c ~s<Key>space:	commit(CODE,DELETE,ERROR)through()	\
+			conversion()				\n\
+    ~s c<Key>space:	through()wrapback()			\n\
+    s ~c<Key>space:	inkey()					\n\
+    <Key>Escape:	commit(INTERMEDIATE,CONVERSION,WRAP)	\
+			through()				\
+	cancel(INIT,CODE,SELECT,ADD,DELETE,EDIT,SERVER,ERROR)	\n\
+    <Key>Tab:		through()				\n\
+    ~Ctrl ~Alt<Key>:	inkey()					\n\
+    !Ctrl<Key>:		through()
+
+!
+! "kana input" user's resources
+!
+*Kana*initialMode:				ZenkakuAlpha
+
+!
+! common resources
+!
+*hinshi1:					普通名詞
+*hinshi2:					代名詞
+*hinshi3:					苗字
+*hinshi4:					名前
+*hinshi5:					企業名
+*hinshi6:					地名
+*hinshi7:					県／区名
+*hinshi8:					単漢字
+*hinshi9:					連体詞
+*hinshi10:					接続詞
+*hinshi11:					感動詞
+*hinshi12:					助数詞
+*hinshi13:					数詞
+*hinshi14:					接頭語
+*hinshi15:					接尾語
+*hinshi16:					副詞
+*hinshi17:					形容詞
+*hinshi18:					形容動詞
+*hinshi19:					サ変動詞
+*hinshi20:					ザ変動詞
+*hinshi21:					一段動詞
+*hinshi22:					カ行五段動詞
+*hinshi23:					ガ行五段動詞
+*hinshi24:					サ行五段動詞
+*hinshi25:					タ行五段動詞
+*hinshi26:					ナ行五段動詞
+*hinshi27:					バ行五段動詞
+*hinshi28:					マ行五段動詞
+*hinshi29:					ラ行五段動詞
+*hinshi30:					ワ行五段動詞
+
+*hinshi31:					カ変動詞
+*hinshi32:					丁寧動詞
+*hinshi33:					カ行五段音便
+*hinshi34:					挨拶語
+*hinshi35:					？？？？？
+
+*AddTerm*Term.label:				漢字
+*AddTerm*KeyWord.label:				読み
+*AddTerm*Part.label:				品詞
+*AddTerm*XmwText.columns:			20
+*AddTerm.Ok.label:				登録
+*AddTerm.Cancel.label:				取消
+*AddTerm*menuButton.leftBitmap:			menu12
+
+*DeleteTerm*List.visibleVerticalItemCount:	5
+*DeleteTerm*Label.label:		\
+	　読み                    漢字                    品詞
+
+*QuestionDialog.icon:			Term
+!*QuestionDialog.icon:			xm_question
+*QuestionDialog.label:			削除します。よろしいですか？。
+*QuestionDialog*Ok.label:		了解
+*QuestionDialog*Cancel.label:		取消
+
+*Code.shiftJis:				ＳＪＩＳ
+*Code.euc:				\ ＥＵＣ
+*Code.jis:				\ ＪＩＳ
+*Code.kuten:				\ 区点
+
+*Select*visibleHorizontalItemCount:	5
+*Select*visibleVerticalItemCount:	5
+
+*Server*ServerLabel.label:		ホスト名を入力してください。
+*Server.Ok.label:			了解
+*Server.Cancel.label:			取消
+*Server*XmwText.columns:		13
+
+*Error*icon:				Excl
+!*Error*icon:				xm_error
+*Error*label:				了解
+
+*mallocError:			メモリーの確保に失敗しました。
+
+*supplementaryKanjiError:	補助漢字の入力は出来ません。
+
+*diedError:		サーバーへの接続に失敗しました。
+
+*openError1:		他のウィンドウで変換中です。
+*openError1:		サーバーに接続済です。
+*openError2:		メイン辞書ファイルをオープンできません。
+*openError3:		ユーザ辞書ファイルをオープンできません。
+*openError4:		学習ファイルをオープンできません。
+*openError5:		ユーザ・ディレクトリの作成に失敗しました。
+*openError6:		ユーザ辞書ファイルの作成に失敗しました。
+*openError7:		学習ファイルの作成に失敗しました。
+
+*closeError1:		サーバで内部エラーがおきました。
+*closeError2:		サーバと接続されていません。
+*closeError3:		メイン辞書がオープンされていません。
+*closeError4:		ユーザ辞書がオープンされていません。
+*closeError5:		学習ファイルがオープンさえていません。
+*closeError6:		メイン辞書がクローズできません。
+*closeError7:		ユーザ辞書がクローズできません。
+*closeError8:		学習ファイルがクローズできません。
+
+*addError1:		同一の単語がすでに存在しています。
+*addError2:		この読み文字列では登録できません。
+*addError3:		この漢字文字列では登録できません。
+*addError4:		これ以上同じ読みでは登録できません。
+*addError5:		これ以上ユーザ辞書には登録できません。
+*addError6:		ユーザ辞書がロックされています。
+*addError7:		システムエラーで登録できません。
+
+*deleteError1:		指定された読み・漢字は登録されていません。
+*deleteError2:		ユーザ辞書がロックされています。
+*deleteError3:		この読み文字列は消去できません。
+*deleteError4:		この漢字文字列は消去できません。
+*deleteError5:		システムエラーで消去できません。
+*deleteError6:		登録されている単語がありません。
+
+*learningError1:	文節学習に失敗しました。
+*learningError2:	文節長学習に失敗しました。
+
+*conversionError1:	読み文字列が長すぎます。
+

@@ -1,0 +1,6 @@
+All:
+	gcc -c -O -fpic -I.. -I/usr/include/X11 -DXMOVE -DNeedFunctionPrototypes=1 -DDEBUG libatommap.c
+	ld -o libatommap.so.1.1 -assert pure-text libatommap.o
+	rm -f libatommap.so.1
+	ln -s libatommap.so.1.1 libatommap.so.1
+	rm -f libatommap.o

@@ -1,0 +1,11 @@
+
+With this command, you can translate the current drawing either
+on X and Y axis.
+
+Translation is defined in the same maneer as for line drawing, only the
+relative vector is used, absolute coordinates of the begin/end points
+are not important.
+
+The translation is controlled inside the edit window, no clip is performed.
+
+

@@ -1,0 +1,26 @@
+name = -hp-PEX stick-medium-r-normal-normal-0-0-0-0-m-0-hp-roman8
+info from load:
+	firstGlyph   = 20
+	lastGlyph    = ff
+	defaultGlyph = 20
+		FOUNDRY = hp
+		FAMILY_NAME = PEX stick
+		WEIGHT_NAME = medium
+		ADD_STYLE_NAME = normal
+		SPACING = m
+		CHARSET_REGISTRY = hp
+		CHARSET_ENCODING = roman8
+info from query:
+	firstGlyph   = 20
+	lastGlyph    = ff
+	defaultGlyph = 20
+		FOUNDRY = hp
+		FAMILY_NAME = PEX stick
+		WEIGHT_NAME = medium
+		ADD_STYLE_NAME = normal
+		SPACING = m
+		CHARSET_REGISTRY = hp
+		CHARSET_ENCODING = roman8
+	ll = (0.000000, -0.005000)
+	ur = (0.030000, 0.013750)
+	cc = (0.030000, 0.000000)

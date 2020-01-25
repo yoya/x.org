@@ -1,0 +1,42 @@
+/*                            xmove
+ *                            -----
+ *             A Pseudoserver For Client Mobility
+ *
+ *   Copyright (c) 1994         Ethan Solomita
+ *
+ *   The X Consortium, and any party obtaining a copy of these files from
+ *   the X Consortium, directly or indirectly, is granted, free of charge, a
+ *   full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+ *   nonexclusive right and license to deal in this software and
+ *   documentation files (the "Software"), including without limitation the
+ *   rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons who receive
+ *   copies from any such party to do so.  This license includes without
+ *   limitation a license to do the foregoing actions under any patents of
+ *   the party supplying this software to the X Consortium.
+ */
+
+	Compiling the xmove library located in this directory is
+only necessary if you wish to have xmove load its support
+libraries dynamically. See README, xmove/README and
+xmove/Imakefile for information on this decision.
+
+	Included are two makefiles, Makefile.SunOS and
+Makefile.Solaris. Makefile.SunOS has been tested with gcc in a
+SunOS 4.1.x environment, using Sun's standard assembler and
+linker (as and ld). Makefile.Solaris has been tested with
+SunPro's cc in a Solaris 2.x environment.
+
+	You may have to configure the files for your environment,
+particularly the paths to the X11 includes and libraries. Also
+note that, if you are using gcc, you must use Sun's assembler and
+linker. Gnu does not support dynamic linking. Many systems are
+already configured this way.
+
+	If you are uncertain about your system's configuration
+and its suitability for dynamic loading, either ask your system
+administrator, or simply avoid the issue by using static linking
+of xmove's library when building xmove. Also remember that this
+is only an issue of how xmove loads its own support library,
+libatommap. This does not affect how it links with the standard
+libraries such as libc.

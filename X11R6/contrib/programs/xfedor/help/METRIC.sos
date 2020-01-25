@@ -1,0 +1,11 @@
+
+This mode is used for visualization of the bounding box of the character.
+It allows you to position the approach of the character (HADJ) and
+its increment (HINCR) with the mouse (MB1 and MB2).
+
+HADJ is also use for positionning the mouse hot-spot x coordinate in the
+case of a mouse creation. The mouse hot-spot y coordinate is given by
+the baseline.
+
+The increment HINCR depends onthe HADJ value...
+

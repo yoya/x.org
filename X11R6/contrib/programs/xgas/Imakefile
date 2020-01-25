@@ -1,0 +1,22 @@
+XCOMM $XConsortium: Imakefile,v 1.10 94/04/17 20:45:26 rws Exp $
+
+        DEFINES = $(IEEE_DEFS) $(SIGNAL_DEFINES)
+        DEPLIBS = $(DEPXAWLIB) $(DEPXMULIB) $(DEPXTOOLLIB) $(DEPXLIB)
+LOCAL_LIBRARIES = $(XAWLIB) $(XMULIB) $(XTOOLLIB) $(XLIB)
+  SYS_LIBRARIES = MathLibrary
+           DOCNS = doc.n quick.n
+           DOCSRCS = doc.c quick.c
+           DOCOBJS = doc.o quick.o
+           SRCS = main.c dynamics.c chamber.c timestep.c molecule.c util.c \
+                  help.c Gas.c $(DOCSRCS) man.c
+           OBJS = main.o dynamics.o chamber.o timestep.o molecule.o util.o \
+                  help.o Gas.o $(DOCOBJS) man.o
+
+       INCLUDES = -I$(TOOLKITSRC) -I$(TOP)
+
+ComplexProgramTarget(xgas)
+InstallAppDefaults(XGas)
+
+depend:: $(SRCS) $(DOCNS)
+
+$(DOCSRCS):: $(DOCNS)

@@ -1,0 +1,85 @@
+Here are some unstated goals for the xrsh script to consider in
+designing enhancements:
+
+1. Keep xrsh as one script.  Configuration and installation are more
+difficult with ancillary files.  As one script, it can be copied
+easily from system to system.
+
+2. Keep xrsh portable.  Avoid features which might not work on all
+UNIX variants.  E.g. some rsh don't have a -n option.  Some
+/bin/sh don't have shell functions.
+
+3. Keep the number of programs fork()ed by xrsh to a minimum.  xrsh is
+used a lot and always interactively so speed is important.  This is
+why I play all those games with IFS, to avoid forking awk or sed.
+
+Here are some things which might be done in the future or have been
+recently tried. 
+
+1. Parse the DISPLAY environment variable without forking any extra
+processes like sed.  Perhaps use IFS in the shell.
+<done, but doesn't work in Ultrix /bin/sh>
+
+2. Pass other environment variables besides $DISPLAY.  Users might
+want to pass an arbitrary set.
+<can now pass XAUTHORITY using XRSH_AUTH_TYPE and arbitrary
+  environment variables using XRSH_ENVS_TO_PASS>
+
+3. Don't use backslashes for quoting, only  use only ' and " for portability.
+<What hosts don't handle backslashes?  This turns out to be very hard.>
+
+4. Pass  $XUSERFILESEARCHPATH to the remote host?
+<I'm not sure this is always what you want to do, but you can
+  do it if you want to using XRSH_ENVS_TO_PASS.>
+
+5. Add command line flag to describe the remote machine (like -sysv or
+-irix).  This would get all the config options correct without having
+to guess.
+<I hope not to have to do this -- I hope to make the one script portable.>
+
+6. If you have to rsh the xhost to the serverhost, run it in the
+     background and use wait before the final rsh to improve speed.
+<I did this, but it made some system V hosts (HP-UX 7.0) go insane and
+say "wait: pid 232 is not a child of this shell" over and over again.
+I finally deleted it in the interests of portability.  Timing showed
+it wasn't a major win in speed anyway>
+
+7. Expand DISPLAY environment variable  from foo to foo.org.com so
+that it works when you leave your local site.
+<hard to do in a site independent manner.  Now uses ip addresses if the 
+remote host name contains periods like foo.bar.com>
+
+8. Decide rsh vs. remsh vs. rcmd at install time instead of run time.
+<disadvantage:  one script can't be transferred from one machine to another>
+
+9. make first line be : instead of #!
+<Can't -- without #! some systems use $SHELL to eval scripts.  May not
+be the right thing>
+
+10. Use IP address when setting $DISPLAY for remote hosts that can't
+resolve local hostname.
+<This is done for remote host names with . in them>
+
+11. Have an .xrsh.rc file which can be used to tailor defaults for
+specific hosts.
+
+12. If using xhsot authorization, optionally disable access to the
+host after running the command.  Of course, on hosts where rshd
+doesn't return, the xhost -host would never get executed until the
+client exitied.  This feature was requested by Rick Calder, NCR
+Systems Support Center - New Jersey [att!]rick!rick rick@rick.att.com
+attmail!rcalder.
+
+
+13. (From kmp@harlequin via gildea@expo.lcs.mit.edu) in order to preserver
+users quoting for arguments to client, don't preparse $@ into a variable
+and then pass that variable along to the client via rsh.
+
+Instead, of setting and resetting the cmd line args for IFS hacking, push 
+a marker on the arg list and push other things on the front.  Then 
+shift things off the front and stop when you get to the marker.
+
+at the end, just pass $@ along as the arguments to the client.
+
+set new stuff XYZZY "$@"
+

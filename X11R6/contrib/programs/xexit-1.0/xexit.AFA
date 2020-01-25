@@ -1,0 +1,26 @@
+Template-Type:	SOFTWARE
+Title:		xexit - terminate all clients and exit X session
+Author-Name:	Markus Stumpf
+Author-Email:	<stumpf@informatik.tu-muenchen.de>
+Author-Handle:	http://www.informatik.tu-muenchen.de/~stumpf/
+Admin-Name:	Markus Stumpf
+Admin-Email:	<stumpf@informatik.tu-muenchen.de>
+Admin-Handle:	http://www.informatik.tu-muenchen.de/~stumpf/
+URI-v0:		URL:ftp://ftp.informatik.tu-muenchen.de/pub/X11/contrib/clients/
+URI-v1:		URL:ftp://ftp.x.org/contrib/applications/
+Version:	1.0
+Keywords:	X window X11 session exit terminate
+Copying-Policy:	copyrighted, freely redistributable
+Description:	xexit - terminate all clients and exit X session
+    The xexit program consists of a (small) window sitting somewhere on your
+    screen. On clicking into it with the mouse pointer xexit tries to
+    gracefully terminate all clients of the current session.
+      It first sends all clients participating in that protocol a
+    WM_SAVE_YOURSELF message. After that message a WM_DELETE_WINDOW message
+    is sent.  All clients still having windows after that are shut down
+    with XKillClient().
+      For convenience reasons xexit per default pops up a confirmation dialog
+    box.  This however can be suppressed either by commandline option or
+    resource.
+      Xexit is assumed to be the last client in the .xsession file and not be
+    sent in the background, though this is not strictly required.

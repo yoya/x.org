@@ -1,0 +1,409 @@
+#!/local/bin/perl
+# PERL hours list writer for TIMEX
+do "weekno.perl" || die "Could not do weekno.perl\n";
+# Prefixes for some types of project
+$privateprefix = "-";
+$adjustprefix = "\\+";
+# Possible arguments
+%args = (
+   "fudge", 1,
+   "adjust", 0,
+   "round", 0,
+   "year", 1,
+   "name", 1,
+   "nameadd", 1,
+   "debug", 0,
+   "lang", 1,
+   "datestyle", 1,
+   "minutes", 0,
+);
+$usage = "Usage: $0 [-year nn ] [-adjust] [-round] [-lang nn] [week]\n"
+. "Default week=last week\n";
+
+# Set default values for variables
+$fudge = 0.5;  # Dividing point for ROUND. Fudgeable.
+@pwent = getpwuid($<);
+$name = $pwent[6];
+$name =~ s/\,.*//;
+$timenow = time;
+@daynow = localtime($timenow);
+$year = $daynow[5];
+$lang = $ENV{"LANG"};
+
+if ($ENV{"TIMEXDIR"}) {
+    $timexdir = $ENV{"TIMEXDIR"};
+} else {
+    $timexdir = "$ENV{\"HOME\"}/.timex";
+}
+
+# Set variables from command line and defaults file
+&getdefaults("$timexdir/sumdefaults");
+&setlanguage();
+
+# Find which week to sum for
+$week = shift(ARGV);
+$oneday = 24 * 60 * 60;
+if (!$week) {
+   # Default is last week.
+   $week = &DATE'weekno($timenow) - 1;
+} elsif ($week eq "now") {
+   # now is this week
+   $week = &DATE'weekno($timenow);
+}
+   
+$timefetch = &DATE'firstinweek($week, $year);
+
+for $wday (1..7) {
+   @dayfetch = localtime($timefetch);
+   if ($datestyle eq "us") {
+       $weekdate[$wday] = sprintf("%d/%d", $dayfetch[4] + 1, $dayfetch[3]);
+   } elsif ($datestyle eq "de") {
+       $weekdate[$wday] = sprintf("%d.%d.", $dayfetch[3], $dayfetch[4] + 1);
+   } else {
+       $weekdate[$wday] = sprintf("%d/%d", $dayfetch[3], $dayfetch[4] + 1);
+   }
+   $filename = sprintf("%04d-%02d-%02d",
+       1900 + $dayfetch[5], 1 + $dayfetch[4], $dayfetch[3]);
+   open(FILE, "$timexdir/$filename") || do { 
+       print STDERR "$word{'nofile'} $filename\n";
+       $timefetch = $timefetch + $oneday;
+       next;
+   };
+   while (<FILE>) {
+       chop;
+       if (/^\s*(\d*):(\d*) (.*)/) {
+	   $project = $3;
+           $spent = $1 + $2 / 60;
+           $worked{$project} = 1;  # Mark as worked-on this week
+           $hours{"$project $wday"} = $spent;
+       }
+   }
+   close FILE;
+   $timefetch = $timefetch + $oneday;
+}
+
+&resum;
+if ($hours == 0) {
+   print STDERR "$word{'nohours'} $week!\n";
+   exit 1;
+}
+
+if ($adjust) {
+   &adjust();
+}
+
+if ($round) {
+   &round;
+}
+
+# Print the result
+if ($nameadd) {
+   print "$nameadd $name\n";
+} else {
+   print "$name\n";
+}
+print $word{"banner"}, " $week 19$year\n";
+
+printf "%-30.30s%6s!%6s%6s%6s%6s%6s%6s%6s\n",
+	$word{"project"}, $word{"tot"}, @days[1..7];
+printf "%-30.30s%6s!%6s%6s%6s%6s%6s%6s%6s\n",
+        $word{"date"}, "", @weekdate[1..7];
+print "===============================================================================\n";
+for $pro (sort(keys(%hourstot))) {
+   if ($hourstot{$pro}) {
+	  if ($minutes) {
+         printf "%-30.30s%3d:%02d!", $pro, int($hourstot{$pro}), int(($hourstot{$pro}-int($hourstot{$pro}))*60);
+	  } else {
+         printf "%-30.30s%6.1f!", $pro, $hourstot{$pro};
+	  }
+      for $day (1..7) {
+         if ($hours{"$pro $day"}) {
+            if ($minutes) {
+               printf "%3d:%02d", int($hours{"$pro $day"}), int(($hours{"$pro $day"}-int($hours{"$pro $day"}))*60);
+		    } else {
+               printf "%6.1f", $hours{"$pro $day"};
+			}
+         } else {
+            printf "%6s", "";
+         }
+      }
+      print "\n";
+   }
+}
+print "===============================================================================\n";
+if ($minutes) {
+   printf "%-30.30s%3d:%02d!", "TOTAL", int($hours), int(($hours-int($hours))*60);
+   for $day (1..7) {
+	  printf "%3d:%02d", int(@hours[$day]), int((@hours[$day]-int(@hours[$day]))*60);
+   }
+   printf "\n";
+   printf "%-30.30s%3d:%02d\n", "Private poster", int($privhours), int(($privhours-int($privhours))*60);
+} else {
+   printf "%-30.30s%6.1f!%6.1f%6.1f%6.1f%6.1f%6.1f%6.1f%6.1f\n",
+	   $word{"total"}, $hours, @hours[1..7];
+   printf "%-30.30s%6.1f\n", $word{"private"}, $privhours;
+}
+
+sub adjust {
+   # Adjust - spread + projects across the board
+
+   for $pro (keys(%hours)) {
+     if ($pro =~ /^$adjustprefix/) {
+        $tospread += $hours{$pro};
+     }
+   }
+   $factor = ($tospread/($hours - $tospread)) + 1; 
+   printf STDERR "Distributing %5.1f hours across %5.1f hours, factor %5.2f\n",
+	$tospread, $hours, $factor;
+   # 1) Distribute across projects
+   for $pro (keys(%hours)) {
+      if ($pro =~ /^$adjustprefix/) {
+         $hours{$pro} = 0;
+      } elsif ($pro !~ /^$privateprefix/) { # do not spread on private pros
+         $hours{$pro} *= $factor;
+      }
+   }
+   &resum("adjust");
+}
+
+sub round {
+# Round all numbers to half-hours
+   for $pro (keys(%hours)) {
+      $hours{$pro} =  int(($hours{$pro} * 2) + $fudge) / 2; 
+   }
+   &resum("round");
+}
+
+sub resum {
+   local($why) = @_;
+   local($oldhours) = $hours;
+   undef %hourstot;
+   undef @hours;
+   $hours = 0;
+   $privhours = 0;
+   for $pro (keys(%hours)) {
+      # Do NOT sum - marked projects
+      if ($pro =~ /^-/) {
+         $privhours += $hours{$pro};
+      } elsif ($pro =~ /^(.*) (\d)$/) {
+         $project = $1; $wday = $2;
+         $hourstot{$project} += $hours{$pro};
+         $hours[$wday] += $hours{$pro};
+         $hours += $hours{$pro};
+      } else {
+         print STDERR "Bad projectday: $pro\n";
+      }
+   }
+   if ($oldhours && (($hours - $oldhours) ** 2 > 0.1)) {
+      print STDERR "$why: Changed total from $oldhours to $hours\n";
+   }
+}
+
+sub getdefaults {
+   local($deffile) = @_;
+   local($opt, $arg);
+   $status = open(DEFAULTS, $deffile);
+   if ($status) { # Defaults file found
+      while (<DEFAULTS>) {
+         chop;
+         s/#.*//;
+         if (/^(\S+)\s*/) {
+            $opt = $1;
+            $arg = $';
+            &setvar($opt, $arg, "file");
+         }
+      }
+      close(DEFAULTS);
+   }
+   while ($ARGV[0] =~ /^-(\S+)/) {
+      $opt = $1;
+      shift(@ARGV);
+      $ret = &setvar($opt, $ARGV[0], "ARGV");
+      if ($ret == 0) {
+         die $usage;
+      } elsif ($ret == 2) { # Argument consumed
+         shift(@ARGV);
+      }
+   }
+}
+
+sub setvar {
+   local($opt, $arg, $where) = @_;
+   local($ret);
+   if (defined($args{$opt})) {
+      if ($args{$opt} == 0) {
+         eval "\$$opt = 1";
+         print STDERR "$where:$opt (set)\n" if $debug;
+         $ret = 1;
+      } else {
+         eval "\$$opt = \"$arg\"";
+         print STDERR "$where:$opt = $arg\n" if $debug;
+         $ret = 2;
+      }
+   } else {
+     $ret = 0;
+   }
+   $ret;
+}
+
+sub setlanguage {
+
+# Transform some common language names into ISO 639 language codes
+%name2lang = (
+"norsk", "no",
+"norwegian", "no",
+"svenska", "sv", # Yes, the language is "sv" and the country is "se"....
+"swedish", "sv",
+"se", "sv",
+"dansk", "da",
+"danish", "da",
+"dk", "da", # Domain name mapping for country DK to language da
+"eng", "en",
+"english", "en",
+"fre", "fr",
+"ger", "de",
+"ita", "it",
+# The Big Six (but not int and net) top level domains are assumed to be English
+"com", "en",
+"edu", "en",
+"mil", "en",
+"gov", "en",
+# US English?
+"us", "en",
+);
+
+   if (!$lang) { 
+      $lang = "nolanguage";
+      $host = `hostname`;
+      chop($host);
+      print STDERR "Host(hostname) is $host\n" if $debug;
+      if ($host =~ /\.([a-z]{2,3})$/) {
+         $lang = $1;
+      } else {
+         @host = gethostbyname($host);
+         $host = $host[0];
+         print STDERR "Host(gethostbyname) is $host\n" if $debug;
+         if ($host =~ /\.([a-z]{2,3})$/) {
+            $lang = $1;
+         } else {
+            $host = `domainname`; chop $host;
+            print STDERR "Domainname is $host\n" if $debug;
+            if ($host =~ /\.([a-z]{2,3})$/) {
+               $lang = $1;
+            }
+         }
+      }
+      print STDERR "Chose language $lang\n" if $debug;
+   }
+   if ($name2lang{$lang}) {
+      $lang = $name2lang{$lang};
+   } elsif ($lang =~ /\./) { # Attempt to drop charset trailer if present
+      $lang = $`;
+      $lang = $name2lang{$lang} if $name2lang{$lang};
+   }
+
+# Set the strings used in various languages
+%lang_no = (
+"days", "Søn,Man,Tir,Ons,Tor,Fre,Lør,Søn,Man,Tir,Ons,Tor,Fre",
+"banner", "Timeliste for uke",
+"total", "Total",
+"project", "Prosjekt",
+"nofile", "Ingen fil for dag",
+"date", "Dato",
+"tot", "TOT",
+"nohours", "Ingen timer registrert i uke",
+);
+
+%lang_sv = (
+"days", "Sön,Mån,Tis,Ons,Tor,Fre,Lör,Sön,Mån,Tis,Ons,Tor,Fre",
+"banner", "Timlista för vecka",
+"total", "Total",
+"project", "Projekt",
+"nofile", "Ingen projektfil för dag",
+"date", "Datum",
+"tot", "TOT",
+"nohours", "Inga timmar registrerade i vecka",
+);
+
+%lang_en = (
+"days", "Sun,Mon,Tue,Wed,Thu,Fri,Sat,Sun,Mon,Tue,Wed,Thu,Fri",
+"banner", "Hours worked for week",
+"total", "Total",
+"project", "Project",
+"nofile", "No file for day",
+"date", "Date",
+"tot", "TOT",
+"nohours", "No hours worked in week",
+);
+
+%lang_fr = (
+"days", "Dim,Lun,Mar,Mer,Jeu,Ven,Sam,Dim,Lun,Mar,Mer,Jeu,Ven",
+"banner", "Horaire de semaine",
+"total", "Total",
+"project", "Projet",
+"date", "Date",
+"nofile", "Pas trouve de fichier pour le",
+"tot", "TOTAL",
+);
+
+%lang_de = (
+"days", "So,Mo,Di,Mi,Do,Fr,Sa,So,Mo,Di,Mi,Do,Fr",
+"banner", "Wochenzeitplan Woche",
+"total", "Summe",
+"project", "Projekt",
+"date", "Datum",
+"tot", "SUM",
+"nofile", "Keine Informationen für das Datum",
+"nohours", "Keine Informationen für die Woche",
+);
+
+%lang_it = (
+"days", "Dom,Lun,Mar,Mer,Gio,Ven,Sab,Dom,Lun,Mar,Mer,Gio,Ven",
+"banner", "Il tempo lista per settimana",
+"total", "Total",
+"project", "Project",
+);
+
+%lang_da = (
+"days", "Søn,Man,Tir,Ons,Tor,Fre,Lør,Søn,Man,Tir,Ons,Tor,Fre",
+"banner", "Timeliste for uge",
+"total", "Total",
+"project", "Projekt",
+"nofile", "Ingen fil for dag",
+"date", "Dato",
+"tot", "Total",
+"nohours", "Ingen timer registreret i uge",
+);
+
+%word = (
+  "days", "Sun,Mon,Tue,Wed,Thu,Fri,Sat,Sun,Mon,Tue,Wed,Thu,Fri",
+  "banner", "*Hours worked week",
+  "nofile", "*No file for day",
+  "project", "*Project",
+  "total", "*TOTAL",
+  "tot", "*TOT",
+  "date", "*Date",
+  "nohours", "*No hours worked in week",
+);
+
+
+   %langword = eval "\%lang_$lang";
+   print STDERR "$@\n" if $@;
+   if (!%langword) {
+      print STDERR "Language $lang unknown, using English (en)\n",
+                   "Use command line switch -lang xx to force another\n";
+      $lang = "en";
+      %langword = %lang_en;
+   }
+   #if (!%langword) {
+   for $word (keys(%word)) {
+      if ($langword{$word}) {
+         print STDERR "$word = $langword{$word}\n" if $debug;
+         $word{$word} = $langword{$word};
+      } else {
+         print STDERR "\$lang_$lang{$word} not found\n" if $debug;
+      }
+   }
+   @days = split(/,/, $word{"days"});
+}
+

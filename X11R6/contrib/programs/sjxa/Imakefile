@@ -1,0 +1,169 @@
+/* $SonyId: Imakefile,v 1.1 1994/05/30 13:03:58 makoto Exp $ */
+/*
+Copyright (c) 1994  Sony Corporation
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL SONY CORPORATION BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+Except as contained in this notice, the name of Sony Corporation shall
+not be used in advertising or otherwise to promote the sale, use or ot
+her dealings in this Software without prior written authorization from
+Sony Corporation.
+*/
+
+#ifdef ManDir
+#undef ManDir
+#endif
+#include "CONFIG"
+
+#ifndef UseInstalledSj3Lib
+#define UseInstalledSj3Lib	NO
+#endif
+#ifndef HasJlsFunction
+#define HasJlsFunction		NO
+#endif
+
+#ifndef UseXIMCP
+#define UseXIMCP		NO
+#endif
+#ifndef UseXIMP
+#define UseXIMP			YES
+#endif
+#ifndef UseXLC
+#define UseXLC			NO
+#endif
+#ifndef UseSJX
+#define UseSJX			NO
+#endif
+
+#if UseInstalledSj3Lib  ||  defined(Sj3LibDir)
+      USE_SJ3LIB = -DUSE_SJ3LIB
+#endif
+#ifdef SJ3LibDir
+      SJ3LIB_DIR = -L$(SJ3LibDir)
+#endif
+#if UseXIMCP
+       USE_XIMCP = -DUSE_XIMCP
+#endif
+#if UseXIMP
+        USE_XIMP = -DUSE_XIMP
+#endif
+#if UseXLC
+         USE_XLC = -DUSE_XLC
+#endif
+#if UseSJX
+         USE_SJX = -DUSE_SJX
+#endif
+
+PROTOCOL_DEFINES = $(USE_XIMCP) $(USE_XIMP) $(USE_XLC) $(USE_SJX)
+#if HasJlsFunction
+  HEADER_DEFINES = -DHAS_JLS_FUNC
+#endif
+
+#define IHaveSubdirs
+#define PassCDebugFlags 'CDEBUGFLAGS=$(CDEBUGFLAGS)' 'HEADER_DEFINES=$(HEADER_DEFINES)'
+
+SUBDIRS = Xmw resource man
+
+MakeSubdirs($(SUBDIRS))
+DependSubdirs($(SUBDIRS))
+
+        DEFINES = $(PROTOCOL_DEFINES) $(HEADER_DEFINES) $(USE_SJ3LIB)
+       INCLUDES = -I. -I$(LIBSRC) -I$(TOOLKITSRC) -I$(AWIDGETSRC)
+  LOCAL_LDFLAGS = $(SJ3LIB_DIR) -LXmw
+        DEPLIBS = Xmw/libXmw.a XawClientDepLibs
+#if UseInstalledSj3Lib  ||  defined(Sj3LibDir)
+LOCAL_LIBRARIES = -lsj3lib -lXmw XawClientLibs
+#else
+LOCAL_LIBRARIES = -lXmw XawClientLibs
+#endif
+      MANSUFFIX = 1
+
+OBJS =	sjxa.o\
+	Code.o\
+	Error.o\
+	ProtoWrap.o\
+	Reconnect.o\
+	Root.o\
+	Sakujo.o\
+	Select.o\
+	Sj3wc.o\
+	SjAction.o\
+	SjBuffer.o\
+	SjBunsetsu.o\
+	SjConvert.o\
+	SjEdit.o\
+	SjHenkan.o\
+	SjIcon.o\
+	SjInit.o\
+	SjInkey.o\
+	SjKettei.o\
+	SjMode.o\
+	SjResource.o\
+	SjRk.o\
+	SjString.o\
+	SjTohanzen.o\
+	SjXkey.o\
+	Sjxp.o\
+	Touroku.o\
+	Ximcp.o\
+	Ximp.o\
+	Xlcp.o
+
+SRCS =	sjxa.c\
+	Code.c\
+	Error.c\
+	ProtoWrap.c\
+	Reconnect.c\
+	Root.c\
+	Sakujo.c\
+	Select.c\
+	Sj3wc.c\
+	SjAction.c\
+	SjBuffer.c\
+	SjBunsetsu.c\
+	SjConvert.c\
+	SjEdit.c\
+	SjHenkan.c\
+	SjIcon.c\
+	SjInit.c\
+	SjInkey.c\
+	SjKettei.c\
+	SjMode.c\
+	SjResource.c\
+	SjRk.c\
+	SjString.c\
+	SjTohanzen.c\
+	SjXkey.c\
+	Sjxp.c\
+	Touroku.c\
+	Ximcp.c\
+	Ximp.c\
+	Xlcp.c
+
+BITMAPS = bitmaps/sjxa.xbm
+
+#ifdef InstallManPage
+#undef InstallManPage
+#define InstallManPage(file,destdir)
+#endif /* InstallManPage */
+
+ComplexProgramTarget(sjxa)
+SpecialObjectRule(icon.o,$(BITMAPS),$(_NOOP_))
+SpecialObjectRule(SjRk.o,SjRk.c,-DDEFRKFILE=\"$(LIBDIR)/sjxa/sjxark\")

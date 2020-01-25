@@ -1,0 +1,9 @@
+
+This command allows you to draw line segment.
+
+Choose first the origin of the line with a mouse press (either MB1 ot MB2).
+Release the button on the desired end point.
+
+As for the other drawing mode, leaving the edit window before releasing
+the mouse button do an abort of the command.
+

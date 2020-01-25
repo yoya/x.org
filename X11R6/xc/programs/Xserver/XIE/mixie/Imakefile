@@ -1,0 +1,26 @@
+XCOMM $XConsortium: Imakefile,v 1.4 94/11/21 18:30:38 kaleb Exp $
+#include <Server.tmpl>
+
+#define	IHaveSubdirs
+
+#if BuildDIS
+SUBDIRS = control fax import process export
+OBJS = control/?*.o fax/?*.o import/?*.o process/?*.o export/?*.o 
+DONES = control/DONE fax/DONE import/DONE process/DONE export/DONE 
+#else
+SUBDIRS = control fax import jpeg process export
+OBJS = control/?*.o fax/?*.o import/?*.o jpeg/?*.o process/?*.o export/?*.o 
+DONES = control/DONE fax/DONE import/DONE jpeg/DONE process/DONE export/DONE 
+#endif
+
+NormalDepLibraryTarget(mixie,$(SUBDIRS) $(DONES),$(OBJS))
+
+ForceSubdirs($(SUBDIRS))
+
+DependSubdirs($(SUBDIRS))
+
+MakeLintLibSubdirs($(SUBDIRS))
+LintSubdirs($(SUBDIRS))
+
+InstallLinkKitLibrary(mixie,$(LINKKITDIR)/lib)
+

@@ -1,0 +1,55 @@
+/*
+ * @DEC_COPYRIGHT@
+ */
+/*
+ * HISTORY
+ * $Log:	hp.cf,v $
+Revision 1.48  93/11/22  12:08:14  rws
+initial external version
+
+ * Revision 1.1  1992/11/06  01:55:34  ptuite
+ * Automated AdditionThis fixes TR number 0
+ *
+ * Revision 1.2.2.2  92/03/26  12:09:27  Russ_Kuhn
+ * 	Applied MIT patches 9 and 10
+ * 	[92/03/26  10:42:33  Russ_Kuhn]
+ * 
+ * Revision 1.2  91/12/15  12:42:16  devrcs
+ * 	Initial load of project
+ * 
+ * $EndLog$
+ */
+XCOMM platform:  $XConsortium: hp.cf,v 1.48 93/11/22 12:08:14 rws Exp $
+
+#define OSName                 HP-UX 9.0
+XCOMM operating system:  OSName
+#define OSMajorVersion         9
+#define OSMinorVersion         0
+
+#define SystemV                YES
+#define Malloc0ReturnsNull     YES
+
+#define HasSharedLibraries     YES
+#define DefaultCCOptions       -Aa -D_HPUX_SOURCE
+#define StandardIncludes       -I/usr/include/X11R5 -I/usr/include/Motif1.2
+#define ExtraLoadFlags	       -L/usr/lib/X11R5 -lXext -lXhp11 -lX11 -lm -ldld
+#define PexShmIPC              NO
+#define LintOpts               -ax -Np200
+#define SharedLibraryDef	+z
+#define SharedCodeDef
+
+#define LnCmd                  ln -s
+#define MvCmd                  mv -f
+#define ExecableScripts        YES
+#define HasSockets             YES
+#define HasVFork               YES
+#define RemoveTargetProgramByMoving YES
+#define ExpandManNames         YES
+
+#define BuildServer            NO
+#define NeedBerklib            BuildServer
+
+#if OSMajorVersion < 6 || (OSMajorVersion == 6 && OSMinorVersion < 2)
+#define ConnectionFlags		-DTCPCONN	/* no unix sockets */
+#endif
+

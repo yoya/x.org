@@ -1,0 +1,135 @@
+  Information for Trident Chipset Users
+  The XFree86 Project, Inc.
+  12 December 1994
+
+  1.  Supported chipsets
+
+  The Trident driver has undergone major work between XFree86 1.2 and
+  XFree86 1.3.  Because of this work, all of the Trident SVGA chipsets,
+  except the very first one, are supported by both the color and
+  monochrome servers.  Additionally support has been added for the
+  latter four chipset with the release of XFree86 2.1:
+
+       8800CS 8900B 8900C 8900CL/D 9000 9000i 9100B 9200CX 9320
+       9400CX 9420
+
+
+  It must be noted that the 9000i chipset is treated as a 9000 by the
+  server.  Additionally the 9100B, 9200CX, 9320, 9400CX, and 9420
+  chipsets are treated as a Trident 8900CL. Therefore it is equivalent
+  to putting `Chipset "tvga8900cl"' or `Chipset "tvga9000"' in the
+  XF86Config file.  Also, note that the 9000i, 9100B, and 9320 have not
+  been tested with the server, but should work in this way according to
+  the chipset documentation.
+
+   NOTE: No acceleration features of the newer chipsets have been taken
+  advantage of.
+
+  The original Trident chipset, 8800BR, cannot be supported as an SVGA
+  chipset by either the color or monochrome servers.  The chip is
+  supported, however, by the ``generic'' driver for the monochrome
+  server.
+
+
+  2.  Special considerations for 512k boards
+
+  There are no longer any special considerations for 512k Trident
+  boards.  The driver is now configured so that they can use modes with
+  normal timings.  The available pixel clocks are halved compared with
+  those specified on the Clocks line
+
+  Be aware that older Trident chipsets support a maximum clock of 65Mhz.
+  Hence the best actual clock available to the color server is 32.5Mhz.
+  This means, in broad terms, that the color server will require an
+  interlaced mode to be defined for resolutions above 640x480.  Newer
+  chipsets (8900CL, 9000, 9000i, 9100B, 9200CX and 9420) support up to
+  16 clocks, and can support much higher clocks, which will allow
+  800x600 modes, non-interlaced.
+
+
+  3.  Additional Notes
+
+  We have had reports of the server failing to detect the amount of
+  installed memory and the correct dot-clocks on older TVGA8900 boards.
+  If the server fails to detect the correct amount of memory, use the
+  "Videoram" keyword in your XF86Config file to specify it.  (e.g.
+  Videoram 512 or Videoram 1024).  If the server has problems detecting
+  the dot-clocks, try adding the following line to your XF86Config file:
+          Clocks  25 28 45 36 57 65 50 40
+
+  This line gives the clock values provided by older Trident clock syn-
+  thesizer chipsets.  This also appears to be the standard first 8
+  clocks for the newer clock synthesizers, but you should have no prob-
+  lems on newer boards.
+
+  Some newer Trident 8900B/C boards are apparently being built with the
+  clock synthesizers used on the 9000 and 8900CL boards.  If your board
+  has a chip labeled "Trident TCK900x" ("x" has been seen as 2 or 4;
+  there may be others), your board may actually have a 4th clock select
+  bit.  The 9002 has twelve distinct clocks (the other 4 are
+  duplicates); the 9004 has 16 clocks (the same 12 as the 9002 + 4
+  others).  If you see such a chip on a board with an 8900B or 8900C,
+  put the following line in the Device section of your XF86Config file:
+          Option "16clocks"
+
+  This will cause the same clock selection code as is used for the
+  8900CL to be used for the board.
+
+  While developing the Trident driver, an interesting and perturbing
+  hardware phenomenon was discovered.  When using the default board
+  jumper configuration, dot-clocks above 57Mhz would frequently lock up
+  the machine.  There appear to be jumpers on all of the Trident boards
+  that determine whether the board will operate in zero-wait-state mode
+  on the ISA bus.  Disabling the zero-wait-state mode via jumpers cured
+  the lockups, but at the expense of performance.  Whether or not a
+  given system will experience this problem is likely a combination of
+  (a) bus speed, (b) video memory speed, and (c) dot clock speed.  So be
+  prepared for this phenomenon to occur, and have the board
+  documentation handy.
+
+  Generated from XFree86: xc/programs/Xserver/hw/xfree86/doc/sgml/trident.sgml,v 3.0 1994/12/20 11:33:47 dawes Exp $
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+$XFree86: xc/programs/Xserver/hw/xfree86/doc/README.trident,v 3.5 1995/01/15 10:59:28 dawes Exp $
+$XConsortium: README.trident,v 1.5 95/01/16 13:17:33 kaleb Exp $

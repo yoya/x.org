@@ -1,0 +1,114 @@
+.\" X-BASED RUBIK'S CUBE
+.\"
+.\" xrubik.c
+.\"
+.\" ##
+.\"
+.\" Copyright (c) 1994           David Bagley
+.\"
+.\"                   All Rights Reserved
+.\"
+.\" The X Consortium, and any party obtaining a copy of these files from
+.\" the X Consortium, directly or indirectly, is granted, free of charge, a
+.\" full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+.\" nonexclusive right and license to deal in this software and
+.\" documentation files (the "Software"), including without limitation the
+.\" rights to use, copy, modify, merge, publish, distribute, sublicense,
+.\" and/or sell copies of the Software, and to permit persons who receive
+.\" copies from any such party to do so.  This license includes without
+.\" limitation a license to do the foregoing actions under any patents of
+.\" the party supplying this software to the X Consortium.
+.\"
+.\" This program is distributed in the hope that it will be "playable",
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.\"
+.TH XRUBIK 6 "2 June 1994" "V4.2"
+.SH NAME
+xrubik \- Rubik's cube X widgets
+.SH SYNOPSIS
+.B /usr/games/xrubik
+[-display <display>] [-geometry <geometry>] [-size <int>] [-[no]orient]
+[-mono] [-{background | bg} <color>] [-{foreground | fg} <color>]
+[-face{0|1|2|3|4|5} <color>]
+.SH DESCRIPTION
+.LP
+Use "\fBmouse-left\fP" to move ccw.
+.LP
+Use "\fBmouse-center\fP", "\fBP\fP", or "\fBp\fP" to toggle the practice
+mode (in practice mode the record should be "practice").  One must double
+click on "\fBmouse-center\fP" if the puzzle is being worked on.
+.LP
+"\fBmouse-right\fP", "\fBR\fP", or "\fBr\fP", to randomize (this must be
+done first to set a new record).  One must double click on
+"\fBmouse-right\fP" if the puzzle is being worked on.
+.LP
+"\fBU\fP", "\fBu\fP", "\fBI\fP", or "\fBi\fP" keys "increase" or move
+"up" the number of cubes.
+.LP
+"\fBD\fP" or "\fBd\fP" keys "decrease" or move "down" the number of cubes.
+.LP
+"\fBO\fP" or "\fBo\fP" keys toggle the orient mode.
+.LP
+"\fBQ\fP", "\fBq\fP", or "\fBCTRL-C\fP" keys kill program.
+.LP
+Use the arrows, key pad or, "R" keys for other ways to move other than CCW.
+.LP
+Use the control key and the left mouse button, keypad, or arrow keys to
+move the whole cube.
+.SH OPTIONS
+.TP 8
+.B \-display \fIhost\fP:\fIdpy\fP
+This option specifies the X server to contact.
+.TP 8
+.B \-geometry {+|\-}\fIX\fP{+|\-}\fIY\fP
+This option sets the initial position of the rubik window (resource
+name "\fIgeometry\fP").
+.TP 8
+.B \-{background | bg} \fIcolor\fP
+This option specifies the background of the rubik window (resource name
+"\fIbackground\fP").
+.TP 8
+.B \-{foreground | fg} \fIcolor\fP
+This option specifies the foreground of the rubik window (resource name
+"\fIforeground\fP").
+.TP 8
+.B \-size <\fIint\fP>
+This option allows you to change the number of cubelets on a edge
+(resource name "\fIsize\fP").
+.TP 8
+.B \-[no]orient
+This option allows you to access the orient mode (resource name
+"\fIorient\fP").
+.TP 8
+.B \-mono
+This option allows you to access the mono mode on a color monitor
+(resource name "\fImono\fP").
+.TP 8
+.B \-face{0|1|2|3|4|5} <\fIcolor\fP>
+This option allows you to change the color of a face (resource name
+"\fIfaceColorN\fP"). In mono-mode, color is represented as the first letter
+of the color name. On the 2-D version, the faces are ordered top to bottom
+and left to right on the "t" configuration. The "+-" configuration is
+physically consistent with the former, so it is ordered "0, 1, 2, 3, 5, 4".
+If you has two colors that begin with the same letter you should have one
+in uppercase and one in lowercase to distinguish them in mono-mode. You can
+change the colors of the faces to make a stupid cube (i.e. all White or in
+mono-mode all "W"). Unfortunately, it will not normally say its solved when
+its randomized. This would be cheating.
+.SH SEE ALSO
+.LP
+X(1), xabacus(1), xpyraminx(6), xoct(6), xskewb(6), xcubes(6),
+xtriangles(6), xhexagons(6)
+.SH COPYRIGHTS
+.LP
+\*R Copyright 1994, David Bagley
+.SH BUG REPORTS AND PROGRAM UPDATES
+.LP
+Send bugs (or their reports, or fixes) to the author
+.RS
+David Bagley,	<\fIbagleyd@source.asset.com\fP>
+.RE
+.LP
+The most updated source could be found on \fIftp.x.org\fP under
+\fI/contrib/games/puzzles\fP.

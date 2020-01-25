@@ -1,0 +1,27 @@
+
+      XANCURDIR = $(LIBDIR)/xancur
+        THISDIR = pulse
+        THATDIR = $(XANCURDIR)/$(THISDIR)
+
+MakeDirectories(install,$(THATDIR))
+
+InstallNonExec(Script,$(THATDIR))
+
+InstallNonExec(pulse0.d.cbm,$(THATDIR))
+InstallNonExec(pulse0.m.cbm,$(THATDIR))
+InstallNonExec(pulse1.d.cbm,$(THATDIR))
+InstallNonExec(pulse1.m.cbm,$(THATDIR))
+InstallNonExec(pulse2.d.cbm,$(THATDIR))
+InstallNonExec(pulse2.m.cbm,$(THATDIR))
+InstallNonExec(pulse3.d.cbm,$(THATDIR))
+InstallNonExec(pulse3.m.cbm,$(THATDIR))
+InstallNonExec(pulse4.d.cbm,$(THATDIR))
+InstallNonExec(pulse4.m.cbm,$(THATDIR))
+InstallNonExec(pulse5.d.cbm,$(THATDIR))
+InstallNonExec(pulse5.m.cbm,$(THATDIR))
+InstallNonExec(pulse6.d.cbm,$(THATDIR))
+InstallNonExec(pulse6.m.cbm,$(THATDIR))
+
+
+
+

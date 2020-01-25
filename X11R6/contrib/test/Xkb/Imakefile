@@ -1,0 +1,31 @@
+XCOMM $XConsortium: Imakefile,v 1.4 94/04/01 18:49:50 erik Exp $
+
+#ifdef SGIArchitecture
+   SYS_LIBRARIES = -lmalloc
+#endif
+   LOCLIBS = $(XLIB)
+   DEPLIBS = $(DEPXONLYLIB)
+   XTLOCLIBS = $(XTOOLLIB) $(XONLYLIB)
+   XTDEPLIBS = $(DEPXTOOLLIB) $(DEPXONLYLIB)
+   SRCS = xkbver.c xkbev.c xkbshow.c xkblock.c xkbctrl.c xkbsetmasks.c \
+	  xkbwatch.c xkbdebug.c xkbleds.c xkbbell.c \
+	  xkbrefresh.c xkbcompat.c xkbtest.c
+
+all: xkbver xkbev xkbshow xkblock xkbctrl xkbsetmasks xkbwatch \
+	xkbdebug xkbleds xkbbell xkbrefresh xkbcompat xkbtest
+
+NormalProgramTarget(xkbver,xkbver.o,$(DEPLIBS),$(LOCLIBS),NullParameter)
+NormalProgramTarget(xkbev,xkbev.o,$(DEPLIBS),$(LOCLIBS),NullParameter)
+NormalProgramTarget(xkbshow,xkbshow.o,$(DEPLIBS),$(LOCLIBS),NullParameter)
+NormalProgramTarget(xkblock,xkblock.o,$(DEPLIBS),$(LOCLIBS),NullParameter)
+NormalProgramTarget(xkbctrl,xkbctrl.o,$(DEPLIBS),$(LOCLIBS),NullParameter)
+NormalProgramTarget(xkbsetmasks,xkbsetmasks.o,$(DEPLIBS),$(LOCLIBS),NullParameter)
+NormalProgramTarget(xkbwatch,xkbwatch.o,$(DEPLIBS),$(LOCLIBS),NullParameter)
+NormalProgramTarget(xkbdebug,xkbdebug.o,$(DEPLIBS),$(LOCLIBS),NullParameter)
+NormalProgramTarget(xkbleds,xkbleds.o,$(DEPLIBS),$(LOCLIBS),NullParameter)
+NormalProgramTarget(xkbbell,xkbbell.o,$(DEPLIBS),$(LOCLIBS),NullParameter)
+NormalProgramTarget(xkbrefresh,xkbrefresh.o,$(DEPLIBS),$(LOCLIBS),NullParameter)
+NormalProgramTarget(xkbcompat,xkbcompat.o,$(DEPLIBS),$(LOCLIBS),NullParameter)
+NormalProgramTarget(xkbtest,xkbtest.o,$(DEPLIBS),$(LOCLIBS),NullParameter)
+
+DependTarget()

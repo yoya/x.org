@@ -1,0 +1,42 @@
+CC = cc 
+#DEBUG =  -g
+##
+## Compiler Defines
+## 
+DEFINES = -DMAPS
+
+CFLAGS = $(DEBUG) $(DEFINES)
+##
+## Libraries
+## X11 	X11 graphics library
+##
+##
+LIBS 	= -lX11 -lm
+
+.o:.c
+
+all: lyap lyap.LOCAL
+
+cp install:	all
+	-mkdir -p $(ROOT)/usr/local/bin
+	cp lyap $(ROOT)/usr/local/bin/lyap
+	-mkdir -p $(ROOT)/usr/man/cat.LOCAL
+	cp lyap.LOCAL $(ROOT)/usr/man/cat.LOCAL
+	-mkdir -p $(ROOT)/usr/local/lib/lyap
+	cp params/* $(ROOT)/usr/local/lib/lyap
+	-mkdir -p $(ROOT)/usr/local/lib/lyap/pics
+	cp pics/* $(ROOT)/usr/local/lib/lyap/pics
+
+clean:
+	rm -f *.o
+
+clobber:	clean
+	rm -f lyap
+
+lyap : lyap.o hls2rgb.o
+	$(CC) $(CFLAGS) -o $@ $@.o hls2rgb.o $(LIBS)
+
+lyap.o: lyap.c hls2rgb.c lyap.h
+
+lyap.LOCAL:	lyap.man
+	nroff -man lyap.man > lyap.LOCAL

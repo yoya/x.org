@@ -1,0 +1,10 @@
+XCOMM $XConsortium: Imakefile,v 1.14 93/08/17 21:16:19 rws Exp $
+SYS_LIBRARIES = MathLibrary
+DEPLIBS = $(DEPXMULIB) $(DEPXTOOLLIB) $(DEPXLIB)
+LOCAL_LIBRARIES = $(XMULIB) $(XTOOLLIB) $(XLIB)
+
+SRCS = oclock.c Clock.c transform.c
+OBJS = oclock.o Clock.o transform.o
+
+ComplexProgramTarget(oclock)
+InstallAppDefaultsLong(Clock-col,Clock-color)

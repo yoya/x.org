@@ -1,0 +1,4 @@
+// $XConsortium: en_US,v 1.2 94/04/08 15:59:37 erik Exp $
+xkb_symbols
+include "us"
+include "iso9995-3"

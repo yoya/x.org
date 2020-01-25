@@ -1,0 +1,84 @@
+#ifndef XCOMM
+#define XCOMM #
+#endif
+
+XCOMM
+XCOMM Imakefile for display, animate, montage, and import.
+XCOMM
+XCOMM Copyright 1994 E. I. du Pont de Nemours & Company
+XCOMM
+XCOMM Permission to use, copy, modify, distribute, and sell this software and
+XCOMM its documentation for any purpose is hereby granted without fee,
+XCOMM provided that the above Copyright notice appear in all copies and that
+XCOMM both that Copyright notice and this permission notice appear in
+XCOMM supporting documentation, and that the name of E. I. du Pont de Nemours
+XCOMM & Company not be used in advertising or publicity pertaining to
+XCOMM distribution of the software without specific, written prior
+XCOMM permission.  E. I. du Pont de Nemours & Company makes no representations
+XCOMM about the suitability of this software for any purpose.  It is provided
+XCOMM "as is" without express or implied warranty.
+XCOMM
+XCOMM E. I. du Pont de Nemours & Company disclaims all warranties with regard
+XCOMM to this software, including all implied warranties of merchantability
+XCOMM and fitness, in no event shall E. I. du Pont de Nemours & Company be
+XCOMM liable for any special, indirect or consequential damages or any
+XCOMM damages whatsoever resulting from loss of use, data or profits, whether
+XCOMM in an action of contract, negligence or other tortious action, arising
+XCOMM out of or in connection with the use or performance of this software.
+XCOMM
+
+#include "../Magick.tmpl"
+
+#ifdef RsArchitecture
+REQUIREDLIBS= $(JPEG_LIBRARIES) $(TIFF_LIBRARIES) $(XPM_LIBRARIES) -lX11
+#endif
+
+#ifdef AlphaArchitecture
+SO_REQLIBS= -lX11 -lc
+#endif
+
+HEADERS = magick.h image.h compress.h utility.h X.h widget.h PreRvIcccm.h
+
+SRCS = widget.c X.c image.c shear.c quantize.c colors.c signature.c \
+  decode.c encode.c compress.c utility.c error.c PreRvIcccm.c
+OBJS = widget.o X.o image.o shear.o quantize.o colors.o signature.o \
+  decode.o encode.o compress.o utility.o error.o PreRvIcccm.o
+
+#ifndef DoNormalLib
+#define DoNormalLib  YES
+#endif
+
+#define IncSubdir magick
+
+SOMAGICKLIBREV= 3.0
+
+#if (ProjectX < 5)
+    STD_DEFINES = LibraryDefines
+    CDEBUGFLAGS = LibraryCDebugFlags
+#if DoSharedLib
+  SharedLibraryObjectRule()
+  NormalSharedLibraryTarget(Magick,$(SOMAGICKLIBREV),$(OBJS))
+  InstallSharedLibrary(Magick,$(SOMAGICKLIBREV),$(LOCALLIB))
+#else
+  NormalLibraryObjectRule()
+  NormalLibraryTarget(Magick,$(OBJS))
+  InstallLibrary(Magick,$(LOCALLIB))
+#endif
+#else
+#define LibName Magick
+#define SoRev SOMAGICKLIBREV
+#include <Library.tmpl>
+#if (ProjectX == 5)
+  LibraryObjectRule()
+#if DoSharedLib
+  SharedLibraryTarget(Magick,$(SOMAGICKLIBREV),$(OBJS),shared,..)
+  InstallSharedLibrary(Magick,$(SOMAGICKLIBREV),$(LOCALLIB))
+#endif
+  NormalLibraryTarget(Magick,$(OBJS))
+  InstallLibrary(Magick,$(LOCALLIB))
+#endif
+#endif
+
+InstallMultiple($(HEADERS),$(LOCALINC))
+DependTarget()
+

@@ -1,0 +1,79 @@
+Tue May 31 14:10:31 MET DST 1994
+
+                    xancur (ksan'ker) version 1.6
+
+-----------------------------------------------------------README
+
+NAME
+     xancur - root cursor animation program for X
+
+SYNOPSIS
+     xancur [-help] [-display display] [-usleep microseconds]  [-
+     fg  color]  [-bg  color]  [-rv]  [-script scriptname] [-iter
+     iterations] [cursorfile maskfile]...
+
+DESCRIPTION
+     The xancur program allows the user to animate the background
+     ("root")  cursor  on  a workstation display running X.  Nor-
+     mally, one experiments with xancur until one finds a  pleas-
+     ing,  personalized  look,  then puts the xancur command that
+     produces it into an X  startup  file.   If  no  options  are
+     specified,  xancur  will  attempt to read a scriptfile named
+     .xancur  in  the  user's  home  directory  for  a  list   of
+     cursor/mask filenames.
+
+This program has been provided with both Imakefiles and example Makefiles
+for those not succeeding in the use of imake.  As supplied, the default
+compiler in the Makefiles *may* be the GNU CC compiler "gcc".
+
+Makefiles can be compiled from Imakefiles with the following command,
+commonly installed in well-run X installations to prevent users from
+having to work out the details themselves:
+
+	xmkmf
+
+An example Makefile, Makefile.dst, has been provided.  The following
+command may succeed in the event that xmkmf(1) fails:
+
+	make Makefile
+
+If either case succeeds, follow with
+
+	make Makefiles
+
+The next stage, of course, is
+
+	make
+
+Test the resulting binary with
+
+	xancur -script Script
+
+Finally, you can finish up with
+
+	make install
+
+The Imakefiles can be edited to change the location of the default
+animated cursor by changing the following lines as desired.  Note that
+$(LIBDIR) refers to the macro from the imake template files for X11.
+The same lines may be edited in the Makefiles.
+
+      XANCURDIR = $(LIBDIR)/xancur
+    STD_DEFINES = -DXANCUR_SCRIPT=\"$(XANCURDIR)/Script\"
+
+This software was originally developed on a Sun 3/150 workstation using
+SunOS 4.0.3, GNU Emacs 18.52, GNU GCC 1.37.1, GNU GDB 3.4, X11R4, and the
+``smooth'' font "-Talisman-Smooth-Bold-R-Normal--12-120-80-80-C-76-None-1".
+Further work was done on a SPARCstation 1+ running SunOS 4.1 .
+
+...then later improved and a Sun SPARCstation 10 running SunOS 4.1.3, GNU
+Emacs 19.24, GCC 2.5.8, and X11R6.
+
+Have a nice day :-)
+
+Christopher Alexander North-Keys (erlkonig@gnu.ai.mit.edu)
+
+______________________________________________________________________________
+Christopher Alex.North-Keys                               Unix Systems Analyst
+erlkonig@gnu.ai.mit.edu                                         Group Talisman
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

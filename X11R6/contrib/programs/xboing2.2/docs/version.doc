@@ -1,0 +1,36 @@
+
+                       Version 2.2 - 2nd June 1994
+
+Have fun with the newest version of XBoing. Here are some new features :-
+
+- Comprehensive point and click WYSIWYG level editor.
+    - Play test mode.
+    - Flip & scroll of blocks in editor.
+    - Name, time limit settings.
+    - Easy method for level design.
+- Sound system improved with more support.
+- Lots of really cool new sound effects.
+- Better presentation ie: more intro screens.
+- Level preview in the introduction sequence.
+- Load and save of games when allowed.
+- Game play changed to be fairer and more interesting.
+- More sound system support.
+- Levels have been re-designed.
+- Several new blocks and other creatures.
+- Source code has been improved and is neater.
+- Imakefile worked on again.
+- Some really bad bugs have been squashed.
+- Some new command line options.
+- Several CHEAT methods terminated!
+- Dual fire for paddle.
+- Use of dialogue boxes for some things.
+- Works with XPM version 3.4.
+
+The level editor is fully functional. The only problem will be when the game
+is installed properly and the levels are placed somewhere where the average
+user cannot edit them. You will also have a locking problem on them.
+
+Later versions of xboing will have a file selector or something. Maybe :)
+
+For more detail consult the changes.doc file in the source code. It has a
+blow by blow description of all changes for this version.

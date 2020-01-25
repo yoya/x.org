@@ -1,0 +1,129 @@
+XCOMM 
+XCOMM Program:      $RCSfile: Imakefile,v $  $Revision: 4.8 $
+XCOMM 
+XCOMM Purpose:      "Imakefile" of the Internet "youbin" service.
+XCOMM 
+XCOMM Author:       K.Agusa     agusa@nuie.nagoya-u.ac.jp
+XCOMM               S.Yamamoto  yamamoto@nuie.nagoya-u.ac.jp
+XCOMM 
+XCOMM Date:         1993/07/24
+XCOMM Modified:     $Date: 1994/06/05 10:41:01 $
+XCOMM 
+XCOMM Copyright:    K.Agusa and S.Yamamoto  1993 - 94
+XCOMM 
+
+/* 
+ * Directories.
+ */
+
+/* Directory for server. */
+SERVER_BINDIR = /etc
+
+/* Directory for clients. */
+BINDIR = /usr/local/bin
+
+/* Select one of them. */
+MANSRC_DIR = $(DOCDIR)
+/* MANSRC_DIR = $(DOCDIR_JP) */
+
+/* 
+ * Configurations.
+ */
+
+/* Syslog: comment following lines, if you don't want to use syslog. */
+SYSLOG = -DSYSLOG
+
+/* Clock tic in sec. */
+UNIT_TIME = 180
+
+/* XPM: uncomment following lines, if you want to use pixmap. */
+/* XPM_DEFS = -DUSE_XPM */
+/* XPM_LIBS = str_to_pixmap.o locate_pixmap.o */
+/* XPM_FLAGS = -lXpm */
+
+/* 
+ * Files.
+ */
+
+TARGETS = $(SERVER) $(CLIENTS)
+SERVER = youbind
+CLIENTS = sendto xyoubin youbin
+
+SRCS = $(C_SRCS)
+
+HEADERS = youbin.h server.h
+C_SRCS = base.c client.c list.c log.c protocol.c \
+        sendto.c server.c sound.c youbin_sub.c xyoubin.c 
+
+YOUBIND_OBJS = base.o list.o log.o protocol.o server.o
+SENDTO_OBJS = sendto.o
+XYOUBIN_OBJS = base.o sound.o xyoubin.o $(XPM_LIBS)
+YOUBIN_OBJS = base.o client.o youbin_sub.o
+
+/* Select one of them. */
+DOCDIR = Doc
+/* DOCDIR = Doc.Japanese */
+
+MANS = $(DOCDIR)/youbin.man $(DOCDIR)/youbind.man \
+        $(DOCDIR)/youbin_sub.man 
+MANS_JP = $(DOCDIR_JP)/youbin.man $(DOCDIR_JP)/youbind.man \
+        $(DOCDIR_JP)/youbin_sub.man 
+
+/* BITMAPS = */
+
+/* 
+ * Options.
+ */
+
+DEFINES = -DBINDIR=\"$(BINDIR)\" -DUNIT_TIME=$(UNIT_TIME) \
+        $(SYSLOG) $(SYSLOG_FACILITY) $(XPM_DEFS)
+
+/* EXT_LIBS = $(XAWLIB) $(XMULIB) $(XTOOLLIB) $(XLIB) $(XPM_FLAGS) */
+EXT_LIBS = $(XAWLIB) $(XMULIB) $(XTOOLLIB) $(XPM_FLAGS) $(XLIB)
+
+/* 
+ * Debug. 
+ */
+
+/* SERVER_BINDIR = /usr/local/etc */
+/* BINDIR = . */
+/* SERVICE_NAME = youbin */
+/* UNIT_TIME = 5 */
+
+/* 
+ * DEFINES = -DBINDIR=\"$(BINDIR)\" -DSERVICE_NAME=\"$(SERVICE_NAME)\" \
+ *         -DUNIT_TIME=$(UNIT_TIME) \
+ *         $(LOG_FACILITY) $(SYSLOG) $(XPM_DEFS)
+ */
+
+/* Syslog: change following lines, if you want to change sylog facility. */
+/* SYSLOG_FACILITY = -DSYSLOG_FACILITY=LOG_LOCAL0 */
+
+/* 
+ * Target entries.
+ */
+
+all: $(TARGETS)
+
+SingleProgramTarget(youbind,$(YOUBIND_OBJS),,)
+SingleProgramTarget(sendto,$(SENDTO_OBJS),,)
+SingleProgramTarget(xyoubin,$(XYOUBIN_OBJS),$(EXT_LIBS),)
+SingleProgramTarget(youbin,$(YOUBIN_OBJS),,)
+
+InstallProgram(youbind,$(SERVER_BINDIR))
+InstallProgram(sendto,$(BINDIR))
+InstallProgram(xyoubin,$(BINDIR))
+
+InstallProgramWithFlags(youbin,$(BINDIR),$(INSTUIDFLAGS))
+
+/* InstallAppDefaults(XYoubin) */
+
+install.man::
+	csh -c "cp $(MANSRC_DIR)/*.man ."
+
+InstallManPage(youbin,$(MANDIR))
+InstallManPage(youbin_sub,$(MANDIR))
+InstallManPage(youbind,$(MANDIR))
+
+DependTarget()
+LintTarget()

@@ -1,0 +1,25 @@
+
+      XANCURDIR = $(LIBDIR)/xancur
+        THISDIR = plus
+        THATDIR = $(XANCURDIR)/$(THISDIR)
+
+MakeDirectories(install,$(THATDIR))
+
+InstallNonExec(Script,$(THATDIR))
+
+InstallNonExec(plus0.d.cbm,$(THATDIR))
+InstallNonExec(plus0.m.cbm,$(THATDIR))
+InstallNonExec(plus15.d.cbm,$(THATDIR))
+InstallNonExec(plus15.m.cbm,$(THATDIR))
+InstallNonExec(plus30.d.cbm,$(THATDIR))
+InstallNonExec(plus30.m.cbm,$(THATDIR))
+InstallNonExec(plus45.d.cbm,$(THATDIR))
+InstallNonExec(plus45.m.cbm,$(THATDIR))
+InstallNonExec(plus60.d.cbm,$(THATDIR))
+InstallNonExec(plus60.m.cbm,$(THATDIR))
+InstallNonExec(plus75.d.cbm,$(THATDIR))
+InstallNonExec(plus75.m.cbm,$(THATDIR))
+
+
+
+

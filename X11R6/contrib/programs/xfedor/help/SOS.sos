@@ -1,0 +1,15 @@
+QUIT    : leave xfedor after a Popup menu confirmation.
+SOS     : this text.
+TEST    : allows you to test a mouse, a font or a bitmap as rootwindow tile.
+          (warning with BITMAP : equivalent to "xsetroot -bitmap" : permanent)
+LOAD    : loading of BDF font or BDF extra-font(readonly).
+BITMAP  : loading/saving mouse shapes, XBM bitmap or XPM pixmap files.
+          (loading mouse shapes modifies the background plane to)
+SAVE    : map a window for BDF font header edition.
+          (this window will disappear on effective SAVE demand)
+
+Below this menu, a 128x128 window shows the edited character in its
+real size. On the right of this window, there is a zone for testing the
+created mouse (press MB1 for seeing it over black/grey or white background).
+MB2 on this zone maps a window for testing characters (with metrics)
+of the current font (this last one is unmapped by clicking in it).

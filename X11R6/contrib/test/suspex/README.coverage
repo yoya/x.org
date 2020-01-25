@@ -1,0 +1,377 @@
+
+README.coverage
+===============
+
+This document contains two parts.  The first part describes what PEX 
+functionality is to be tested by the PEX-IC version 1.0 test suite,
+and the second part describes what the current coverage of suspex test 
+suite is, as measured against this goal.
+
+______________________________________________________________________________
+
+
+PEX functionality to be tested by the PEX-IC version 1.0 test suite.
+====================================================================
+
+John Waitz
+7/29/93
+
+
+This is a list of the functionality to be covered by the PEX-IC test
+suite.  An implementation must pass the tests that cover this set
+(under the testing configuration requirements, being developed
+separately) in order to be given approval from the PEX-IC as
+having passed.  Vendors may not claim their implementation passes
+until both the functionality and configuration requirements are met.
+
+The list is divided into Basic and Full functionality.  The Basic functionality
+must all pass to get any kind of interoperability approval; passing the
+Full set is a measure of a more thorough implementation.
+It is assumed that PEX 5.1 is supported, not just PEX 5.0; the PEX-IC 
+test suite is written to the PEX 5.1 spec.
+
+In general, the PEX 5.1 interoperability conventions must be supported,
+and the test suite will make use of them.  The conventions are described in
+the e-mail interoperability addendum.
+
+PEX-IC does not specify any kind of minimum functionality for enumerated 
+types, implementation-dependent constants, subsets, or OC support.  However, 
+in a very few cases, a note is made below about minimum functionality.  These 
+few cases should be reviewed; they are based on the proposer's understanding 
+of unwritten agreements concerning interoperability.
+
+Except as noted, all the PEX 5.1 requests relevant to an area (as 
+described in the PEX 5.1 protocol specification) must be supported
+and will be tested.  
+
+
+Area of functionality	Basic				Full
+
+subsets			The immediate mode and		The PHIGS workstation
+			structure mode subsets must	may be tested if 
+			be supported and will be	supported.
+			tested.
+
+inquiries		All PEX 5.1 extension info	PHIGS workstations
+			inquiries must be supported 	additional inquiries
+			and usable (see below for	may be tested.
+			details on enum types, etc.)
+
+			Both values and mnemonics
+			are tested for 
+			PEXGetEnumeratedTypeInfo.
+
+			Wildcards are tested for
+			PEXMatchRenderingTargets.
+
+errors			X and PEX errors must be	No additional reqmts..
+			reported as described in
+			the PEX 5.1 spec.  The Basic
+			test suite may use on normal
+			X error reporting and handling.
+
+enumerated types and	In general, there are no	In future, tests for 
+  implementation-	specific minimum requirements	certain attribute values
+  dependent constants	from PEX-IC for values here.	may be added to the Full
+			The test suite may exercise	suite.
+			certain attributes but should
+			handle it gracefully if an
+			implementation does not have 
+			support for the values being
+			tried.  Other groups or 
+			organizations may be specifying 
+			minimal sets beyond the PEX 5.1
+			requirements.
+
+			Here are the few required items:
+			color type RGBFloat
+			float format IEEE_754_32
+			color approx model RGB
+
+Lookup Tables		All Lookup Table types must be	No additional reqmts..
+			supported and tested, except:
+			If an implementation does not 
+			support Interior Style Pattern,
+			then the Pattern LUT may not be
+			supported.
+
+			Set versus realized semantics 
+			are not required.  There are only
+			minimal requirements for definable
+			entries and none for predefined
+			entries.
+
+standard OCs		All standard OCs must be accepted and	No additional
+			stored properly.  All attribute OCs	requirements.
+			must default to the PEX 5.1 specified
+			value if they try to set unsupported
+			values.  All primitive OCs must meet
+			at least the minimum visual effects
+			requirements specified in PEX 5.1.
+
+Pipeline Context	All Pipeline Context attributes and	No additional
+			requests are tested, as is the 		requirements.
+			timing of attribute installation (at
+			the next Renderer state change).
+
+Renderer		All Renderer requests are tested.	No additional
+			The semantics of window resize and	requirements.
+			destroy are tested. HLHSR support
+			are tested.
+
+			There are no requirements of deferred
+			vs immediate dynamics; the test suite
+			must adapt to the Renderer dynamics.
+
+Renderer Picking	There are no Basic requirements for	All the Renderer
+			Renderer picking.			picking requests
+								must be present
+								with at least 
+								minimal 
+								functionality.
+
+Structures		All requests must be supported and	No additional
+			are tested.				requirements.
+
+Namesets		All requests must be supported and	No additional
+			are tested.  At least 64 names must	requirements.
+			be supported.
+
+
+Search Context		No requirements for support of this	This resource is
+			resource are included in the Basic	tested in the
+			suite.					Full suite.
+
+Fonts			All requests must be supported and	XLFD naming may
+			are tested.  There are no font-naming	be tested.
+			requirements; the tests handle non-XLFD
+			names.
+
+GSEs/GDPs		Use of unsupported GSE, GDP, and	Certain vendor-
+			OC opcodes is tested.			specific GSEs
+								and GDPs may be
+								tested.
+
+Escapes			No requirements here, except:		SetEchoColor is
+			If an implementation has color		tested.
+			approximation restrictions, then it
+			must support the QueryColorApprox
+			escape.
+
+PHIGS Workstation	No requirements at Basic level.		All requests are
+								tested.
+
+Pick Measure		No requirements at Basic level.		All requests are
+								tested.
+
+color interoperability	The conventions established in the	No additional
+			pex-spec discussion of color conventions reqmts.
+			are assumed in the test suite and are
+			tested.
+
+double-buffering	MBX and/or E&S are expected to be 	The HP escape
+			supported and are tested.		may be tested.
+
+
+______________________________________________________________________________
+
+
+
+Coverage afforded by the HP tests in the PEX-IC susPEX suite.
+=============================================================
+
+subsets
+
+	Covered.
+
+	There is a test (prelim) that checks what subsets are supported,
+	as well as minimum enum type requirements, and prints warnings
+	if insufficient support is found.
+
+inquiries
+
+	Covered (Basic, weak).
+
+	This is assumed to refer to the general inquiries, not to 
+	resource-specific ones.  All the general inquiries are covered,
+	although the testing is a bit weak.  For example, 
+	MatchRenderingTargets is only incidentally tested.
+	Only combined value/mnemonics are fetched for enum types and constants.
+
+	PHIGS workstations are not covered.
+
+errors
+
+	Covered (Basic).
+
+	A special X error handler is plugged in and used to trap at test
+	errors as described in the protocol specification.  The
+	coverage is pretty complete but verifying this would be tedious.
+
+	Workstation errors are not covered.
+
+	
+enum types/constants
+	
+	Not covered.
+
+	The few minimum requirements are covered in the prelim test.
+
+	Throughout the test suite, support for some enumerations
+	is assumed without inquiring.  Since there are no required values,
+	this seems reasonable; OCs should default to something supported.
+	However, the PEX-IC might decide that interoperability isn't really
+	tested unless some minimum support levels are tested.  Also, it
+	will require much thinking by test archivers if the images on their
+	implementations differ greatly from the "gold" images.
+
+	The tests for GetEnumTypeInfo and GetImpDepConstants only do
+	spot checks, not complete inquiries of all types.
+
+lookup tables
+
+	Covered (Basic, some weaknesses).
+
+	All requests are adequately covered.  Most table types are covered
+	well, except:
+
+	- Pattern table is skipped (because HP didn't do it) and is not
+	  tested at all.  
+
+	- Color approximation table testing is weak (and is tricky because
+	  it may be implementation-dependent).
+
+	- There is no testing to determine whether the default values for
+	  a table are as specified in the protocol.
+
+standard OCs
+
+	Not completely covered, but close.
+
+	All but one OC is called.  Assuming that all OC tests are run in
+	structure and immediate modes, then both storage and rendering
+	are checked.  The missing OC is PEXSetColorApproxIndex.
+
+	The minimum visual effects requirement for primitives is covered.
+
+	Where the HP tests fall down is in testing the default of attributes.
+	There is no rendering done to verify that unsupported values are
+	defaulted correctly.  This would be a whole new set of tests or changes
+	to the existing primitive tests.
+
+	Here are the OCs where the HP tests appear to be weak (mostly because
+	the HP implementation doesn't support the full functionality):
+
+	- cell arrays (tested more in the Sun tests)
+	- set of fill area sets
+
+	- line width (tested more in the Sun tests)
+	- annotation text style (tested more in the Sun tests)
+	- interior style/style index (hatching is tested, but not pattern)
+	- pattern attributes
+	- parametric surface characteristics
+	- pick ID
+	- edge width (tested more in the Sun tests)
+	- text color
+	
+pipeline context
+
+	Not covered, but close.
+
+	One entrypoint, PEXCopyPipelineContext, is not covered, the rest are.
+	There is no verification that each attribute gets the default value
+	in a newly created Pipeline Context; only spot checking is done.
+	Timing of installation of changes (at next BeginRendering etc.) is
+	spot checked (maybe this is sufficient).
+
+	PEXCopyPipelineContext is covered somewhat in Sun tests.
+
+renderer
+
+	Not covered.
+
+	All Renderer requests are covered.  However, resize/destroy is not
+	(HP has a test for this which wasn't ported to susPEX.)  Dynamics
+	are covered.  All Renderer attributes are covered.
+
+	Sun does have a resize test.
+
+renderer picking
+
+	Covered (Full, some weaknesses).
+
+	This is not part of the Basic functionality.
+	It is not clear whether PickOne functionality is well-tested.
+
+structures
+
+	Not covered, but close.
+
+	Actually, all requests are well-covered except for FetchElements.
+
+namesets
+
+	Not covered.
+
+	All requests are covered except for CopyNameSet.  The requirement
+	for at least 64 names is not explicitly verified, although some of
+	the tests do use name values of 63 and 64 so there is implicit testing.
+
+	Sun has a test for CopyNameSet.
+
+search context
+
+	Not covered.
+
+	There are no tests in the HP set for this.  This is in the Full
+	functionality list, not the Basic list.
+
+	Sun has some tests for this.
+
+fonts
+
+	Not covered, but close.
+
+	Every request is covered except QueryEncodedTextExtents.
+
+	Sun has a test for that.
+
+GSEs/GDPs/Ext OCs
+
+	Not covered.
+
+	GSEs and GDPs are tested, but extended OCs are not.
+
+escapes
+	
+	Covered (Basic).
+
+	The QueryColorApprox escape is tested.  SetEchoColor is not.
+
+PHIGS workstation
+
+	Not covered.
+
+	There are no tests for this in the HP set.
+
+pick measure
+
+	Not covered.
+
+	There are no tests for this in the HP set.
+
+color interoperability
+
+	Covered (Basic, weakly).
+
+	The color interop conventions are assumed in the Visual/Colormap
+	utilities, so are implicitly tested during other tests.  Plus,
+	the QueryColorApprox escape gets explicit testing.
+
+double-buffering
+
+	Covered (weakly).
+
+	There is one test for this.
+
+______________________________________________________________________________

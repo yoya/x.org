@@ -1,0 +1,68 @@
+Release 1.3a, June 5, 1994
+    modified copyrights and such to work better with the X11R6 contrib release
+
+    tweaked definitions of "true" and "false" for X resources -- unknown
+    garbage now defaults to "true" rather than "false"
+
+    added Imakefile
+
+Release 1.3, November 15, 1993
+    fixed a weird concurrency bug (if you click in the middle of a tick)
+
+    added checks for /var/spool/mail and /var/mail
+
+    fixed bug where MAILDROP didn't work
+
+    fixed beeping (added "flush stdout")
+
+    added new working of boolean flags (+/-beep, +/-paranoid, etc.)
+
+Release 1.2, October 25, 1993
+    allowed window to be wider than 80 columns (fills remainder with subject,
+    if available)
+
+    automatically scrolls to bottom of list when new mail arrives
+
+    got rid of debugging puts calls (oops!)
+
+Release 1.1, October 19, 1993
+    included various command line switches and resources for stuff
+    that was already in there
+
+    fixed bug when a mailer removes the spool file rather than truncating it
+
+    changed -bitmap option to no longer require the "@" character
+
+    changed -delay option to take argument in seconds, not milliseconds
+
+    got rid of need to know bitmap width and height
+
+    added -paranoid flag, for some cases where normal file modification
+    checking isn't sufficient -- should work better with elm
+
+    added check of env(LOGNAME) in addition to env(USER) -- should
+    work better on HP/UX
+
+    added -postageGeometry and -detailGeometry flags
+
+    added -beep option
+
+    changed formatting of details (now, one e-mail per line)
+
+    moved the Dismiss button into upper-right corner
+
+    fixed bug when NFS-mounted e-mail suddenly ceases to exist
+    (stale NFS handle)
+
+    added highlighting when e-mail arrives
+
+    added auto-updating of the details window
+
+    made the details window be class "TkPostageDetails"
+
+    remember the detail window's geometry when we close it
+
+    spiffy new Makefile -- no more need to hand-edit tkpostage any more
+
+Release 1.0, October 1, 1993
+    Initial release

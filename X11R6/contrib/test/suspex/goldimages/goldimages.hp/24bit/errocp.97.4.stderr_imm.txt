@@ -1,0 +1,50 @@
+
+================================
+color_type = PEXColorTypeIndexed
+================================
+
+================================
+color_type = PEXColorTypeRGB
+================================
+
+================================
+color_type = PEXColorTypeCIE
+PEXError: Bad PEX OC
+OC code: 97
+Request code: 28
+================================
+
+================================
+color_type = PEXColorTypeHSV
+PEXError: Bad PEX OC
+OC code: 97
+Request code: 28
+================================
+
+================================
+color_type = PEXColorTypeHLS
+PEXError: Bad PEX OC
+OC code: 97
+Request code: 28
+================================
+
+================================
+color_type = PEXColorTypeRGB8
+PEXError: Bad PEX OC
+OC code: 97
+Request code: 28
+================================
+
+================================
+color_type = PEXColorType16
+PEXError: Bad PEX OC
+OC code: 97
+Request code: 28
+================================
+
+================================
+color_type = BogusColorType
+PEXError: Bad PEX OC
+OC code: 97
+Request code: 28
+================================

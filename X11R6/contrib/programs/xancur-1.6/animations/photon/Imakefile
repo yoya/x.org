@@ -1,0 +1,30 @@
+
+      XANCURDIR = $(LIBDIR)/xancur
+        THISDIR = photon
+        THATDIR = $(XANCURDIR)/$(THISDIR)
+
+MakeDirectories(install,$(THATDIR))
+
+InstallNonExec(Script,$(THATDIR))
+
+InstallNonExec(photon.xbm,$(THATDIR))
+InstallNonExec(photon00.msk,$(THATDIR))
+InstallNonExec(photon01.msk,$(THATDIR))
+InstallNonExec(photon02.msk,$(THATDIR))
+InstallNonExec(photon03.msk,$(THATDIR))
+InstallNonExec(photon04.msk,$(THATDIR))
+InstallNonExec(photon05.msk,$(THATDIR))
+InstallNonExec(photon06.msk,$(THATDIR))
+InstallNonExec(photon07.msk,$(THATDIR))
+InstallNonExec(photon08.msk,$(THATDIR))
+InstallNonExec(photon09.msk,$(THATDIR))
+InstallNonExec(photon10.msk,$(THATDIR))
+InstallNonExec(photon11.msk,$(THATDIR))
+InstallNonExec(photon12.msk,$(THATDIR))
+InstallNonExec(photon13.msk,$(THATDIR))
+InstallNonExec(photon14.msk,$(THATDIR))
+InstallNonExec(photon15.msk,$(THATDIR))
+
+
+
+

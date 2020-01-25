@@ -1,0 +1,106 @@
+.TH SUMTIMEX "24 May 1993" ""
+.SH NAME
+sumtimex - printing out how many hours you worked last week
+.SH SYNOPSIS
+.B sumtimex
+[-option ...] [weekno]
+.SH DESCRIPTION
+The
+.I sumtimex
+program takes the files written by
+.I timex
+and sums them into a single timesheet for the week.
+
+The sums are done from Monday to Sunday; the default week is the week
+that just ended.
+.br
+(To get this week, use "now" in place of the week number)
+
+Projects that start with a dash (-) are not included in the sum.
+.br
+Projects that start with a plus (+) are handled specially; see the
+-adjust command.
+
+Sumtimex is written in Perl, so modifying it should be rather easy.
+
+.SH OPTIONS
+Sumtimex has
+.I lots
+of options. Some of them are listed below.
+.TP 8
+.B -round
+Round off each sum printed to the nearest half hour.
+
+.TP 8
+.B -adjust
+Take all projects that start with a "+" sign and spread them evenly over
+all the other projects worked on this week.
+
+.TP 8
+.B -fudge factor
+Give the round-off point when rounding to the nearest half hour.
+The default is 0.5, but that will tend to lose you time when you
+have worked a lot on small projects. Sumtimex will print a warning if
+the change is greater than half an hour.
+The fudge factor should be between 0 and 1.
+
+.TP 8
+.B -year nn
+Give the year; useful if you have to make the timesheets for December
+in January.
+
+.TP 8
+.B -name string
+Change the name printed on the top of the timesheet.
+Default is your /etc/passwd GECOS field, up to the first comma.
+
+.TP 8
+.B -nameadd string
+Add a string (like your employee number) to the front of your name.
+
+.TP 8
+.B -lang code
+Give the language for the form. Norwegian (no), English (en), French
+(fr), German (de) and Italian (it) are more or less included. Comments
+and contributions are welcomed!
+
+If not given, sumtimex will attempt to inspect the LANG environment
+variable, the hostname, and the domainname to find out what language
+to use. If you are surprised, drop me a line.
+
+.TP 8
+.B -minutes
+Print out the time in hours and minutes (hh:mm), rather than decimal hours.
+
+.TP 8
+.B -monthday
+Print out the month first then the day (MM/DD), rather than the default DD/MM.
+
+.TP 8
+.B -debug
+Print out a lot of not very useful information. If you are surprised
+by the language chosen, send me a printout with -debug on.
+
+.SH INITFILE
+.I sumtimex
+will attempt to read its values from the file $TIMEXDIR/sumdefaults.
+The format is as the command line, with one option per line, and no
+initial dash. Command-line options override those listed in the sumdefaults
+file.
+
+.SH "SEE ALSO"
+timex(1)
+
+.SH BUGS
+A lot of the languages have some strings missing. These will be printed
+in English, with a star (*) in front of them. Contributions solicited!
+
+.SH COPYRIGHT
+Copyright 1990-1993, Harald Tveit Alvestrand
+.SH AUTHORS
+Harald Tveit Alvestrand (DELAB, SINTEF, Norway)
+.br
+E-mail: Harald.T.Alvestrand@delab.sintef.no
+
+
+

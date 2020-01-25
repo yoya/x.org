@@ -1,0 +1,9 @@
+
+With this command, you can do cut-and-paste within a drawing.
+
+You first have to select a rectangular box (as for the rectangle mode,
+by a press on the upper-left and a release on the lower-right corner).
+Then a shadowed rectangle follows the mouse until you press a second time
+for specifying : with MB1 a copy, and with MB2 a move.
+
+As for the others, leaving the edit window abort the drawing effect.

@@ -1,0 +1,16 @@
+XCOMM $XConsortium: Imakefile,v 1.2 94/04/13 18:04:53 rws Exp $
+
+#include <Library.tmpl>
+
+SRCS = compress_lzw.c lzwio.c
+
+OBJS = compress_lzw.o lzwio.o
+
+INCLUDES = -I$(INCLUDESRC) -I$(EXTINCSRC) -I$(SERVERSRC)/include -I../../../include/extensions
+
+SubdirLibraryRule($(OBJS))
+NormalLibraryObjectRule()
+NormalLintTarget($(SRCS))
+
+DependTarget()
+

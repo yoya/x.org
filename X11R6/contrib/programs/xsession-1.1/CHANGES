@@ -1,0 +1,90 @@
+MAJOR CHANGES
+
+  Changes from xsession-1.0 to xsession-1.1
+  -----------------------------------------
+
+  o Problems fixed:
+
+      - On SUN systems, it was impossible to stop jobs (CTRL-Z) running in an
+	xterm launched from xsession.
+
+      - When an unknown child process died, xsession printed a termination
+        message, instead of ignoring it.
+
+      - When the internal process table was full, xsession crashed instead of
+        warning the user.
+
+      - The `lockCommand' X resource had been forgotten in the app-defaults
+	file.
+
+      - Numerous prototypes rewritten in order to have a more portable code.
+
+  o New features:
+
+      - Two new variables are available for preprocessing a window manager's
+	configuration file:
+
+          XSESSION_VERSION:  the version number of xsession;
+          XSESSION_PID:      the process number of xsession.
+
+      - XSession now terminates cleanly if a SIGHUP signal is received.  You
+        can use this feature to terminate the session from the window manager's
+        menus by using the new XSESSION_PID variable.  For example, a "quit
+        session" menu entry in your window manager's configuration file may
+        look like this: exec "kill -HUP XSESSION_PID".
+
+      - You may now choose between cpp and m4 at run-time, instead of at
+        compilation-time.  The X resources for the window managers have
+        changed: the third field of these resources should now contain one
+        occurence of "%s", which will be replaced by "m4" or "cpp" according
+        to the preprocessor you are using.
+
+      - The new -console option (or the equivalent Console X resource) enables
+        the user to redirect the console messages into the window of xsession.
+	On some systems, this feature only works if xsession has been "setuid"
+	to root.  This feature should work on most systems (we hope!).
+
+      - The new -split option (or the equivalent SplitWindow X resource), when
+        the console redirection is active, enables the user to view the console
+        messages in a separate window.
+
+      - If these two options are active, xsession fully conforms to the
+        XConsole protocol.  If only the -console option is active, xsession
+        half conforms to the XConsole protocol: it cannot serve the current
+        value of its window to a new xconsole, because it doesn't know which
+        output messages come from an application or a window manager and which
+        ones come from the console.
+
+      - The new -quiet option may be used to prevent xsession from displaying
+        the warning messages and notifying the user each time an application
+        or window manager is started (or ended).
+
+      - A new menu of micellaneous operation has been added.  Currently, it
+        only contains two entries: Clear Session Log and Clear Console Log.
+
+
+COPYRIGHT
+
+  Copyright (C) 1993, 1994, Alain Nissen & Raphael Quinet, University of Liege,
+                                                                       Belgium.
+
+  The X Consortium, and any party obtaining a copy of these files from the
+  X Consortium, directly or indirectly, is granted, free of charge, a full and
+  unrestricted irrevocable, world-wide, paid up, royalty-free, nonexclusive
+  right and license to deal in this software and documentation files (the
+  "Software"), including without limitation the rights to use, copy, modify,
+  merge, publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons who receive copies from any such party to do so.  This
+  license includes without limitation a license to do the foregoing actions
+  under any patents of the party supplying this software to the X Consortium.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+  X CONSORTIUM, THE AUTHORS OR THE UNIVERSITY OF LIEGE BE LIABLE FOR ANY CLAIM,
+  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+  OR OTHER DEALINGS IN THE SOFTWARE.
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.

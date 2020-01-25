@@ -1,0 +1,57 @@
+
+==============================================
+  edge_attributes = PEXGANone;
+==============================================
+
+==============================================
+  edge_attributes = PEXGAColor;
+PEXError: Bad PEX OC
+OC code: 97
+Request code: 43
+==============================================
+
+==============================================
+  edge_attributes = PEXGANormal;
+PEXError: Bad PEX OC
+OC code: 97
+Request code: 43
+==============================================
+
+==============================================
+  edge_attributes = PEXGAEdges;
+==============================================
+
+==============================================
+  edge_attributes = PEXGAColor | PEXGANormal;
+PEXError: Bad PEX OC
+OC code: 97
+Request code: 43
+==============================================
+
+==============================================
+  edge_attributes = PEXGAColor | PEXGAEdges;
+PEXError: Bad PEX OC
+OC code: 97
+Request code: 43
+==============================================
+
+==============================================
+  edge_attributes = PEXGANormal | PEXGAEdges;
+PEXError: Bad PEX OC
+OC code: 97
+Request code: 43
+==============================================
+
+==============================================
+  edge_attributes = PEXGAColor | PEXGANormal | PEXGAEdges;
+PEXError: Bad PEX OC
+OC code: 97
+Request code: 43
+==============================================
+
+==============================================
+  edge_attributes = BogusFacetAttribute;
+PEXError: Bad PEX OC
+OC code: 97
+Request code: 43
+==============================================

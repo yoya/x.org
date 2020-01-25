@@ -1,0 +1,26 @@
+XCOMM $XConsortium: Imakefile,v 1.1 94/12/15 21:06:48 kaleb Exp $
+XCOMM $XFree86: xc/programs/Xserver/hw/xfree86/vga256/drivers/ali/Imakefile,v 3.0 1994/10/30 04:21:37 dawes Exp $
+#include <Server.tmpl>
+
+SRCS = ali_driver.c ali_bank.s
+
+OBJS = ali_driver.o ali_bank.o
+
+#if XF86LinkKit
+INCLUDES = -I. -I../../../include -I../..
+#else
+INCLUDES = -I. -I$(XF86COMSRC) -I$(XF86HWSRC) -I$(XF86OSSRC) \
+           -I../../vga -I$(SERVERSRC)/include -I$(INCLUDESRC)
+#endif
+
+NormalLibraryObjectRule()
+NormalAsmObjectRule()
+
+NormalRelocatableTarget(ali_drv,$(OBJS))
+
+InstallLinkKitNonExecFile(ali_driver.c,$(LINKKITDIR)/drivers/vga256/ali)
+InstallLinkKitNonExecFile(ali_bank.s,$(LINKKITDIR)/drivers/vga256/ali)
+InstallLinkKitNonExecFile(Imakefile,$(LINKKITDIR)/drivers/vga256/ali)
+
+DependTarget()
+

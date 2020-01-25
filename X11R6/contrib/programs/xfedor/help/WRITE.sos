@@ -1,0 +1,11 @@
+
+This mode allows you to created logo, image, with characters from
+the current font by using the keyboard.
+
+Mouse is used for positionning the origin of the text (if the font is textual).
+
+Next character is drawn following the metrics of the current one: HINCR.
+
+Resolution is automaticly changed.
+
+Color mode and value is keep in consideration within this command.

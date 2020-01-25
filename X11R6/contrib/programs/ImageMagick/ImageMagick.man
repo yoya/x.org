@@ -1,0 +1,167 @@
+.ad l
+.nh
+.TH ImageMagick 1 "10 April 1994" "ImageMagick"
+.SH NAME
+ImageMagick - ImageMagick is an X11 package for display and interactive
+manipulation of images.
+.SH DESCRIPTION
+ImageMagick is an X11 package for display and interactive manipulation
+of images.  The package includes tools for image conversion,
+annotation, compositing, animation, and creating montages.  ImageMagick
+can read and write many of the more popular image formats (e.g. JPEG,
+TIFF, PNM, etc.).  ImageMagick is available via anonymous FTP as
+\fBftp.x.org:contrib/applications/ImageMagick/ImageMagick-3.0.tar.gz\fP.
+.PP
+.TP 5
+.B display
+\fBDisplay\fP is a machine architecture independent image and display
+program.  It can display an image on any workstation display
+running an X server.  \fBDisplay\fP can read and write many of the more
+popular image formats (e.g. JPEG, TIFF, PNM, etc.).  You can
+perform these functions on the image:
+
+    o display information about the image
+    o write the image to a file
+    o print the image to a Postscript printer
+    o delete the image file
+    o load an image from a file
+    o display the next image
+    o display the former image
+    o undo last image transformation
+    o restore the image to its original size
+    o half the image size
+    o double the image size
+    o resize the image
+    o trim the image edges
+    o clip the image
+    o cut the image
+    o flop image in the horizontal direction
+    o flip image in the vertical direction
+    o rotate the image 90 degrees clockwise
+    o rotate the image 90 degrees counter-clockwise
+    o rotate the image
+    o shear the image
+    o invert the colors of the image
+    o perform histogram equalization on the image
+    o perform histogram normalization on the image
+    o gamma correct the image
+    o reduce the speckles within an image
+    o eliminate peak noise from an image
+    o detect edges within the image
+    o convert the image to grayscale
+    o set the maximum number of unique colors in the image
+    o annotate the image with text
+    o add a border to the image
+    o composite image with another
+    o edit an image pixel color
+    o edit the image matte information
+    o add an image comment
+    o display information about this program
+    o discard all images and exit program
+    o change the level of magnification
+.TP 5
+.B import
+Import reads an image from any visible window on an X server
+and outputs it as an image file.  You can capture a single
+window, the entire screen, or any rectangular portion of the
+screen.  You can use display (see display(1)) utility for
+redisplay, printing, editing, formatting, archiving, image
+processing, etc. of the captured image.
+
+The target window can be specified by id, name, or may be
+selected by clicking the mouse in the desired window.  If
+you press a button and then drag, a rectangle will form
+which expands and contracts as the mouse moves.  To save the
+portion of the screen  defined by the rectangle, just
+release the button.  The keyboard bell is rung once at the
+beginning of the screen capture and twice when it completes.
+.TP 5
+.B animate
+Animate displays a sequence of images on any workstation
+display running an X server.  Animate first determines the
+hardware capabilities of the workstation.  If the number of
+unique colors in an image is less than or equal to the
+number the workstation can support, the image is displayed
+in an X window.  Otherwise the number of colors in the image
+is first reduced to match the color resolution of the
+workstation before it is displayed.
+
+This means that a continuous-tone 24 bits/pixel image can
+display on a 8 bit pseudo-color device or monochrome device.
+In most instances the reduced color image closely resembles
+the original.  Alternatively, a monochrome or pseudo-color
+image sequence can display on a continuous-tone 24
+bits/pixels device.
+.TP 5
+.B montage
+Montage creates a composite image by combining several
+separate images.  The images are tiled on the composite
+image with the name of the image optionally appearing just
+below the individual tile.
+.TP 5
+.B mogrify
+Mogrify transforms an image or a sequence of images.  These
+transforms include image scaling, image rotation, color
+reduction, and others.  The transmogrified image overwrites
+the original image.
+.TP 5
+.B convert
+Convert converts an input file using one image format to an
+output file with a differing image format. By default, the
+image format is determined by it's magic number. To specify
+a particular image format, precede the filename with an
+image format name and a colon (i.e.  ps:image) or specify
+the image type as the filename suffix (i.e. image.ps).
+Specify file as - for standard input or output.  If file has
+the extension .Z, the file is decoded with uncompress.
+.TP 5
+.B combine
+Combine combines images to create new images.
+.TP 5
+.B segment
+Segment segments an image by analyzing the histograms of the
+color components and identifying units that are homogeneous
+with the fuzzy c-means technique.  The scale-space filter
+analyzes the histograms of the three color components of the
+image and identifies a set of classes.  The extents of each
+class is used to coarsely segment the image with
+thresholding.  The color associated with each class is
+determined by the mean color of all pixels within the
+extents of a particular class.  Finally, any unclassified
+pixels are assigned to the closest class with the fuzzy c-
+means technique.
+.TP 5
+.B XTP
+Xtp is a utility for retrieving, listing, or printing files
+from a remote network site, or sending files to a remote
+network site.  Xtp performs most of the same functions as
+the ftp program, but does not require any interactive
+commands.  You simply specify the file transfer task on the
+command line and xtp performs the task automatically.
+.SH SEE ALSO
+.B
+display(1), animate(1), import(1), montage(1), mogrify(1), convert(1),
+segment(1), combine(1), xtp(1)
+.SH COPYRIGHT
+Copyright 1994 E. I. du Pont de Nemours and Company
+.PP
+Permission to use, copy, modify, distribute, and sell this software and
+its documentation for any purpose is hereby granted without fee,
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in
+supporting documentation, and that the name of E. I. du Pont de Nemours
+and Company not be used in advertising or publicity pertaining to
+distribution of the software without specific, written prior
+permission.  E. I. du Pont de Nemours and Company makes no representations
+about the suitability of this software for any purpose.  It is provided
+"as is" without express or implied warranty.
+.PP
+E. I. du Pont de Nemours and Company disclaims all warranties with regard
+to this software, including all implied warranties of merchantability
+and fitness, in no event shall E. I. du Pont de Nemours and Company be
+liable for any special, indirect or consequential damages or any
+damages whatsoever resulting from loss of use, data or profits, whether
+in an action of contract, negligence or other tortuous action, arising
+out of or in connection with the use or performance of this software.
+.SH AUTHORS
+John Cristy, E.I. du Pont de Nemours and Company Incorporated

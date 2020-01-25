@@ -1,0 +1,94 @@
+# $XConsortium: Imakefile,v 1.1 93/11/23 17:30:21 hersh Exp $
+#
+#
+#   (c) Copyright Hewlett-Packard Company, 1993, Fort Collins, Colorado       
+#                                                                            
+#                             All Rights Reserved                           
+#                                                                          
+#   Permission to use, copy, modify, and distribute this software and its 
+#   documentation for any purpose and without fee is hereby granted,     
+#   provided that the above copyright notices appear in all copies and that   
+#   both the copyright notices and this permission notice appear in          
+#   supporting documentation, and that the name of Hewlett-Packard not be   
+#   used in advertising or publicity pertaining to distribution of the     
+#   software without specific, written prior permission.                  
+#                                                                        
+#   HEWLETT-PACKARD MAKES NO WARRANTY OF ANY KIND WITH REGARD TO THIS   
+#   SOFTWARE, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
+#   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  Hewlett-Packard    
+#   shall not be liable for errors contained herein or direct, indirect,     
+#   special, incidental or consequential damages in connection with the     
+#   furnishing, performance or use of this software.                       
+#                                                                         
+#
+
+# HP Renderer Module Tests
+
+SUSPEX_LIB_DIR  = ../../src/util
+COMMON_DIR      = ../../src/common_hp
+PEXUT_DIR      = ../../src/pexut_hp
+
+COMMON_OBJS = $(COMMON_DIR)/lut.o $(COMMON_DIR)/renderer.o \
+              $(COMMON_DIR)/workstation.o $(COMMON_DIR)/misc.o \
+              $(COMMON_DIR)/err_handler.o $(COMMON_DIR)/window.o
+
+MAIN_OBJ = $(COMMON_DIR)/main.o 
+
+SUSPEX_LIB = $(SUSPEX_LIB_DIR)/libSusPEX.a
+PEXUT_LIB = $(PEXUT_DIR)/libpexut.a
+
+CDEBUGFLAGS = -g
+INCLUDES = -I. -I$(COMMON_DIR) -I$(PEXUT_DIR)
+
+LOCAL_LIBRARIES = $(SUSPEX_LIB) $(PEXUT_LIB) $(PEXLIB) $(XMULIB) $(XLIB)
+SYS_LIBRARIES = MathLibrary
+
+PROGS = rnd_echo \
+	rnd_basic \
+	rnd_covrg \
+	rnd_dynam \
+	rnd_nresrc \
+	rnd_resrc \
+	rnd_stack \
+	rnd_trans \
+	rnd_valid
+
+LOCAL_OBJS = rnd_utils.o
+
+default: all
+
+$(SUSPEX_LIB):
+	(cd $(SUSPEX_LIB_DIR); make)
+
+$(PEXUT_LIB):
+	(cd $(PEXUT_DIR); make)
+
+$(COMMON_OBJS):
+	(cd $(COMMON_DIR); make)
+
+$(MAIN_OBJ):
+	(cd $(COMMON_DIR); make)
+
+#define CommonTarget(prog) \
+  NormalProgramTarget(prog, prog.o $(COMMON_OBJS) $(MAIN_OBJ), $(PEXUT_LIB) $(SUSPEX_LIB),$(LOCAL_LIBRARIES),)
+
+
+#define RndTarget(prog) \
+  NormalProgramTarget(prog, prog.o $(COMMON_OBJS) $(LOCAL_OBJS), $(PEXUT_LIB) $(SUSPEX_LIB),$(LOCAL_LIBRARIES),)
+
+AllTarget($(PROGS))
+
+CommonTarget(rnd_echo)
+RndTarget(rnd_basic)
+RndTarget(rnd_covrg)
+RndTarget(rnd_dynam)
+RndTarget(rnd_nresrc)
+RndTarget(rnd_resrc)
+RndTarget(rnd_stack)
+RndTarget(rnd_trans)
+RndTarget(rnd_valid)
+
+CleanTarget()
+
+DependTarget()
+

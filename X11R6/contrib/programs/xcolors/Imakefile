@@ -1,0 +1,19 @@
+XCOMM $XConsortium: Imakefile,v 1.2 94/06/06 20:28:45 gildea Exp $
+
+RGBDBFILE = DefaultRGBDatabase
+
+        DEPLIBS = XawClientDepLibs
+LOCAL_LIBRARIES = XawClientLibs
+           SRCS = xcolors.c
+           OBJS = xcolors.o
+  SYS_LIBRARIES = -lm
+
+#if BuildServer
+        DEFINES = -DRGB_TXT=\"$(RGBDBFILE).txt\"
+#else
+	/* rgb.txt will not be installed, so find it in build tree */
+	DEFINES = -DRGB_TXT=\"$(RGBSRC)/rgb.txt\"
+#endif
+
+ComplexProgramTarget(xcolors)
+InstallAppDefaults(Xcolors)

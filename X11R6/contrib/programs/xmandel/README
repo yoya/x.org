@@ -1,0 +1,55 @@
+/*
+ *    Copyright (c) 1994 Cray Research Inc.
+ * 
+ * The X Consortium, and any party obtaining a copy of these files from
+ * the X Consortium, directly or indirectly, is granted, free of charge, a
+ * full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+ * nonexclusive right and license to deal in this software and
+ * documentation files (the "Software"), including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons who receive
+ * copies from any such party to do so.  This license includes without
+ * limitation a license to do the foregoing actions under any patents of
+ * the party supplying this software to the X Consortium.
+ * 
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS". EXCEPT AS EXPRESSLY PROVIDED IN
+ * THE CONTRIBUTION LETTER, ALL WARRANTIES WITH RESPECT TO THE SOFTWARE
+ * ARE, EXPRESS OR IMPLIED, ARE HEREBY DISCLAIMED AND EXCLUDED, INCLUDING
+ * WITHOUT LIMITATION ANY WARRANTY OF MERCHANTABILITY, FITNESS FOR A 
+ * PARTICULAR PURPOSE OR USE, OR FREEDOM FROM INFRINGEMENT OR VIOLATION
+ * OF THIRD PARTY INTELLECTUAL PROPERTY RIGHTS, AND ALL OBLIGATIONS
+ * OR LIABILITIES FOR DAMAGES ARISING OUT OF OR IN CONNECTION WITH THE
+ * PERFORMANCE OF, OR THE USE OF THE SOFTWARE.
+ */
+Xmandel is a user friendly interface for generating Mandelbrot sets and
+Julia sets.  It initially comes up with with several command buttons,
+which are described in the man page, for controlling the execution.  A
+Mandelbrot set is drawn in the window of the initial form when the
+mandel button is selected.  Other buttons are provided for zooming,
+clearing, etc.  A separate window is created for drawing the Julia sets.
+
+The software consists of the following source files:
+	Imakefile
+	README
+	julia.c
+	mandel.c
+	xmandel.c
+	xmandel.man
+
+Xmandel will build on X11R5 and X11R6.  Included is an Imakefile, so to
+build, you need only do:
+
+	xmkmf 
+	make
+
+So far, xmandel has been tested on a Sun SPARC5 running SunOS 5.3, a
+DEC 3000, and a Cray YMP, all displaying to the Sun.  I do not have
+easy access to a depth 1 display for testing.  It will not work to
+displays with depth other than 1 or 8, I will entertain fixes to make
+it do so.
+
+Anonymous ftp location: ftp.cray.com:/usr/ftp/src/graphics/xmandel
+
+John Freeman jlf@cray.com 
+June 6, 1994

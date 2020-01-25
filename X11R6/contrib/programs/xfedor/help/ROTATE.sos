@@ -1,0 +1,12 @@
+
+With this command, you can rotate the drawing in the edit window.
+
+You must specified the center of the rotation with a mouse press.
+A rubber line appears, representing the angle from the horizontal.
+You may also see the angle value on the right in the SOS label (overwrite
+at this time).
+
+The mouse release will do the rotation with a clip performing if
+the new image don't fit in the edit window.
+
+

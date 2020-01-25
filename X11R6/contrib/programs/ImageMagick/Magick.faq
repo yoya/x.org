@@ -1,0 +1,175 @@
+Each frequently asked question is listed here.  Look for a detailed
+response following this list.
+
+  1. I received the following message, "?????? translation failed ...".
+     What does it mean?
+
+  2. How can I improve the appearance of 24-bit images displayed on my
+     colormapped X server?
+
+  3. How do I set the transparency index in a GIF image so it displays
+     properly within Mosaic?
+
+  4. How can I stop the filenames from changing in the title bar of the
+     animate(1) image window?
+
+  5. The image I obtained from the X server with import(1) did not
+     look anything like the screen image.
+
+  6. How do I animate a digital YUV image sequence?
+
+  7. How do I view only the red channel of an RGB image?
+
+  8. How do I change the default Postscript page size?
+
+  9. I am trying to display a sequence of 100 images and I run out of
+     memory.  What can I do?
+
+  10. How do I concatenate two images left-to-right with no borders
+      frames or text?
+
+  11. Unfortunately I have no choice but to work on an RS6000 under AIX.
+      Display(1) hangs the X server.  What can I do?
+
+
+*   *   *   *   *   *   *   *   *   *   *   *   *   *  *   *   *   *   *   *
+
+1.  I received the following message, "?????? translation failed ...".
+    What does it mean?
+
+    ImageMagick uses several freely available packages to perform the
+    translation of certain image formats (Postscript, Photo CD, PICT,
+    etc.).  Make sure these packages are available as described in the
+    README file.  Also verify that you have plenty of temporary disk
+    space.  If not, set the TMPDIR environment variable to an area where
+    space is available.
+
+*    *   *   *   *   *   *   *   *   *   *   *   *   *  *   *   *   *   *   *
+
+2.  How can I improve the appearance of 24-bit images displayed on my
+    colormapped X server?
+
+    If you have a colormapped X server, the number of unique colors in an
+    image must first be reduced to match the requirements of your server
+    before it can be displayed.  Display(1) tries to make the color
+    reduced image closely resemble the original.  However, this process
+    can be time consuming.  To speed it up, ImageMagick trades image
+    quality for processing time.  For the *best* image possible, type
+
+        display -colors 256 -dither image.jpeg
+
+    or add this to your X resources file:
+
+        display.colors: 256
+        display.dither: True
+
+    This example assumes your server supports 256 colors.  Choose
+    whatever value is appropriate for your X server.  Alternatively if
+    you intend to view the image frequently, reduce the number of colors
+    to match the resolution of your X server once and write to a new
+    image.  Then display this new image.  For example,
+
+        convert -colors 256 -dither image.jpeg image.miff
+        display image.miff
+
+*    *   *   *   *   *   *   *   *   *   *   *   *   *  *   *   *   *   *   *
+
+3.  How do I set the transparency index in a GIF image so it displays
+    properly within Mosaic?
+
+    Display your GIF image with display(1).  Choose "Matte Edit" from the
+    command menu and identify a pixel that has the `transparency' color.
+    Select the pixel with the pointer and press button 1 and ESC.  Finally,
+    choose "Write" from the command menu and write your GIF image to a file.
+
+*    *   *   *   *   *   *   *   *   *   *   *   *   *  *   *   *   *   *   *
+
+4.  How can I stop the filenames from changing in the title bar of the
+    animate(1) image window?
+
+    Animate(1) updates the image file name in the title bar of the image
+    window as each image is displayed from the image sequence.  To
+    display just a single name that will not change, use -title:
+
+      animate -title "My Image Sequence" images.*
+
+*    *   *   *   *   *   *   *   *   *   *   *   *   *  *   *   *   *   *   *
+
+5.  The image I obtained from the X server with import(1) did not
+    look anything like the screen image.
+
+    Import(1) obtaines an image from the X server screen using the
+    top-level colormap unless the WM_COLORMAP_WINDOWS property is set.
+    Use the -descend to read each subwindow and its colormap.  The final
+    image is guarenteed to have the correct colors but obtaining the
+    image is significantly slower.
+
+*    *   *   *   *   *   *   *   *   *   *   *   *   *  *   *   *   *   *   *
+
+6.  How do I animate a digital YUV image sequence?
+
+    Suppose your sequence is 72 352x240 frames titled frame0.Y,
+    frame0.U, frame0.V, frame1.Y, frame1.U, etc.  Use this command:
+
+      animate -geometry 352x240 -scene 0-71 yuv3:frame%d
+
+*    *   *   *   *   *   *   *   *   *   *   *   *   *  *   *   *   *   *   *
+
+7.  How do I view only the red channel of an RGB image?
+
+      display -gamma 1.0,0.0,0.0 image.miff
+
+*    *   *   *   *   *   *   *   *   *   *   *   *   *  *   *   *   *   *   *
+
+8.  How do I change the default Postscript page size?
+
+    The default dimensions of a Postscript page is 612x792.  If you
+    prefer another default, change the page geometries in magick/image.h
+    and recompile.
+
+*    *   *   *   *   *   *   *   *   *   *   *   *   *  *   *   *   *   *   *
+
+9.  I am trying to display a sequence of 100 images and I run out of
+    memory.  What can I do?
+
+    The simplest thing to do is to increase your virtual memory by
+    expanding your swap partition.
+
+    ImageMagick is designed to be general purpose.  It can display many
+    image storage formats (Monochrome, PseudoColor, or TrueColor) on
+    many different types of X visuals (StaticGray, StaticColor,
+    PseudoColor, GrayScale, DirectColor, or TrueColor).  To support all
+    these combinations of image storage formats and X visuals, extra
+    memory is required.  In fact, each image requires 6 bytes per pixel
+    to store in memory.  Additionally, animate(1) and montage(1) store
+    an entire image sequence in memory.
+
+    For animation, consider using the MPEG programs from Berkeley if you
+    encounter memory limitations with animate(1).  It only stores a few
+    frames at a time in memory.  Convert(1) has an option to create the
+    proper CCIR 601 2:1:1 files as input to the MPEG program.  However,
+    the CCIR 601 2:1:1 image format is lossy.  Computer generated images
+    may not look very good.
+
+*    *   *   *   *   *   *   *   *   *   *   *   *   *  *   *   *   *  *   *
+
+10. How do I concatenate two images left-to-right with no borders
+    frames or text?
+
+    Assume your two images are called image1.ppm and image2.ppm.  Type
+
+      montage +display -borderwidth 0 -geometry 256x256! \
+	image1.ppm image2.ppm concatenated.ppm
+
+    Choose a geometry which appropriate for your images.
+
+*    *   *   *   *   *   *   *   *   *   *   *   *   *  *   *   *   *  *   *
+
+11. Unfortunately I have no choice but to work on an RS6000 under AIX.
+    Display(1) hangs the X server.  What can I do?
+
+    Display(1) is fine.  The problem is a bug in the AIX X11-R5 runtime
+    environment.  Contact AIX defective support and ask for PTF
+    U427948.
+
+*    *   *   *   *   *   *   *   *   *   *   *   *   *  *   *   *   *  *   *

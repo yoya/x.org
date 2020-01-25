@@ -1,0 +1,76 @@
+<!doctype linuxdoc system>
+ 
+<article>
+
+<!-- Title information -->
+<title> List of XFree86 documentation
+<author> The XFree86 Project, Inc
+<date> 19 January 1995
+
+<sect> Available Documentation <p>
+
+<itemize>
+<item> <url name="README for XFree86&tm; 3.1.1"
+	url="README.html">
+<item> <url name="Copyright"
+	url="COPYRIGHT.html">
+<item> <url name="README for XFree86 3.1.1 on BSD/386 1.1"
+	url="Bsdi.html">
+<item> <url name="README for XFree86 3.1.1 on FreeBSD 2.0"
+	url="FreeBSD.html">
+<item> <url name="Information for ISC Users"
+	url="isc.html">
+<item> <url name="Information for Linux Users"
+	url="Linux.html">
+<item> <url name="README for XFree86 3.1 on Mach"
+	url="Mach.html">
+<item> <url name="README for XFree86 3.1.1 on NetBSD"
+	url="NetBSD.html">
+<item> <url name="Information for SCO Users"
+	url="SCO.html">
+<item> <url name="Information for Solaris for x86 Users"
+	url="SOLX86.html">
+<item> <url name="Information for SVR4 Users"
+	url="SVR4.html">
+<item> <url name="Configuring XFree86"
+	url="Config.html">
+<item> <url name="Installation Guide for XFree86 3.1.1"
+	url="INSTALL.html">
+<item> <url name="The Hitchhiker's Guide to X386/XFree86 Video Timing"
+	url="VideoModes.html">
+<item> <url name="Readme for the XFree86 3.1.1 LinkKit"
+	url="LinkKit.html">
+<item> <url name="How to add an (S)VGA driver to XFree86"
+	url="VGADriver.html">
+<item> <url name="Information for using/developing external clock setting programs"
+	url="clkprog.html">
+<item> <url name="Notes on the AGX Server"
+	url="agx.html">
+<item> <url name="ATI boards README"
+	url="ati.html">
+<item> <url name="Information for Cirrus Chipset Users"
+	url="cirrus.html">
+<item> <url name="Information for Oak Technologies Inc. Chipset Users"
+	url="Oak.html">
+<item> <url name="XFree86 3.1.1 P9000 Server Release Notes"
+	url="P9000.html">
+<item> <url name="Information for S3 Chipset Users"
+	url="S3.html">
+<item> <url name="Information for Trident Chipset Users"
+	url="trident.html">
+<item> <url name="Information for Tseng Chipset Users"
+	url="tseng.html">
+<item> <url name="README.VIDEO7"
+	url="Video7.html">
+<item> <url name="Information for W32 Chipset Users"
+	url="W32.html">
+<item> <url name="Information for Western Digital Chipset Users"
+	url="WstDig.html">
+</itemize>
+
+<verb>
+$XFree86: xc/programs/Xserver/hw/xfree86/doc/sgml/DocIndex.sgml,v 3.1 1995/01/25 11:08:44 dawes Exp $
+$XConsortium: DocIndex.sgml,v 1.2 95/01/27 16:14:23 kaleb Exp $
+</verb>
+
+</article>

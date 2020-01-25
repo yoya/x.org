@@ -1,0 +1,53 @@
+#
+# $Id: Makefile.std,v 1.1.1.1 1994/05/29 00:47:24 stumpf Exp $
+#
+# Makefile for non-imake users
+#
+
+          DEFINES =
+          DESTDIR = /usr/X11R6
+          DESTDIR = /usr/local/DIR/X11/R6/xc
+        USRLIBDIR = $(DESTDIR)/lib
+       APPLDEFDIR = $(USRLIBDIR)/X11/app-defaults
+           BINDIR = $(DESTDIR)/bin
+           MANDIR = $(DESTDIR)/man/man1
+          INCROOT = $(DESTDIR)/include
+     EXTENSIONLIB = $(USRLIBDIR)/libXext.a
+             XLIB = $(USRLIBDIR)/libX11.a
+         XAUTHLIB = $(USRLIBDIR)/libXau.a
+           XMULIB = $(USRLIBDIR)/libXmu.a
+          OLDXLIB = $(USRLIBDIR)/liboldX.a
+         XTOOLLIB = $(USRLIBDIR)/libXt.a
+           XAWLIB = $(USRLIBDIR)/libXaw.a
+           ICELIB = $(USRLIBDIR)/libICE.a
+            SMLIB = $(USRLIBDIR)/libSM.a
+          DEPLIBS = $(XAWLIB) $(XMULIB) $(XTOOLLIB) $(SMLIB) $(ICELIB) $(EXTENSIONLIB) $(XLIB)
+           LDLIBS = $(DEPLIBS)
+           CFLAGS = $(DEFINES) -I$(INCROOT)
+
+        PROGRAM = xexit
+           SRCS = xexit.c delete.c
+           OBJS = xexit.o delete.o
+        BITMAPS = bitmaps/ExitSess.xbm \
+                  bitmaps/HaveSess.xbm
+
+all: xexit
+
+xexit: $(OBJS) $(DEPLIBS)
+	rm -f $@
+	$(CC) -o $@ $(OBJS) $(LDLIBS)
+
+install: xexit
+	install -c -m 0755 xexit $(BINDIR)
+	install -c -m 0444 Xexit.ad $(APPLDEFDIR)/Xexit
+	for i in $(BITMAPS); do \
+	(set -x; install -c -m 0444 $$i $(INCROOT)/X11/bitmaps); \
+	done
+
+install.man: xexit.man
+	install -c -m 0644 xexit.man $(MANDIR)/xexit.l
+
+clean:
+	rm -f $(PROGRAM) *.CKP *.ln *.BAK *.bak *.o core errs ,* *~ \
+	*.a .emacs_* tags TAGS make.log MakeOut
+

@@ -1,0 +1,176 @@
+/* $Header: /var/home/sm/ws/michael/work/xterm/RCS/README.jp,v 1.1 1994/06/07 00:05:30 michael Exp $ Sony Corporation */
+/******************************************************************
+
+Copyright (c) 1992, 1993, 1994  Sony Corporation
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL SONY CORPORATION BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+Except as contained in this notice, the name of Sony Corporation shall
+not be used in advertising or otherwise to promote the sale, use or ot
+her dealings in this Software without prior written authorization from
+Sony Corporation.
+
+******************************************************************/
+
+README - mterm for X11R6
+
+ソニー株式会社 入江英夫
+
+概要
+
+    mterm は xterm を元に ISO-2022 に基づいた複数のコードセットを
+    表示できるようにした端末エミュレータです。
+
+    現在サポートしている code set は
+
+    94 文字セット
+	ISO IRV			'@'
+	United Kingdom		'A'
+	ASCII			'B'
+	Swedish/Finish		'C'
+	Norwegian/Denish	'E'
+	German			'K'
+	JIS Roman		'J'
+	JIS Kana		'I'
+	French			'R'
+	Italian			'Y'
+	Spanicsh		'Z'
+	Special Graphics	'0'
+
+    96 文字セット
+	Latin1/ISO8859-1	'A'
+	Latin2/ISO8859-2	'B'
+	Latin3/ISO8859-3	'C'
+	Latin4/ISO8859-4	'D'
+	Cyrillic/ISO8859-5	'L'
+	Arabic/ISO8859-6	'G'
+	Greek/ISO8859-7		'F'
+	Hebrew/ISO8859-8	'H'
+	Latin5/ISO8859-9	'M'
+
+    マルチバイト文字セット
+	Kanji JIS-X0208		'@','B'
+	Hanzi GB-2312		'A'
+	Hangul/Hanja KSC5601	'C'
+
+    です。
+
+    この他に
+
+    1. 入力コードをメニューから切り替えることが出来ます。
+       現在サポートしている入力コードは通りです。
+
+       latin1
+       latin2
+       latin3
+       latin4
+       cyrillic
+       arabic
+       greek
+       hebrew
+       latin5
+       jis
+       sjis
+       jeuc
+       ceuc
+       keuc
+
+       -ic オプション又はリソースの "inputCode" で初期値を設定できます。
+
+    2. ANSI のカラーエスケープシーケンスをサポートしています。
+
+    3. X10R4 でサポートされていたステータスライン機能をサポートしています。
+
+    4. COMPOUND_TEXT によるカットアンドペーストをサポートしています。
+
+    5. X11R6 の The Input Method Protocol を使ったローケルベースの
+       言語入力をサポートしています。
+
+    などの特徴があります。
+
+インストール
+
+    通常の make 手段でインストールできるはずです。
+
+    % xmkmf
+    % make depend
+    % make 
+    % make install
+
+    なお、 /usr/lib/X11/ja_JP.SJIS/app-defaults の様なディレクトリーに
+    MTerm を容易すれば LANG に応じた切り替えも出来ると思います。
+    ( sample を参考にしてください。 )
+
+オプション
+
+    -st/+st		ステータスラインを表示します。
+
+    -sn/+sn		ステータスラインを反転表示します。
+
+    -ic type 		入力コードを指定します。
+
+    -gl number		GL にマップするプレーンを指定します。
+
+    -gr number		GR にマップするプレーンを指定します。
+
+    -gs string		G0 から G3 までの各プレーンのコードを指定します。
+			4 文字で指定しますが、マルチバイトは '$' を
+			96 文字セットは '-' をそれぞれ前に着けます。
+			例えば日本語 EUC は "B$BIB" となります。
+
+    -ts number		直前の行との間隔をフォントの高さに対する割合で
+			指定します。
+
+    -bs number		直後の行との間隔をフォントの高さに対する割合で
+			指定します。
+
+    -ps string		XIM 入力の形式を指定します。 "OverTheSpot",
+			"OffTheSpot", "Root" のいずれかを指定します。
+
+リソース
+
+    *international	true にすると XIM 入力を使用します。
+
+    その他のリソースは main.c を参照してください。
+
+問題点
+
+    R6 XIM はまだいくつか不具合があるようです。
+    必ず最新のパッチを当てた Xlib を使用するようにしてください。
+
+    その他いろいろバグがあると思います。気が付いた方は
+    michael@sm.sony.co.jp まで mail をください。
+
+TODO
+
+    英語のドキュメント
+
+    NEWS 以外でのテスト
+
+    端末モードの設定
+
+    文字クラステーブルの完成 ( 含むマルチバイト )
+
+    完全な OnTheSpot 入力
+
+    右から左への文字描画
+
+    JIS-X0212 と外字
+

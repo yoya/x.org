@@ -1,0 +1,71 @@
+*** mh-6.8/conf/makefiles/support/pop.ORG	Wed Dec 16 01:53:13 1992
+--- mh-6.8/conf/makefiles/support/pop	Sun Sep 19 01:43:05 1993
+***************
+*** 112,128 ****
+--- 112,139 ----
+  
+  popd:		xpopd
+  
++ @BEGIN: YOUBIN
++ sendto.o: sendto.c
++ 		$(CC) -DCALLED_FROM_POPD $(CFLAGS) -c sendto.c
++ @END: YOUBIN
++ 
+  xpopd:		popd.o popser.o syslog.o \
+  			../../uip/dropsbr.o \
+  @BEGIN: MPOP
+  			../../uip/scansbr.o \
+  @END: MPOP
++ @BEGIN: YOUBIN
++ 			sendto.o \
++ @END: YOUBIN
+  			$(LIBES2)
+  		$(LD) $(LDFLAGS) -o $@ popd.o popser.o syslog.o \
+  			../../uip/dropsbr.o \
+  @BEGIN: MPOP
+  			../../uip/scansbr.o \
+  @END: MPOP
++ @BEGIN: YOUBIN
++ 			sendto.o \
++ @END: YOUBIN
+  			$(LDLIBS2) $(LDCURSES)
+  
+  l-popd:;	$(LINT) $(LFLAGS) popd.c popser.c \
+*** mh-6.8/conf/mhconfig.c.ORG	Mon Feb 15 00:34:15 1993
+--- mh-6.8/conf/mhconfig.c	Sun Sep 19 01:49:16 1993
+***************
+*** 142,147 ****
+--- 142,148 ----
+  /* #ifdef JAPAN */
+      "JAPAN", 0, /* Japanization patch */
+  /* #endif JAPAN */
++     "YOUBIN", 0, /* youbin patch */
+      NULL, 0
+  };
+  
+*** mh-6.8/support/pop/popser.c.ORG	Wed Dec 16 01:55:50 1992
+--- mh-6.8/support/pop/popser.c	Thu Nov  4 13:57:45 1993
+***************
+*** 1622,1627 ****
+--- 1622,1630 ----
+  	if (i != NOTOK) (void) close (i);
+  #endif	/* SYS5 */
+  	(void) unlink (map_name (maildrop));/* XXX */
++ #ifdef	YOUBIN
++ 	sendto_youbin(username);
++ #endif	/* YOUBIN */
+  	if (i == NOTOK)
+  	    return respond (NOTOK, "unable to zero %s", maildrop);
+  	return OK;
+***************
+*** 1664,1669 ****
+--- 1667,1675 ----
+  	}
+      }
+  
++ #ifdef	YOUBIN
++     sendto_youbin(username);
++ #endif	/* YOUBIN */
+      if (i == NOTOK)
+  	return respond (NOTOK, "unable to rename maildrop");
+  

@@ -1,0 +1,17 @@
+.EH ''''
+.OH ''''
+.bp
+\&
+.XS
+Index
+.XE
+.EQ
+delim $$
+.EN
+.tm .pn \n%
+.\" print Table of Contents
+.if o .bp \" blank page to make count even
+.bp 3
+.af PN i
+.PX
+

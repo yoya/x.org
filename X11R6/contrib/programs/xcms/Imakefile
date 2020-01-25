@@ -1,0 +1,66 @@
+XCOMM $XConsortium: Imakefile,v 1.30 94/05/14 16:36:45 rws Exp $
+
+#if UseRgbTxt
+   RGB_DEFINES = -DUSE_RGB_TXT
+#else
+      RGB_PROG = rgb
+#endif
+        RGB_DB = DefaultRGBDatabase
+   SITE_RGB_DB = -DRGB_DB=\"$(RGB_DB)\"
+      DEFINES = NdbmDefines $(SITE_RGB_DB) $(RGB_DEFINES)
+     INCLUDES =
+#if !UseRgbTxt
+        SRCS1 = rgb.c
+        OBJS1 = rgb.o
+#endif
+        SRCS2 = col2rgb.c
+        OBJS2 = col2rgb.o fgetstr.o
+         SRCS = $(SRCS1) $(SRCS2)
+         OBJS = $(OBJS1) $(OBJS2)
+     PROGRAMS = $(RGB_PROG) col2rgb
+#if !UseRgbTxt
+#ifdef BSD386Architecture
+    DATAFILES = rgb.db
+      DATADEP = rgb.db
+#else
+    DATAFILES = rgb.pag rgb.dir
+      DATADEP = rgb.dir		/* just want one run of rgb */
+#if !(defined(SGIArchitecture) || SystemV4)
+       DBMLIB = -ldbm
+#endif
+#endif
+#if defined(SparcArchitecture) && HasGcc && !HasGcc2
+           CC = cc
+    CCOPTIONS = /**/
+    EXTRA_LOAD_FLAGS = /**/
+#endif
+#if defined(i386SVR4Architecture)
+       DBMLIB = -ldbm -lucb
+#endif
+#endif /*!UseRgbTxt */
+
+all:: $(PROGRAMS) $(DATADEP)
+
+data :: $(DATADEP)
+
+#if !UseRgbTxt
+SingleProgramTarget(rgb,$(OBJS1),NullParameter,$(DBMLIB))
+SpecialCObjectRule(rgb,$(ICONFIGFILES),$(_NOOP_))
+InstallProgramWithFlags(rgb,$(BINDIR),NullParameter)
+#endif
+SingleProgramTarget(col2rgb,$(OBJS2),$(XLIB) $(XTOOLLIB),NullParameter)
+SpecialCObjectRule(col2rgb,$(ICONFIGFILES),$(_NOOP_))
+InstallMultiple($(DATAFILES) rgb.txt,$(LIBDIR))
+InstallProgramWithFlags(col2rgb,$(BINDIR),NullParameter)
+InstallManPage(col2rgb,$(MANDIR))
+
+#if !UseRgbTxt
+$(DATADEP):  rgb rgb.txt
+	RemoveFile($(DATAFILES))
+	./rgb rgb < rgb.txt
+
+clean::
+	RemoveFile($(DATAFILES))
+#endif
+
+DependTarget()

@@ -1,0 +1,11 @@
+rm -f rgb.o
+gcc -fpcc-struct-return -c -O2     -I/vol/X11R6/include      -DNDBM -DRGB_DB=\"/vol/X11R6/lib/X11/rgb\"   rgb.c
+rm -f rgb
+gcc -fpcc-struct-return -o rgb -O2      -L/vol/X11R6/lib rgb.o      -ldbm 
+rm -f col2rgb.o
+gcc -fpcc-struct-return -c -O2     -I/vol/X11R6/include      -DNDBM -DRGB_DB=\"/vol/X11R6/lib/X11/rgb\"   col2rgb.c
+gcc -fpcc-struct-return -c -O2     -I/vol/X11R6/include      -DNDBM -DRGB_DB=\"/vol/X11R6/lib/X11/rgb\"  fgetstr.c
+rm -f col2rgb
+gcc -fpcc-struct-return -o col2rgb -O2      -L/vol/X11R6/lib col2rgb.o fgetstr.o -lXext -lX11 -lXt -lSM -lICE      
+rm -f rgb.pag rgb.dir
+./rgb rgb < rgb.txt

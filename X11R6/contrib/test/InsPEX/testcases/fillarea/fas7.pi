@@ -1,0 +1,122 @@
+
+/* $XConsortium: fas7.pi,v 5.3 94/04/17 20:48:01 hersh Exp $ */
+
+/*****************************************************************
+
+Copyright (c) 1989, 1990, 1991,1990  X Consortium
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Except as contained in this notice, the name of the X Consortium shall not be
+used in advertising or otherwise to promote the sale, use or other dealings
+in this Software without prior written authorization from the X Consortium.
+
+Copyright (c) 1989, 1990, 1991,1990 by Sun Microsystems, Inc.
+
+                        All Rights Reserved
+
+Permission to use, copy, modify, and distribute this software and its 
+documentation for any purpose and without fee is hereby granted, 
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in 
+supporting documentation, and that the names of Sun Microsystems,
+and the X Consortium, not be used in advertising or publicity 
+pertaining to distribution of the software without specific, written 
+prior permission.  
+
+SUN MICROSYSTEMS DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, 
+INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT 
+SHALL SUN MICROSYSTEMS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL 
+DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
+SOFTWARE.
+
+******************************************************************/
+
+
+## fas7.pi -  
+## Test requirements:
+##   Test that fill area set attributes ,which are set in a parent 
+##   structure, are inherited by a child structure.
+##   individual fill area set attributes :
+##      edge type:
+##      edge width scale factor:
+##      edge colour index:
+##      fill area interior style:
+##      fill area interior colour index:
+
+source macro.pi
+
+tbegintest("fas7","fill area set attributes inheritance");
+
+# set up phigs, a workstation 
+
+i_open_phigs(NULL,PDEF_MEM_SIZE); 
+i_open_x_ws(1,&xdisplay,&xwindow,0,0,200,200);
+
+# initialize fill area set geometry data 
+fa1 = IA_Ppoint3(3, 0.1,0.1,0.0, 0.1,0.3,0.0, 0.3,0.1,0.0);
+fa2 = IA_Ppoint3(3, 0.6,0.1,0.0, 0.6,0.3,0.0, 0.8,0.1,0.0);
+fa3 = IA_Ppoint3(3, 0.1,0.6,0.0, 0.1,0.8,0.0, 0.3,0.6,0.0);
+fa4 = IA_Ppoint3(3, 0.6,0.6,0.0, 0.6,0.8,0.0, 0.8,0.6,0.0);
+
+fas1 = I_Ppoint_list3(3,fa1);
+fas1_l = I_Ppoint_list_list3(1,&fas1);
+fas2 = I_Ppoint_list3(3,fa2);
+fas2_l = I_Ppoint_list_list3(1,&fas2);
+fas3 = I_Ppoint_list3(3,fa3);
+fas3_l = I_Ppoint_list_list3(1,&fas3);
+fas4 = I_Ppoint_list3(3,fa4);
+fas4_l = I_Ppoint_list_list3(1,&fas4);
+
+
+# edit parent structure
+popen_struct(1);
+pset_edge_flag(PEDGE_ON);
+pset_edgetype(2);
+pset_edge_colr_ind(3);
+pset_edgewidth(5.0);
+pset_int_style(PSTYLE_SOLID);
+pset_int_colr_ind(2);
+pfill_area_set3(&fas1_l);
+pexec_struct(2);
+pfill_area_set3(&fas2_l);
+pclose_struct();
+
+# edit child structure
+popen_struct(2);
+pfill_area_set3(&fas3_l);
+pset_edgetype(3);
+pset_edge_colr_ind(1);
+pset_edgewidth(1.0);
+pset_int_style(PSTYLE_HOLLOW);
+pset_int_colr_ind(4);
+pfill_area_set3(&fas4_l);
+pclose_struct();
+
+# post structure
+ppost_struct(1,1,1.0);
+
+# verify image
+i_check_image("fas7",xdisplay,xwindow,0,0,199,199,"fill area set attributes inheritance");
+
+im_def_grid();
+i_pause();
+
+tendtest();

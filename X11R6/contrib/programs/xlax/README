@@ -1,0 +1,21 @@
+xlax is a program that allows output to
+be sent to several windows (via SendEvent()).
+
+It can be useful for some tasks that require almost
+the same thing to be done on different machines.
+
+Bugs: Send questions, comments or whatever to 
+frank@cis.ohio-state.edu.
+
+Author: Frank Adelstein, with code for window selection
+taken from "dsimple" in MIT clients, and "vroot.h" used
+so it'll work under tvtwm.
+
+Platforms: It's been tested on SunOS 4.1.3 platforms 
+and HPs (it's been so long I'm not sure if they were 700s or not).
+
+Standard X copying policies apply (see the copyright notice
+at the beginning of code for full details).
+
+--Frank Adelstein.
+  (May 24, 1994)

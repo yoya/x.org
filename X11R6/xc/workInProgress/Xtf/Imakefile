@@ -1,0 +1,27 @@
+XCOMM $XConsortium: Imakefile,v 1.6 94/03/29 15:54:16 gildea Exp $
+#define DoNormalLib NormalLibXtf
+#define DoSharedLib SharedLibXtf
+#define DoDebugLib DebugLibXtf
+#define DoProfileLib ProfileLibXtf
+#define LibName Xtf
+#define SoRev SOXTFREV
+
+#ifdef SharedXtfReqs
+REQUIREDLIBS = SharedXtfReqs
+#endif
+
+      LINTLIBS = $(LINTXLIB)
+DEPEND_DEFINES = CplusplusDependIncludes
+
+SRCS = Xtf.cxx
+
+OBJS = Xtf.o
+
+#define CplusplusSource
+
+#include <Library.tmpl>
+
+ALLDEFINES = $(CXXDEFINES)
+
+DependTarget()
+

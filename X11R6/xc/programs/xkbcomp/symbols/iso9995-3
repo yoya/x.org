@@ -1,0 +1,56 @@
+// $XConsortium: iso9995-3,v 1.2 94/04/08 15:59:37 erik Exp $
+xkb_symbols	"iso9995-3"
+
+// Part 3 of ISO9995 specifies a common alternate character set
+// This file adds that common set to any keyboard for which a 
+// second group is not defined.  It does *not* specify any of
+// 9995's special modifiers (ISO lock, group locks, etc).
+// If you want a fully compliant ISO keyboard, add "iso9995-full"
+// instead
+key <TLDE> {	[], [		notsign			]	};
+key <AE01> {	[], [ onesuperior,  	exclamdown 	]	};
+key <AE02> {	[], [ twosuperior,  	oneeighth	]	};
+key <AE03> {	[], [ threesuperior,	sterling	]	};
+key <AE04> {	[], [ onequarter,    	dollar		]	};
+key <AE05> {	[], [ onehalf,		threeeighths	]	};
+key <AE06> {	[], [ threequarters,	fiveeighths	]	};
+key <AE07> {	[], [ braceleft,	seveneighths	]	};
+key <AE08> {	[], [ bracketleft,	trademark	]	};
+key <AE09> {	[], [ bracketright,	plusminus	]	};
+key <AE10> {	[], [ braceright,	degree		]	};
+key <AE11> {	[], [ backslash,	questiondown	]	};
+key <AE12> {	[], [ dead_cedilla,	dead_ogonek	]	};
+
+key <AD01> {	[], [ at,		Greek_OMEGA	]	};
+key <AD02> {	[], [ lstroke,		Lstroke		]	};
+key <AD04> {	[], [ paragraph,	registered	]	};
+key <AD05> {	[], [ tslash,		Tslash		]	};
+key <AD06> {	[], [ leftarrow,	yen		]	};
+key <AD07> {	[], [ downarrow,	uparrow		]	};
+key <AD08> {	[], [ rightarrow,	idotless	]	};
+key <AD09> {	[], [ oslash,		Ooblique	]	};
+key <AD10> {	[], [ thorn,		Thorn		]	};
+key <AD11> {	[], [ dead_diaeresis,	dead_abovering	]	};
+key <AD12> {	[], [ dead_tilde,	dead_macron	]	};
+
+key <AC01> {	[], [ ae,		AE 		]	};
+key <AC02> {	[], [ ssharp,		section		]	};
+key <AC03> {	[], [ eth,		Eth		]	};
+key <AC04> {	[], [ dstroke,		ordfeminine	]	};
+key <AC05> {	[], [ eng,		ENG		]	};
+key <AC06> {	[], [ hstroke,		Hstroke		]	};
+key <AC08> {	[], [ k,		ampersand	]	};
+key <AC10> {	[], [ dead_acute,	dead_doubleacute]	};
+key <AC11> {	[], [ 		dead_circumflex		]	};
+
+key <AB01> {	[], [ guillemotleft,	less 		]	};
+key <AB02> {	[], [ guillemotright,	greater		]	};
+key <AB03> {	[], [ cent,		copyright	]	};
+key <AB07> {	[], [ mu,		masculine	]	};
+key <AB08> {	[], [ horizconnector,	multiply	]	};
+key <AB09> {	[], [ periodcentered,	division	]	};
+key <AB10> {	[], [ dead_abovedot,	dead_abovedot	]	};
+key <BKSL> {	[], [ dead_grave,	dead_breve	]	};
+
+override key <RALT> {	[ Mode_switch, Multi_key ]		};
+

@@ -1,0 +1,17 @@
+XCOMM $XConsortium: Imakefile,v 1.1 95/01/16 12:30:46 kaleb Exp $
+XCOMM $XFree86: xc/programs/Xserver/hw/xfree86/doc/Japanese/Imakefile,v 3.0 1995/01/12 12:03:51 dawes Exp $
+
+#include <Server.tmpl>
+
+#ifdef LinuxArchitecture
+OSREADME = README.Linux
+#endif
+
+MAINDOCS = /* COPYRIGHT */ README README.Config INSTALL
+
+FILES = $(MAINDOCS) $(OSREADME)
+
+all::
+
+InstallMultipleDest(install,$(FILES),$(XFREE86JAPANESEDOCDIR))
+

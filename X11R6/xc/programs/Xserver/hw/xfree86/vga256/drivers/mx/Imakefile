@@ -1,0 +1,24 @@
+XCOMM $XFree86: xc/programs/Xserver/hw/xfree86/vga256/drivers/mx/Imakefile,v 3.1 1994/09/22 15:51:51 dawes Exp $
+#include <Server.tmpl>
+
+SRCS = mx_driver.c mx_bank.s
+
+OBJS = mx_driver.o mx_bank.o
+
+#if XF86LinkKit
+INCLUDES = -I. -I../../../include -I../..
+#else
+INCLUDES = -I. -I$(XF86COMSRC) -I$(XF86HWSRC) -I$(XF86OSSRC) \
+           -I../../vga -I$(SERVERSRC)/include -I$(INCLUDESRC)
+#endif
+
+NormalLibraryObjectRule()
+NormalAsmObjectRule()
+
+NormalRelocatableTarget(mx_drv, $(OBJS))
+
+InstallLinkKitNonExecFile(mx_driver.c,$(LINKKITDIR)/drivers/vga256/mx)
+InstallLinkKitNonExecFile(mx_bank.s,$(LINKKITDIR)/drivers/vga256/mx)
+InstallLinkKitNonExecFile(Imakefile,$(LINKKITDIR)/drivers/vga256/mx)
+
+DependTarget()

@@ -1,0 +1,4 @@
+$XConsortium: README,v 1.2 94/11/21 21:55:13 kaleb Exp $
+There is no documentation. Read the comment in the reconfig.y file.
+The comments at the structures in there indicate how I want to split the
+keywords over the various sections. I hope the code agrees with this.

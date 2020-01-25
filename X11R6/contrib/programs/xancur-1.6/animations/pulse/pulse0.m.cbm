@@ -1,0 +1,6 @@
+#define pulse0_width 3
+#define pulse0_height 3
+#define pulse0_x_hot 1
+#define pulse0_y_hot 1
+static char pulse0_bits[] = {
+   0x02, 0x07, 0x02};

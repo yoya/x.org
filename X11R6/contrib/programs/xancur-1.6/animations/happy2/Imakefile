@@ -1,0 +1,31 @@
+
+      XANCURDIR = $(LIBDIR)/xancur
+        THISDIR = happy2
+        THATDIR = $(XANCURDIR)/$(THISDIR)
+
+MakeDirectories(install,$(THATDIR))
+
+InstallNonExec(Script,$(THATDIR))
+
+InstallNonExec(happy2-1,$(THATDIR))
+InstallNonExec(happy2-1.msk,$(THATDIR))
+InstallNonExec(happy2-2,$(THATDIR))
+InstallNonExec(happy2-2.msk,$(THATDIR))
+InstallNonExec(happy2-3,$(THATDIR))
+InstallNonExec(happy2-3.msk,$(THATDIR))
+InstallNonExec(happy2-4,$(THATDIR))
+InstallNonExec(happy2-4.msk,$(THATDIR))
+InstallNonExec(happy2-5,$(THATDIR))
+InstallNonExec(happy2-5.msk,$(THATDIR))
+InstallNonExec(happy2-6,$(THATDIR))
+InstallNonExec(happy2-6.msk,$(THATDIR))
+InstallNonExec(happy2-7,$(THATDIR))
+InstallNonExec(happy2-7.msk,$(THATDIR))
+InstallNonExec(happy2-8,$(THATDIR))
+InstallNonExec(happy2-8.msk,$(THATDIR))
+InstallNonExec(happy2-9,$(THATDIR))
+InstallNonExec(happy2-9.msk,$(THATDIR))
+
+
+
+

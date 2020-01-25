@@ -1,0 +1,178 @@
+.\" @(#)xmovectrl.1	1.1 04 Feb 1994		Rover SMI
+.TH xmovectrl 1 "11 November 1993"
+
+.SH NAME
+xmovectrl \- xmove control program
+
+.SH SYNOPSIS
+.B xmovectrl 
+[
+.I from_xmove_display_connection
+] 
+.I command 
+[
+.I args
+] ...
+
+.SH DESCRIPTION
+.B xmovectrl
+is a command program which sends commands to an
+.B xmove
+pseudoserver. The commands allow you to either obtain a list of clients 
+under control of the
+.B xmove
+or to move some or all clients
+to a new server.
+.PP
+The environment variable \fBDISPLAY\fP is used to determine the
+.B xmove
+to access, since access to 
+.B xmove
+is through an X server-like display connection.
+The default can be overridden
+by specifying the display connection for the
+.B xmove
+pseudoserver as 
+.I from_xmove_display_connection 
+on the command line.
+.PP
+Because 
+.B xmove
+supports host-level security, any
+connection from an 
+.B xmovectrl
+will be rejected unless it is run on
+a machine which is permitted access to the 
+.B xmove's
+default display. Use
+.B xhost(1)
+to grant access to particular hosts.
+
+
+.SH OPTIONS
+The command options determine the action taken by the
+accessed 
+.B xmove
+pseudoserver:
+.TP
+.B -list
+This command takes no arguments. In response to this
+command, 
+.B xmovectrl
+prints a list of all clients that are currently under control of the
+.B xmove
+pseudoserver. These include both clients started directly under
+control of the pseudoserver and clients which were moved from
+other machines. For example:
+.IP
+.B "vagabond% xmovectrl -list"
+.br
+.B "1     gnuemacs: Emacs @ sa local"
+.br
+.B "2     xterm                local"
+.br
+.B "4     xv info              peabody:0"
+.br
+.B "8     FM: Waste:V3.3 Alpha local"
+.IP
+Each line contains information on a single client. The first column contains
+a number identifying the particular client. When you wish to move
+a client, use this number to specify it.
+If more than one line has the same client identification
+number, 
+.B xmove
+believes the two clients are using each other's X resources,
+and attempting to move one will cause the other to move also.
+The second column contains a textual identification of
+the client.
+.B xmove
+obtains this information as the title string from the first window
+created by the client, but that may not always be the main application window.
+In the example, client number 8's identification should be
+"File Manager", but the File Manager application creates
+two windows, the first of which is for a wastecan.
+The third column specifies the server on which the client
+is currently being displayed. In this column the word 'local'
+refers to 
+.B xmove's
+default server.
+.TP
+.BI -moveall \ to_machine_name
+This command takes as its only argument the
+name of a host machine to which all the 
+clients of this
+.B xmove
+are moved.
+In general it should only be necessary to specify a
+machine name as the location, since
+.B xmove
+will try to find another 
+.B xmove
+at 
+.IB to_machine_name :1, 
+and if
+it does not find one it will connect directly to the server at
+.IB to_machine_name :0. 
+If you wish to override these defaults you can specify
+a full display name instead of just a machine name.
+If the machine to which you are moving is multiheaded,
+you can use the 
+.BI "'-screen n'"
+option, where 
+.I n
+is the screen number, to specify a particular screen.
+For example:
+.IP
+.B "vagabond% xmovectrl -moveall spruce -screen 1"
+.sp
+The time required to move a client should be roughly
+comparable to the time that the client takes to display when first
+started. Clients will be unresponsive until the last one has been
+moved. Then they will all begin the process of refreshing their
+windows.
+.TP
+.BI -move \ to_machine_name\ client_id_number_list
+This command allows you to specify a list of client id numbers
+for clients which should be moved to the other machine. The client
+numbers should be separated by spaces. For example:
+.IP
+.B "vagabond% xmovectrl -move suntana 1 7 42"
+.TP
+.B -quit
+Causes the addressed
+.B xmove
+and all applications under it's control to exit.
+.SH SEE ALSO
+.BR xmove (1), 
+.BR xhost (1), 
+.BR X11 (7)
+.SH NOTES
+.B xmovectrl
+waits for the requested move to complete before returning. Note
+that the move cannot be cancelled by killing the
+.B xmovectrl
+process, because the move is actually being done by
+the
+.B xmove
+process.
+.PP
+Because 
+.B xmove
+supports host-level and xauth security, any
+connection from an 
+.B xmovectrl
+will be rejected unless it is run from a machine
+or by a user who is permitted access to
+.B xmove's
+default display.
+
+.SH AUTHOR
+Ethan Solomita, Columbia University
+.LP
+This work was supported by Professor Dan Duchamp of
+Columbia University and by Dick Sillman and Jim Kempf of Sun
+Microsystems, Inc.
+.PP
+Bug reports and other problems should be sent to
+ethan@cs.columbia.edu. Please give all details, including
+hardware configuration, make of X server and window manager.

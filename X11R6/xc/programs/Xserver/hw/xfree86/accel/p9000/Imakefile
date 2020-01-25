@@ -1,0 +1,36 @@
+XCOMM $XConsortium: Imakefile,v 1.4 95/01/26 15:34:53 kaleb Exp $
+XCOMM $XFree86: xc/programs/Xserver/hw/xfree86/accel/p9000/Imakefile,v 3.8 1995/01/26 02:17:55 dawes Exp $
+XCOMM Id: Imakefile,v 4.0 1994/05/28 01:24:17 nygren Exp
+
+#include <Server.tmpl>
+
+SRCS = 	p9000.c p9000cmap.c p9000init.c p9000viper.c p9000orchid.c \
+	p9000gc.c p9000blt.c p9000im.c p9000win.c \
+	p9000BtCurs.c p9000Bt485.c p9000vga.c \
+	p9000line.c p9000seg.c \
+	p9000scrin.c p9000curs.c I2061Aset.c I2061Acal.c
+
+OBJS = 	p9000.o p9000cmap.o p9000init.o p9000viper.o p9000orchid.o \
+	p9000gc.o p9000blt.o p9000im.o p9000win.o \
+	p9000BtCurs.o p9000Bt485.o p9000vga.o \
+	p9000line.o p9000seg.o \
+	p9000scrin.o p9000curs.o I2061Aset.o I2061Acal.o
+
+INCLUDES = -I$(XF86SRC) -I. -I$(SERVERSRC)/mfb -I$(SERVERSRC)/mi \
+	   -I$(SERVERSRC)/include \
+           -I$(SERVERSRC)/cfb -I$(INCLUDESRC) -I$(FONTSRC)/include \
+           -I$(XF86SRC)/vga256/vga -I$(XF86COMSRC) -I$(XF86HWSRC) \
+           -I$(FONTINCSRC) -I$(XF86OSSRC)
+
+DEFINES = -DP9000_SERVER -DPSZ=8
+
+NormalLibraryObjectRule()
+
+NormalAsmObjectRule()
+
+NormalLibraryTarget(p9000,$(OBJS))
+
+InstallLinkKitLibrary(p9000,$(LINKKITDIR)/drivers)
+
+DependTarget()
+

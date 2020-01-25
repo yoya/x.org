@@ -1,0 +1,9 @@
+
+Be given a drawing, this command allows you to filled some
+part of it with the current color.
+
+You just have to press the mouse inside the region to fill.
+
+The filled zone is delimited by a change in the original pixel value.
+
+The zone never exceed the bounding box of the character.

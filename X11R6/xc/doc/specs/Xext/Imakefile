@@ -1,0 +1,17 @@
+XCOMM $XConsortium: Imakefile,v 1.11 94/10/04 18:37:13 gildea Exp $
+
+MakeSimpleDoc(shape,shape.ms)
+
+MakeSimpleDoc(xtest,xtest.ms)
+
+MakeSimpleDoc(mit-shm,mit-shm.ms)
+
+MakeSimpleDoc(bigreq,bigreq.ms)
+
+MakeSimpleDoc(xc-misc,xc-misc.ms)
+
+MakeTblDoc(record,record.ms)
+
+MakeTblDoc(buffer,buffer.ms)
+
+MakeLatexDoc(sync,sync.tex)

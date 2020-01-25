@@ -1,0 +1,182 @@
+: "@(#) /usr/bin/X11/X11		Shell Script for X11"
+
+# X11 launching script.  This checks for certain global things that should have
+# been set up properly by the X installation procedure, checks to ensure that
+# the user's environment has been set up properly (or that defaults should be
+# used), and launches X if there are no problems.  If there are non-fatal
+# problems, those will be reported.
+
+
+X11BINDIR=${X11BINDIR:-/usr/bin/X11}
+X11LIBDIR=${X11LIBDIR:-/usr/lib/X11}
+TERMINFODIR=/usr/lib/terminfo/x
+
+USERX11START=$HOME/.x11start
+SYSX11START=$X11LIBDIR/.x11start
+
+USERTWMRC=$HOME/.twmrc
+SYSTWMRC=$X11LIBDIR/Sample.twmrc
+
+DEBUGLOG=x11debug.log
+
+
+DISPLAY="unix:0.0"
+export DISPLAY
+
+
+#
+# Error output from X goes to $DEBUGLOG in the current directory; make sure we
+# can write on it.
+#
+if [ ! -w . ]; then
+    screenrestore
+    echo "$0: Directory `pwd` not writable, can't create $DEBUGLOG." > /dev/tty
+    echo "Terminating X startup ..." > /dev/tty
+    sleep 5
+    exit 1
+fi
+
+if [ -f $DEBUGLOG -a ! -w $DEBUGLOG ]; then
+    screenrestore
+    echo "$0: Non-writable $DEBUGLOG file already exists." > /dev/tty
+    echo "Terminating X startup ..." > /dev/tty
+    sleep 5
+    exit 1
+fi
+
+rm -f $DEBUGLOG
+touch $DEBUGLOG
+
+#
+# Shared libraries must be present and executable(!) else all clients fail.
+#
+if [ ! -x /shlib/libX11_s -o ! -x /shlib/libX11_s.1.0 -o \
+     ! -x /shlib/libXt_s.1.0 -o ! -x /shlib/libXaw_s.1.0 -o \
+     ! -x /shlib/libXmu_s.1.0 -o ! -x /shlib/libXext_s.1.0 ]; then
+    screenrestore
+    echo "$0: The shared libraries in /shlib are not present, all X11 clients need them." > /dev/tty
+    echo "Terminating X startup ..." > /dev/tty
+    sleep 5
+    exit 1
+fi
+
+
+#
+# Check for the three common user configuration errors:
+#	1) not copying .x11start to home directory
+#	2) not copying .twmrc to home directory
+#	3) not having an X11 bin directory in the path (default /usr/bin/X11)
+#
+if [ -x $USERX11START ]; then
+    X11START=$USERX11START
+elif [ -f $USERX11START ]; then
+    echo "Your X11 startup script ($USERX11START) is not executable." \
+		>> $DEBUGLOG
+else
+    echo "You don't have an X11 startup script ($USERX11START)." >> $DEBUGLOG
+fi
+
+if [ ! "$X11START" ]; then
+    # Use default startup script.  If it doesn't exist or is non-executable,
+    # the console xterm will print the error message 
+    # "xterm: Can't execvp $X11START".
+    X11START=$SYSX11START
+
+    if [ -x $SYSX11START ]; then
+	echo "Using default X11 startup script ($SYSX11START)." >> $DEBUGLOG
+    elif [ -f $SYSX11START ]; then
+	echo "Default X11 startup script ($SYSX11START) is not executable." \
+		>> $DEBUGLOG
+    else
+	cat <<END >> $DEBUGLOG
+Default X11 startup script ($SYSX11START) doesn't exist.
+If you a using a different X11 lib directory, set the X11LIBDIR environment
+variable to that directory name.
+END
+    fi
+
+    echo >> $DEBUGLOG
+fi
+
+# twm only tries to read the local twmrc file.  It will run without 
+# a startup file, using built-in defaults.
+if [ ! -f $USERTWMRC ]; then
+    echo "You don't have a twm startup file ($USERTWMRC)." >> $DEBUGLOG
+    if [ -r $SYSTWMRC ]; then
+	cp $SYSTWMRC $USERTWMRC
+	echo "Copied twm startup file from $SYSTWMRC to $USERTWMRC." \
+		>> $DEBUGLOG
+    elif [ -f $SYSTWMRC ]; then
+	echo "Default twm startup file ($SYSTWMRC) is non-readable." \
+		>> $DEBUGLOG
+    else
+	cat <<END >> $DEBUGLOG
+Default twm startup script ($SYSTWMRC) doesn't exist.
+If you a using a different X11 lib directory, set the X11LIBDIR environment
+variable to that directory name.
+END
+    fi
+    echo >> $DEBUGLOG
+elif [ ! -r $USERTWMRC ]; then
+    echo "Your twm startup file ($USERTWMRC) is non-readable." >> $DEBUGLOG
+    echo >> $DEBUGLOG
+fi
+
+FOUND=0
+for i in `echo $PATH | sed 's/:/ /g'`
+do
+    if [ $i = $X11BINDIR ]; then
+	FOUND=1
+	break
+    fi
+done
+if [ $FOUND -eq 0 ]; then
+    PATH=$PATH:$X11BINDIR
+    export PATH
+    cat <<END >> $DEBUGLOG
+Appended $X11BINDIR to PATH for this process and its children.
+Edit the PATH setting in your shell startup script.  If you are using 
+a different X11 bin directory, set the X11BINDIR environment variable to 
+that directory name.
+
+END
+fi
+
+
+#
+# Make sure that the terminfo files for xterm are in place.  The installation
+# should have taken care of this properly.
+#
+for i in $TERMINFODIR/xterm $TERMINFODIR/xterms
+do
+    if [ ! -f $i ]; then
+	echo "$i doesn't exist." >> $DEBUGLOG
+	echo >> $DEBUGLOG
+    elif [ ! -r $i ]; then
+	echo "$i is non-readable." >> $DEBUGLOG
+	echo >> $DEBUGLOG
+    fi
+done
+
+
+#
+# If there were any non-fatal errors, report them now and press on.
+#
+if [ -s $DEBUGLOG ]; then
+    screenrestore
+    cat $DEBUGLOG > /dev/tty
+    echo "Proceeding with X startup ..." > /dev/tty
+    sleep 5
+fi
+
+
+#
+# Do it.
+#
+xinit -geometry 60x8+0+0 -sb -fn 6x10 -T "console" -e $X11START \
+	-- ${X11BINDIR}/XmacII -logo -v $* >> $DEBUGLOG 2>&1
+
+Xrepair >> $DEBUGLOG 2>&1
+screenrestore
+cat $DEBUGLOG > /dev/tty
+sleep 3

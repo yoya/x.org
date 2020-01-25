@@ -1,0 +1,52 @@
+Adding to Nameset with bad renderer(42), expecting a BadRenderer error:
+PEXError: Bad PEX Renderer
+Request code: 28
+Did one appear?
+
+Adding to Nameset with a bad renderer(nameset), expecting a BadNameSet error:
+PEXError: Bad PEX Renderer
+Request code: 28
+Did one appear?
+
+Adding to  Nameset with a good nameset, expecting no error:
+Did one appear?
+
+Removing from Nameset with bad renderer(42), expecting a BadRenderer error:
+PEXError: Bad PEX Renderer
+Request code: 28
+Did one appear?
+
+Removing from Nameset with a bad renderer(nameset), expecting a BadNameSet error:
+PEXError: Bad PEX Renderer
+Request code: 28
+Did one appear?
+
+Removing from Nameset with a good renderer, expecting no error:
+Did one appear?
+
+Adding to Nameset with bad structure(42), expecting a BadRenderer error:
+PEXError: Bad PEX Structure
+Request code: 43
+Did one appear?
+
+Adding to Nameset with a bad structure(nameset), expecting a BadNameSet error:
+PEXError: Bad PEX Structure
+Request code: 43
+Did one appear?
+
+Adding to  Nameset with a good structure, expecting no error:
+Did one appear?
+
+Removing from Nameset with bad structure(42), expecting a BadRenderer error:
+PEXError: Bad PEX Structure
+Request code: 43
+Did one appear?
+
+Removing from Nameset with a bad structure(nameset), expecting a BadNameSet error:
+PEXError: Bad PEX Structure
+Request code: 43
+Did one appear?
+
+Removing from Nameset with a good structure, expecting no error:
+Did one appear?
+

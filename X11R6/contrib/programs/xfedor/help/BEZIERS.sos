@@ -1,0 +1,7 @@
+
+With this mode, you can draw 4 control points Beziers curves.
+
+You specify the 4 points with mouse press. The curve
+begin at the first point, and end with the last.
+
+Leave the edit window before the 4th point in order to abort this command.

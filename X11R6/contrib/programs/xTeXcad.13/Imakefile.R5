@@ -1,0 +1,60 @@
+
+/* 
+     Copyright (c) 1991 xtexcad  V1.3 by K. Zitzmann
+
+     The X Consortium, and any party obtaining a copy of these files from
+     the X Consortium, directly or indirectly, is granted, free of charge, a
+     full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+     nonexclusive right and license to deal in this software and
+     documentation files (the "Software"), including without limitation the
+     rights to use, copy, modify, merge, publish, distribute, sublicense,
+     and/or sell copies of the Software, and to permit persons who receive
+     copies from any such party to do so.  This license includes without
+     limitation a license to do the foregoing actions under any patents of
+     the party supplying this software to the X Consortium.
+*/
+
+/* xtexcad V1.3 - Imakefile for Release 5 and earlier */
+
+
+
+/*
+   file_sel.c: ( Sys5 vs. BSD)
+   Please check for the additional DEFINES !!!
+   
+   	-DUSEGETCWD     : Use getcwd instead of getwd !!!
+        -DUSEDIRENT     : Use dirent struct instead of direct !!!
+		  
+
+	
+	Please use the GNU gcc compiler ! On NeXT computers I recommend
+	using the GNU cc compiler. 
+	
+	Please ignore all warnings during compilation !!!
+	
+	
+*/
+
+
+
+        DEPLIBS = XawClientDepLibs
+LOCAL_LIBRARIES = XawClientLibs
+  SYS_LIBRARIES = -lm -ll
+     XTEXCADSRC = oberfl.c ereignis.c file_sel.c pickedit.c\
+	               graphics.c yyscan.l io_trans.c
+						
+     XTEXCADOBJ = oberfl.o ereignis.o file_sel.o pickedit.o\
+	               graphics.o yyscan.o io_trans.o
+
+SRCS = $(XTEXCADSRC)
+OBJS = $(XTEXCADOBJ)
+
+ yyscan.c: yyscan.l
+	lex -t yyscan.l > yyscan.c
+
+ComplexProgramTarget(xtexcad)
+
+
+InstallAppDefaults(Xtexcad)
+
+

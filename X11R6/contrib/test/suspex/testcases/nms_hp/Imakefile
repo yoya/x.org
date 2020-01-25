@@ -1,0 +1,56 @@
+# $XConsortium: Imakefile,v 1.0 93/11/22 12:30:18 rws Exp $
+#
+#
+#   (c) Copyright Hewlett-Packard Company, 1993, Fort Collins, Colorado       
+#                                                                            
+#                             All Rights Reserved                           
+#                                                                          
+#   Permission to use, copy, modify, and distribute this software and its 
+#   documentation for any purpose and without fee is hereby granted,     
+#   provided that the above copyright notices appear in all copies and that   
+#   both the copyright notices and this permission notice appear in          
+#   supporting documentation, and that the name of Hewlett-Packard not be   
+#   used in advertising or publicity pertaining to distribution of the     
+#   software without specific, written prior permission.                  
+#                                                                        
+#   HEWLETT-PACKARD MAKES NO WARRANTY OF ANY KIND WITH REGARD TO THIS   
+#   SOFTWARE, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
+#   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  Hewlett-Packard    
+#   shall not be liable for errors contained herein or direct, indirect,     
+#   special, incidental or consequential damages in connection with the     
+#   furnishing, performance or use of this software.                       
+#                                                                         
+#
+
+# HP Lut Module Tests
+
+#include "../../src/common_hp/Imake.include"
+PROGS = nms-invis1 \
+	            nms-invis2 \
+	            nms-invis3 \
+	            nms-highl1 \
+	            nms-highl2 \
+	            nms-highl3 \
+		    nms-pick1  \
+		    nms-pick2  \
+		    nms-pick3  \
+		    nms-addrm1 \
+		    nms-addrm2
+
+
+AllTarget($(PROGS))
+
+CommonTarget(nms-invis1)
+CommonTarget(nms-invis2)
+CommonTarget(nms-invis3)
+CommonTarget(nms-highl1)
+CommonTarget(nms-highl2)
+CommonTarget(nms-highl3)
+CommonTarget(nms-pick1)
+CommonTarget(nms-pick2)
+CommonTarget(nms-pick3)
+CommonTarget(nms-addrm1)
+CommonTarget(nms-addrm2)
+
+DependTarget()
+

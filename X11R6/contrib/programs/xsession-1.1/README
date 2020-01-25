@@ -1,0 +1,214 @@
+WHAT IS XSESSION?
+
+  The xsession program is a session manager.  It is normally executed by your
+  ~/.xinitrc (or ~/.xsession) script and controls your X Window session.  As
+  soon as it is started, xsession launches a window manager and some
+  applications of your choice.  At anytime during your session, you may switch
+  to another window manager or execute some other applications from the
+  xsession menus.
+
+  You may also lock your screen using an independent locker application.  The
+  window contains a message area which is used to notify the user whenever an
+  application or a window manager starts or ends, and also to display all the
+  output and error messages of the programs (the applications and the window
+  managers) run by xsession.  The console output messages can also be shown
+  either in this area or in a second, separate area.
+
+  One useful feature of xsession is the preprocessing of window managers'
+  configuration files.  When a window manager is launched, its startup file can
+  be filtered through m4(1) or cpp(1).  Some macros are defined (such as the
+  host name, screen size and so on) that will help you customize your menus and
+  screen layout.  One advantage of this feature is that several window managers
+  can share the same startup file: some lines are protected by a test on the
+  "WM_NAME" macro, but the other lines are common.  This saves a lot of time
+  if you want to maintain the same menu structure for several of them.  You can
+  also use "include" statements in your file.
+
+
+USAGE
+
+  The best way to execute xsession is to include it in your ~/.xinitrc (or
+  ~/.xsession) file, as the last client.  The xinit(1) manual page says that
+  "the last long-lived program started [...] should be left in the foreground
+  so that the script won't exit".  You will find a similar statement in the
+  xdm(1) manual page.  This last program should be xsession.  As a matter of
+  fact, this may even be the only program executed in your startup file,
+  because xsession itself provides a way to launch other applications.  When
+  started, xsession will look in your home directory and execute a file named
+  .X11Startup, if found.  This shell script is used to start your client
+  programs.
+
+
+FTP SITES
+
+  FTP sites where you can look for the latest versions are:
+
+      ftp.x.org                 (198.112.44.100) /pub/contrib/applications
+      ftp2.montefiore.ulg.ac.be (139.165.8.25)   /pub/xsession
+
+  Please use the one nearest to you: ftp2.montefiore.ulg.ac.be in Europe,
+                                     ftp.x.org                 elsewhere.
+
+  If you are willing to distribute xsession, please notify us.  We'll update
+  this list with your site and directory in the next release of xsession.
+
+
+REQUIREMENTS
+
+  You will need UNIX, the X11R5 or X11R6 libraries (including the Athena widget
+  library) and a (K&R or ANSI) C compiler to compile and link this software.
+  This X client application should run with all X Window compatible servers.
+
+
+COMPILING & INSTALLING
+
+  Read the INSTALL file.
+
+
+TESTING
+
+  We have personally compiled and run xsession on
+  o Sun3 with SunOS 4.1.1,
+    Sun4 (Sparc) with SunOS 4.1.[2,3],
+    DEC 3100 with Ultrix 4.2,
+      using gcc, gcc -ansi or cc, linking with X Consortium X11R5 (patch level
+      25) libraries,
+  o Sun4 (Sparc) with SunOS 5.3,
+      using cc -Xs, cc -Xt, cc -Xa, cc -Xc, /usr/ucb/cc, gcc or gcc -ansi,
+      linking with X Consortium X11R5 (patch level 25) libraries or with
+      OpenWindows 3.1 libraries,
+  o IBM RS/6000 with AIX 3.2.5,
+      using cc, xlc or c89, linking with AIXwindows 1.2.5 libraries,
+  o SGI Indigo with Irix 4.0.5F,
+      using cc -cckr, cc -xansi, gcc or gcc -ansi -D__EXTENSIONS__, linking
+      with SGI X11R5 libraries,
+  o IBM-PC compatibles with Linux 0.99pl14,
+      using gcc, linking with XFree86-2.0 X11R5 libraries.
+
+  It has been reported to us that the program also compiles and runs on
+  o Sun4 (Sparc) with SunOS 4.1, using gcc, linking with X Consortium X11R5
+      libraries,
+  o DEC Alpha with OSF/1.3, using cc, linking with X11R5 libraries,
+  o SGI Indigo with Irix 5.2, using cc -xansi, linking with SGI X11R5
+      libraries.
+
+  We have successfully run xsession with OpenWindows [2.0,3.0] servers, with
+  NCDware 3.1 servers, with AIXwindows 1.2.5 servers, and with X Consortium
+  X11R5 (patch level 25) servers.
+
+  We would be grateful to anybody that will inform us of successful builds
+  and running of xsession on different platforms.
+
+
+KNOWN BUGS
+
+  None.  But some peculiar features are explained in the manual page.
+
+  If you find a bug or something unusual, please report the problem to us.
+  We'll try and fix it as soon as possible.
+
+
+REPORTING BUGS
+
+  When reporting bugs, make sure you include the following:
+
+  o If the bug happened while compiling xsession:
+    - which release of xsession did you try to compile?
+    - which type of computer did you use?
+    - which release of the operating system are you using?
+    - which compiler and flags were used?
+    - include the Makefile used for building xsession.
+    - include any output related to the bug.
+
+  o If the bug happened while running xsession:
+    - which release of xsession did you use?
+    - which type of computer did you use?
+    - which release of the operating system are you using?
+    - which compiler and flags were used when compiling xsession?
+      (to be included only if you know these informations)
+    - which X server was running when the bug occured (vendor, release number)?
+      (to be included only if you know these informations)
+    - include the Makefile used for building xsession.
+      (to be included only if you still have this file)
+    - include any output related to the bug.
+    - give a description of what you did before the bug occured; this
+      description should be as detailed as possible.
+
+  Mail the bug report to the authors.
+
+
+FUTURE PLANS
+
+  o Add a "-longMenus" option.  This will show the full application names in
+    the menus.  Or add a third optional field in the application resource
+    string.  This extra field will be shown in the menus if present (instead
+    of the short name).
+
+  o Add support for SIGALRM signals from window managers like OLWM, OLVWM, ...
+
+  o Add an optional support for the Motif widgets instead of the Athena
+    widgets.  Some people cannot live without Motif...
+
+  You can send us any suggestion/enhancement about xsession.  We'll try to
+  merge it in the next release.  If you send us some piece of code, please
+  document it: we won't include in xsession any misunderstood code!
+
+
+AUTHORS
+ 
+  Raphael Quinet <quinet@montefiore.ulg.ac.be>
+                 <quinet@stud.montefiore.ulg.ac.be>
+  Alain Nissen   <nissen@montefiore.ulg.ac.be>
+                 <nissen@stud.montefiore.ulg.ac.be>
+
+
+CREDITS
+
+  Claude Lecommandeur <lecom@sic.epfl.ch> wrote the "ctwm" window manager.  The
+  preprocessor features in xsession were clearly inspired by his work.  "ctwm"
+  is available on "ftp.x.org", in the "/R5contrib" directory; maybe it will be
+  moved somewhere in "/contrib"...
+
+  Mark Boyns <boyns@sdsu.edu> wrote the "rplay" package.  This great library is
+  used to play sounds on various hosts.  It is available on "sounds.sdsu.edu"
+  and "ftp2.montefiore.ulg.ac.be", in "/pub/rplay".
+
+  Keith Packard, from the X Consortium, wrote the "xconsole" application.
+  Numerous parts of his code were used in xsession to redirect the console
+  messages.
+
+
+ACKNOWLEDGEMENTS
+
+  Thanks to people who have tried various beta versions and official releases
+  of xsession on their system.
+
+
+COPYRIGHT
+
+  Copyright (C) 1993, 1994, Alain Nissen & Raphael Quinet, University of Liege,
+                                                                       Belgium.
+
+  The X Consortium, and any party obtaining a copy of these files from the
+  X Consortium, directly or indirectly, is granted, free of charge, a full and
+  unrestricted irrevocable, world-wide, paid up, royalty-free, nonexclusive
+  right and license to deal in this software and documentation files (the
+  "Software"), including without limitation the rights to use, copy, modify,
+  merge, publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons who receive copies from any such party to do so.  This
+  license includes without limitation a license to do the foregoing actions
+  under any patents of the party supplying this software to the X Consortium.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+  X CONSORTIUM, THE AUTHORS OR THE UNIVERSITY OF LIEGE BE LIABLE FOR ANY CLAIM,
+  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+  OR OTHER DEALINGS IN THE SOFTWARE.
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+
+XSession 1.1 - June 6th 1994

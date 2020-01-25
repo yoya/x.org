@@ -1,0 +1,513 @@
+#!/usr/local/bin/wish -f
+
+#
+# tkpostage, Release 1.3a, by Dan Wallach <dwallach@cs.princeton.edu>
+#
+#    Copyright (c) 1994    Dan Wallach
+#
+#    The X Consortium, and any party obtaining a copy of these files from
+#    the X Consortium, directly or indirectly, is granted, free of charge, a
+#    full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+#    nonexclusive right and license to deal in this software and
+#    documentation files (the "Software"), including without limitation the
+#    rights to use, copy, modify, merge, publish, distribute, sublicense,
+#    and/or sell copies of the Software, and to permit persons who receive
+#    copies from any such party to do so.  This license includes without
+#    limitation a license to do the foregoing actions under any patents of
+#    the party supplying this software to the X Consortium.
+#
+# To install this package, you may want to customize some of the things
+# listed near the string "CONFIGURE".
+#
+# $Id: tkpostage,v 1.25 1994/06/05 15:54:41 dwallach Exp $
+#
+
+##############################################################################
+# CONFIGURE: all of these things can be set in the user's X resources and
+# via command line options.  However, you may wish to change the system
+# defaults, here.
+#
+# Also, you don't have to directly edit this file if you're only changing
+# the value of bitmap.  See the section marked CONFIGURE in the Makefile.
+##############################################################################
+
+set bitmap "./Postage.xbm";
+
+set numberXOffset 83;
+set numberYOffset 54;
+set numberAnchor sw;
+
+#
+# you may need to tweak the code below to figure out the username
+#
+if [info exists env(USER)] {
+    set user $env(USER);    # works on most systems
+} elseif [info exists env(LOGNAME)] {
+    set user $env(LOGNAME); # works on HP/UX
+}
+
+set numberFont "-adobe-helvetica-*-r-*-*-20-*-*-*-*-*-*-*";
+set detailFont "6x13";  # when presenting the list of headers...
+
+set delay 2;		# check mail every 2 seconds
+
+##############################################################################
+# that should be it for configurable stuff
+##############################################################################
+
+set insideClick 0;	# avoids concurrency problems between Click and Tick
+
+if {$tk_version<3.3} {
+    puts stderr "tkpostage requires Tk version 3.3 or greater.";
+    exit 1;
+}
+
+proc LoadOption {variable name class args} {
+    global $variable;	# note the pass-by-name semantics, here
+    global flagVariable;
+
+    foreach flag $args {
+	set flagVariable($flag) $variable;
+    }
+
+    set optionString [option get . $name $class];
+    if [string length $optionString] {
+	set $variable $optionString;
+    }
+}
+
+proc LoadBoolean {variable name class args} {
+    global $variable;
+    global flagValue flagVariable;
+
+    if {![info exists $variable]} {set $variable 0};
+
+    set optionString [option get . $name $class];
+
+    #
+    # try to parse any random text from the X resource into 1 or 0
+    #
+    if [string length $optionString] {
+	switch -- $optionString {
+	    false	-
+	    False	-
+	    FALSE	-
+	    0	{set $variable 0}
+	    1	-
+	    true	-
+	    True	-
+	    TRUE	-
+	    default	{set $variable 1}
+	}
+    }
+
+    foreach flag $args {
+	set flagVariable(-$flag) $variable;
+	set flagVariable(+$flag) $variable;
+	set flagValue(-$flag) 0;
+	set flagValue(+$flag) 1;
+    }
+}
+
+proc ParseArgv {helpText} {
+    global flagVariable argc argv flagValue;
+
+    for {set i 0} {$i<$argc} {incr i} {
+	set flag [lindex $argv $i];
+
+	if [info exists flagValue($flag)] {
+	    global $flagVariable($flag);
+	    set $flagVariable($flag) $flagValue($flag);
+
+	} elseif {[info exists flagVariable($flag)] && $i+1<$argc} {
+	    set argument [lindex $argv [incr i]];
+	    global $flagVariable($flag);
+	    set $flagVariable($flag) $argument;
+
+	} else {
+	    puts stderr $helpText;
+	    exit 1;
+	}
+
+    }
+}
+
+proc InitializeOptions {} {
+    global user bitmapWidth bitmapHeight numberXOffset numberYOffset \
+	numberAnchor bgColor fgColor numberFont mailDrop bitmap delay \
+	argv0 env flipHack;
+
+    #
+    # first, try to get some reasonable defaults for the mailDrop
+    # and the colors, then chunk through the options, either command-
+    # line or X resource
+    #
+    if [info exists env(MAILDROP)] {
+	set mailDrop $env(MAILDROP);
+    } elseif [file isdirectory /usr/spool/mail] {
+	set mailDrop "/usr/spool/mail/$user";
+    } elseif [file isdirectory /usr/mail] {
+	set mailDrop "/usr/mail/$user";
+    } elseif [file isdirectory /var/spool/mail] {
+	set mailDrop "/var/spool/mail/$user";
+    } elseif [file isdirectory /var/mail] {
+	set mailDrop "/var/mail/$user";
+    }
+
+    if [string compare [tk colormodel .] monochrome] {
+	# it's color
+
+	set fgColor bisque1;
+	set bgColor black;
+    } else {
+	# it's b&w
+
+	set fgColor white;
+	set bgColor black;
+    }
+
+    LoadBoolean paranoid paranoid Paranoia paranoid;
+    LoadBoolean beepHack beep Beep beep;
+    set flipHack 1;
+    LoadBoolean flipHack flip Flip flip;
+    LoadOption bitmap bitmap Bitmap -bitmap;
+    LoadOption delay delay Delay -delay;
+    LoadOption mailDrop mailDrop MailDrop -mailDrop -mail -file;
+    LoadOption fgColor foreground Foreground -fg -foreground;
+    LoadOption bgColor background Background -bg -background;
+    LoadOption numberXOffset numberXOffset NumberXOffset -numberXOffset;
+    LoadOption numberYOffset numberYOffset NumberYOffset -numberYOffset;
+    LoadOption numberAnchor numberAnchor NumberAnchor -numberAnchor;
+    LoadOption numberFont numberFont Font -numberFont;
+    LoadOption detailFont detailFont Font -detailFont;
+    LoadOption postageGeometry postageGeometry Geometry -postageGeometry;
+    LoadOption detailGeometry detailGeometry Geometry -detailGeometry;
+
+    ParseArgv [format {Usage: %s [options...]
+    Valid options include:
+      (general options, which you may actually use)
+	-delay seconds
+	-mailDrop file-name
+	-fg color
+	-bg color
+	+/-beep      (Beep when new mail arrives: defaults to false)
+	+/-paranoid  (Paranoid about detecting new mail: defaults to false)
+	+/-flip	     (Invert when new mail arrives: defaults to true)
+
+	To change a boolean value on the command line, use +beep to mean
+	"beep: true", and use -beep to mean "beep: false"
+
+      (options for the customizer)
+	-bitmap bitmap-file
+	-numberFont font-name
+	-numberAnchor anchor-direction (e.g.: c, sw, s, se, e, ne, n, nw, w)
+	-numberXOffset integer
+	-numberYOffset integer
+	-detailFont font-name
+	-postageGeometry geometry-spec
+	-detailGeometry geometry-spec
+
+    Plus, all the usual Tk command line options.} $argv0];
+
+    if {![string length $mailDrop]} {
+	puts stderr "Sorry, I don't know where your mail goes.";
+	exit 1;
+    }
+}
+
+
+proc InitMainWindow {} {
+    global bitmapWidth bitmapHeight numberXOffset numberYOffset \
+	numberAnchor bgColor fgColor numberFont bitmap mailCountItem \
+	bitmapItem postageGeometry;
+
+    wm title . TkPostage;
+    if [info exists postageGeometry] {
+	wm geometry . $postageGeometry;
+    }
+
+    canvas .c -background $bgColor;
+    set bitmapItem [.c create bitmap 0 0 -bitmap "@$bitmap" -anchor nw \
+	-foreground $fgColor -background $bgColor];
+
+    #
+    # read the bounding box of the bitmap and set the canvas size to
+    # exactly fit the bitmap
+    #
+    set tmp [.c bbox $bitmapItem];
+    .c configure -width [lindex $tmp 2] -height [lindex $tmp 3];
+
+    set mailCountItem [.c create text $numberXOffset $numberYOffset \
+	-anchor $numberAnchor -font $numberFont \
+	-text 000 -fill $fgColor];
+
+    bind .c <Button-1> Click;
+
+    pack .c;
+}
+
+proc HighLight {state} {
+    global bitmapItem mailCountItem fgColor bgColor flipHack;
+    if {$state && $flipHack} {
+	.c itemconfigure $bitmapItem -foreground $bgColor \
+	    -background $fgColor;
+	.c itemconfigure $mailCountItem -fill $bgColor;
+    } else {
+	.c itemconfigure $bitmapItem -foreground $fgColor \
+	    -background $bgColor;
+	.c itemconfigure $mailCountItem -fill $fgColor;
+    }
+}
+
+proc Click {} {
+    global insideClick;	# avoids concurrency problems between Click and Tick
+
+    if $insideClick return;
+    set insideClick 1;
+
+    HighLight 0;
+    update;
+
+    #
+    # nuke the window if it's already there, and do nothing else
+    # (after watching people click on the window multiple times
+    # trying to make it go away :-)
+    #
+
+    if [winfo exists .details] {
+	global detailGeometry;
+	set detailGeometry [wm geometry .details];
+        destroy .details;
+	set insideClick 0;
+        return;
+    }
+
+    GetMessageHeaders;
+    set insideClick 0;
+}
+
+
+#
+# simple version -- used when only the postage window is visible
+#
+proc CountMessages {} {
+    global mailDrop mailCountItem beepHack bitmapItem numMessages;
+
+    if {! [file exists $mailDrop]} {
+        .c itemconfigure $mailCountItem -text "000";
+        return;
+    }
+
+    set mailHandle [open $mailDrop r];
+    set numMessages 0;
+
+    while {[gets $mailHandle mailText] != -1} {
+	if [regexp "^From " $mailText] {
+	    incr numMessages;
+	}
+    }
+
+    close $mailHandle;
+    global spoolATime;
+    set spoolATime [file atime $mailDrop];
+
+    .c itemconfigure $mailCountItem -text [format "%03d" $numMessages];
+
+    #
+    # HACK ALERT!  HACK ALERT!  THIS WON'T ALWAYS WORK!
+    #
+    if {$numMessages && $beepHack} {
+	puts -nonewline "\007";
+	flush stdout;
+    }
+}
+
+#
+# complex version -- used when both windows are visible
+#
+proc GetMessageHeaders {} {
+    global mailDrop;
+    global mailCountItem;
+    global detailFont;
+    global detailGeometry;
+    global numMessages;
+
+    set numMessages 0;
+    set foundEof 0;
+    set headerList {};
+
+    if {[file exists $mailDrop]} {
+	set mailHandle [open $mailDrop r];
+
+	while {[gets $mailHandle mailText] != -1 && !$foundEof} {
+	    if {![regexp "^From " $mailText]} {
+		continue;
+	    }
+
+	    incr numMessages;
+
+	    #
+	    # start of a message
+	    #
+
+	    set fromLine {};
+	    set dateLine {};
+	    set toLine {};
+	    set subjectLine {};
+
+	    for {} {!$foundEof} {set foundEof [expr "[gets $mailHandle mailText]==-1"]} {
+		if [regexp "^$" $mailText] break;
+
+		if [regexp "^From:" $mailText] {
+		    #
+		    # this magic to extract the e-mail address from a
+		    # hopefully well-formatted from-line
+		    #
+		    regsub {^From:[ 	]*(.*)$} $mailText {\1} tmp1;
+		    regsub {[ 	]*\([^)]*\)} $tmp1 {} tmp2;
+		    regsub {^[^<]*<([^>]*)>.*$} $tmp2 {\1} fromLine;
+		}
+		if [regexp "^Subject:" $mailText] {
+		    regsub {^Subject:[ 	]*(.*)$} $mailText {\1} subjectLine;
+		}
+
+		#
+		# not clear we need the latter two, here, but you never know
+		#
+		#if [regexp "^To:"   $mailText] {
+		#    regsub {^To:[ 	]*(.*)$} $mailText {\1} toLine;
+		#}
+		#if [regexp "^Date:" $mailText] {
+		#    regsub {^Date:[ 	]*(.*)$} $mailText {\1} dateLine;
+		#}
+	    }
+
+	    #lappend headerList [list $dateLine $toLine $fromLine $subjectLine];
+	    lappend headerList [list {} {} $fromLine $subjectLine];
+	}
+
+	close $mailHandle;
+	global spoolATime;
+	set spoolATime [file atime $mailDrop];
+    }
+
+    .c itemconfigure $mailCountItem -text [format "%03d" $numMessages];
+
+    if [winfo exists .details] {
+	.details.text configure -state normal;
+	.details.text delete 1.0 end;
+    } else {
+	toplevel .details -class TkPostageDetails;
+	wm title .details "TkPostage -- Headers";
+	text .details.text -wrap none -width 80 -height 12 -font $detailFont \
+	    -yscrollcommand ".details.f.s set" -setgrid 1;
+	frame .details.f;
+	scrollbar .details.f.s -command ".details.text yview";
+	button .details.f.close -bitmap error -command Click;
+
+	if [info exists detailGeometry] {
+	    wm geometry .details $detailGeometry;
+	}
+
+	pack .details.f -side right -fill y;
+	pack .details.text -expand yes -fill both;
+	pack .details.f.close -side top;
+	pack .details.f.s -side left -expand yes -fill y;
+	update;		# forces valid geometry info -- necessary later
+    }
+
+    set numInserts 0;
+    set stop [llength $headerList];
+    for {set i [expr [llength $headerList] - 1]} {$i >= 0} {incr i -1} {
+	set message [lindex $headerList $i];
+
+	incr numInserts;
+
+	.details.text insert 0.0 [format "%-22.22s  %s\n" \
+	    [lindex $message 2] \
+	    [lindex $message 3]];
+    }
+
+    #
+    # We're asking the window for its geometry and extracting the height info.
+    # We can't just check the height field, because it doesn't change when
+    # the window is resized.  Ousterhout confirmed this is correct behavior.
+    #
+    regexp {[0-9]*x([0-9]*)} [wm geometry .details] junk curHeight;
+
+    .details.text yview [expr [llength $headerList] + 1 - \
+			$curHeight.0];
+
+    .details.text configure -state disabled;
+}
+
+set spoolOldMTime 0;
+set spoolMTime 0;
+set spoolOldATime 0;
+set spoolATime 0;
+set spoolOldSize 0;
+set spoolSize 0;
+
+proc Tick {} {
+    global insideClick;	# avoids concurrency problems between Click and Tick
+    global delay;
+
+    #
+    # we have the calls to "catch" such that if we fail (maybe the
+    # NFS server died), the timer still goes on.
+    #
+    if {! $insideClick} {
+	catch CheckMessages;
+    }
+    after [expr $delay * 1000] Tick;
+}
+proc CheckMessages {} {
+    global spoolMTime spoolOldMTime spoolATime spoolOldATime spoolOldSize \
+	   spoolSize mailDrop delay mailCountItem paranoid numMessages;
+
+    #
+    # if the file doesn't exist, then there's no mail.  Both GetMessageHeaders
+    # and CountMessages have special handling for the case when the file doesn't
+    # exist.  So, we'll go directly there, without reading the mod times...
+    #
+    if {! [file exists $mailDrop]} {
+	if [winfo exists .details] {
+	    GetMessageHeaders;
+	} else {
+	    CountMessages;
+	}
+	HighLight 0;
+	set spoolSize 0;
+	return;
+    }
+
+    set spoolOldMTime $spoolMTime;
+    set spoolMTime [file mtime $mailDrop];
+
+    set spoolOldATime $spoolATime;
+    set spoolATime [file atime $mailDrop];
+
+    set spoolOldSize $spoolSize;
+    set spoolSize [file size $mailDrop];
+
+    if {$spoolMTime != $spoolOldMTime || $spoolSize != $spoolOldSize ||
+	($paranoid && $spoolOldATime != $spoolATime) } {
+
+	if [winfo exists .details] {
+	    GetMessageHeaders;
+	} else {
+	    CountMessages;
+	    HighLight $numMessages;
+	}
+    }
+}
+
+    ########
+    #      #
+    # main #
+    #      #
+    ########
+
+InitializeOptions;
+InitMainWindow;
+Tick;

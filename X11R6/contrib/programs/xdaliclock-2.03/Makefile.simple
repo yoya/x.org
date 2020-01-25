@@ -1,0 +1,59 @@
+# Makefile for xdaliclock, Copyright (c) 1991, 1992, 1993, 1994 Jamie Zawinski.
+# You should really be using the Imakefile instead.  
+# If "xmkmf ; make" doesn't work, yell at your sysadmin until it does.
+#
+# If your system doesn't have the select() system call, use -DNO_SELECT.
+# This will make the usleep() system call be used instead (this pauses
+# for the given number of microseconds).  If your system doesn't have
+# either select() or usleep(), you've got some hacking to do...
+#
+# If you don't have the SHAPE extension, you shouldn't pass -DSHAPE.
+#
+# (Jamie doesn't know anything about VMS, so don't bother asking.)
+
+          DEFINES = -DBUILTIN_FONT -DBUILTIN_FONT_2 -DSHAPE
+
+               RM = rm -f
+               CC = cc
+      CDEBUGFLAGS = -O
+        CCOPTIONS = 
+      ALLINCLUDES = $(INCLUDES) $(TOP_INCLUDES)
+       ALLDEFINES = $(ALLINCLUDES) $(DEFINES)
+           CFLAGS = $(CDEBUGFLAGS) $(CCOPTIONS) $(ALLDEFINES)
+        USRLIBDIR = /usr/lib
+     TOP_INCLUDES = -I/usr/local/include
+        LDOPTIONS = $(CDEBUGFLAGS) $(CCOPTIONS) -L$(USRLIBDIR)
+         XTOOLLIB = -lXt
+     EXTENSIONLIB = -lXext
+             XLIB = -lX11
+
+         INCLUDES = -I./numbers -I./numbers2 $(TOP_INCLUDES)
+  LOCAL_LIBRARIES = $(XTOOLLIB) $(EXTENSIONLIB) $(XLIB)
+             SRCS = xdaliclock.c digital.c colors.c resources.c \
+                    visual.c hsv.c usleep.c
+             OBJS = xdaliclock.o digital.o colors.o resources.o \
+                    visual.o hsv.o usleep.o
+         VMSFILES = xdaliclock.opt xdaliclock_build.com
+         TARFILES = README xdaliclock.man Imakefile Makefile.simple $(SRCS) \
+                    version.h defaults.h xdaliclock.h vroot.h $(VMSFILES) \
+                    numbers numbers2
+              TAR = gnutar
+         COMPRESS = compress
+     COMPRESS_EXT = Z
+#        COMPRESS = gzip --verbose --best
+#    COMPRESS_EXT = gz
+
+all:: xdaliclock
+
+xdaliclock: $(OBJS)
+	$(RM) $@
+	$(CC) -o $@ $(OBJS) $(LDOPTIONS) $(LOCAL_LIBRARIES)
+
+clean:
+	$(RM) xdaliclock *.o
+
+colors.o: xdaliclock.h
+digital.o: xdaliclock.h
+xdaliclock.o: version.h
+xdaliclock.o: defaults.h
+xdaliclock.o: xdaliclock.h

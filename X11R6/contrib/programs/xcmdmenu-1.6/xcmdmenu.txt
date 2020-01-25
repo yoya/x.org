@@ -1,0 +1,264 @@
+
+
+
+XCMDMENU(1.6)        Talisman User Commands         XCMDMENU(1.6)
+
+
+
+NAME
+     xcmdmenu - command menu utility for X
+
+SYNOPSIS
+     xcmdmenu [-help] [-debug] [-ghost|-noghost]  [-boxed|-paned]
+     [-oneshot|-persist] [_f_i_l_e_n_a_m_e]
+
+DESCRIPTION
+     The  _x_c_m_d_m_e_n_u  program  allows  the  user  to  run  a  user-
+     configured  command menu on a workstation display running X.
+     Each xcmdmenu is composed of buttons, each of which  may  be
+     configured  to  run  a  shell command using the Bourne shell
+     sh(1).  Buttons without associated commands are merely  used
+     as labels.
+
+OPTIONS
+     The various options may appear in any order:
+
+     _f_i_l_e_n_a_m_e
+          A file containing the label/command pairs and  comments
+          used  to configure an invocation of xcmdmenu.  Defaults
+          to .xcmdmenu in the current directory or ~/.xcmdmenu in
+          the  home directory if .xcmdmenu is unavailable, or the
+          <X11LibDir>/xcmdmenu.cfg file if neither is available.
+
+     -help
+          Print a usage message and exit.
+
+     -ghost
+          Allow each button to be activated only once, whereafter
+          that  button  will be _g_h_o_s_t_e_d to indicate that it is no
+          longer valid.
+
+     -noghost
+          Don't use ghosting, instead allow multiple use  of  all
+          command buttons (the default).
+
+     -boxed
+          Use the boxedWidget to manage the buttons.  This causes
+          the buttons to appear in a tray-style arrangement.
+
+     -paned
+          Use  the  panedWidget  to  manage  the   buttons   (the
+          default).   This causes the buttons to appear in a sin-
+          gle column.
+
+     -oneshot
+          The menu will exit after the first button is  activated
+          and its command, if any, completed.
+
+     -persist
+          Don't use oneshot, that is,  the  menu  persists  until
+
+
+
+X11R6               Last change: 31 May 1994                    1
+
+
+
+
+
+
+XCMDMENU(1.6)        Talisman User Commands         XCMDMENU(1.6)
+
+
+
+          explicitly exited (the default).
+
+     xcmdmenu will also accept the standard  X  Toolkit  options;
+     see the xterm(1) manual page, subsection RESOURCES.
+
+USAGE
+     The xcmdmenu has been used to ease  project  management,  to
+     pop  up  automatically  generated  menus, and to handle menu
+     hierarchies.  It is characterized  by  small,  project-  and
+     directory-specific  menus, generally run at need rather than
+     from xinit(1) or the like.
+
+     Output from a particular invocation of  xcmdmenu  will  gen-
+     erally  show  up  in the xterm(1) from which it was invoked.
+     Hence the parent terminal is often used as a display  window
+     for ls(1) and make(1) output.
+
+     The configuration file is composed of labels and commands in
+     parentheses, and comments (any not in parentheses).  Nesting
+     of parentheses is observed unless a parenthesis  is  escaped
+     with  a  backslash,  which  itself  may  be  so escaped (see
+     SCRIPTS).
+
+     All text outside of parentheses is ignored.
+
+     Parenthesized strings  are  automatically  paired,  ignoring
+     newlines.  Any _l_a_b_e_l associated with an empty _c_o_m_m_a_n_d string
+     is considered to be a text button rather than a  title  but-
+     ton, and is automatically ghosted.  _L_a_b_e_ls may also be empty
+     strings, and will produce blank text boxes in the  resulting
+     menu.
+
+EXAMPLES
+     To use the underlying X Toolkit options to select a particu-
+     lar font:
+
+          xcmdmenu -fn '*sony*24*'
+
+     Another example using explicit resources:
+
+          xcmdmenu -xrm '*font: *sony*24*'
+
+     To get the same effect through an X RESOURCES file,  include
+     the following line in your resources file:
+
+          xcmdmenu*font: *sony*24*
+
+SCRIPTS
+     A project menu:
+
+
+              Label   Command
+
+
+
+X11R6               Last change: 31 May 1994                    2
+
+
+
+
+
+
+XCMDMENU(1.6)        Talisman User Commands         XCMDMENU(1.6)
+
+
+
+          (Title)         ()
+          ( ( \) ) )      ()     a test label showing parens
+          ()              ()
+          (Clear)         (clear &)
+          (Make)          (make &)
+          (Edit File)     (${EDITOR} `ifc .` &)   InterViews only
+          (Run a.out)     (a.out &)               execute
+          (List)          (echo listing ; ls -Flasg &)
+          (Du)            (du . &)
+          (Update Menu)   (xcmdmenu -debug &)
+          (Time Test)     (sleep 5)
+
+     Generating an audio menu on a Sun SPARC in csh(1):
+
+
+          rm .xcmdmenu
+          foreach file ( *.au )
+              echo -n "(`expr $file : '\(.*\).au'`)" >> .xcmdmenu
+              echo    "(cat $file > /dev/audio)"     >> .xcmdmenu
+          end
+          xcmdmenu -boxed &
+
+     Generating an audio menu on a Sun SPARC in sh(1):
+
+
+          for file in *.au
+          do
+              echo -n "(`expr $file : '\(.*\).au'`)"
+              echo    "(cat $file > /dev/audio)"
+          done > .xcmdmenu
+          xcmdmenu -boxed &
+
+X RESOURCES
+     xcmdmenu uses the following X resources:
+
+     paned (class Paned)
+                   Indicates  whether  to  use  the  panedWidget.
+                   Defaults  to  true.  If false, the boxedWidget
+                   is used instead.
+
+     ghost (class Ghost)
+                   Indicates whether buttons are  to  be  ghosted
+                   after selection.  Defaults to false.
+
+     debug (class Debug)
+                   Whether or not to do debugging.   Defaults  to
+                   false.
+
+     oneshot (class Oneshot)
+                   Determines whether the menu exits after  first
+                   button activation.  Defaults to false.
+
+
+
+
+X11R6               Last change: 31 May 1994                    3
+
+
+
+
+
+
+XCMDMENU(1.6)        Talisman User Commands         XCMDMENU(1.6)
+
+
+
+     xcmdmenu also uses the resources of its subwidgets,  includ-
+     ing   the   commandWidget,   panedWidget,   boxWidget,   and
+     textWidget.
+
+FILES
+     .xcmdmenu           The usual  configuration  file  (in  the
+                         current   dir)   for  an  invocation  of
+                         xcmdmenu.
+     ~/.xcmdmenu         User-specific configuration file  to  be
+                         read   by  xcmdmenu  when  a  directory-
+                         specific  configuration  file   is   not
+                         available.
+     <X11LibDir>/xcmdmenu.cfg
+                         Default configuration file to be read by
+                         xcmdmenu  when no other appropriate file
+                         is available.
+
+SEE ALSO
+     X(1), xinit(1), sh(1), system(3)
+
+BUGS
+     Probably.
+
+COPYRIGHT
+     Copyright (c) 1993, 1994 Christopher Alexander North-Keys
+
+     The X Consortium, and any party obtaining a  copy  of  these
+     files  from  the  X  Consortium,  directly or indirectly, is
+     granted, free of charge, a full and  unrestricted  irrevoca-
+     ble,  world-wide,  paid up, royalty-free, nonexclusive right
+     and license to deal in this software and documentation files
+     (the "Software"), including without limitation the rights to
+     use, copy, modify, merge, publish,  distribute,  sublicense,
+     and/or  sell  copies  of the Software, and to permit persons
+     who receive copies from any  such  party  to  do  so.   This
+     license  includes  without  limitation  a  license to do the
+     foregoing actions under any patents of the  party  supplying
+     this software to the X Consortium.
+
+AUTHOR
+     Christopher Alexander North-Keys
+     <erlkonig@gnu.ai.mit.edu>
+
+     Director/Instructor of OS and Software Design
+     RDA Computer Training
+
+NOTES
+     The xcmdmenu program was  produced  under  the  auspices  of
+     Group Talisman
+
+
+
+
+
+
+X11R6               Last change: 31 May 1994                    4
+
+
+

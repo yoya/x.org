@@ -1,0 +1,123 @@
+XCOMM $XConsortium: Imakefile,v 1.11 94/08/17 21:56:42 matt Exp $
+#define DoNormalLib NormalLibFresco
+#define DoSharedLib SharedLibFresco
+#define DoDebugLib DebugLibFresco
+#define DoProfileLib ProfileLibFresco
+#define LibName Fresco
+#define LibHeaders NO
+#define SoRev SOFRESCOREV
+
+#ifdef SharedFrescoReqs
+REQUIREDLIBS = SharedFrescoReqs
+#endif
+
+#ifdef HasPoll
+POLL_DEFINES = -DUSE_POLL
+#endif
+
+
+      LINTLIBS = $(LINTXLIB)
+DEPEND_DEFINES = CplusplusDependIncludes
+FRESCO_DEFINES = -DX_LIBDIR='"$(LIBDIR)"'
+
+HEADERS =
+
+SRCS =  \
+    Sdisplay.CCsuf \
+    Sdrawing.CCsuf \
+    Sfigures.CCsuf \
+    Sglyphs.CCsuf \
+    Slayouts.CCsuf \
+    Stypes.CCsuf \
+    Sviewers.CCsuf \
+    Swidgets.CCsuf \
+    Xdisplay.CCsuf \
+    Xdrawing.CCsuf \
+    Xraster.CCsuf \
+    Xwindow.CCsuf \
+    figures.CCsuf \
+    fresco.CCsuf \
+    glyphs.CCsuf \
+    inits.CCsuf \
+    layouts.CCsuf \
+    objects.CCsuf \
+    os.CCsuf \
+    ox-ids.CCsuf \
+    threads.CCsuf \
+    transport.CCsuf \
+    types.CCsuf \
+    viewers.CCsuf \
+    widgets.CCsuf
+
+OBJS =  \
+    Sdisplay.o \
+    Sdrawing.o \
+    Sfigures.o \
+    Sglyphs.o \
+    Slayouts.o \
+    Stypes.o \
+    Sviewers.o \
+    Swidgets.o \
+    Xdisplay.o \
+    Xdrawing.o \
+    Xraster.o \
+    Xwindow.o \
+    figures.o \
+    fresco.o \
+    glyphs.o \
+    inits.o \
+    layouts.o \
+    objects.o \
+    os.o \
+    ox-ids.o \
+    threads.o \
+    transport.o \
+    types.o \
+    viewers.o \
+    widgets.o
+
+#include <Fresco.tmpl>
+
+#include <Library.tmpl>
+
+SpecialCplusplusLibObjectRule(Xdisplay,$(ICONFIGFILES),$(FRESCO_DEFINES))
+SpecialCplusplusLibObjectRule(fresco,$(ICONFIGFILES),$(POLL_DEFINES))
+
+ALLDEFINES = $(CXXDEFINES)
+
+DependTarget()
+
+
+XCOMM  The stuff from here down is related to running the ixx translator
+XCOMM  to filter implementation files based on corresponding IDL files.  
+XCOMM  You should not have to use this part unless you are modifying the
+XCOMM  the Fresco IDL definitions.
+
+#include <Ixx.tmpl>
+
+INC = ../include
+I = $(INC)/Interfaces
+I_OS = $(INC)/OS/Interfaces
+I_OX = $(INC)/Ox/Interfaces
+
+EditImpl(figures,$(I)/glyph.idl $(I)/figures.idl)
+EditImpl(Sfigures,$(I)/glyph.idl $(I)/figures.idl)
+EditImpl(fresco,$(I)/types.idl)
+EditImpl(glyphs,$(I)/glyph.idl)
+EditImpl(Sglyphs,$(I)/glyph.idl)
+EditImpl(layouts,$(I)/glyph.idl $(I)/layouts.idl)
+EditImpl(Slayouts,$(I)/glyph.idl $(I)/layouts.idl)
+EditImpl(objects,$(I_OX)/object.idl)
+EditImpl(threads,$(I_OS)/thread.idl)
+EditImpl(types,$(I)/types.idl)
+EditImpl(Stypes,$(I)/types.idl)
+EditImpl(viewers,$(I)/viewer.idl)
+EditImpl(Sviewers,$(I)/viewer.idl)
+EditImpl(widgets,$(I)/widgets.idl)
+EditImpl(Swidgets,$(I)/widgets.idl)
+EditImpl(Xdisplay,$(I)/display.idl $(I)/viewer.idl)
+EditImpl(Sdisplay,$(I)/display.idl $(I)/viewer.idl)
+EditImpl(Xdrawing,$(I)/drawing.idl)
+EditImpl(Sdrawing,$(I)/drawing.idl)
+EditImpl(Xraster,$(I)/drawing.idl)
+EditImpl(Xwindow,$(I)/display.idl $(I)/glyph.idl)

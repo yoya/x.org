@@ -1,0 +1,29 @@
+XCOMM $XConsortium: Imakefile,v 1.3 95/01/06 20:58:20 kaleb Exp $
+XCOMM $XFree86: xc/programs/Xserver/hw/xfree86/vga16/misc/Imakefile,v 3.2 1994/12/26 01:09:31 dawes Exp $
+#include <Server.tmpl>
+
+SRCS = mibitblt.c mipushpxl.c dixfonts.c
+
+OBJS = mibitblt.o mipushpxl.o dixfonts.o
+
+DEFINES = -DXF86VGA16
+
+/* This is for dixfonts.c */
+#if BuildLBXCompatible
+EXTRA_DEFINES = -DLBX
+#endif
+
+INCLUDES = -I$(SERVERSRC)/mi -I$(SERVERSRC)/include -I$(INCLUDESRC) \
+           -I$(FONTINCSRC)
+
+NormalLibraryObjectRule()
+
+NormalRelocatableTarget(vga16misc, $(OBJS))
+
+LinkSourceFile(mibitblt.c,$(SERVERSRC)/mi)
+LinkSourceFile(mipushpxl.c,$(SERVERSRC)/mi)
+LinkSourceFile(dixfonts.c,$(SERVERSRC)/dix)
+
+InstallLinkKitNonExecFile(vga16misc.o,$(LINKKITDIR)/drivers)
+
+DependTarget()

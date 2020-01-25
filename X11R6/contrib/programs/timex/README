@@ -1,0 +1,183 @@
+NAME: Timex
+AUTHOR: Harald Tveit Alvestrand, UNINETT <harald.t.alvestrand@uninett.no>
+COPYRIGHT: Like the X11R6 copyright
+
+Timex is an Athena Widget-based program to keep track of time.
+It puts up a list of projects, and the number of minutes worked on each.
+You click on the project you want to work on, and it starts counting on that.
+At the end of the day, it saves the collected data in a file, and you can
+use a script to process the data. "sumtimex" is one possible such script.
+
+There are a couple of man pages floating around.
+
+Whatever you do about it, please tell me.
+
+INSTALLATION
+
+If you are lucky:
+
+1) Unshar/untar the software. It untars into the current directory.
+
+2) Inspect the imakefile. You may want to change NONXBINDIR and PERLLIBDIR.
+
+3) % xmkmf
+   This creates a makefile configured for *your* system.
+   I'm almost certain the included one will bite you.
+
+4) % make
+
+5) % make test
+   This takes Timex for a "test ride", using the directory "test.timex"
+   in the current directory.
+
+6) (as root) # make install
+
+7) (as yourself) % Create a directory called .timex in your homedir
+
+8) % timex (or xtimex, if you think that timex is a system command)
+
+If you are unlucky, mumble.
+If you find out why you are unlucky, send me an E-mail about it.
+
+Tested on a lot of platforms, thanks to the beta test corps (you know
+who you are, THANKS!):
+
+- Sun3/SunOS
+- Sun4/SunOS
+- SCO Unix
+- VAX/VMS
+- DECstation/UNIX
+- SGI Indigo
+- Apollo DN3000 and DN4000
+- HP 400 series
+- HP 700 series
+- IBM RISC System6000/AIX
+- ESV Workstation
+- Linux
+
+If you have a platform not on this list, you are welcome to join the
+beta tester corps! Write timex-beta-request@uninett.no to get on the list.
+
+NOTE:
+
+As distributed, Timex will send an UDP packet to my workstation every
+time it is started, containing your (numeric) UID, your operating
+system and the Timex version.
+
+This is JUST because I would like to get an idea of how many people
+use Timex, and keep on using it (rather than "tried it once" folks).
+It will NEVER become a licensing scheme or some crazy thing like that.
+But, if your netadmins hate unknown UDP packets zooming off to unknown
+hosts, simply uncomment the following line to the IMAKEFILE:
+
+   CDEBUGFLAGS = -DDO_NOT_TELL_ABOUT_ME
+
+This will not only stop the call, but will drop the whole content of
+udping.c, which will also block any errors caused by differences in
+the socket implementation.
+
+
+COPYING, PAYMENT AND SUCH DETAILS
+
+I wrote this program because I needed it. After I released the first
+version, I got the feeling that other people may need it too.
+
+This particular version is distributed under the same copyright as
+X11R6, that is:
+
+     Copyright (c) 1994 Harald T. Alvestrand
+
+     The X Consortium, and any party obtaining a copy of these files from
+     the X Consortium, directly or indirectly, is granted, free of charge, a
+     full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+     nonexclusive right and license to deal in this software and
+     documentation files (the "Software"), including without limitation the
+     rights to use, copy, modify, merge, publish, distribute, sublicense,
+     and/or sell copies of the Software, and to permit persons who receive
+     copies from any such party to do so.  This license includes without
+     limitation a license to do the foregoing actions under any patents of
+     the party supplying this software to the X Consortium.
+ 
+As usual, there is no guarantee about anything at all, and you are not able
+to claim that I have done any damage to you by providing you with this
+program; any use you make of it is entirely at your own risk.
+
+If you like it, I would be happy if you would do one of the following
+things:
+
+- Leave the UDP packet sending ON, so that I can get a warm, fuzzy feeling
+  from seeing that it is used on the Internet
+
+- Send me a postcard with a nice stamp for my daughter's stamp collection
+
+- Contribute the cost of a large pizza (my favourite costs around
+  NOK 120 / USD 20 around Trondheim) to help my family feel that all the
+  time I spent doing this made some sense. (So far, 2 people have done this)
+
+See below for the address.
+
+MAILING LISTS
+
+A lot of people have found bugs in Timex. A lot of people are interested
+in further versions, suggestions for new ways to use it and so on.
+A few are even willing to do some work to help me test it.
+
+So, I have two mailing lists set up:
+
+   timex@uninett.no: For general interest
+                     Mail timex-request@uninett.no to join.
+                    
+   timex-beta@uninett.no: For testing new versions before I inflict them
+                     upon the unwary public.
+                     Mail timex-beta-request@uninett.no to join.
+
+New versions are ONLY announced on these lists.
+
+CONTRIBUTORS
+
+Bob Gibson <rjg@sco.com> contributed signal handling.
+Taed Nelson <nelson@berlioz.nsc.com> contributed the pause button.
+Bruce Steinke <bsteinke@dsd.es.com> contributed the project editor,
+      easiest the biggest patch I got!
+      He would not recognize the current version, but thanks anyway!
+George Carrette <gjc@mitec5.mitech.com> contributed the VMS stuff.
+      It is supposed to work on VMS now.
+Michael J. Shon <mjs@tropel.gca.com> contributed the TIMEXDIR variable.
+Mark Rawling <Mark.Rawling@mel.dit.csiro.au> contributed the code
+      for displaying the project and used time in the icon name.
+Bill Randle <billr@saab.cna.tek.com> made the first icon for timex,
+      and gave me code to produce an icon. Sorry it took so long!
+      He also contributed the -minutes and -monthday options to sumtimex.
+Grant Totten <ccgwt@blaze.trentu.ca> supplied the current Timex icon.
+Mike Gleichner <mkg@stealth.plk.af.mil> made it run on a NEXT
+Shane Youl <Shane.Youl@mel.dit.csiro.au> supplied the first multilingual
+      version of sumtimex, and most of the non-English, non-Norwegian
+      strings.
+Gilles Goullet <Gilles.GOULLET@iacorp.fr> supplied some more French
+      for the multilingual ability
+Per Hallenborg <hbg@vattenfall.se> contributed Swedish text for Sumtimex.
+Gordon Berkley <gordonb@mcil.comm.mot.com> supplied the "ad2c" script.
+
+Too many people to list them all pointed out elementary errors in my code
+and gave hints for increasing portability.
+
+NOTE FOR PEOPLE SUPPLYING PATCHES:
+
+If you use the "make indent" target in the Makefile to line things up
+the way I like it, there is a better chance that I will include your
+patch verbatim rather than going off on a different track.
+My favourite indents are listed in the .indent.pro file.
+
+AUTHOR'S ADDRESS
+
+E-mail (for bug reports and so on):
+
+  Harald Tveit Alvestrand <Harald.T.Alvestrand@delab.sintef.no>
+
+Physical (for pizzas)
+
+  Harald Tveit Alvestrand
+  Weidemanns vei 27
+  7043 TRONDHEIM
+  NORWAY
+

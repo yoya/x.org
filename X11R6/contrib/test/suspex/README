@@ -1,0 +1,785 @@
+
+README 
+======
+
+This document contains informations on how to build and run both suspex 
+and the inspector. It contains the following sections:
+
+  Build Tests
+  Run Tests
+  Test Environment Variables
+  Test Areas and Other Directories
+  Suspex Tests
+  Image Comparison
+  Inspector
+  Interoperability Concerns
+
+______________________________________________________________________________
+
+Build Tests
+===========
+
+First thing is to build Makefiles for all subdirectories.
+
+  % xkmf
+  % make Makefiles 
+
+With all the Makefiles in place, you can either
+
+1. build all tests at once
+  % make all
+
+  or 
+
+2. build tests in individual test areas, for example,
+  % cd oc_sun
+  % make all
+
+   or build a single test in a specific test area, for example,
+
+  % cd oc_sun
+  % make lineAttr
+
+3. build tests at run time using the "run_suspex" script.
+
+______________________________________________________________________________
+
+Run Tests
+=========
+
+You can run suspex tests by test areas using the "run_suspex" script 
+or you can run individual tests in any test areas.
+
+
+1. Using "run_suspex":
+
+  ------------------------------------------------------------------
+  % run_suspex -help
+
+  Usage: usage [-m] [-c] [-h] [-n] [-sun] [-hp] [-env] [-help] [-a testarea ...]
+
+  -a:    run only the specified test areas
+         (this option must be specified last in the command line)
+  -m:    build tests at run time
+         (run make all before running tests in each test area)
+  -c:    remove executables afterwards
+         (run make clean after running tests in each test area)
+  -n:    do not generate log files
+  -hp:   run hp tests only
+  -sun:  run sun tests only
+  -env:  echo test environments and exit
+  -help: echo usage information
+
+  Options can be combined.
+  Default is to run all tests in all supported modes 
+
+   available testareas:
+      oc_sun rndr_sun struct_sun sc_sun
+      ctl_hp errocp_hp fnt_hp inq_hp lut_hp nms_hp
+      oca_hp ocp_hp plc_hp pick_hp rnd_hp str_hp trv_hp
+  ------------------------------------------------------------------
+
+
+
+  For example, 
+
+  To echo all test environment variables:
+
+  % run_suspex -env
+
+  You should make sure all test environment variables are properly set 
+  in "run_suspex" before runnning suspex.  More on this later.
+
+  If you have already build all tests, this is what you do to run HP's 
+  tests only: 
+
+  % run_suspex -hp
+
+
+  If you want to build and run tests in the "ocp_hp" and "oc_sun" 
+  area only, and remove all executables afterwards, this is what you do:
+
+  % run_suspex -m -c -a ocp_hp oc_sun
+
+
+  If you want to run all of Sun's tests and HP's LUT tests in structure 
+  rendering mode only, you will first set test environment variables
+  RUN_IMM and RUN_NOC to 0 (more on test environment variables in the 
+  next section) in the run_suspex script, and then do:
+
+  % run_suspex -sun -a lut_hp
+
+
+2. To run individual tests
+
+  Say you want to run only the "triStrip" test in "oc_sun" area,
+  and want to know what the test does:
+
+  % cd oc_sun
+
+  % make triStrip  (if you haven't built it yet)
+
+  % triStrip -v    (verbose mode)
+
+______________________________________________________________________________
+
+
+Test Environment Variables
+==========================
+  
+  ------------------------------------------------------------------
+  % run_suspex -env
+
+  TESTBASE=          /net/sunpex/suspex-pexic
+  TESTLOGFILE=       /net/sunpex/suspex-pexic/logs/suspexTestLog<$DATE>
+  BUILDLOGFILE=      /net/sunpex/suspex-pexic/logs/suspexBuildLog<$DATE>
+  DISPLAY=           winter:0
+  TARGET_SYSTEM=     winter
+  SERVER_RESTART=    server_restart
+  SERVER_KILL=       server_kill
+  SERVER_CHECK=      server_check
+  EXECUTE_TEST=      execute_test
+  SETUP=             xstdcmap -delete default;xstdcmap -default
+  CLEANUP=           
+  PATH=              .:/usr/bin:/usr/ccs/bin:/net/lang:/net/sunpex/suspex-pexic:/usr/openwin/bin:/net/sunpex/sun4/5.x/2.1FCS01/dpexlib/client/pexdpyinfo
+  RUN_IMM=           1
+  RUN_STR=           1
+  RUN_NOC=           1
+  RUN_PWS=           0
+  RUN_FULL=          0
+  REF_IMM=           /net/sunpex/suspex-pexic/refimages/imm
+  CUR_IMM=           /net/sunpex/suspex-pexic/curimages/imm
+  BAD_IMM=           /net/sunpex/suspex-pexic/badimages/imm
+  REF_STR=           /net/sunpex/suspex-pexic/refimages/str
+  CUR_STR=           /net/sunpex/suspex-pexic/curimages/str
+  BAD_STR=           /net/sunpex/suspex-pexic/badimages/str
+  REF_NOC=           /net/sunpex/suspex-pexic/refimages/noc
+  CUR_NOC=           /net/sunpex/suspex-pexic/curimages/noc
+  BAD_NOC=           /net/sunpex/suspex-pexic/badimages/noc
+  ------------------------------------------------------------------
+
+  The above is a sample output from "run_suspex" with -env option.
+  You should make sure all test environment variables are properly set 
+  before running suspex. You will find that some of the sample environment 
+  variables doesn't make sense to you, and you will need to modify those in 
+  "run_suspex" as you see fit.
+
+1. TESTBASE:       
+
+    This is suspex's top level directory.
+
+
+2. TESTLOGFILE:    
+
+    This is where test output are logged. 
+    <$DATE> will be expanded to current date of time.
+
+
+3. BUILDLOGFILE:   
+
+    This is where build output (when you specify -make) are logged.
+    <$DATE> will be expanded to current date of time.
+
+
+4. DISPLAY:
+
+    The display which all tests are run on.
+
+
+5. TARGET_SYSTEM:  
+
+    This is the name of the host where the PEX server is running. 
+
+
+6. SERVER_RESTART: 
+
+    The command for restarting a PEX server.
+
+
+  ------------------------------------------------------------------
+    sample "server_restart" script
+  ------------------------------------------------------------------
+
+    xinit -- /usr/openwin/bin/X :0 -dev /dev/cgsix0 
+
+  ------------------------------------------------------------------
+
+
+7. SERVER_KILL: 
+
+    The command for removing a PEX server process.
+
+  ------------------------------------------------------------------
+    sample "server_kill" script
+  ------------------------------------------------------------------
+    # get server process string
+    proc=`rsh $TARGET_SYSTEM ps -ef | grep "X :0" | grep -v grep | grep -v xinit`
+    if [ "$proc" != "" ]  
+    then
+       # get server process id
+       pid=`echo $proc | awk '{print $2}'`
+
+       # kill server process
+       echo "# killing PEX server process on $TARGET_SYSTEM"
+       rsh $TARGET_SYSTEM kill -9 $pid
+
+       # reset keyboard mode
+       rsh $TARGET_SYSTEM /usr/openwin/bin/kbd_mode -a
+    fi
+  ------------------------------------------------------------------
+
+
+
+8. SERVER_CHECK:  
+
+    The command for checking whether a PEX server is running, and
+    restarting the server if necessary.
+
+  ------------------------------------------------------------------
+    sample "server_check" script
+  ------------------------------------------------------------------
+    # Note that this script works in both local and remote cases
+    # Check whether server's still running
+    pexdpyinfo -extensionInfo >/dev/null
+
+    # if server is not running
+    if [ $? != 0 ]
+    then
+        echo PEX server $DISPLAY not responding
+        echo attempting to PEX restart server on $DISPLAY...
+        rsh $TARGET_SYSTEM $TESTBASE/$SERVER_RESTART
+
+        pexdpyinfo -extensionInfo >/dev/null
+        if [ $? != 0 ]
+        then
+            echo PEX server restart failed, exiting...
+            exit 1
+        fi
+    fi 
+  ------------------------------------------------------------------
+
+
+
+9. EXECUTE_TEST:  
+
+    The command for executing a test.
+
+  ------------------------------------------------------------------
+    sample "execute_test" script
+  ------------------------------------------------------------------
+    # echoes input test name, execute test with supplied options, 
+    # check to see if server's still running, restart server if necessary.
+
+    echo [$1
+    if [ -x $1 ]
+    then
+        $*
+    else
+        echo FAIL: Could not execute $1!!
+    fi
+    $SERVER_CHECK
+    if [ $? != 0 ]
+    then
+        exit 1
+    fi
+  ------------------------------------------------------------------
+
+   The EXECUTE_TEST variable is used in all "run_tests" scripts under
+   each test area.
+
+  ------------------------------------------------------------------
+    sample "run_tests" script
+  ------------------------------------------------------------------
+    unset PAUSE
+
+    OC_TESTS="oc_test1 oc_test2 oc_test3"
+
+    NOC_TESTS="noc_test1 noctest2"
+
+    if [ $RUN_IMM = 1 ]
+        # set up image file paths for IMM mode testing
+        REF_IMAGE_DIR=$REF_IMM; export REF_IMAGE_DIR
+        CUR_IMAGE_DIR=$CUR_IMM; export CUR_IMAGE_DIR
+        BAD_IMAGE_DIR=$BAD_IMM; export BAD_IMAGE_DIR
+
+        echo "\n# Running IMM Mode Tests\n"
+        for test in $OC_TESTS
+        do
+            $EXECUTE_TEST $test -i
+        done
+
+    if [ $RUN_STR = 1 ]
+    then
+        # set up image path for STR mode testing
+        REF_IMAGE_DIR=$REF_PWS; export REF_IMAGE_DIR
+        CUR_IMAGE_DIR=$CUR_PWS; export CUR_IMAGE_DIR
+        BAD_IMAGE_DIR=$BAD_PWS; export BAD_IMAGE_DIR
+  
+        echo "\n# Running STR Mode Tests\n"
+        for test in $OC_TESTS
+        do
+            $EXECUTE_TEST $test -s
+        done
+    fi
+
+
+    if [ $RUN_NOC = 1 ]
+    then
+        # set up image path for NOC mode testing
+        REF_IMAGE_DIR=$REF_NOC; export REF_IMAGE_DIR
+        CUR_IMAGE_DIR=$CUR_NOC; export CUR_IMAGE_DIR
+        BAD_IMAGE_DIR=$BAD_NOC; export BAD_IMAGE_DIR
+  
+        echo "\n# Running NOC Mode Tests\n"
+        for test in $NOC_TESTS
+        do
+            $EXECUTE_TEST $test -p
+        done
+    fi
+
+    if [ $RUN_FULL = 1]
+    then
+        if [ $RUN_PWS = 1 ]
+        then
+            # set up image path for PWS mode testing
+            REF_IMAGE_DIR=$REF_PWS; export REF_IMAGE_DIR
+            CUR_IMAGE_DIR=$CUR_PWS; export CUR_IMAGE_DIR
+            BAD_IMAGE_DIR=$BAD_PWS; export BAD_IMAGE_DIR
+  
+            echo "\n# Running PWS Mode Tests\n"
+            for test in $OC_TESTS
+            do
+                $EXECUTE_TEST $test -p
+            done
+        fi
+    fi
+  ------------------------------------------------------------------
+
+
+10. SET_UP:
+
+    The command to set things up before running tests.   
+    This is set to "xstdcmap -delete default; xstdcmap -default" in our
+    example.
+
+    Say if you want to run suspex in a clean environment, you want to kill
+    any existing PEX server process first, and restart it later. In this 
+    case you should set SET_UP to "$SERVER_KILL;$SERVER_RESTART" in 
+    "run_suspex".  However, even "$SERVER_KILL" alone will work, this is 
+    because "run_suspex" executes $SERVER_CHECK right after $SET_UP, and 
+    $SERVER_CHECK will restart a PEX server if there is none running.  
+
+
+11. CLEAN_UP:
+
+    The command to clean things up after running tests.   
+    This is set to "blank" in our example, meaning we do no clean up
+    after running tests.
+
+
+12. PATH:
+
+    The command search path used in suspex testing. This should include:
+    1. current directory
+    2. path to basic UNIX and X utilities
+    3. $TESTBASE, where all the utility scripts are located
+    4. path to pexdpyinfo, which is expected to be used in the $SERVER_CHECK
+
+
+13. RUN_IMM, RUN_STR, RUN_NOC, RUN_PWS, RUN_FULL
+
+    Some suspex tests support multiple modes, while others work only in 
+    one specific mode.  A primitive test ususally runs in IMM STR and PWS
+    modes. A structure inquiry test may support only STR or NOC mode.
+
+    You should set RUN_* to 1 if you want to run tests which support *, 
+    or set it to 0 otherwise.
+
+    For example, your interest is primitives testing in IMM and STR
+    modes only, you would set RUN_IMM, RUN_STR to 1, and RUN_PWS = 0.
+
+    Suspex can be run in either basic or full functionality mode.
+    The default is basic mode. Set RUN_FULL to 1 if you want to run the full 
+    functionality mode.
+
+14. REF_IMM, CUR_IMM, BAD_IMM,
+    REF_STR, CUR_STR, BAD_STR,
+    REF_NOC, CUR_NOC, BAD_NOC,
+    REF_PWS, CUR_PWS, BAD_PWS:
+
+     These are used to specifiy various image paths. They are used in many
+     the "run_tests" scripts under each test area.(see sample "run_tests" 
+     above for an example of its usage).  
+
+     Note that in the above example, REF_PWS, CUR_PWS, BAD_PWS are not
+     echoed because RUN_PWS is 0.
+
+     In practice, the reference directory: REF_IMM, REF_STR, REF_PWS and 
+     REF_NOC are very likely to be pointing to the same directory. 
+     But the finer distinction here gives you maximum flexibility to handle 
+     special cases.  For example, the reference images generate from IMM 
+     mode always differs from that generate from STR mode. 
+
+     On the other hand, the distinction between different current (or bad) 
+     image directories for IMM, STR and PWS modes is necessary because an 
+     implemention often produces different "incorrect" pictures in different 
+     modes. NOC is a special case, because it is "mutually exclusive" from 
+     the other modes, therefore it may not require a separate directory, but 
+     having a separate directory for NOC doesn't hurt either.
+
+     In our sample refimages directory, you will find that the "imm", "str", 
+     "pws" and "noc" directories are just symbolic links to the "shared" 
+     directory. You should modify this directory structure to meet your 
+     requirements.
+
+     The recommended procedure is to copy one set of golden images (either 
+     pseudo8 or true24) to the "shared" directory as a starting point for
+     references, and then update it as necessary.
+
+     For example, to start with 8bit references:
+
+     % cd $TESTBASE
+     % cp goldimages/goldimages.hp/8bit/* refimages/shared
+     % cp goldimages/goldimages.sun/8bit/* refimages/shared
+
+______________________________________________________________________________
+
+
+Test Areas and Other Directories
+================================
+
+  testcases
+  ---------
+
+  You will find the following test areas directories under testcases.
+  Each has its own "Imakefile" and "run_tests" script.
+
+     oc_sun	OC Attributes and Primitives Tests
+     rndr_sun	Renderer Tests
+     struct_sun	Structure Tests
+     sc_sun	Search Context Tests
+     ctl_hp     Control Module Tests
+     errocp_hp  OC Primitives Error tests
+     fnt_hp     Font & Text Primitives Tests
+     inq_hp     Inquiry Module Tests
+     lut_hp     LUT Module Tests
+     nms_hp     Nameset Tests
+     oca_hp     OC Attributes Tests
+     ocp_hp     OC Primitives Tests
+     pick_hp    Picking Tests
+     plc_hp     Pipeline Context Tests
+     rnd_hp     Renderer Module Tests
+     str_hp     Structure Tests
+     trv_hp     Traversal Tests
+
+  src
+  ---
+  This directory contains common source for Sun's and HP's tests
+  as well as other utilities and libraries.
+
+  goldimages
+  ----------
+  This directory contains golden reference files for Sun's and HP's tests. 
+  Each has a 8bit and a 24bit subdirectories for Pseudo8 and TrueColor24 
+  configurations respectively. Note that these directories contains both 
+  image and text reference files. 
+
+______________________________________________________________________________
+
+Suspex Tests 
+============
+
+ 1. Either an image or stderr output file, or both are created for each "frame"
+    of the test and the suspex image_testproc() and file_testproc() are called 
+    to test the frame.
+
+ 2. Image based tests all use 200x200 sized windows for  archiving, but  they  
+    also  accept   standard   XParseGeometry   runstring parameters to aid 
+    manual image inspection.
+
+ 3. If the environment variable PAUSE is set, all image based tests that 
+    call suspex image_testproc() would prompt user for <CR> to continue after 
+    image is checked.
+
+ 4. If the environment variable NO_IMAGE_CHECK is set, image checking will
+    be disabled for image based tests that call suspex image_testproc(),
+    and file checking will be disabled for file comparison based tests that
+    call file_testproc(). The test will pass (but with a warning message) 
+    regardless of whether the output is correct or not.
+
+ 5. The environment variables REF_IMAGE_DIR, CUR_IMAGE_DIR, and BAD_IMAGE_DIR 
+    are required for all tests that do image or file comparison. 
+
+
+ HP tests
+ --------
+
+    The HP tests that are converted from the HP PEXlib test suite can be run
+    either under XSystem or susPEX.  All of the HP tests (except the Renderer
+    tests) use a common  main  module and a common  set of utilities 
+    contained in the common_hp directory.  Some of the Renderer tests use
+    larger than 200x200 windows.
+
+    They also utilize the PEX Color utilities included in the pexut_hp 
+    directory.
+
+    Available test execution options are:
+
+         -d depth       Sets image depth for test window(s)
+                        (Can also be set by the environment
+                         variable TEST_IMAGE_DEPTH)
+         -i             Immediate Mode
+         -n             Non-OC Mode
+         -p             PHIGS Workstation Mode
+         -s             Structure Rendering Mode
+         -v             Verbose Mode (gives test descriptions)
+         -w             wait for <CR> before continuing (for debugging)
+ 
+         In the  absence  of any  options,  -i is  assumed  if the  test
+         supports  immediate mode, otherwise -n is assumed.  Options can
+         be  combined on a single  invocation  to run tests in  multiple
+         modes.
+
+ Sun tests
+ ---------
+
+    The Sun tests are in oc_sun, rndr_sun, struct_sun and sc_sun under
+    the testscase directory. They share a common set of files under the 
+    common_sun directory but each test area has its own main.c
+
+    Available test options are:
+         -i             Immediate Mode
+         -p             PHIGS Workstation Mode
+         -s             Structure Rendering Mode
+         -v             Verbose Mode (gives test descriptions)
+
+
+   -v 	    is supported in all Sun tests.
+
+   -i,-s,-p is supported in oc_sun, default to -i
+   -i  	    is supported in rndr_sun, i.e. IMM mode only
+   -s  	    is supported in struct_sun and sc_sun, i.e. STR mode only
+ 
+______________________________________________________________________________
+
+
+Image Comparison 
+=================
+
+It is expected that different hardware and software rendering pipelines
+will render primitives differently. In order to provide the test suite 
+with the flexibility to handle wide-ranging implementations, an image 
+comparison method is used.
+
+The images are stored in a binary run-length-encoded format.
+Pixels are stored along with color map information, so that comparison 
+of images can be done by comparing the rgb values that were in the color 
+table for each pixel.  The format is described in a comment in 
+"src/util/pixutils.c" just before the definition of i_save_image() and 
+i_save_image24().
+
+The image library currently supports only Pseudo-8bit and TrueColor-24bit
+image formats.
+
+Note that all image files has .img extension.
+
+
+Algorithm: 
+
+if (image checking is disabled) 
+    return
+
+if ($REF_IMAGE_DIR/<imagename> doesn't exist) 
+
+    /* CASE 1: no reference image found */
+
+    Save image into $CUR_IMAGE_DIR/<imagename> for later inspection.
+    Run inspector afterwards to verify the image. 
+
+
+else if ($REF_IMAGE_DIR/<imagename> exist and matches screen image) 
+
+    /* CASE 2: screen image matches its reference image */
+
+    Remove any known bad image $BAD_IMAGE_DIR/<imagename>- 
+    and/or un-verified image $CUR_IMAGE_DIR/<imagename>
+
+
+else if ($BAD_IMAGE_DIR/<imagename>- exist and matches screen image) 
+
+    /* CASE 3: screen image matches a known bad image */
+
+    This means that the image did not match its reference, 
+    but DID match an image that has been marked as bad; 
+    we don't need to re-verified this image
+
+
+else if ($BAD_IMAGE_DIR/<imagename>- exist and doesn't match screen image) 
+
+    /* CASE 4: screen image doesn't match any images */
+
+    Save image into $CUR_IMAGE_DIR/<imagename> for later inspection.
+    This means that the image did not match its reference image; 
+    we don't know whether it's correct or not.  It also doesn't match 
+    any saved image that is marked as bad.  
+    Run inspector afterwards to verify the image. 
+
+else 
+
+    /* CASE 5: screen image doesn't match its reference, and there is no
+       known bad reference to compare */
+
+    Save image into $CUR_IMAGE_DIR/<imagename> for later inspection.
+    Run inspector afterwards to verify the image. 
+
+
+File Comparison uses the same algorithm, except that text file is used
+in place of image file. Note that all text file has .txt extension.
+
+______________________________________________________________________________
+
+Inspector
+=========
+
+Inspector is an X-based tool for comparing unverified suspex images against 
+saved references and reclassifying the images as good or bad reference images 
+if desired.
+
+If you have not already run "make all" from suspex's top level, then you will 
+need to run "make" in the inspector directory in order to build inspector.
+
+  % cd inspector
+  % make 
+
+The executable is called "inspector-aw", which stands for inspector with 
+athena widgets.
+
+Before you run inspector, first set up the following environment variables:
+
+  REF_IMAGE_DIR - path to a directory that contains "good" reference images
+  BAD_IMAGE_DIR - path to a directory that contains known "bad" images
+  CUR_IMAGE_DIR - path to a directory that contains un-verified images
+
+Now then you can invoke inspector.
+
+Noticed that you may have to run inspector several times for each of IMM, STR, 
+PWS and NOC modes, each time setting a different set of image paths.
+
+
+Inspector has the following options:
+
+	-d [8|24] specifies the depth/visual of image windows, it currently
+		  supports only Pseudo8 and TrueColor24, default is Pseudo8.
+
+	-m  	  If your window manager is not ICCCM-compliant, it may not
+		  load the colormap into image windows which are children
+		  of the toolkit main window. If this is the case, the
+		  crude workaround use this option to create separate windows,
+		  as children of the root window, to display images.
+
+
+The tool prints a record of its actions on its standard output --
+the user will probably want to direct this into a log file.
+ 
+On startup, the tool displays two empty boxes, labeled "reference
+image" and "current image".  To the right of these boxes is a current 
+file name, a current file status (either blank, REJECTED or UNSEEN), 
+menu with a set of buttons, and a scrolling list of filenames.  
+The filename list contains the names of the known bad image files 
+ended with '-' from $BAD_IMAGE_DIR and un-verified images files from
+$CUR_IMAGE_DIR; the user may scroll this list and select a filename.
+
+Inspector will only operates on image files which have .img extensions.
+The .img extensions are not displayed in the scrolling list, however. 
+
+The meaning and action of the buttons is as follows:
+
+        Rescan: Rescan the $CUR_IMAGE_DIR and $BAD_IMAGE_CUR directories
+                to update the scrolling list. 
+
+        Show Diffs/Show Normal: 
+		This button redisplays both images so that only those 
+		pixels that are different from the corresponding pixels in 
+		the other are displayed.  The rest of the pixels are set to 
+		the background color.  This button is a toggle -- 
+		when pressed, the label changes to "Show Normal", and pressing 
+		it again reverses the action.
+
+ 		For example, the reference image contains a square and a
+		circle, the current image contains a square and a triangle.
+		You hit the "show diffs" button, the two squares cancel out
+		each other, so you should see a circle in the reference image
+		window and a triangle in the current image window.
+
+        Quit:   Quits the application.
+
+        Unseen: Active only when an image is displayed.
+                Marks the image's file as unseen, by removing the "-" marking 
+		from filename, if present,  and moving it from $BAD_IMAGE_DIR 
+		to $CUR_IMAGE_DIR.  The status line becomes "UNSEEN".
+ 
+        Delete: Remove an image file from the its directory 
+ 
+        Accept: Active only when an image is displayed.
+                Marks the image as accepted by moving it from $CUR_IMAGE_DIR
+                or $BAD_IMAGE_DIR to $REF_IMAGE_DIR, this may involve removing 
+	        the REJECTED marking from the file if it was a known bad image.
+		The boxes, status line, and filename are cleared
+ 
+        Reject: Active only when an image is displayed.
+                Marks the image's file as being bad, by attaching a "-" to the 
+		filename and moving it from $CUR_IMAGE_DIR to $BAD_IMAGE_DIR.  
+		The status line becomes "REJECTED".
+
+        Load Next:   
+		This button loads the image file *next* to the currently 
+		selected in the scrolling list.  This image is displayed in 
+		the right box. If a reference image exists in $REF_IMAGE_DIR,
+		it is displayed in the left box. 
+ 
+        Load:   This button loads the image file currently selected in the 
+		scrolling list.  This image is displayed in the right box. 
+		If a reference image exists in $REF_IMAGE_DIR, it is displayed 
+		in the left box. Pressing this button is a good way to force 
+		a redraw of the images, if necessary.
+ 
+ 
+Below the images is a scrolling text area which contains description of what 
+the image should look like. The text data comes from the "current" or "bad" 
+image under examination.  
+
+For 8 bit PseudoColor visual, colormap flashing are likely to happen when the 
+user moves the pointer into the image area when the window manager loads the
+colormap associated with the image into the image window.
+
+______________________________________________________________________________
+
+Interoperability Concerns 
+=========================
+
+1.  The suite is written to PEX 5.1 specification, and may not run on
+    PEX 5.0 implementations.
+    
+2.  Some of the tests exercise certain enumerated type values without inquiring
+    whether they are supported on the server. The test suite is going to behave
+    in the following way on other servers:
+ 
+        - OCs should use the default values for attributes, which
+          may result in images looking the same that would have looked
+          different on HP
+
+        - Renderers and Lookup Tables may give BadValue errors when
+          a test attempts to set unsupported values.  Since error
+          trapping is normally on, the message will print but the test
+          will continue.
+
+3.  Be aware that suspex currently supports only PseudoColor8 and TrueColor24
+    image formats, although it has been tested on HP's DirectColor24
+    implementation without problem.
+
+4.  An example sun.cf and hp.cf files are included in the "include" directory 
+    for your reference in case you find any symbols that might need to be 
+    customized. The suspex Imake process has been proved to work on Sun and HP.
+
+______________________________________________________________________________
+

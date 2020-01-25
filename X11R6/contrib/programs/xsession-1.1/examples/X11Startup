@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# Customize the X screen saver
+xset s 120 2
+xset s blank
+
+# Reset the screen's background
+xsetroot
+
+# Launch xterm (in background)
+xterm -ls &

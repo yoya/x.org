@@ -1,0 +1,122 @@
+Here is a short guide on how to build and install xsession.
+
+CONFIGURATION
+
+  First, take a quick look at the file XSession.ad.  The lines belonging to the
+  groups "Window managers menu items" and "Applications menu items" should be
+  customized for your site; you should customize the "*lockCommand" resource,
+  too.
+
+  You will probably have to remove some window managers from the "wmNames" list
+  (those that are not installed on your system).  If you don't understand the
+  resources structure, you can read the manual page for more information.  You
+  can read the manual page on-line before installing it with one of the
+  following commands: nroff -man xsession.man | col | more
+                      gnroff -man xsession.man | col | more
+
+  This step is not absolutely necessary, but if you leave all window managers
+  in the menu, the users will get errors when they try to run a window manager
+  that is not available.
+
+
+COMPILING AND INSTALLING XSESSION
+
+  If you have `imake' and `xmkmf', you only need to customize the Imakefile
+  for your site (see comments inside), then type
+          xmkmf -a
+          make
+  to compile xsession, and type
+          make install
+          make install.man
+  to install xsession, its application-defaults and its manual page.
+  Note: some versions of `xmkmf' do not understand the `-a' option.  You can
+  safely ignore it if you type `make depend' after `xmkmf'.
+
+  If you don't have `imake' or `xmkmf', then you will need to customize a
+  Makefile for your site.  The one provided, which is named Makefile.std, is
+  documented and is as simple as possible.  You first have to change its name
+  to Makefile, customize it, then type
+	make
+  to compile xsession, and type
+	make install
+	make install.man
+  to install xsession, its application-defaults and its manual page.
+
+  If you have `imake' and `xmkmf', please use them to create the Makefile;
+  don't use Makefile.std!  The Makefile created by `imake' will be more
+  suitable for your system than any other one.
+
+  On some systems (Linux, AIX, Irix, ...), xsession must be setuid to root in
+  order to be able to use the "console" option.  If you are installing
+  xsession on one of those systems, you will have to execute these two
+  commands on the installed binary:
+	chown root xsession
+	chmod 4711 xsession
+  If you cannot (or may not) do this yourself, contact your administrator.
+  Note: this will only work if xsession was compiled with the ENABLE_SUID
+  symbol defined.  Otherwise, you won't be able to run it.  This is a security
+  feature.
+
+TESTING XSESSION
+
+  If you cannot install the application-defaults file in the right place (i.e.
+  the /usr/lib/X11/app-defaults directory) and you want to test xsession, you
+  can use one of the following alternatives to make these defaults known to X
+  Window (and so, to xsession):
+
+  o Write a small shell script which sets the environment variable XENVIRONMENT
+    to [...]/XSession.ad (where [...] is the right access path to the file) and
+    then executes xsession itself.  Use this shell script to actually start
+    xsession.  You can do it by hand, too.
+
+  o If you have your own application-defaults directory, for example,
+    ~/app-defaults, copy the XSession.ad file to this directory, with the name
+    XSession, and write a small shell script which sets the environment
+    variable XAPPLRESDIR to ~/app-defaults and then executes xsession itself.
+    Use this shell script to actually start xsession.  You can do it by hand,
+    too.
+
+  o Add the following line to your .xinitrc or .xsession script
+	xrdb -merge [...]/XSession.ad
+    where [...] is the right access path to the file.
+    Warning: modifying your resource manager in this way may cause some
+    side effects on other X applications.  Use this for testing only.
+
+
+BUG REPORTS
+
+  Please send any problems/questions/bug-reports/enhancements to the
+  authors:
+
+          Raphael Quinet <quinet@montefiore.ulg.ac.be>
+                         <quinet@stud.montefiore.ulg.ac.be>
+
+          Alain Nissen   <nissen@montefiore.ulg.ac.be>
+                         <nissen@stud.montefiore.ulg.ac.be>
+
+
+COPYRIGHT
+
+  Copyright (C) 1993, 1994, Alain Nissen & Raphael Quinet, University of Liege,
+                                                                       Belgium.
+
+  The X Consortium, and any party obtaining a copy of these files from the
+  X Consortium, directly or indirectly, is granted, free of charge, a full and
+  unrestricted irrevocable, world-wide, paid up, royalty-free, nonexclusive
+  right and license to deal in this software and documentation files (the
+  "Software"), including without limitation the rights to use, copy, modify,
+  merge, publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons who receive copies from any such party to do so.  This
+  license includes without limitation a license to do the foregoing actions
+  under any patents of the party supplying this software to the X Consortium.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+  X CONSORTIUM, THE AUTHORS OR THE UNIVERSITY OF LIEGE BE LIABLE FOR ANY CLAIM,
+  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+  OR OTHER DEALINGS IN THE SOFTWARE.
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.

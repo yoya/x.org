@@ -1,0 +1,27 @@
+// $XConsortium: ibmpc,v 1.2 94/04/08 16:00:44 erik Exp $
+xkb_types "Common IBM/PC Keys"
+
+type "PC_BREAK" {
+    modifiers = Control;
+    map[None] = Level1;
+    map[Control] = Level2;
+    level_name[Level1] = "Base";
+    level_name[Level2] = "Control";
+};
+
+type "PC_SYSRQ" {
+    modifiers = Alt;
+    map[None] = Level1;
+    map[Alt] = Level2;
+    level_name[Level1] = "Base";
+    level_name[Level2] = "Alt";
+};
+
+override type "CTRL+ALT" {
+    modifiers = Control+Mod1;
+    map[Control+Mod1] = Level2;
+    level_name[Level1] = "Base";
+    level_name[Level2] = "Ctrl+Alt";
+};
+
+

@@ -1,0 +1,21 @@
+Description:
+     xpd is designed to provide an  easy-to-use,  point-and-click
+     interface  to a correlation of process information available
+     through ps.
+
+Instilation:
+     See INSTALL file
+
+Platforms:
+     This software was written and tested on a Sun Sparc X running 
+     SunOS 4.1.3.
+
+Contact:
+     Vincent M. Tkac
+     vmtkac@acm.org
+
+Last Updated:
+     March 1994
+     Updates will be posted to ftp.x.org.
+
+For more information see man page and TeX manual.

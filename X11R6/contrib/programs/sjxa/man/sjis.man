@@ -1,0 +1,388 @@
+'\" t
+.\"
+.\" $SonyId: sjis.man,v 1.1 1994/05/30 13:07:29 makoto Exp $
+.\"
+.\" Copyright (c) 1994  Sony Corporation
+.\" 
+.\" Permission is hereby granted, free of charge, to any person
+.\" obtaining a copy of this software and associated documentation
+.\" files (the "Software"), to deal in the Software without
+.\" restriction, including without limitation the rights to use, copy,
+.\" modify, merge, publish, distribute, sublicense, and/or sell copies
+.\" of the Software, and to permit persons to whom the Software is
+.\" furnished to do so, subject to the following conditions:
+.\" 
+.\" The above copyright notice and this permission notice shall be
+.\" included in all copies or substantial portions of the Software.
+.\" 
+.\" THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+.\" EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+.\" MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+.\" NONINFRINGEMENT. IN NO EVENT SHALL SONY CORPORATION BE LIABLE
+.\" FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+.\" CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+.\" WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+.\" 
+.\" Except as contained in this notice, the name of Sony Corporation
+.\" shall not be used in advertising or otherwise to promote the sale,
+.\" use or other dealings in this Software without prior written
+.\" authorization from Sony Corporation.
+.\"
+.\"	
+.TH SJXA 1 "February 1, 1994"
+.SH 名前
+sjxa \- X ウィンドウシステム用日本語入力サーバ
+.SH 形式
+.B sjxa
+[
+.BI \- toolkitoption 
+\&.\|.\|. ] [
+.B \-help
+] [
+.BI \-server " hostname"
+] [
+.B \-no_auto_replace
+] [
+.B \-/+auto_raise
+] [
+.B \-/+xlc_protocol
+] [
+.B \-/+sjx_protocol
+] [
+.B \-/+kana
+]
+.SH 機能説明
+\f4sjxa \f1は、仮名漢字変換サーバ \f4sj3serv\f1 とソケットを使用した、
+プロセス間通信により仮名漢字変換を行う X ウィンドウシステム上の
+アプリケーション用の日本語入力サーバです。
+.PP
+\f4sjxa\f1 は、X Window System 上のアプリケーションと XLC プロトコル、
+sjx プロトコル または XIMP プロトコルを用いて通信し、
+受け取ったローマ字もしくは半角カタカナを
+仮名漢字変換します。そして変換結果を、アプリケーションに渡します。
+.PP
+\f4sjxa\f1 は起動時に環境変数 \f4SJXARK\f1 で指定されたファイル、
+またはディレクトリ内の \f4.sjxark\f1 というローマ字仮名変換ファイル
+を読み込み、その規則に従います。このファイルがなければ
+\f4 $XAPPLRESDIR/$LANG/.sjxark\f1, \f4$HOME/$LANG/.sjxark\f1,
+\f4 $HOME/.sjxark\f1 の順番に規則ファイルを探し、読み込みます。
+それでも規則ファイルが見つからなかった場合はデフォルトの動作をします。
+
+.SH オプション
+\f4 sjxa \f1は、すべての標準 X ツールキットコマンド行オプションの他に、
+下記の追加オプションを受け付けます。
+.TP 8
+\f4\-help
+オプションの説明を表示します。\f4 sjxa \f1は起動しません。
+.TP
+\f4\-server \f2hostname\f1
+このオプションは接続するサーバとなるホスト名を指定します。
+このオプションが省略され、環境変数 \f4SJ3SERV \f1
+もしくはリソースファイルにサーバの指定がなければ \f4localhost\f1 上
+のサーバとの接続を試みます。
+サーバとの接続ができなかった場合でも \f4sjxa\f1 は起動しますが、
+仮名漢字変換はできません。
+.TP
+\f4\-no_auto_replace
+このオプションが指定されると、
+「その場変換」を使っているときに変換文字列決定後、
+次のカーソル位置を予測して移動することをやめます。
+.TP
+\f4\-/+auto_raise
+\f4+auto_raise\f1 が指定されると XNStatusNothing で指定された
+アプリケーションが変換開始したときに \f4sjxa\f1 がアイコン化していても
+アイコン状態のままとなります。\f4\-auto_raise\f1 が指定されると
+\f4 sjxa\f1 がアイコン化されているとアイコン状態をやめます。
+デフォルトは \f4 \-auto_raise \f1が指定された状態になっています。
+.TP
+\f4\-/+xlc_protocol
+XLC プロトコルの認識の可能/不可能を指定します。
+デフォルトは\f4 \-xlc_protocol \f1が指定された状態、
+XLC プロトコルを認識する状態です。
+.TP
+\f4\-/+sjx_protocol
+sjx プロトコルの認識の可能/不可能を指定します。
+デフォルトは\f4 \-sjx_protocol \f1が指定された状態、
+sjx プロトコルを認識する状態です。
+.TP
+\f4\-/+kana
+カナ入力用のリソースを読み込む/読み込まないかの指定をします。
+デフォルトは\f4 +kana \f1が指定された状態、カナ入力用リソースを
+読み込みません。
+
+.SH リソース
+\f4 sjxa \f1で設定できる主なリソースには以下のようなものがあります。
+.TP 8
+\f4server\f1 (class \f4Server\f1)
+接続するサーバとなるホスト名を指定します。
+.TP
+\f4autoReplae\f1 (class \f4AutoReplace\f1)
+このリソースを \f4True\f1 にすると「その場変換」を使っているときに
+変換文字列決定後に次のカーソル位置を予測して移動します。
+デフォルトは \f4True\f1 です。
+.TP
+\f4autoRaise\f1 (class \f4AutoRaise\f1)
+このリソースを \f4False\f1 にするとXNStatusNothing で指定された
+アプリケーションが変換開始したときに \f4sjxa\f1 がアイコン化していても
+アイコン状態のままとなります。デフォルトは \f4True\f1 です。
+.TP
+\f4xlcProtocol\f1 (class \f4XlcProtocol\f1)
+このリソースを \f4True\f1 にすると \f4sjxa\f1 が XLC プロトコルを
+認識するようになります。デフォルトは \f4True\f1 です。
+.TP
+\f4sjxProtocol\f1 (class \f4SjxProtocol\f1)
+このリソースを \f4True\f1 にすると \f4sjxa\f1 が sjx プロトコルを
+認識するようになります。デフォルトは \f4True\f1 です。
+.TP
+\f4kanaMode\f1 (class \f4KanaMode\f1)
+このリソースを \f4True\f1 にするとカナ入力用のリソースを読み込みます。
+デフォルトは \f4False\f1 です。
+.TP
+\f4wrapToSelect\f1 (class \f4WrapToSelect\f1)
+変換後、文節候補の一覧を表示するまでの変換回数を指定します。
+デフォルトは 3 です。
+.TP
+\f4initialMode\f1 (class \f4InitialMode\f1)
+変換開始後の入力モード、\f4initial-mode\f1 アクションが実行されたときの
+入力モードを指定します。
+指定できるモードは \f4ZenkakuHiragana\f1, \f4ZenkakuKatakana\f1,
+\f4HankakuKatakana\f1, \f4ZenkakuAlpha\f1, \f4HankakuAlpha\f1
+のいずれかです。
+デフォルトは \f4ZenkakuHiragana\f1 です。\f4-kana\f1 オプションが
+指定されたときまたは \f4kanaMode\f1 リソースが \f4True\f1 と指定されたとき
+は \f4ZenkakuAlpha\f1 となります。
+.TP
+\f4defaultCode\f1 (class \f4DefaultCode\f1)
+コード入力状態になったときに最初のコードを指定します。
+指定できるコードは \f4SJIS\f1, \f4EUC\f1, \f4JIS\f1, \f4KUTEN\f1 の
+いずれかです。デフォルトは \f4SJIS\f1 です。
+.TP
+\f4visibleHorizontalItemCount\f1 (class \f4VisibleItemCount\f1)
+その場変換で表示する変換候補の横の数を指定します。デフォルトは 5 です。
+.TP
+\f4visibleVerticalItemCount\f1 (class \f4VisibleItemCount\f1)
+その場変換で表示する変換候補の縦の数を指定します。デフォルトは 5 です。
+
+.SH キーバインディング
+\f4sjxa\f1 のキーバインディングはリソースファイル内の \f4sjxaAccelerators\f1 を
+使って設定します。
+.LP
+\f4sjxa\f1 のアクセラレーターに設定可能なアクションには
+以下のものがあります。
+.TS
+center box tab(&);
+cb | cb
+- -
+l | l.
+アクション      & 機能
+add-term        & 単語の辞書登録
+alphanumeric    & アルファベットに変更
+cancel          & 状態取消
+code-input      & コード入力
+commit          & 決定
+connect         & かな漢字変換開始
+conversion      & かな漢字変換
+delete          & カーソル前の一文字削除
+delete-term     & ユーザ辞書登録文字列の削除
+disconnect      & かな漢字変換終了
+divided-delete  & カーソル前の１文字をローマ字に分解しながら削除
+down            & １行後にカーソル移動
+edit            & 変換文字列の文節再編集
+em-alphanumeric & 全角アルファベットに変更
+em-hiragana     & 全角ひらがなに変更
+em-katakana     & 全角カタカナに変更
+en-alphanumeric & 半角アルファベットに変更
+en-katakana     & 半角カタカナに変更
+end             & 文字列の最後にカーソル移動
+expand          & 変換文字列の文節長を拡大
+hankaku         & 半角に変更
+hiragana        & ひらがなに変更
+initial-mode    & \f4initialMode\f1 リソースで指定されたモードに移行
+inkey           & 文字入力
+input-mode-lock & 入力モードを固定
+jisx0208        & 表による漢字入力
+jisx0212        & 表による補助漢字入力
+katakana        & カタカナに変更
+next            & 次の文字にカーソル移動
+no-conversion   & 無変換状態に変更
+previous        & 一文字前にカーソル移動
+reconnect       & sj3serv の変更
+reconversion    & 再変換
+reduce          & 変換文字列の文節長を縮小
+scroll-down     & 次文字候補群を表示
+scroll-up       & 全文字候補群を表示
+through         & アプリケーションへ文字を転送
+toggle          & かな→全カ→半カ→全ア→半ア→かな→…
+top             & 文字列の最初にカーソル移動
+up              & １行前にカーソル移動
+wrap-back       & １つ前の候補に戻る
+zenkaku         & 全角に変更
+.TE
+
+アクションの引数には \f4sjxa\f1 の内部状態を記述することによってアクショ
+ンの起動を制限することができます。
+内部状態として \f4sjxa\f1 には 11 種類の内部状態があります。
+
+.TS
+center box tab(&);
+cB | cB
+- -
+l | l.
+状態名       & 意味
+INIT         & 変換開始後で仮名未入力状態
+INTERMEDIATE & 変換開始後で仮名入力状態
+CONVERSION   & 仮名漢字変換状態
+CODE         & 表によるコード入力状態
+WRAP         & 文節表示位置での次変換候補表示状態
+SELECT       & 変換候補一覧表示状態
+ADD          & ユーザ辞書単語登録状態
+DELETE       & ユーザ辞書単語削除状態
+EDIT         & 文節再編集状態
+SERVER       & sj3serv のホスト名設定状態
+ERROR        & エラー表示状態
+.TE
+
+アクションに引数を記述しないと全ての内部状態のときに有効であると見なし
+ます。
+アクションと内部状態の関係を次の表に示します。
+内部状態名は最初の 3 文字で表しています。
+空欄のところは設定しても無視されます。
+
+また、表中の (\f2内部状態名\f1) で示されているものは
+アクションが呼ばれたことによって \f4sjxa\f1 の内部状態が
+括弧内の内部状態に変化します。
+表中の [\f2内部状態名\f1] は場合によっては内部状態が変化することを、
+(*1) は変換終了状態になることを、
+(*2) は 1 つ前の状態に戻ることを、
+[*2] は場合よっては 1 つ前の状態に戻ることをそれぞれ示しています。
+\f4delete-term\f1 アクションと \f4reconnect\f1 アクションは
+\f4sjxa\f1 が複数のクライアントと通信している場合は、すべての状態が
+\f4INIT\f1 状態または \f4INTERMEDIATE\f1 状態でなければ呼び出すこと
+はできません。
+
+.TS
+center box tab(&);
+cbp8 | cbp8 sssssssssss
+cbp8 | cbp6 cbp6 cbp6 cbp6 cbp6 cbp6 cbp6 cbp6 cbp6 cbp6 cbp6
+
+lp8 | cp6 cp6 cp6 cp6 cp6 cp6 cp6 cp6 cp6 cp6 cp6.
+                & 内部状態
+アクション      & INI & INT & CON & WRA & SEL & ADD & DEL & EDI & COD & SER & ERR
+add-term        &     &     &(ADD)&(ADD)&     &     &     &     &     &     &
+alphanumeric    & ○  & ○  & ○  &(CON)&     &     &     & ○  &     &     &
+cancel          &(*1) &(INI)&(INT)&(CON)&(CON)&(CON)&(*2) &(CON)&(*2) &(*2) &(*2)
+code-input      & ○  & ○  &     &     &     &     &     & ○  &     &     &
+commit          &     &(INI)&(INI)&(INI)&(CON)&(CON)&[*2] &(CON)& ○  &(*2) &(*2)
+connect         &     &     &     &     &     &     &     &     &     &     &
+conversion      &     &(CON)&(WRA)&[SEL]& ○  &     &     &(WRA)&     &     &
+delete          &     &[INI]&     &     &     & ○  &     & ○  & ○  & ○  &
+delete-term     &     &(DEL)&     &     &     &     &     &     &     &     &
+disconnect      &(*1) &(*1) &(*1) &(*1) &(*1) &(*1) &(*1) &(*1) &(*1) &(*1) &(*1)
+divided-delete  &     &[INI]&     &     &     & ○  &     & ○  & ○  & ○  &
+down            &     &     &     &     & ○  &     & ○  &     & ○  &     &
+edit            &     &     &(EDI)&(EDI)&     &     &     &     &     &     &
+em-alphanumeric & ○  & ○  & ○  &(CON)&     &     &     & ○  &     &     &
+em-hiragana     & ○  & ○  & ○  &(CON)&     &     &     & ○  &     &     &
+em-katakana     & ○  & ○  & ○  &(CON)&     &     &     & ○  &     &     &
+en-alphanumeric & ○  & ○  & ○  &(CON)&     &     &     & ○  &     &     &
+en-katakana     & ○  & ○  & ○  &(CON)&     &     &     & ○  &     &     &
+end             &     & ○  & ○  &(CON)& ○  & ○  & ○  & ○  & ○  & ○  &
+expand          &     &     & ○  & ○  &     & ○  &     &     &     &     &
+hankaku         & ○  & ○  & ○  &(CON)&     &     &     & ○  &     &     &
+hiragana        & ○  & ○  & ○  &(CON)&     &     &     & ○  &     &     &
+initial-mode    & ○  & ○  &     &     &     &     &     & ○  &     &     &
+inkey           &(INT)& ○  &(INI)&(INI)& ○  & ○  &     & ○  &     & ○  &
+input-mode-lock & ○  & ○  &     &     &     &     &     &     &     &     &
+jisx0208        &(COD)&(COD)&     &     &     &     &     &(COD)&     &     &
+jisx0212        &(COD)&(COD)&     &     &     &     &     &(COD)&     &     &
+katakana        & ○  & ○  & ○  &(CON)&     &     &     & ○  &     &     &
+next            &     & ○  & ○  & ○  & ○  & ○  & ○  & ○  & ○  & ○  &
+no-conversion   &     &(CON)& ○  &(CON)&     &     &     &     &     &     &
+previous        &     & ○  & ○  & ○  & ○  & ○  & ○  & ○  & ○  & ○  &
+reconnect       &(SER)&(SER)&     &     &     &     &     &     &     &     &
+reconversion    &(INT)& ○  &     &     &     &     &     &     &     &     &
+reduce          &     &     & ○  & ○  &     & ○  &     &     &     &     &
+scroll-down     &     &     &     &     & ○  &     & ○  &     & ○  &     &
+scroll-up       &     &     &     &     & ○  &     & ○  &     & ○  &     &
+through         & ○  &     &     &     &     &     &     &     &     &     &
+toggle          & ○  & ○  & ○  &(CON)&     &     &     & ○  &     &     &
+top             &     & ○  & ○  & ○  & ○  & ○  & ○  & ○  & ○  &  ○ &
+up              &     &     &     &     & ○  &     & ○  &     & ○  &     &
+wrap-back       &     &     & ○  & ○  & ○  &     &     &     &     &     &
+zenkaku         & ○  & ○  & ○  &(CON)&     &     &     & ○  &     &     &
+.TE
+
+.SH デフォルトキーバインディング
+.TS
+center box tab(&);
+cB | cB
+- -
+l | l.
+機能         & キー
+変換開始/終了 & [Shift]+[変換], [Ctrl]+[￥]
+文字列決定+変換終了 & [Esc]
+かな漢字変換 & [変換], [スペース]
+無変換 & [無変換]
+単語登録 & [F1]
+単語削除 & [F2]
+変換結果修正 & [F3]
+表による漢字入力 & [F4]
+表による補助漢字入力 & [Shift]+[F4]
+コード入力 & [F5]
+半角アルファベット & [F6]
+全角アルファベット & [F7]
+半角カタカナ & [F8]
+全角カタカナ & [F9]
+全角ひらがな & [F10]
+変換文字列決定 & [Return], [Enter]
+右移動 & [→], [Ctrl]+[f], [l]
+左移動 & [←], [Ctrl]+[b], [h]
+上移動 & [↑], [Ctrl]+[p], [k]
+下移動 & [↓], [Ctrl]+[n], [j]
+ページアップ & [PageUp], [Alt]+[↑], [Alt]+[z]
+ページダウン & [PageDown], [↓], [Ctrl]+[z]
+文字削除 & [Bs], [Del], [Ctrl]+[h]
+文節拡大 & [↑], [Ctrl]+[o]
+文節縮小 & [↓], [Ctrl]+[i]
+再編集 & [Ctrl]+[y]
+キャンセル & [Esc], [Ctrl]+[g]
+sj3serv 変更 & [F11], [Ctrl]+[F1]
+スペースの入力 & [Shift]+[スペース]
+.TE
+
+.SH 環境変数
+.TP 15
+\f4SJ3SERV
+接続するサーバとなるホスト名を取得します。
+.TP 15
+\f4SJXARK
+ローマ字仮名変換規則定義ファイルのあるディレクトリを取得します。
+.SH ファイル
+.PD 0
+.TP 15
+$LIBDIR/sjxa/sjxark
+デフォルトローマ字仮名変換規則定義ファイル
+.TP
+$HOME/.sjxark
+.TP
+$HOME/$LANG/.sjxark
+.TP
+$SJXARK/.sjxark
+ユーザ定義ローマ字仮名変換規則定義ファイル
+.TP
+$LIBDIR/$LANG/app-defaults/Sjxa
+リソースファイル
+
+.SH 関連項目
+\f4sj3serv\f1 (1),
+\f4sj3lib\f1 (3),
+\f4X\f1 (1)
+
+.SH 著作権
+Copyright (c)
+.SO year "1993-1994"
+Sony Corporation
+
+.SH 製作者
+Makoto Wakamatsu
+Sony Corporation

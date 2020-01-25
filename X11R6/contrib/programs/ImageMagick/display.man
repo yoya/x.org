@@ -1,0 +1,1322 @@
+.ad l
+.nh
+.TH display 1 "1 May 1994" "ImageMagick"
+.SH NAME
+display - display an image on any workstation running X
+.SH SYNOPSIS
+.B "display" [ \fIoptions\fP ...] \fIfile\fP
+[ [ \fIoptions\fP ...] \fIfile\fP ...]
+.SH DESCRIPTION
+\fBDisplay\fP is a machine architecture independent image processing
+and display program.  It can display an image on any workstation
+display running an X server.  \fBDisplay\fP can read and write many of
+the more popular image formats (e.g. JPEG, TIFF, PNM, etc.).  You can
+perform these functions on the image:
+
+    o display information about the image
+    o write the image to a file
+    o print the image to a Postscript printer
+    o delete the image file
+    o load an image from a file
+    o display the next image
+    o display the former image
+    o select the image to display by its thumbnail rather than name
+    o undo last image transformation
+    o restore the image to its original size
+    o half the image size
+    o double the image size
+    o resize the image
+    o trim the image edges
+    o clip the image
+    o cut the image
+    o flop image in the horizontal direction
+    o flip image in the vertical direction
+    o rotate the image 90 degrees clockwise
+    o rotate the image 90 degrees counter-clockwise
+    o rotate the image
+    o shear the image
+    o invert the colors of the image
+    o perform histogram equalization on the image
+    o perform histogram normalization on the image
+    o gamma correct the image
+    o reduce the speckles within an image
+    o eliminate peak noise from an image
+    o detect edges within the image
+    o convert the image to grayscale
+    o set the maximum number of unique colors in the image
+    o annotate the image with text
+    o add a border to the image
+    o composite image with another
+    o edit an image pixel color
+    o edit the image matte information
+    o add an image comment
+    o display information about this program
+    o discard all images and exit program
+    o change the level of magnification
+.SH EXAMPLES
+To scale an image of a cockatoo to exactly 640 pixels in width and 480
+pixels in height and position the window at location (200,200), use:
+.PP
+.B
+     display -geometry 640x480\+200\+200! cockatoo.miff
+.PP
+To display an image of a cockatoo without a border centered on a
+backdrop, use:
+.PP
+.B
+     display +borderwidth -backdrop cockatoo.miff
+.PP
+To tile an image of a cockatoo onto the root window, use:
+.PP
+.B
+     display -window root cockatoo.miff
+.PP
+To display a MAP image that is 640 pixels in width and 480
+pixels in height with 256 colors, use:
+.PP
+.B
+     display -geometry 640x480\+256 cockatoo.map
+.SH OPTIONS
+.TP 5
+.B "-backdrop"
+display the image centered on a backdrop.
+
+This backdrop covers the entire workstation screen and is useful for
+hiding other X window activity while viewing the image.   The color of
+the backdrop is specified as the background color.  Refer to \fBX
+RESOURCES\fP for details.
+.TP 5
+.B "-blur"
+blur an image.
+.TP 5
+.B "-border \fI<width>x<height>fP"
+surround the image with a border or color.  See \fBX(1)\fP for details
+about the geometry specification.
+ 
+The color of the border is obtained from the X server and is defined as
+\fBbordercolor\fP (class \fBborderColor\fP).  See \fBX(1)\fP for details.
+.TP 5
+.B "-clip \fI<width>x<height>{\+-}<x offset>{\+-}<y offset>\fP"
+preferred size and location of the clipped image.  See \fBX(1)\fP for details
+about the geometry specification.
+
+Use clipping to apply image processing options to, or display, a
+particular area of an image.  Use \fB-clip 0x0\fP to remove edges that are
+the background color.
+
+The equivalent X resource for this option is \fBclipGeometry\fP
+(class \fBClipGeometry\fP).  See \fBX RESOURCES\fP for details.
+.TP 5
+.B "-colormap \fItype\fP"
+the type of colormap: \fBShared\fP or \fBPrivate\fP.
+
+This option only applies when the default X server visual is
+\fIPseudoColor\fP or \fIGrayScale\fP.  Refer to \fB-visual\fP for more
+details.  By default, a shared colormap is allocated.  The image shares
+colors with other X clients.  Some image colors could be approximated,
+therefore your image may look very different than intended.  Choose
+\fBPrivate\fP and the image colors appear exactly as they are
+defined.  However, other clients may go "technicolor" when the image
+colormap is installed.
+.TP 5
+.B "-colors \fIvalue\fP"
+preferred number of colors in the image.
+
+The actual number of colors in the image may be less than your request,
+but never more.  Note, this is a color reduction option.  Images with
+less unique colors than specified with this option will remain unchanged.
+Refer to \fBquantize(9)\fP for more details.
+
+Note, options \fB-dither\fP, \fB-colorspace\fP, and \fB-treedepth\fP affect
+the color reduction algorithm.
+.TP 5
+.B "-colorspace \fIvalue\fP"
+the type of colorspace: \fBGRAY\fP, \fBOHTA\fP, \fBRGB\fP, \fBXYZ\fP,
+\fBYCbCr\fP, \fBYIQ\fP, or \fBYUV\fP.
+
+Color reduction, by default, takes place in the RGB color space.
+Empirical evidence suggests that distances in color spaces such as YUV
+or YIQ correspond to perceptual color differences more closely
+than do distances in RGB space.  These color spaces may give better
+results when color reducing an image.  Refer to \fBquantize(9)\fP for
+more details.
+
+The \fB-colors\fP or \fB-monochrome\fP option is required for this option
+to take effect.
+.TP 5
+.B "-comment \fIstring\fP"
+annotate an image with a comment.
+
+By default, each image is commented with its file name.  Use this
+option to assign a specific comment to the image.  Optionally you can
+include the image filename, type, width, height, or scene number by
+embedding special format characters.  Embed \fB%f\fP for filename,
+\fB%m\fP for magick, \fB%w\fP for width, \fB%h\fP for height, \fB%s\fP
+for scene number, or \fB\\n\fP for newline.  For example,
+
+.nf
+     -comment "%m:%f %wx%h"
+.fi
+
+produces an image comment of \fBMIFF:bird.miff 512x480\fP for an image
+titled \fBbird.miff\fP and whose width is 512 and height is 480.
+ 
+If the first character of \fIstring\fP is \fB@\fP, the image comment is read
+from a file titled by the remaining characters in the string.
+.TP 5
+.B "-compress \fItype\fP"
+the type of image compression: \fIQEncoded\fP or \fIRunlengthEncoded\fP.
+
+Use this option with \fB-write\fP to specify the the type of image
+compression.  See \fBmiff(5)\fP for details.
+
+Specify \fB\+compress\fP to store the binary image in an uncompressed format.
+The default is the compression type of the specified image file.
+.TP 5
+.B "-delay \fIseconds\fP"
+display the next image after pausing.
+
+This option is useful when viewing several images in sequence.  Each
+image will display and wait the number of seconds specified before the
+next image is displayed.  The default is to display the image
+and wait until you choose to display the next image or terminate the
+program.
+.TP 5
+.B "-density \fI<width>x<height>
+vertical and horizontal density of the image.
+
+This option specifies an image density for a Postscript page.
+The default is 72 dots per inch in the horizontal and vertical direction.
+Use this option to alter the default density.
+.TP 5
+.B "-despeckle"
+reduce the speckles within an image.
+.TP 5
+.B "-display \fIhost:display[.screen]\fP"
+specifies the X server to contact; see \fBX(1)\fP.
+.TP 5
+.B "-dither"
+apply Floyd/Steinberg error diffusion to the image.
+
+The basic strategy of dithering is to trade intensity resolution for
+spatial resolution by averaging the intensities of several neighboring
+pixels.  Images which suffer from severe contouring when reducing colors
+can be improved with this option.
+
+The \fB-colors\fP or \fB-monochrome\fP option is required
+for this option to take effect.
+.TP 5
+.B "-edge"
+detect edges within an image.
+.TP 5
+.B "-enhance"
+apply a digital filter to enhance a noisy image.
+.TP 5
+.B "-equalize"
+perform histogram equalization to the image.
+.TP 5
+.B "-flip"
+create a "mirror image" by reflecting the image scanlines in the vertical
+direction.
+.TP 5
+.B "-flop"
+create a "mirror image" by reflecting the image scanlines in the horizontal
+direction.
+.TP 5
+.B "-gamma \fIvalue\fP"
+level of gamma correction.
+
+The same color image displayed on two different workstations may look
+different due to differences in the display monitor.  Use gamma
+correction to adjust for this color difference.  Reasonable values
+extend from 0.8 to 2.3.
+
+You can apply separate gamma values to the red, green, and blue
+channels of the image with a gamma value list delineated with commas
+(i.e. 1.7,2.3,1.2).
+.TP 5
+.B "-geometry \fI<width>{%}x<height>{%}{\+-}<x offset>{\+-}<y offset>{!}\fP"
+preferred size and location of the image window.  See \fBX(1)\fP for details
+about the geometry specification.  By default, the window size is the image
+size and the location is choosen by you when it is mapped.
+
+By default, the width and height are maximum values.  That is, the
+image is expanded or contracted to fit the width and height value while
+maintaining the aspect ratio of the image.  Append an exclamation point
+to the geometry to force the image size to exactly the size you
+specify.  For example, if you specify \fB640x480!\fP the image width is
+set to 640 pixels and height to 480.  If only one factor is
+specified, both the width and height assume the value. 
+
+To specify a percentage width or height instead, append \fB%\fP.  The
+image size is multiplied by the width and height percentages to obtain
+the final image dimensions.  To increase the size of an image, use a
+value greater than 100 (e.g. 125%).  To decrease an image's size, use a
+percentage less than 100.
+
+When displaying an image on an X server, \fI<x offset>\fP and
+\fI<y offset>\fP is relative to the root window.
+
+The equivalent X resource for this option is \fBimageGeometry\fP
+(class \fBImageGeometry\fP).  See \fBX RESOURCES\fP for details.
+.TP 5
+.B "-interlace \fItype\fP"
+the type of interlacing scheme: \fBNONE\fP, \fBLINE\fP, or \fBPLANE\fP.
+
+This option is used to specify the type of interlacing scheme for raw
+image formats such as \fBRGB\fP or \fBYUV\fP.  \fBNONE\fP means do not
+interlace (RGBRGBRGBRGBRGBRGB...), \fBLINE\fP uses scanline
+interlacing (RRR...GGG...BBB...RRR...GGG...BBB...), and \fBPLANE\fP uses
+plane interlacing (RRRRRR...GGGGGG...BBBBBB...).
+.TP 5
+.B "-label \fIname\fP"
+assign a label to an image.
+
+Use this option to assign a specific label to the image.  Optionally
+you can include the image filename, type, width, height, or scene
+number in the label by embedding special format characters.   Embed
+\fB%f\fP for filename, \fB%m\fP for magick, \fB%w\fP for width,
+\fB%h\fP for height, or \fB%s\fP for scene number.  For example,
+.nf
+     -label "%m:%f %wx%h"
+.fi
+produces an image label of \fBMIFF:bird.miff 512x480\fP for an image
+titled \fBbird.miff\fP and whose width is 512 and height is 480.
+
+If the first character of \fIstring\fP is \fB@\fP, the image label is read
+from a file titled by the remaining characters in the string.
+ 
+When converting to Postscript, use this option to specify a header string
+to print above the image.
+.TP 5
+.B "-map \fItype\fP"
+display image using this Standard Colormap type.
+
+Choose from these Standard Colormap types:
+
+    default
+    best
+    red
+    green
+    blue
+    gray
+
+The X server must support the Standard Colormap you choose, otherwise an
+error occurs.  See \fBxstdcmap(1)\fP for one way of creating Standard
+Colormaps.
+.TP 5
+.B "-matte"
+store matte channel if the image has one.
+.TP 5
+.B "-monochrome"
+transform the image to black and white.
+.TP 5
+.B "-negate"
+apply color inversion to image.
+
+The red, green, and blue intensities of an image are negated.
+.TP 5
+.B "-noise"
+reduce the noise in an image with a noise peak elimination filter.
+
+The principal function of noise peak elimination filter is to smooth
+the objects within an image without losing edge information and without
+creating undesired structures.  The central idea of the algorithm is to
+replace a pixel with its next neighbor in value within a 3 x 3 window,
+if this pixel has been found to be noise.  A pixel is defined as noise
+if and only if this pixel is a maximum or minimum within the 3 x 3 window.
+.TP 5
+.B "-normalize"
+transform image to span the full range of color values.
+
+This is a contrast enhancement technique.
+.TP 5
+.B "-page \fI<width>x<height>{\+-}<x offset>{\+-}<y offset>\fP"
+size and location of the Postscript page.
+
+Use this option to specify the dimensions of the Postscript page in
+picas or a TEXT page in pixels.  The default for a Postscript page is
+to center the image on a letter page 612 by 792 dots per inch.  The
+left and right margins are 18 picas and the top and bottom 94 picas
+(i.e.  612x792+18+94).  Other common sizes are:
+
+    540x720   Note
+    612x1008  Legal
+    842x1190  A3
+    595x842   A4
+    421x595   A5
+    297x421   A6
+    709x1002  B4
+    612x936   U.S. Foolscap
+    612x936   European Foolscap
+    396x612   Half Letter
+    792x1224  11x17
+    1224x792  Ledger
+
+The page geometry is relative to the vertical and horizontal density of the
+Postscript page.  See \fB-density\fP for details.
+
+The default page dimensions for a TEXT image is 612x792+36+36.
+.TP 5
+.B "-quality \fIvalue\fP"
+JPEG quality setting.
+
+Quality is 0 (worst) to 100 (best). The default is 85.
+.TP 5
+.B "-roll \fI{\+-}<x offset>{\+-}<y offset>\fP"
+roll an image vertically or horizontally.  See \fBX(1)\fP for details
+about the geometry specification.
+ 
+A negative \fIx offset\fP rolls the image left-to-right.  A negative
+\fIy offset\fP rolls the image top-to-bottom.
+.TP 5
+.B "-rotate \fIdegrees\fP"
+apply Paeth image rotation to the image.
+
+Empty triangles left over from rotating the image are filled with
+the color defined as \fBbordercolor\fP (class \fBborderColor\fP).
+See \fBX(1)\fP for details.
+.TP 5
+.B "-scene \fIvalue\fP"
+image scene number.
+
+Use this option to specify an image sequence with a single filename.  See
+the discussion of \fIfile\fP below for details.
+.TP 5
+.B "-sharpen"
+sharpen an image.
+.TP 5
+.B "-shear \fI<x degrees>x<y degrees>\fP"
+shear the image along the X or Y axis by a positive or negative shear angle.
+ 
+Shearing slides one edge of an image along the X or Y axis, creating a
+parallelogram.  An X direction shear slides an edge along the X axis,
+while a Y direction shear slides an edge along the Y axis.  The amount
+of the shear is controlled by a shear angle.  For X direction shears,
+\fIx degrees>\fP is measured relative to the Y axis, and similarly, for
+Y direction shears \fIy degrees\fP is measured relative to the X axis.
+ 
+Empty triangles left over from shearing the image are filled with
+the color defined as \fBbordercolor\fP (class \fBborderColor\fP).
+See \fBX(1)\fP for details.
+.TP 5
+.B "-treedepth \fIvalue\fP"
+Normally, this integer value is zero or one.  A zero or one tells
+\fBdisplay\fP to choose a optimal tree depth for the color reduction
+algorithm.
+
+An optimal depth generally allows the best representation of the source
+image with the fastest computational speed and the least amount of
+memory.  However, the default depth is inappropriate for some images.
+To assure the best representation, try values between 2 and 8 for this
+parameter.  Refer to \fBquantize(9)\fP for more details.
+
+The \fB-colors\fP or \fB-monochrome\fP option is required
+for this option to take effect.
+.TP 5
+.B "-update \fIseconds\fP"
+detect when image file is modified and redisplay.
+
+Suppose that while you are displaying an image the file that is
+currently displayed is over-written.  \fBdisplay\fP will automatically
+detect that the input file has been changed and update the displayed
+image accordingly.
+.TP 5
+.B -verbose
+print detailed information about the image.
+
+This information is printed: image scene number;  image name;  image
+size; the image class (\fIDirectClass\fP or \fIPseudoClass\fP);  the total
+number of unique colors;  and the number of seconds to read and
+transform the image.  Refer to \fBmiff(5)\fP for a description of
+the image class.
+
+If \fB-colors\fP is also specified, the total unique colors in the image
+and color reduction error values are printed.  Refer to \fBquantize(9)\fP
+for a description of these values.
+.TP 5
+.B "-visual \fItype\fP"
+display image using this visual type.
+
+Choose from these visual classes:
+
+    StaticGray
+    GrayScale
+    StaticColor
+    PseudoColor
+    TrueColor
+    DirectColor
+    default
+    \fIvisual id\fP
+
+The X server must support the visual you choose, otherwise an error occurs.
+If a visual is not specified, the visual class that can display the most
+simultaneous colors on the default X server screen is choosen.
+.TP 5
+.B "-window \fIid\fP"
+set the background pixmap of this window to the image.
+
+\fIid\fP can be a window id or name.  Specify \fBroot\fP to select X's root
+window as the target window.
+
+By default the image is tiled onto the background of the target
+window.   If \fB-backdrop\fP or \fB-geometry\fP are specified, the
+image is surrounded by the background color.  Refer to \fBX
+RESOURCES\fP for details.
+
+The image will not display on the root window if the image has more
+unique colors than the target window colormap allows.  Use
+\fB-colors\fP to reduce the number of colors.
+.TP 5
+.B "-write \fIfilename\fP"
+write image to a file.
+
+If \fIfile\fP already exists, you will be prompted as to whether
+it should be overwritten.
+
+By default, the image is written in the format that it was read in as.
+To specify a particular image format, prefix \fIfile\fP with the image
+type and a colon (i.e. ps:image) or specify the image type as the
+filename suffix (i.e. image.ps).  See \fBconvert(1)\fP for a list of
+valid image formats.  Specify \fIfile\fP as \fI-\fP for standard
+output.  If \fIfile\fP has the extension \fB.Z\fP or \fB.gz\fP, the
+file size is compressed using with \fBcompress\fP or \fBgzip\fP
+respectively.  Precede the image file name \fI|\fP to pipe to a system
+command. If \fIfile\fP already exists, you will be prompted as to
+whether it should be overwritten.
+
+Use \fB-compress\fP to specify the type of image compression.
+
+The equivalent X resource for this option is \fBwriteFilename\fP
+(class \fBWriteFilename\fP).  See \fBX RESOURCES\fP for details.
+.PP
+In addition to those listed above, you can specify these standard X
+resources as command line options:  \fB-background\fP,
+\fB-bordercolor\fP, \fB-borderwidth\fP, \fB-font\fP, \fB-foreground\fP,
+\fB-iconGeometry\fP, \fB-iconic\fP, \fB-mattecolor\fP, \fB-name\fP, or
+\fB-title\fP.  See \fBX RESOURCES\fP for details.
+.PP
+Any option you specify on the command line remains in effect until it is
+explicitly changed by specifying the option again with a different effect.
+For example to display two images, the first with 32 colors, and the
+second with only 16 colors, use:
+.PP
+     display -colors 32 cockatoo.miff -colors 16 macaw.miff
+.PP
+Change \fI-\fP to \fI\+\fP in any option above to reverse its effect.
+For example, specify \fB\+matte\fP to store the image without its matte
+channel.
+.PP
+By default, the image format is determined by its magic number. To
+specify a particular image format, precede the filename with an image
+format name and a colon (i.e. ps:image) or specify the image type as
+the filename suffix (i.e. image.ps).  See \fBconvert(1)\fP for a list
+of valid image formats.
+.PP
+When you specify \fBX\fP as your image type, the filename has special
+meaning.  It specifies an X window by id, name, or \fBroot\fP.  If no
+filename is specified, the window is selected by clicking the mouse in
+the desired window.
+.PP
+Specify \fIfile\fP as \fI-\fP for standard input.  If \fIfile\fP has
+the extension \fB.Z\fP or \fB.gz\fP, the file is uncompressed with
+\fBuncompress\fP or \fBgunzip\fP respectively.  Precede the image file
+name \fI|\fP to pipe from a system command.
+.PP
+Single images are read with the filename you specify.  Alternatively,
+you can display an image sequence with a single filename.  Define the
+range of the image sequence with \fI-scene\fP.  Each image in the
+range is read with the filename followed by a period (\fB.\fP)
+and the scene number.  You can change this behavior by embedding a
+\fBprintf\fP format specification in the file name.  For example,
+.nf
+        -scene 0-9 image%02d.miff
+.fi
+displays files image00.miff, image01.miff, through image09.miff.
+.SH BUTTONS
+The effects of each button press is described below.  Three buttons are
+required.  If you have a two button mouse, button 1 and 3 are returned.
+Press ALT and button 3 to simulate button 2.
+.TP 5
+.B "1"
+Press and drag to select a command from a pop-up menu.  Choose from
+these menu items:
+
+    File
+      Image Info
+      Write...
+      Print...
+      Load...
+      Next
+      Former
+    Edit
+      Undo
+      Restore
+      Refresh
+    View
+      Half Size
+      Original Size
+      Double Size
+      Resize...
+    Transform
+      Trim Edges
+      Clip
+      Cut
+      Flop
+      Flip
+      Rotate Right
+      Rotate Left
+      Rotate...
+    Enhance
+      Negate
+      Equalize
+      Normalize
+      Gamma...
+    Effects
+      Despeckle
+      Peak Noise
+      Sharpen
+      Blur
+      Edge Detect
+      Grayscale
+      Quantize...
+    Image Edit
+      Annotate
+      Add Border...
+      Composite...
+      Color
+      Matte
+      Comment
+    Help
+    Quit
+
+The indented items are members of a sub-menu.  Access them by moving the
+pointer toward the right edge of the menu.
+.TP 5
+.B "2"
+Press and drag to define a region of the image to magnify.
+.TP 5
+.B "3"
+If the image is a montage image, choose a particular tile of the image
+and press this button. The image represented by the tile is then
+displayed.  To return to the composite MIFF image, choose \fINext\fP
+from the command menu (refer to Button 1).  See \fBmontage(1)\fP and
+\fBmiff(5)\fP for more details.
+.SH KEYBOARD ACCELERATORS
+.TP 5
+.B "i"
+Press to display information about the image.
+.TP 5
+.B "w"
+Press to write the image to a file.
+.TP 5
+.B "p"
+Press to print the image to a Postscript printer.
+.TP 5
+.B "d"
+Press to delete an image file.
+.TP 5
+.B "l"
+Press to load an image from a file.
+.TP 5
+.B "n"
+Press to display the next image.
+.TP 5
+.B "f"
+Press to display the former image.
+.TP 5
+.B "u"
+Press to undo last image transformation.
+.TP 5
+.B "r"
+Press to restore the image to its original size.
+.TP 5
+.B "@"
+Press to refresh the image window.
+.TP 5
+.B "<"
+Press to half the image size.
+.TP 5
+.B "<"
+Press to return to the original image size.
+.TP 5
+.B ">"
+Press to double the image size.
+.TP 5
+.B "%"
+Press to resize the image to a width and height you specify.
+.TP 5
+.B "t"
+Press to trim the image edges.
+.TP 5
+.B "["
+Press to crop the image.
+
+Refer to \fBIMAGE CROPPING\fP for more details.
+.TP 5
+.B "]"
+Press to cut the image.
+
+Refer to \fBIMAGE CUTTING\fP for more details.
+.TP 5
+.B "|"
+Press to flop image in the horizontal direction.
+.TP 5
+.B "-"
+Press to flip image in the vertical direction.
+.TP 5
+.B "/"
+Press to rotate the image 90 degrees clockwise.
+.TP 5
+.B \(bs
+Press to rotate the image 90 degrees counter-clockwise.
+.TP 5
+.B "*"
+Press to rotate the image the number of degrees you specify.
+
+Refer to \fBIMAGE ROTATION\fP for more details.
+.TP 5
+.B "s"
+Press to shear the image the number of degrees you specify.
+.TP 5
+.B "~"
+Press to invert the colors of the image.
+.TP 5
+.B "="
+Press to perform histogram equalization on the image.
+.TP 5
+.B "N"
+Press to perform histogram normalization on the image.
+.TP 5
+.B "g"
+Press to gamma correct the image.
+.TP 5
+.B "D"
+Press to reduce the speckles in an image.
+.TP 5
+.B "P"
+Press to eliminate peak noise from an image.
+.TP 5
+.B "S"
+Press to sharpen an image.
+.TP 5
+.B "B"
+Press to delete an image file.
+.TP 5
+.B "E"
+Press to detect edges within an image.
+.TP 5
+.B "G"
+Press to convert the image colors to gray.
+.TP 5
+.B "Q"
+Press to set the maximum number of unique colors in the image.
+.TP 5
+.B "a"
+Press to annotate the image with text.
+
+Refer to \fBIMAGE ANNOTATION\fP for more details.
+.TP 5
+.B "n"
+Press to add a border to the image.
+.TP 5
+.B "x"
+Press to composite the image with another.
+
+Refer to \fBIMAGE COMPOSITING\fP for more details.
+.TP 5
+.B "c"
+Press to edit an image pixel color.
+
+Refer to \fBCOLOR EDITING\fP for more details.
+.TP 5
+.B "m"
+Press to edit the image matte information.
+
+Refer to \fBMATTE EDITING\fP for more details.
+.TP 5
+.B "#"
+Press to add an image comment.
+.TP 5
+.B "h"
+Press to display helpful information about \fBdisplay(1)\fP.
+
+Function keys \fIHELP\fP or \fIF1\fP are synonomous with the \fIh\fP key.
+.TP 5
+.B "v"
+Press to display the version number of \fBdisplay(1)\fP.
+.TP 5
+.B "q"
+Press to discard all images and exit program.
+.TP 5
+.B "1-9"
+Press to change the level of magnification.
+.PP
+Use the arrow keys to move the image one pixel up, down, left, or right within
+the magnify window.  Be sure to first map the magnify window by pressing
+button 3.
+
+Press \fBALT\fP and one of the arrow keys to trim off one pixel from
+any side of the image.
+.SH "X RESOURCES"
+\fBdisplay\fP options can appear on the command line or in your X
+resource file.  Options on the command line supersede values specified
+in your X resource file.  See \fBX(1)\fP for more information on X
+resources.
+
+All \fBdisplay\fP options have a corresponding X resource.  In addition,
+\fBdisplay\fP uses the following X resources:
+.TP 5
+.B background (\fIclass\fP Background)
+Specifies the preferred color to use for the image window background.  The
+default is #ccc.
+.TP 5
+.B borderColor (\fIclass\fP BorderColor)
+Specifies the preferred color to use for the image window border.  The
+default is black.
+.TP 5
+.B borderWidth (\fIclass\fP BorderWidth)
+Specifies the width in pixels of the image window border.  The default is 2.
+.TP 5
+.B editorCommand (\fIclass\fP editorCommand)
+Specifies the name of the preferred editor when editing image comments.
+The default is \fIxterm -e vi %s\fP.
+.TP 5
+.B fontList (\fIclass\fP FontList)
+Specifies the name of the preferred font to use when displaying text
+within the image window.  The default is 14 point \fIHelvetica\fP.
+.TP 5
+.B font[1-9] (\fIclass\fP Font[1-9])
+Specifies the name of the preferred font to use when annotating the
+image window with text.  The default fonts are \fIfixed\fP,
+\fIvariable\fP, \fI5x8\fP, \fI6x10\fP, \fI7x13bold\fP, \fI8x13bold\fP,
+\fI9x15bold\fP, \fI10x20\fP, and \fI12x24\fP.  Refer to \fBIMAGE
+ANNOTATION\fP for more details.
+.TP 5
+.B foreground (\fIclass\fP Foreground)
+Specifies the preferred color to use for text within the image window.  The
+default is black.
+.TP 5
+.B iconGeometry (\fIclass\fP IconGeometry)
+Specifies the preferred size and position of the application when
+iconified.  It is not necessarily obeyed by all window managers.
+.TP 5
+.B iconic (\fIclass\fP Iconic)
+This resource indicates that you would prefer that the application's
+windows initially not be visible as if the windows had be immediately
+iconified by you.  Window managers may choose not to honor the
+application's request.
+.TP 5
+.B magnify (\fIclass\fP Magnify)
+specifies an integral factor by which the image should be enlarged.  The
+default is 3.
+
+This value only affects the magnification window which is invoked with
+button number 3 after the image is displayed.  Refer to \fBBUTTONS\fP
+for more details.
+.TP 5
+.B matteColor (\fIclass\fP MatteColor)
+Specify the color of windows.  It is used for the backgrounds of
+windows, menus, and notices.  A 3D  effect  is achieved  by
+using highlight and shadow colors derived from this color.  Default
+value: #ddd.
+.TP 5
+.B name (\fIclass\fP Name)
+This resource specifies the name under which resources for the
+application should be found.  This resource is useful in shell aliases to
+distinguish between invocations of an application, without resorting to
+creating links to alter the executable file name.  The default is the
+application name.
+.TP 5
+.B pen[1-9] (\fIclass\fP Pen[1-9])
+Specifies the color of the preferred font to use when annotating the
+image window with text.  The default colors are \fIblack\fP,
+\fIblue\fP, \fIgreen\fP, \fIcyan\fP, \fIgray\fP, \fIred\fP,
+\fImagenta\fP, \fIyellow\fP, and \fIwhite\fP.  Refer to \fBIMAGE
+ANNOTATION\fP for more details.
+.TP 5
+.B printCommand (\fIclass\fP PrintCommand)
+This command is executed whenever \fBPrint\fP is issued (see \fBBUTTONS\fP.
+In general, it is the command to print Postscript to your printer.
+Default value: \fBlpr\fP.
+.TP 5
+.B title (\fIclass\fP Title)
+This resource specifies the title to be used for the image window.  This
+information is sometimes used by a window manager to provide a
+header identifying the window.  The default is the image file name.
+.TP 5
+.B usePixmap (\fIclass\fP UsePixmap)
+Images are maintained as a XImage by default.  Set this resource to True
+to utilize a server Pixmap instead.  This option is useful if your image
+exceeds the dimensions of your server screen and you intend to pan the
+image.  Panning is much faster with Pixmaps than with a XImage.
+Pixmaps are considered a precious resource, use them with discretion.
+.SH IMAGE PANNING
+When an image exceeds the width or height of the X server screen,
+\fBdisplay\fP maps a small panning window.  The rectangle within the
+panning window shows the area that is currently displayed in the
+the image window.  To "pan" about the image, press and drag the mouse
+within the panning window.  The panning rectangle moves with the mouse
+and the image window is updated to reflect the location of the
+rectangle within the panning window.  When you have selected the area
+of the image you wish to view, just release the mouse button.
+
+Use the arrow keys to pan the image one pixel up, down, left, or right within
+the image window.
+
+The panning window goes away if the image becomes smaller than the
+dimensions of the X server screen.
+
+If you force the panning window to withdraw, the image is restored to
+its original size.
+.SH IMAGE CROPPING
+To begin, press button 1 and choose \fIClip\fP from the command menu
+(see \fBBUTTONS\fP).  Alternatively, press \fIc\fP in the image window
+(see \fBKEYBOARD ACCELERATORS\fP).  To exit immediately, press
+\fIESC\fP.
+
+A small window appears showing the location of the cursor in the image
+window.  You are now in \fIclip mode\fP.  To exit immediately,
+press \fIESC\fP.
+
+To define a clipping region, press button 1 and drag.  The clipping
+region is defined by a highlighted rectangle that expands or contracts
+as it follows the pointer.  Once you are satisfied with the clipping region,
+release the button.  You can make adjustments to the clipping rectangle
+with the arrow keys.  Press an arrow key to expand the region by one
+pixel.  Press \fBALT\fP and an arrow key to contract the clipping
+region.
+
+Finally, press \fIRETURN\fP to commit your clipping region.  To exit without
+cropping the image, press \fIESC\fP.
+.SH IMAGE CUTTING
+An image is cut interactively.  There is no command line argument to
+cut an image.  To begin, press button 1 and choose \fICut\fP from the
+image edit menu (see \fBBUTTONS\fP).  Alternatively, press \fIx\fP in
+the image window (see \fBKEYBOARD ACCELERATORS\fP).  To exit
+immediately, press \fIESC\fP.
+.PP
+You are now in \fIcut mode\fP.  To exit immediately, press \fIESC\fP.
+In \fIcut mode\fP a button press has a different effect than described
+in \fBBUTTONS\fP.  Press a button to affect this behavior:
+.TP 5
+.B "1"
+Select a location within the image window to begin your cut, press and hold.
+Next, move the pointer to another location in the image.  As you move a
+line will connect the initial location and the pointer.  When you
+release the button, the area within the image to cut is determined by 
+which cut direction you choose with button 2.
+.TP 5
+.B "2"
+Press and drag to select a cut operator from a pop-up menu.  Choose from
+these cut operators:
+
+    horizontal
+    vertical
+.PP
+If the operator is \fBhorizontal\fP, the area of the image between
+the two horizontal endpoints of the cut line is removed.  Otherwise, the area
+of the image between the two vertical endpoints of the cut line is removed.
+.PP
+To cancel the image cutting, move the pointer back to the starting
+point of the line and release the button.
+.SH IMAGE ROTATION
+Press the \fI/\fP key to rotate the image 90 degrees or \fI\\\fP to
+rotate -90 degrees (see \fBKEYBOARD ACCELERATORS\fP).  To interactively
+choose the degree of rotation, choose \fIRotate\fP from the image edit
+menu (see \fBBUTTONS\fP).  Alternatively, press \fI|\fP in the image
+window (see \fBKEYBOARD ACCELERATORS\fP). To exit immediately, press
+any button in the image window twice.
+.PP
+A small horizontal line is drawn next to the pointer.  You are now in
+\fIrotation mode\fP. To exit immediately, press any button and release.
+In \fIrotation mode\fP a button press has a different
+effect than described in \fBBUTTONS\fP.  Press a button to affect this
+behavior:
+.TP 5
+.B "1"
+Choose a point in the image window and press this button and hold.
+Next, move the pointer to another location in the image.  As you move a
+line connects the initial location and the pointer.  When you
+release the button, the degree of image rotation is determined by the
+slope of the line you just drew.
+.TP 5
+.B "2"
+Press and drag to select a background color from a pop-up menu.  Choose from
+these background colors:
+
+    black
+    blue
+    cyan
+    green
+    gray
+    red
+    magenta
+    yellow
+    white
+    Browser...
+
+Other background colors can be specified with the color browser or by setting
+the X resources \fBpen1\fP through \fBpen9\fP.  Refer to \fBX RESOURCES\fP
+for more details.
+
+If you select the color browser and press \fBGrab\fP, you can choose the font
+color by moving the pointer to the desired color on the screen and press any
+button.
+.PP
+To cancel the image rotation, move the pointer back to the starting
+point of the line and release the button.
+.SH IMAGE ANNOTATION
+An image is annotated with text interactively.  There is no command
+line argument to annotate an image.  To begin, press button 1 and
+choose \fIAnnotate\fP from the image edit menu (see \fBBUTTONS\fP).
+Alternatively, press \fIa\fP in the image window (see \fBKEYBOARD
+ACCELERATORS\fP).  To exit immediately, press \fIESC\fP.
+.PP
+A small window appears showing the location of the cursor in the image
+window.  You are now in \fIannotate mode\fP.  To exit immediately,
+press \fIESC\fP. In \fIannotate mode\fP a button press has a different
+effect than described in \fBBUTTONS\fP.  Press a button to affect this
+behavior:
+.TP 5
+.B "1"
+Press to select a location within the image window to begin entering text.
+.TP 5
+.B "2"
+Press and drag to select a font color from a pop-up menu.  Choose from
+these font colors:
+
+    black
+    blue
+    cyan
+    green
+    gray
+    red
+    magenta
+    yellow
+    white
+    Browser...
+
+Other font colors can be specified with the color browser or by setting the X
+resources \fBpen1\fP through \fBpen9\fP.  Refer to \fBX RESOURCES\fP
+for more details.
+
+If you select the color browser and press \fBGrab\fP, you can choose the font
+color by moving the pointer to the desired color on the screen and press any
+button.
+.TP 5
+.B "3"
+Press and drag to select a font from a pop-up menu.  Choose from
+these fonts:
+
+    fixed
+    variable
+    5x8
+    6x10
+    7x13bold
+    8x13bold
+    9x15bold
+    10x20
+    12x24
+    Browser...
+
+Other fonts can be specified with the font browser or by setting the X
+resources \fBfont1\fP through \fBfont9\fP.  Refer to \fBX RESOURCES\fP
+for more details.
+.PP
+Choosing a font and its color is optional.  The default font is
+\fIfixed\fP and the default color is \fIblack\fP.  However, you must
+choose a location to begin entering text and press button 1.  An
+underscore character will appear at the location of the cursor where
+you pressed button 1.  The cursor changes to a pencil to indicate
+you are in \fItext mode\fP.  To exit immediately, press \fIESC\fP.
+.PP
+In \fItext mode\fP, any key presses will display the character at
+the location of the underscore and advance the underscore cursor.
+Enter your text and once completed press \fIESC\fP to finish your image
+annotation.  To correct errors press \fIBACK SPACE\fP.  To delete an
+entire line of text, press \fIDELETE\fP.  Any text that exceeds the
+boundaries of the image window is automatically continued onto the next
+line.
+.PP
+The actual color you request for the font is saved in the image.
+However, the color that appears in your image window may be different.
+For example, on a monochrome screen the text will appear black or white even
+if you choose the color red as the font color.  However, the image saved to
+a file with \fB-write\fP is written with red lettering.  To assure
+the correct color text in the final image, any \fIPseudoClass\fP image
+is promoted to \fIDirectClass\fP (see \fBmiff(5)\fP).  To
+force a \fIPseudoClass\fP image to remain \fIPseudoClass\fP, use
+\fB-colors\fP.
+.SH IMAGE COMPOSITING
+An image composite is created interactively.  There is no command line
+argument to composite an image.  To begin, press button 1 and choose
+\fIComposite Image\fP from the image edit menu (see \fBBUTTONS\fP).
+Alternatively, press \fI*\fP in the image window (see \fBKEYBOARD
+ACCELERATORS\fP).
+.PP
+First a popup window is displayed requesting you to enter an image name.  
+Press \fIComposite\fP, enter 'X:', or type a file name.  Press \fICancel\fP
+if you choose not to create a composite image.  When you specify \fBX:\fP
+as your file name, the filename has special meaning.  It specifies an X
+window by id, name, or \fBroot\fP.  If no name is specified, the
+window is selected by clicking the mouse in the desired window.  See
+\fBimport(1)\fP for details.
+.PP
+A small window appears showing the location of the cursor in the image
+window.  You are now in \fIcomposite mode\fP.  To exit immediately,
+press \fIESC\fP.  In \fIcomposite mode\fP a button press has a
+different effect than described in \fBBUTTONS\fP.  Press a button to
+affect this behavior: 
+.TP 5
+.B "1"
+Press to select a location within \fIimage window\fP to composite your
+image.
+.TP 5
+.B "2"
+Press and drag to select a composite operation from a pop-up menu.
+Choose from these composite operations:
+
+    over
+    in
+    out
+    atop
+    xor
+    plus
+    minus
+    add
+    subtract
+    difference
+    replace
+.PP
+How each operator behaves is described below.  \fIimage window\fP is the image
+currently displayed on your X server and \fIimage\fP is the image obtained with
+the File Browser widget.
+.TP 9
+.B over
+The result is the union of the two image shapes, with \fIimage\fP
+obscuring \fIimage window\fP in the region of overlap.
+.TP 9
+.B in
+The result is simply \fIimage\fP cut by the shape of \fIimage
+window\fP.  None of the image data of \fIimage window\fP is in the
+result.
+.TP 9
+.B out
+The resulting image is \fIimage\fP with the shape of \fIimage window\fP
+cut out.
+.TP 9
+.B atop
+The result is the same shape as image \fIimage window\fP, with
+\fIimage\fP obscuring \fIimage window\fP where the image shapes
+overlap.  Note this differs from \fBover\fP because the portion of
+\fIimage\fP outside \fIimage window\fP's shape does not appear in the
+result.
+.TP 9
+.B xor
+The result is the image data from both \fIimage\fP and \fIimage window\fP
+that is outside the overlap region.  The overlap region is blank.
+.TP 9
+.B plus
+The result is just the sum of the image data.  Output values are
+clipped to 255 (no overflow).  This operation is independent
+of the matte channels.
+.TP 9
+.B minus
+The result of \fIimage\fP \- \fIimage window\fP, with underflow clipped
+to zero.  The matte channel is ignored (set to 255, full coverage).
+.TP 9
+.B add
+The result of \fIimage\fP + \fIimage window\fP, with overflow wrapping
+around (\fImod\fP 256).
+.TP 9
+.B subtract
+The result of \fIimage\fP - \fIimage window\fP, with underflow wrapping
+around (\fImod\fP 256).  The \fBadd\fP and \fBsubtract\fP operators can
+be used to perform reversible transformations.
+.TP 9
+.B difference
+The result of abs(\fIimage\fP \- \fIimage window\fP).  This is useful
+for comparing two very similar images.
+.TP 9
+.B replace
+The resulting image is \fIimage window\fP replaced with \fIimage\fP.
+Here the matte information is ignored.
+.PP
+The image compositor requires a matte, or alpha channel in the image
+for some operations.  This extra channel usually defines a mask which
+represents a sort of a cookie-cutter for the image.  This is the case
+when matte is 255 (full coverage) for pixels inside the shape, zero
+outside, and between zero and 255 on the boundary.  If \fIimage\fP does
+not have a matte channel, it is initialized with 0 for any pixel
+matching in color to pixel location (0,0), otherwise 255.  See
+\fBMATTE EDITING\fP for a method of defining a matte channel.
+.PP
+Note that matte information for \fIimage window\fP is not retained for
+colormapped X server visuals (e.g. \fIStaticColor\fP,
+\fIStaticColor\fP, \fIGrayScale\fP, \fIPseudoColor\fP).  Correct
+compositing behavior may require a \fITrueColor\fP or \fIDirectColor\fP
+visual or a \fIStandard Colormap\fP.
+.PP
+Choosing a composite operator is optional.  The default operator is
+\fIover\fP.  However, you must choose a location to composite your image
+and press button 1.  Press and hold button 1 before releasing and an
+outline of the image will appear to help you identify your location.
+.PP
+The actual colors of the composite image is saved.  However, the color
+that appears in \fIimage window\fP may be different.  For example, on a
+monochrome screen \fIimage window\fP will appear black or white even
+though your composited image may have many colors.  If the image is
+saved to a file it is written with the correct colors.  To assure the
+correct colors are saved in the final image, any \fIPseudoClass\fP
+image is promoted to \fIDirectClass\fP (see \fBmiff(5)\fP).  To force a
+\fIPseudoClass\fP image to remain \fIPseudoClass\fP, use \fB-colors\fP.
+.SH COLOR EDITING
+Changing the the color of a set of pixels is performed
+interactively.  There is no command line argument to edit a pixel.  To
+begin, press button 1 and choose \fIImage Edit\fP from the command menu
+(see \fBBUTTONS\fP).  Alternatively, press \fIe\fP in the image window
+(see \fBKEYBOARD ACCELERATORS\fP).  To exit immediately, press
+\fIESC\fP.
+.PP
+A small window appears showing the location of the cursor in the image
+window.  You are now in \fIpixel edit mode\fP.  To exit immediately,
+press \fIESC\fP. In \fIpixel edit mode\fP a button press has a different
+effect than described in \fBBUTTONS\fP.  Press a button to affect this
+behavior:
+.TP 5
+.B "1"
+Press to select a pixel within the image window to change its color.
+Any pixel within the image that matches the color of the selected pixel is
+recolored. 
+.TP 5
+.B "2"
+Press and drag to select a pixel color from a pop-up menu.  Choose from
+these pixel colors:
+
+    black
+    blue
+    cyan
+    green
+    gray
+    red
+    magenta
+    yellow
+    white
+    Browser...
+
+Other pixel colors are specified with the color browser or by setting the X
+resources \fBpen1\fP through \fBpen9\fP.  Refer to \fBX RESOURCES\fP
+for more details.
+.TP 5
+.B "3"
+Press and drag to select a delta factor from a pop-up menu.  Choose from
+these delta factor:
+
+    0
+    2
+    4
+    8
+    16
+    32
+    64
+    Dialog...
+
+The delta factor you choose creates a range of colors that are
+considered candidates for recoloring.  The factor is added then
+subtracted from each color component of the pixel you choose with button
+1.  Any pixel within the image that falls in this range is recolored.
+.PP
+The actual color you request for the pixels is saved in the image.
+However, the color that appears in your image window may be different.
+For example, on a monochrome screen the pixel will appear black or white even
+if you choose the color red as the font color.  However, the image saved to
+a file with \fB-write\fP is written with red pixels.  To assure
+the correct color text in the final image, any \fIPseudoClass\fP image
+is promoted to \fIDirectClass\fP (see \fBmiff(5)\fP).  To
+force a \fIPseudoClass\fP image to remain \fIPseudoClass\fP, use
+\fB-colors\fP.
+.SH MATTE EDITING
+Matte information within an image is useful for some operations such as
+image compositing (See \fBIMAGE COMPOSITING\fP).  This extra channel
+usually defines a mask which represents a sort of a cookie-cutter for
+the image.  This is the case when matte is 255 (full coverage) for
+pixels inside the shape, zero outside, and between zero and 255 on the
+boundary.
+
+Setting the matte information in an image is done interactively.  There
+is no command line argument to edit a pixel.  To begin, press button 1
+and choose \fIMatte Edit\fP from the command menu (see \fBBUTTONS\fP).
+Alternatively, press \fIe\fP in the image window (see \fBKEYBOARD
+ACCELERATORS\fP).  To exit immediately, press \fIESC\fP.
+.PP
+A small window appears showing the location of the cursor in the image
+window.  You are now in \fImatte edit mode\fP.  To exit immediately,
+press \fIESC\fP. In \fImatte edit mode\fP a button press has a different
+effect than described in \fBBUTTONS\fP.  Press a button to affect this
+behavior:
+.TP 5
+.B "1"
+Press to select a pixel within the image window to set it's matte value.
+The matte value of any pixel within the image that matches the color of the
+selected pixel is initialized.
+.TP 5
+.B "2"
+Press an a dialog appears requesting a matte value.  Enter a value between
+0 and 255.  This value is assigned as the matte value of the selected pixel
+or pixels.
+.PP
+Matte information is only valid in a \fIDirectClass\fP image.
+Therefore, any \fIPseudoClass\fP image is promoted to \fIDirectClass\fP
+(see \fBmiff(5)\fP).  Note that matte information for \fIPseudoClass\fP
+is not retained for colormapped X server visuals (e.g.
+\fIStaticColor\fP, \fIStaticColor\fP, \fIGrayScale\fP,
+\fIPseudoColor\fP) unless you immediatelysave your image to a file
+(refer to \fBWrite\fP).  Correct matte editing behavior may require a
+\fITrueColor\fP or \fIDirectColor\fP visual or a \fIStandard Colormap\fP. 
+.SH ENVIRONMENT
+.TP 5
+.B display
+To get the default host, display number, and screen.
+.SH SEE ALSO
+.B
+animate(1), import(1), montage(1), mogrify(1), convert(1), segment(1),
+combine(1), xtp(1)
+.SH COPYRIGHT
+Copyright 1994 E. I. du Pont de Nemours and Company
+.PP
+Permission to use, copy, modify, distribute, and sell this software and
+its documentation for any purpose is hereby granted without fee,
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in
+supporting documentation, and that the name of E. I. du Pont de Nemours
+and Company not be used in advertising or publicity pertaining to
+distribution of the software without specific, written prior
+permission.  E. I. du Pont de Nemours and Company makes no representations
+about the suitability of this software for any purpose.  It is provided
+"as is" without express or implied warranty.
+.PP
+E. I. du Pont de Nemours and Company disclaims all warranties with regard
+to this software, including all implied warranties of merchantability
+and fitness, in no event shall E. I. du Pont de Nemours and Company be
+liable for any special, indirect or consequential damages or any
+damages whatsoever resulting from loss of use, data or profits, whether
+in an action of contract, negligence or other tortuous action, arising
+out of or in connection with the use or performance of this software.
+.SH ACKNOWLEDGEMENTS
+The MIT X Consortium for making network transparent graphics a reality.
+.PP
+Rod Bogart and John W. Peterson, University of Utah.  Image
+compositing is loosely based on \fIrlecomp\fP of the Utah Raster
+Toolkit.
+.PP
+Michael Halle, Spatial Imaging Group at MIT, for the initial
+implementation of Alan Paeth's image rotation algorithm.
+.PP
+David Pensak, E. I. du Pont de Nemours and Company, for providing a
+computing environment that made this program possible.
+.PP
+Paul Raveling, USC Information Sciences Institute, for the original
+idea of using space subdivision for the color reduction algorithm.
+.SH AUTHORS
+John Cristy, E.I. du Pont de Nemours and Company Incorporated

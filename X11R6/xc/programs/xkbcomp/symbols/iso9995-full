@@ -1,0 +1,32 @@
+// $XConsortium: iso9995-full,v 1.2 94/04/08 15:59:37 erik Exp $
+xkb_symbols	"iso9995-full"
+
+// Defines the special modifier keys specified by 9995 part 3
+// Includes the iso9995-3 to get the common alternate set
+
+include "iso9995-3"
+
+SetMods.latchToLock=True;
+SetMods.clearLocks=True;
+
+override key <CAPS> {	[	ISO_Lock		]	};
+override key <LFSH> {	
+	type="PC_BREAK",
+	[ 	 Shift_L,			ISO_Prev_Group	],
+	[ SetMods(modifiers=Shift),	LockGroup(group= -1)	]
+};
+override key <RTSH> {	
+	type="PC_BREAK",
+	[ 	Shift_R,			ISO_Next_Group ],
+	[ SetMods(modifiers=Shift),	LockGroup(group= +1)	]
+};
+
+override key <LCTL> {	
+	[ 	 Control_L,			ISO_Prev_Group	],
+	[ SetMods(modifiers=Shift),	LockGroup(group= -1)	]
+};
+override key <RCTL> {	
+	[ 	 Control_R,			ISO_Next_Group	],
+	[ SetMods(modifiers=Shift),	LockGroup(group= +1)	]
+};
+override key <RALT> {	[ 	 Mode_switch, Multi_key		]	};

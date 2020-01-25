@@ -1,0 +1,76 @@
+.\" $Id: youbin.man,v 4.2 1994/06/12 09:32:44 yamamoto Exp $
+.TH YOUBIN 1 "26 September 1993"
+.SH "NAME"
+youbin \- client of youbin service
+.SH "SYNOPSIS"
+\fByoubin\fP
+[ \fB\-b\fP ]
+[ \fB\-d\fP ]
+[ \fB\-h\fP ]
+[ \fB\-m\fP \fIcheck_file\fP ]
+[ \fB\-p\fP \fIprog\fP ]
+[ \fB\-s\fP \fIhost\fP ]
+.SH "DESCRIPTION"
+youbin is client of the youbin protocol which is a
+derivation of "biff" protocol suitable for Network age. The client
+program for youbin protocol, named youbin, operates just like
+"biff -y" via LAN. That is, the user can be notified of mail
+arrivals on the remote MailServer host. Moreover, it can be used to
+inform of the mail arrival with sh and csh. Of course, this mail
+"arrival" means that a mail is received at MailServer host. This
+program is made by using the youbin_sub library and is for the
+explanation of the usage of "youbin_sub".
+.SH "OPTIONS"
+.TP 8
+.B \-b
+A part of header and contents of mail will be displayed with
+this option. This option is influenced by -p option. That is, this
+option will be disregarded when -p option is given. Moreover, -m
+option also influences to this option. Only the fact of mail arrival
+will be informed of if there is no -m nor -p.
+.TP 8
+.B \-d
+Various debugging information will be output with this option.
+For example, communication log with server is displayed.
+.TP 8
+.B \-h
+Simple explanation of youbin will be output with this option.
+.TP 8
+.B \-m \fIcheck_file\fP
+The message informed of mail arrival is written in the
+file specified by the -m option, i.e. \fIcheck_file\fP. The size of
+\fIcheck_file\fP will be changed to 0 when mail is read out. As a result,
+the size reflects the size of the mail spool file at the mail server. If
+this file is specified as a mail check file of shell, the shell
+program can display "You have new mail." when a new mail arrives. This
+is useful when the user can not use multi-window system and wants not
+to be disturbed his display with "biff" messages. If a user wants to
+use this function in csh, write the following lines in .cshrc.
+.LP
+.RS
+.PD 0
+.TP 3
+youbin -m ~/.mail_check_file -s server_name &
+.TP 3
+set mail=~/.mail_check_file
+.PD
+.RE
+.LP
+If -p option is specified, this option will become invalid.
+.TP
+.B \-p \fIprog\fP
+The packets received from youbind are transferred to the
+specified program \fIprog\fP via a pipe. This is provided for asynchronous
+operation with other programs.
+.TP
+.B \-s \fIServer\fP
+This option specifies the mail sever \fIServer\f on which
+youbind is running. If there is no -s option, youbin assumes that the
+server is running on the local machine.
+.SH "FILES"
+.SH "SEE ALSO"
+biff(1), csh(1), sh(1), youbind(1), xyoubin(1), youbin_sub(2)
+.SH "AUTHORS"
+Kiyoshi Agusa           agusa@nuie.nagoya-u.ac.jp
+.br
+Shinichirou Yamamoto    yamamoto@nuie.nagoya-u.ac.jp

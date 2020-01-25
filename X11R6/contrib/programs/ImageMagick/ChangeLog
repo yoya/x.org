@@ -1,0 +1,584 @@
+ImageMagick 3.0
+
+  Thanks to pederl@hpubgon.norway.hp.com, rjohnson@shell.com, and
+  muquit@warm.semcor.com for Beta testing 3.0 and offering numerous
+  suggestions and bug fixes.
+
+  o Postscript written by ImageMagick no longer leaves an operator on the
+    stack (thanks to doug@cc.gatech.edu).
+
+  o BMP images are now written correctly (thanks to rjohnson@shell.com).
+
+  o XWD files no longer cause a segmentation fault (thanks to
+    muquit@warm.semcor.com).
+
+  o Colors no longer need to be exact when color editting an image
+    with display(1) (suggested by rjohnson@shell.com).
+
+  o ImageMagick now reads the new TARGA image format (suggested by
+    justin@engr.uky.edu).
+
+  o Dithering caused segmentation fault on the DEC ALPHA (discovered by
+    blake@davros.portable.com).
+
+  o display(1) now recognized the fontList resource (thanks to
+    Steve Singles).
+
+  o ImageMagick supports the mask image for XPM images (suggested by
+    pederl@hpubgon.norway.hp.com).
+
+  o ImageMagick now reads 16 bit TARGA images correctly (thanks to
+    muquit@warm.semcor.com).
+
+  o Encapsulated Postscript files without a *showpage* operator now
+    displays/converts properly.
+
+  o Added 'Cut' to the display(1) command menu (suggested by
+    pederl@hpubgon.norway.hp.com).
+
+  o Added an histogram equalization option to ImageMagick (thanks to
+    muquit@warm.semcor.com).
+
+  o Unknown image types are displayed as text within a viewer in
+    display(1).
+
+  o Added 'Matte Edit', 'Help', 'Trim Edges', and 'Color Edit' to
+    the command menu in display(1).
+
+  o Fixed the *client_name* "multiply defined" warnings on SGI
+    (suggested by Dave@support.esd.sgi.com).
+
+  o Split display(1) image commands into two menus activated with
+    button 1 and 2.
+
+  o Added 'Edit Comment' to the display(1) command menu (suggested by
+    pederl@hpubgon.norway.hp.com).
+
+  o Use format type EPSI to produce a Postscript file with preview bitmap.
+
+  o Improved the appearance of the widgets.
+
+  o Press F1 to get help within display(1) (suggested by
+    pederl@hpubgon.norway.hp.com).
+
+  o display(1) now has a clip image command.  You can define a region
+    to clip with button 1 and use the arrow keys to adjust (suggested by
+    pederl@hpubgon.norway.hp.com).
+
+  o Use -label to display a header above the Postscript image
+    (suggested by miller@netsun.mdc.com).
+
+  o Added font browser, pen color dialog, and text paste to annotation
+    mode in display(1) (suggested by pederl@hpubgon.norway.hp.com).
+
+ImageMagick 2.3.[7-9]
+
+  o The 'Image Info' menu command now displays the image comment.
+
+  o Added new image type, MAP, colormap intensities and indices.
+
+  o Animate an image sequence with a single filename, see Magick.faq
+    for details (suggested by rjohnson@shell.com).
+
+  o Within display(1), you can draw a line and the image will rotate so
+    that the line is horizonal (suggested by rjohnson@shell.com).
+
+  o Within display(1), you can gamma correct the image (suggested by
+    rjohnson@shell.com).
+
+  o Added YUV3 image type, suitable for MPEG utilities (suggested by
+    rjohnson@shell.com).
+
+  o Added -comment option to ImageMagick utilities (suggested by
+    pederl@hpubgon.norway.hp.com).
+
+  o Added GIF87 image type (suggested by pederl@hpubgon.norway.hp.com).
+
+  o When converting an image with an matte channel to GIF, the
+    transparency index is set (suggested by scott@shrug.org).
+
+  o display(1) now rotates clipped images properly (thanks to
+    rjohnson@shell.com).
+
+  o Improved the scaling algorithm (suggested by rjohnson@shell.com).
+
+  o Use -clip 0x0 to remove edges that are the background color
+    (suggested by ruggier@ptsun00.cern.ch).
+
+
+ImageMagick 2.3.6
+
+  o `info' was not declared static in network.c (thanks to
+    farnham@wales.stortek.com).
+
+  o TIFF images with a .Z or .gz extension are now recognized.
+
+  o SUN monochrome images are now written correctly (thanks to
+    dang@cogit.ign.fr).
+
+  o Animate(1) now displays the scene basename correctly (thanks to
+    hayashi@mach.mie-u.ac.jp).
+
+  o Grayscale VIFF images are now created correctly (thanks to
+    hayashi@mach.mie-u.ac.jp).
+
+  o ImageMagick can now read OS/2 BMP image files (suggested by
+    tdi@prizm.att.com).
+
+  o ImageMagick no longer reads from the same pipe twice (thanks to
+    yhori@trl.mei.co.jp).
+
+  o The YIQ colorspace now produces correct colors (thanks to
+    rjohnson@shell.com).
+
+  o ImageMagick now hides the fact that an image is being
+    uncompressed.  Previously the montage(1) label would be prefixed
+    with '|uncompressed -c' (thanks to rjohnson@shell.com).
+
+  o Animate(1) displays the name of each image of a sequence in the
+    window frame (thanks to lare@eos913c.gsfc.nasa.gov).  Use -title
+    to use a static window name.
+
+  o You can now apply a separate gamma correction to the red, green,
+    and blue channels of an image (thanks to
+    lare@eos913c.gsfc.nasa.gov).
+
+  o Fixed memory leak in ReadPNMImage (thanks to
+    jp@pong.polytechnique.fr).
+
+  o import(1) now descends the X tree structure by default (see
+    -descend).  import(1) also *grabs* the server while obtaining an
+    image (thanks to hyde@snmail.jsc.nasa.gov and hstroyan@fc.hp.com).
+
+  o Quantize stopped dithering in 2.3.4, this has been fixed (thanks to
+    pederl@hpubgon.norway.hp.com).
+
+  o Changed distribution so programs are all in the top level directory
+    and the library routines are in the *magick* directory (suggested
+    by rjohnson@shell.com).
+
+
+ImageMagick 2.3.5
+
+  o Images with a huge number of unique colors sometimes did not
+    quantize properly (thanks to rjohnson@shell.com).
+
+  o -gravity Center no longer results in segmentation fault for
+    montage(1) (thanks to rjohnson@shell.com).
+
+  o Multi-part images (i.e. a multi-page Postscript document) are
+    written with the filename followed by a period (\fB.\fP) and the
+    scene number.  You can now change this behavior by embedding a
+    printf format specification in the file name.
+
+  o ASCII PBM file and multi-part ASCII PNM files are now read
+    correctly.
+
+  o Previously the icon window had the same visual, depth, and colormap
+    of the image window.  It is now the same visual, depth, and
+    colormap as the root window.
+
+  o Improved color reduction algorithm-- average mean error per pixel
+    has been reduced.  Reducing an image to monochome has been
+    improved.
+
+  o Removed '-scale' from ImageMagick programs.  Use '%' instead with
+    -geometry (e.g. to double the image size, -geometry 200%).  Also
+    the aspect ratio of the image is now repected unless '!' is
+    appended to the geometry specification.
+
+  o You can now animate a sequence of images as the background pixmap
+    of another window (suggested by mitchell@linus.mitre.org).
+
+  o ImageMagick can now read Group 3 images (suggested by
+    garyc@hds.com).
+
+  o Added a reader for Photo CD images (requires hpcdtoppm).
+
+  o Millisecond delay was wrong for animate(1) on System V machines.
+
+  o Rendered DNA animation using POV.  See
+    contrib/applications/ImageMagick/ImageMagick.animation.tar.Z on
+    ftp.x.org.
+
+  o Bilevel TIFF images are now subsampled properly (thanks to
+    fielding@library.Cornell.EDU).
+
+  o ImageMagick can now read and write XPM images.
+
+  o Specify the color for an X constant image as the filename (i.e.
+    display xc:blue).
+
+  o Precede the image file name with | to pipe to or from a system
+    command.
+
+
+ImageMagick 2.3.4
+
+  o Added interactive `Print' command to display(1) (suggested by
+    rogerskm@eplrx7.es.dupont.com).
+
+  o Added four widgets to display(1) and animate(1): 1) File Browser;
+    2) Dialog;  3) Notice;  and 4) Menu.
+
+  o The correct image scene number is now displayed correctly when
+    using animate(1) (thanks to chucks@orl.mmc.com).
+
+  o Changed Imakefiles to use XCOMM uniformly (thanks to
+    dws@ssec.wisc.edu).
+
+  o Added the infra-structure for an improved user interface.
+
+  o Added -label option to montage(1).
+
+  o LZW encoding now works properly for GIF images (bug alert from
+    varady@dunsel.erenj.com).
+
+  o Added preview bitmap to Encapsulated Postscript images.
+
+  o Added -clip to import(1) (suggested by jb7716@csc.albany.edu).
+
+  o Converting from full color to monochrome images now works
+    properly.
+
+  o ImageMagick now recognizes '.gz' compressed images (thanks to
+    rpt@thak.jpl.nasa.gov).
+
+  o ImageMagick now reads 16-bit TARGA images correctly (thanks to
+    sjk@netcom.com).
+
+  o ImageMagick can now read and write FITS images.
+
+  o ImageMagick no longer clips large Postscript images (images larger
+    than the default page).
+
+  o ImageMagick can now read and write 24 bit PICT images.
+
+  o You can now set your own error and warning handler (suggested by
+    zins@forwiss.uni-erlangen.de).
+
+  o If you quit the pan icon, the image is restored to its original
+    size.
+
+
+ImageMagick 2.3.3
+
+  o Fixed numereous small errors in the ImageMagick manual pages.
+
+  o convert(1) can now scale an image as it converts it.
+
+  o ImageMagick can now read and write ZSoft IBM PC Paintbrush images.
+
+  o ImageMagick now can write as well as read the X: format.
+
+
+ImageMagick 2.3.2
+
+  o Added a frame option to montage(1) to put an ornamental border
+    around each image tile.
+
+  o On HP-SUX 9.0 there is a compiler bug.  Try compiling image.c
+    without optimization to prevent a bus error with montage(1).
+
+  o A warning was not being properly generated on a write error
+    (thanks to zins@forwiss.uni-erlangen.de).
+
+  o New '-page' option to set the size and location for a Postscript
+    page.
+
+  o Use '-update' with display(1) to automatically updates the image
+    being displayed when it is modified (thanks to lustig@dupont.com).
+
+  o Made several window attributes changes in display(1) and animate(1)
+    to make the windows more server friendly and efficient.
+
+  o ImageMagick can now read and write Microsoft Windows bitmap images
+    (thanks to Eric.Adams@dseg.ti.com for bug alert).
+
+  o ImageMagick can now read and write Postscript Level II.
+
+  o ImageMagick can now read and write SGI RGB images (thanks to
+    mossip@vizlab.rutgers.edu for bug alert).
+
+  o Setting -delay with display(1) will cause the images to loop
+    continuously (suggested by muller@mafalda.inria.fr).
+
+  o Image rotations of 270 degrees would sometimes produce a
+    segmentation fault on HP's.
+
+  o GIF files written with ImageMagick 2.3.1 were unreadable
+    (thanks to mjensen@bbn.com).
+
+  o GIF files with multiple images would sometimes cause program to
+    core dump (thanks to mjensen@bbn.com).
+
+  o Added -undercolor to mogrify(1) to control undercolor removal and
+    black generation on CMYK images.
+
+  o Converting to the XWD format would sometimes dump core (thanks to
+    kairys@bastar.enet.dec.com).
+
+  o X resources now work correctly when clients are invoked with full
+    pathname, i.e. /usr/local/bin/display (thanks to respl@mi.uib.no).
+
+  o The delay in animate(1) now defaults to 8 milliseconds (thanks to
+    respl@mi.uib.no).
+
+  o ImageMagick did not read MIFF images with large image directories
+    correctly.
+
+  o Increased the default panning window size from 64x64 to 96x96.
+
+  o display(1) now retains proper input focus when using -backdrop.
+
+  o ImageMagick automatically compresses/uncompresses images that end
+    with '.z' with gzip/gunzip.
+
+  o ImageMagick can now write Macintosh PICT image files.
+
+  o ImageMagick can now read and write Truevision TARGA image files.
+
+  o You can now trim off one pixel from any side of an image within
+    display(1) by using <ctrl> and one of the arrow keys (thanks to
+    tennyson@raptor.com).
+
+  o Image Pixmaps in display(1) are now used only if the X resource
+    `usePixmap' is set to True.
+
+  o New segment(1) program.  See SYNOPSIS for details.
+
+  o ImageMagick now compiles properly on the Digitial Alpha (OSF1) and
+    the HP with HPUX.
+
+ImageMagick 2.3.1
+
+  o You can now change the color of the X constant image with
+    -bordercolor:
+
+      display -bordercolor red xc:
+
+  o Color reduction to monochrome with dithering is improved (thanks
+    to mutz@kodak.com).
+
+  o Added EPS as a file type for Encapsulated Postscript.
+
+  o Minor improvements to Postscript output.
+
+  o Removed program XtoPS(1).  There is an equivalent functionality
+    with import(1):
+
+      import image.ps import images.eps
+
+  o The 'Info' command in animate(1) did not always reflect the proper
+    image scene.
+
+  o animate(1) sometimes displayed images with the wrong colormap on
+    TrueColor or DirectColor visuals.
+
+  o Popup windows were enlarged to make them easier to see.
+
+  o Added a menu command to display(1) to load an image interactively
+    (suggested by fouts@dallas.sgi.com).
+
+  o montage was not allocating enough memory for it's directory (thanks
+    to fouts@dallas.sgi.com).
+
+
+ImageMagick 2.3
+
+  o Added -descend option to import(1).  Obtain image by descending
+    window hierarchy reading each subwindow and its colormap.  The
+    final image is guarenteed to have the correct colors.
+
+  o If pen color matched background color any annotations would not
+    appear (thanks to dws@ssec.wisc.edu).
+
+  o Thanks to jacobsd@solar.cor2.epa.gov:
+
+      . mogrify now recognizes '-' as stdin and stdout.
+      . PPM, PGM, and PBM image types are now recognized.
+      . PPM, PGM, and PBM images were not always scaled correctly.
+
+  o The -density option is no longer ignored when creating Postscript
+    images.
+
+  o The -quality option is now recognized by display and montage.
+
+  o ImageMagick can now read and write VIFF images.
+
+  o SUN raster files were now properly read and written on the CRAY.
+
+  o Popup queries can now be edited when the pointer is in the popup
+    window.
+
+  o Added -stereo option to combine program.
+
+  o Removed MIFFtoSTEREO source.
+
+  o Magnify window now includes pixel value with RGB color value for
+    windows whose depth is 12 or less.
+
+  o On occasion images were incorrectly identified as XWD.
+
+  o On occasion images with alpha data were being incorrectly
+    runlength-encoded.
+
+  o Sometimes icon's had a private colormap.  Icon's now use a shared
+    colormap.
+
+  o Keyboard accelerators did not work with -backdrop option.
+
+  o Add new utility: combine-- combine images to create new images
+    using digital compositing operators.
+
+  o xtp failed under Solaris 2.1.
+
+  o I486 compiler complained about includes within a function body of
+    xtp/network.c (thanks to glenn@physics.su.OZ.AU).
+
+  o I486 compiler complained about XWDfile.h being included twice
+    (ReadXWD & WriteXWD) (thanks to glenn@physics.su.OZ.AU)
+
+ImageMagick 2.2.4
+
+  o time between images did not always match the value specified on
+    -delay.
+
+  o Sped up and reduced memory requirement of dithering.
+
+  o GIF images were corrupted on SVR4 (thanks to
+    glenn@physics.su.OZ.AU).
+
+ImageMagick 2.2.3
+
+  o Non-color reduced images were being written even though the color
+    reduction option was specified (-colors).  This affected images
+    written as AVS, CMYK, and RGB.
+
+  o Modified various sources to reduce lint warnings.
+
+
+ImageMagick 2.2.2
+
+  o Dithering did not work properly on the Cray (due to right shift
+    problem).
+
+  o In most cases dithering requires 1/2 as much memory as previously.
+
+  o Dithering was sped up by ~15%.
+
+  o Occasionally the quantization error was reported incorrectly.
+
+
+ImageMagick 2.2.1
+
+  o The number of colors reported with the -verbose option was on
+    occasion incorrect.
+
+  o Color quantization was improved and in some cases sped up ~10%.
+
+  o Cleaned up image rotation code.
+
+  o Added -shear to mogrify options.
+
+  o Added a file type of HISTOGRAM to convert.
+
+  o Sometimes PBM image files did not have the correct number of
+    bytes.
+
+  o Color reduced PPM images were being written at the full color
+    resolution.
+
+  o Keypresses are no longer accepted during image configuration.
+
+  o Red, green, and blue values of a X constant image were set to the
+    red intensity of the background color.
+
+  o Clipped images did not show up correctly in the panning icon.
+
+  o `animate' no longer shows images out-of-order if the image scene
+    number is absent (thanks to kent@oddjob.uchicago.edu).
+
+  o ImageMagick now recognizes the X resource class with the first
+    letter of the client capitalized, i.e. 'Display.Visual: default'
+    (thanks to dws@ssec.wisc.edu).
+
+
+ImageMagick 2.2
+
+  o When displaying a composite MIFF image created with `montage',
+    button 3 no longer displays a magnify window.  Instead the tile at
+    the mouse location is displayed.  When the tile image is exited,
+    the composite image reappears.  This is effectively a visual image
+    directory.
+
+  o `montage' has a new gravity option for placing an image within
+    a tile of the composite, i.e. CenterGravity.
+
+  o `montage' has a new compose option for specifying which composite
+     operation to use.
+
+  o `montage' creates composite images with the `montage' keyword.
+
+  o Updated MIFF manual page to reflect 'montage' image header
+    keyword.
+
+  o Add -colormap to `mogrify.'  Use to color reduce an image to
+    a set of colors you choose.
+
+  o Some compilers have read-only strings.   ImageMagick no longer
+    writes on read-only strings.
+
+  o For colormapped X servers, the color reduction has been sped up by
+    trading image quality for processing time.  See the README for
+    details.
+
+  o Latin1Upper was declared wrong in X.h.
+
+  o Added unistd.h to display.h for strict ANSI compilers.
+
+  o Changed long to time_t for calls to C time routine.
+
+  o Multi-part GIF's can now be displayed or animated.
+
+  o Fixed segmentation fault when reading multi-part images with
+    animate, montage, or mogrify.
+
+  o Multi-part MIFF images have the correct file name now.
+
+  o An expose event for the Magnify window may occur before it is
+    mapped.  This caused display to fail on Solburne and HP's.
+
+  o Using `-colorspace gray' with 'convert' correctly produces
+    grayscale images.
+
+  o Images are sorted by intensity for shared colormapped visuals.
+    Some intensity intervals are made "more popular".  This gives
+    better image results when sharing colors with other applications.
+
+  o All utilities correctly read multi-part TIFF images.
+
+  o Image pixmap was not being updated correctly when pan icon appears
+    (thanks to dws@ssec.wisc.edu).
+
+  o Fixed ANSI warning on image composite code.
+
+  o Panning uses a pixmap for faster panning speed.
+
+  o Rotate.c now uses a table to force range limits.
+
+  o range table in quantize.c is allocated from the heap instead of
+    the stack.
+
+  o adjusted the sensitivity for automatic dithering.  Some JPEG images
+    were not being dithered.
+
+
+ImageMagick 2.0
+
+  o Dirk Wetzel <wetzel@forwiss.uni-erlangen.de> fixed the select
+    statement in animate.c.
+
+  o Eric Haines <erich@eye.com> fixed ReadRLEImage in decode.c.  It
+    previously did not check to see if the background color was present
+    in the image.

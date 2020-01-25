@@ -1,0 +1,8 @@
+XCOMM $XConsortium: Imakefile,v 1.1 94/02/09 17:05:14 matt Exp $
+#define IHaveSubdirs
+#define PassCDebugFlags
+
+SUBDIRS = src include app-defaults
+
+MakeSubdirs($(SUBDIRS))
+DependSubdirs($(SUBDIRS))

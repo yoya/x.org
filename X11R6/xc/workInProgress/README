@@ -1,0 +1,29 @@
+Everything in this workInProgress hierarchy represents a work in progress
+of the X Consortium.
+
+Fresco, Low Bandwidth X (LBX), the Record extension, and the X Keyboard
+extension (Xkb, which logically belongs here but was too tightly coupled
+into Xlib and the server to extract) are neither standards nor draft
+standards of the X Consortium, are known to need design and/or implementation
+work and are still evolving, and will not be compatible with any final
+standard should such a standard eventually be agreed upon.  (However, we
+hope that what is provided for the X Keyboard extension will differ very
+little from an eventual standard.)  We are making them available in early
+form in order to gather broader experimentation and feedback from those
+willing to invest the time and energy, to help us produce better standards.
+
+Any use of these interfaces in commercial products runs the risk of
+later source and binary incompatibilities.  We strongly recommend against
+anyone incorporating LBX in particular into a product until a standard is
+produced.
+
+MTXserver represents a snapshot of work to implement a particular design
+for a multi-threaded X server.  The sources here include only files that
+were changed from the single-threaded server.  Unfortunately, the
+single-threaded server sources have continued to evolve since this
+snapshot of the MTXserver was produced, so there is work to be done to
+get the MTXserver sources back into a state where they can be compiled.
+
+The session manager, xsm, simply needs more work before we would want
+people to depend on it or use it as a good example of how to implement
+the session protocol.

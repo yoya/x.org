@@ -1,0 +1,33 @@
+XCOMM $XConsortium: Imakefile,v 1.3 94/04/01 16:58:11 matt Exp $
+XCOMM
+XCOMM Sample client-server
+XCOMM
+
+#include <Fresco.tmpl>
+
+SRCS = client.CCsuf server.CCsuf naming-exch.CCsuf
+OBJS = client.o server.o naming-exch.o
+
+#define Example(p,o)				@@\
+NormalCplusplusProgramTarget(p,o,$(DEPLIBS),$(LOCAL_LIBRARIES),NullParameter)
+
+all:: client server
+
+Example(server, server.o naming-exch.o)
+Example(client, client.o naming-exch.o)
+
+DependTarget()
+
+XCOMM
+XCOMM  The rest of this file is related to running ixx
+XCOMM
+
+#include <Ixx.tmpl>
+
+   IXFLAGS = -s BaseObject -m TypeObj -stubclass Stub -env Env -refobjs
+IXINCLUDES =
+
+MakeHeaderFlags(naming,-i '<X11/Fresco/Ox/base.h>')
+EditImpl(client,Interfaces/naming.idl)
+EditImpl(server,Interfaces/naming.idl)
+EditImpl(naming-exch,Interfaces/naming.idl)

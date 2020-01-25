@@ -1,0 +1,34 @@
+XCOMM $XConsortium: Imakefile,v 1.25 94/11/21 18:21:36 kaleb Exp $
+#define DoNormalLib NormalLibXau
+#define DoSharedLib SharedLibXau
+#define DoDebugLib DebugLibXau
+#define DoProfileLib ProfileLibXau
+#define LibName Xau
+#define SoRev SOXAUTHREV
+
+       LINTLIBS = $(LINTXLIB)
+
+#if HasKrb5
+K5ENCSRC = k5encode.c
+K5ENCOBJ = k5encode.o
+INCLUDES = Krb5Includes
+#else
+K5ENCSRC =
+K5ENCOBJ =
+INCLUDES =
+#endif
+
+HEADERS = \
+	Xauth.h
+
+SRCS =	AuDispose.c AuFileName.c AuGetAddr.c AuGetBest.c AuLock.c \
+	AuRead.c AuUnlock.c AuWrite.c $(K5ENCSRC)
+
+OBJS =	AuDispose.o AuFileName.o AuGetAddr.o AuGetBest.o AuLock.o \
+	AuRead.o AuUnlock.o AuWrite.o $(K5ENCOBJ)
+
+#include <Library.tmpl>
+
+InstallLinkKitLibrary(Xau,$(LINKKITDIR)/lib)
+
+DependTarget()

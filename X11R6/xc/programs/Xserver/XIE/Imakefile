@@ -1,0 +1,11 @@
+XCOMM $XConsortium: Imakefile,v 1.3 93/11/07 10:56:36 rws Exp $
+#include <Server.tmpl>
+
+#define IHaveSubdirs
+
+     SUBDIRS = dixie mixie
+	
+MakeSubdirs($(SUBDIRS))
+DependSubdirs($(SUBDIRS))
+MakeLintLibSubdirs($(SUBDIRS))
+LintSubdirs($(SUBDIRS))

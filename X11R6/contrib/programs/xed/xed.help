@@ -1,0 +1,69 @@
+MENUS:
+
+    File:    Load			Load a textfile
+    	     Insert			Insert a textfile a current cursor position
+    	     Save			Save actual textfile
+    	     Save as			Save actual textfile with different name
+    	     Save Selection		Save actual selected text
+    	     Print			Print actual textfile
+    	     Print Selection		Print actual selected text
+    	     Quit			Exit xed
+    	      
+    Edit:    Undo			Undo last change (not implemented)
+    	     Cut			Cut current selection in Cut_Buffer0
+    	     Paste			Paste Cut_Buffer0 at current cursor position
+    	     Shift Selection right	Indent current selection 1 Tab
+    	     Shift Selection left	UnIndent current selection 1 Tab
+    	     
+    Jump:    Line			Goto linenumber
+    	     Begin			Goto textbeginning
+    	     End			Goto textending
+    	     Selection Start		Goto startposition of current selection
+    	     Selection End		Goto endposition of current selection
+    	     
+    Search:  
+    	     Find bracket		Select a textblock containing currently selected
+    	     				bracket an coresponding bracket.
+    	     				(Valid brackets are {,},[,],(,),/*,*/)
+    	     Check brackets		Check Hierachy of Brackets
+    	     
+    Special: Options			Set Wrapmode, Tabsize and Autoindent	
+    	     Call sed			Execute an sed Command
+    	     Help			Show this page
+  	     
+SELECTIONS:
+
+    Standard Textwidget selection style is used:
+    
+        Click left button 1 times          : Set cursor position
+        Click left button 2 times          : Select word
+        Click left button 3 times          : Select line
+        Click left button 4 times          : Select paragraph
+        Click left button 5 times          : Select all
+        Press left button and drag pointer : Select area
+        Click right button                 : Expand current selection
+        Click middle button                : Insert Cut_Buffer0 at current cursor position
+        
+KEYBOARD:
+
+    Standard Textwidget keybindings are used. In addition some special keys are available:
+    
+        Shift Cursor up      : Page up
+        Shift Cursor down    : Page down
+        Shift Cursor left    : Previous word
+        Shift Cursor right   : Next word
+        Control Cursor up    : Textbeginning
+        Control Cursor down  : Textending
+        Control Cursor left  : Begin of line
+        Control Cursor right : End of line
+        
+RESOURCES:
+
+    Xed*EnableBackups	    : Make backupfile before saving (Boolean)
+    Xed*BackupNameSuffix    : Suffix for backupfilename (String)
+    Xed*PrintCommand	    : Command for printing file (String) 
+    Xed*AutoIndent          : AutoIndent (Boolean)
+    Xed*Tabsize             : Tabsize (Int)
+    Xed*MaxScrollbreak      : Specifies how many cursor events with the
+                              same serial number will be ignored (Int)
+

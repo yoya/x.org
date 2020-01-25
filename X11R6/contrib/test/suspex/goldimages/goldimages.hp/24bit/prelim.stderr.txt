@@ -1,0 +1,12 @@
+Information about this PEX implementation:
+  Vendor string: Hewlett-Packard Company
+  Release:  10100 (0x2774)
+
+Subsets supported are:
+  Immediate mode
+  Structure mode
+
+WARNING:  Without the PHIGS workstation support,
+          the PEX-IC susPEX test suite can test only
+          basic functionality but not full functionality
+

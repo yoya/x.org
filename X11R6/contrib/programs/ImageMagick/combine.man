@@ -1,0 +1,361 @@
+.ad l
+.nh
+.TH combine 1 "10 January 1993" "ImageMagick"
+.SH NAME
+combine - combine images to create new images.
+.SH SYNOPSIS
+.B "combine"
+[ \fIoptions\fP ... ] \fIinput_file1\fP \fIinput_file2\fP \fIoutput_file\fP
+.SH DESCRIPTION
+\fBcombine\fP combine images to create new images.
+.SH EXAMPLES
+.PP
+To combine a image of a cockatoo with a perch, use
+.PP
+.B
+     combine cockatoo.miff perch.ras composite.miff
+.PP
+To compute the difference between images in a series, use
+.PP
+.B
+     combine -compose difference series.1 series.2 difference.miff
+.PP
+To combine a image of a cockatoo with a perch starting at location (100,150),
+use
+.PP
+.B
+     combine -geometry +100+150 cockatoo.miff perch.ras composite.miff
+.SH OPTIONS
+.TP 5
+.B "-colors \fIvalue\fP"
+preferred number of colors in the image.
+
+The actual number of colors in the image may be less than your request,
+but never more.  Note, this is a color reduction option.  Images with
+less unique colors than specified with this option will remain unchanged.
+Refer to \fBquantize(9)\fP for more details.
+
+Note, options \fB-dither\fP, \fB-colorspace\fP, and \fB-treedepth\fP affect
+the color reduction algorithm.
+.TP 5
+.B "-colorspace \fIvalue\fP"
+the type of colorspace: \fBGRAY\fP, \fBOHTA\fP, \fBRGB\fP, \fBXYZ\fP,
+\fBYCbCr\fP, \fBYIQ\fP, or \fBYUV\fP.
+
+Color reduction, by default, takes place in the RGB color space.
+Empirical evidence suggests that distances in color spaces such as YUV
+or YIQ correspond to perceptual color differences more closely
+than do distances in RGB space.  These color spaces may give better
+results when color reducing an image.  Refer to \fBquantize(9)\fP for
+more details.
+
+The \fB-colors\fP or \fB-monochrome\fP option is required for this option
+to take effect.
+.TP 5
+.B "-comment \fIstring\fP"
+annotate an image with a comment.
+
+By default, each image is commented with its file name.  Use this
+option to assign a specific comment to the image.  Optionally you can
+include the image filename, type, width, height, or scene number by
+embedding special format characters.  Embed \fB%f\fP for filename,
+\fB%m\fP for magick, \fB%w\fP for width, \fB%h\fP for height, \fB%s\fP
+for scene number, or \fB\\n\fP for newline.  For example,
+
+.nf
+     -comment "%m:%f %wx%h"
+.fi
+
+produces an image comment of \fBMIFF:bird.miff 512x480\fP for an image
+titled \fBbird.miff\fP and whose width is 512 and height is 480.
+ 
+If the first character of \fIstring\fP is \fB@\fP, the image comment is read
+from a file titled by the remaining characters in the string.
+.TP 5
+.B "-compose \fIoperator\fP"
+the type of image composition.
+
+By default, each of the composite image pixels are replaced by the
+cooresponding image tile pixel. You can choose an alternate composite
+operation:
+
+    over
+    in
+    out
+    atop
+    xor
+    plus
+    minus
+    add
+    subtract
+    difference
+    replace
+.PP
+How each operator behaves is described below.  \fIP\fP is the image read
+as \fIinput_file1\fP and \fIQ\fP is image \fIinput_file2\fP.
+.TP 9
+.B over
+The result will be the union of the two image shapes, with \fIP\fP
+obscuring \fIQ\fP in the region of overlap.
+.TP 9
+.B in
+The result is simply \fIP\fP cut by the shape of \fIQ\fP.  None of the
+image data of \fIQ\fP will be in the result.
+.TP 9
+.B out
+The resulting image is \fIP\fP with the shape of \fIQ\fP cut out.
+.TP 9
+.B atop
+The result is the same shape as image \fIQ\fP, with \fIP\fP obscuring
+\fIQ\fP where the image shapes overlap.  Note this differs from
+\fBover\fP because the portion of \fIP\fP outside \fIQ\fP's shape does
+not appear in the result.
+.TP 9
+.B xor
+The result is the image data from both \fIP\fP and \fIQ\fP that is
+outside the overlap region.  The overlap region will be blank.
+.TP 9
+.B plus
+The result is just the sum of the image data.  Output values are
+clipped to 255 (no overflow).  This operation is independent of the
+matte channels.
+.TP 9
+.B minus
+The result of \fIP\fP \- \fIQ\fP, with underflow clipped to zero.  The
+matte channel is ignored (set to 255, full coverage).
+.TP 9
+.B add
+The result of \fIP\fP + \fIQ\fP, with overflow wrapping around
+(\fImod\fP 256).
+.TP 9
+.B subtract
+The result of \fIP\fP - \fIQ\fP, with underflow wrapping around
+(\fImod\fP 256).  The \fBadd\fP and \fBsubtract\fP operators can be
+used to perform reversible transformations.
+.TP 9
+.B difference
+The result of abs(\fIP\fP \- \fIQ\fP).  This is useful for comparing
+two very similar images.
+.TP 9
+.B replace
+The resulting image is \fIQ\fP replaced with \fIP\fP.  Here the matte
+information is ignored.
+.TP 5
+The image compositor requires an matte, or alpha channel in the image
+for some operations.  This extra channel usually defines a mask which
+represents a sort of a cookie-cutter for the image.  This is the case
+when matte is 255 (full coverage) for pixels inside the shape, zero
+outside, and between zero and 255 on the boundary.  If \fIimage\fP does
+not have an matte channel, it is initialized with 0 for any pixel
+matching in color to pixel location (0,0), otherwise 255 (to work
+properly \fBborderwidth\fP must be 0).
+.TP 5
+.B "-compress \fItype\fP"
+the type of image compression: \fIQEncoded\fP or \fIRunlengthEncoded\fP.
+
+Specify \fB\+compress\fP to store the binary image in an uncompressed format.
+The default is the compression type of the specified image file.
+.TP 5
+.B "-density \fI<width>x<height>
+vertical and horizontal density of the image.
+
+This option specifies an image density for a Postscript page.
+The default is 72 dots per inch in the horizontal and vertical direction.
+Use this option to alter the default density.
+.TP 5
+.B "-display \fIhost:display[.screen]\fP"
+specifies the X server to contact; see \fBX(1)\fP.
+.TP 5
+.B "-dither"
+apply Floyd/Steinberg error diffusion to the image.
+
+The basic strategy of dithering is to trade intensity resolution for
+spatial resolution by averaging the intensities of several neighboring
+pixels.  Images which suffer from severe contouring when reducing colors
+can be improved with this option.
+
+The \fB-colors\fP option is required for dithering to take effect.
+.TP 5
+.B "-font \fIname\fP"
+This option specifies the font to be used  for displaying normal text.
+The default is \fBfixed\fP.
+.TP 5
+.B "-geometry \fI<width>{%}x<height>{%}{\+-}<x offset>{\+-}<y offset>{!}\fP"
+the width and height of the image.  
+
+By default, the width and height are maximum values.  That is, the
+image is expanded or contracted to fit the width and height value while
+maintaining the aspect ratio of the image.  Append an exclamation point
+to the geometry to force the image size to exactly the size you
+specify.  For example, if you specify \fB640x480!\fP the image width is
+set to 640 pixels and height to 480.  If only one factor is
+specified, both the width and height assume the value.
+ 
+To specify a percentage width or height instead, append \fB%\fP.  The
+image size is multiplied by the width and height percentages to obtain
+the final image dimensions.  To increase the size of an image, use a
+value greater than 100 (e.g. 125%).  To decrease an image's size, use a
+percentage less than 100.
+
+Use this option to specified the width and height of raw images whose
+dimensions are unknown such as \fBGRAY\fP, \fBRGB\fP, and \fBCMYK\fP.
+This option can also change the default 8.5 by 11 width and height of
+the Postscript canvas.
+
+By default the images are combined relative to the top left corner,
+location (0,0).  Use \fI<x offset>\fP and \fI<y offset>\fP to specify
+a particular location to combine the images.
+.TP 5
+.B "-interlace \fItype\fP"
+the type of interlacing scheme: \fBNONE\fP, \fBLINE\fP, or \fBPLANE\fP.
+
+This option is used to specify the type of interlacing scheme for raw
+image formats such as \fBRGB\fP or \fBYUV\fP.  \fBNONE\fP means do not
+interlace (RGBRGBRGBRGBRGBRGB...), \fBLINE\fP uses scanline
+interlacing (RRR...GGG...BBB...RRR...GGG...BBB...), and \fBPLANE\fP uses
+plane interlacing (RRRRRR...GGGGGG...BBBBBB...).
+.TP 5
+.B "-label \fIname\fP"
+assign a label to an image.
+
+Use this option to assign a specific label to the image.  Optionally
+you can include the image filename, type, width, height, or scene
+number in the label by embedding special format characters.   Embed
+\fB%f\fP for filename, \fB%m\fP for magick, \fB%w\fP for width,
+\fB%h\fP for height, or \fB%s\fP for scene number.  For example,
+.nf
+     -label "%m:%f %wx%h"
+.fi
+produces an image label of \fBMIFF:bird.miff 512x480\fP for an image
+titled \fBbird.miff\fP and whose width is 512 and height is 480.
+
+If the first character of \fIstring\fP is \fB@\fP, the image label is read
+from a file titled by the remaining characters in the string.
+ 
+When converting to Postscript, use this option to specify a header string
+to print above the image.
+.TP 5
+.B "-matte"
+store matte channel if the image has one.
+.TP 5
+.B "-monochrome"
+transform the image to black and white.
+.TP 5
+.B "-page \fI<width>x<height>{\+-}<x offset>{\+-}<y offset>\fP"
+preferred size and location of the Postscript page.
+
+Use this option to specify the dimensions of the Postscript page in
+picas or a TEXT page in pixels.  The default for a Postscript page is
+to center the image on a letter page 612 by 792 dots per inch.  The
+left and right margins are 18 picas and the top and bottom 94 picas
+(i.e.  612x792+18+94).  Other common sizes are:
+
+    540x720   Note
+    612x1008  Legal
+    842x1190  A3
+    595x842   A4
+    421x595   A5
+    297x421   A6
+    709x1002  B4
+    612x936   U.S. Foolscap
+    612x936   European Foolscap
+    396x612   Half Letter
+    792x1224  11x17
+    1224x792  Ledger
+
+The page geometry is relative to the vertical and horizontal density of the
+Postscript page.  See \fB-density\fP for details.
+
+The default page dimensions for a TEXT image is 612x792+36+36.
+.TP 5
+.B "-quality \fIvalue\fP"
+JPEG quality setting.
+
+Quality is 0 (worst) to 100 (best). The default is 85.
+.TP 5
+.B "-scene \fIvalue\fP"
+image scene number.
+.TP 5
+.B "-stereo"
+combine two images into a red-green stereo image.
+
+The left side of the stereo pair is saved as the red channel of the output
+image.  The right sife is saved as the green channel.  Red-blue stereo
+glasses are required to properly view the stereo image.
+.TP 5
+.B "-treedepth \fIvalue\fP"
+Normally, this integer value is zero or one.  A zero or one tells
+\fBcombine\fP to choose a optimal tree depth for the color reduction
+algorithm.
+
+An optimal depth generally allows the best representation of the source
+image with the fastest computational speed and the least amount of
+memory.  However, the default depth is inappropriate for some images.
+To assure the best representation, try values between 2 and 8 for this
+parameter.  Refer to \fBquantize(9)\fP for more details.
+
+The \fB-colors\fP option is required for this option to take effect.
+.TP 5
+.B -verbose
+print detailed information about the image.
+
+This information is printed: image scene number;  image name;  combined
+image name;  image size;  the image class (\fIDirectClass\fP or 
+\fIPseudoClass\fP);  the total number of unique colors;  and the number
+of seconds to read and combine the image.
+.PP
+Change '-' to '+' in any option above to reverse its effect.  For
+example, specify +matte to store the image without its matte channel.
+.PP
+By default, the image format is determined by its magic number. To
+specify a particular image format, precede the filename with an image
+format name and a colon (i.e. ps:image) or specify the image type as
+the filename suffix (i.e. image.ps).  See \fBconvert(1)\fP for a list
+of valid image formats.
+.PP
+When you specify \fBX\fP as your image type, the filename has special
+meaning.  It specifies an X window by id, name, or \fBroot\fP.  If no
+filename is specified, the window is selected by clicking the mouse in
+the desired window.
+.PP
+Specify \fIinput_file\fP as \fI-\fP for standard input,
+\fIoutput_file\fP as \fI-\fP for standard output.  If \fIinput_file\fP
+has the extension \fB.Z\fP or \fB.gz\fP, the file is uncompressed with
+\fBuncompress\fP or \fBgunzip\fP respectively.  If \fIoutput_file\fP
+has the extension \fB.Z\fP or \fB.gz\fP, the file size is compressed
+using with \fBcompress\fP or \fBgzip\fP respectively.  Finally, precede
+the image file name with \fI|\fP to pipe to or from a system command.
+If \fIoutput_file\fP already exists, you will be prompted as to whether
+it should be overwritten.
+.SH ENVIRONMENT
+.PP
+.TP 5
+.B display
+To get the default host, display number, and screen.
+.SH SEE ALSO
+.B
+display(1), animate(1), import(1), montage(1), mogrify(1), convert(1),
+segment(1), xtp(1)
+.SH COPYRIGHT
+Copyright 1994 E. I. du Pont de Nemours and Company
+.PP
+Permission to use, copy, modify, distribute, and sell this software and
+its documentation for any purpose is hereby granted without fee,
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in
+supporting documentation, and that the name of E. I. du Pont de Nemours
+and Company not be used in advertising or publicity pertaining to
+distribution of the software without specific, written prior
+permission.  E. I. du Pont de Nemours and Company makes no representations
+about the suitability of this software for any purpose.  It is provided
+"as is" without express or implied warranty.
+.PP
+E. I. du Pont de Nemours and Company disclaims all warranties with regard
+to this software, including all implied warranties of merchantability
+and fitness, in no event shall E. I. du Pont de Nemours and Company be
+liable for any special, indirect or consequential damages or any
+damages whatsoever resulting from loss of use, data or profits, whether
+in an action of contract, negligence or other tortuous action, arising
+out of or in connection with the use or performance of this software.
+.SH AUTHORS
+John Cristy, E.I. du Pont De Nemours and Company Incorporated

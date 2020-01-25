@@ -1,0 +1,120 @@
+XCOMM $XConsortium: Imakefile,v 2.1 94/01/11 18:36:04 gildea Exp $
+#define DoThreadedServer XServerThreaded
+#include <Server.tmpl>
+
+SRCS1 =	 mfbgc.c mfbwindow.c mfbfont.c \
+	 mfbfillrct.c mfbpntwin.c maskbits.c mfbpixmap.c \
+	 mfbimage.c mfbline.c mfbbres.c mfbhrzvert.c mfbbresd.c \
+	 mfbpushpxl.c mfbzerarc.c mfbfillarc.c \
+         mfbfillsp.c mfbsetsp.c mfbscrinit.c mfbscrclse.c mfbclip.c \
+         mfbbitblt.c mfbgetsp.c mfbpolypnt.c \
+	 mfbbltC.c mfbbltX.c mfbbltCI.c mfbbltO.c mfbbltG.c \
+	 mfbcmap.c mfbtileC.c mfbtileG.c mfbmisc.c mfbbstore.c
+
+SRCS =	 $(SRCS1) mfbseg.c mfbpgbwht.c mfbpgbblak.c mfbpgbinv.c mfbigbwht.c \
+	 mfbigbblak.c mfbpawhite.c mfbpablack.c mfbpainv.c mfbtewhite.c \
+	 mfbteblack.c mfbbltC.c mfbbltX.c mfbbltCI.c mfbbltO.c mfbbltG.c \
+	 mfbtileC.c mfbtileG.c mfbplywhite.c mfbplyblack.c mfbplyinv.c
+
+OBJS =   mfbgc.o mfbwindow.o mfbfont.o \
+	 mfbfillrct.o mfbpntwin.o maskbits.o mfbpixmap.o \
+	 mfbimage.o mfbline.o mfbbres.o mfbhrzvert.o mfbbresd.o mfbseg.o \
+	 mfbpushpxl.o mfbzerarc.o mfbfillarc.o \
+	 mfbfillsp.o mfbsetsp.o mfbscrinit.o mfbscrclse.o mfbclip.o \
+         mfbbitblt.o mfbgetsp.o mfbpolypnt.o \
+	 mfbbltC.o mfbbltX.o mfbbltCI.o mfbbltO.o mfbbltG.o \
+	 mfbpgbwht.o mfbpgbblak.o mfbpgbinv.o \
+	 mfbigbwht.o mfbigbblak.o mfbcmap.o \
+	 mfbpawhite.o mfbpablack.o mfbpainv.o mfbtileC.o mfbtileG.o \
+         mfbtewhite.o mfbteblack.o mfbmisc.o mfbbstore.o \
+         mfbplywhite.o mfbplyblack.o mfbplyinv.o
+
+INCLUDES = -I. -I../mi -I../include -I$(INCLUDESRC) -I$(FONTINCSRC)
+LINTDEFS = -DMFBPOLYGLYPHBLT=mfbPolyGlyphBltWhite \
+	   -DMFBIMAGEGLYPHBLT=mfbImageGlyphBltWhite \
+	   -DEQWHOLEWORD=\=\~0 -DOPEQ=\|=
+LINTLIBS = ../dix/llib-ldix.ln ../os/llib-los.ln ../mi/llib-lmi.ln
+
+NormalLibraryObjectRule()
+NormalLibraryTarget(mfb,$(OBJS))
+LintLibraryTarget(mfb,$(SRCS1))
+NormalLintTarget($(LINTDEFS) $(SRCS1))
+
+ObjectFromSpecialSource(mfbseg,mfbline,-DPOLYSEGMENT)
+
+ObjectFromSpecialSource(mfbpgbwht,mfbplygblt,-DMFBPOLYGLYPHBLT=mfbPolyGlyphBltWhite -DOPEQ=\|=)
+
+ObjectFromSpecialSource(mfbpgbblak,mfbplygblt,-DMFBPOLYGLYPHBLT=mfbPolyGlyphBltBlack -DOPEQ=\&=\~)
+
+ObjectFromSpecialSource(mfbpgbinv,mfbplygblt,-DMFBPOLYGLYPHBLT=mfbPolyGlyphBltInvert -DOPEQ=\^=)
+
+ObjectFromSpecialSource(mfbigbwht,mfbimggblt,-DMFBIMAGEGLYPHBLT=mfbImageGlyphBltWhite -DOPEQ=\|=)
+
+ObjectFromSpecialSource(mfbigbblak,mfbimggblt,-DMFBIMAGEGLYPHBLT=mfbImageGlyphBltBlack -DOPEQ=\&=\~)
+
+ObjectFromSpecialSource(mfbpawhite,mfbpntarea,-DMFBSOLIDFILLAREA=mfbSolidWhiteArea -DMFBSTIPPLEFILLAREA=mfbStippleWhiteArea -DOPEQ=\|= -DEQWHOLEWORD=\=\~0)
+
+ObjectFromSpecialSource(mfbpablack,mfbpntarea,-DMFBSOLIDFILLAREA=mfbSolidBlackArea -DMFBSTIPPLEFILLAREA=mfbStippleBlackArea -DOPEQ=\&=\~ -DEQWHOLEWORD=\=0)
+
+ObjectFromSpecialSource(mfbpainv,mfbpntarea,-DMFBSOLIDFILLAREA=mfbSolidInvertArea -DMFBSTIPPLEFILLAREA=mfbStippleInvertArea -DOPEQ=\^= -DEQWHOLEWORD=\^=\~0)
+
+ObjectFromSpecialSource(mfbtewhite,mfbtegblt,-DMFBTEGLYPHBLT=mfbTEGlyphBltWhite -DOP= -DCLIPTETEXT=mfbImageGlyphBltWhite)
+
+ObjectFromSpecialSource(mfbteblack,mfbtegblt,-DMFBTEGLYPHBLT=mfbTEGlyphBltBlack -DOP=\~ -DCLIPTETEXT=mfbImageGlyphBltBlack)
+
+ObjectFromSpecialSource(mfbplywhite,mfbply1rct,-DMFBFILLPOLY1RECT=mfbFillPolyWhite -DOPEQ=\|= -DEQWHOLEWORD=\=\~0)
+
+ObjectFromSpecialSource(mfbplyblack,mfbply1rct,-DMFBFILLPOLY1RECT=mfbFillPolyBlack -DOPEQ=\&=\~ -DEQWHOLEWORD=\=0)
+
+ObjectFromSpecialSource(mfbplyinv,mfbply1rct,-DMFBFILLPOLY1RECT=mfbFillPolyInvert -DOPEQ=\^= -DEQWHOLEWORD=\^=\~0)
+
+ObjectFromSpecialSource(mfbbltC,mfbblt,-DMROP=Mcopy)
+
+ObjectFromSpecialSource(mfbbltX,mfbblt,-DMROP=Mxor)
+
+ObjectFromSpecialSource(mfbbltCI,mfbblt,-DMROP=McopyInverted)
+
+ObjectFromSpecialSource(mfbbltO,mfbblt,'-DMROP=Mor')
+
+ObjectFromSpecialSource(mfbbltG,mfbblt,-DMROP=0)
+
+ObjectFromSpecialSource(mfbtileC,mfbtile,-DMROP=Mcopy)
+
+ObjectFromSpecialSource(mfbtileG,mfbtile,-DMROP=0)
+
+LinkSourceFile(fastblt.h,$(SERVERSRC)/mfb)
+LinkSourceFile(maskbits.c,$(SERVERSRC)/mfb)
+LinkSourceFile(maskbits.h,$(SERVERSRC)/mfb)
+LinkSourceFile(mergerop.h,$(SERVERSRC)/mfb)
+LinkSourceFile(mfb.h,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbbitblt.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbblt.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbbres.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbbresd.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbbstore.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbclip.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbcmap.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbfillarc.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbfillrct.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbfont.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbgetsp.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbhrzvert.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbimage.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbimggblt.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbline.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbmisc.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbpixmap.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbply1rct.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbplygblt.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbpntarea.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbpntwin.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbpolypnt.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbscrclse.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbscrinit.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbsetsp.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbtegblt.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbtile.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbwindow.c,$(SERVERSRC)/mfb)
+LinkSourceFile(mfbzerarc.c,$(SERVERSRC)/mfb)
+
+DependTarget()

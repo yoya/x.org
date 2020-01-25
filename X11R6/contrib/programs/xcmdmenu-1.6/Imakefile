@@ -1,0 +1,10 @@
+#define PassCDebugFlags 'CDEBUGFLAGS=$(CDEBUGFLAGS)'
+
+LOCAL_LIBRARIES = XawClientLibs
+        DEPLIBS = XawClientDepLibs
+           SRCS = xcmdmenu.c
+    STD_DEFINES = -DXCMDMENU_CONFIG=\"$(LIBDIR)/xcmdmenu.cfg\"
+
+SimpleProgramTarget(xcmdmenu)
+InstallNonExec(xcmdmenu.cfg,$(LIBDIR))
+

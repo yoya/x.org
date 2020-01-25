@@ -1,0 +1,63 @@
+\voffset -1 in
+\documentstyle{report}
+\pagestyle{empty}
+\begin{document}
+\vsize = 11 in
+\font\bold cmbx10
+\font\bigbold cmbx10 scaled \magstep 1
+\font\biggbold cmbx10 scaled \magstep 2
+\font\bigggbold cmbx10 scaled \magstep 4
+\font\reg cmr10 scaled \magstep 2
+
+\centerline{\bigggbold XPD}
+\bigskip
+\centerline{\biggbold A Process Manager for the X Window System}
+\medskip
+\centerline{\bigbold By:  Vincent M. Tkac}
+\centerline{\bold vmtkac@acm.org}
+\bigskip
+{\bold CS890 \hfill Dr. Paul M. Mullins}
+\bigskip\bigskip
+
+\leftline{\bold Abstract:}
+\medskip
+
+XPD is designed to provide an easy-to-use, point-and-click interface to a correlation of process information available through {\bold ps}.
+XPD does not use {\bold ps}, it reads the kernel and creates an image of the active process table, giving the user a ``snapshot'' of process activity.
+
+XPD utilizes the Athena Widget set and was written under SunOS 4.1 on a Sun X.
+Code that may be specific to the Sun architecture is located in a separate object file.
+
+\medskip
+\bigskip
+\leftline{\bold Program Features:}
+\begin{enumerate}
+\item{Display all process users}
+\item{Display processes owned by a user}
+\item{Display trace of process ancestry and children}
+\item{Display full command line arguments for a process}
+\item{Signal (kill) a selected process}
+\item{Specify the desired signal to be sent to the selected process}
+\item{Signal (kill -9) all of a users processes}
+\item{Rescan the process table from the kernel}
+\item{Display list of defunct processes}
+\item{Display number of processes}
+\item{Display detailed information for a selected process}
+\begin{enumerate}
+\item{Effective uid, login name and name of process owner}
+\item{Parent process id}
+\item{Process group id}
+\item{Process status}
+\item{tty}
+\end{enumerate}
+\end{enumerate}
+
+\medskip
+\leftline{\bold Note:}
+\medskip
+
+XPD is intended to be run with an effective uid of root.
+Any user in the {\bold wheel} group is given permission to kill any process.
+Users not in the operator group are only allowed to kill processes mathcing their effective uid.
+
+\end{document}

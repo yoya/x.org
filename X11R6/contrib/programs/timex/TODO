@@ -1,0 +1,42 @@
+This list has 3 sections: One for bugs to be fixed, one for features
+to be added, one for things that someone may like.
+
+Last updated: Version 1.92 Beta
+
+KNOWN BUGS
+- The resizing does not work right when adding/deleting projects.
+- Empty projects should have time displayed as 0:00 when highlighted
+  (this is needed when zeroing a project)
+
+FEATURES THAT MAY BE ADDED BEFORE RELEASE 2.00
+- Warning when leaving edit-mode timex without saving
+  (or perhaps one should just autosave)
+- Support for delete WindowManager protocol
+- Fallback resources that make *some* sense
+- X resources for a few more hardcoded changes
+  (like the number of hours the scrollbar covers)
+- A man page for "sumtimex"
+- Change "paused" mode to be an integer, giving project number
+  (0=paused, 1-n=this project) (Ken Butler's idea)
+- Automagical creation of the .timex directory
+
+WISH LIST
+
+- Someone would like hierarchical projects (some projects pop up windows
+  that let you select subprojects)
+- Configure which buttons that appear in the command box
+- A history log of when projects were clicked/changed (some dislike this....)
+- I would like to put bars across the scrollbar at every hour division.
+- Max no of minutes in scrollbar should be settable
+- Checking to see that you don't attempt to do > 24 hours in a day
+- Sumtimex option to *not* add to certain projects with -adjust option
+- Calendar-like widget for selecting a day to edit
+- Interactive removal of lock file
+
+I also have about four miles of patches that turn timex into the
+centrepiece of a task tracking and overtime budgeting system - or
+something like that; I do NOT think I will be able to fit all that
+into Timex any time soon, unfortunately.
+
+
+

@@ -1,0 +1,32 @@
+XCOMM $XConsortium: Imakefile,v 1.5 94/01/21 22:04:27 dpw Exp $
+#include <Server.tmpl>
+
+#if HasShm
+SHMDEF = -DHAS_SHM
+#endif
+
+XCOMM add more architectures here as we discover them
+#if defined(HPArchitecture) || defined(SparcArchitecture) || SystemV4 || defined(OSF1Architecture)
+MMAPDEF = -DHAS_MMAP
+#endif
+
+SRCS = 	InitInput.c InitOutput.c stubs.c
+
+OBJS = 	InitInput.o InitOutput.o stubs.o
+
+INCLUDES = -I. -I$(BUILDINCDIR) -I$(FONTINCSRC) \
+	   -I../../cfb -I../../mfb -I../../mi -I../../include -I../../os  \
+           -I$(EXTINCSRC) -I$(INCLUDESRC)
+
+DEFINES = ServerOSDefines $(SHMDEF) $(MMAPDEF)
+
+all:: $(OBJS)
+
+LinkSourceFile(stubs.c,../../Xi)
+SpecialCObjectRule(InitInput,$(ICONFIGFILES),$(EXT_DEFINES))
+
+NormalLibraryObjectRule()
+NormalLibraryTarget(vfb,$(OBJS))
+
+InstallManPage(Xvfb,$(MANDIR))
+DependTarget()

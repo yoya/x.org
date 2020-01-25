@@ -1,0 +1,108 @@
+/* $XConsortium: confres.pi,v 5.2 94/04/17 20:47:35 rws Exp $ */
+
+/*****************************************************************
+
+Copyright (c) 1989, 1990, 1991,1990  X Consortium
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Except as contained in this notice, the name of the X Consortium shall not be
+used in advertising or otherwise to promote the sale, use or other dealings
+in this Software without prior written authorization from the X Consortium.
+
+Copyright (c) 1989, 1990, 1991,1990 by Sun Microsystems, Inc.
+
+                        All Rights Reserved
+
+Permission to use, copy, modify, and distribute this software and its 
+documentation for any purpose and without fee is hereby granted, 
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in 
+supporting documentation, and that the names of Sun Microsystems,
+and the X Consortium, not be used in advertising or publicity 
+pertaining to distribution of the software without specific, written 
+prior permission.  
+
+SUN MICROSYSTEMS DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, 
+INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT 
+SHALL SUN MICROSYSTEMS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL 
+DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
+SOFTWARE.
+
+******************************************************************/
+
+
+## confres.pi -
+## verify default conflict archival resolution flag = UPDATE
+## verify default conflict retrieval resolution flag = ABANDON
+## set conflict resolution flag to: MAINTAIN, ABANDON, UPDATE
+## Verify by inquiring conflict resolution flags
+## and compare against the expected
+
+source macro.pi
+
+/*
+ * inquire archive conflict resolution flag, test against expected,
+ * print with specified format string if doesn't match
+ */
+macro im_confirm_archiveflag(@expected,@formatstring)
+        err = i_bogus_error();
+        pinq_conf_res(&err,&archive,&retrieve);
+        im_ifneq(err,0,"ERROR: %d in pinq_conf_res\n",err);
+        im_ifneq(archive,@expected,@formatstring,archive);
+endmacro
+
+/*
+ * inquire retrieve conflict resolution flag, test against expected,
+ * print with specified format string if doesn't match
+ */
+macro im_confirm_retrieveflag(@expected,@formatstring)
+        err = i_bogus_error();
+        pinq_conf_res(&err,&archive,&retrieve);
+        im_ifneq(err,0,"ERROR: %d in pinq_conf_res\n",err);
+        im_ifneq(retrieve,@expected,@formatstring,retrieve);
+endmacro
+
+
+tbegintest("confres","set and inquire conflict resolution flags");
+i_open_phigs(NULL,PDEF_MEM_SIZE);
+
+# Verify default values for archive and retrieve flags
+
+im_confirm_archiveflag (PRES_UPD,
+	"failed: default archival flag = %d,expected PRES_UPD \n");
+im_confirm_retrieveflag(PRES_ABANDON,
+	"failed: default retrieval flag = %d, expected PRES_ABANDON \n");
+
+# set and verify different archive and retrieve flags
+
+foreach @flag (
+	PRES_MAINTAIN; PRES_ABANDON; PRES_UPD;
+)
+	pset_conf_res(@flag,PRES_UPD);
+	im_confirm_archiveflag (@flag,
+		"failed: archival flag =%d, expected @flag after setting flag\n");
+
+	pset_conf_res(PRES_UPD,@flag);
+	im_confirm_retrieveflag (@flag,
+		"failed: retrieval flag =%d, expected @flag after setting flag\n");
+end
+
+tendtest();

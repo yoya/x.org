@@ -1,0 +1,11 @@
+
+==============================================
+   trim_curves.curves->knots.floats[0] = 1.00
+   trim_curves.curves->knots.floats[1] = 2.00
+   trim_curves.curves->knots.floats[2] = 3.00
+   trim_curves.curves->knots.floats[3] = 1.00
+   trim_curves.curves->knots.floats[4] = 5.00
+PEXError: Bad PEX OC
+OC code: 98
+Request code: 43
+==============================================

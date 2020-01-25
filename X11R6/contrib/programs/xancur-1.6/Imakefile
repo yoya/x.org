@@ -1,0 +1,18 @@
+#define IHaveSubdirs
+#define PassCDebugFlags 'CDEBUGFLAGS=$(CDEBUGFLAGS)'
+
+        SUBDIRS = animations
+        DEPLIBS = $(DEPXLIB)
+LOCAL_LIBRARIES = $(XLIB)
+           SRCS = xancur.c
+           OBJS = xancur.o
+      XANCURDIR = $(LIBDIR)/xancur
+    STD_DEFINES = -DXANCUR_SCRIPT=\"$(XANCURDIR)/Script\"
+
+
+AllTarget(xancur)
+
+MakeMakeSubdirs($(SUBDIRS),install)
+SimpleProgramTarget(xancur)
+MakeDirectories(install,$(XANCURDIR))
+

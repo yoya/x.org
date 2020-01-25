@@ -1,0 +1,28 @@
+!
+! $Id: Xexit.ad,v 1.1.1.1 1994/05/29 00:47:23 stumpf Exp $
+!
+
+Xexit.askConfirm:		true
+
+Xexit*title:			Terminate Session
+
+Xexit*exitButton.bitmap:	ExitSess.xbm
+Xexit*iconPixmap:		HaveSess.xbm
+
+Xexit*confirm.borderWidth:	4
+
+Xexit*confirmWarn.bitmap:	Excl
+Xexit*confirmWarn.borderWidth:	0
+
+Xexit*confirmLabel.label:	Session ...
+Xexit*confirmLabel.Font:	-schumacher-clean-bold-r-*-*-14-*-*-*-*-*-*-*
+Xexit*confirmLabel.borderWidth:	0
+Xexit*confirmLabel.fromHoriz:	confirmWarn
+
+Xexit*confirmOk.label:		terminate
+Xexit*confirmOk.fromVert:	confirmWarn
+
+Xexit*confirmCancel.label:	continue
+Xexit*confirmCancel.fromVert:	confirmWarn
+Xexit*confirmCancel.fromHoriz:	confirmOk
+

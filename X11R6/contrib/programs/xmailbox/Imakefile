@@ -1,0 +1,93 @@
+#------------------------------------------
+# Change the XPM include and lib
+# directories appropriately.
+# Note: you need to have XPM 3.4 or higher!
+#------------------------------------------
+#
+       XPMINCDIR = /usr/applic/X/include/X11
+#      XPMINCDIR = /usr/local/include
+       XPMLIBDIR = /usr/applic/X/lib/sun4
+#      XPMLIBDIR = $(LIBDIR)/xpm
+          XPMLIB = -L$(XPMLIBDIR) -lXpm
+
+#-------------------------------
+# Architecture specific defines
+#-------------------------------
+#ifdef HPArchitecture
+CCOPTIONS = -Aa -D_HPUX_SOURCE
+#endif
+
+#------------------------------------------
+# Comment the following define if you
+# want audio support
+#------------------------------------------
+/* #define NO_AUDIO          /* */
+
+#------------------------------------------
+# Uncomment the following define if you
+# are using a SUN SPARC workstation and
+# you would like to use the standard SUN
+# audio driver when neither the NCD audio
+# server nor the rplay sound server is
+# available.
+# Note: When you compile using SUN_AUDIO 
+#       with either NCD_AUDIO or 
+#       RPLAY_AUDIO,  the program will
+#       fall back to use the standard SUN
+#       audio driver if a rplay or NCD
+#       server is not running.
+#------------------------------------------
+/* SUN_AUDIO = -DSUN_AUDIO   /* */
+
+#------------------------------------------
+# Uncomment the following define if you
+# are using an NCD audio server
+#------------------------------------------
+/* #define NCD_AUDIO         /* */
+
+#------------------------------------------
+# Uncomment the following define if you
+# are using rplay sound server
+#------------------------------------------
+/* #define RPLAY_AUDIO       /* */
+
+#ifndef NO_AUDIO
+#ifdef NCD_AUDIO
+#      NCDINCDIR = /usr/local/include
+#      NCDLIBDIR = /usr/local/lib
+      NCDINCDIR = $(HOME)/include
+      NCDLIBDIR = $(HOME)/lib/sun4/clibs
+
+         SNDLIB = -L$(NCDLIBDIR) -laudio -lm
+       INCLUDES = -I$(XPMINCDIR) -I$(NCDINCDIR) -I/usr/public/include
+  EXTRA_DEFINES = -DNCD_AUDIO $(SUN_AUDIO) 
+#else
+#ifdef RPLAY_AUDIO
+#       RPINCDIR = /usr/local/include/rplay
+#       RPLIBDIR = /usr/local/lib
+       RPINCDIR = $(HOME)/include/rplay
+       RPLIBDIR = $(HOME)/lib/sun4/clibs
+         SNDLIB = -L$(RPLIBDIR) -lrplay -lm
+       INCLUDES = -I$(XPMINCDIR) -I$(RPINCDIR) -I/usr/public/include
+  EXTRA_DEFINES = -DRPLAY_AUDIO $(SUN_AUDIO) 
+#else
+         SNDLIB = 
+       INCLUDES = -I$(XPMINCDIR) -I/usr/public/include
+  EXTRA_DEFINES = $(SUN_AUDIO)
+#endif /* RPLAY_AUDIO */
+#endif /* NCD_AUDIO */
+#else
+         SNDLIB = 
+       INCLUDES = -I$(XPMINCDIR)
+  EXTRA_DEFINES = -DNO_AUDIO
+#endif /* NO_AUDIO */
+
+   SRCS = Mailbox.c xmailbox.c 
+   OBJS = Mailbox.o xmailbox.o
+
+        DEPLIBS = $(DEPXLIB) $(DEPXAWLIB) $(DEPXTOOLLIB) $(DEPXMULIB)
+LOCAL_LIBRARIES = $(XPMLIB) $(SNDLIB) $(XLIB) $(XAWLIB) $(XTOOLLIB) $(XMULIB)
+
+ComplexProgramTarget(xmailbox)
+InstallAppDefaults(XMailbox)
+

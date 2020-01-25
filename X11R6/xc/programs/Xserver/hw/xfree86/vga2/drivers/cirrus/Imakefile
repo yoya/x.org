@@ -1,0 +1,28 @@
+XCOMM $XFree86: xc/programs/Xserver/hw/xfree86/vga2/drivers/cirrus/Imakefile,v 3.1 1994/05/30 08:26:13 dawes Exp $
+#include <Server.tmpl>
+
+SRCS = cir_driver.c cir_bank.s
+
+OBJS = cir_driver.o cir_bank.o
+
+#if XF86LinkKit
+INCLUDES = -I. -I../../../include -I../.. -I../../vga256/cirrus
+#else
+INCLUDES = -I. -I$(XF86COMSRC) -I$(XF86HWSRC) -I$(XF86OSSRC) \
+           -I../../../vga256/vga -I$(SERVERSRC)/include -I$(INCLUDESRC) \
+           -I../../../vga256/drivers/cirrus
+#endif
+
+DEFINES = -DMONOVGA
+
+NormalLibraryObjectRule()
+NormalAsmObjectRule()
+
+NormalRelocatableTarget(cir_drv, $(OBJS))
+
+LinkSourceFile(cir_driver.c,$(VGADRIVERSRC)/cirrus)
+LinkSourceFile(cir_bank.s,$(VGADRIVERSRC)/cirrus)
+
+InstallLinkKitNonExecFile(Imakefile,$(LINKKITDIR)/drivers/vga2/cirrus)
+
+DependTarget()

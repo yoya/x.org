@@ -1,0 +1,215 @@
+.ad l
+.nh
+.TH MIFF 5 "1 May 1994" "ImageMagick"
+.SH NAME
+MIFF - ImageMagick's file format for raster images.  MIFF is an
+acronym for Magick Image File Format.
+.SH SYNOPSIS
+.B #include <image.h>
+.SH DESCRIPTION
+A MIFF image file consist of two sections.  The first section is
+composed of keywords describing the image in text form.  The next
+section is the binary image data.  The two sections are separated by a
+\fB:\fP character immediately followed by a \fInewline\fP.  Generally,
+the first section has a \fIform-feed\fP and \fInewline\fP proceeding
+the \fB:\fP character.   You can then list the image keywords with
+\fImore\fP, without printing the binary image that follows the \fB:\fP
+separator.
+.PP
+Each keyword must be separated by at least one space but can be
+separated with control characters such a \fIform-feed\fP or
+\fInewline\fP.
+.PP
+A list of valid keywords follows:
+.TP 5
+.B "class=\fIDirectClass | PseudoClass\fP"
+identifies the type of binary image stored within the file.
+
+This keyword is optional.  If it is not specified, a \fIDirectClass\fP
+image format is assumed.  An explanation of \fIDirectClass\fP and
+\fIPseudoClass\fP image data follows this list.
+.TP 5
+.B "colors=\fIvalue\fP"
+specifies the number of colors in the image, and for pseudo-color
+images the size of the colormap.
+
+This keyword is optional.  However, if a colormap size is not
+specified, a linear colormap is assumed for pseudo-color images.
+.TP 5
+.B "columns=\fIvalue\fP"
+is a required keyword and specifies the number of columns, or width in
+pixels, of the image.
+.TP 5
+.B "compression=\fIQEncoded | RunlengthEncoded\fP"
+identifies how the image stored within the file is compressed.
+
+This keyword is optional.  If it is not specified, the image is assumed
+to be uncompressed.  \fIQEncoded\fP has no meaning for pseudo-color
+images.  A detailed explanation of runlength-encoded and predictive
+arithmetic image compression follows this list.
+.TP 5
+.B "id=\fBImageMagick\fP"
+is a required keyword and identifies this file as a MIFF image.
+.TP 5
+.B "matte=\fITrue | False\fP"
+specifies whether a continuous-tone image also has matte data.  Matte data is
+generally useful for image compositing.
+
+This keyword is optional.  If it is not specified, no matte data is assumed.
+This keyword has no meaning for pseudo-color images.
+.TP 5
+.B "montage=\fI<width>x<height>{\+-}<x offset>{\+-}<y offset>\fP
+size and location of the individual tiles of a composite image.  See
+\fBX(1)\fP for details about the geometry specification.
+
+Use this keyword when the image is a composite of a number of different
+tiles.  A tile consists of an image and optionally a border and a
+label.  \fI<width>\fP is the size in pixels of each individual tile in
+the horizontal direction and \fI<height>\fP is the size in the vertical
+direction.  Each tile must have an equal number of pixels in width and
+equal in height.  However, the width can differ from the height.  \fI<x
+offset>\fP is the offset in number of pixels from the vertical edge of
+the composite image where the first tile of a row begins and \fI<y
+offset>\fP is the offset from the horizontal edge where the first tile
+of a column begins.
+
+If this keyword is specified, a directory of tile names must follow the
+image header.  The format of the directory is explained below.
+.TP 5
+.B "packets=\fIvalue\fP"
+specifies the number of compressed color packets in the image data
+section.
+
+This keyword is optional, but recommended, for runlength-encoded image
+compression.  It is required for arithmetic encoded image compression.  A
+detailed explanation of image compression follows this list.
+.TP 5
+.B "rows=\fIvalue\fP"
+is a required keyword and specifies the number of rows, or height in pixels,
+of the image.
+.TP 5
+.B "scene=\fIvalue\fP"
+is an optional keyword and is a reference number for sequencing of
+images.
+
+This keyword is typically useful for animating a sequence of images.
+.TP 5
+.B "signature=\fIvalue\fP"
+is an optional keyword and is a character string that uniquely identifies
+the image colormap.
+
+A unique identifier for the colormap is useful for animating a sequence
+of \fIPseudoClass\fP images.  The default identifier is a digital
+signature computed from RSA's Data Security MD5 Digest Algorithm
+described in Internet draft [MD5], July 1992.  The colormap signature is
+usually computed for \fIPseudoClass\fP images.
+.PP
+Comments can be included in the keyword section.  Comments must begin with
+a \fB{\fP character and end with a \fI}\fP character.
+.PP
+An example keyword section follows:
+.PP
+    {
+      Rendered via Dore by Sandy Hause.
+    }
+    id=ImageMagick
+    class=PseudoClass  colors=256  signature=d79e1c308aa5bbcdeea8ed63df412da9
+    compression=RunlengthEncoded  packets=27601
+    columns=1280  rows=1024
+    scene=1  
+    ^L
+    :
+.PP
+If you specify \fBmontage\fP in the image header, follow the header
+with a directory of image tiles.  This directory consists of a name for
+each tile of the composite image separated by a NEWLINE character.  The
+list is terminated with a NULL character.
+.PP
+The binary image data that follows the keyword text is stored in one of
+two binary classes as specified by the \fBclass\fP keyword:
+\fIDirectClass\fP or \fIPseudoClass\fP.
+.PP
+Use the \fIDirectClass\fP class to store continuous-tone images.
+\fIDirectClass\fP requires that the image pixels immediately follow the
+keyword text and be stored as binary red, green, and blue intensity
+values (and optional matte value).  Each color component is stored as
+one binary byte (8 bit) and ranges from 0 through 255.  The total
+number of pixels expected is equal to the number of pixel columns times
+the number of pixel rows as specified by the \fBcolumns\fP and
+\fBrows\fP keywords.
+.PP
+If the \fBcompression\fP keyword is not specified, a red, green, and blue byte
+(and optional matte byte) in that order is expected for each pixel of the
+image.
+.PP
+If \fBcompression\fP is \fIQEncoded\fP, each red, green, and blue byte
+intensity value (and optional matte value) is encoded using the predictive
+arithmetic compression algorithm.  Use the \fBpackets\fP keyword to specify
+the total number of arithmetic encoded packets that comprise the image.
+.PP
+If \fBcompression\fP is \fIRunlengthEncoded\fP, each red, green, and
+blue byte intensity value (and optional matte value) is followed by a
+count byte. This value specifies the number of horizontally contiguous
+pixels in the image of that color.  The count (0-255) is one less than
+the actual number of contiguous pixels; thus a single packet can
+represent from 1 up to 256 identical pixels.  The total number of
+pixels specified by the individual count bytes must add up to the
+number of pixel columns times the number of pixel rows as specified by
+the \fBcolumns\fP and \fBrows\fP keywords.  Use \fBpackets\fP to
+specify the total number of runlength-encoded packets that comprise the
+image.
+.PP
+Use the \fIPseudoClass\fP class to store pseudo-color images.
+\fIPseudoClass\fP requires that the image colormap and pseudo-color
+pixels immediately follow the keyword text.  The colormap is stored as
+contiguous red, green, and blue intensity values.  Each color component
+is stored as one binary byte (8 bit) and ranges from 0 through 255. The
+number of intensity values expected is determined by the \fBcolors\fP
+keyword.  Note, an image colormap is restricted to at most 65535
+entries.  The binary pseudo-color image is stored as indexes into the
+colormap.  For colormaps of 256 colors or less, the indexes are stored
+as one binary byte (8 bit) and ranges from 0 through 255.  If the
+colormap size exceeds 256 entries, then each colormap index is two
+bytes each with the most-significant-byte first.  The total number of
+pixels expected is equal to the number of pixel columns times the
+number of pixel rows as specified by the \fBcolumns\fP and \fBrows\fP
+keywords.
+.PP
+If the \fBcompression\fP keyword is not specified, a colormap index is
+expected for each pixel of the image.
+.PP
+If \fBcompression\fP is \fIRunlengthEncoded\fP, each colormap index
+is followed by a count byte. This value  specifies the number of
+horizontally contiguous pixels in the image of that color.  The count
+(0-255) is one less than the actual number of contiguous pixels; thus a
+single packet can represent from 1 up to 256 identical pixels.  The
+total number of pixels specified by the individual count bytes must add
+up to the number of pixels expected in the image as specified by the
+\fBcolumns\fP and \fBrows\fP keywords.  Use \fBpackets\fP to specify the
+total number of runlength-encoded packets that comprise the image.
+.SH SEE ALSO
+.B
+display(1), animate(1), import(1), montage(1), mogrify(1), convert(1), more(1), compress(1)
+.SH COPYRIGHT
+Copyright 1994 E. I. du Pont de Nemours and Company
+.PP
+Permission to use, copy, modify, distribute, and sell this software and
+its documentation for any purpose is hereby granted without fee,
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in
+supporting documentation, and that the name of E. I. du Pont de Nemours
+and Company not be used in advertising or publicity pertaining to
+distribution of the software without specific, written prior
+permission.  E. I. du Pont de Nemours and Company makes no representations
+about the suitability of this software for any purpose.  It is provided
+"as is" without express or implied warranty.
+.PP
+E. I. du Pont de Nemours and Company disclaims all warranties with regard
+to this software, including all implied warranties of merchantability
+and fitness, in no event shall E. I. du Pont de Nemours and Company be
+liable for any special, indirect or consequential damages or any
+damages whatsoever resulting from loss of use, data or profits, whether
+in an action of contract, negligence or other tortuous action, arising
+out of or in connection with the use or performance of this software.
+.SH AUTHORS
+John Cristy, E.I. du Pont de Nemours and Company Incorporated

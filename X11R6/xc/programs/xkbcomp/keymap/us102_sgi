@@ -1,0 +1,7 @@
+// $XConsortium: us102_sgi,v 1.3 94/04/08 15:57:21 erik Exp $
+xkb_keymap "sgi default"
+
+xkb_keycodes		{ include "sgi"		};
+xkb_types		{ include "default"	};
+xkb_compatibility	{ include "default"	};
+xkb_symbols		{ include "us"	};

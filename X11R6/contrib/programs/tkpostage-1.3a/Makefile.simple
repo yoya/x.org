@@ -1,0 +1,61 @@
+##############################################################################
+#
+#    Copyright (c) 1994    Dan Wallach
+#
+#    The X Consortium, and any party obtaining a copy of these files from
+#    the X Consortium, directly or indirectly, is granted, free of charge, a
+#    full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+#    nonexclusive right and license to deal in this software and
+#    documentation files (the "Software"), including without limitation the
+#    rights to use, copy, modify, merge, publish, distribute, sublicense,
+#    and/or sell copies of the Software, and to permit persons who receive
+#    copies from any such party to do so.  This license includes without
+#    limitation a license to do the foregoing actions under any patents of
+#    the party supplying this software to the X Consortium.
+#
+##############################################################################
+# CONFIGURE -- set the names of where you want things installed, and where
+# your copy of 'wish' resides.  When you run 'make install', it will rewrite
+# tkpostage to use these paths.
+##############################################################################
+
+WISH   = /usr/local/X11/bin/wish
+BINDIR = /usr/local/X11/bin
+LIBDIR = /usr/local/X11/include/bitmaps
+MANDIR = /usr/local/X11/man
+MANSECT = 1
+
+##############################################################################
+# that's all you should have to configure
+##############################################################################
+
+install:
+	sed -e 's@^#!/usr/local/bin/wish -f@#!$(WISH) -f@' \
+	    -e 's@^set bitmap "./Postage.xbm";@set bitmap "$(LIBDIR)/Postage.xbm";@' \
+	    < tkpostage > $(BINDIR)/tkpostage
+	chmod 755 $(BINDIR)/tkpostage
+	cp tkpostage.man $(MANDIR)/man$(MANSECT)/tkpostage.$(MANSECT)
+	chmod 644 $(MANDIR)/man$(MANSECT)/tkpostage.$(MANSECT)
+	cp Postage.xbm $(LIBDIR)/Postage.xbm
+	chmod 644 $(LIBDIR)/Postage.xbm
+
+
+#
+# stuff to make distributions easier
+#
+VERSION = tkpostage-1.3a
+SHAR = /usr/local/bin/shar
+SHARDIST = $(VERSION).shar
+DEPFILES = README CHANGES Imakefile Makefile.simple tkpostage Postage.xbm tkpostage.man
+TARDIST = $(VERSION).tar.Z
+TARFILES = $(VERSION)/README $(VERSION)/CHANGES $(VERSION)/Imakefile \
+    $(VERSION)/Makefile.simple $(VERSION)/tkpostage $(VERSION)/Postage.xbm \
+    $(VERSION)/tkpostage.man
+
+dist: $(SHARDIST) $(TARDIST)
+
+$(SHARDIST): $(DEPFILES)
+	cd ..;$(SHAR) $(VERSION) $(TARFILES) > $(VERSION)/$(SHARDIST)
+
+$(TARDIST): $(DEPFILES)
+	cd ..; tar cf - $(TARFILES) | compress > $(VERSION)/$(TARDIST)
