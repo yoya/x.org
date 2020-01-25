@@ -1,0 +1,3 @@
+.IP \fIpredicate\fP 1i
+Specifies the procedure that is to be called to determine
+if the next event in the queue matches the one specified by the event argument.

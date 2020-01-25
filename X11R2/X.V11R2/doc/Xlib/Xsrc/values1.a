@@ -1,0 +1,5 @@
+.\" $Header: values1.a,v 1.1 87/09/28 13:17:40 mento Exp $
+.IP \fIvalues\fP 1i
+Specifies a pointer to the 
+.PN XGCValues 
+structure.

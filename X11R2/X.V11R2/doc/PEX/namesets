@@ -1,0 +1,109 @@
+.AC "Name Sets" 1
+.LP
+.RU
+.LP
+A \fIname set\fP is a PEX resource that is used to filter output
+commands during rendering, picking, and searching operations.
+Name sets
+are fairly lightweight resources, but they are of variable size
+so can vary depending on their contents.
+
+.AC "Name Set Resource Management" 2
+.LP                   
+The name set is an X11 resource and carries all of the 
+responsibilities and
+access rights of X11 resources.  These requests manage the creation,
+freeing, and copying of name set resources.
+
+.AC "Create Name Set" 3
+.Fs
+.Na PEXCreateNameSet
+.Rq      
+.Pa ns_id NAME_SET_ID
+.Se
+NameSet, Alloc
+.Ds                     
+This request creates a name set resource for the specified
+\fIns_id\fP.  The name set is initialized to an empty list when
+the resource is created.
+.Fe
+
+
+
+
+.AC "Copy Name Set" 3
+.Fs
+.Na PEXCopyNameSet
+.Rq                 
+.Pa src_ns_id NAME_SET_ID
+.Pa dest_ns_id NAME_SET_ID
+.Se
+NameSet
+.Ds            
+This request copies the source name set
+\fIsrc_ns_id\fP to a destination name set \fIdest_ns_id\fP
+after first emptying the contents of \fIdest_ns_id\fP.
+The \fIdest_ns_id\fP must already exist as a valid resource.
+.Fe
+.bp
+
+
+.AC "Free Name Set" 3
+.Fs
+.Na PEXFreeNameSet
+.Rq                 
+.Pa ns_id NAME_SET_ID
+.Se
+NameSet
+.Ds            
+This request deletes the association between the resource id
+and the name set.  The name set storage will be
+freed when no other resource references it.
+.Fe
+.bp
+
+.AC "Name Set Inquiry" 2
+.LP
+These requests inquire name set resource attributes.
+
+.AC "Get Name Set" 3
+.Fs
+.Na PEXGetNameSet
+.Rq
+.Pa ns_id NAME_SET_ID
+.Re
+.Pa names LISTofNAME
+.Se
+NameSet
+.Ds       
+This request will return the contents of the name set specified by
+\fIns_id\fP.
+.Fe
+
+
+
+
+.AC "Name Set Modification" 2
+.LP
+These requests can be used to modify the contents of name set resources.
+
+.AC "Change Name Set" 3
+.Fs
+.Na PEXChangeNameSet
+.Rq
+.Pa ns_id NAME_SET_ID
+.Pa action "{\fIReplace, Add, Remove\fP}"
+.Pa names LISTofNAME
+.Se
+NameSet
+.Ds       
+This request changes the contents of a name set resource.
+If \fIaction\fP is \fIAdd\fP, the specified list of names
+is added to the name set.
+If \fIaction\fP is \fIRemove\fP, the specified list of names
+is removed from the name set.
+If \fIaction\fP is \fIReplace\fP, all the names in the name set are
+removed, then the specified list of names
+is added to the name set.
+.Fe
+.bp

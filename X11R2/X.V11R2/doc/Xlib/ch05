@@ -1,0 +1,2543 @@
+.\"U7
+.\"UT "Graphics Resource Functions" 5
+\&
+.sp 1
+.ce 3
+\s+1\fBChapter 5\fP\s-1
+
+\s+1\fBGraphics Resource Functions\fP\s-1
+.sp 2
+.nr H1 5
+.nr H2 0
+.nr H3 0
+.nr H4 0
+.nr H5 0
+.na
+.LP
+.XS
+Chapter 5: Graphics Resource Functions 
+.XE
+After you connect your program to the X server by calling
+.PN XOpenDisplay ,
+you can use the Xlib graphics resource functions to:
+.IP \(bu 5
+Create, copy, destroy, and modify color maps
+.IP \(bu 5
+Manipulate pixmaps
+.IP \(bu 5
+Manipulate graphics context/state
+.IP \(bu 5
+Use GC convenience routines
+.LP
+There are a number of resources used when performing graphics
+operations in X.
+Most information about performing graphics (for example, foreground
+color, background color, line style, and so on) are stored in
+resources called graphics contexts.
+.IN "Graphics Context" "" "@DEF@"
+Most graphics operations (see chapter 6) take a graphics
+context or ``GC'' as an argument.
+While it, in theory, is possible to share GCs between applications, it
+is expected that applications will use their own
+GCs when performing operations, and such
+shared use is highly discouraged because the library may cache GC state.
+.LP
+Windows in X always have an associated color map that
+provides a level of indirection between pixel values and color displayed
+on the screen.
+Many of the hardware displays
+built today have a single color map, so the primitives
+are written to encourage sharing of color map entries between applications.
+Because color maps are associated with windows, X will support displays
+with multiple color maps and, indeed, different types of color maps.
+If there are not sufficient color map resources in the display,
+some windows may not be displayed in their true colors.
+A window manager can set which windows are displayed
+in their true colors if more than one color map is required for
+the color resources the applications are using.
+.LP
+Off screen memory or pixmaps are often used to define frequently
+used images for later use in graphics operations.
+Pixmaps are also used to define tiles or
+patterns for use as window backgrounds, borders, or cursors.
+A single bit-plane pixmap is sometimes referred to as a bitmap.
+.NT
+Some screens may have very limited off screen memory.
+You should regard it as a precious resource.
+.NE
+.LP
+Graphics operations can be performed to either windows or
+pixmaps, also called drawables.
+.IN "root" "" "@DEF@"
+Each drawable exists on a single screen and
+can only be used on that screen.
+GCs can also only be used with drawables of matching
+screens and depths.
+.NH 2
+Color Map Functions
+.XS
+\*(SN Color Map Functions
+.XE
+.LP
+Xlib provides functions with which you can manipulate a color map.
+This section discusses how to:
+.IP \(bu 5
+Create, copy, and destroy the color map
+.IP \(bu 5
+Allocate and deallocate colors
+.NH 3
+Creating, Copying, and Destroying Color Maps
+.XS
+\*(SN Creating, Copying, and Destroying Color Maps 
+.XE
+.LP
+Xlib provides functions with which you can create, copy, free,
+or set a color map.
+.LP
+The following functions manipulate the representation of color on the
+screen.
+For each possible value a pixel may take on a display,
+there is a color cell in the color map.
+For example, if a display is 4 bits deep, pixel values 0 through 15 are
+defined. 
+A color map is the collection of the color cells.
+A color cell consists of a triple of red, green, and blue.
+As each pixel is read out of display memory, its value
+is taken and looked up in the color map.
+The values of the cell determine what color is displayed on the screen.
+On a multiplane  display with a black and white monitor (grayscale, but
+not color), these values may or may not be combined to determine the
+brightness on the screen.
+.LP
+Screens always have a default color map.
+Programs will typically allocate cells out of this color map.
+It is highly discouraged to write applications which monopolize 
+color resources.
+On a screen that either cannot load the color map or cannot have a fully
+independent color map, 
+only certain kinds of allocations may work.
+One or more (on certain hardware) color maps may be resident 
+(that is, installed) at one time.
+The
+.PN XInstallColormap 
+function (see Chapter 7) is used to install a color map.
+The 
+.PN DefaultColormap 
+macro returns the default color map.
+The 
+.PN DefaultVisual 
+macro
+returns the default visual type for the specified screen.
+Color maps are local to a particular screen.
+.IN "Colormap" "" "@DEF@"
+Possible visual types are represented by these constants: 
+.PN StaticGray , 
+.PN GrayScale , 
+.PN StaticColor ,
+.PN PseudoColor , 
+.PN TrueColor , 
+or 
+.PN DirectColor .
+These types are more fully discussed in the section on visual
+types in Chapter 3.
+.LP
+The introduction of color changes the view a programmer should
+take when dealing with a bitmap display.
+For example, when printing text, you
+write a pixel value, which is defined to be a specific color,
+rather than setting or clearing bits.
+Hardware will impose limits (number of significant
+bits, for example) on these values.
+Typically, one allocates color cells or sets of color cells.
+If read only, the pixel values for these colors may be shared 
+among multiple applications, and the RGB values of the cell cannot be changed.
+If read/write, they are exclusively owned by the program,
+and the color cell associated with the pixel value may be changed at will.
+.LP
+The functions in this section operate on an
+.PN XColor
+structure:
+.IN "XColor" "" "@DEF@"
+.Ds 0
+.\" Adjusted structure so that elements fit neatly on
+.\" the 7 by 9 page.
+.TA .5i 2.5i
+.ta .5i 2.5i
+
+typedef struct {
+	unsigned long pixel;	/* pixel value */
+	unsigned short red, green, blue;	/* rgb values */
+	char flags;	/* DoRed, DoGreen, DoBlue */	
+	char pad;
+} XColor;
+.De
+.LP
+The red, green and blue values are scaled between 0 and 65535. 
+That is,
+on full in a color is a value of 65535 independent of the number
+of bit planes of the display.
+.IN "Color"
+Half brightness in a color would be a value of 32767 and off would be 0.
+This representation gives uniform results for color values across
+displays with different number of bit planes.
+.LP
+The flags member, which can be one or more of
+.PN DoRed ,
+.PN DoGreen ,
+and 
+.PN DoBlue ,
+is used in some functions to control which members will be set.
+.LP
+.sp
+To create a color map for a screen, use
+.PN XCreateColormap .
+.IN "XCreateColormap" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XCreateCmap.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+This is the window on whose screen you want to create a color map.
+.so ./Xsrc/visual1.a
+.so ./Xsrc/alloc.a
+.LP
+.so ./Xdescrip/XCreateCmap.d
+.PN XCreateColormap
+operates on a
+.PN Visual
+structure, whose members contain information about the color mapping 
+that is possible.
+Note that this does not set the color map of the specified window,
+which is only used to determine the correct screen (see
+.PN XSetWindowColormap ).
+.LP
+The members of this structure pertinent to the discussion of
+.PN XCreateColormap
+are class, red_mask, green_mask, blue_mask, and map_entries.
+The class member specifies the screen class and can be one of these constants:
+.PN GrayScale ,
+.PN PseudoColor ,
+.PN DirectColor ,
+.PN StaticColor ,
+.PN StaticGray ,
+or
+.PN TrueColor .
+The red_mask, green_mask, and blue_mask members specify the color mask values.
+The map_entries member specifies the number of color map entries.
+The class member constant determines whether the initial values for map_entries
+are defined.
+If the class member is
+.PN GrayScale ,
+.PN PseudoColor ,
+or
+.PN DirectColor ,
+the initial values for map_entries are undefined.
+However, if the class member is
+.PN StaticColor ,
+.PN StaticGray ,
+or
+.PN TrueColor ,
+map_entries has initial values that are defined.
+These values are specific to the visual type 
+and are not defined by the X server.
+.LP
+The class member constant also determines the constant you should 
+pass to the alloc
+argument:
+.IP \(bu 5
+If the class member is
+.PN StaticGray ,
+.PN StaticColor ,
+or
+.PN TrueColor
+you must pass
+.PN AllocNone .
+Otherwise, 
+the function generates a
+.PN BadMatch
+error.
+.IP \(bu 5
+If the class member is any other class, 
+you can pass
+.PN AllocNone .
+In this case, the color map has no values defined for map_entries.
+This allows your client programs to allocate the entries in the color map.
+You can also pass
+.PN AllocAll .
+In this case,
+.PN XCreateColormap
+allocates the entire color map as writable.
+The initial values of all map_entries are undefined.
+You cannot free any of these map_entries
+with a call to the function
+.PN XFreeColors .
+.IP
+For a color map class of
+.PN GrayScale
+or
+.PN PseudoColor ,
+the processing simulates a call to the function
+.PN XAllocColor ,
+where
+.PN XAllocColor 
+returns all pixel values from zero to N - 1.
+The value N represents the map_entries value in the specified
+.PN Visual
+structure.
+For a color map class of
+.PN DirectColor ,
+the processing simulates a call to the function
+.PN XAllocColorPlanes ,
+where
+.PN XAllocColorPlanes
+returns a pixel value of zero and rmask, gmask, and bmask values containing the
+same
+bits as the red_mask, green_mask, and blue_mask members in the
+specified
+.PN Visual
+structure.
+.LP
+.ds fd .PN XCreateColormap
+.so ./Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadMatch ,
+.PN BadValue ,
+and
+.PN BadWindow 
+errors.
+.LP
+.sp
+.LP
+To create a new color map when allocating out of a previously
+shared color map has failed due to resource exhaustion, use
+.PN XCopyColormapAndFree .
+.IN "XCopyColormapAndFree" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XCopyCmapFr.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/cmap.a
+.LP
+.PN XCopyColormapAndFree :
+.IP \(bu 5
+Creates a color map of the same visual type and for the same screen
+as the cmap argument and returns  the new color map ID.
+.IP \(bu 5
+Moves all of the client's existing allocation from cmap to the
+new color map with their color values intact and their read-only or
+writable characteristics intact and frees those entries.
+Color values in other entries in the new color map are undefined.
+.IP \(bu 5
+If cmap was created by the client with the alloc argument set to
+.PN AllocAll ,
+the new color map is also created with 
+.PN AllocAll
+all color values for all entries are copied from cmap,
+and then all entries in cmap are freed.
+.IP \(bu 5
+If cmap was not created by those clients with
+.PN AllocAll ,
+the allocations to be moved are all those pixels and planes
+that have been allocated by the client using
+.PN XAllocColor ,
+.PN XAllocNamedColor ,
+.PN XAllocColorCells ,
+or
+.PN XAllocColorPlanes
+and which have not been freed since they were allocated.
+.LP
+.ds fd .PN XCopyColormapAndFree
+.so ./Xsrc/errsent.com
+.PN BadAlloc
+and
+.PN BadColor 
+errors.
+.LP
+.sp
+To set the color map of a specified window, use
+.PN XSetWindowColormap .
+.IN "XSetWindowColormap" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XChCmap.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/cmap.a
+.LP
+.so ./Xdescrip/XChCmap.d
+.LP
+.ds fd .PN XSetWindowColormap
+.so ./Xsrc/errsent.com
+.PN BadColor ,
+.PN BadMatch ,
+and
+.PN BadWindow 
+errors.
+.LP
+.sp
+To delete the association between the color map resource ID and the color map, 
+use 
+.PN XFreeColormap .
+.IN "XFreeColormap" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XFreeCmap.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/cmap.a
+This is the color map associated with the resource ID you want to delete.
+.LP
+.so ./Xdescrip/XFreeCmap.d
+If cmap is an installed map for a screen
+it is uninstalled.
+See
+.PN XUninstallColormap .
+If cmap is defined as the color map for a window (by
+.PN XCreateWindow ,
+.PN XSetWindowColormap ,
+or
+.PN XChangeWindowAttributes ),
+.PN XFreeColormap
+changes the color map associated with the window to
+.PN None 
+and generates a
+.PN ColormapNotify
+event.
+The colors displayed for a window with a color map of
+.PN None
+are not defined by X.
+.LP
+.ds fd .PN XFreeColormap
+.so ./Xsrc/errsent4.com
+.PN BadColor 
+error.
+.NH 3
+Allocating, Modifying, and Freeing Color Cells
+.XS
+\*(SN Allocating, Modifying, and Freeing Color Cells 
+.XE
+.LP
+Xlib provides functions with which you can allocate pixel values for colors 
+that you need to display and can deallocate them when they are no longer 
+needed.
+There are two ways of allocating color cells: explicitly as read only
+entries by pixel value 
+or read/write,
+where you can allocate a number of color cells and planes simultaneously.
+.IN "XAllocColor"
+.IN "read/write colormap cells"
+The read/write cells you allocate do not have defined colors until
+set with 
+.PN XStoreColor
+or
+.PN XStoreColors .
+.LP
+To determine the color names,
+the X server uses a color data base.
+.IN "Color" "Data Base"
+On a UNIX-based system, this data base is
+.PN /usr/lib/rgb ,
+and a printable copy of it is stored in
+.PN /usr/lib/rgb.txt .
+.IN "Files" "/usr/lib/rgb.txt"
+The name and contents of this file are operating system 
+and possibly screen specific.
+Although you can change the values in a read/write color cell
+that is allocated by another application,
+this is considered ``anti-social'' behavior.
+.LP
+.sp
+To allocate a read-only color cell, use
+.PN XAllocColor .
+.IN "Allocation" "read-only colormap cells"
+.IN "read-only colormap cells" "allocating"
+.IN "XAllocColor" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XGetHardClr.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/cmap.a
+.so ./Xsrc/def_io.a
+.LP
+.so ./Xdescrip/XGetHardClr.d
+The corresponding color map cell is read-only.
+In addition,
+.PN XAllocColor
+returns zero if there was a problem (typically lack of resources)
+or nonzero if it succeeded.
+.IN "Colormap"
+.IN "Color Allocation"
+.IN "Allocation" "Color Map"
+.IN "read-only colormap cells"
+Read-only color map cells are shared among clients.
+When the last client deallocates a shared cell, it is deallocated.
+.EQ
+delim %%
+.EN
+.LP
+.ds fd .PN XAllocColor
+.so ./Xsrc/errsent.com
+.PN BadAlloc
+and
+.PN BadColor 
+errors.
+.LP
+.sp
+To allocate a read-only color cell by name and return the closest
+color supported by the hardware, use
+.PN XAllocNamedColor .
+.IN "Allocation" "read-only colormap cells"
+.IN "read-only colormap cells" "allocating"
+.IN "Color" "Naming"
+.IN "XAllocNamedColor" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XGetColor.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/cmap.a
+.so ./Xsrc/colorname.a
+.so ./Xsrc/hard_def.a
+.so ./Xsrc/exact_def.a
+.LP 
+.so ./Xdescrip/XGetColor.d
+The allocated color cell is read-only.
+You should use the ISO Latin-1 encoding, and upper/lower case does not matter.
+.LP
+.ds fd .PN XAllocNamedColor
+.so ./Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadColor ,
+and
+.PN BadName 
+errors. 
+.LP
+.sp
+To look up the name of a color, use
+.PN XLookupColor .
+.IN "XLookupColor" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XLkUpColor.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/cmap.a
+.so ./Xsrc/colorname.a
+.so ./Xsrc/hard_def.a
+.so ./Xsrc/exact_def.a
+.LP
+.so ./Xdescrip/XLkUpColor.d
+You should use the ISO Latin-1 encoding for the name, 
+and upper/lower case does not matter.
+.PN XLookupColor
+returns nonzero if the spec existed in the RGB data base
+or zero if it did not exist.
+.LP
+.sp
+To allocate read/write color cell and color plane combinations for a
+.PN PseudoColor
+model, use
+.PN XAllocColorCells .
+.IN "read/write colormap cells" "allocating"
+.IN "Allocation" "read/write colormap cells"
+.IN "Color Allocation"
+.IN "XAllocColorCells" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XAllocCells.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/cmap.a
+.so ./Xsrc/contig.a
+.so ./Xsrc/plane_masks.a
+.so ./Xsrc/nplanes.a
+.so ./Xsrc/pixels.a
+.so ./Xsrc/ncolors1.a
+.LP
+.so ./Xdescrip/XAllocCells.d
+Otherwise, 
+it generates a
+.PN BadValue
+error.
+If ncolors and nplanes are requested, 
+then ncolors pixels
+and nplane plane masks are returned.
+No mask will have any bits in common with
+any other mask or with any of the pixels.
+By ORing together each pixel with zero or more masks,
+ncolors* %2 sup nplanes% distinct pixels can be produced.
+All of these are
+allocated writable by the request.
+For 
+.PN GrayScale 
+or 
+.PN PseudoColor , 
+each
+mask will have exactly one bit, and, for 
+.PN DirectColor , 
+each will have
+exactly three bits.
+If contigs is 
+.PN True , 
+and if all masks are ORed
+together, a single contiguous set of bits will be formed for 
+.PN GrayScale
+or 
+.PN PseudoColor 
+and three contiguous sets of bits (one within each
+pixel subfield) for 
+.PN DirectColor .
+The RGB values of the allocated
+entries are undefined.
+.LP
+.ds fd .PN XAllocColorCells
+.so ./Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadColor ,
+and
+.PN BadValue 
+errors.
+.LP
+.sp
+To allocate read/write color resources for 
+.PN DirectColor
+visual types, use
+.PN XAllocColorPlanes .
+.IN "Color Allocation"
+.IN "XAllocColorPlanes" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XAllocPlanes.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/cmap.a
+.so ./Xsrc/contig.a
+.so ./Xsrc/pixels.a
+.PN XAllocColorPlanes
+returns the pixel values in this array.
+.so ./Xsrc/ncolors1.a
+.so ./Xsrc/nredgrbl.a
+.so ./Xsrc/rgbmask.a
+.LP
+The specified ncolors must be positive, and nreds, ngreens, and nblues
+must be nonnegative.
+Otherwise, 
+.PN XAllocColorPlanes
+generates a 
+.PN BadValue
+error.
+If ncolors colors, nreds reds, ngreens greens, and nblues blues are
+requested, ncolors pixels are returned, and the masks have nreds, ngreens, and 
+nblues bits set respectively.
+If contiguous is 
+.PN True , 
+each mask will have
+a contiguous set of bits.
+No mask will have any bits in common with
+any other mask or with any of the pixels.
+For 
+.PN DirectColor , 
+each mask
+will lie within the corresponding pixel subfield.
+By ORing together
+subsets of masks with each pixel value, 
+ncolors*%2 sup (nreds+ngreens+nblues)% distinct pixel values can be produced. 
+All of these are allocated by the request.
+However, in the
+color map, there are only ncolors*%2 sup nreds% independent red entries, 
+ncolors*%2 sup ngreens%
+independent green entries, and ncolors*%2 sup nblues% independent blue entries. 
+This is true even for 
+.PN PseudoColor .
+When the color map entry of a pixel
+value is changed (using 
+.PN XStoreColors ,
+.PN XStoreColor ,
+or 
+.PN XStoreNamedColor ),
+the pixel is decomposed according to the masks, 
+and the corresponding independent entries are updated.
+.LP
+.ds fd .PN XAllocColorPlanes
+.so ./Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadColor ,
+and
+.PN BadValue 
+errors.
+.LP
+.sp
+To store RGB values into color map cells, use
+.PN XStoreColors .
+.IN "Color" "Setting Cells"
+.IN "XStoreColors" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XStoreColors.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/cmap.a
+.so ./Xsrc/defs.a
+.so ./Xsrc/ncolors.a
+.LP
+.so ./Xdescrip/XStoreColors.d
+You specify which color components are to be changed by passing 
+.PN DoRed ,
+.PN DoGreen ,
+and/or
+.PN DoBlue
+to the flags members of the
+.PN XColor
+structures.
+If the color map is an installed map for its screen, the
+changes are visible immediately.
+.PN XStoreColors 
+changes the specified pixels if they are allocated writable in cmap 
+by any client,
+even if one or more pixels generates an error.
+A
+.PN BadValue
+error is generated if a specified pixel is not a valid index into cmap
+and a
+.PN BadAccess
+error is generated if a specified pixel either is unallocated or is allocated
+read-only.
+If more than one pixel is in error, which one is reported is arbitrary.
+.LP
+.ds fd .PN XStoreColors
+.so ./Xsrc/errsent.com
+.PN BadAccess ,
+.PN BadColor ,
+and
+.PN BadValue 
+errors.
+.LP
+.sp
+To store an RGB value into a single color map cell, use
+.PN XStoreColor .
+.IN "XStoreColor" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XStoreColor.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/cmap.a
+.so ./Xsrc/color1.a
+.LP
+.so ./Xdescrip/XStoreColor.d
+.PN XStoreColor 
+changes the: 
+.IP \(bu 5
+Color map entry of the pixel value. 
+You specified this value in the
+pixel member of the
+.PN XColor
+structure.
+This pixel value must be a read/write cell and a valid index into cmap.
+A
+.PN BadValue
+error is generated if a specified pixel is not a valid index into cmap.
+.IP \(bu 5
+Red, green, and/or blue color components.
+You specify which color components to be changed by passing 
+.PN DoRed ,
+.PN DoGreen ,
+and/or
+.PN DoBlue
+to the flags member of the
+.PN XColor
+structure.
+If the color map is an installed map for its screen, the changes are visible immediately.
+.IP \(bu 5
+Specified pixel if it is allocated writable in cmap by any client,
+even if the pixel generates an error.
+.LP
+.ds fd .PN XStoreColor
+.so ./Xsrc/errsent.com
+.PN BadColor 
+and
+.PN BadValue 
+errors.
+.LP
+.sp
+To set the color of a pixel to the named color, use
+.PN XStoreNamedColor .
+.IN "XStoreNamedColor" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XStoreNColor.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/cmap.a
+.so ./Xsrc/color.a
+You should use the ISO Latin-1 encoding, and upper/lower case does not matter.
+.so ./Xsrc/pixel.a
+.so ./Xsrc/flags.a
+.LP 
+.so ./Xdescrip/XStoreNColor.d
+The pixel argument determines the entry in the color map.
+The flags argument
+determines which of the red, green, and blue indexes are set. 
+You can set this member to the
+bitwise inclusive OR of the bits 
+.PN DoRed , 
+.PN DoGreen , 
+and 
+.PN DoBlue .
+A
+.PN BadValue
+error is generated if a specified pixel is not a valid index into cmap
+and a
+.PN BadAccess
+error is generated if a specified pixel either is unallocated or is allocated
+read-only.
+If more than one pixel is in error, 
+which one is reported in the error is arbitrary.
+.LP
+.ds fd .PN XStoreNamedColor
+.so ./Xsrc/errsent.com
+.PN BadAccess ,
+.PN BadColor ,
+.PN BadName ,
+and 
+.PN BadValue 
+errors.
+.LP
+.sp
+.IN "Freeing" "Colors"
+To free color map cells, use
+.PN XFreeColors .
+.IN "XFreeColors" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XFreeColors.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/cmap.a
+.so ./Xsrc/pixels2.a
+These pixel values map to the cells in the specified color map.
+.so ./Xsrc/npixels.a
+.so ./Xsrc/planes.a
+.LP
+.so ./Xdescrip/XFreeColors.d
+The planes argument should not have any bits in common with any of the
+pixels. 
+The set of all pixels is produced by ORing together subsets of
+the planes argument with the pixels.
+The request frees all of these pixels that
+were allocated by the client (using 
+.IN XAllocColor
+.IN XAllocNamedColor
+.IN XAllocColorCells
+.IN XAllocColorPlanes
+.PN XAllocColor , 
+.PN XAllocNamedColor ,
+.PN XAllocColorCells ,
+and 
+.PN XAllocColorPlanes ).
+Note that freeing an
+individual pixel obtained from 
+.PN XAllocColorPlanes 
+may not actually allow
+it to be reused until all of its related pixels are also freed.
+.LP
+All specified pixels that are allocated by the client in cmap are
+freed, even if one or more pixels produce an error. 
+A 
+.PN BadValue 
+error is
+generated if a specified pixel is not a valid index into cmap.
+A
+.PN BadAccess
+error is generated if a specified pixel is not allocated by the
+client (that is, is unallocated or is only allocated by another client).
+If more than one pixel is in error, the one reported is arbitrary.
+.LP
+.ds fd .PN XFreeColors
+.so ./Xsrc/errsent.com
+.PN BadAccess ,
+.PN BadColor ,
+and
+.PN BadValue 
+errors.
+.NH 3
+Reading Entries in a Colormap
+.XS
+\*(SN Reading Entries in a Colormap 
+.XE
+.LP
+.so ./Xdescrip/XQueryColor.d
+A
+.PN BadValue
+error is generated if a pixel is not a valid index into the specified color map.
+If more than one pixel is in error, which one is reported is arbitrary.
+.LP
+.sp
+To query the RGB values of a single specified pixel value, use
+.PN XQueryColor .
+.IN "XQueryColor" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XQueryColor.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/cmap.a
+.so ./Xsrc/def_ret.a
+.LP
+.ds fd .PN XQueryColor
+.so ./Xsrc/errsent.com
+.PN BadColor
+and
+.PN BadValue 
+errors.
+.LP
+.sp
+To query the RGB values of an array of pixels stored in color structures, use
+.PN XQueryColors .
+.IN "Color" "Getting Values"
+.IN "XQueryColors" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XQueryColors.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/cmap.a
+.so ./Xsrc/defs_ret.a
+.so ./Xsrc/ncolors.a
+.LP
+.ds fd .PN XQueryColors
+.so ./Xsrc/errsent.com
+.PN BadColor
+and
+.PN BadValue 
+errors.
+.LP
+For these functions,
+the RGB values for each pixel in the 
+.PN XColor
+structures are returned, and the
+.PN DoRed ,
+.PN DoGreen ,
+and
+.PN DoBlue
+flags are set in the flags member.
+.NH 2
+Creating and Freeing Pixmaps
+.XS
+\*(SN Creating and Freeing Pixmaps 
+.XE
+.LP
+Xlib provides functions with which you can create or free a pixmap.
+Pixmaps can only be used on the screen on which they were created.
+Pixmaps are off-screen resources that are used for a number of
+operations.
+A bitmap is a single bit pixmap.
+These include defining cursors
+as tiling patterns or as the source for certain raster operations.
+Most graphics requests can operate either on a window or on a pixmap.
+.LP
+.sp
+To create a pixmap of a specified size, use
+.PN XCreatePixmap .
+.IN "XCreatePixmap" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XCrePmap.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d_crepix.a
+.so ./Xsrc/widtheight.a
+These dimensions define the width and height of the pixmap.
+The values you pass must be nonzero.
+.so ./Xsrc/depth1.a
+The depth must be supported by the root of the specified drawable.
+.LP 
+.so ./Xdescrip/XCrePmap.d
+The
+width and height arguments must be nonzero.
+Otherwise, 
+.PN XCreatePixmap 
+generates a
+.PN BadValue
+error.
+The depth argument must be one of the depths supported by the root window
+of the specified drawable.
+Otherwise, it generates a
+.PN BadValue
+error.
+.LP
+The server uses the drawable argument to determine which screen
+the pixmap is stored on.
+The pixmap can only be used on this screen
+and only with other drawables of the same depth.
+(See
+.IN "XCopyPlane"
+.PN XCopyPlane
+for an exception to this rule).
+The initial contents of the pixmap are undefined.
+If this routine returns zero,
+there was insufficient space for the pixmap.
+.LP
+.ds fd .PN XCreatePixmap
+.so ./Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadDrawable ,
+and
+.PN BadValue 
+errors.
+.LP
+.sp
+To free all storage associated with a specified pixmap, use
+.PN XFreePixmap .
+.IN "XFreePixmap" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XFreePixmap.f
+.FN	
+.so ./Xsrc/display.a
+.so ./Xsrc/pixmap.a
+.LP 
+.so ./Xdescrip/XFreePixmap.d
+.LP
+.ds fd .PN XFreePixmap
+.so ./Xsrc/errsent4.com
+.PN BadPixmap 
+error.
+.NH 2
+Manipulating Graphics Context/State
+.XS
+\*(SN Manipulating Graphics Context/State 
+.XE
+.LP
+Most attributes of graphics operations are stored in Graphic Contexts
+or GCs.
+These include line width, line style, plane mask, foreground, background,
+tile, stipple, clipping region, end style, join style, and so on.
+Graphics operations (for example, drawing lines) use these values
+to determine the actual drawing operation.
+Extensions to X may add additional components to GCs.
+Xlib provides calls for changing the state of GCs.
+.LP
+Xlib implements a write-back cache for all elements of a GC that are not
+resource IDs to allow it to implement the transparent coalescing of changes to
+GCs.
+For example,
+a call to
+.PN XSetForeground
+of a GC followed by a call to
+.PN XSetLineAttributes
+will result in only a single change GC protocol request to the server.
+GCs are neither expected nor encouraged to be shared between client 
+applications, so this write-back caching should present no problems.
+Applications cannot share GCs without external synchronization.
+Therefore,
+sharing GCs between applications is highly discouraged. 
+.LP 
+The specified components of the new graphics context in valuemask_create
+are set to the values passed in the values argument.
+The other values default to the following values:
+.br
+.\"Table 5-2 lists the default component values.
+.\".CP T 2
+.\"Default Component Values
+.TS H
+center;
+c l
+l l.
+_
+.sp 6p
+.TB
+Component	Value
+.sp 6p
+_
+.sp 6p
+.TH
+.R
+T{
+function:
+T}	T{
+.PN GXcopy
+T}
+plane_mask:	All ones
+foreground:	0
+background:	1
+line_width:	0
+T{
+line_style:
+T}	T{
+LineSolid
+T}
+T{
+cap_style:
+T}	T{
+.PN CapButt
+T}
+T{
+join_style:
+T}	T{
+.PN JoinMiter
+T}
+T{
+fill_style:
+T}	T{
+.PN FillSolid
+T}
+T{
+fill_rule:
+T}	T{
+.PN EvenOddRule
+T}
+T{
+arc_mode:
+T}	T{
+.PN ArcPieSlice
+T}
+tile:	Pixmap of unspecified size filled with foreground pixel
+	(that is, client specified pixel if any, else 0)
+	(subsequent changes to foreground do not affect this pixmap)
+stipple:	Pixmap of unspecified size filled with ones
+ts_x_origin:	0
+ts_y_origin:	0
+font:	<implementation dependent>
+T{
+subwindow_mode:
+T}	T{
+.PN ClipByChildren
+T}
+T{
+graphics_exposures:
+T}	T{
+.PN True
+T}
+clip_x_origin:	0
+clip_y_origin:	0
+T{
+clip_mask:
+T}	T{
+.PN None
+T}
+dash_offset:	0
+dashes:	4 (that is, the list [4, 4])
+.sp 6p
+_
+.TE
+.LP
+Note that foreground and background are not set to any values likely
+to be useful on a color display.
+.LP
+.IN "Display Functions" "" "@DEF@"
+.IN "Source" "" "@DEF@"
+.IN "Destination" "" "@DEF@"
+You use display functions when you update  a section of the screen 
+(destination) with bits from somewhere else 
+(source).  
+Many GC functions take one of these display functions as an argument.
+The function defines how the new destination bits are to be
+computed from the source bits and the old destination bits.
+.PN GXcopy
+is typically the most useful because it will work on a color display,
+but special applications may use other functions,
+particularly in concert with particular planes of a color display.
+The 16 such functions, defined in 
+.Pn < X11/X.h >,
+are:
+.\" are listed in Table 5-1 along with the 
+.\"the associated hexadecimal code
+.\" and operation.
+.\".CP T 1
+.\"Display Functions
+.TS H
+center;
+lw(1.5i) cw(.5i) lw(2i).
+_
+.sp 6p
+.TB
+Function Name	Hex Code	Operation
+.sp 6p
+_
+.sp 6p
+.TH
+.R
+T{
+.PN GXclear
+T}	T{
+0x0
+T}	T{
+0
+T}
+T{
+.PN GXand
+T}	T{
+0x1
+T}	T{
+src AND dst
+T}
+T{
+.PN GXandReverse
+T}	T{
+0x2
+T}	T{
+src AND NOT dst
+T}
+T{
+.PN GXcopy
+T}	T{
+0x3
+T}	T{
+src
+T}
+T{
+.PN GXandInverted
+T}	T{
+0x4
+T}	T{
+(NOT src) AND dst
+T}
+T{
+.PN GXnoop
+T}	T{
+0x5
+T}	T{
+dst
+T}
+T{
+.PN GXxor
+T}	T{
+0x6
+T}	T{
+src XOR dst
+T}
+T{
+.PN GXor
+T}	T{
+0x7
+T}	T{
+src OR dst
+T}
+T{
+.PN GXnor
+T}	T{
+0x8
+T}	T{
+(NOT src) AND (NOT dst)
+T}
+T{
+.PN GXequiv
+T}	T{
+0x9
+T}	T{
+(NOT src) XOR dst
+T}
+T{
+.PN GXinvert
+T}	T{
+0xa
+T}	T{
+NOT dst
+T}
+T{
+.PN GXorReverse
+T}	T{
+0xb
+T}	T{
+src OR (NOT dst)
+T}
+T{
+.PN GXcopyInverted
+T}	T{
+0xc
+T}	T{
+NOT src
+T}
+T{
+.PN GXorInverted
+T}	T{
+0xd
+T}	T{
+(NOT src) OR dst
+T}
+T{
+.PN GXnand
+T}	T{
+0xe
+T}	T{
+(NOT src) OR (NOT dst)
+T}
+T{
+.PN GXset
+T}	T{
+0xf
+T}	T{
+1
+T}
+.sp 6p
+_
+.TE
+.LP
+Many of the color functions below take either pixel values or
+planes as an argument.
+.IN "Pixel Values"
+The planes argument is of type long and it specifies which planes of the
+display are to be modified, one bit per plane.
+.IN "Plane Masks" "" "@DEF@"
+A monochrome display has only one plane and
+will be the least significant bit of the word.
+As planes are added to the display hardware, they will occupy more
+significant bits in the plane mask.
+.LP
+.IN "AllPlanes"
+A macro constant 
+.PN AllPlanes 
+can be used to refer to all planes of a display simultaneously (~0).
+.IN "Graphics Context" "" "@DEF@"
+.IN "Graphics Context"
+Most operations use an object called a GC, which is short for
+Graphics Context.  
+The contents of the GC object are private to the library.
+Several procedures take structures of type GCValues. The following lists
+each entry by its defined value, not by its position in the 
+.PN XGCValues
+structure:
+.Ds 0
+.TA .5i 3i
+.ta .5i 3i
+#define GCFunction	(1L<<0)
+#define GCPlaneMask	(1L<<1)
+#define GCForeground	(1L<<2)
+#define GCBackground	(1L<<3)
+#define GCLineWidth	(1L<<4)
+#define GCLineStyle	(1L<<5)
+#define GCCapStyle	(1L<<6)
+#define GCJoinStyle	(1L<<7)
+#define GCFillStyle	(1L<<8)
+#define GCFillRule	(1L<<9)
+#define GCTile	(1L<<10)
+#define GCStipple	(1L<<11)
+#define GCTileStipXOrigin	(1L<<12)
+#define GCTileStipYOrigin	(1L<<13)
+#define GCFont	(1L<<14)
+#define GCSubwindowMode	(1L<<15)
+#define GCGraphicsExposures	(1L<<16)
+#define GCClipXOrigin	(1L<<17)
+#define GCClipYOrigin	(1L<<18)
+#define GCClipMask	(1L<<19)
+#define GCDashOffset	(1L<<20)
+#define GCDashList	(1L<<21)
+#define GCArcMode	(1L<<22)
+.De
+.Ds 0
+.\" Adjusted structure so that elements fit neatly on
+.\" the 7 by 9 page.
+.TA .5i 3i
+.ta .5i 3i
+typedef struct {
+	int function;	/* logical operation */
+	unsigned long plane_mask;	/* plane mask */
+	unsigned long foreground;	/* foreground pixel */
+	unsigned long background;	/* background pixel */
+	int line_width;	/* line width (in pixels) */
+	int line_style;	/* LineSolid, LineOnOffDash, LineDoubleDash */
+	int cap_style;	/* CapNotLast, CapButt, CapRound, CapProjecting */
+	int join_style;	/* JoinMiter, JoinRound, JoinBevel */
+	int fill_style;	/* FillSolid, FillTiled, FillStippled FillOpaqueStippled*/
+	int fill_rule;	/* EvenOddRule, WindingRule */
+	int arc_mode;	/* ArcChord, ArcPieSlice */
+	Pixmap tile;	/* tile pixmap for tiling operations */
+	Pixmap stipple;	/* stipple 1 plane pixmap for stippling */
+	int ts_x_origin;	/* offset for tile or stipple operations */
+	int ts_y_origin;
+	Font font;	/* default text font for text operations */
+	int subwindow_mode;	/* ClipByChildren, IncludeInferiors */
+	Bool graphics_exposures;	/* boolean, should exposures be generated */
+	int clip_x_origin;	/* origin for clipping */
+	int clip_y_origin;
+	Pixmap clip_mask;	/* bitmap clipping; other calls for rects */
+	int dash_offset;	/* patterned/dashed line information */
+	char dashes;
+} XGCValues;
+.De
+.IN "XGCValues" "" "@DEF@"
+.LP
+In graphics operations, given a source and destination pixel, the
+result is computed bitwise on corresponding bits of the pixels.  That
+is, a boolean operation is performed in each bit plane.  
+The plane_mask
+restricts the operation to a subset of planes.  That is, the result is
+computed by the following:
+.LP
+.Ds 
+.R
+((src FUNC dst) AND plane-mask) OR (dst AND (NOT plane-mask))
+.De
+Range checking is not performed on the values for foreground,
+background, or plane_mask.
+They are simply truncated to the appropriate
+number of bits.
+The line_width is measured in pixels and either can be greater than or equal to
+one (wide line) or can be the special value zero (thin line).
+.LP
+Wide lines are drawn centered on the path described by the graphics request.
+Unless otherwise specified by the join or cap style,
+the bounding box of a wide line with endpoints [x1, y1], [x2, y2], and
+width w is a rectangle with vertices at the following real coordinates:
+.LP
+.Ds
+.TA .5i 2.5i
+.ta .5i 2.5i
+[x1-(w*sn/2), y1+(w*cs/2)], [x1+(w*sn/2), y1-(w*cs/2)],
+[x2-(w*sn/2), y2+(w*cs/2)], [x2+(w*sn/2), y2-(w*cs/2)]
+.De
+The sn is the sine of the angle of the line and cs is the cosine of
+the angle of the line.
+A pixel is part of the line and, hence, is drawn,
+if the center of the pixel is fully inside the bounding box
+(which is viewed as having infinitely thin edges).
+If the center of the pixel is exactly on the bounding box,
+it is part of the line if and only if the interior is immediately to its right
+(x increasing direction).
+Pixels with centers on a horizontal edge are a special case and are part of
+the line if and only if the interior is immediately below 
+(y increasing direction).
+.LP
+Thin lines (zero line_width) are one pixel wide lines drawn using an
+unspecified, device dependent algorithm.
+There are only two constraints on this algorithm. 
+.IP 1. 5
+If a line is drawn unclipped from [x1,y1] to [x2,y2] and
+if another line is drawn unclipped from [x1+dx,y1+dy] to [x2+dx,y2+dy],
+a point [x,y] is touched by drawing the first line 
+if and only if the point [x+dx,y+dy] is touched by drawing the second line.
+.IP 2. 5
+The effective set of points comprising a line cannot be affected by clipping.
+That is, a point is touched in a clipped line if and only if the point 
+lies inside the clipping region and the point would be touched
+by the line when drawn unclipped.
+.LP
+A wide line drawn from [x1,y1] to [x2,y2] always draws the same pixels 
+as a wide line drawn from [x2,y2] to [x1,y1], not counting cap and join styles.
+Implementors are encouraged to make this property true for thin lines, but it
+is not required.
+A line_width of zero may differ from a line_width of one in which pixels are
+drawn.
+This permits the use of many manufacturer's line drawing hardware,
+which may run many times faster than than the more precisely specified
+wide lines.
+.LP
+In general, drawing a thin line will be faster than drawing a
+wide line of width one.
+However, because of their different drawing algorithms,
+thin lines may not mix well, aesthetically speaking, with wide lines.
+If it is desirable to obtain precise and uniform results across all displays,
+a client should always use a line_width of one,
+rather than a line_width of zero.
+.LP
+The line-style defines which sections of a line are drawn:
+.TS
+lw(1.25i) lw(4.5i).
+T{
+.PN LineSolid
+T}	T{
+The full path of the line is drawn.
+T}
+.sp 6p
+T{
+.PN LineDoubleDash
+T}	T{
+The full path of the line is drawn, 
+but the even dashes are filled differently 
+than the odd dashes (see fill-style) with
+.PN CapButt 
+style used where even and odd dashes meet.
+T}
+.sp 6p
+T{
+.PN LineOnOffDash
+T}	T{
+Only the even dashes are drawn,
+and cap-style applies to 
+all internal ends of the individual dashes,
+except 
+.PN CapNotLast
+is treated as 
+.PN CapButt . 
+T}
+.TE
+.LP
+The cap_style defines how the endpoints of a path are drawn:
+.IN "Graphics Context" "path"
+.TS
+lw(1.25i) lw(4.5i).
+T{
+.PN CapNotLast
+T}	T{
+Equivalent to 
+.PN CapButt , 
+except that for a line_width
+of zero or one the final endpoint is not drawn.
+T}
+.sp 6p
+T{
+.PN CapButt
+T}	T{
+Square at the endpoint (perpendicular to the slope of the line)
+with no projection beyond.
+T}
+.sp 6p
+T{
+.PN CapRound
+T}	T{
+A circular arc with the diameter equal to the line_width,
+centered on the endpoint.
+(This equivalent to 
+.PN CapButt 
+for line_width zero or one).
+T}
+.sp 6p
+T{
+.PN CapProjecting
+T}	T{
+Square at the end, but the path continues beyond the endpoint 
+for a distance equal to half the line_width.
+(This is equivalent to 
+.PN CapButt 
+for line_width zero or one).
+T}
+.TE
+.LP
+The join_style defines how corners are drawn for wide lines:
+.TS
+lw(1.25i) lw(4.5i).
+T{
+.PN JoinMiter
+T}	T{
+The outer edges of two lines extend to meet at an angle.
+T}
+.sp 6p
+T{
+.PN JoinRound
+T}	T{
+A circular arc with diameter equal to the line_width, centered on the joinpoint.
+T}
+.sp 6p
+T{
+.PN JoinBevel
+T}	T{
+.PN CapButt 
+endpoint styles, and then the triangular notch filled.
+T}
+.TE
+.LP
+For a line with coincident endpoints (x1=x2, y1=y2), when the cap_style is applied
+to both endpoints, the semantics depends on the line_width and the cap_style:
+.TS
+lw(1.25i) lw(.5i) lw(4i).
+T{
+.PN CapNotLast
+T}	T{
+thin
+T}	T{
+Device dependent, but the desired effect is that nothing is drawn.
+T}
+.sp 6p
+T{
+.PN CapButt
+T}	T{
+thin
+T}	T{
+Device dependent, but the desired effect is that a single pixel is drawn.
+T}
+.sp 6p
+T{
+.PN CapRound
+T}	T{
+thin
+T}	T{
+Same as 
+.PN CapButt /thin.
+T}
+.sp 6p
+T{
+.PN CapProjecting
+T}	T{
+thin
+T}	T{
+Same as 
+.PN Butt /thin.
+T}
+.sp 6p
+T{
+.PN CapButt
+T}	T{
+wide
+T}	T{
+Nothing is drawn.
+T}
+.sp 6p
+T{
+.PN CapRound
+T}	T{
+wide
+T}	T{
+The closed path is a circle, centered at the endpoint, 
+with diameter equal to the line_width.
+T}
+.sp 6p
+T{
+.PN CapProjecting
+T}	T{
+wide
+T}	T{
+The closed path is a square, aligned with the coordinate axes, centered at the
+endpoint, with sides equal to the line_width
+T}
+.TE
+.LP
+For a line with coincident endpoints (x1=x2, y1=y2), when the join_style is applied
+at one or both endpoints, the effect is as if the line was removed from the overall
+path.
+However, if the total path consists of or is reduced to a single point joined
+with itself, the effect is the same as when the cap_style is applied at both
+endpoints.
+.LP
+The tile/stipple and clip origins are interpreted relative to the
+origin of whatever destination drawable is specified in a graphics
+request.
+The tile pixmap must have the same root and depth as the graphics context.
+Otherwise, the function generates a 
+.PN BadMatch 
+error.
+The stipple pixmap must have depth one and must have the same root as the
+graphics context (else a 
+.PN BadMatch 
+error).  
+For stipple operations where the fill_style
+is
+.PN FillStippled
+but not 
+.PN FillOpaqueStippled ,
+the stipple pattern is tiled in a
+single plane and acts as an additional clip mask to be ANDed with the
+clip_mask.  
+Any size pixmap can be used for tiling or stippling,
+although some sizes may be faster to use than others.
+.LP
+The fill_style defines the contents of the source for line, text, and
+fill requests.  
+For all text and fill requests (for example,
+.PN XDrawText , 
+.PN XDrawText16 ,
+.PN XFillRectangle , 
+.PN XFillPolygon , 
+and
+.PN XFillArc );
+for line requests (for example,
+.PN XDrawLine ,
+.PN XDrawSegments , 
+.PN XDrawRectangle,  
+.PN XDrawArc )
+with line_style 
+.PN LineSolid ; 
+and for the
+even dashes for line requests with line_style 
+.PN LineOnOffDash 
+or 
+.PN LineDoubleDash 
+the following apply:
+.TS
+lw(1.75i) lw(4i).
+T{
+.PN FillSolid
+T}	T{
+Foreground.
+T}
+.sp 6p
+T{
+.PN FillTiled
+T}	T{
+Tile.
+T}
+.sp 6p
+T{
+.PN FillOpaqueStippled
+T}	T{
+A tile with the same width and height as stipple,
+but with background everywhere stipple has a zero
+and with foreground everywhere stipple has a one.
+T}
+.sp 6p
+T{
+.PN FillStippled
+T}	T{
+Foreground masked by stipple.
+T}
+.TE
+.LP
+When drawing lines with line_style
+.PN LineDoubleDash ,
+the odd dashes are controlled by the fill_style in the following manner:
+.TS
+lw(1.75i) lw(4i).
+T{
+.PN FillSolid
+T}	T{
+Background.
+T}
+.sp 6p
+T{
+.PN FillTiled
+T}	T{
+Same as for even dashes.
+T}
+.sp 6p
+T{
+.PN FillOpaqueStippled
+T}	T{
+Same as for even dashes.
+T}
+.sp 6p
+T{
+.PN FillStippled
+T}	T{
+Background masked by stipple.
+T}
+.TE
+.LP
+Storing a pixmap in a graphics context might or might not result in a copy
+being made.
+If the pixmap is later used as the destination for a graphics request,
+the change might or might not be reflected in the graphics context.
+If the pixmap is used simultaneously in a graphics request both as
+a destination and as a tile or stipple,
+the results are not defined.
+.LP
+For optimum performance,
+you should draw as much as possible with the same GC 
+(without changing its components).
+The costs of changing GC components relative to using different GCs
+depend upon the display hardware and the server implementation.
+.LP
+It is quite likely that some amount of graphics context information will be
+cached in display hardware and that such hardware can only cache a small number
+of graphics contexts.
+.LP
+The dash_list value allowed here is actually a simplified form of the
+more general patterns that can be set with 
+.PN XSetDashes .  
+Specifying a
+value of N here is equivalent to specifying the two element list [N, N] in 
+.PN XSetDashes . 
+The value must be nonzero.  
+Otherwise, the function generates a
+.PN BadValue
+error.
+The meaning of dash_offset
+and dash_list are explained for the 
+.PN XSetDashes 
+function.
+.LP
+The clip_mask restricts writes to the destination drawable.  
+If a pixmap is specified as the clip_mask,
+it must have depth one and have the same root as the graphics context.
+Otherwise, the function generates a
+.PN BadMatch 
+error.
+If clip_mask is
+.PN None ,
+the pixels are always drawn, regardless of the clip origin.
+The clip_mask can also be set with the
+.PN XSetClipRectangles 
+request.
+Only pixels where the clip-mask has a one bit are drawn.  
+Pixels are not drawn outside the area covered by the clip_mask or where the clip_mask
+has a zero bit.
+It affects all graphics requests.
+The clip_mask does not clip sources.  The
+clip_mask origin is interpreted relative to the origin of whatever
+destination drawable is specified in a graphics request.
+.LP
+For 
+.PN ClipByChildren , 
+both source and destination windows are
+additionally clipped by all viewable 
+.PN InputOutput
+children.  
+For 
+.PN IncludeInferiors ,
+neither source nor destination window is clipped by inferiors. 
+This will result in including subwindow contents in the source
+and drawing through subwindow boundaries of the destination.
+The use of 
+.PN IncludeInferiors 
+on a window of one depth with mapped
+inferiors of differing depth is not illegal, but the semantics are
+undefined by the core protocol.
+.LP
+The fill_rule defines what pixels are inside (drawn) for
+paths given in 
+.PN XFillPolygon 
+requests.  
+.PN EvenOddRule 
+means a point is inside if
+an infinite ray with the point as origin crosses the path an odd number
+of times.  
+.LP
+For 
+.PN WindingRule , 
+a point is inside if an infinite ray with the
+point as origin crosses an unequal number of clockwise and
+counterclockwise directed path segments.
+A clockwise directed path segment is one which crosses the ray from left to
+right as observed from the point.
+A counterclockwise segment is one which crosses the ray from right to left
+as observed from the point.
+The case where a directed line segment is coincident with the ray is
+uninteresting because you can simply choose a different ray that is not
+coincident with a segment.
+.LP
+For both 
+.PN EvenOddRule
+and
+.PN WindingRule ,
+a point is infinitely small, 
+and the path is an infinitely thin line.  
+A pixel is inside if the center point of the pixel is inside,
+and the center point is not on the boundary.  
+If the center point is on the boundary,
+the pixel is inside if and only if the polygon interior is immediately to
+its right (x increasing direction).  
+Pixels with centers along a horizontal edge are a special case 
+and are inside if and only if the polygon interior is immediately below 
+(y increasing direction).
+.LP
+The arc_mode controls filling in the 
+.PN XFillArcs
+function and can be either
+.PN ArcPieSlice
+or
+.PN ArcChord .
+The graphics_exposure flag controls 
+.PN GraphicsExpose 
+event generation
+for 
+.PN XCopyArea 
+and 
+.PN XCopyPlane
+requests (and any similar requests defined by extensions).
+.LP
+.sp
+To create a new graphics context that is usable with the specified drawable, use
+.PN XCreateGC .
+.IN "Initializing Graphics Contexts"
+.IN "XCreateGC" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XCreateGC.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/valuemask1.a
+.so ./Xsrc/values1.a
+.LP
+.so ./Xdescrip/XCreateGC.d
+The graphics context can be used with any destination drawable having 
+the same root
+and depth as the specified drawable.
+Use with other drawables results in a
+.PN BadMatch
+error.
+.LP
+.ds fd .PN XCreateGC
+.so ./Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadDrawable ,
+.PN BadFont ,
+.PN BadMatch ,
+.PN BadPixmap ,
+and
+.PN BadValue 
+errors.
+.LP
+.sp
+To copy components from a source graphics context to a destination
+graphics context, use
+.PN XCopyGC .
+.IN "XCopyGC" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XCopyGC.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/src.a
+.so ./Xsrc/valuemask2.a
+.so ./Xsrc/dest.a
+.LP 
+.so ./Xdescrip/XCopyGC.d
+The source and destination graphics contexts must have the same root and depth.
+Otherwise, 
+.PN XCopyGC
+generates a
+.PN BadMatch
+error.
+The valuemask_copy specifies which component to copy, as for
+.PN XCreateGC .
+.LP
+.ds fd .PN XCopyGC
+.so ./Xsrc/errsent.com
+.PN BadAlloc , 
+.PN BadGC ,
+.PN BadMatch ,
+and
+.PN BadValue 
+errors.
+.LP
+.sp
+To change the components in the specified graphics context, use
+.PN XChangeGC .
+.IN "XChangeGC" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XChGC.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/valuemask3.a
+.so ./Xsrc/values1.a
+.LP
+.so ./Xdescrip/XChGC.d
+The values argument contains the values to be set.
+The values and restrictions are the same as for 
+.PN XCreateGC .
+Changing the clip_mask also overrides any previous 
+.PN XSetClipRectangles
+request on the context. 
+Changing the dash_offset or dash_list
+overrides any previous 
+.PN XSetDashes
+request on the context.
+The order in which components are verified and altered is server-dependent.
+If an error is generated, a subset of the components may have been altered.
+.LP
+.ds fd .PN XChangeGC
+.so ./Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadFont ,
+.PN BadGC ,
+.PN BadMatch ,
+.PN BadPixmap ,
+and
+.PN BadValue
+errors.
+.LP
+.sp
+To free the specified graphics context, use
+.PN XFreeGC .
+.IN "XFreeGC" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XFreeGC.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.LP
+.so ./Xdescrip/XFreeGC.d
+.LP
+.ds fd .PN XFreeGC
+.so ./Xsrc/errsent4.com
+.PN BadGC 
+error.
+.NH 2
+Using GC Convenience Routines
+.XS
+\*(SN Using GC Convenience Routines 
+.XE
+.LP
+This section discusses how to set the:
+.IP \(bu 5
+Foreground, background, plane mask, or function components
+.IP \(bu 5
+Line attributes and dashes components
+.IP \(bu 5
+Fill style and fill rule components
+.IP \(bu 5
+Fill tile and stipple components
+.IP \(bu 5
+Font component
+.IP \(bu 5
+Clip region component
+.IP \(bu 5
+Arc mode, subwindow mode, and graphics exposure components
+.LE
+.NH 3
+Setting the Foreground, Background, Plane Mask, or Function
+.XS
+\*(SN Setting the Foreground, Background, Plane Mask, or Function 
+.XE
+.LP
+To set the foreground, background, plane mask, and function components
+for the specified graphics context, use
+.PN XSetState .
+.IN "XSetState" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSetState.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/foreground.a
+.so ./Xsrc/background.a
+.so ./Xsrc/function.a
+.so ./Xsrc/plane_mask.a
+.LP
+.LP
+.ds fd .PN XSetState
+.so ./Xsrc/errsent.com
+.PN BadGC
+and
+.PN BadValue 
+errors.
+.LP
+.sp
+To set the display function in the specified graphics context, use
+.PN XSetFunction .
+.IN "XSetFunction" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSetFunc.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/function.a
+.LP
+.ds fd .PN XSetFunction
+.so ./Xsrc/errsent.com
+.PN BadGC
+and
+.PN BadValue 
+errors.
+.LP
+.sp
+To set the plane mask of the specified graphics context, use
+.PN XSetPlaneMask .
+.IN "XSetPlaneMask" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSetPlnMsk.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/plane_mask.a
+.LP
+.ds fd .PN XSetPlaneMask
+.so ./Xsrc/errsent4.com
+.PN BadGC 
+error.
+.LP
+.sp
+To set the foreground of the specified graphics context, use
+.PN XSetForeground .
+.IN "XSetForeground" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSetFgrnd.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/foreground.a
+.LP
+.ds fd .PN XSetForeground
+.so ./Xsrc/errsent4.com
+.PN BadGC 
+error.
+.LP
+.sp
+To set the background of the specified graphics context, use
+.PN XSetBackground .
+.IN "XSetBackground" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSetBckgrnd.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/background.a
+.LP
+.ds fd .PN XSetBackground
+.so ./Xsrc/errsent4.com
+.PN BadGC 
+error.
+.NH 3
+Setting the Line Attributes and Dashes
+.XS
+\*(SN Setting the Line Attributes and Dashes 
+.XE
+.LP
+To set the line drawing components of the specified graphics context, use
+.PN XSetLineAttributes .
+.IN "XSetLineAttributes" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSetLnStle.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/line_width.a
+.so ./Xsrc/line_style.a
+.so ./Xsrc/cap_style.a
+.so ./Xsrc/join_style.a
+.LP
+.ds fd .PN XSetLineAttributes
+.so ./Xsrc/errsent.com
+.PN BadGC 
+and
+.PN BadValue 
+errors.
+.LP
+.sp
+To set the dash_offset and dash_list for dashed line styles
+of the specified graphics context, use
+.PN XSetDashes .
+.IN "XSetDashes" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSetDashes.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/dashoff.a
+.so ./Xsrc/dashlist.a
+.so ./Xsrc/n3.a
+.LP 
+.so ./Xdescrip/XSetDashes.d
+There must ba at least one element in the specified dash_list.
+Otherwise, 
+.PN XSetDashes
+generates a
+.PN BadValue
+error. 
+The initial and alternating elements (2nd, 4th, and so on) 
+of the dash_list are the even dashes, while the others are the odd dashes.
+All of the elements must be nonzero.
+Otherwise, it generates a
+.PN BadValue
+error.
+Specifying an odd-length list is equivalent to specifying the same list
+concatenated with itself to produce an even-length list.
+.LP
+The dash_offset defines the phase of the pattern,
+specifying how many elements into the dash_list the pattern
+should actually begin in any single graphics request.
+Dashing is continuous through path elements combined with a join_style, but is
+reset to the dash_offset each time a cap_style is applied at a line endpoint.
+.LP
+The unit of measure for dashes is the same as in the ordinary coordinate system.
+Ideally, a dash length is measured along the slope of the line, but implementations
+are only required to match this ideal for horizontal and vertical lines.
+Failing the ideal semantics, it is suggested that the length be measured along the
+major axis of the line.
+The major axis is defined as the x axis for lines drawn at an angle of between
+\-45 and +45 degrees or between 315 and 225 degrees from the x axis.
+For all other lines, the major axis is the y axis.
+The default dash_list in a newly created GC is equivalent to [4,4].
+.LP
+.ds fd .PN XSetDashes
+.so ./Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadGC ,
+and
+.PN BadValue 
+errors.
+.NH 3
+Setting the Fill Style and File Rule 
+.XS
+\*(SN Setting the Fill Style and File Rule 
+.XE
+.LP
+To set the fill style of the specified graphics context, use
+.PN XSetFillStyle .
+.IN "XSetFillStyle" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSetFStyle.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/fill_style.a
+.LP
+.ds fd .PN XSetFillStyle
+.so ./Xsrc/errsent.com
+.PN BadGC
+and
+.PN BadValue 
+errors.
+.LP
+.sp
+To set the fill rule of the specified graphics context, use
+.PN XSetFillRule .
+.IN "XSetFillRule" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSetFRule.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/fill_rule.a
+.LP
+.ds fd .PN XSetFillRule
+.so ./Xsrc/errsent.com
+.PN BadGC
+and
+.PN BadValue 
+errors.
+.NH 3
+Setting the Fill Tile and Stipple 
+.XS
+\*(SN Setting the Fill Tile and Stipple 
+.XE
+.LP
+Some displays have hardware support for tiling or
+stippling with patterns of specific sizes.
+Tiling and stippling operations that that restrict themselves to those
+sizes run much faster than such operations with arbitrary size patterns.
+Xlib provides functions with which you can determine the best size, 
+tile, or stipple for the display
+as well as set the tile or stipple shape and the tile/stipple origin.
+.LP
+.sp
+To obtain the best size of a tile, stipple, or cursor, use
+.PN XQueryBestSize .
+.IN "XQueryBestSize" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XQBestSize.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/class_size.a
+.so ./Xsrc/w_screen.a
+.so ./Xsrc/widtheight.a
+.so ./Xsrc/rwidtheight.a
+.LP
+.so ./Xdescrip/XQBestSize.d
+For 
+.PN CursorShape ,
+this is the largest size that can be fully displayed on the screen specified by
+which_screen.
+For 
+.PN TileShape ,
+this is the size that can be tiled fastest.
+For 
+.PN StippleShape ,
+this is the size that can be stippled fastest.
+For 
+.PN CursorShape ,
+the drawable indicates the desired screen.
+For 
+.PN TileShape 
+and 
+.PN StippleShape ,
+the drawable indicates the screen and possibly the window class and depth.
+An 
+.PN InputOnly 
+window cannot be used as the drawable for 
+.PN TileShape
+or 
+.PN StippleShape .
+Otherwise,
+.PN XQueryBestSize 
+generates a
+.PN BadMatch 
+error.
+.LP
+.ds fd .PN XQueryBestSize
+.so ./Xsrc/errsent.com
+.PN BadDrawable ,
+.PN BadMatch ,
+and 
+.PN BadValue 
+errors.
+.LP
+.sp
+To obtain the best fill tile shape, use
+.PN XQueryBestTile .
+.IN "XQueryBestTile" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XQTileShp.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w_screen.a
+.so ./Xsrc/widtheight.a
+.so ./Xsrc/rwidtheight.a
+.LP
+.so ./Xdescrip/XQTileShp.d
+The drawable indicates the screen and possibly the window class and depth.
+An 
+.PN InputOnly 
+window cannot be used as the drawable for
+.PN XQueryBestTile .
+Otherwise, it generates a 
+.PN BadMatch 
+error.
+.LP
+.ds fd .PN XQueryBestTile
+.so ./Xsrc/errsent.com
+.PN BadDrawable
+and
+.PN BadMatch 
+errors.
+.LP
+.sp
+To obtain the best stipple shape, use
+.PN XQueryBestStipple .
+.IN "XQueryBestStipple" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XQStipShp.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w_screen.a
+.so ./Xsrc/widtheight.a
+.so ./Xsrc/rwidtheight.a
+.LP
+.so ./Xdescrip/XQStipShp.d
+The drawable indicates the screen and possibly the window class and depth.
+An 
+.PN InputOnly 
+window cannot be used as the drawable for
+.PN XQueryBestStipple .
+Otherwise, it generates a 
+.PN BadMatch 
+error.
+.LP
+.ds fd .PN XQueryBestStipple
+.so ./Xsrc/errsent.com
+.PN BadDrawable
+and
+.PN BadMatch 
+errors.
+.LP
+.sp
+To set the fill tile of the specified graphics context, use
+.PN XSetTile .
+.IN "XSetTile" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSetTile.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/tile1.a
+.LP
+.ds fd .PN XSetTile
+.so ./Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadGC ,
+.PN BadMatch ,
+and
+.PN BadPixmap 
+errors.
+.LP
+.sp
+To set the stipple of the specified graphics context, use
+.PN XSetStipple .
+.IN "XSetStipple" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSetStipple.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/stipple.a
+.LP
+.ds fd .PN XSetStipple
+.so ./Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadGC ,
+.PN BadMatch ,
+and
+.PN BadPixmap 
+errors.
+.LP
+.sp
+To set the tile or stipple origin of the specified graphics context, use
+.PN XSetTSOrigin .
+.IN "XSetTSOrigin" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSetTSOrig.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/tsxy.a
+.LP
+.ds fd .PN XSetTSOrigin
+.so ./Xsrc/errsent4.com
+.PN BadGC 
+error.
+.NH 3
+Setting the Current Font 
+.XS
+\*(SN Setting the Current Font 
+.XE
+.LP
+To set the current font of the specified graphics context, use
+.PN XSetFont .
+.IN "XSetFont" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSetFont.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/font.a
+.LP
+.ds fd .PN XSetFont
+.so ./Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadFont ,
+and 
+.PN BadGC 
+errors.
+.NH 3
+Setting the Clip Region
+.XS
+\*(SN Setting the Clip Region 
+.XE
+.LP
+Xlib provides functions with which you can set the clip origin or the clip mask
+as well as with which you can set the clip mask to a list of rectangles.
+.LP
+.sp
+To set the clip origin of the specified graphics context, use
+.PN XSetClipOrigin .
+.IN "XSetClipOrigin" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSetClipOrig.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/clipxy.a
+.LP
+.ds fd .PN XSetClipOrigin
+.so ./Xsrc/errsent4.com
+.PN BadGC 
+error.
+.LP
+.sp
+To set the clip_mask of the specified graphics context to the
+specified pixmap, use
+.PN XSetClipMask .
+.IN "XSetClipMask" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSetClpMask.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/pixmap.a
+.LP
+.ds fd .PN XSetClipMask
+.so ./Xsrc/errsent.com
+.PN BadGC ,
+.PN BadMatch ,
+and
+.PN BadValue 
+errors.
+.LP
+.sp
+To set the clip_mask of the specified graphics context to 
+the specified list of rectangles, use
+.PN XSetClipRectangles .
+.IN "XSetClipRectangles" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSetClpRects.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/clipxy.a
+.so ./Xsrc/rectangles1.a
+These are the rectangles you want to specify in the graphics context.
+.so ./Xsrc/n2.a
+.so ./Xsrc/ordering.a
+.LP
+.so ./Xdescrip/XSetClpRects.d
+The output is clipped to remain contained within the
+rectangles.
+The number of rectangles are specified with the n argument.  
+The clip origin is interpreted relative to the origin of
+whatever destination drawable is specified in a graphics request.  
+The rectangle coordinates are interpreted relative to the clip origin.  
+The rectangles should be nonintersecting, or the graphics results will be
+undefined.
+Note that the list of rectangles can be empty, which effectively disables output.
+This is the opposite of passing
+.PN None
+as the clip_mask in
+.PN XCreateGC
+and
+.PN XChangeGC .
+.LP
+If known by the client, ordering relations on the rectangles can be
+specified with the ordering argument. 
+This may provide faster operation
+by the server. 
+If an incorrect ordering is specified, the X server may generate a
+.PN BadMatch
+error, but it is not required to do so.
+If no error is generated, the graphics
+results are undefined.
+.PN Unsorted 
+means the rectangles are in arbitrary order.
+.PN YSorted 
+means that the rectangles are nondecreasing in their Y origin.
+.PN YXSorted 
+additionally constrains 
+.PN YSorted 
+order in that all
+rectangles with an equal Y origin are nondecreasing in their X
+origin.  
+.PN YXBanded 
+additionally constrains 
+.PN YXSorted 
+by requiring that,
+for every possible Y scan line, all rectangles that include that
+scan line have an identical Y origins and Y extents.
+.LP
+.ds fd .PN XSetClipRectangles
+.so ./Xsrc/errsent.com
+.PN BadAlloc , 
+.PN BadGC ,
+.PN BadMatch ,
+and
+.PN BadValue 
+errors.
+.NT
+The Xlib library provides a set of basic functions for performing
+region arithmetic.
+For information about these functions,
+see Chapter 10.
+.NE
+.NH 3
+Setting the Arc Mode, Subwindow Mode, and Graphics Exposure 
+.XS
+\*(SN Setting the Arc Mode, Subwindow Mode, and Graphics Exposure 
+.XE
+.LP
+To set the arc mode of the specified graphics context, use
+.PN XSetArcMode .
+.IN "XSetArcMode" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSetArcMode.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/arc_mode.a
+.LP
+.ds fd .PN XSetArcMode
+.so ./Xsrc/errsent.com
+.PN BadGC
+and
+.PN BadValue 
+errors.
+.LP
+.sp
+To set the subwindow mode of the specified graphics context, use
+.PN XSetSubwindowMode .
+.IN "XSetSubwindowMode" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSetSubMode.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/sub_mode.a
+.LP
+.ds fd .PN XSetSubwindowMode
+.so ./Xsrc/errsent.com
+.PN BadGC
+and
+.PN BadValue 
+errors.
+.LP
+.sp
+To set the graphics-exposures flag of the specified graphics context, use
+.PN XSetGraphicsExposures .
+.IN "XSetGraphicsExposures" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSetGrExp.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/graph_exp.a
+.LP
+.ds fd .PN XSetGraphicsExposures
+.so ./Xsrc/errsent.com
+.PN BadGC
+and
+.PN BadValue 
+errors.
+.bp

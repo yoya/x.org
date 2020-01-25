@@ -1,0 +1,4 @@
+.\" $Header: name.a,v 1.1 87/09/28 13:07:57 mento Exp $
+.IP \fIname\fP 1i
+Specifies the name of the font.
+This name is a null terminated string.

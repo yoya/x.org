@@ -1,0 +1,44 @@
+.TH XCopyArea 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XCopyArea, XCopyPlane \- copy areas
+.SH SYNTAX
+.so ../Xsrc/XCopyArea.f
+.LP
+.so ../Xsrc/XCopyPlane.f
+.SH ARGUMENTS
+.so ../Xsrc/destxy1.a
+.so ../Xsrc/display.a
+.so ../Xsrc/gc.a
+.so ../Xsrc/plane.a
+.so ../Xsrc/srcdest.a
+.so ../Xsrc/srcxy.a
+.so ../Xsrc/widtheight.a
+.SH DESCRIPTION
+.so ../Xdescrip/XCopyArea.d
+.ds fd .PN XCopyArea
+.so ../Xsrc/errsent.com
+.PN BadDrawable ,
+.PN BadGC ,
+and
+.PN BadMatch 
+errors.
+.LP
+.so ../Xdescrip/XCopyPlane.d
+.ds fd .PN XCopyPlane
+.so ../Xsrc/errsent.com
+.PN BadDrawable ,
+.PN BadGC ,
+.PN BadMatch ,
+and
+.PN BadValue 
+errors.
+.SH DIAGNOSTICS
+.so ../Xerrors/baddrawable.e
+.so ../Xerrors/badgc.e
+.so ../Xerrors/badmatch1.e
+.so ../Xerrors/badmatch2.e
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+XClearArea(3X)
+.br
+\fIXlib \- C Language X Interface\fP

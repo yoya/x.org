@@ -1,0 +1,48 @@
+SRCS =	\
+	init.c		\
+	sunGC.c		\
+	screentab.c	\
+	hpKeyMap.c	\
+	hpFonts.c	\
+	hpByteBlt.c	\
+	sunCursor.c	\
+	x_hil.c		\
+	beeper.c	\
+	x_tablet.c	\
+	x_threebut.c	\
+	ipc.c		\
+	salloc.c	\
+	hpcursor.c hpcgc.c shadow.c wshadow.c
+
+OBJS = \
+	init.o		\
+	sunGC.o		\
+	screentab.o	\
+	hpKeyMap.o	\
+	sunCursor.o	\
+	hpFonts.o	\
+	hpByteBlt.o	\
+	x_hil.o		\
+	beeper.o	\
+	x_tablet.o	\
+	x_threebut.o	\
+	ipc.o		\
+	salloc.o	\
+	hpcursor.o hpcgc.o shadow.o wshadow.o
+
+STD_DEFINES = ServerDefines
+CDEBUGFLAGS = ServerCDebugFlags
+   INCLUDES = -I. -I..  -I../../../include -I../mfb -I$(INCLUDESRC)
+   LINTLIBS = ../../../dix/llib-ldix.ln ../../../os/4.2bsd/llib-los.ln
+
+NormalLibraryObjectRule()
+
+all:: $(OFILES)
+
+NormalLibraryTarget(hp,$(OBJS))
+
+DependTarget()
+
+lintlib:
+
+NormalLintTarget($(SRCS))

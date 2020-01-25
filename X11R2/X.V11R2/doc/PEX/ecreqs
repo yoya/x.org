@@ -1,0 +1,617 @@
+.AC "Editing Contexts" 1
+.LP
+.RU
+.LP
+An \fIediting context\fP is a PEX resource that allows clients
+to manipulate and modify structure resources.  Editing contexts
+are very lightweight resources.
+All PEX requests that deal with structures on the granularity
+of structure elements require an editing context.
+.LP
+A verification is performed whenever the editing context is
+used in a request.  This verification occurs prior to the execution
+of the request.
+First, the editing context's structure id is validated.
+If the editing context's structure id attribute contains an
+invalid structure resource id, the request will be ignored and an error will
+be generated.
+If the editing context's structure id attribute contains a
+valid structure
+resource id, the verify operation proceeds to check the element pointer
+attribute.
+If an editing context's element pointer has
+been set to a value less than zero as a result of an editing request,
+the element pointer is set to zero.
+If an editing context's element pointer has
+been set to a value greater than the number of elements in the structure
+as a result of an editing request,
+the element pointer is set to the offset of the last element in the structure.
+.LP
+Whenever an editing context
+is used as a destination in a structure editing
+request, its element pointer attribute
+will be modified.
+.LP
+Some of the requests in this section affect attributes of an editing
+context.
+The \fIitem_mask\fP and \fIitem_list\fP parameters
+specify which components are to be affected.
+Each bit in the \fIitem_mask\fP indicates whether or not
+the corresponding attribute is affected.  In the cases where
+editing context attributes are being set or queried,
+there is a corresponding entry in the \fIitem_list\fP
+for each set bit in \fIitem_mask\fP.
+It is therefore possible
+to affect one or many editing context attributes with a single request.
+.so ectbl
+.bp
+
+.AC "Editing Context Resource Management" 2
+.LP                   
+The editing context is an X11 resource and carries all of the 
+responsibilities and
+access rights of X11 resources.  These requests manage the creation,
+freeing, and copying of editing contexts.
+
+.AC "Create Editing Context" 3
+.Fs
+.Na PEXCreateEditingContext
+.Rq      
+.Pa ec_id EDITING_CONTEXT_ID
+.Pa item_mask BITMASK
+.Pa item_list LISTofVALUE
+.Se
+EditingContext, Structure, Value, Match, Alloc
+.Ds                     
+This request creates an editing context resource for the specified
+\fIec_id\fP.  
+The \fIitem_mask\fP defines those editing context attributes
+that are to be explicitly set at the time the resource is created.
+The \fIitem_list\fP 
+contains the corresponding
+list of values used to modify the newly-created editing context.
+.Fe
+
+
+
+
+.AC "Copy Editing Context" 3
+.Fs
+.Na PEXCopyEditingContext
+.Rq                 
+.Pa src_ec_id EDITING_CONTEXT_ID
+.Pa dest_ec_id EDITING_CONTEXT_ID
+.Pa item_mask BITMASK
+.Se
+EditingContext, Structure
+.Ds            
+This request copies the source editing context
+\fIsrc_ec_id\fP to a destination editing context \fIdest_ec_id\fP.
+The \fIdest_ec_id\fP must already exist as a valid resource.
+The \fIitem_mask\fP     
+indicates which values
+in the editing context will be copied.
+.Fe
+.bp
+
+
+.AC "Free Editing Context" 3
+.Fs
+.Na PEXFreeEditingContext
+.Rq                 
+.Pa ec_id EDITING_CONTEXT_ID
+.Se
+EditingContext, Structure
+.Ds            
+This request deletes the association between the resource id
+and the editing context.  The editing context storage will be
+freed when no other resource references it.
+.Fe
+.bp
+
+.AC "Editing Context Inquiry" 2
+.LP
+These requests inquire editing context attributes.
+
+.AC "Get Editing Context" 3
+.Fs
+.Na PEXGetEditingContext
+.Rq
+.Pa ec_id EDITING_CONTEXT_ID
+.Pa item_mask BITMASK
+.Re
+.Pa item_list LISTofVALUE
+.Se
+EditingContext, Match, Structure
+.Ds       
+This request will return components of
+the editing context specified by \fIec_id\fP.
+The \fIitem_mask\fP specifies which components are to be inquired and returned.
+The specified attributes of the editing context will be returned in
+\fIitem_list\fP.
+.Fe
+.bp
+
+.AC "Editing Context Modification" 2
+.LP
+These requests can be used to modify attributes of editing context resources.
+
+.AC "Change Editing Context" 3
+.Fs
+.Na PEXChangeEditingContext
+.Rq
+.Pa ec_id EDITING_CONTEXT_ID
+.Pa item_mask BITMASK
+.Pa item_list LISTofVALUE
+.Se
+EditingContext, Match, Value, Structure
+.Ds       
+This request changes components of an editing context.  
+The \fIitem_mask\fP and \fIitem_list\fP
+specify which components are to be changed.
+Each bit in the \fIitem_mask\fP indicates whether or not
+there is a corresponding entry in the \fIitem_list\fP.
+It is therefore possible
+to modify one or many editing context attributes with an
+\fBPEXChangeEditingContext\fP request.
+.Fe
+
+
+
+
+.AC "Set Element Pointer" 3
+.Fs
+.Na PEXSetElementPointer
+.Rq           
+.Pa ec_id EDITING_CONTEXT_ID
+.Pa position ELEMENT_POS
+.Se
+EditingContext, Structure
+.Ds       
+This request verifies an editing context resource and
+sets its element pointer attribute.
+The editing context to be modified is specified by \fIec_id\fP.
+The element pointer attribute of the editing context will be set to
+the position specified by \fIposition\fP, which contains a \fIwhence\fP
+and \fIoffset\fP pair.
+If \fIwhence\fP is \fIBeginning\fP, the element pointer is set to
+the specified \fIoffset\fP.
+If \fIwhence\fP is \fICurrent\fP, the new element pointer value
+is computed by adding \fIoffset\fP
+to the current value of the element pointer.
+If \fIwhence\fP is \fIEnd\fP, the new element pointer value
+is computed by adding the specified \fIoffset\fP
+to the offset of the last element in the structure.
+\fIOffset\fP can be a negative number.
+.LP            
+If the resultant value of the element pointer
+is less than zero, the element pointer is set to zero.  If the resultant value
+of the element pointer 
+is greater than the
+number of elements in the structure, then the element pointer
+is set to the offset of the last element in the structure.
+.Fe            
+.bp
+
+
+.AC "Set Element Pointer At Label" 3
+.Fs
+.Na PEXSetElementPointerAtLabel
+.Rq
+.Pa ec_id EDITING_CONTEXT_ID
+.Pa label CARD32
+.Pa offset INT32
+.Se
+EditingContext, Structure, Label
+.Ds
+This request verifies an editing context resource and
+sets its element pointer attribute.
+The editing context to be modified is specified by \fIec_id\fP.
+A search is conducted for
+the next occurence of a "label" structure element containing \fIlabel\fP.
+The search for the label starts
+at the current element pointer plus one, and proceeds in the forward direction.
+If a "label" structure element containing \fIlabel\fP is found,
+the element pointer for the editing context is set
+to the offset of the located label plus \fIoffset\fP.
+If no occurence of the specified label is found, the element pointer
+is left unchanged.
+.Fe
+.bp
+
+.AC "Element Search" 3
+.Fs
+.Na PEXElementSearch
+.Rq
+.Pa ec_id EDITING_CONTEXT_ID
+.Pa position ELEMENT_POS
+.Pa direction "{\fIForward, Backward\fP}"
+.Pa incl LISTofELEMENT_TYPE
+.Pa incl_mask BITMASK
+.Pa excl LISTofELEMENT_TYPE
+.Pa excl_mask BITMASK
+.Re
+.Pa status "{\fIFound, NotFound\fP}"
+.Pa found_offset CARD32
+.Se
+Structure
+.Ds
+This request conducts a search
+for the first occurrence of the specified
+element type in the structure whose resource id is contained in \fIec_id\fP.
+\fIEc_id\fP is verified before the search operation commences.
+The offset at which to begin searching is computed using the
+\fIwhence\fP and \fIoffset\fP found in \fIposition\fP.
+If \fIwhence\fP is \fIBeginning\fP, the search will begin at
+the element specified by \fIoffset\fP.
+If \fIwhence\fP is \fICurrent\fP, the specified \fIoffset\fP
+is added to the current value of \fIec_id\fP's element pointer to determine
+the element at which to begin the search.
+If \fIwhence\fP is \fIEnd\fP, the element at which to begin the search
+is computed by adding the specified \fIoffset\fP
+to the offset of the last element in the structure.
+\fIOffset\fP can be a negative number.
+.LP
+If the computed offset is less than zero, the search will begin at
+the first element in the structure.
+If the computed offset
+is greater than the
+number of elements in the structure, then the search will begin at
+the last element in the structure.
+The search always includes the starting element.
+.LP
+An element will be selected if its element type is not contained in
+\fIexcl\fP
+and its element type is included in 
+\fIincl\fP.
+The zero bits in the \fIexcl_mask\fP indicate which bits of the element type
+field are to be ignored when testing for a match with the values found
+in \fIexcl\fP.
+The ELEMENT_TYPE record in each structure element
+is logically and'ed with \fIexcl_mask\fP and the result is used to
+compare for matches in the exclusion list \fIexcl\fP.
+If a match occurs, the element is not considered during the search operation.
+The ELEMENT_TYPE record in each structure element
+is logically and'ed with \fIincl_mask\fP and the result is used to
+compare for matches in the inclusion list \fIincl\fP.
+If a
+structure element causes matches in both of the above operations, it will
+be excluded.
+An element type of \fIAll\fP causes all element types to match.
+.LP
+The search terminates if a match is found or
+if the limits of the structure are reached.  The search progresses from
+the start point and proceeds either forward in the structure or backward,
+depending on \fIdirection\fP.
+This is a non-descending search (i.e., the search does not include
+any structures referenced by "execute structure" elements).
+If the search succeeds in finding a match, a status of \fIFound\fP is
+returned, and the offset of the matching element is returned in
+\fIfound_offset\fP.
+If the search is unsuccessful, a status of \fINotFound\fP is
+returned, and a value of zero is returned in
+\fIfound_offset\fP.
+.LP
+The element pointer attribute of \fIec_id\fP
+is updated to point to the selected element if a match was found, the
+first element in the structure if the direction was \fIBackward\fP and
+no match was found, or the last element in the structure if the direction
+was \fIForward\fP and no match was found.
+.Fe
+.bp
+
+.AC "Structure Editing" 2
+.LP
+This section contains requests that use an editing context in order
+to modify structure resources.
+
+
+.AC "Store Elements" 3
+.Fs
+.Na PEXStoreElements
+.Rq
+.Pa format FORMAT
+.Pa ec_id EDITING_CONTEXT_ID
+.Pa elements LISTofOUTPUT_CMD
+.Se
+EditingContext, Structure, FloatingPointFormat, DirectColorFormat, Value
+.Ds       
+This request causes elements to be stored in the
+structure whose resource id is specified by \fIec_id\fP.
+If the \fIediting_mode\fP attribute of \fIec_id\fP is
+set to \fIStructureInsert\fP, each entry
+in \fIelements\fP is used to create a structure element
+in the structure after the element specified
+by \fIec_id\fP's \fIelement_ptr\fP attribute.
+\fIEc_id\fP's element pointer is
+incremented by one for each such insertion.  Therefore,
+at the conclusion of the request, the element pointer is
+left pointing at the last inserted element.
+.LP
+If the \fIediting_mode\fP attribute of \fIec_id\fP is
+set to \fIStructureReplace\fP, a range of elements is
+first deleted from the structure.  The number of elements
+deleted is equal to the number of output commands in
+\fIelements\fP.  If there are fewer elements between
+\fIec_id\fP's element pointer and the end of the structure
+than there are output commands in \fIelements\fP, then
+only the elements between the element pointer and the
+end of the structure will be deleted.
+The element pointer
+will be left pointing at the element preceding the deleted
+range.
+After the deletion,
+the output commands specified in \fIelements\fP are 
+inserted at the element pointer position as described above.
+.LP
+Floating point values in \fIelements\fP will be in the floating
+point format specified in \fIformat\fP.
+Similarly, direct color values in \fIelements\fP will be in the direct color
+format specified in \fIformat\fP.
+The formats for the various types of output commands
+can be found in the "Output Commands" section.
+.Fe
+.bp
+
+.AC "Delete Element Range" 3
+.Fs
+.Na PEXDeleteElementRange
+.Rq
+.Pa ec_id EDITING_CONTEXT_ID
+.Pa range ELEMENT_RANGE
+.Se
+EditingContext, Structure, Value
+.Ds                              
+This request
+deletes elements in \fIrange\fP from
+the structure whose id is specified in \fIec_id\fP.
+\fIEc_id\fP is verified before the deletion operation is performed.
+The range of elements to be deleted is computed using
+the \fIwhence\fP and \fIoffset\fP values of \fIposition1\fP and
+\fIposition2\fP.
+.LP
+The offsets that define the range of elements to be deleted
+are each computed using the positions in \fIrange\fP in the following fashion.
+If \fIwhence\fP is \fIBeginning\fP, the computed offset is just
+the value specified by \fIoffset\fP.
+If \fIwhence\fP is \fICurrent\fP, the offset is computed by adding
+\fIoffset\fP to \fIec_id\fP's element pointer.
+If \fIwhence\fP is \fIEnd\fP, the offset is computed
+by adding \fIoffset\fP to the number of elements in the structure.
+\fIOffset\fP can be a negative number.
+.LP
+If either computed offset is less than zero, it will be set to zero before
+the deletion occurs.  If either computed offset is greater than the number
+of elements in the structure, it will be set to the offset
+of the last structure element.
+It is not necessary for the first offset to be less than the second.
+The deletion is inclusive, meaning that
+the elements at the boundary of the deletion range are also deleted.
+Deleting element zero
+is effectively a noop.
+After the deletion operation, the editing context's element pointer
+will be set to the element
+preceding the range of deleted elements.
+.Fe
+.bp
+
+
+.AC "Delete Elements To Label" 3
+.Fs
+.Na PEXDeleteElementsToLabel
+.Rq
+.Pa ec_id EDITING_CONTEXT_ID
+.Pa position ELEMENT_POS
+.Pa label CARD32
+.Se
+EditingContext, Structure, Label
+.Ds
+This request deletes all elements between a computed offset and
+a specified \fIlabel\fP in the structure whose id is specified in \fIec_id\fP.
+\fIEc_id\fP is verified before the deletion operation is performed.
+.LP
+The offset is computed using \fIposition\fP in the following fashion.
+If \fIwhence\fP is \fIBeginning\fP, the computed offset is just
+the value specified by \fIoffset\fP.
+If \fIwhence\fP is \fICurrent\fP, the offset is computed by adding
+\fIoffset\fP to \fIec_id\fP's element pointer.
+If \fIwhence\fP is \fIEnd\fP, the offset is computed
+by adding \fIoffset\fP to the number of elements in the structure.
+\fIOffset\fP can be a negative number.
+.LP
+If the computed offset is less than zero, it will be set to zero before
+the deletion occurs.  If the computed offset is greater than the number
+of elements in the structure, it will be set to the offset
+of the last structure element.
+Elements are deleted starting at the element immediately after the computed
+offset up to the
+next occurrence of the \fIlabel\fP.
+The label itself is not deleted.  The
+editing context's element pointer is set to point at the element immediately
+preceding the range of deleted elements.
+.LP
+If the specified label is not found, no deletion occurs and the editing
+context's element pointer is left unchanged.
+.Fe
+.bp
+
+
+.AC "Delete Elements Between Labels" 3
+.Fs
+.Na PEXDeleteElementsBetweenLabels
+.Rq
+.Pa ec_id EDITING_CONTEXT_ID
+.Pa label1 CARD32
+.Pa label2 CARD32
+.Se
+EditingContext, Structure, Label
+.Ds
+This request
+deletes all elements between \fIlabel1\fP and \fIlabel2\fP
+in the structure whose id is specified in \fIec_id\fP.
+\fIEc_id\fP is verified before the deletion operation is performed.
+A search for
+\fIlabel1\fP is first performed starting at the element whose offset
+is specified by the element pointer in the editing context.  A search
+for \fIlabel2\fP is then performed, starting at the element after
+\fIlabel1\fP.  The range of elements between the two labels is then
+deleted.
+The two label elements are not deleted.  The
+editing context's element pointer is set to point at the element immediately
+preceding the range of deleted elements (the element containing \fIlabel1\fP).
+.LP
+If either of the two specified labels is not found between starting
+point of the search and the end of the structure,
+no deletion occurs and the editing
+context's element pointer is left unchanged.
+.Fe
+.bp
+
+
+.AC "Copy Element Range" 3
+.Fs
+.Na PEXCopyElementRange
+.Rq
+.Pa src_ec_id EDITING_CONTEXT_ID
+.Pa src_range ELEMENT_RANGE
+.Pa dest_ec_id EDITING_CONTEXT_ID
+.Pa dest_position ELEMENT_POS
+.Se
+Structure, Value
+.Ds       
+This request copies elements in \fIsrc_range\fP from
+from the structure specified in \fIsrc_ec_id\fP
+to the \fIdest_position\fP in the structure specified in \fIdest_ec_id\fP.
+The range of elements to be copied is computed using
+the \fIwhence\fP and \fIoffset\fP values of \fIposition1\fP and
+\fIposition2\fP in \fIsrc_range\fP.
+The editing contexts are both verified before the copy operation occurs.
+.LP
+The offsets that define the range of elements to be copied
+are each computed using the positions in
+\fIsrc_range\fP in the following fashion.
+If \fIwhence\fP is \fIBeginning\fP, the computed offset is just
+the value specified by \fIoffset\fP.
+If \fIwhence\fP is \fICurrent\fP, the offset is computed by adding
+\fIoffset\fP to \fIsrc_ec_id\fP's element pointer.
+If \fIwhence\fP is \fIEnd\fP, the offset is computed
+by adding \fIoffset\fP to the number of elements in the structure.
+\fIOffset\fP can be a negative number.
+.LP
+If either computed offset is less than zero, it will be set to zero before
+the copy occurs.  If either computed offset is greater than the number
+of elements in the source structure, it will be set to the offset
+of the last structure element in the source structure.
+.LP
+The position to which the elements will be copied is computed using
+\fIdest_position\fP in the following fashion.
+If \fIwhence\fP is \fIBeginning\fP, the computed destination offset is just
+the value specified by \fIoffset\fP.
+If \fIwhence\fP is \fICurrent\fP, the offset is computed by adding
+\fIoffset\fP to \fIdest_ec_id\fP's element pointer.
+If \fIwhence\fP is \fIEnd\fP, the offset is computed
+by adding \fIoffset\fP to the number of elements in the destination structure.
+\fIOffset\fP can be a negative number.
+.LP
+After the copy operation, the destination editing context's element pointer
+is updated to point at the last element inserted in the destination
+structure.  The editing mode attribute of \fIdest_ec_id\fP is ignored
+during this request - copied elements are always inserted into the
+destination structure, never used to replace existing structure elements.
+.Fe
+.bp
+
+
+.AC "Copy All Elements" 3
+.Fs
+.Na PEXCopyAllElements
+.Rq
+.Pa src_sid STRUCTURE
+.Pa dest_ec_id EDITING_CONTEXT_ID
+.Pa dest_position ELEMENT_POS
+.Se
+Structure, Value
+.Ds       
+This request copies all the elements of the structure specified
+by \fIsrc_sid\fP
+to the \fIdest_position\fP in the structure specified in \fIdest_ec_id\fP.
+\fIDest_ec_id\fP is verified before the copy operation occurs.
+.LP
+The position to which the elements will be copied is computed using
+\fIdest_position\fP in the following fashion.
+If \fIwhence\fP is \fIBeginning\fP, the computed destination offset is just
+the value specified by \fIoffset\fP.
+If \fIwhence\fP is \fICurrent\fP, the offset is computed by adding
+\fIoffset\fP to \fIdest_ec_id\fP's element pointer.
+If \fIwhence\fP is \fIEnd\fP, the offset is computed
+by adding \fIoffset\fP to the number of elements in the destination structure.
+\fIOffset\fP can be a negative number.
+.LP
+After the copy operation, the destination editing context's element pointer
+is updated to point at the last element inserted in the destination
+structure.  The editing mode attribute of \fIdest_ec_id\fP is ignored
+during this request - copied elements are always inserted into the
+destination structure, never used to replace existing structure elements.
+.Fe
+.bp
+
+.AC "Structure Element Inquiry" 2
+.LP
+This section contains requests that use an editing context in order
+query structure elements.
+
+.AC "Fetch Element Range" 3
+.Fs
+.Na PEXFetchElementRange
+.Rq
+.Pa format FORMAT
+.Pa ec_id EDITING_CONTEXT_ID
+.Pa range ELEMENT_RANGE
+.Pa item_mask BITMASK
+.Re
+.Pa elements LISTofOUTPUT_CMD
+.Se
+EditingContext, Structure, FloatingPointFormat, DirectColorFormat
+.Ds       
+This request returns information about a range of structure elements.
+The range of elements to be copied is computed using
+the \fIwhence\fP and \fIoffset\fP values of \fIposition1\fP and
+\fIposition2\fP in \fIrange\fP.
+\fIEc_id\fP is verified before the fetch operation occurs.
+.LP
+The offsets that define the range of elements to be fetched
+are computed using the positions in \fIrange\fP in the following fashion.
+If \fIwhence\fP is \fIBeginning\fP, the computed offset is just
+the value specified by \fIoffset\fP.
+If \fIwhence\fP is \fICurrent\fP, the offset is computed by adding
+\fIoffset\fP to \fIec_id\fP's element pointer.
+If \fIwhence\fP is \fIEnd\fP, the offset is computed
+by adding \fIoffset\fP to the number of elements in the structure.
+\fIOffset\fP can be a negative number.
+.LP
+If either computed offset is less than zero, it will be set to zero before
+the fetch occurs.  If either computed offset is greater than the number
+of elements in the source structure, it will be set to the offset
+of the last structure element in the source structure.
+The element pointer attribute of \fIec_id\fP is not affected by the
+fetch operation.
+.LP
+If the \fIelement_type\fP bit in \fIitem_mask\fP is set, then the element
+type will be returned as the first value for each record in \fIelements\fP.
+If the \fIelement_size\fP bit in \fIitem_mask\fP is set, then the size
+(in units of four bytes) of the specified structure element
+will be returned for each record in \fIelements\fP.
+If the \fIdata\fP bit in \fIitem_mask\fP is set, then the remainder of
+the data for each structure element will be returned in
+the same format as described in the "Output Commands" section.
+.LP
+Floating point values in \fIelements\fP will be returned in the floating
+point format specified in \fIformat\fP (if it is supported by the PEX
+implementation).
+Similarly, direct color values in \fIelements\fP will be returned
+in the direct color
+format specifed by \fIformat\fP.
+The formats for the various types of output commands
+can be found in the "Output Commands" section.
+.Fe
+.bp

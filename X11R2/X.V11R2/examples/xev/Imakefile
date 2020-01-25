@@ -1,0 +1,8 @@
+LOCAL_LIBRARIES = $(XLIB)
+           SRCS = xev.c
+
+all: xev
+
+SingleProgramTarget(xev,xev.o,$(LOCAL_LIBRARIES),)
+
+DependTarget()

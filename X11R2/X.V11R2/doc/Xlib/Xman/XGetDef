@@ -1,0 +1,15 @@
+.TH XGetDefault 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XGetDefault \- get X program defaults
+.SH SYNTAX
+.so ../Xsrc/XGetDefault.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/option.a
+.so ../Xsrc/program.a
+.SH DESCRIPTION
+.so ../Xdescrip/XGetDefault.d
+.SH "SEE ALSO"
+XrmGetSearchList(3X)
+.br
+\fIXlib \- C Language X Interface\fP

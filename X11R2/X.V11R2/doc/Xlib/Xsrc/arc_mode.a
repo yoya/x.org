@@ -1,0 +1,7 @@
+.\" $Header: arc_mode.a,v 1.1 87/09/28 11:00:35 mento Exp $
+.IP \fIarc_mode\fP 1i
+Specifies the arc mode:
+.PN ArcChord
+specifies that arcs will be chord filled, while
+.PN ArcPieSlice 
+specifies that arcs will be pie slice filled.

@@ -1,0 +1,1254 @@
+
+
+
+
+
+
+
+
+
+                A Simple X11 Client Program
+
+                             or
+
+        How hard can it really be to write ``Hello,
+                          World''?
+
+
+                   David S. H. Rosenthal
+
+                      Sun Microsystems
+                      2550 Garcia Ave.
+                   Mountain View CA 94043
+
+                        dshr@sun.com
+
+
+                          ABSTRACT
+
+
+     The ``Hello,  World''  program  has  achieved  the
+     status  of  a koan in the UNIX community.  Various
+     versions of this koan for Version 11 of the X Win-
+     dow  System  are  examined,  as a guide to writing
+     correct programs,  and as an illustration  of  the
+     importance of toolkits in X11 programming.
+
+
+
+
+        Copyright c 1987 by Sun Microsystems, Inc.1
+
+
+
+     `There,   fourth  graders  discuss   whether   the
+     machines  prefer  running simpler programs (``It's
+     easier for them,''  ``They hardly have to  do  any
+     work.'')  or  more  complicated  ones (``They feel
+_________________________
+1.  Permission to use,  copy,   modify  and  distribute
+this document for any purpose and without fee is hereby
+granted,  provided that the above copyright notice  and
+this  permission notice appear in all copies,  and that
+the name of Sun Microsystems,  Inc. not be used in  ad-
+vertising  or  publicity  pertaining to distribution of
+the software without specific,  written  prior  permis-
+sion.  Sun Microsystems,  Inc. makes no representations
+about the suitability of the software described  herein
+for  any  purpose.   It is provided "as is" without ex-
+press or implied warranty.
+
+
+
+
+                      January 16, 1988
+
+
+
+
+
+                           - 2 -
+
+
+     proud,''  ``It's like they are showing  what  they
+     can do.'').'
+
+                 Sherry Turkle  The Second Self.
+
+
+
+1.  Introduction
+
+The ``Hello,  World'' program has achieved the status  of  a
+koan in the UNIX* community.  The spare elegance of:
+
+        #include <stdio.h>
+        {ain()
+        }   printf("Hello, World\n");
+
+
+has been much admired,  and contrasted with the baroque com-
+plexity of other system's attempts to solve the problem.2
+
+Various versions of the ``Hello,  World'' koan  for  Version
+11 of the X Window System* are  examined.   They  provide  a
+guide  to writing correct programs for X11, insight into the
+complexity of the issues they have  to  deal  with,  and  an
+illustration  of  the importance of toolkits in X11 program-
+ming.
+
+2.  Specification
+
+The ``Hello,  World'' problem needs to be restated  slightly
+for the world of window systems.  The program needs to:
+
++  Create a window of an appropriate size,  and position  it
+   on the screen if required.
+
++  Paint the string ``Hello,  World'' in  a  suitable  font,
+   centered in the window.
+
++  Paint the string in a color which will contrast with  the
+   window  background  -  it  is  not acceptable to paint an
+   invisible string.
+
++  Deal with its window being exposed - repainting the  win-
+   dow if required.
+
++  Deal with its window being  resized  -  re-centering  the
+_________________________
+*  UNIX is a registered trademark of AT&T.
+2  Of course,  it is important to note that this imple-
+mentation has bugs.  A more correct,  ANSI C version is
+shown in the appendix.
+The X Window System is a trademark of the Massachusetts
+Institute of Technology.
+
+
+
+
+                      January 16, 1988
+
+
+
+
+
+                           - 3 -
+
+
+   text.
+
++  Deal with its window being closed into an icon,  and  re-
+   opened, providing suitable identification of the icon.
+
+Note that this specification is much more complex  than  the
+canonical  ``Hello,   World'' program,  so that it is likely
+that the resulting programs will be significantly more  com-
+plex.
+
+3.  Vanilla X11
+
+The first ``Hello,  World'' example uses only the facilities
+of the basic X11 library.
+
+3.1.  Program Outline
+
++  Open a connection to the X server.   Exit  gracefully  if
+   you cannot.
+
++  Open the font to be used,  and obtain the  font  data  to
+   allow string widths and heights to be calculated.
+
++  Select pixel values for the window  border,   the  window
+   background,   and  the  foreground  that  will be used to
+   paint the characters.
+
++  Compute the size and location of the window based on  the
+   text string and the font data,  and set up the size hints
+   structure.
+
++  Create the window.
+
++  Set up the standard properties  for  use  by  the  window
+   manager.
+
++  Create a Graphics  Context  for  use  when  painting  the
+   string.
+
++  Select the types of input events that we  are  interested
+   in receiving.
+
++  Map the window to make it visible.
+
++  Loop forever:
+
+   +  Obtain the next event.
+
+   +  If the event is the last event of a  group  of  Expose
+      events (that is, it has count == 0),  repaint the win-
+      dow by:
+
+      +  Discovering the current size of the window.
+
+
+
+
+                      January 16, 1988
+
+
+
+
+
+                           - 4 -
+
+
+      +  Computing the position for the start of the  string
+         that  will  cause  it  to  appear  centered  in the
+         current window.
+
+      +  Clearing the window to the background color.
+
+      +  Drawing the string.
+
+3.2.  Program Text
+
+
+        #include <X11/Xlib.h>
+        #include <X11/Xutil.h>
+        #define BORDER    1Hello, world"
+        #define FONT      "vrb-25"
+        /* This structure forms the WM_HINTS property of the window,
+         * SeetSection 9.1dof theaXlibkmanual. to handle this window.
+        XWMHints    xwmh = {
+            False,Hint|StateHint/* input */ags */
+            0,rmalState,        /* ini/*aiconapixmap */
+            0, 0,               /* icon*locationn*/w */
+            0,                        /* Windowagroup */
+        };
+        mainintgargc;v)
+        {   char **argv;
+            Windowy    *win;          /* WindoweIDc*/nection */
+            XFontStruct *fontstruct;  /* Fontodescriptor */
+            unsigned long fg,,bg,dbd; /* Pixelsvaluesr*/eters */
+            XGCValueslongcv;;         /* Struct fortcreating GC */
+            XSizeHints  xsh;t;        /* Sizethintsifor window manager */
+            XSetWindowAttributes;xswa;/* Win/*wTemporary SetiWindow Attribute struct */
+            /*
+             * thenXtserver.laSeesSection 2.1.PLAY environment variable to locate
+            if/((dpy = XOpenDisplay(NULL)) == NULL) {
+              exit(1);stderr, "%s: can't open %s\n", argv[0], XDisplayName(NULL));
+            }
+            /* Load the font to use.  See Sections 10.2 & 6.5.1
+            if/((fontstruct = XLoadQueryFont(dpy, FONT)) == NULL) {
+              fprintargv[0],,DisplayString(dpy),eFONT);now font %s\n",
+            } exit(1);
+            fth = fontstruct->max_bounds.ascent + fontstruct->max_bounds.descent;
+            /* Select colors for the border,  the window background,  and the
+             */foreground.
+            bg = BlackPixel(dpy, DefaultScreen(dpy));
+            fg = WhitePixel(dpy, DefaultScreen(dpy));
+            /* Set the border width of the window,  and the gap between the text
+             */and the edge of the window, "pad".
+            bwd==1;ORDER;
+            /*
+             * Fill ouththeoXSizeHints struct totinformntheawindowtmanager.zSee
+             */Sections 9.1.6 & 10.3.
+            xsh.height==(fths+tpad * 2;ize);
+            xsh.xi=t(DisplayWidth(dpy,tDefaultScreen(dpy))l-nxsh.width)+/p2; * 2;
+            xsh.y = (DisplayHeight(dpy, DefaultScreen(dpy)) - xsh.height) / 2;
+
+
+
+                      January 16, 1988
+
+
+
+
+
+                           - 5 -
+
+
+            /* Create the Window with the information in the XSizeHints, the
+             */border width,  and the border & background pixels. See Section 3.3.
+            win = XCreateSimpleWxsh.x,dxsh.y,fxsh.width,nxsh.height,
+                                bw, bd, bg);
+            /* Set the standard properties for the window managers. See Section
+             */9.1.
+            XSetWMHints(dpy,ewin,s&xwmh);in, STRING, STRING, None, argv, argc, &xsh);
+            /*
+             * colormap,atsohthatnthe'windowrmanagerlknowsnthetcorrectecolormap to
+             * Gravity toereducewExpose events. 3.2.9. Also,  set the window's Bit
+            xswa.colormap = DefaultColormap(dpy, DefaultScreen(dpy));
+            XChangeWindowAttributes(dpy,vwin, (CWColormap | CWBitGravity), &xswa);
+            /*
+             */Create the GC for writing the text.  See Section 5.3.
+            gcv.foregroundt=tfg;t->fid;
+            gcv=bXCreateGC(dpy,;win, (GCFont | GCForeground | GCBackground), &gcv);
+            /*
+             * Sectionst8.5e&e8.4.5.1s we're interested in - only Exposures.  See
+            XSelectInput(dpy, win, ExposureMask);
+            /*
+             */Map the window to make it visible.  See Section 3.5.
+            XMapWindow(dpy, win);
+            /* Loop forever,  examining each event.
+            while (1) {
+              /* Get the next event
+              XNextEvent(dpy, &event);
+              /*
+               * window.laSeeoSectiong8.4.5.1.Expose events,  repaint the entire
+              if/(event.type == Expose && event.xexpose.count == 0) {
+                  intndowAttrix,ty; xwa;    /* Temp Get Window Attribute struct */
+                  /*
+                   * avoidemultipleerepaints. SeeoSectiont8.7.om the queue to
+                  while (XCheckTypedEvent(dpy, Expose, &event));
+                  /*
+                   * thedtext inwit.g the window is now,  so that we can center
+                  if/(XGetWindowAttributes(dpy, win, &xwa) == 0)
+                  x =r(xwa.width - XTextWidth(fontstruct, STRING, strlen(STRING))) / 2;
+                  y =-(fontstruct->max_bounds.descent)u/d2;ascent
+                  /*
+                   * thelcentereddstring. the background color,  and then paint
+                  XClearWindow(dpy, win);
+              }   XDrawString(dpy, win, gc, x, y, STRING, strlen(STRING));
+            }
+        }   exit(1);
+
+
+
+3.3.  Does it meet the specification?
+
++  It computes the size of the window from  the  string  and
+   the font, and positions it at the center of the screen.
+
++  It paints the string  in  the  color  WhitePixel()  on  a
+   BlackPixel() background.  It ensures that the appropriate
+   colormap will be used for  the  window,   so  that  these
+
+
+                      January 16, 1988
+
+
+
+
+
+                           - 6 -
+
+
+   colors  (which  may not actually be White and Black) will
+   be distinguishable.
+
++  Every time it gets the last of a group of Expose  events,
+   it  enquires  the  size  of  the  window,  and paints the
+   string centered in this space.  In particular,   it  will
+   get  an  Expose  event  initially as a consequence of its
+   mapping the window,  and will thus paint the  window  for
+   the first time.
+
++  The same mechanism copes with part or all of  the  window
+   being exposed.  The program will re-paint the entire win-
+   dow when any part is exposed; in this case the effort  of
+   only repainting the exposed parts is excessive.
+
++  The fact that the string is re-centered  every  time  the
+   window  is  painted means that the program deals with re-
+   sizing correctly.  Subject to the caveats below, when the
+   window  is  resized,   an Expose event will be generated,
+   and the window will be re-painted.
+
++  The standard properties that the program sets  include  a
+   specification  of  a  string  that  a  window manager can
+   display in the icon.  The programs sets this  to  be  the
+   string  it  is displaying,  so it copes with being iconi-
+   fied.  When it is opened,  an Expose event will  be  gen-
+   erated, and the window will be re-painted.
+
+3.4.  Design Issues
+
+Although this implementation of ``Hello,  World'' is  alarm-
+ingly  long,   it  is  structurally  simple.   Nevertheless,
+there are many detailed design issues that arise when  writ-
+ing it.  This section covers them,  in no particular order.
+
+3.4.1.  Repaint Strategy.
+
+Every X11 application has the responsibility for re-painting
+its  image whenever the server requests it to.  It is possi-
+ble to refresh only the parts requested,  or to refresh  the
+entire window.  The ``Hello,  World'' image is simple enough
+that refreshing the entire image is a sensible approach.
+
+Exposing part or all the window results in the server paint-
+ing  the  exposed  areas in the window background color, and
+one or more Expose events.   Each  carries,   in  the  count
+field,   the  number of events in the same group that follow
+it.  After receiving the last of each group,  identified  by
+a zero count, the window is re-painted.
+
+Re-painting on every Expose event would result  in  unneces-
+sary  multiple  repaints.  For example,  consider a ``Hello,
+World'' that appears for the  first  time  with  one  corner
+overlain by another window.  The newly exposed area consists
+
+
+
+                      January 16, 1988
+
+
+
+
+
+                           - 7 -
+
+
+of two rectangles,  so there will be two  Expose  events  in
+the initial group.
+
+We actually take even more rigorous measures to avoid multi-
+ple  repaints.   Every time we decide to repaint the window,
+we scan the event queue and remove all  Expose  events  that
+have arrived at the client,  but which have yet to arrive at
+the head of the queue.
+
+3.4.2.  Resize Strategy
+
+The first time the  window  is  painted,   it  seems  as  if
+enquiring  the  size of the window is unnecessary.  We have,
+after all,  just created the window and told it what size to
+be.   But  X11  does  not allow us to assume that the window
+will actually get created at the requested size;  we have to
+be  prepared  for  a  window  manager to have intervened and
+overridden our choice  of  size.   So  it  is  necessary  to
+enquire the window size on the initial Expose event.
+
+When the window is resized,  the client needs to  re-compute
+the  centering of the text.  The implementation does this on
+the last of every group of Expose events.  This  raises  two
+questions
+
++  Does every resize of the window result in  at  least  one
+   Expose event?
+
+   Consider a window,  not  obscured  by  others,   that  is
+   resized  to make it smaller.  The X11 server actually has
+   enough pixels to fill the new window size;  there  is  no
+   need  to  generate  an Expose event to cause pixels to be
+   repainted.  This is the simplest example of what the  X11
+   specification  calls ``Bit Gravity''.  Clients may reduce
+   the number of Expose events they receive by specifying an
+   appropriate  Bit  Gravity.   Even  if  the window is made
+   larger,  the Bit Gravity can tell the server how  to  re-
+   locate  the  old pixels in the new window to avoid Expose
+   events on parts of the window whose contents are not sup-
+   posed to change.
+
+   By default,  X11 sets the Bit Gravity of windows to  For-
+   getGravity.   This  ensures that the gravity mechanism is
+   disabled,  Expose events occur on all  resizings  of  the
+   window,   and  the  ``Hello,   World''  program  operates
+   correctly if the whole issue of Bit Gravity  is  ignored.
+   In  this  default  case,   the  answer to the question is
+   ``Yes,  every resize  results  in  at  least  one  Expose
+   event''.
+
+   But we can  exploit  Bit  Gravity  to  avoid  unnecessary
+   repaints  by  setting  it  to  CenterGravity.   This will
+   preserve the centering of  the  text  if  the  window  is
+   resized smaller without involving the client program.  In
+
+
+
+                      January 16, 1988
+
+
+
+
+
+                           - 8 -
+
+
+   this case,  the answer to  the  question  is  ``No,   not
+   every  resize  results  in an Expose event''.  But in the
+   cases where no Expose event occurs, the window will still
+   be correct.
+
++  Can we avoid the overhead of enquiring the window size on
+   every re-paint?
+
+   As we have seen,  Expose events have no  direct  relation
+   to  window  re-sizing.   In  general,  X11 clients should
+   listen for both:
+
+   +  Expose events,  which tell them to re-paint some  part
+      of the window.
+
+   +  ConfigureNotify events,  which tell them that the win-
+      dow  has  been changed in some way which requires that
+      the image be re-computed.  These carry the new size of
+      the window,  there is no need for an explicit enquiry.
+
+   In principle,  ``Hello,  World'' should  only  re-compute
+   the  centering of the text when it gets a ConfigureNotify
+   event.  But the overhead of the extra round-trip  to  the
+   server  to  enquire about the size of the window on every
+   Expose event is not critical for this  application,   and
+   the code in this case is much simpler.
+
+3.4.3.  Communicating with the Window Manager
+
+Every X application must use some properties on  its  window
+to communicate with the window manager.
+
++  The WM hints,   containing  information  for  the  window
+   manager about the input and icon behaviour of the window.
+   In the case of ``Hello,   World'',  this  information  is
+   known at compile time and can be intialized statically.
+
++  The size hints,  containing information  about  the  size
+   and  position of the window.  These cannot be initialized
+   statically since they depend on the font properties,  and
+   are only known at run-time.
+
++  Other properties,  including WM_NAME,  WM_ICON_NAME,  and
+   WM_COMMAND,   which  are used to communicate strings such
+   as the name of the program running behind the window.
+
++  The colormap field of the window is not a property,   but
+   it  may  also  be  used  to  communicate  with the window
+   manager.  The conventions about this have yet to be fully
+   specified,  and the topic is covered in the next section.
+
+3.4.4.  Pixel Values and Colormaps
+
+To ensure ``Hello,  World'' works  on  both  monochrome  and
+
+
+
+                      January 16, 1988
+
+
+
+
+
+                           - 9 -
+
+
+color displays, we use the  colors  Black  and  White3.   To
+paint  in  a  color  using  X11,  you need to know the pixel
+value corresponding to it;  the pixel value  is  the  number
+you  write into the pixel to cause that color to show on the
+screen.
+
+Although X11 specifies that Graphics Contexts are by default
+created  using  0  and  1  for the background and foreground
+pixel values, an application cannot predict the colors  that
+these  pixel values will resolve to.  It cannot even predict
+that these two colors will be different,  so every  applica-
+tion must explicitly set the pixel values it will use.
+
+Pixel values are determined relative  to  a  Colormap;   X11
+supports an arbitrary number of colormaps,  with one or more
+being installed in the hardware at any one time.   X11  sup-
+ports these colormaps even on monochrome displays.  There is
+a default colormap,  which applications  with  modest  color
+requirements  are urged to use,  and ``Hello,  World'' is as
+modest as you could wish.  In fact,  the  colors  Black  and
+White have pre-defined pixel values in the default colormap,
+and we can use these directly.
+
+However,  using the pre-defined values means  that  ``Hello,
+World''  becomes  dependent  on  having the default colormap
+installed.  Unless it is,  they may not be  distinguishable.
+Unfortunately,   when  a window is created using XCreateSim-
+pleWindow() the colormap is inherited from  the  parent  (in
+our  case,  the root window for the default screen),  and it
+is possible that some client may have set  the  colormap  of
+the  root to something other than the default colormap.  So,
+for now,  we have to set the colormap field  of  the  window
+explicitly to be the default colormap,  although it is anti-
+cipated that when the conventions for window management  are
+finally determined this code will be unnecessary.
+
+Simply setting the colormap field of  the  window  does  not
+ensure that the correct colormap will actually be installed.
+The whole question of whether,  and  when,   clients  should
+install their colormaps is open to debate at present.  There
+are two basic positions:
+
++  Clients should explicitly install their own colormap when
+   appropriate,   for  example  when  they  obtain the input
+   focus.
+
+   This has two  disadvantages,   in  that  it  makes  every
+   client  much  more  complicated  (it means,  for example,
+   that ``Hello,  World''  has  to  worry  about  the  input
+   focus!),   and  that  it  means that every client will be
+_________________________
+3  These colors may not actually be  black  and  white,
+but they are guaranteed to contrast with each other.
+
+
+
+
+                      January 16, 1988
+
+
+
+
+
+                           - 10 -
+
+
+   doing the wrong thing eventually,  when  window  managers
+   start  doing  the  right  thing  (whatever that is!).  It
+   does,  however,  mean that clients will work right now.
+
++  Clients should never install their  own  colormaps,   and
+   should  assume  that some combination of the internals of
+   the server,  and the window  manager,   will  do  it  for
+   them.
+
+   This has the  disadvantage  that  it  will  not  work  at
+   present,   since existing window managers don't appear to
+   do anything with colormaps.
+
+Strictly speaking,  therfore,  ``Hello,  World'' should deal
+with  installing  colormaps,  since the policy has yet to be
+determined.  But it would make the code so complex as to  be
+out of the question for a paper such as this.
+
+3.4.5.  Error Handling
+
+It appears that this ``Hello,  World''  implementation  fol-
+lows  the  canonical ``Hello,  World'' implementation in the
+great UNIX tradition of optimism,  by ignoring the possibil-
+ity  of  errors.  Not so, the question of error handling has
+been fully considered:
+
++  On the XOpenDisplay()  call,   we  check  for  the  error
+   return,  and exit gracefully.
+
++  When opening the font,  we cannot be sure that the server
+   will  map  that  name into a font.  So we check the error
+   return,  and exit gracefully, if the  server  objects  to
+   the name.
+
++  For all other errors,  we depend  on  the  default  error
+   handling  mechanism.   When  an  X11 client gets an Error
+   event from the server,  the library code invokes an error
+   handler.  The client is free to override the default one,
+   which prints an informative message and exits,   but  its
+   behaviour is fine for ``Hello,  World''.
+
+Of course,  one might ask why we need  to  explicitly  check
+for  errors on opening the font.  Surely,  the default error
+handler does what we want?  It is  an  (alas,  undocumented)
+feature  of Xlib that not all errors cause the error handler
+to be invoked.  Some errors,  such  as  failure  to  open  a
+font,   are  regarded as failure status returns and are sig-
+nalled by Status return values - in general any routine that
+returns Status will need its return tested,  because it will
+have bypassed the error handling mechanism.
+
+3.4.6.  Finding a Server.
+
+The particular server to use is identified by  the  $DISPLAY
+
+
+
+                      January 16, 1988
+
+
+
+
+
+                           - 11 -
+
+
+environment variable4, so it does not need to  be  specified
+explicitly.   It  is  a  convention among X11 clients that a
+command-line argument containing a colon is a  specification
+of the server to use,  but this version of ``Hello,  World''
+does not support the convention (or any  other  command-line
+arguments).
+
+3.4.7.  Looping for events.
+
+It is natural to assume that you can write  the  event  wait
+loop:
+
+        whil......xtEvent(dpy, &event) {
+        }
+
+
+but this is not the case.  XNextEvent()  is  defined  to  be
+void; it only ever returns when there is an event to return,
+and errors are handled through the error handling mechanism,
+rather  than  being  indicated  by a return value.  So it is
+necessary to write the event loop:
+        while (1) {
+            ......vent(dpy, &event);
+        }
+
+
+3.4.8.  Centering the Text
+
+There are a number of  ways  to  compute  the  size  of  the
+string,  in  order  to  center  it  in the window.  The most
+correct method is to use XTextExtents(),  which computes not
+merely  the  width  of the string,  but also the maximum and
+minimum Y valuse for the  characters  in  the  string.   The
+example  uses  XTextWidth()  to  compute  the  width  of the
+string, and uses the maximum and minimum Y values  over  all
+characters  in  the  font.  It is to some extent a matter of
+taste which looks better,  the string ``Hello,  World''  has
+no descenders so the example will tend to locate it somewhat
+higher in the window than is visually correct.
+
+3.5.  Protocol Usage
+
+Benchmarking X11 applications  is  an  interesting  problem.
+The  performance as seen by the user is affected both by the
+client,  and by the server.  To measure the  performance  of
+clients  independently  of  any server,  I have instrumented
+the X11 library to gather statistics on  the  usage  of  the
+protocol.  The results for the vanilla X11 ``Hello,  World''
+program are shown in Tables 1 (aggregate statistics)  and  2
+(usage of individual requests).
+
+_________________________
+4  Non-UNIX systems will use some other technique.
+
+
+
+
+                      January 16, 1988
+
+
+
+
+
+                           - 12 -
+
+
+
+center,  box;  c s c c l n.  Table 1: Aggregate Statistics -
+Vanilla _ Statistic       Value _ number of  writes        4
+number  of reads 12 bytes written   392 bytes read      1736
+number of requests      16 number of errors        0  number
+of events        1 number of replies       3
+
+
+center, box; c s c c l n.  Table  2:  Usage  of  Requests  -
+Vanilla  _ Request Count _ CreateWindow    1 ChangeWindowAt-
+tributes  2 GetWindowAttributes     1 MapWindow       1 Get-
+Geometry     1      ChangeProperty  5      OpenFont        1
+QueryFont       1  CreateGC        1  ClearArea       1  Po-
+lyText8       1
+
+In  interpreting  these  tables,   the  important  thing  to
+remember  is that a round-trip to the server (a request that
+needs a reply) is relatively expensive.  For  example,   the
+``replies''  entry in Table 1 shows that there were 3 round-
+trips, and in Table 2 they can be identified  as  being  the
+GetWindowAttributes, GetGeometry,  and QueryFont requests.
+
+This brings out an interesting point.  Where  did  the  Get-
+Geometry request come from?  The answer is that the XGetWin-
+dowAttributes() X11 library call uses both the  GetWindowAt-
+tributes  and  GetGeometry  protocol request.  It is easy to
+assume that  there  is  a  one-to-one  mapping  between  X11
+library  calls  and  protocol requests,  but this is not the
+case.  The use of XGetWindowAttributes()  in  this  ``Hello,
+World''  program  is  inefficient,  XGetGeometry() should be
+used instead.
+
+4.  Defaults
+
+This program wires-in a large number of parameters,  through
+the following statements:
+
+            bd =(WhitePixel(dpy,oDefaultScreen(dpy));T)) == NULL) {
+            fg = WhitePixel(dpy, DefaultScreen(dpy));
+            bwd==1;ORDER;
+            xsh.height = fth + pad * 2;
+            xsh.xi=t(DisplayWidth(dpy,tDefaultScreen(dpy))l-nxsh.width)+/p2; * 2;
+            xsh.y = (DisplayHeight(dpy, DefaultScreen(dpy)) - xsh.height) / 2;
+
+
+Ideally,  and certainly for any real application,  the  user
+should  be  able  to  override these wired-in defaults.  X11
+supplies a default database mechanism to address this  prob-
+lem.
+
+4.1.  Program
+
+Here is the first example, modified to use the  X11  default
+database  mechanism  to allow the user to specify values for
+all these defaults.  For each of the first group,   it  uses
+
+
+                      January 16, 1988
+
+
+
+
+
+                           - 13 -
+
+
+XGetDefault()  to obtain a string value,  and then parses it
+(using XParseColor(), or atoi()) to the required value.   In
+the  case of the window geometry values in the second group,
+X11 provides a single mechanism  (XGeometry())  to  parse  a
+string  into  some  or  all of the parameters specifying the
+geometry of a window.   To  save  space,   and  because  the
+changes to deal with defaults are restricted to a small part
+of the code,  they are presented as a context diff.
+
+        --- xhw1.c  Sun Dec  6 08:25:12 1987
+        ****5,10*******
+        --#define-STRING  "Hello, world"
+          #define FONTER  "vrb-25"
+        + #define   ARG_BORDER_COLOR  "bordercolor"
+        + #define   ARG_BACKGROUND          "background"
+        + #define ARARG_GEOMETRY      "borde"geometry"
+        + #define DEFAULT_GEOMETRY    ""
+          /* This structure forms the WM_HINTS property of the window,
+        ****29,38******
+              Windowy    *win;        /* WindoweIDc*/nection */
+              XFontStruct *fontstruct;/* GC /* Font descriptor */
+        !     unsigned long fg,,bg,dbd;* Fon/*sPixelavaluesr*/*/
+              XGCValueslongcv;;       /* Struct fortcreating GC */
+              XSizeHints  xsh;t;      /* Size*hintstforcwindow*manager */
+        --- 36Display-   *dpy;        /* X server connection */
+              GCndow      gc;;        /* GCntowdraw*with */
+        +     XFontStruct**fontstruct;/* Nam/*oFontndescriptorn*/*/
+        !     unsigned long fg,,bg,hbd;ad;/*/*oPixelzvaluesm*/ers */
+        +     chargned lo*tempstr;    /* Temporarydstring */
+        +     Colormap    cmap;;      /* Color mapptoausec*/or */
+              XEventues   event;      /* Str/*tEventcreceivedG*/*/
+        ***************s  xsh;        /* Size hints for window manager */
+        *** 51/*7 ****
+               */Load the font to use.  See Sections 10.2 & 6.5.1
+        !     fprintf(stderr, "%s:odisplayF%stdoesn'tOknow fontU%s\n",
+        !     exit(1);gv[0], DisplayString(dpy), FONT);
+              fth = fontstruct->max_bounds.ascent + fontstruct->max_bounds.descent;
+              /*
+        !      * foreground.rs for the border,  the window background,  and the
+        !     bd/= WhitePixel(dpy, DefaultScreen(dpy));
+        !     fg = WhitePixel(dpy, DefaultScreen(dpy));
+        !     /*
+               * and the edgeeofwthehwindow, "pad".,  and the gap between the text
+              pad = BORDER;
+        !     bw = 1;
+              /* Deal with providing the window with an initial position & size.
+        --- 62/*17 ----
+               */Load the font to use.  See Sections 10.2 & 6.5.1
+        !     fontNamet=aFONT;XGetDefault(dpy, argv[0], ARG_FONT)) == NULL) {
+        !     if ((fontstruct = XLoadQueryFont(dpy, fontName)) == NULL) {
+        !     fprintargv[0],,DisplayString(dpy),efontName);font %s\n",
+              }xit(1);
+        +     ftw = fontstruct->max_bounds.width; + fontstruct->max_bounds.descent;
+              /*
+
+
+
+                      January 16, 1988
+
+
+
+
+
+                           - 14 -
+
+
+        !      * foreground.rsWeousehtheodefaulttcolormapwtoaallocate,thencolors in.
+        !      */See Sections 2.2.1, 5.1.2, & 10.4.
+        !     ifa((tempstrl=CXGetDefault(dpy,aargv[0],nARG_BORDER_COLOR)) == NULL ||
+        !     XAllocColor(dpy, cmap, &color),==c0)o{) == 0 ||
+        !     }d = WhitePixel(dpy, DefaultScreen(dpy));
+        !     bds= color.pixel;
+        !     if ((tempstr = XGetDefault(dpy, argv[0], ARG_BACKGROUND)) == NULL ||
+        !     XAllocColor(dpy, cmap, &color),==c0)o{) == 0 ||
+        !     }g = BlackPixel(dpy, DefaultScreen(dpy));
+        !     bgs= color.pixel;
+        !     if ((tempstr = XGetDefault(dpy, argv[0], ARG_FOREGROUND)) == NULL ||
+        !     XAllocColor(dpy, cmap, &color),==c0)o{) == 0 ||
+        !     }g = WhitePixel(dpy, DefaultScreen(dpy));
+        !     fgs= color.pixel;
+        !     /*
+               * and the edgeeofwthehwindow, "pad".,  and the gap between the text
+              pad = BORDER;
+        !     bw =(1;mpstr = XGetDefault(dpy, argv[0], ARG_BORDER)) == NULL)
+        !     bws= atoi(tempstr);
+              /*
+        ***************ith providing the window with an initial position & size.
+        *** 78,*8Fill*out the XSizeHints struct to inform the window manager. See
+               */Sections 9.1.6 & 10.3.
+        !     xsh.height==(fths+tpad * 2;ize);
+        !     xsh.xi=t(DisplayWidth(dpy,tDefaultScreen(dpy))l-nxsh.width)+/p2; * 2;
+        !     xsh.y = (DisplayHeight(dpy, DefaultScreen(dpy)) - xsh.height) / 2;
+              /* Create the Window with the information in the XSizeHints, the
+        --- 118*1Fill-out the XSizeHints struct to inform the window manager. See
+               */Sections 9.1.6 & 10.3.
+        !     ifo(geomSpecG==DNULL)t{dpy, argv[0], ARG_GEOMETRY);
+        !     /* The defaults database doesn't contain a specification of the
+        !      * itiinatheicenterooftthe screen.he window to the text and locate
+        !     xsh.flags = (PPosition | PSize);
+        !     xsh.widtht==XTextWidth(fontstruct, STRING, strlen(STRING)) + pad * 2;
+        !     xsh.y = (DisplayHeight(dpy,DDefaultScreen(dpy))--xxsh.height) /;2;
+        !     else {
+        !     int         bitmask;
+        !     bitmaskx=hXGeometry(dpy,;DefaultScreen(dpy), geomSpec, DEFAULT_GEOMETRY,
+        !                     &(xsh.width), &(xsh.height));.x), &(xsh.y),
+        !     if (xsh.flags |=VUSPosition;ue)) {
+        !     if (bitmask & (WidthValue | HeightValue)) {
+        !     }   xsh.flags |= USSize;
+        !     }
+              /* Create the Window with the information in the XSizeHints, the
+
+
+
+4.2.  Protocol Usage
+
+Turning statistics gathering on for this  version,   we  get
+Tables  3  and  4.  The extra replies come from the mappings
+between string names and colors for the  foreground,   back-
+ground,   and  border.   These mappings could have been done
+with a single AllocNamedColor request each,   instead  of  a
+
+
+
+                      January 16, 1988
+
+
+
+
+
+                           - 15 -
+
+
+LookupColor/AllocColor  pair,   but this would not have sup-
+ported the  convention  that  colors  can  be  specified  by
+strings like ``#3a7''.
+
+center,  box;  c s c c l n.  Table 3: Aggregate Statistics -
+Defaults    _    Statistic       Value    _    number     of
+writes        10  number  of  reads 24  bytes  written   504
+bytes read      1928 number of  requests      22  number  of
+errors        0  number  of  events        1  number  of re-
+plies       9
+
+
+center, box; c s c c l n.  Table 4: Usage of Requests -  De-
+faults  _  Request Count _ CreateWindow    1 ChangeWindowAt-
+tributes  2 GetWindowAttributes     1 MapWindow       1 Get-
+Geometry     1      ChangeProperty  5      OpenFont        1
+QueryFont       1  CreateGC        1  CleaarArea      1  Po-
+lyText8       1 AllocColor      3 LookupColor     3
+
+
+5.  The Toolkit
+
+Examining the preceding examples,  anyone would  admit  that
+the  basic  X11  library  fails  the ``Hello,  World'' test.
+Even the simplest ``Hello,  World'' client takes 40  execut-
+able  statements,   and  25  calls  through  the X11 library
+interface.
+
+All is not lost,  however.  It was never intended that  nor-
+mal applications programmers would use the basic X11 library
+interface.  An analogy is that very few UNIX programmers use
+the  raw  system  call  interface,   they almost all use the
+higher-level ``Standard I/O Library'' interface.  The canon-
+ical ``Hello,  World'' program is an example.
+
+The X11 distribution  includes  a  user  interface  toolkit,
+intended  to provide a more congenial environment for appli-
+cations development in exactly the same way that stdio  does
+for  vanilla UNIX.  Using this toolkit,  the following exam-
+ple shows that X11 can pass the ``Hello,  World'' test  with
+ease.
+
+5.1.  Program Outline
+
+The outline of the program is:
+
++  Create the top level Widget that represents the toolkit's
+   view of the (top-level) window.
+
++  Create a Label Widget to display the string,  over-riding
+   the  defaults  database  to  set the Label's value to the
+   string to display.
+
++  Tell the top level  Widget  to  display  the  label,   by
+
+
+
+                      January 16, 1988
+
+
+
+
+
+                           - 16 -
+
+
+   adding it to the top level Widget's managed list.
+
++  Realize the top level  Widget  (and  therefore  its  sub-
+   Widgets).   This  process  creates an X11 window for each
+   Widget,  setting its attributes  from  the  data  in  the
+   Widget.
+
++  Loop forever,  processing the events that appear.
+
+5.2.  Program Text
+
+
+        #include <X11/Xlib.h>
+        #include <X11/Atoms.h>c.h>
+        #include <X11/Label.h>
+        #define     STRING      "Hello,  World"
+        Arg XtNlabel, {   (XtArgVal) STRING,
+        };
+        mainintgargc;gv)
+        {   char **argv;
+            Widget      toplevel, label;
+            /* Create the Widget that represents the window.
+             */See Section 14 of the Toolkit manual.
+            toplevel = XtInitialize(argv[0], "XLabel", NULL, 0, &argc, argv);
+            /* Create a Widget to display the string,  using wargs to set
+             */the string as its value.  See Section 9.1.
+            label = XtCreateWtoplevel,vwargs,aXtNumber(wargs));
+            /*
+             */Tell the toplevel widget to display the label.  See Section 13.5.2.
+            XtManageChild(label);
+            /* Create the windows,  and set their attributes according
+             */to the Widget data.  See Section 9.2.
+            XtRealizeWidget(toplevel);
+            /* Now process the events.  See Section 16.6.2.
+            XtMainLoop();
+        }
+
+
+5.3.  Does it meet the specification?
+
+This  implementation  of  ``Hello,   World''  fulfills   the
+specification:
+
++  The window is sized as a result of the geometry  negotia-
+   tion between the top level Widget and its sub-Widgets (in
+   this case the label),  so that by default the  window  is
+   sized to fit the text.
+
++  The default attributes for the Label Widget specify  that
+   the  text is centered, and the default mechanism supplies
+   a suitable font.
+
++  In the same way,  the default  mechanism  supplies  back-
+   ground and foreground colors for the Widget.
+
+
+
+                      January 16, 1988
+
+
+
+
+
+                           - 17 -
+
+
++  The toolkit manages all Expose events,  routing  them  to
+   appropriate   Widgets.    Thus,    the   program  behaves
+   correctly for exposure.
+
++  The Label Widget recomputes the  centering  of  the  text
+   whenever  it  is being painted,  so that resizing is han-
+   dled correctly.
+
++  The toolkit handles communicating with the window manager
+   about  icon properties,  so that iconification is handled
+   correctly.
+
+5.4.  Design Issues
+
+Note that this implementation isn't merely much shorter than
+the  earlier examples.  It has an additional useful feature,
+in that any or all the values from the default database used
+by  the program can be overridden by command line arguments.
+XtInitialize()  parses  the  command  line  and  merges  any
+specifiers it finds there with the defaults database.
+
+The toolkit also provides peace of mind  by  organizing  the
+error  handling  correctly.   Although  the documentation of
+error handling in the toolkit manual is sparse,  experiments
+seem  to show that the implementation is satisfactory,  pro-
+viding intelligible messages and sensible behaviour.
+
+5.5.  Protocol Usage
+
+Turning statistics gathering  on  for  the  toolkit  version
+gives Tables 5 and 6.
+
+center,  box;  c s c c l n.  Table 5: Aggregate Statistics -
+Toolkit _ Statistic       Value _ number of writes        11
+number  of reads 25 bytes written   832 bytes read      2012
+number of requests      29 number of errors        0  number
+of events        4 number of replies       9
+
+
+center, box; c s c c l n.  Table  6:  Usage  of  Requests  -
+Toolkit   _   Request Count   _   CreateWindow    2  MapWin-
+dow       1  MapSubwindows   1  ConfigureWindow 1   InternA-
+tom      2        ChangeProperty  5        OpenFont        1
+QueryFont       1    CreatePixmap    3     CreateGC        3
+FreeGC  1    PutImage        1    PolyText8       1   Alloc-
+Color      3 LookupColor     3
+
+
+These tables reveal that:
+
++  Use of the  toolkit  does  not  result  in  significantly
+   greater protocol traffic.
+
++  The toolkit  does  not  use  GetWindowAttributes  or  Get
+
+
+
+                      January 16, 1988
+
+
+
+
+
+                           - 18 -
+
+
+   Geometry.
+    Its repaint and resize strategies use the information in
+   Expose  and  ConfigureNotify  events,   and don't require
+   round-trips.
+
+To compare the performance of the toolkit and  vanilla  ver-
+sions,  we can contrast the cost of being resized by the uwm
+window manager.  This is more meaningful than the total cost
+since  startup,   since in general window system clients are
+well advised to invest  extra  effort  in  startup  code  to
+improve response to interactions.
+
+center,  box;  c  s  s c c c l n n.  Table 7: Cost of resize
+with   uwm   _   Item    Vanilla Toolkit   _    number    of
+writes        6       4   number  of  reads 15      4  bytes
+written   128     112 bytes read      248     160 number  of
+requests      8       4  number  of  events        3       5
+number   of   replies       4       0   _    GetWindowAttri-
+butes     2       0  GetGeometry     2       0 ConfigureWin-
+dow 0       1         ClearArea       2       0          Po-
+lyText8       2       3
+
+
+Table 7 shows that the simplistic repaint and  resize  stra-
+tegies  of  the  Vanilla  version cost significantly more in
+terms of the number of round-trips (4 vs. 0) and the  amount
+of data transferred (344 vs. 272)5.
+
+6.  Conclusions
+
+These examples  demonstrate  that  programming  applications
+using only the basic X library interface is even more diffi-
+cult and  unrewarding  than  programming  UNIX  applications
+using only the system call interface.
+
+Observing  the  usage  of  X11  protocol  requests  gives  a
+server-independent  measure of X11 client performance.  This
+can be a useful tool in debugging and performance-tuning X11
+clients,  the more so in that the performance of interactive
+clients is likely to be dominated by the  number  of  round-
+trips per interaction.
+
+Just as  anyone  considering  developing  UNIX  applications
+should use stdio, anyone considering developing X11 applica-
+tions should use a toolkit.  There is (at least) one in  the
+distribution,   and others are available from other sources.
+Using a toolkit,  you can expect:
+
++  isolation from complex and,  as  yet,   undecided  design
+_________________________
+5  The reasons why resizing with uwm results in several
+events  are  too complex to go into here (i.e. both uwm
+and the server have bugs).
+
+
+
+
+                      January 16, 1988
+
+
+
+
+
+                           - 19 -
+
+
+   issues about the  interaction  between  X11  clients  and
+   their environment,
+
++  competitive performance,  at least in terms  of  protocol
+   usage,
+
++  and much less verbose and more maintainable source code.
+
+In the case of ``Hello,  World'',  a  client  that  took  40
+executable statements to program using the basic X11 library
+took 5 statements to program using the X11 toolkit.  And the
+toolkit  version  had  more functionality and better repaint
+performance than a library version with 60 statements.
+
+Acknowledgements
+
+Richard Johnson posted  the  first  attempt  at  a  ``Hello,
+World''  program for X11 to the xpert mail list.  This,  and
+Ellis Cohen's praiseworthy attempts to write up the  conven-
+tions needed for communicating between applications and win-
+dow managers, inspired me  to  try  to  write  the  ``Hello,
+World'' program right.
+
+Jim Gettys,  Bob Scheifler,  & Mark Opperman all  identified
+bugs  and  suggested  fixes  in  the  Vanilla  version.  The
+toolkit version is derived from lib/Xtk/clients/xlabel.
+
+Appendix:  ANSI C Hello World
+
+
+        #include <stdio.h>
+        {ain()
+            exitd(0);intf("Hello, World\n");
+        }
+
+
++  ANSI C specifies that  printf()  returns  the  number  of
+   characters printed.
+
++  It is necessary  to  exit()  or  return()  a  value  from
+   main().
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                      January 16, 1988
+
+

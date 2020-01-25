@@ -1,0 +1,17 @@
+.TH XTextWidth 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XTextWidth, XTextWidth16 \- compute text width
+.SH SYNTAX
+.so ../Xsrc/XTextWidth.f
+.LP
+.so ../Xsrc/XTextWidth16.f
+.SH ARGUMENTS
+.so ../Xsrc/count.a
+.so ../Xsrc/ptr_width.a
+.so ../Xsrc/string.a
+.SH DESCRIPTION
+.so ../Xdescrip/XTextWidth.d
+.SH "SEE ALSO"
+XTextExtents(3X)
+.br
+\fIXlib \- C Language X Interface\fP

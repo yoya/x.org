@@ -1,0 +1,2937 @@
+.\".U7
+.\".UT "Graphics Functions" 6
+\&
+.sp 1
+.ce 3
+\s+1\fBChapter 6\fP\s-1
+
+\s+1\fBGraphics Functions\fP\s-1
+.sp 2
+.nr H1 6
+.nr H2 0
+.nr H3 0
+.nr H4 0
+.nr H5 0
+.na
+.LP
+.XS
+Chapter 6: Graphics Functions 
+.XE
+Once you have connected the display to the X server,
+you can use the Xlib graphics functions to:
+.IP \(bu 5
+Clear and copy areas
+.IP \(bu 5
+Draw points, lines, rectangles, and arcs
+.IP \(bu 5
+Fill areas
+.IP \(bu 5
+Manipulate fonts
+.IP \(bu 5
+Draw text
+.IP \(bu 5
+Transfer images between clients and server
+.IP \(bu 5
+Manipulate cursors
+.RE
+.LP
+If the same drawable and GC is used for each call,
+Xlib batches back-to-back calls to
+.PN XDrawPoint ,
+.PN XDrawLine ,
+.PN XDrawRectangle ,
+.PN XFillArc ,
+and
+.PN XFillRectangle .
+.NH 2
+Clearing Areas
+.XS
+\*(SN Clearing Areas 
+.XE
+.LP
+Xlib provides functions with which you can clear an area or the entire drawable.
+Because pixmaps do not have defined backgrounds, 
+they cannot be filled by using the functions described in this section.
+Instead, to accomplish an analogous operation on a pixmap,
+you should use 
+.PN XFillRectangle ,
+which sets the pixmap to a known value.
+See Section 6.4.1 for information on
+.PN XFillRectangle .
+.LP
+.sp
+To clear a specified rectangular area of the specified window, use
+.PN XClearArea .
+.IN "Clearing" "Area"
+.IN "XClearArea" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XClearArea.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/xy.a
+These coordinates are relative to the origin of the window and
+specify the upper left corner of the rectangle.
+.so ./Xsrc/widtheight.a
+These are the dimensions of the rectangle to be cleared.
+.so ./Xsrc/exposures.a
+.LP
+.so ./Xdescrip/XClearArea.d
+If width is zero, it
+is replaced with the current width of the window minus x.
+If height is
+zero, it is replaced with the current height of the window minus y.
+If the window has a defined background tile, 
+the rectangle is filled with this tile.
+If the window has
+background 
+.PN None , 
+the contents of the window are not changed.  
+In either
+case, if exposures is 
+.PN True , 
+one or more exposure events are
+generated for regions of the rectangle that are either visible or are
+being retained in a backing store.
+A
+.PN BadMatch
+error is generated if you specify a window whose class is
+.PN InputOnly . 
+.LP
+.ds fd .PN XClearArea
+.so ./Xsrc/errsent.com
+.PN BadMatch ,
+.PN BadValue ,
+and
+.PN BadWindow 
+errors.
+.LP
+.sp
+To clear the entire area in the specified window, use
+.PN XClearWindow .
+.IN "Clearing" "Window"
+.IN "XClearWindow" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XClear.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.LP
+.so ./Xdescrip/XClear.d
+If the window has a defined background tile, the rectangle is tiled with a
+plane-mask of all ones and function of 
+.PN GXcopy .
+If the window has
+background 
+.PN None , 
+the contents of the window are not changed.  
+A
+.PN BadMatch
+error is generated if you specify a window whose class is
+.PN InputOnly . 
+.LP
+.ds fd .PN XClearWindow
+.so ./Xsrc/errsent.com
+.PN BadMatch ,
+.PN BadValue ,
+and
+.PN BadWindow 
+errors.
+.NH 2
+Copying Areas
+.XS
+\*(SN Copying Areas 
+.XE
+.LP
+Xlib provides functions with which you can copy an area or a bit-plane.
+.LP
+.sp
+To copy an area of the specified drawable between drawables of the same
+root and depth, use
+.PN XCopyArea .
+.IN "Copying" "Area"
+.IN "XCopyArea" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XCopyArea.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/srcdest.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/srcxy.a
+.so ./Xsrc/widtheight.a
+These are the dimensions of both the source and destination rectangles.
+.so ./Xsrc/destxy1.a
+.LP
+.so ./Xdescrip/XCopyArea.d
+The rectangles specified by these two arguments must have the same root 
+and depth.
+Otherwise, 
+.PN XCopyArea
+generates a
+.PN BadMatch
+error.
+.PN XCopyArea 
+uses these graphics context components: function, plane_mask, 
+subwindow_mode, graphics_exposures, clip_x_origin,
+clip_y_origin, and clip_mask.
+.LP
+If either the regions of the source rectangle are obscured and have not been
+retained in backing store or the regions outside the boundaries of the
+source drawable are specified, those regions are not copied. 
+Instead, the 
+following occurs on all corresponding destination regions that are either
+visible or are retained in backing store.  
+If the destination rectangle is a
+window with a background other than 
+.PN None , 
+these corresponding regions
+of the destination are tiled (with plane_mask of all ones and
+function 
+.PN GXcopy ) 
+with that background.
+Regardless of tiling or whether the destination is a window or a pixmap,
+if graphics_exposures is 
+.PN True ,
+then
+.PN GraphicsExpose
+events for all corresponding destination regions are generated.
+If graphics_exposures is 
+.PN True 
+but no regions are exposed, a
+.PN NoExpose 
+event is generated.
+Note that by default, graphics_exposures is
+.PN True
+on in new GCs.
+See Chapter 8
+for further information.
+.LP
+.ds fd .PN XCopyArea
+.so ./Xsrc/errsent.com
+.PN BadDrawable ,
+.PN BadGC ,
+and
+.PN BadMatch 
+errors.
+.sp
+.LP
+To copy a single bit-plane of the specified drawable, use
+.PN XCopyPlane .
+The drawable may have different depths.
+.IN "Copying" "Plane"
+.IN "XCopyPlane" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XCopyPlane.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/srcdest.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/srcxy.a
+.so ./Xsrc/widtheight.a
+These are the dimensions of both the source and destination rectangles.
+.so ./Xsrc/destxy1.a
+.so ./Xsrc/plane.a
+.LP
+.so ./Xdescrip/XCopyPlane.d
+The rectangles specified by these two arguments must have the same root
+but need not have the same depth.
+If the rectangles do not have the same root, a
+.PN BadMatch
+error is generated.
+This function is identical to 
+.PN XCopyArea , 
+except that only one bit-plane is copied.
+If plane does not have exactly one bit set, a
+.PN BadValue
+error is generated.
+.LP
+Effectively, the function forms a pixmap of the same depth as 
+the rectangle of dest and with a
+size specified by the source region. 
+The function uses 
+the foreground/background pixels in the graphics context (foreground
+everywhere the bit-plane in src contains a one bit, background everywhere the
+bit-plane in src contains a zero bit)
+and the equivalent of a 
+.PN XCopyArea 
+request is performed with all the same exposure semantics.
+This can also be thought of as using the specified region of the source bit-plane
+as a stipple with a fill_style of
+.PN FillOpaqueStippled
+for filling a rectangular area of the destination.
+.LP
+.PN XCopyPlane 
+uses these graphics context components: function, plane_mask, foreground,
+background, subwindow_mode, graphics_exposures, clip_x_origin, clip_y_origin, and
+clip_mask.
+.LP
+.ds fd .PN XCopyPlane
+.so ./Xsrc/errsent.com
+.PN BadDrawable ,
+.PN BadGC ,
+.PN BadMatch ,
+and 
+.PN BadValue 
+errors.
+.NH 2
+Drawing Points, Lines, Rectangles, and Arcs
+.XS
+\*(SN Drawing Points, Lines, Rectangles, and Arcs 
+.XE
+.LP
+Xlib provides functions with which you can draw:
+.IP \(bu 5
+A single point or multiple points
+.IP \(bu 5
+A single line or multiple lines
+.IP \(bu 5
+A single rectangle or multiple rectangles
+.IP \(bu 5
+A single arc or multiple arcs
+.LP
+Some of the functions described in the following subsections
+use these structures:
+.LP
+.Ds 0
+.TA .5i
+.ta .5i
+typedef struct {
+	short x1, y1, x2, y2;
+} XSegment;
+.De
+.IN "XSegment" "" @DEF@"
+.Ds 0
+.TA .5i
+.ta .5i
+typedef struct {
+	short x, y;
+} XPoint;
+.De
+.IN "XPoint" "" @DEF@"
+.Ds 0
+.TA .5i
+.ta .5i
+typedef struct {
+	short x, y;
+	unsigned short width, height;
+} XRectangle;
+.De
+.IN "XRectangle" "" @DEF@"
+.Ds 0
+.TA .5i 3i
+.ta .5i 3i
+typedef struct {
+	short x, y;
+	unsigned short width, height;
+	short angle1, angle2;             /* Degrees * 64 */
+} XArc;
+.De
+.IN "XArc" "" @DEF@"
+All x and y members are signed integers.
+The width and height members are 16-bit unsigned integers.
+Applications should be careful not to generate coordinates and sizes
+out of the 16-bit ranges, as the protocol only has 16 bit fields
+for these values.
+.NH 3
+Drawing Single and Multiple Points
+.XS
+\*(SN Drawing Single and Multiple Points 
+.XE
+.LP
+.IN "Drawing" "Points"
+.IN "XDrawPoints"
+.IN "XDrawPoint"
+.LP
+To draw a single point in the specified drawable, use
+.PN XDrawPoint .
+.IN "XDrawPoint" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XPoint.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/xy_point.a
+.LP
+.sp
+To draw multiple points in the specified drawable, use
+.PN XDrawPoints .
+.IN "XDrawPoints" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XPoints.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/points.a
+.so ./Xsrc/npoints.a
+.so ./Xsrc/mode.a
+.LP
+The
+.PN XDrawPoint
+and
+.PN XDrawPoints
+functions use
+these graphics context components: function, plane_mask,
+foreground, subwindow_mode,
+clip_x_origin, clip_y_origin, and clip_mask.
+.so ./Xdescrip/XPoint.d
+.LP
+When using
+.PN XDrawPoint ,
+you simply specify the x and y coordinates where you want the point drawn.
+For
+.PN XDrawPoints ,
+you specify an array of
+.PN XPoint
+structures, each of which contains an x and y coordinate.
+.PN XDrawPoints
+draws the points in the order listed in the array.
+.LP
+.PN XDrawPoints
+requires a mode argument that indicates whether the points
+are relative to the drawable's origin or to the previous point:
+.IP \(bu 5
+If mode is
+.PN CoordModeOrigin , 
+all points after the first are relative to the 
+drawable's origin. 
+(The first point is always relative to the drawable's origin.)
+.IP \(bu 5
+If mode is
+.PN CoordModePrevious , 
+all points after the first are relative to
+the previous point.
+.LP
+.ds fd .PN XDrawPoint
+.so ./Xsrc/errsent.com
+.PN BadDrawable ,
+.PN BadGC ,
+and 
+.PN BadMatch 
+errors.
+.ds fe .PN XDrawPoints
+.so ./Xsrc/errsent.com
+.PN BadDrawable ,
+.PN BadGC ,
+.PN BadMatch ,
+and
+.PN BadValue 
+errors.
+.NH 3
+Drawing Single and Multiple Lines
+.XS
+\*(SN Drawing Single and Multiple Lines
+.XE
+.LP
+.IN "Drawing" "Lines"
+.IN "XDrawLine"
+.IN "Line" "Drawing"
+.IN "XDrawLines"
+.IN "Line" "Drawing"
+.IN "Polygon" "Drawing"
+.IN "XDrawSegments"
+.IN "Line" "Drawing"
+.LP
+To draw a single line between two points in the specified drawable, use
+.PN XDrawLine .
+.IN "XDrawLine" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XLine.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/x1y1x2y2.a
+.LP
+.sp
+To draw multiple lines in the specified drawable, use
+.PN XDrawLines .
+.IN "XDrawLines" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XLines.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/points.a
+.so ./Xsrc/npoints.a
+.so ./Xsrc/mode.a
+.LP
+.sp
+To draw multiple but not necessarily connected lines in the specified drawable,
+use
+.PN XDrawSegments .
+.IN "XDrawSegments" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSegments.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/segments.a
+.so ./Xsrc/nsegments.a
+.LP
+The
+.PN XDrawLine
+function uses the components of the specified graphics context to
+draw a line between the specified set of points (x1, y1 and x2, y2).
+No joining is performed at coincident end points.
+For any given line, no pixel is drawn more than once.
+If lines intersect, the intersecting pixels are drawn multiple times.  
+.LP
+The
+.PN XDrawLines
+function uses the components of the specified graphics context to draw 
+npoints-1 lines between each pair of points (point[i], point[i+1]) 
+in the array of
+.PN XPoint
+structures.
+The lines are drawn in the order listed in the array.
+The lines join correctly at all intermediate points, and if the first and last
+points coincide, the first and last lines also join correctly.
+For any given line, no pixel is drawn more than once.
+If thin (zero line width) lines intersect, the intersecting pixels
+will be drawn multiple times.
+If wide lines intersect, the intersecting pixels are drawn only once, as though
+the entire PolyLine were a single filled shape.
+.PN XDrawLines
+requires a mode argument to determine whether the points are relative to the
+drawable's origin or to the previous point: 
+.IP \(bu 5
+If mode is
+.PN CoordModeOrigin , 
+all points after the first are relative to the 
+drawable's origin.
+(The first point is always relative to the drawable's origin.)
+.IP \(bu 5
+If mode is
+.PN CoordModePrevious , 
+all points after the first are relative to
+the previous point. 
+.LP
+The
+.PN XDrawSegments 
+function draws multiple, but not necessarily connected lines. 
+For each segment, 
+.PN XDrawSegments 
+draws a
+line between (x1, y1) and (x2, y2).
+The lines are drawn in the order
+listed in the array of
+.PN XSegment
+structures.  
+No joining is performed at coincident end points.
+For any given line, no pixel is drawn more than once.  
+If lines intersect, the intersecting pixels are drawn multiple times.  
+.LP
+All three
+functions use these graphics context components:
+function, plane_mask, line_width,
+line_style, cap_style, fill_style, subwindow_mode,
+clip_x_origin, clip_y_origin, and clip_mask.
+The
+.PN XDrawLines
+function also uses the join_style graphics context component.
+All three functions use these graphics context mode-dependent components:
+foreground, background,
+tile, stipple, ts_x_origin, ts_y_origin, dash_offset, and
+dash_list.
+See the general discussion under 
+.PN XCreateGC
+in Section 5.3.
+.LP
+.ds fd .PN XDrawLine
+.ds fe .PN XDrawLines
+.ds ff .PN XDrawSegments
+.so ./Xsrc/errsent5.com
+.PN BadDrawable ,
+.PN BadGC ,
+and
+.PN BadMatch 
+errors.
+.PN XDrawLines
+can also return
+.PN BadValue 
+errors.
+.NH 3
+Drawing Single and Multiple Rectangles 
+.XS
+\*(SN Drawing Single and Multiple Rectangles 
+.XE
+.LP
+.IN "Drawing" "Rectangles"
+.IN "XDrawRectangle"
+.IN "Rectangle" "Drawing"
+.IN "XDrawRectangles"
+.IN "Rectangle" "Drawing"
+.LP
+To draw the outline of a single rectangle in the specified drawable, use
+.PN XDrawRectangle .
+.IN "XDrawRectangle" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XRectangle.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/xy_rect.a
+.so ./Xsrc/widtheight4.a
+.LP
+.sp
+To draw the outline of multiple rectangles
+in the specified drawable, use
+.PN XDrawRectangles .
+.IN "XDrawRectangles" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XRectangles.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/rectangles.a
+.so ./Xsrc/nrectangles.a
+.LP
+.so ./Xdescrip/XRectangle.d
+.LP 
+For the specified rectangle or rectangles, no pixel is drawn more than once.
+The x and y coordinates of each rectangle are relative to the drawable's
+origin and define the upper left corner of the rectangle. 
+.PN XDrawRectangles
+draws the rectangles in the order listed in the array.
+If rectangles intersect,
+the intersecting pixels are drawn multiple times.
+.LP
+.PN XDrawRectangle
+and
+.PN XDrawRectangles
+use these graphics context components: function, plane_mask, line_width,
+line_style, join_style, fill_style, subwindow_mode,
+clip_x_origin, clip_y_origin, and clip_mask.
+Both functions
+also use these graphics context mode-dependent components: foreground, 
+background, tile, stipple, ts_x_origin, ts_y_origin, dash_offset, 
+and dash_list.
+See the general discussion under
+.PN XCreateGC
+in Chapter 5.
+.LP
+.ds fd .PN XDrawRectangle
+.ds fe .PN XDrawRectangles
+.so ./Xsrc/errsent3.com
+.PN BadDrawable ,
+.PN BadGC ,
+and
+.PN BadMatch 
+errors.
+.NH 3
+Drawing Single and Multiple Arcs
+.XS
+\*(SN Drawing Single and Multiple Arcs 
+.XE
+.LP
+.IN "Drawing" "Arcs"
+.IN "XDrawArc"
+.IN "Arcs" "Drawing"
+.IN "XDrawArcs"
+.IN "Arcs" "Drawing"
+.LP
+.sp
+To draw a single arc in the specified drawable, use
+.PN XDrawArc .
+.IN "XDrawArc" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XArc.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/xy.a
+These are the coordinates of the arc and are relative to the origin of the
+drawable.
+These coordinates also specify the upper left corner of the rectangle.
+.so ./Xsrc/widtheight.a
+These are the major and minor axes of the arc.
+.so ./Xsrc/angle1.a
+.so ./Xsrc/angle2.a
+.LP
+.sp
+To draw multiple arcs in the specified drawable, use
+.PN XDrawArcs .
+.IN "XDrawArcs" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XArcs.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/arcs.a
+.so ./Xsrc/narcs.a
+.LP
+.so ./Xdescrip/XArc.d
+Each arc is specified by a
+rectangle and two angles.  
+The x and y coordinates are relative to the
+origin of the drawable and define the upper left corner of the
+rectangle.  
+The center of the circle or ellipse is the center of the
+rectangle, and the major and minor axes are specified by the width and
+height, respectively.  
+The angles are signed integers in degrees scaled
+by 64 with positive indicating counterclockwise motion and negative
+indicating clockwise motion.  
+The start of the arc is specified by
+angle1 relative to the three-o-clock position from the center of the
+rectangle, and the
+path and extent of the arc are specified by angle2 relative to the start
+of the arc.
+If the magnitude of angle2 is greater than 360 degrees, 
+.PN XDrawArc
+or 
+.PN XDrawArcs
+truncates
+it to 360 degrees.
+.LP
+The x and y coordinates of the rectangle are relative to the origin of the
+drawable.
+For an arc specified as [x,y,w,h,a1,a2], the origin of the major and minor
+axes is at [x+(w/2),y+(h/2)], and the infinitely thin path describing the
+entire circle or ellipse intersects the
+horizontal axis at [x,y+(h/2)] and [x+w,y+(h/2)] and intersects the
+vertical axis at [x+(w/2),y] and [x+(w/2),y+h].
+These coordinates can
+be fractional. 
+That is, they are not truncated to discrete coordinates.
+The path should be defined by the ideal mathematical path.  
+For a wide line with line-width lw, 
+the bounding outlines for filling are given        
+by the infinitely thin paths describing the arcs:
+.LP
+.Ds
+[x+dx/2,y+dy/2,w-dx,h-dy,a1,a2]
+.sp 6p
+        and
+.sp 6p
+[x-lw/2,y-lw/2,w+lw,h+lw,a1,a2]
+.sp 6p
+        where
+.sp 6p
+dx=min(lw,w)
+dy=min(lw,h)
+.De
+.LP
+For an arc specified as [x,y,w,h,a1,a2], the angles must be specified
+in the effectively skewed coordinate system of the ellipse (for a
+circle, the angles and coordinate systems are identical).  The
+relationship between these angles and angles expressed in the normal
+coordinate system of the screen (as measured with a protractor) is as
+follows:
+.LP
+.Ds
+skewed-angle = atan(tan(normal-angle) * w/h) + adjust
+.De
+The skewed-angle and normal-angle are expressed in radians (rather
+than in degrees scaled by 64) in the range [0,2*PI), and where atan
+returns a value in the range [-PI/2,PI/2], and where adjust is:
+.LP
+.Ds
+0        for normal-angle in the range [0,PI/2)
+PI       for normal-angle in the range [PI/2,(3*PI)/2)
+2*PI     for normal-angle in the range [(3*PI)/2,2*PI)
+.De
+.LP
+In the case of
+.PN XDrawArc ,
+you simply specify a single arc.
+For
+.PN XDrawArcs ,
+you specify an array of
+.PN XArc
+structures, each of which contains an arc's x and y coordinates, 
+width and height, start position, and path and extent.
+.PN XDrawArcs
+draws
+the arcs in the order listed in the array.  
+For any given arc, 
+no pixel is
+drawn more than once.  
+If two arcs join correctly and if the line_width is greater than zero and the arcs
+intersect, no pixel is drawn more than once.
+Otherwise, 
+the intersecting pixels of intersecting arcs are drawn multiple times.
+Specifying an arc with one endpoint and a clockwise extent draws the same pixels
+as specifying the other endpoint and an equivalent counterclockwise extent,
+except as it affects joins.
+.LP
+If the last point in one arc coincides with the first point in
+the following arc, the two arcs will join correctly.  
+If the first
+point in the first arc coincides with the last point in the last arc,
+the two arcs will join correctly.
+By specifying one axis to be zero, a horizontal or vertical line can be
+drawn.
+Angles are computed based solely on the coordinate system and ignore the
+aspect ratio.
+.LP
+.PN XDrawArc
+and
+.PN XDrawArcs
+use these graphics context components: function, plane_mask, line_width,
+line_style, cap_style, join_style, fill_style, subwindow_mode,
+clip_x_origin, clip_y_origin, and clip_mask.
+Both functions
+also use these graphics context mode-dependent components: foreground, 
+background, tile, stipple, ts_x_origin, ts_y_origin, dash_offset, and dash_list.
+.LP
+.ds fd .PN XDrawArc
+.ds fe .PN XDrawArcs
+.so ./Xsrc/errsent3.com
+.PN BadDrawable ,
+.PN BadGC ,
+and
+.PN BadMatch 
+errors.
+.NH 2
+Filling Areas
+.XS
+\*(SN Filling Areas 
+.XE
+.LP
+Xlib provides functions with which you can fill:
+.IP \(bu 5
+A single rectangle or multiple rectangles
+.IP \(bu 5
+A single polygon
+.IP \(bu 5
+A single arc or multiple arcs
+.NH 3
+Filling Single and Multiple Rectangles
+.XS
+\*(SN Filling Single and Multiple Rectangles 
+.XE
+.LP
+.IN "Filling" "Rectangles"
+.IN "XFillRectangle"
+.IN "Rectangle" "Filling"
+.IN "Filling" "Rectangle"
+.IN "XFillRectangles"
+.IN "Rectangle" "Filling"
+.IN "Filling" "Rectangle"
+.LP
+.sp
+To fill a single rectangular area in the specified drawable, use
+.PN XFillRectangle .
+.IN "XFillRectangle" "" "@DEF@"
+.FD 0 
+.so ./Xsrc/XFillRect.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/xy.a
+These coordinates are relative to the origin of the drawable and
+specify the upper left corner of the rectangle.
+.so ./Xsrc/widtheight.a
+These are the dimensions of the rectangle to be filled.
+.LP
+.sp
+To fill multiple rectangular areas in the specified drawable, use
+.PN XFillRectangles .
+.IN "XFillRectangles" "" "@DEF@"
+.FD 0 
+.so ./Xsrc/XFillRects.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/rectangles.a
+.so ./Xsrc/nrectangles.a
+.LP
+.so ./Xdescrip/XFillRect.d
+.LP
+Each function uses 
+the x and y coordinates,
+width and height dimensions, and graphics context you specify.
+Both functions use these graphics context components: 
+function, plane_mask, fill_style,
+subwindow_mode, clip_x_origin, clip_y_origin, and clip_mask.
+The two functions
+also use these graphics context mode_dependent components: foreground, 
+background, tile, stipple, ts_x_origin, and ts_y_origin.
+.LP
+In the case of
+.PN XFillRectangle ,
+you simply specify a single rectangle to be filled.
+For
+.PN XFillRectangles ,
+you specify an array of
+.PN XRectangle
+structures, each of which contains a rectangle's x and y coordinates
+and width and height. 
+.PN XFillRectangles
+fills
+the rectangles in the order listed in the array.  
+The x and y coordinates of each
+rectangle are relative to the drawable's origin and define the upper
+left corner of the rectangle.
+For any given rectangle,
+no pixel is drawn more than once.  
+If rectangles intersect, the intersecting pixels are
+drawn multiple times.
+.LP
+.ds fd .PN XFillRectangle
+.ds fe .PN XFillRectangles
+.so ./Xsrc/errsent3.com
+.PN BadDrawable ,
+.PN BadGC ,
+and
+.PN BadMatch 
+errors.
+.NH 3
+Filling a Single Polygon
+.XS
+\*(SN Filling a Single Polygon 
+.XE
+.LP
+.sp
+To fill a polygon area in the specified drawable, use
+.PN XFillPolygon .
+.IN "Filling" "Polygon"
+.IN "XFillPolygon" "" "@DEF@"
+.FD 0 
+.so ./Xsrc/XFillPoly.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/points.a
+.so ./Xsrc/npoints.a
+.so ./Xsrc/shape.a
+.so ./Xsrc/mode.a
+.LP
+The
+.PN XFillPolygon 
+function uses these graphics context components when filling the polygon area: function, 
+plane_mask, fill_style, fill_rule, subwindow_mode, clip_x_origin, clip_y_origin, and
+clip_mask.
+This function also uses these graphics context mode_dependent components: foreground, 
+tile, stipple, ts_x_origin, and ts_y_origin.
+.PN XFillPolygon 
+fills the region closed by the specified path.
+The path is closed
+automatically if the last point in the list does not coincide with the
+first point.
+No pixel of the region is drawn more than once.
+.LP
+.PN XFillPolygon
+requires a mode argument to determine whether the points are relative to the
+drawable's origin or to the previous point: 
+.IP \(bu 5
+If mode is
+.PN CoordModeOrigin , 
+all points after the first are relative to the 
+drawable's origin.
+(The first point is always relative to the drawable's origin.)
+.IP \(bu 5
+If mode is
+.PN CoordModePrevious , 
+all points after the first are relative to
+the previous point. 
+.LP
+.PN XFillPolygon
+also requires a shape argument: 
+.IP \(bu 5
+If shape is
+.PN Complex , 
+the path may self-intersect. 
+.IP \(bu 5
+If shape is
+.PN Nonconvex , 
+the path does not self-intersect, but the shape is not
+wholly convex. 
+If known by the client, 
+specifying 
+.PN Nonconvex 
+instead of
+.PN Complex 
+may improve performance.  
+If you specify
+.PN Nonconvex 
+for a self-intersecting path, the graphics results are undefined.
+.IP \(bu 5
+If shape is
+.PN Convex , 
+the path is wholly convex. 
+If known by the client,
+specifying 
+.PN Convex 
+can improve performance.  
+If you specify
+.PN Convex 
+for a path that is not convex, the graphics results are undefined.
+.LP
+The fill_rule member of the GC controls the filling behavior of 
+self-intersecting polygons.
+.LP
+.ds fd .PN XFillPolygon
+.so ./Xsrc/errsent.com
+.PN BadDrawable ,
+.PN BadGC ,
+.PN BadMatch ,
+and
+.PN BadValue 
+errors.
+.NH 3
+Filling Single and Multiple Arcs
+.XS
+\*(SN Filling Single and Multiple Arcs 
+.XE
+.LP
+.IN "XFillArc"
+.IN "Arcs" "Filling"
+.IN "Filling" "Arc"
+.IN "Arcs" "Filling"
+.IN "Filling" "Arcs"
+To fill a single arc in the specified drawable, use
+.PN XFillArc .
+.IN "XFillArc" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XFillArc.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/xy.a
+These coordinates are relative to the origin of the drawable and
+specify the upper left corner of the rectangle.
+.so ./Xsrc/widtheight.a
+These are the major and minor axes of the arc.
+.so ./Xsrc/angle1.a
+.so ./Xsrc/angle2.a
+.LP
+.sp
+To fill multiple arcs in the specified drawable, use
+.PN XFillArcs .
+.IN "XFillArcs" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XFillArcs.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/arcs.a
+.so ./Xsrc/narcs.a
+.LP
+For each arc, 
+.PN XFillArc
+or
+.PN XFillArcs
+fills the region closed by the infinitely thin path
+described by the specified arc and, depending on the 
+arc_mode specified in the
+graphics context
+one or
+two line segments. 
+For 
+.PN ArcChord , 
+the single line segment joining the endpoints of the arc is used.  
+For 
+.PN ArcPieSlice ,
+the two line segments joining the endpoints of the arc with the center
+point are used.  
+.LP
+.PN XFillArc
+and
+.PN XFillArcs
+use these graphics context components when filling the arc or arcs: function, 
+plane_mask, fill_style, arc_mode, subwindow_mode, clip_x_origin, clip_y_origin,
+and clip_mask.
+The two functions
+also use these graphics context mode-dependent components: foreground, 
+background, tile, stipple, ts_x_origin, and ts_y_origin.
+.LP
+In the case of
+.PN XFillArc ,
+you simply specify a single arc to be filled.
+For
+.PN XFillArcs ,
+you specify an array of
+.PN XArc
+structures, each of which contains an arc's x and y coordinates, 
+width and height, start position, and path and extent.
+.PN XFillArcs
+fills
+the arcs in the order listed in the array.  
+For any given arc, no pixel
+is drawn more than once.  
+If regions intersect, the intersecting pixels are drawn
+multiple times.
+.LP
+.ds fd .PN XFillArc
+.ds fe .PN XFillArcs
+.so ./Xsrc/errsent3.com
+.PN BadDrawable ,
+.PN BadGC ,
+and
+.PN BadMatch 
+errors.
+.NH 2
+Font Metrics
+.XS
+\*(SN Font Metrics 
+.XE
+.LP
+The following sections
+discuss how to:
+.IP \(bu 5
+Load and free fonts
+.IP \(bu 5
+Obtain and free font names
+.IP \(bu 5
+Set and return the font search path
+.IP \(bu 5
+Compute character string sizes
+.IP \(bu 5
+Return logical extents
+.IP \(bu 5
+Query character string sizes
+.LE
+.LP
+The X server loads fonts whenever a program requests a new font.
+The server can cache fonts for quick lookup.
+There is never more than one copy of a font stored in the server at
+one time.
+Fonts are global across all screens in a server.
+There are several levels at which one can deal with fonts.
+Most applications will simply use 
+.PN XLoadQueryFont
+to load a font and query the font metrics.
+.LP
+Characters in fonts are regarded as masks.
+Except for image text requests,
+the only pixels modified are those in which bits are on in the character.
+This means that it makes sense to draw text using stipples or tiles
+(for example, many menus gray-out unusable entries).
+.LP
+The 
+.PN XFontStruct 
+structure contains all of the information for the font
+and consists of the font specific information as well as
+a pointer to an array of 
+.PN XCharStruct 
+structures for the
+characters contained in the font.
+The information in the 
+.PN XFontStruct ,
+.PN XFontProp ,
+and 
+.PN XCharStruct 
+structures is:
+.Ds 0
+.\" Adjusted structure so that elements fit neatly on
+.\" the 7 by 9 page.
+.TA .5i 3i
+.ta .5i 3i
+
+typedef struct {
+	short lbearing;	/* origin to left edge of raster */
+	short rbearing;	/* origin to right edge of raster */
+	short width;	/* advance to next char's origin */
+	short ascent;	/* baseline to top edge of raster */
+	short descent;	/* baseline to bottom edge of raster */
+	unsigned short attributes;	/* per char flags (not predefined) */
+} XCharStruct;
+.De
+.IN "XCharStruct" "" @DEF@"
+.Ds 0
+.TA .5i 1i 3i
+.ta .5i 1i 3i
+typedef struct {
+	Atom	name;
+	unsigned long card32;
+} XFontProp;
+.De
+.Ds 0
+.IN "XChar2b" "" @DEF@"
+.TA .5i 3i
+.ta .5i 3i
+
+typedef struct {	/* normal 16 bit characters are two bytes */
+    unsigned char byte1;
+    unsigned char byte2;
+} XChar2b;
+.De
+.IN "XFontProp" "" @DEF@"
+.Ds 0
+.\" Adjusted structure so that elements fit neatly on
+.\" the 7 by 9 page.
+.TA .5i 1.7i 3i
+.ta .5i 1.7i 3i
+typedef struct {
+	XExtData	*ext_data;	/* hook for extension to hang data */
+	Font	fid;	/* Font id for this font */
+	unsigned	direction;	/* hint about the direction font is painted */
+	unsigned	min_char_or_byte2;	/* first character */
+	unsigned	max_char_or_byte2;	/* last character */
+	unsigned	min_byte1;	/* first row that exists */
+	unsigned	max_byte1;	/* last row that exists */
+	Bool	all_chars_exist;	/* flag if all characters 
+			have nonzero size*/
+	unsigned	default_char;	/* char to print for undefined character */
+	int	n_properties;	/* how many properties there are */
+	XFontProp	*properties;	/* pointer to array of 
+			additional properties*/
+	XCharStruct	min_bounds;	/* minimum bounds over all existing char*/
+	XCharStruct	max_bounds;	/* maximum bounds over all existing char*/
+	XCharStruct	*per_char;	/* first_char to last_char information */
+	int	ascent;	/* logical extent above baseline for spacing */
+	int	descent;	/* logical decent below baseline for spacing */
+} XFontStruct;
+.De
+.IN "XFontStruct" "" @DEF@"
+.LP
+X supports both single byte/character and two bytes/character text
+operations.
+Note that either form can be used with a font, but a
+single byte/character text requests can only specify a single byte
+(that is, the first row of a two byte font).
+You should view two byte fonts as a two dimensional matrix of defined
+characters: byte1 specifies the range of defined rows and
+byte2 defines the range of defined columns of the font.
+Single byte/character fonts have no rows defined, and the byte2 range
+specified in the structure defines a range of characters.
+.LP
+The bounding box of a character is defined by the 
+.PN XCharStruct 
+of that character (see below).
+However, characters may be absent from a font.
+In this case, the default_char is used.
+Some fonts may have characters all the same size.
+In this case, only the information in the
+.PN XFontStruct
+characters are used.
+.LP
+The members of the 
+.PN XFontStruct 
+have the following semantics:
+.IP \(bu 5
+The direction member can be either 
+.PN FontLeftToRight 
+or 
+.PN FontRightToLeft . 
+It is just a hint as to whether most 
+.PN XCharStruct 
+elements 
+have a positive 
+.Pn ( FontLeftToRight ) 
+or a negative 
+.Pn ( FontRightToLeft )
+character-width 
+metric.
+The core protocol defines no support for vertical text.
+.IP \(bu 5
+If the min_byte1 and max_byte1 members are both zero, min_char_or_byte2
+specifies the linear character index corresponding to the first element
+of the per_char array, and max_char_or_byte2 specifies the linear character
+index of the last element.
+.IP
+If either min_byte1 or max_byte1 are nonzero, both
+min_char_or_byte2 and max_char_or_byte2 will be less than 256, 
+and the two-byte character index values corresponding to the
+per_char array element N (counting from 0) are:
+.IP
+.nf
+	byte1 = N/D + min_byte1
+.br
+	byte2 = N\\D + min_char_or_byte2
+.IP
+.fi
+where:
+.IP
+.nf
+        D = max_char_or_byte2 - min_char_or_byte2 + 1
+        / = integer division
+        \\ = integer modulus
+.fi
+.IP \(bu 5
+If the per_char pointer is NULL, 
+all glyphs between the first and last character indexes
+inclusive have the same information,
+as given by both min_bounds and max_bounds.
+.IP \(bu 5
+If all_chars_exist is 
+.PN True ,
+all characters in the per_char array have nonzero bounding boxes.
+.IP \(bu 5
+The default_char member specifies the character that will be used when an
+undefined or nonexistent character is used.  
+The default_char is a 16 bit character (not a two byte character).
+For a font using two byte matrix format, 
+the default_char has byte1 in the most significant byte,
+and byte2 in the least significant byte.
+If the default_char itself specifies an undefined or nonexistent character, 
+no printing is performed for an undefined or nonexistent character.
+.IP \(bu 5
+The min_bounds and max_bounds members contain the most extreme values of
+each individual 
+.PN XCharStruct 
+component over all elements of this array
+(ignores nonexistent characters).
+The bounding box of the font (the smallest
+rectangle enclosing the shape obtained by superimposing all of the
+characters at the same origin [x,y]) has its upper left coordinate at:
+.IP
+.nf
+	[x + min_bounds.lbearing, y - max_bounds.ascent]
+.fi
+.IP
+Its width is:
+.IP
+.nf
+	max_bounds.rbearing - min_bounds.lbearing
+.fi
+.IP
+Its height is:
+.nf
+	max_bounds.ascent + max_bounds.descent
+.fi
+.IP
+The x and y are the lower left corner of the box that is relative to the
+origin.
+.IP \(bu 5
+The ascent member is the logical extent of the font above the baseline that is
+used for determining line spacing.
+Specific characters may extend beyond
+this.
+.IP \(bu 5
+The descent member is the logical extent of the font at or below the
+baseline that is used for determining line spacing.
+Specific characters may extend beyond this.
+If the baseline is at Y-coordinate y,
+the logical extent of the font is inclusive between the Y-coordinate 
+values (y-font.ascent) and (y + font.descent - 1).
+.LP
+For a character origin at [x,y],
+the bounding box of a character (that is, 
+the smallest rectangle that encloses the character's shape)
+described in terms of 
+.PN XCharStruct 
+components is a rectangle with its upper left corner at:
+.LP
+.nf
+	[x + lbearing, y - ascent]
+.fi
+.LP
+Its width is:
+.LP
+.nf
+	rbearing - lbearing
+.fi
+.LP
+Its height is:
+.LP
+.nf
+	ascent + descent
+.fi
+.LP
+The origin for the next character is defined to be:
+.LP
+.nf
+	[x + character-width, y]
+.fi
+.LP
+Note that the baseline is logically viewed as being just below nondescending
+characters. 
+When descent is zero,
+only pixels with Y-coordinates less than y are drawn.
+And, the origin is logically viewed as being coincident with the left edge of
+a nonkerned character. 
+When lbearing is zero,
+no pixels with X-coordinate less than x are drawn).
+Any of these values could be negative.
+.LP
+The interpretation of the attributes member in the
+.PN XCharStruct
+structure is not defined by the core X protocol.
+A nonexistent character is represented with all members of its
+.PN XCharStruct
+set to zero.
+.LP
+A font is not guaranteed to have any properties.
+The interpretation of the property value (for example, int32, card32) must
+be derived from 
+a priori knowledge of the property. 
+When possible, 
+fonts should have at least the properties listed in the following table.
+With atom names,
+upper/lower case matters.
+The following builtin property atoms can be found in 
+.Pn < X11/Xatom.h >.
+.LP
+.\".CP T 1
+.\"Font Properties
+.TS H 
+lw(1.75i) lw(.5i) lw(3.5i).
+_
+.sp 6p
+.TB
+Property Name	Type	Description
+.sp 6p
+_
+.sp 6p
+.TH
+.R
+T{
+MIN_SPACE
+T}	T{
+unsigned
+T}	T{
+The minimum interword spacing (in pixels).
+T}
+.sp 6p
+T{
+NORM_SPACE
+T}	T{
+unsigned
+T}	T{
+The normal interword spacing (in pixels).
+T}
+.sp 6p
+T{
+MAX_SPACE
+T}	T{
+unsigned
+T}	T{
+The maximum interword spacing (in pixels).
+T}
+.sp 6p
+T{
+END_SPACE
+T}	T{
+unsigned
+T}	T{
+The additional spacing (in pixels) at the end of sentences.
+T}
+.sp 6p
+T{
+SUPERSCRIPT_X
+.br
+SUPERSCRIPT_Y
+T}	T{
+int
+T}	T{
+Offset from the character origin where superscripts should begin (in pixels).
+If the origin is at [x,y], then superscripts should begin at 
+.br
+[x + SUPERSCRIPT_X, y - SUPERSCRIPT_Y].
+T}
+.sp 6p
+T{
+SUBSCRIPT_X
+.br
+SUBSCRIPT_Y
+T}	T{
+int
+T}	T{
+Offset from the character origin where 
+subscripts should begin (in pixels).  If the origin is 
+at [x,y], then subscripts should begin at
+.br
+[x + SUPERSCRIPT_X, y + SUPERSCRIPT_Y].
+T}
+.sp 6p
+T{
+UNDERLINE_POSITION
+T}	T{
+int
+T}	T{
+Y offset from the baseline to the
+top of an underline (in pixels).  If the baseline is
+Y-coordinate y, then the top of the underline
+is at 
+.br
+(y + UNDERLINE_POSITION).
+T}
+.sp 6p 
+T{
+UNDERLINE_THICKNESS
+T}	T{
+unsigned
+T}	T{
+Thickness of the underline (in pixels)
+T}
+.sp 6p
+T{
+STRIKEOUT_ASCENT
+.br
+STRIKEOUT_DESCENT
+T}	T{
+int	
+T}	T{
+Vertical extents for boxing or voiding
+characters (in pixels).  If the baseline is at
+Y-coordinate y, then the top of the strikeout
+box is at 
+.br
+(y - STRIKEOUT_ASCENT), and the 
+height of the box is 
+.br
+(STRIKEOUT_ASCENT + STRIKEOUT_DESCENT).
+T}
+.sp 6p
+T{
+ITALIC_ANGLE
+T}	T{
+int
+T}	T{
+The angle of the dominant staffs of
+characters in the font, in degrees scaled by 64, 
+relative to the three-o-clock position from the 
+character origin, with positive indicating
+counterclockwise motion (as in the XDrawArc functions).
+T}
+.sp 6p
+T{
+X_HEIGHT
+T}	T{
+int
+T}	T{
+``1 ex'' as in TeX, but expressed in units
+of pixels.  Often the height of lowercase x.
+T}
+.sp 6p
+T{
+QUAD_WIDTH
+T}	T{
+int
+T}	T{
+``1 em'' as in TeX, but expressed in units of
+pixels.  Often the width of the digits 0-9.
+T}
+.sp 6p
+T{
+CAP_HEIGHT
+T}	T{
+int
+T}	T{
+Y offset from the baseline to the
+top of the capital letters, ignoring accents, in pixels.
+If the baseline is at Y-coordinate y, then
+the top of the capitals is at 
+.br
+(y - CAP_HEIGHT).
+T}
+.sp 6p
+T{
+WEIGHT
+T}	T{
+unsigned
+T}	T{
+The weight or boldness of the font,
+expressed as a value between 0 and 1000.
+T}
+.sp 6p
+T{
+POINT_SIZE
+T}	T{
+unsigned
+T}	T{
+The point size of this font at the 
+ideal resolution, expressed in 1/10ths 
+of points. There are 72.27 points to the 
+inch.
+T}
+.sp 6p
+T{
+RESOLUTION
+T}	T{
+unsigned
+T}	T{
+The number of pixels per point,
+expressed in 1/100ths, at which this font was created.
+T}
+.sp 6p
+_
+.TE
+.NH 3
+Loading and Freeing Fonts
+.XS
+\*(SN Loading and Freeing Fonts 
+.XE
+.LP
+Xlib provides functions with which you can load fonts, get font information,
+unload fonts, and free font information.
+.IN "Fonts" "getting information"
+.IN "Fonts" "unloading"
+.IN "Fonts" "freeing font information"
+A few font functions use a GContext resource ID or a font ID interchangeably.
+.IN "GContext"
+.LP
+.sp
+To load the specified font, use
+.PN XLoadFont .
+.IN "XLoadFont" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XLoadFont.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/name.a
+You should use the ISO Latin-1 encoding, and upper/lower case does not matter.
+.LP
+.so ./Xdescrip/XLoadFont.d
+If the function was unsuccessful at loading the specified font, 
+it generates a 
+.PN BadName 
+error.
+When the font is no longer needed, the client should call 
+.PN XUnloadFont .
+.IN "XUnloadFont"
+Fonts are not associated with a particular screen 
+and can be stored as a component
+of any graphics context.
+.LP
+.ds fd .PN XLoadFont
+.so ./Xsrc/errsent.com
+.PN BadAlloc
+and
+.PN BadName 
+errors.
+.LP
+.sp
+To obtain the GContext resource ID for the specified GC, use 
+.PN XGContextFromGC .
+.IN "XGContextFromGC" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XGCFromGC.f
+.FN
+.so ./Xsrc/gc_gcontext.a
+.LP
+.sp
+To return information about a loaded font, use
+.PN XQueryFont .
+.IN "XQueryFont" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XQueryFont.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/font_id3.a
+.LP
+.so ./Xdescrip/XQueryFont.d
+You can either query a font or the font stored in a GC.
+To free this data, use
+.PN XFreeFontInfo .
+In this case, the font ID stored in the 
+.PN XFontStruct
+will be the ID of the GC,
+and you need to be careful when using this ID in other functions.
+For example, the ID of the GC is not valid as a font ID in a call to
+a Set or Get font function.
+.LP
+.sp
+To obtain the names and information about loaded fonts, use
+.PN XListFontsWithInfo .
+.IN "XListFontsWithInfo" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XFNameInfo.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/pattern.a
+.so ./Xsrc/maxnames.a
+.so ./Xsrc/count_font.a
+.so ./Xsrc/info.a
+.LP
+.so ./Xdescrip/XFNameInfo.d
+The list of names is limited to size specified by the maxnames argument.
+The information returned for each font is identical to what
+.PN XLoadQueryFont
+would return, except that the per-character metrics are not returned.
+To free the allocated name array,
+the client should call
+.PN XFreeFontNames .
+To free the the font information array,
+the client should call
+.PN XFreeFontInfo .
+.LP
+.sp
+To free the the font information array, use
+.PN XFreeFontInfo .
+.IN "XFreeFontInfo" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XFFontInfo.f
+.FN
+.so ./Xsrc/names_info.a
+.so ./Xsrc/info_ret.a
+.so ./Xsrc/actual_count.a
+.LP
+.sp
+To perform a
+.PN XLoadFont
+and
+.PN XQueryFont
+in a single operation, use
+.PN XLoadQueryFont .
+.IN "XLoadQueryFont" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XFontStruct.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/name.a
+.LP
+.so ./Xdescrip/XFontStruct.d
+If the font does not exist, 
+.PN XLoadQueryFont
+returns NULL.
+.LP
+.ds fd .PN XLoadQueryFont
+.so ./Xsrc/errsent4.com
+.PN BadAlloc 
+error.
+.LP
+.sp
+To unload the font and free the storage used by the font structure
+that was allocated by
+.PN XQueryFont
+or
+.PN XLoadQueryFont ,
+use
+.PN XFreeFont .
+.IN "XFreeFont" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XFontFree.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/ptr.a
+.LP 
+.so ./Xdescrip/XFontFree.d
+.LP
+.ds fd .PN XFreeFont
+.so ./Xsrc/errsent4.com
+.PN BadFont 
+error.
+.LP
+.sp
+To return the specified font property, use
+.PN XGetFontProperty .
+.IN "XGetFontProperty" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XGetFontProp.f
+.FN
+.so ./Xsrc/ptr.a
+.so ./Xsrc/atom.a
+.so ./Xsrc/value.a
+.LP
+.so ./Xdescrip/XGetFontProp.d
+There are a set of predefined atoms for font properties which can
+be found in 
+.Pn < X11/Xatom.h >.
+This set contains the standard properties associated with
+a font.
+While not guaranteed to be present, it is very likely that the
+predefined font properties will be present.
+.LP
+.sp
+To unload the specified font that was loaded by
+.PN XLoadFont , 
+use
+.PN XUnloadFont .
+.IN "XUnloadFont" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XCloseFont.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/font.a
+.LP
+.so ./Xdescrip/XCloseFont.d
+The font itself will be freed when no other resource references it. 
+The font may be unloaded on the X server if this is the last reference to the font.
+In any case, the font should never again be referenced
+because the resource ID is destroyed.
+.LP
+.ds fd .PN XUnloadFont
+.so ./Xsrc/errsent4.com
+.PN BadFont 
+error.
+.NH 3
+Obtaining and Freeing Font Names
+.XS
+\*(SN Obtaining and Freeing Font Names 
+.XE
+.LP
+Xlib provides functions with which you can obtain and free font names.
+Fonts have font names that usually are related or obvious.
+These functions let you obtain font names by matching a wild card specification
+by querying a font type for a list of available sizes, and so on.
+.LP
+.sp
+To return a list of the available font names, use
+.PN XListFonts .
+.IN "XListFonts" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XFontNames.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/pattern.a
+.so ./Xsrc/maxnames.a
+.so ./Xsrc/actualcount.a
+.LP
+.so ./Xdescrip/XFontNames.d
+The string should be ISO Latin-1, and upper/lower case does not matter.
+Each string is terminated by NULL.
+The maximum number of names returned in the list depends on the value you passed
+to the maxnames argument.
+The function places the actual number of font names returned in the 
+actual_count_return 
+argument.
+The client should call
+.PN XFreeFontNames
+when done with the result to free the memory.
+.LP
+.sp
+To free a font name array, use
+.PN XFreeFontNames .
+.IN "XFreeFontNames" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XFrFntNames.f
+.FN
+.so ./Xsrc/list.a
+.LP
+.so ./Xdescrip/XFrFntNames.d
+.NH 3
+Setting and Retrieving the Font Search Path
+.XS
+\*(SN Setting and Retrieving the Font Search Path 
+.XE
+.LP
+Xlib provides functions with which you can set and retrieve the font search
+path.
+.LP
+.sp
+To set the font search path, use
+.PN XSetFontPath .
+.IN "XSetFontPath" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSetFontPath.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/directories.a
+.so ./Xsrc/ndirs.a
+.LP
+.so ./Xdescrip/XSetFontPath.d
+There is only one search path per X server, not one per client.
+The interpretation of the
+strings is operating system dependent, but they are intended to specify
+directories to be searched in the order listed.
+Also, the contents of these strings are operating system specific 
+and are not intended to be used by client applications.
+Usually, the X server is free to cache font information internally 
+rather than having to read fonts from files.
+As a side-effect of executing this function, the X server is guaranteed to
+flush all cached information about fonts for which there currently are
+no explicit resource IDs allocated.
+The meaning of an error from this request is operating system specific.
+.LP
+.ds fd .PN XSetFontPath
+.so ./Xsrc/errsent4.com
+.PN BadValue 
+error.
+.LP
+.sp
+To get the current font search path, use
+.PN XGetFontPath .
+.IN "XGetFontPath" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XGetFontPath.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/npaths.a
+.LP
+.so ./Xdescrip/XGetFontPath.d
+.LP
+.sp
+To free data returned by
+.PN XGetFontPath ,
+use
+.PN XFreeFontPath .
+.IN "XFreeFontPath" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XFFontPath.f
+.FN
+.so ./Xsrc/list.a
+.LP
+.so ./Xdescrip/XFFontPath.d
+.NH 3
+Computing Character String Sizes
+.XS
+\*(SN Computing Character String Sizes 
+.XE
+.LP
+Xlib provides functions with which you can compute the width,
+the logical extents, 
+and the server information about 8-bit and two byte text strings.
+.IN "XTextWidth"
+.IN "XTextWidth16"
+Width is computed by adding the character widths of all of the characters.
+It does not matter if the font is an 8-bit or two-byte font.
+These functions return the sum of the character metrics, in pixels.
+.LP
+.sp
+To determine the width of an 8-bit character string, use
+.PN XTextWidth .
+.IN "XTextWidth" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XTextWidth.f
+.FN
+.so ./Xsrc/ptr_width.a
+.so ./Xsrc/string.a
+.so ./Xsrc/count.a
+.LP
+.sp
+To determine the width of a two-byte character string,
+.PN XTextWidth16 .
+.IN "XTextWidth16" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XTextWidth16.f
+.FN
+.so ./Xsrc/ptr_width.a
+.so ./Xsrc/string.a
+.so ./Xsrc/count.a
+.NH 3
+Returning Logical Extents
+.XS
+\*(SN Returning Logical Extents 
+.XE
+.LP
+To determine the bounding box of the specified 1-byte character string
+in the specified font, use
+.PN XTextExtents .
+.IN "XTextExtents" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XTextExt.f
+.FN
+.so ./Xsrc/fontstruct.a
+.so ./Xsrc/string.a
+.so ./Xsrc/nchars.a
+.so ./Xsrc/dir_exts.a
+.so ./Xsrc/ascent.a
+.so ./Xsrc/descent.a
+.so ./Xsrc/overall.a
+.LP
+.sp
+To return the bounding box of the specified 2-byte character string, use
+.PN XTextExtents16 .
+.IN "XTextExtents16" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XTextExt16.f
+.FN
+.so ./Xsrc/fontstruct.a
+.so ./Xsrc/string.a
+.so ./Xsrc/nchars.a
+.so ./Xsrc/dir_exts.a
+.so ./Xsrc/ascent.a
+.so ./Xsrc/descent.a
+.so ./Xsrc/overall.a
+.LP
+The
+.PN XTextExtent
+and
+.PN XTextExtents16
+functions 
+perform the size computation locally and, thereby,
+avoid the roundtrip overhead of
+.PN XQueryTextExtents 
+and
+.PN XQueryTextExtents16 .
+Both functions return an
+.PN XCharStruct
+structure, whose members are set to the values as follows.
+.LP
+The ascent member is set to the maximum of the ascent metrics of all
+characters in the string.
+The descent member is set to the maximum of the descent metrics.
+The width member is set to the sum of the character-width metrics of all
+characters in the string.
+For each character in the string,
+let W be the sum of the character-width metrics of all characters preceding 
+it in the string.
+Let R be the right-side-bearing metric of the character plus W.
+The lbearing member is set to the minimum L of all characters in the string.
+The rbearing member is set to the maximum R.
+.LP
+For fonts defined with linear indexing rather than two-byte matrix indexing,
+the X server interprets each XChar2b as a 16-bit number that has been
+transmitted with the most significant byte first.
+That is, byte1 of the XChar2b is taken as the most significant byte.
+If the font has no defined default character,
+undefined characters in the string are taken to have all zero metrics.
+.NH 3
+Querying Character String Sizes
+.XS
+\*(SN Querying Character String Sizes 
+.XE
+.LP
+To query the server for the bounding box of a 1-byte character string, use 
+.PN XQueryTextExtents .
+.IN "XQueryTextExtents" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XQryTExts.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/font_id2.a
+.so ./Xsrc/string.a
+.so ./Xsrc/nchars.a
+.so ./Xsrc/dir_exts.a
+.so ./Xsrc/ascent.a
+.so ./Xsrc/descent.a
+.so ./Xsrc/overall.a
+.LP
+.sp
+To query the server for the bounding box of a 2-byte character string
+in the specified font, use
+.PN XQueryTextExtents16 .
+.IN "XQueryTextExtents16" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XQryTExt16.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/font_id2.a
+.so ./Xsrc/string.a
+.so ./Xsrc/nchars.a
+.so ./Xsrc/dir_exts.a
+.so ./Xsrc/ascent.a
+.so ./Xsrc/descent.a
+.so ./Xsrc/overall.a
+.LP
+.so ./Xdescrip/XQryTExts.d
+These functions query the X server and, therefore, suffer the round trip
+overhead that is avoided by
+.PN XTextExtents
+and 
+.PN XTextExtents16 .
+Both functions return a
+.PN XCharStruct 
+structure whose members are set to the values as follows.
+.LP
+The ascent member is set to the maximum of the ascent metrics 
+of all characters in the string.
+The descent member is set to the maximum of the descent metrics.
+The width member is set to the sum of the character-width metrics 
+of all characters in the string.
+For each character in the string,
+let W be the sum of the character-width metrics of all characters preceding
+it in the string.
+Let L be the left-side-bearing metric of the character plus W.
+Let R be the right-side-bearing metric of the character plus W.
+The lbearing member is set to the minimum L of all characters in the string.
+The rbearing member is set to the maximum R.
+.LP
+Note that the string formal parameter for
+.PN XQueryTextExtents16
+is of type XChar2b, rather than of type char as in
+.PN XQueryTextExtents .
+For fonts defined with linear indexing rather than two-byte matrix indexing,
+the X server interprets each XChar2b as a 16-bit number that has been
+transmitted with the most significant byte first.
+That is, byte1 of the XChar2b is taken as the most significant byte.
+If the font has no defined default character,
+undefined characters in the string are taken to have all zero metrics.
+.LP
+.ds fd .PN XQueryTextExtents
+.ds fe .PN XQueryTextExtents16
+.so ./Xsrc/errsent3.com
+.PN BadFont
+and
+.PN BadGC 
+errors.
+.NH 2
+Drawing Text
+.XS
+\*(SN Drawing Text
+.XE
+.LP
+This section discusses how to draw:
+.IP \(bu 5
+Complex text 
+.IP \(bu 5
+Text characters
+.IP \(bu 5
+Image text characters
+.LE
+.LP
+.IN "Font" "" "@DEF@"
+All of the functions discussed in the following subsections make use of fonts.
+A font is a
+graphical description of a set of characters that are used to increase efficiency
+whenever a set of small, similar sized patterns are repeatedly used.
+.LP
+.Ds 0
+.TA .5i 3i
+.ta .5i 3i
+typedef struct {
+	char *chars;	/* pointer to string */
+	int nchars;	/* number of characters */
+	int delta;	/* delta between strings */
+	Font font;	/* Font to print it in, None don't change */
+} XTextItem;
+.IN "XTextItem" "" @DEF@"
+.sp
+typedef struct {
+	XChar2b *chars;	/* pointer to two-byte characters */
+	int nchars;	/* number of characters */
+	int delta;	/* delta between strings */
+	Font font;	/* font to print it in, None don't change */
+} XTextItem16;
+.De
+.IN "XTextItem16" "" @DEF@"
+.LP
+The fundamental text functions
+.IN "XDrawText"
+.PN XDrawText
+and
+.IN "XDrawText16"
+.PN XDrawText16
+use these structures.
+If the font member is 
+.PN None ,
+the font is changed before printing and also is stored in the GC.
+If an error was generated during text drawing,
+the font in the GC is undefined. 
+.LP
+If you want the baseline (first row of pixels in the descent) to begin
+at pixel coordinate (x,y), then pass (x,y) as the baseline origin
+coordinates to the text routines.
+.LP
+For example, consider the background rectangle drawn by
+.PN XDrawImageString.
+If you want the upper-left corner of the background rectangle
+to be at pixel coordinate (x,y), then pass the (x,y+ascent)
+as the baseline origin coordinates to the text routines.
+The ascent is the font ascent, as given in the
+.PN XFontStruct
+structure.
+If you want the lower-left corner of the background rectangle
+to be at pixel coordinate (x,y), then pass the (x,y-descent+1)
+as the baseline origin coordinates to the text routines.
+The descent is the font ascent, as given in the
+.PN XFontStruct
+structure.
+.NH 3
+Drawing Complex Text
+.XS
+\*(SN Drawing Complex Text 
+.XE
+.LP
+.IN "Drawing" "Text Items"
+.LP
+To draw 8-bit characters in the specified drawable, use
+.PN XDrawText .
+.IN "XDrawText" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XPolyText.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/xy.a
+These coordinates define the baseline starting position
+for the character (initial character origin) and are
+relative to the origin of the specified drawable.
+.so ./Xsrc/items.a
+.so ./Xsrc/nitems.a
+.LP
+.sp
+To draw 2-byte characters in the specified drawable, use
+.PN XDrawText16 .
+.IN "XDrawText16" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XPolyText16.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/xy.a
+These coordinates define the baseline starting position
+for the character (the initial character origin), and are
+relative to the origin of the specified drawable.
+.so ./Xsrc/items.a
+.so ./Xsrc/nitems.a
+.LP
+The
+.PN XDrawText16
+function is like
+.PN XDrawText ,
+except 2-byte or 16-bit characters are used.
+These functions allow complex spacing and font shifts between counted string.
+The
+.PN XDrawText
+and
+.PN XDrawText16
+functions use the following elements in the specified GC:
+function, plane_mask, fill_style, font, subwindow_mode, 
+clip_x_origin, clip_y_origin, and clip_mask.
+Both functions also use
+these graphics context mode-dependent components: foreground, 
+background, tile, stipple, ts_x_origin, and ts_y_origin.
+.LP
+Each text item is processed in turn.
+A font member other than 
+.PN None
+in an item causes the font to be stored in the GC
+and used for subsequent text.  
+A text element delta specifies an additional change
+in the position along the x axis before the string is drawn. 
+The delta is always added to the character origin, 
+and is not dependent on any characteristics of the font.
+Each character image, as defined by the font in the GC, is treated as an
+additional mask for a fill operation on the drawable.
+The drawable is modified only where the font character has a bit set to 1.
+If a text item generates a
+.PN BadFont
+error, the previous text items may have been drawn.
+.LP
+Note that the chars member of the
+.PN XTextItem16
+structure is of type XChar2b, rather than of type char as it is in the
+.PN XTextItem
+structure.
+For fonts defined with linear indexing rather than two-byte matrix indexing, the
+X server will interpret each member of the
+.PN XChar2b
+structure as a 16-bit number that has been transmitted most significant byte
+first.
+In other words, the byte1 member of the
+.PN XChar2b
+structure is taken as the most significant byte.
+.LP
+.ds fd .PN XDrawText
+.ds fe .PN XDrawText16
+.so ./Xsrc/errsent3.com
+.PN BadDrawable ,
+.PN BadFont ,
+.PN BadGC ,
+and
+.PN BadMatch 
+errors.
+.NH 3
+Drawing Text Characters
+.XS
+\*(SN Drawing Text Characters 
+.XE
+.LP
+.IN "Drawing" "Strings"
+To draw 8-bit characters in the specified drawable, use
+.PN XDrawString .
+.IN "XDrawString" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XText.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/xy.a
+These coordinates define the baseline starting position
+for the character (initial character origin) and are
+relative to the origin of the specified drawable.
+.so ./Xsrc/string.a
+.so ./Xsrc/length.a
+.LP
+.sp
+To draw 2-byte characters in the specified drawable, use
+.PN XDrawString16 .
+.IN "XDrawString16" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XText16.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/xy.a
+These coordinates define the baseline starting position
+for the character (the initial character origin), and are
+relative to the origin of the specified drawable.
+.so ./Xsrc/string.a
+.so ./Xsrc/length.a
+.LP
+.LP
+The
+.PN XDrawString
+and
+.PN XDrawString16
+functions use these graphics context components: function, plane_mask, fill_style,
+font, subwindow_mode, clip_x_origin, clip_y_origin, and clip_mask.
+Both functions also
+use these graphics context mode-dependent components: foreground, 
+background, tile, stipple, ts_x_origin, and ts_y_origin.
+Each character image, as defined by the font in the GC, is treated as an
+additional mask for a fill operation on the drawable.
+The drawable is modified only where the font character has a bit set to 1.
+.LP
+.ds fd .PN XDrawString
+.ds fe .PN XDrawString16
+.so ./Xsrc/errsent3.com
+.PN BadDrawable ,
+.PN BadFont ,
+.PN BadGC ,
+and
+.PN BadMatch 
+errors.
+.NH 3
+Drawing Image Text Characters
+.XS
+\*(SN Drawing Image Text Characters 
+.XE
+.LP
+.IN "Drawing" "Image Text"
+Some applications, in particular terminal emulators, need to
+print image text in which both the foreground and background bits of
+each character are painted.
+This avoids annoying flicker on many displays.
+.IN "XDrawImageString"
+.IN "XDrawImageString16"
+.LP
+.sp
+To draw 8-bit image text characters in the specified drawable, use
+.PN XDrawImageString .
+.IN "XDrawImageString" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XImageText.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/xy.a
+These coordinates define the baseline starting position
+for the image text character (initial character origin) and are
+relative to the origin of the specified drawable.
+.so ./Xsrc/string.a
+.so ./Xsrc/length.a
+.LP
+.sp
+To draw 2-byte image text characters in the specified drawable,
+.PN XDrawImageString16 .
+.IN "XDrawImageString16" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XImageText16.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/xy.a
+These coordinates define the baseline starting position
+for the image text character and are
+relative to the origin of the specified drawable.
+.so ./Xsrc/string.a
+.so ./Xsrc/length.a
+.LP
+The
+.PN XDrawImageText16
+function is like
+.PN XDrawImageText ,
+except two-byte or 16-bit characters are used.
+These functions also modify both the foreground and background pixels in the
+characters.
+.LP
+.PN XDrawImageString
+and
+.PN XDrawImageString16
+use these graphics context components: plane_mask, foreground, background,
+font, subwindow_mode, clip_x_origin, clip_y_origin, and clip_mask.
+The effect is first to fill a
+destination rectangle with the background pixel defined in the GC and then
+to paint the text with the foreground pixel.
+The upper left corner of the filled rectangle is at:
+.LP
+.nf
+	[x,y - font_ascent]
+.fi
+.LP
+The width is:
+.LP
+.nf
+	overall_width
+.fi
+.LP
+The height is:
+.LP
+.nf
+	font_ascent + font_descent
+.fi
+.LP
+The overall_width, font_ascent, and font_descent
+are as would be returned by 
+.PN XQueryTextExtents 
+using gc and string.
+The function and fill_style defined in the GC are ignored for these functions. 
+The effective function is 
+.PN GXcopy ,
+and the effective fill_style 
+is
+.PN FillSolid .
+.LP
+Note that the string formal parameter for
+.PN XDrawImageString16
+is of type XChar2b, rather than of type char as in
+.PN XDrawImageString .
+For fonts defined with 2-byte matrix indexing
+and used with
+.PN XDrawImageString ,
+each byte is used as a byte2 with a byte1 of zero.
+.LP
+.ds fd .PN XDrawImageString
+.ds fe .PN XDrawImageString16
+.so ./Xsrc/errsent3.com
+.PN BadDrawable ,
+.PN BadGC ,
+and
+.PN BadMatch 
+errors.
+.LP
+.NH 2
+Transferring Images Between Client and Server
+.XS
+\*(SN Transferring Images Between Client and Server 
+.XE
+.LP
+Xlib provides functions with which you can transfer images between a client and
+the server.
+Because the server may require diverse data formats, 
+Xlib provides an image object that fully describes the data in memory 
+and that provides for basic operations on that data.  
+You should reference the data 
+through the image object, not the data directly.
+However, some implementations of the Xlib library may efficiently deal with 
+frequently used data formats by replacing
+routines in the procedure vector with special case routines.
+Supported operations include destroying the image, getting a pixel,
+storing a pixel, extracting a sub image of an image, and adding a constant
+to an image. 
+See Chapter 10
+for further information about these utility functions. 
+Chapter 10 also has information
+about additional library functions used to perform
+basic operations on an image.
+.LP
+All the image manipulation functions discussed in this section make use of 
+the 
+.PN XImage 
+data structure.
+The members in the 
+.PN XImage 
+structure are:
+.LP
+.Ds 0
+.TA .5i 3i
+.ta .5i 3i
+typedef struct _XImage {
+	int width, height;	/* size of image */
+	int xoffset;	/* number of pixels offset in X direction */
+	int format;	/* XYBitmap, XYPixmap, ZPixmap */
+	char *data;	/* pointer to image data */
+	int byte_order;	/* data byte order, LSBFirst, MSBFirst */
+	int bitmap_unit;	/* quant. of scanline 8, 16, 32 */
+	int bitmap_bit_order;	/* LSBFirst, MSBFirst */
+	int bitmap_pad;	/* 8, 16, 32 either XY or ZPixmap */
+	int depth;	/* depth of image */
+	int bytes_per_line;	/* accelerator to next line */
+	int bits_per_pixel;	/* bits per pixel (ZPixmap) */
+	unsigned long red_mask;	/* bits in z arrangement */
+	unsigned long green_mask;
+	unsigned long blue_mask;
+	char *obdata;	/* hook for the object routines to hang on */
+	struct funcs {	/* image manipulation routines */
+	     struct _XImage *(*create_image)();
+	     int (*destroy_image)();
+	     unsigned long (*get_pixel)();
+	     int (*put_pixel)();
+	     struct _XImage *(*sub_image)();
+	     int (*add_pixel)();
+	     } f;
+} XImage;
+.De
+.IN "XImage" "" @DEF@"
+.LP
+The
+.PN XImage 
+structure describes an image as it exists in the client's memory.  
+The user may request that some of the members (for example,
+height, width, and xoffset) be
+changed when the image is sent to the server. 
+That is, the user may send a
+subset of the image.
+Other members (for example, byte_order, bitmap_unit, and so forth)
+are characteristics of both the image and of the server.  
+If these members
+differ between the image and the server, 
+.PN XPutImage 
+makes the appropriate
+conversions.
+If the image is formatted as an XYPixmap, (that is, the format member is set to
+.PN XYPixmap ), 
+the first byte of the first line of
+plane n is located at the address (data + (n * height * bytes_per_line)).
+.LP
+.sp
+To combine an image in memory with a rectangle of a drawable on your display,
+use
+.PN XPutImage .
+.IN "XPutImage" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XPutImage.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/image.a
+.so ./Xsrc/srcxy_image.a
+.so ./Xsrc/dstxy_image.a
+.so ./Xsrc/widtheight.a
+These are of the subimage and define the dimensions of the rectangle.
+.LP
+.so ./Xdescrip/XPutImage.d
+The function uses
+these graphics context components: function, plane_mask,
+subwindow_mode, clip_x_origin, clip_y_origin, and clip_mask.
+This function also uses the graphics context mode-dependent components foreground and
+background.
+If 
+.PN XYBitmap 
+format is used, the depth must be one, 
+and the image must be XYFormat.
+Otherwise, 
+.PN XPutImage
+generates a
+.PN BadMatch 
+error.
+The foreground pixel in the GC defines the source for one
+bits in the image, and the background pixel defines the source for the
+zero bits.
+For 
+.PN XYPixmap 
+and 
+.PN ZPixmap , 
+the depth must match the depth of drawable. 
+Otherwise, it generates a
+.PN BadMatch
+error.
+For 
+.PN XYPixmap , 
+the image must be sent in XYFormat.
+For 
+.PN ZPixmap , 
+the image
+must be sent in the ZFormat defined for the given depth.
+The section of the image defined by the src_x, src_y, width, and height 
+arguments are drawn on the specified part of the drawable.
+.LP
+.ds fd .PN XPutImage
+.so ./Xsrc/errsent.com
+.PN BadDrawable ,
+.PN BadGC ,
+.PN BadMatch ,
+and
+.PN BadValue 
+errors.
+.LP
+.sp
+To return the contents of a rectangle in the specified drawable on the display,
+use
+.PN XGetImage .
+This function is intended specifically for rudimentary screen dump support.
+.IN "XGetImage" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XGetImage.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/xyimage.a
+.so ./Xsrc/wdhtimage.a
+.so ./Xsrc/plane_mask.a
+.so ./Xsrc/format_img.a
+.LP
+.so ./Xdescrip/XGetImage.d
+If the format argument is 
+.PN XYPixmap ,
+the function
+transmits only the bit planes you passed to the plane_mask argument.
+If the plane_mask argument only requests a subset of the planes of the
+display, the depth of the returned image will be the number of planes
+requested.
+If the format argument is 
+.PN ZPixmap ,
+the function transmits as zero the bits in all planes not 
+specified in the plane_mask argument.
+The function performs no range checking on the values in plane_mask and ignores
+extraneous bits.
+.LP
+.PN XGetImage
+returns the depth of the image to the depth member of the
+.PN XImage
+structure.
+The depth of the image is as specified when the drawable was created.
+.LP
+If the drawable is a pixmap, then the given rectangle must be
+wholly contained within the pixmap, otherwise the X server
+will generate a
+.PN BadMatch
+error.
+If the drawable is a window, the window must be mapped, and 
+if there were no inferiors or overlapping windows, the
+specified rectangle of the window would be fully visible on the screen
+and wholly contained within the outside edges of the window.
+Otherwise,
+.PN XGetImage
+generates a
+.PN BadMatch
+error.
+Note that the borders of the window can be included and read with
+this request.
+If the window has a backing-store, the backing-store contents are
+returned for regions of the window that are obscured by noninferior
+windows. 
+Otherwise, the return contents of such obscured regions are
+undefined.
+Also undefined are the returned contents of visible regions of inferiors
+of different depth than the specified window.
+.LP
+.ds fd .PN XGetImage
+.so ./Xsrc/errsent.com
+.PN BadDrawable ,
+.PN BadMatch ,
+and
+.PN BadValue 
+errors.
+.sp
+To copy the contents of a rectangle on the display
+to the specified location within a pre-existing image structure, use
+.PN XGetSubImage .
+.IN "XGetSubImage" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XGetSImage.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/xyimage.a
+.so ./Xsrc/wdhtimage.a
+.so ./Xsrc/plane_mask.a
+.so ./Xsrc/format_img.a
+.so ./Xsrc/dest_image.a
+.so ./Xsrc/destxy1.a
+These coordinates determine where the subimage will be placed within the
+destination image.
+.LP
+The 
+.PN XGetSubImage 
+function updates the Image with the specified subimage
+in the same manner as 
+.PN XGetImage . 
+If the format argument is 
+.PN XYPixmap ,
+the function
+transmits only the bit planes you passed to the plane_mask argument.
+If the format argument is 
+.PN ZPixmap ,
+the function transmits as zero the bits in all planes not 
+specified in the plane_mask argument.
+The function performs no range checking on the values in plane_mask and ignores
+extraneous bits.
+.LP
+.PN XGetSubImage
+does not update any fields in the destination 
+.PN XImage
+structure.
+The depth of the destination
+.PN XImage
+structure must be the same as that of the drawable.
+Otherwise, 
+.PN XGetSubImage
+generates a
+.PN BadMatch
+error.
+If the specified subimage does not fit at the specified location
+on the destination image, the right and bottom edges are clipped.
+If the drawable is a window, the window must be mapped, and it must be
+the case that, if there were no inferiors or overlapping windows, the
+specified rectangle of the window would be fully visible on the screen.
+Otherwise,
+it generates a
+.PN BadMatch
+error.
+If the window has a backing-store, then the backing-store contents are
+returned for regions of the window that are obscured by noninferior
+windows. 
+Otherwise, the return contents of such obscured regions are
+undefined.
+Also undefined are the returned contents of visible regions of inferiors
+of different depth than the specified window.
+.LP
+.ds fd .PN XGetSubImage
+.so ./Xsrc/errsent.com
+.PN BadDrawable ,
+.PN BadGC ,
+.PN BadMatch ,
+and
+.PN BadValue 
+errors.
+.NH 2
+Manipulating Cursors
+.XS
+\*(SN Manipulating Cursors 
+.XE
+.LP
+Xlib provides functions with which you can manipulate the cursor.
+This section discusses how to:
+.IP \(bu 5
+Create a cursor
+.IP \(bu 5
+Change or destroy a cursor
+.IP \(bu 5
+Define the cursor for a window
+.LE
+.LP
+These functions allow you to load and change cursors associated with
+windows.
+Each window can have a different cursor defined for it.
+Whenever the pointer is in a visible window, it will be set to the
+cursor defined for that window.
+If no cursor was defined for that window, the cursor
+will be the that defined for the parent window.
+.LP
+From X's perspective, a cursor consists of a cursor shape, mask, colors
+for the shape and mask, and ``hot spot''. 
+The cursor pixmap determines the shape of the cursor and must be a depth
+of one.
+The mask pixmap determines the bits which will be modified by the cursor.
+The colors determine the colors of the shape and mask.
+The hot spot defines the point on the cursor which will be reported
+when a pointer event occurs.
+There may be and probably are limitations imposed by the hardware on
+cursors as to size and whether a mask is implemented. 
+.IN "XQueryBestCursor"
+.PN XQueryBestCursor
+can be used to find out what sizes are possible.
+In the future, it is intended that most standard cursors will
+be stored as a special font.
+Client programs refer to cursors by using Cursor resource IDs.
+.NH 3
+Creating a Cursor
+.XS
+\*(SN Creating a Cursor 
+.XE
+.LP
+Xlib provides functions with which you can create a font, bitmap, or
+glyph cursor.
+.PN "XRecolorCursor" 
+can be used to change the color of the cursor to the desired colors.
+To create a cursor from two bitmaps, use
+.PN XCreatePixmapCursor .
+.IN "XCreatePixmapCursor"
+This is a fundamental request used by
+.PN XCreateFontCursor .
+.LP
+.sp
+To create a cursor from a standard font, use
+.PN XCreateFontCursor .
+.IN "XCreateFontCursor" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XCursor.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/shape_cur.a
+.LP
+X provides a set of standard cursor shapes in a special font named
+cursorfont.
+Applications are encouraged to use this interface for their cursors
+because the font can be customized for the individual display type.
+The shape argument specifies which glyph of the standard fonts
+to use.
+.LP
+The hotspot comes from the information stored in the cursor font.
+The initial colors of a cursor are a black foreground and a white
+background.
+See Appendix B
+for further information about cursors and their shapes in fonts.
+.LP
+.ds fd .PN XCreateFontCursor
+.so ./Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadMatch ,
+and
+.PN BadValue 
+errors.
+.LP
+.sp
+To create a cursor from font glyphs, use
+.PN XCreateGlyphCursor .
+.IN "XCreateGlyphCursor" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XCreateGlCur.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/sfont.a
+.so ./Xsrc/mfont.a
+.so ./Xsrc/schar.a
+.so ./Xsrc/mchar.a
+.so ./Xsrc/scolor.a
+.so ./Xsrc/bcolor.a
+.LP
+.so ./Xdescrip/XCreateGlCur.d
+The source_char must be a defined glyph in source_font, 
+and, if mask_font is given, mask_char must be a defined glyph in mask_font. 
+Otherwise, 
+.PN XCreateGlyphCursor
+generates a
+.PN BadValue
+error.
+The mask_font and character are optional.
+The origins of the source_char and mask_char (if defined) glyphs are
+positioned coincidently and define the hotspot. 
+The source_char and mask_char need not have the same bounding box metrics, 
+and there is no restriction on the placement of the hotspot relative to the bounding
+boxes. 
+If no mask_char is given, all pixels of the source are displayed.
+You can free the fonts immediately by calling
+.PN XFreeFont
+if no further explicit references to them are to be made. 
+.LP
+Note that schar and mchar are of type unsigned int, not of type
+XChar2b.
+For two-byte matrix fonts, the 16-bit value should be formed with the byte1
+member in the most significant byte and the byte2 member in the least
+significant byte.
+.LP
+.ds fd .PN XCreateGlyphCursor
+.so ./Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadFont ,
+and
+.PN BadValue 
+errors.
+.NH 3
+Changing and Destroying Cursors
+.XS
+\*(SN Changing and Destroying Cursors 
+.XE
+.LP
+Xlib provides functions with which you can change the cursor color,
+destroy the cursor, and determine the cursor size.
+.LP
+.sp
+To change the color of the specified cursor, use
+.PN XRecolorCursor .
+.IN "XRecolorCursor" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XRecolorCurs.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/cursor.a
+.so ./Xsrc/scolor.a
+.so ./Xsrc/bcolor.a
+.LP
+.so ./Xdescrip/XRecolorCurs.d
+.LP
+.ds fd .PN XRecolorCursor
+.so ./Xsrc/errsent4.com
+.PN BadCursor 
+error.
+.LP
+.sp
+To free (destroy) the specified cursor, use
+.PN XFreeCursor .
+.IN "XFreeCursor" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XFreeCursor.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/cursor.a
+.LP 
+.so ./Xdescrip/XFreeCursor.d
+The cursor storage is freed when no other resource references it.
+The specified cursor ID should not be referred to again or an error 
+will be generated.
+.LP
+.ds fd .PN XFreeCursor
+.so ./Xsrc/errsent4.com
+.PN BadCursor 
+error.
+.LP
+.sp
+To determine useful cursor sizes, use
+.PN XQueryBestCursor .
+.IN "XQueryBestCursor" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XQryCrsrSh.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+The drawable indicates the desired screen.
+.so ./Xsrc/widtheight5.a
+.so ./Xsrc/rwidtheight2.a
+.LP
+Some displays allow larger cursors than other displays.
+.PN XQueryBestCursor
+provides a way to find out what size cursors are actually
+possible on the display.
+.IN "Limitations" "Cursor"
+This function returns the largest size that can be displayed.
+For a cursor shape,
+it returns a bitmap shape acceptable for 
+.PN XCreatePixmapCursor .
+.IN "XCreatePixmapCursor"
+Applications should be prepared to use smaller cursors on displays which
+cannot support large ones.
+.LP
+.ds fd .PN XQueryBestCursor
+.so ./Xsrc/errsent4.com
+.PN BadDrawable 
+error.
+.NH 3
+Defining the Cursor
+.XS
+\*(SN Defining the Cursor 
+.XE
+.LP
+Xlib provides functions with which you can define or undefine the
+which cursor is to be displayed in a window.
+.LP
+.sp
+To define which cursor will be used in a window, use
+.PN XDefineCursor .
+.IN "Window" "Define Cursor"
+.IN "XDefineCursor" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XDefCursor.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/cursor_def.a
+.LP
+If a cursor is set, it will be used when the pointer is in the window.
+.LP
+.ds fd .PN XDefineCursor
+.so ./Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadCursor ,
+and
+.PN BadWindow 
+errors.
+.LP
+.sp
+To undefine the mouse cursor in the specified window, use
+.PN XUndefineCursor .
+.IN "Window" "Undefine Cursor"
+.IN "XUndefineCursor" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XUndefCursor.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.LP
+.so ./Xdescrip/XUndefCursor.d
+When the mouse is in the window, the parent's cursor will
+now be used.
+On the root window, with no cursor specified, the default cursor is restored.
+.LP
+.ds fd .PN XUndefineCursor
+.so ./Xsrc/errsent4.com
+.PN BadWindow 
+error.
+.bp

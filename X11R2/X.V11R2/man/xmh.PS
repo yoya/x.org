@@ -1,0 +1,5088 @@
+%!PS-Adobe-1.0
+%%Creator: orpheus:rws (Bob Scheifler,,418T,0628,)
+%%Title: stdin (ditroff)
+%%CreationDate: Sun Feb 28 22:27:10 1988
+%%EndComments
+% lib/psdit.pro -- prolog for psdit (ditroff) files
+% Copyright (c) 1984, 1985 Adobe Systems Incorporated. All Rights Reserved.
+% last edit: shore Sat Nov 23 20:28:03 1985
+% RCSID: $Header: psdit.pro,v 2.1 85/11/24 12:19:43 shore Rel $
+
+/$DITroff 140 dict def $DITroff begin
+/fontnum 1 def /fontsize 10 def /fontheight 10 def /fontslant 0 def
+/xi {0 72 11 mul translate 72 resolution div dup neg scale 0 0 moveto
+  /fontnum 1 def /fontsize 10 def /fontheight 10 def /fontslant 0 def F
+  /pagesave save def}def
+/PB{save /psv exch def currentpoint translate 
+  resolution 72 div dup neg scale 0 0 moveto}def
+/PE{psv restore}def
+/arctoobig 90 def /arctoosmall .05 def
+/m1 matrix def /m2 matrix def /m3 matrix def /oldmat matrix def
+/tan{dup sin exch cos div}def
+/point{resolution 72 div mul}def
+/dround	{transform round exch round exch itransform}def
+/xT{/devname exch def}def
+/xr{/mh exch def /my exch def /resolution exch def}def
+/xp{}def
+/xs{docsave restore end}def
+/xt{}def
+/xf{/fontname exch def /slotno exch def fontnames slotno get fontname eq not
+ {fonts slotno fontname findfont put fontnames slotno fontname put}if}def
+/xH{/fontheight exch def F}def
+/xS{/fontslant exch def F}def
+/s{/fontsize exch def /fontheight fontsize def F}def
+/f{/fontnum exch def F}def
+/F{fontheight 0 le {/fontheight fontsize def}if
+   fonts fontnum get fontsize point 0 0 fontheight point neg 0 0 m1 astore
+   fontslant 0 ne{1 0 fontslant tan 1 0 0 m2 astore m3 concatmatrix}if
+   makefont setfont .04 fontsize point mul 0 dround pop setlinewidth}def
+/X{exch currentpoint exch pop moveto show}def
+/N{3 1 roll moveto show}def
+/Y{exch currentpoint pop exch moveto show}def
+/S{show}def
+/ditpush{}def/ditpop{}def
+/AX{3 -1 roll currentpoint exch pop moveto 0 exch ashow}def
+/AN{4 2 roll moveto 0 exch ashow}def
+/AY{3 -1 roll currentpoint pop exch moveto 0 exch ashow}def
+/AS{0 exch ashow}def
+/MX{currentpoint exch pop moveto}def
+/MY{currentpoint pop exch moveto}def
+/MXY{moveto}def
+/cb{pop}def	% action on unknown char -- nothing for now
+/n{}def/w{}def
+/p{pop showpage pagesave restore /pagesave save def}def
+/abspoint{currentpoint exch pop add exch currentpoint pop add exch}def
+/distance{dup mul exch dup mul add sqrt}def
+/dstroke{currentpoint stroke moveto}def
+/Dl{2 copy gsave rlineto stroke grestore rmoveto}def
+/arcellipse{/diamv exch def /diamh exch def oldmat currentmatrix pop
+ currentpoint translate 1 diamv diamh div scale /rad diamh 2 div def
+ currentpoint exch rad add exch rad -180 180 arc oldmat setmatrix}def
+/Dc{dup arcellipse dstroke}def
+/De{arcellipse dstroke}def
+/Da{/endv exch def /endh exch def /centerv exch def /centerh exch def
+ /cradius centerv centerv mul centerh centerh mul add sqrt def
+ /eradius endv endv mul endh endh mul add sqrt def
+ /endang endv endh atan def
+ /startang centerv neg centerh neg atan def
+ /sweep startang endang sub dup 0 lt{360 add}if def
+ sweep arctoobig gt
+ {/midang startang sweep 2 div sub def /midrad cradius eradius add 2 div def
+  /midh midang cos midrad mul def /midv midang sin midrad mul def
+  midh neg midv neg endh endv centerh centerv midh midv Da
+  currentpoint moveto Da}
+ {sweep arctoosmall ge
+  {/controldelt 1 sweep 2 div cos sub 3 sweep 2 div sin mul div 4 mul def
+  centerv neg controldelt mul centerh controldelt mul
+  endv neg controldelt mul centerh add endh add
+  endh controldelt mul centerv add endv add
+  centerh endh add centerv endv add rcurveto dstroke}
+ {centerh endh add centerv endv add rlineto dstroke}ifelse}ifelse}def
+
+/Barray 200 array def % 200 values in a wiggle
+/D~{mark}def
+/D~~{counttomark Barray exch 0 exch getinterval astore /Bcontrol exch def pop
+ /Blen Bcontrol length def Blen 4 ge Blen 2 mod 0 eq and
+ {Bcontrol 0 get Bcontrol 1 get abspoint /Ycont exch def /Xcont exch def
+  Bcontrol 0 2 copy get 2 mul put Bcontrol 1 2 copy get 2 mul put
+  Bcontrol Blen 2 sub 2 copy get 2 mul put
+  Bcontrol Blen 1 sub 2 copy get 2 mul put
+  /Ybi /Xbi currentpoint 3 1 roll def def 0 2 Blen 4 sub
+  {/i exch def
+   Bcontrol i get 3 div Bcontrol i 1 add get 3 div
+   Bcontrol i get 3 mul Bcontrol i 2 add get add 6 div
+   Bcontrol i 1 add get 3 mul Bcontrol i 3 add get add 6 div
+   /Xbi Xcont Bcontrol i 2 add get 2 div add def
+   /Ybi Ycont Bcontrol i 3 add get 2 div add def
+   /Xcont Xcont Bcontrol i 2 add get add def
+   /Ycont Ycont Bcontrol i 3 add get add def
+   Xbi currentpoint pop sub Ybi currentpoint exch pop sub rcurveto
+  }for dstroke}if}def
+end
+/ditstart{$DITroff begin
+ /nfonts 60 def			% NFONTS makedev/ditroff dependent!
+ /fonts[nfonts{0}repeat]def
+ /fontnames[nfonts{()}repeat]def
+/docsave save def
+}def
+
+% character outcalls
+/oc {/pswid exch def /cc exch def /name exch def
+   /ditwid pswid fontsize mul resolution mul 72000 div def
+   /ditsiz fontsize resolution mul 72 div def
+   ocprocs name known{ocprocs name get exec}{name cb}
+   ifelse}def
+/fractm [.65 0 0 .6 0 0] def
+/fraction
+ {/fden exch def /fnum exch def gsave /cf currentfont def
+  cf fractm makefont setfont 0 .3 dm 2 copy neg rmoveto
+  fnum show rmoveto currentfont cf setfont(\244)show setfont fden show 
+  grestore ditwid 0 rmoveto} def
+/oce {grestore ditwid 0 rmoveto}def
+/dm {ditsiz mul}def
+/ocprocs 50 dict def ocprocs begin
+(14){(1)(4)fraction}def
+(12){(1)(2)fraction}def
+(34){(3)(4)fraction}def
+(13){(1)(3)fraction}def
+(23){(2)(3)fraction}def
+(18){(1)(8)fraction}def
+(38){(3)(8)fraction}def
+(58){(5)(8)fraction}def
+(78){(7)(8)fraction}def
+(sr){gsave 0 .06 dm rmoveto(\326)show oce}def
+(is){gsave 0 .15 dm rmoveto(\362)show oce}def
+(->){gsave 0 .02 dm rmoveto(\256)show oce}def
+(<-){gsave 0 .02 dm rmoveto(\254)show oce}def
+(==){gsave 0 .05 dm rmoveto(\272)show oce}def
+end
+
+% an attempt at a PostScript FONT to implement ditroff special chars
+% this will enable us to 
+%	cache the little buggers
+%	generate faster, more compact PS out of psdit
+%	confuse everyone (including myself)!
+50 dict dup begin
+/FontType 3 def
+/FontName /DIThacks def
+/FontMatrix [.001 0 0 .001 0 0] def
+/FontBBox [-260 -260 900 900] def% a lie but ...
+/Encoding 256 array def
+0 1 255{Encoding exch /.notdef put}for
+Encoding
+ dup 8#040/space put %space
+ dup 8#110/rc put %right ceil
+ dup 8#111/lt put %left  top curl
+ dup 8#112/bv put %bold vert
+ dup 8#113/lk put %left  mid curl
+ dup 8#114/lb put %left  bot curl
+ dup 8#115/rt put %right top curl
+ dup 8#116/rk put %right mid curl
+ dup 8#117/rb put %right bot curl
+ dup 8#120/rf put %right floor
+ dup 8#121/lf put %left  floor
+ dup 8#122/lc put %left  ceil
+ dup 8#140/sq put %square
+ dup 8#141/bx put %box
+ dup 8#142/ci put %circle
+ dup 8#143/br put %box rule
+ dup 8#144/rn put %root extender
+ dup 8#145/vr put %vertical rule
+ dup 8#146/ob put %outline bullet
+ dup 8#147/bu put %bullet
+ dup 8#150/ru put %rule
+ dup 8#151/ul put %underline
+ pop
+/DITfd 100 dict def
+/BuildChar{0 begin
+ /cc exch def /fd exch def
+ /charname fd /Encoding get cc get def
+ /charwid fd /Metrics get charname get def
+ /charproc fd /CharProcs get charname get def
+ charwid 0 fd /FontBBox get aload pop setcachedevice
+ 2 setlinejoin 40 setlinewidth
+ newpath 0 0 moveto gsave charproc grestore
+ end}def
+/BuildChar load 0 DITfd put
+%/UniqueID 5 def
+/CharProcs 50 dict def
+CharProcs begin
+/space{}def
+/.notdef{}def
+/ru{500 0 rls}def
+/rn{0 840 moveto 500 0 rls}def
+/vr{0 800 moveto 0 -770 rls}def
+/bv{0 800 moveto 0 -1000 rls}def
+/br{0 750 moveto 0 -1000 rls}def
+/ul{0 -140 moveto 500 0 rls}def
+/ob{200 250 rmoveto currentpoint newpath 200 0 360 arc closepath stroke}def
+/bu{200 250 rmoveto currentpoint newpath 200 0 360 arc closepath fill}def
+/sq{80 0 rmoveto currentpoint dround newpath moveto
+    640 0 rlineto 0 640 rlineto -640 0 rlineto closepath stroke}def
+/bx{80 0 rmoveto currentpoint dround newpath moveto
+    640 0 rlineto 0 640 rlineto -640 0 rlineto closepath fill}def
+/ci{500 360 rmoveto currentpoint newpath 333 0 360 arc
+    50 setlinewidth stroke}def
+
+/lt{0 -200 moveto 0 550 rlineto currx 800 2cx s4 add exch s4 a4p stroke}def
+/lb{0 800 moveto 0 -550 rlineto currx -200 2cx s4 add exch s4 a4p stroke}def
+/rt{0 -200 moveto 0 550 rlineto currx 800 2cx s4 sub exch s4 a4p stroke}def
+/rb{0 800 moveto 0 -500 rlineto currx -200 2cx s4 sub exch s4 a4p stroke}def
+/lk{0 800 moveto 0 300 -300 300 s4 arcto pop pop 1000 sub
+    0 300 4 2 roll s4 a4p 0 -200 lineto stroke}def
+/rk{0 800 moveto 0 300 s2 300 s4 arcto pop pop 1000 sub
+    0 300 4 2 roll s4 a4p 0 -200 lineto stroke}def
+/lf{0 800 moveto 0 -1000 rlineto s4 0 rls}def
+/rf{0 800 moveto 0 -1000 rlineto s4 neg 0 rls}def
+/lc{0 -200 moveto 0 1000 rlineto s4 0 rls}def
+/rc{0 -200 moveto 0 1000 rlineto s4 neg 0 rls}def
+end
+
+/Metrics 50 dict def Metrics begin
+/.notdef 0 def
+/space 500 def
+/ru 500 def
+/br 0 def
+/lt 416 def
+/lb 416 def
+/rt 416 def
+/rb 416 def
+/lk 416 def
+/rk 416 def
+/rc 416 def
+/lc 416 def
+/rf 416 def
+/lf 416 def
+/bv 416 def
+/ob 350 def
+/bu 350 def
+/ci 750 def
+/bx 750 def
+/sq 750 def
+/rn 500 def
+/ul 500 def
+/vr 0 def
+end
+
+DITfd begin
+/s2 500 def /s4 250 def /s3 333 def
+/a4p{arcto pop pop pop pop}def
+/2cx{2 copy exch}def
+/rls{rlineto stroke}def
+/currx{currentpoint pop}def
+/dround{transform round exch round exch itransform} def
+end
+end
+/DIThacks exch definefont pop
+ditstart
+(psc)xT
+576 1 1 xr
+1(Times-Roman)xf 1 f
+2(Times-Italic)xf 2 f
+3(Times-Bold)xf 3 f
+4(Times-BoldItalic)xf 4 f
+5(Helvetica)xf 5 f
+6(Helvetica-Bold)xf 6 f
+7(Courier)xf 7 f
+8(Courier-Bold)xf 8 f
+9(Symbol)xf 9 f
+10(DIThacks)xf 10 f
+10 s
+1 f
+xi
+%%EndProlog
+
+%%Page: 1 1
+10 s 0 xH 0 xS 1 f
+555 384(XMH)N
+755(\()X
+795(1)X
+848(\))X
+1954(UNIX)X
+2175(Programmer's)X
+2654(Manual)X
+3979(XMH)X
+4179(\()X
+4219(1)X
+4272(\))X
+3 f
+9 s
+555 768(NAME)N
+2 f
+10 s
+843 864(xmh)N
+1 f
+9 f
+997(-)X
+1 f
+1061(X)X
+1139(window)X
+1417(interface)X
+1719(to)X
+1801(the)X
+1919(mh)X
+2041(Mail)X
+2212(Handler)X
+3 f
+9 s
+555 998(SYNOPSIS)N
+10 s
+843 1094(xmh)N
+1 f
+1014([-path)X
+2 f
+1226(mailpath)X
+1 f
+1510(])X
+1557([-initial)X
+2 f
+1817(foldername)X
+1 f
+2182(])X
+2229([-\257ag])X
+2450([-)X
+2 f
+2504(toolkitoption)X
+1 f
+2932(...])X
+3 f
+9 s
+555 1228(DESCRIPTION)N
+1 f
+10 s
+843 1324(The)N
+2 f
+999(xmh)X
+1 f
+1164(program)X
+1467(provides)X
+1774(a)X
+1841(window-oriented)X
+2420(front)X
+2607(end)X
+2754(to)X
+2846(the)X
+2974(mh)X
+3106(Mail)X
+3287(Handler.)X
+3596(It)X
+3675(is)X
+3758(designed)X
+4073(to)X
+4165(take)X
+843 1420(advantage)N
+1189(of)X
+1276(a)X
+1332(large)X
+1513(graphical)X
+1832(display)X
+2083(and)X
+2219(pointer;)X
+2488(it)X
+2552(will)X
+2696(not)X
+2818(function)X
+3105(on)X
+3205(an)X
+3301(ordinary)X
+3593(terminal)X
+3880(at)X
+3958(all.)X
+2 f
+843 1612(Xmh)N
+1 f
+1018(consists)X
+1299(of)X
+1394 0.2596(user-interface)AX
+1864(code)X
+2043(only.)X
+2252(To)X
+2368(actually)X
+2649(do)X
+2756(things)X
+2978(with)X
+3147(your)X
+3321(mail,)X
+3510(it)X
+3581(makes)X
+3813(calls)X
+3987(to)X
+4076(the)X
+2 f
+4201(mh)X
+1 f
+843 1708(package.)N
+843 1900(Please)N
+1068(don't)X
+1257(be)X
+1353(misled)X
+1586(by)X
+1686(the)X
+1804(size)X
+1949(of)X
+2036(this)X
+2171(document.)X
+2 f
+2547(Xmh)X
+1 f
+2714(really)X
+2917(is)X
+2990(easy)X
+3153(to)X
+3235(use!)X
+3 f
+9 s
+555 2130(INSTALLATION)N
+1 f
+10 s
+843 2226(The)N
+995(current)X
+1250(version)X
+1513(of)X
+2 f
+1607(xmh)X
+1 f
+1768(requires)X
+2054(that)X
+2201(the)X
+2326(user)X
+2487(is)X
+2566(already)X
+2829(set)X
+2944(up)X
+3050(to)X
+3138(use)X
+2 f
+3271(mh)X
+1 f
+3369(,)X
+3415(version)X
+3677(6.)X
+3783(To)X
+3898(do)X
+4004(so,)X
+4121(see)X
+4250(if)X
+843 2322(there)N
+1031(is)X
+1111(a)X
+1174(\256le)X
+1303(called)X
+1522(.mh_pro\256le)X
+1920(in)X
+2009(your)X
+2183(home)X
+2388(directory.)X
+2745(If)X
+2826(you)X
+2973(do,)X
+3100(check)X
+3315(to)X
+3404(see)X
+3533(if)X
+3608(it)X
+3678(contains)X
+3971(a)X
+4033(line)X
+4179(that)X
+843 2418(starts)N
+1038(with)X
+1206(``Current-Folder''.)X
+1861(If)X
+1941(it)X
+2011(does,)X
+2204(then)X
+2368(you've)X
+2617(been)X
+2795(using)X
+2994(version)X
+3256(4)X
+3322(or)X
+3415(earlier)X
+3647(of)X
+2 f
+3739(mh)X
+1 f
+3837(;)X
+3884(to)X
+3971(convert)X
+4237(to)X
+843 2514(version)N
+1106(6,)X
+1193(you)X
+1340(must)X
+1522(remove)X
+1790(that)X
+1937(line.)X
+2124(\(Failure)X
+2405(to)X
+2494(do)X
+2601(so)X
+2699(causes)X
+2936(spurious)X
+3234(output)X
+3465(to)X
+3554(stderr,)X
+3783(which)X
+4005(can)X
+4143(hang)X
+2 f
+843 2610(xmh)N
+1 f
+997(depending)X
+1351(on)X
+1451(your)X
+1618(setup.\))X
+843 2802(If)N
+928(you)X
+1079(do)X
+1190(not)X
+1323(already)X
+1591(have)X
+1774(a)X
+1841(.mh_pro\256le,)X
+2263(you)X
+2414(can)X
+2556(create)X
+2779(one)X
+2925(\(and)X
+3098(everything)X
+3471(else)X
+3626(you)X
+3776(need\))X
+3985(by)X
+4095(typing)X
+843 2898(``inc'')N
+1069(to)X
+1151(the)X
+1269(shell.)X
+843 3090(For)N
+974(more)X
+1159(information,)X
+1577(refer)X
+1750(to)X
+1832(the)X
+2 f
+1950(mh)X
+1 f
+2068(documentation.)X
+3 f
+9 s
+555 3320(RUNNING)N
+929(XMH)X
+1 f
+10 s
+843 3416(Run)N
+2 f
+998(xmh)X
+1 f
+1154(as)X
+1243(you)X
+1385(would)X
+1607(any)X
+1745(other)X
+1932(X)X
+2012(application)X
+2390(\(e.g.,)X
+2575(xterm\).)X
+2851(It)X
+2921(will)X
+3066(accept)X
+3293(a)X
+3350(command-line)X
+3834(display)X
+4086(\(of)X
+4201(the)X
+843 3512(form)N
+1019(``-display)X
+1351(host:dpy''\);)X
+1749(the)X
+1867(default)X
+2110(display)X
+2361(is)X
+2434(speci\256ed)X
+2739(in)X
+2821(the)X
+2939(environment)X
+3364(variable)X
+3643(DISPLAY.)X
+843 3704(The)N
+994(rest)X
+1136(of)X
+1229(this)X
+1369(document)X
+1710(will)X
+1859(probably)X
+2169(be)X
+2270(rather)X
+2483(hard)X
+2651(to)X
+2738(follow)X
+2972(without)X
+3241(actually)X
+3520(running)X
+2 f
+3794(xmh)X
+1 f
+3953(and)X
+4094(seeing)X
+843 3800(the)N
+961(things)X
+1176(being)X
+1374(described.)X
+3 f
+9 s
+555 4030(BASIC)N
+805(SCREEN)X
+1127(LAYOUT)X
+2 f
+10 s
+843 4126(Xmh)N
+1 f
+1010(starts)X
+1199(out)X
+1321(with)X
+1483(a)X
+1539(single)X
+1750(screen.)X
+2016(There)X
+2224(will)X
+2368(be)X
+2464(6)X
+2524(or)X
+2611(7)X
+2671(areas)X
+2857(on)X
+2957(the)X
+3075(screen:)X
+3 f
+9 f
+843 4356(-)N
+845(-)X
+1 f
+1003(A)X
+1081(list)X
+1198(of)X
+1285(your)X
+1452(folders.)X
+1735(\(New)X
+1934(users)X
+2119(of)X
+2206(mh)X
+2328(will)X
+2472(see)X
+2595(only)X
+2757(``inbox'')X
+3067(here.\))X
+3 f
+9 f
+843 4490(-)N
+845(-)X
+1 f
+1003(A)X
+1081(list)X
+1198(of)X
+1285(the)X
+1403(global)X
+1623(and)X
+1759(folder-oriented)X
+2261(commands.)X
+3 f
+9 f
+843 4624(-)N
+845(-)X
+1 f
+1003(A)X
+1081(list)X
+1198(of)X
+1285(the)X
+1403(messages)X
+1726(in)X
+1808(one)X
+1944(of)X
+2031(your)X
+2198(folders)X
+2441(\(initially,)X
+2756(this)X
+2891(will)X
+3035(show)X
+3224(the)X
+3342(messages)X
+3665(in)X
+3747(``inbox''\).)X
+3 f
+9 f
+843 4758(-)N
+845(-)X
+1 f
+1003(A)X
+1081(list)X
+1198(of)X
+1285(the)X
+1403(message-oriented)X
+1985(commands.)X
+3 f
+9 f
+843 4892(-)N
+845(-)X
+1 f
+1003(A)X
+1081(view)X
+1257(of)X
+1344(one)X
+1480(of)X
+1567(your)X
+1734(messages.)X
+2097(\(Initially)X
+2397(this)X
+2532(is)X
+2605(blank.\))X
+3 f
+9 f
+843 5026(-)N
+845(-)X
+1 f
+1003(A)X
+1081(list)X
+1198(of)X
+1285(commands)X
+1652(for)X
+1766(the)X
+1884(message)X
+2176(being)X
+2374(viewed.)X
+843 5160(And,)N
+1021(there)X
+1202(will)X
+1346(possibly)X
+1632(be:)X
+3 f
+9 f
+843 5294(-)N
+845(-)X
+1 f
+1003(A)X
+1089(list)X
+1214(of)X
+1309 0.1953(message-sequences)AX
+1962(de\256ned)X
+2226(for)X
+2348(this)X
+2491(folder.)X
+2751(This)X
+2921(appears)X
+3195(just)X
+3338(below)X
+3562(the)X
+3688(list)X
+3813(of)X
+3907(messages)X
+4237(in)X
+1003 5390(this)N
+1153(folder.)X
+1419 0.2132(\(Message-sequences)AX
+2114(are)X
+2247(discussed)X
+2588(below;)X
+2840(if)X
+2923(you)X
+3077(don't)X
+3280(know)X
+3492(what)X
+3682(they)X
+3854(are,)X
+4007(then)X
+4179(you)X
+1003 5486(won't)N
+1210(have)X
+1382(any.\))X
+555 6144(X)N
+633(Version)X
+907(11)X
+2202(1)X
+2262(March)X
+2492(1988)X
+4259(1)X
+
+2 p
+%%Page: 2 2
+10 s 0 xH 0 xS 1 f
+555 384(XMH)N
+755(\()X
+795(1)X
+848(\))X
+1954(UNIX)X
+2175(Programmer's)X
+2654(Manual)X
+3979(XMH)X
+4179(\()X
+4219(1)X
+4272(\))X
+3 f
+9 s
+555 768(XMH)N
+761(AND)X
+947(THE)X
+1129(TOOLKIT)X
+2 f
+10 s
+843 864(Xmh)N
+1 f
+1015(uses)X
+1178(the)X
+1301(X)X
+1384(Toolkit.)X
+1684(Many)X
+1895(of)X
+1986(the)X
+2108(features)X
+2387(described)X
+2719(below)X
+2939(\(scrollbars,)X
+3322(buttonboxes,)X
+3757(etc.\))X
+3922(are)X
+4045(actually)X
+843 960(part)N
+995(of)X
+1089(the)X
+1214(Toolkit,)X
+1496(and)X
+1639(are)X
+1765(described)X
+2100(here)X
+2266(only)X
+2435(for)X
+2556(completeness.)X
+3055(For)X
+3193(more)X
+3385(information,)X
+3810(see)X
+3940(the)X
+4064(Toolkit)X
+843 1056(documentation.)N
+3 f
+9 s
+555 1286(SCROLLBARS)N
+1 f
+10 s
+843 1382(Some)N
+1046(parts)X
+1223(of)X
+1311(the)X
+1430(screen)X
+1657(will)X
+1802(have)X
+1975(a)X
+2032(vertical)X
+2294(area)X
+2450(on)X
+2551(the)X
+2670(left)X
+2798(containing)X
+3157(a)X
+3214(grey)X
+3377(bar.)X
+3540(This)X
+3702(area)X
+3857(is)X
+3930(a)X
+2 f
+3986(scrollbar)X
+1 f
+4279(.)X
+843 1478(They)N
+1035(are)X
+1161(used)X
+1335(whenever)X
+1675(the)X
+1800(data)X
+1961(in)X
+2050(a)X
+2113(window)X
+2398(takes)X
+2590(up)X
+2697(more)X
+2889(space)X
+3095(than)X
+3260(can)X
+3399(be)X
+3502(displayed.)X
+3876(The)X
+4027(grey)X
+4196(bar)X
+843 1574(indicates)N
+1157(what)X
+1342(portion)X
+1602(of)X
+1698(your)X
+1874(data)X
+2037(is)X
+2119(visible.)X
+2380(Thus,)X
+2588(if)X
+2665(the)X
+2791(entire)X
+3002(length)X
+3230(of)X
+3325(the)X
+3451(area)X
+3614(is)X
+3695(grey,)X
+3886(then)X
+4052(you)X
+4200(are)X
+843 1670(looking)N
+1107(at)X
+1185(all)X
+1285(your)X
+1452(data.)X
+1646(If)X
+1720(only)X
+1882(the)X
+2000(\256rst)X
+2144(half)X
+2289(is)X
+2362(grey,)X
+2545(then)X
+2703(you)X
+2843(are)X
+2962(looking)X
+3226(at)X
+3304(the)X
+3422(top)X
+3544(half)X
+3689(of)X
+3776(your)X
+3943(data.)X
+843 1862(You)N
+1009(can)X
+1149(use)X
+1284(the)X
+1410(pointer)X
+1665(in)X
+1755(the)X
+1881(scrollbar)X
+2190(to)X
+2280(change)X
+2536(what)X
+2720(part)X
+2873(of)X
+2968(the)X
+3094(data)X
+3256(is)X
+3337(visible.)X
+3618(If)X
+3700(you)X
+3848(click)X
+4032(with)X
+4201(the)X
+843 1958(middle)N
+1090(button,)X
+1339(then)X
+1502(the)X
+1625(top)X
+1752(of)X
+1844(the)X
+1967(grey)X
+2134(area)X
+2293(will)X
+2441(move)X
+2643(to)X
+2729(where)X
+2950(the)X
+3072(pointer)X
+3323(is,)X
+3420(and)X
+3560(the)X
+3682(corresponding)X
+4165(por-)X
+843 2054(tion)N
+997(of)X
+1093(data)X
+1256(will)X
+1409(be)X
+1514(displayed.)X
+1890(If)X
+1973(you)X
+2122(hold)X
+2293(down)X
+2500(the)X
+2627(middle)X
+2878(button,)X
+3131(you)X
+3280(can)X
+3421(drag)X
+3593(around)X
+3845(the)X
+3972(grey)X
+4144(area.)X
+843 2150(This)N
+1008(makes)X
+1236(it)X
+1303(easy)X
+1469(to)X
+1554(get)X
+1675(to)X
+1760(the)X
+1881(top)X
+2005(of)X
+2094(the)X
+2214(data:)X
+2392(just)X
+2529(press)X
+2716(with)X
+2880(the)X
+3000(middle,)X
+3264(drag)X
+3429(off)X
+3545(the)X
+3665(top)X
+3789(of)X
+3878(the)X
+3998(scrollbar,)X
+843 2246(and)N
+979(release.)X
+843 2438(If)N
+922(you)X
+1067(click)X
+1248(with)X
+1415(button)X
+1644(1,)X
+1729(then)X
+1892(the)X
+2015(data)X
+2174(to)X
+2261(the)X
+2384(right)X
+2560(of)X
+2652(the)X
+2775(pointer)X
+3026(will)X
+3174(scroll)X
+3376(to)X
+3462(the)X
+3584(top)X
+3710(of)X
+3801(the)X
+3923(window.)X
+4245(If)X
+843 2534(you)N
+984(click)X
+1161(with)X
+1324(pointer)X
+1572(button)X
+1797(3,)X
+1878(then)X
+2037(the)X
+2156(data)X
+2311(at)X
+2390(the)X
+2509(top)X
+2632(of)X
+2719(the)X
+2837(window)X
+3115(will)X
+3259(scroll)X
+3457(down)X
+3655(to)X
+3737(where)X
+3954(the)X
+4072(pointer)X
+843 2630(is.)N
+3 f
+9 s
+555 2860(BUTTONBOXES)N
+1 f
+10 s
+843 2956(Any)N
+1007(area)X
+1168(consisting)X
+1518(of)X
+1611(many)X
+1815(words)X
+2037(or)X
+2130(short)X
+2316(phrases,)X
+2603(each)X
+2777(enclosed)X
+3084(in)X
+3171(a)X
+3232(box,)X
+3397(is)X
+3475(called)X
+3692(a)X
+2 f
+3753(buttonbox)X
+1 f
+(.)S
+4138(Each)X
+843 3052(box)N
+985(is)X
+1060(actually)X
+1336(a)X
+1394(button)X
+1620(that)X
+1762(you)X
+1904(can)X
+2038(press)X
+2225(by)X
+2327(moving)X
+2593(the)X
+2713(pointer)X
+2961(onto)X
+3124(it)X
+3189(and)X
+3326(pressing)X
+3614(pointer)X
+3862(button)X
+4087(1.)X
+4188(If)X
+4263(a)X
+843 3148(given)N
+1044(buttonbox)X
+1391(has)X
+1521(more)X
+1709(buttons)X
+1967(in)X
+2052(it)X
+2119(than)X
+2280(can)X
+2415(\256t,)X
+2523(it)X
+2589(will)X
+2735(be)X
+2833(displayed)X
+3162(with)X
+3326(a)X
+3384(scrollbar,)X
+3707(so)X
+3800(you)X
+3942(can)X
+4076(always)X
+843 3244(scroll)N
+1041(to)X
+1123(the)X
+1241(button)X
+1465(you)X
+1605(want.)X
+3 f
+9 s
+555 3474(ADJUSTING)N
+1001(THE)X
+1183(RELATIVE)X
+1589(SIZES)X
+1823(OF)X
+1953(AREAS)X
+1 f
+10 s
+843 3570(If)N
+918(you're)X
+1149(not)X
+1272(satis\256ed)X
+1555(with)X
+1718(the)X
+1837(size)X
+1983(of)X
+2071(the)X
+2190(various)X
+2447(areas)X
+2634(on)X
+2735(the)X
+2854(screen,)X
+3101(they)X
+3260(can)X
+3393(easily)X
+3600(be)X
+3696(changed.)X
+4024(Near)X
+4201(the)X
+843 3666(right)N
+1020(edge)X
+1198(of)X
+1291(the)X
+1415(border)X
+1651(between)X
+1945(each)X
+2118(region)X
+2348(is)X
+2426(a)X
+2487(black)X
+2686(box,)X
+2851(called)X
+3068(a)X
+2 f
+3129(grip)X
+1 f
+3262(.)X
+3327(Simply)X
+3582(point)X
+3771(to)X
+3858(that)X
+4003(grip)X
+4157(with)X
+843 3762(the)N
+964(pointer,)X
+1234(press)X
+1422(a)X
+1481(pointer)X
+1731(button,)X
+1978(drag)X
+2144(up)X
+2247(or)X
+2337(down,)X
+2558(and)X
+2697(release.)X
+2984(Exactly)X
+3252(what)X
+3431(happens)X
+3716(depends)X
+4001(on)X
+4103(which)X
+843 3858(pointer)N
+1090(button)X
+1314(you)X
+1454(press.)X
+843 4050(If)N
+921(you)X
+1065(drag)X
+1232(with)X
+1398(the)X
+1520(middle)X
+1766(button,)X
+2014(then)X
+2176(only)X
+2342(that)X
+2486(border)X
+2720(will)X
+2868(move.)X
+3110(This)X
+3276(mode)X
+3477(is)X
+3553(simplest)X
+3842(to)X
+3927(understand,)X
+843 4146(but)N
+965(is)X
+1038(probably)X
+1343(the)X
+1461(least)X
+1628(useful.)X
+843 4338(If)N
+918(you)X
+1059(drag)X
+1223(with)X
+1386(pointer)X
+1634(button)X
+1858(1,)X
+1938(then)X
+2096(you)X
+2236(are)X
+2355(adjusting)X
+2668(the)X
+2786(size)X
+2931(of)X
+3018(the)X
+3136(window)X
+3414(above.)X
+2 f
+3666(Xmh)X
+1 f
+3833(will)X
+3977(attempt)X
+4237(to)X
+843 4434(compensate)N
+1242(by)X
+1342(adjusting)X
+1655(some)X
+1844(window)X
+2122(below)X
+2338(it.)X
+843 4626(If)N
+918(you)X
+1058(drag)X
+1221(with)X
+1383(pointer)X
+1630(button)X
+1854(3,)X
+1934(then)X
+2092(you)X
+2232(are)X
+2351(adjusting)X
+2664(the)X
+2782(size)X
+2927(of)X
+3014(the)X
+3132(window)X
+3410(below.)X
+2 f
+3666(Xmh)X
+1 f
+3833(will)X
+3977(attempt)X
+4237(to)X
+843 4722(compensate)N
+1242(by)X
+1342(adjusting)X
+1655(some)X
+1844(window)X
+2122(above)X
+2334(it.)X
+843 4914(All)N
+975(windows)X
+1294(have)X
+1476(a)X
+1542(mininum)X
+1860(and)X
+2006(maximum)X
+2360(size;)X
+2537(you)X
+2687(will)X
+2841(never)X
+3050(be)X
+3156(allowed)X
+3440(to)X
+3532(move)X
+3739(a)X
+3804(border)X
+4043(past)X
+4201(the)X
+843 5010(point)N
+1027(where)X
+1244(it)X
+1308(would)X
+1528(make)X
+1722(a)X
+1778(window)X
+2056(have)X
+2228(an)X
+2324(invalid)X
+2566(size.)X
+3 f
+9 s
+555 5240(SELECTED)N
+969(FOLDER)X
+1 f
+10 s
+843 5336(The)N
+993(selected)X
+1277(folder)X
+1494(is)X
+1571(whichever)X
+1930(foldername)X
+2320(is)X
+2397(hilighted)X
+2705(in)X
+2791(the)X
+2913(top)X
+3039(buttonbox.)X
+3427(Note)X
+3607(that)X
+3751(this)X
+3890(is)X
+3967(not)X
+4093(neces-)X
+843 5432(sarily)N
+1045(the)X
+1167(same)X
+1356(folder)X
+1572(that)X
+1716(is)X
+1793(being)X
+1995(viewed.)X
+2291(To)X
+2404(change)X
+2656(the)X
+2778(selected)X
+3061(folder,)X
+3297(just)X
+3436(press)X
+3625(on)X
+3729(the)X
+3851(desired)X
+4107(folder)X
+843 5528(button.)N
+555 6144(X)N
+633(Version)X
+907(11)X
+2202(1)X
+2262(March)X
+2492(1988)X
+4259(2)X
+
+3 p
+%%Page: 3 3
+10 s 0 xH 0 xS 1 f
+555 384(XMH)N
+755(\()X
+795(1)X
+848(\))X
+1954(UNIX)X
+2175(Programmer's)X
+2654(Manual)X
+3979(XMH)X
+4179(\()X
+4219(1)X
+4272(\))X
+3 f
+9 s
+555 768(GENERAL)N
+941(COMMANDS)X
+1411(AND)X
+1597(FOLDER)X
+1927(COMMANDS)X
+1 f
+10 s
+843 864(The)N
+988(second)X
+1231(buttonbox)X
+1575(contains)X
+1862(commands)X
+2229(of)X
+2316(a)X
+2372(global)X
+2592(nature:)X
+3 f
+843 1094(Quit)N
+1018(XMH)X
+1 f
+1163 1190(Exits)N
+2 f
+1347(xmh)X
+1 f
+1481(,)X
+1521(after)X
+1689(\256rst)X
+1833(checking)X
+2143(that)X
+2283(you)X
+2423(won't)X
+2630(lose)X
+2779(any)X
+2915(changes.)X
+3 f
+843 1324(Compose)N
+1179(Message)X
+1 f
+1163 1420(Composes)N
+1519(a)X
+1578(new)X
+1735(message.)X
+2070(A)X
+2151(new)X
+2308(window)X
+2589(will)X
+2736(be)X
+2835(brought)X
+3107(up;)X
+3232(for)X
+3349(a)X
+3408(description)X
+3787(of)X
+3877(it,)X
+3964(see)X
+4090(COM-)X
+1163 1516(POSITION)N
+1548(WINDOWS,)X
+1985(below.)X
+3 f
+843 1650(Open)N
+1049(Folder)X
+1 f
+1163 1746(Display)N
+1432(the)X
+1550(data)X
+1704(in)X
+1786(the)X
+1904(selected)X
+2183(folder.)X
+2435(Thus,)X
+2635(the)X
+2753(selected)X
+3032(folder)X
+3244(also)X
+3393(becomes)X
+3694(the)X
+3812(viewed)X
+4064(folder.)X
+3 f
+843 1880(Open)N
+1049(Folder)X
+1296(in)X
+1382(New)X
+1554(Window)X
+1 f
+1163 1976(Creates)N
+1433(a)X
+1498(new)X
+1661(screen,)X
+1916(and)X
+2061(displays)X
+2352(the)X
+2479(selected)X
+2767(folder)X
+2988(in)X
+3079(that)X
+3228(screen.)X
+3502(Note,)X
+3706(however,)X
+4031(that)X
+4179(you)X
+1163 2072(may)N
+1321(not)X
+1443(display)X
+1694(the)X
+1812(same)X
+1997(folder)X
+2209(in)X
+2291(more)X
+2476(than)X
+2634(one)X
+2770(screen)X
+2996(at)X
+3074(a)X
+3130(time.)X
+3 f
+843 2206(Create)N
+1096(Folder)X
+1 f
+1163 2302(Create)N
+1402(a)X
+1467(new)X
+1630(folder.)X
+1891(You)X
+2058(will)X
+2211(be)X
+2316(prompted)X
+2652(for)X
+2775(a)X
+2840(name)X
+3043(for)X
+3166(the)X
+3293(new)X
+3456(folder;)X
+3699(to)X
+3790(enter)X
+3979(the)X
+4105(name,)X
+1163 2398(point)N
+1348(the)X
+1467(pointer)X
+1715(at)X
+1794(the)X
+1913(blank)X
+2112(box)X
+2252(provided)X
+2557(and)X
+2693(type.)X
+2891(Hit)X
+3013(the)X
+3131(Con\256rm)X
+3417(button)X
+3641(when)X
+3835(\256nished,)X
+4128(or)X
+4215(hit)X
+1163 2494(Abort)N
+1370(to)X
+1452(cancel)X
+1678(this)X
+1813(operation.)X
+3 f
+843 2628(Delete)N
+1078(Folder)X
+1 f
+1163 2724(Destroy)N
+1449(the)X
+1579(selected)X
+1870(folder.)X
+2133(You)X
+2302(will)X
+2457(be)X
+2564(asked)X
+2778(to)X
+2871(con\256rm)X
+3151(this)X
+3297(action)X
+3524(\(see)X
+3685(CONFIRMATION)X
+1163 2820(WINDOWS\).)N
+3 f
+9 s
+555 3050(HIGHLIGHTED)N
+1117(MESSAGES,)X
+1557(SELECTED)X
+1971(MESSAGES)X
+555 3146(AND)N
+741(THE)X
+923(CURRENT)X
+1309(MESSAGE)X
+1 f
+10 s
+843 3242(It)N
+920(is)X
+1001(possible)X
+1291(to)X
+1381(highlight)X
+1697(a)X
+1761(set)X
+1878(of)X
+1973(messages)X
+2304(in)X
+2394(the)X
+2520(list)X
+2644(of)X
+2738(messages)X
+3068(for)X
+3189(the)X
+3314(viewed)X
+3573(folder.)X
+3832(To)X
+3948(highlight)X
+4263(a)X
+843 3338(message,)N
+1156(just)X
+1292(click)X
+1469(on)X
+1570(it)X
+1635(with)X
+1798(pointer)X
+2046(button)X
+2271(1.)X
+2372(To)X
+2482(highlight)X
+2791(a)X
+2848(range)X
+3048(of)X
+3136(messages,)X
+3480(click)X
+3657(on)X
+3758(the)X
+3877(\256rst)X
+4021(one)X
+4157(with)X
+843 3434(pointer)N
+1090(button)X
+1314(1)X
+1374(and)X
+1510(on)X
+1610(the)X
+1728(last)X
+1859(one)X
+1995(with)X
+2157(pointer)X
+2404(button)X
+2628(3.)X
+843 3626(The)N
+995(selected)X
+1281(messages)X
+1611(are)X
+1737(the)X
+1862(same)X
+2054(as)X
+2148(the)X
+2273(highlighted)X
+2664(messages,)X
+3014(if)X
+3090(any.)X
+3273(If)X
+3354(no)X
+3461(messages)X
+3790(are)X
+3915(highlighted,)X
+843 3722(then)N
+1001(the)X
+1119(selected)X
+1398(messages)X
+1721(are)X
+1840(considered)X
+2208(the)X
+2326(same)X
+2511(as)X
+2598(the)X
+2716(current)X
+2964(message.)X
+843 3914(The)N
+992(current)X
+1244(message)X
+1540(is)X
+1617(indicated)X
+1935(by)X
+2039(a)X
+2099('+')X
+2222(next)X
+2384(to)X
+2470(the)X
+2592(message)X
+2888(number.)X
+3197(It)X
+3270(usually)X
+3525(corresponds)X
+3937(to)X
+4022(the)X
+4143(mes-)X
+843 4010(sage)N
+1006(currently)X
+1316(being)X
+1514(viewed.)X
+3 f
+9 s
+555 4240(MESSAGE)N
+937(COMMANDS)X
+1 f
+10 s
+843 4336(The)N
+999(third)X
+1181(buttonbox)X
+1536(\(fourth)X
+1790(if)X
+1870(you)X
+2021(have)X
+2204 0.1953(message-sequences)AX
+2860(displayed\))X
+3225(contains)X
+3523(commands)X
+3901(to)X
+3993(deal)X
+4157(with)X
+843 4432(messages:)N
+3 f
+843 4662(Incorporate)N
+1273(New)X
+1445(Mail)X
+1 f
+1163 4758(Add)N
+1326(any)X
+1466(new)X
+1624(mail)X
+1790(received)X
+2087(to)X
+2173(your)X
+2344(inbox)X
+2550(folder,)X
+2786(and)X
+2926(set)X
+3039(the)X
+3161(current)X
+3413(message)X
+3709(to)X
+3795(be)X
+3895(the)X
+4017(\256rst)X
+4165(new)X
+1163 4854(message.)N
+1495(\(This)X
+1684(button)X
+1908(is)X
+1981(selectable)X
+2318(only)X
+2480(if)X
+2549(``inbox'')X
+2859(is)X
+2932(the)X
+3050(folder)X
+3262(being)X
+3460(viewed.\))X
+3 f
+843 4988(View)N
+1037(Next)X
+1218(Message)X
+1 f
+1163 5084(View)N
+1366(the)X
+1493(\256rst)X
+1646(selected)X
+1934(message.)X
+2275(If)X
+2358(no)X
+2467(messages)X
+2799(are)X
+2927(highlighted,)X
+3339(view)X
+3523(the)X
+3649(current)X
+3905(message.)X
+4245(If)X
+1163 5180(current)N
+1414(message)X
+1709(is)X
+1785(already)X
+2045(being)X
+2246(viewed,)X
+2521(view)X
+2700(the)X
+2820(\256rst)X
+2966(unmarked)X
+3309(message)X
+3603(after)X
+3773(the)X
+3893(current)X
+4143(mes-)X
+1163 5276(sage.)N
+3 f
+843 5410(View)N
+1037(Previous)X
+1355(Message)X
+1 f
+1163 5506(View)N
+1367(the)X
+1495(last)X
+1636(selected)X
+1925(message.)X
+2267(If)X
+2351(no)X
+2461(messages)X
+2794(are)X
+2922(highlighted,)X
+3335(view)X
+3520(the)X
+3647(current)X
+3904(message.)X
+4245(If)X
+1163 5602(current)N
+1423(message)X
+1727(is)X
+1812(already)X
+2081(being)X
+2291(viewed,)X
+2575(view)X
+2763(the)X
+2893(\256rst)X
+3049(unmarked)X
+3402(message)X
+3705(before)X
+3942(the)X
+4071(current)X
+1163 5698(message.)N
+555 6144(X)N
+633(Version)X
+907(11)X
+2202(1)X
+2262(March)X
+2492(1988)X
+4259(3)X
+
+4 p
+%%Page: 4 4
+10 s 0 xH 0 xS 1 f
+555 384(XMH)N
+755(\()X
+795(1)X
+848(\))X
+1954(UNIX)X
+2175(Programmer's)X
+2654(Manual)X
+3979(XMH)X
+4179(\()X
+4219(1)X
+4272(\))X
+3 f
+843 768(Mark)N
+1059(Deleted)X
+1 f
+1163 864(Mark)N
+1359(the)X
+1479(selected)X
+1760(messages)X
+2085(for)X
+2201(deletion.)X
+2521(If)X
+2597(no)X
+2699(messages)X
+3024(are)X
+3145(highlighted,)X
+3551(then)X
+3711(this)X
+3847(will)X
+3992(automati-)X
+1163 960(cally)N
+1339(display)X
+1590(the)X
+1708(next)X
+1866(unmarked)X
+2207(message.)X
+3 f
+843 1094(Mark)N
+1059(Move)X
+1 f
+1163 1190(Mark)N
+1358(the)X
+1477(selected)X
+1757(messages)X
+2081(to)X
+2164(be)X
+2261(moved)X
+2500(into)X
+2645(the)X
+2764(current)X
+3012(folder.)X
+3264(\(If)X
+3365(the)X
+3483(current)X
+3731(folder)X
+3943(is)X
+4016(the)X
+4134(same)X
+1163 1286(as)N
+1252(the)X
+1372(viewed)X
+1626(folder,)X
+1860(this)X
+1997(command)X
+2334(will)X
+2479(just)X
+2615(beep.\))X
+2855(If)X
+2930(no)X
+3031(messages)X
+3355(are)X
+3475(highlighted,)X
+3880(then)X
+4039(this)X
+4175(will)X
+1163 1382(automatically)N
+1619(display)X
+1870(the)X
+1988(next)X
+2146(unmarked)X
+2487(message.)X
+3 f
+843 1516(Mark)N
+1059(Copy)X
+1 f
+1163 1612(Mark)N
+1358(the)X
+1477(selected)X
+1757(messages)X
+2081(to)X
+2164(be)X
+2261(copied)X
+2496(into)X
+2641(the)X
+2760(current)X
+3009(folder.)X
+3262(\(If)X
+3364(the)X
+3483(current)X
+3731(folder)X
+3943(is)X
+4016(the)X
+4134(same)X
+1163 1708(as)N
+1250(the)X
+1368(viewed)X
+1620(folder,)X
+1852(this)X
+1987(command)X
+2323(will)X
+2467(just)X
+2602(beep.\))X
+3 f
+843 1842(Unmark)N
+1 f
+1163(Remove)X
+1450(any)X
+1586(of)X
+1673(the)X
+1791(above)X
+2003(three)X
+2184(marks)X
+2400(from)X
+2576(the)X
+2694(selected)X
+2973(messages.)X
+3 f
+843 1976(View)N
+1037(in)X
+1123(New)X
+1295(Window)X
+1 f
+1163 2072(Create)N
+1393(a)X
+1449(new)X
+1603(window)X
+1881(containing)X
+2239(only)X
+2401(a)X
+2457(view)X
+2633(of)X
+2720(the)X
+2838(\256rst)X
+2982(selected)X
+3261(message.)X
+3 f
+843 2206(Reply)N
+1 f
+1163(Create)X
+1393(a)X
+1449(composition)X
+1864(window)X
+2142(in)X
+2224(reply)X
+2409(to)X
+2491(the)X
+2609(\256rst)X
+2753(selected)X
+3032(message.)X
+3 f
+843 2340(Forward)N
+1 f
+1163 2436(Create)N
+1401(a)X
+1465(composition)X
+1888(window)X
+2174(whose)X
+2407(body)X
+2595(is)X
+2676(initialized)X
+3024(to)X
+3114(be)X
+3218(the)X
+3344(contents)X
+3638(of)X
+3732(the)X
+3857(selected)X
+4143(mes-)X
+1163 2532(sages.)N
+3 f
+843 2666(Use)N
+988(as)X
+1079(Composition)X
+1 f
+1163 2762(Create)N
+1412(a)X
+1487(composition)X
+1921(window)X
+2218(whose)X
+2462(body)X
+2661(is)X
+2753(initialized)X
+3112(to)X
+3213(be)X
+3328(this)X
+3481(message.)X
+3831(Note)X
+4025(that)X
+4183(any)X
+1163 2858(changes)N
+1446(you)X
+1589(make)X
+1786(in)X
+1871(the)X
+1992(composition)X
+2410(will)X
+2557(also)X
+2709(be)X
+2808(saved)X
+3014(in)X
+3099(this)X
+3237(message.)X
+3572(This)X
+3737(function)X
+4027(is)X
+4103(meant)X
+1163 2954(to)N
+1245(be)X
+1341(used)X
+1508(with)X
+1670(the)X
+1788(``drafts'')X
+2099(folder)X
+2311(\(see)X
+2461(COMPOSITION)X
+3028(WINDOWS\).)X
+3 f
+843 3088(Commit)N
+1144(Changes)X
+1 f
+1163 3184(Execute)N
+1442(any)X
+1578(deletions,)X
+1907(moves,)X
+2156(and)X
+2292(copies)X
+2517(that)X
+2657(have)X
+2829(been)X
+3001(marked)X
+3262(in)X
+3344(this)X
+3479(folder.)X
+3 f
+843 3318(Print)N
+1 f
+1163(Print)X
+1341(the)X
+1462(selected)X
+1744(messages.)X
+2 f
+2110(Xmh)X
+1 f
+2280(normally)X
+2591(prints)X
+2795(by)X
+2897(invoking)X
+3203(the)X
+2 f
+3323(enscript)X
+1 f
+3581(\(1\))X
+3697(command,)X
+4055(but)X
+4179(you)X
+1163 3414(may)N
+1321(change)X
+1569(the)X
+1687(command)X
+2023(it)X
+2087(uses.)X
+2285(\(See)X
+2448(CUSTOMIZING,)X
+3040(below\).)X
+3 f
+843 3548(Pack)N
+1032(folder)X
+1 f
+1163 3644(Renumber)N
+1517(the)X
+1635(messages)X
+1958(in)X
+2040(this)X
+2175(folder)X
+2387(so)X
+2478(they)X
+2636(start)X
+2794(with)X
+2956(1)X
+3016(and)X
+3152(increment)X
+3493(by)X
+3593(1.)X
+3 f
+843 3778(Sort)N
+1010(folder)X
+1 f
+1163 3874(Sort)N
+1330(the)X
+1462(messages)X
+1799(in)X
+1895(this)X
+2044(folder)X
+2270(in)X
+2366(chronological)X
+2841(order.)X
+3085(As)X
+3207(a)X
+3276(side)X
+3438(effect,)X
+3675(this)X
+3823(also)X
+3985(packs)X
+4201(the)X
+1163 3970(folder.)N
+3 f
+843 4104(Force)N
+1060(Rescan)X
+1 f
+1163 4200(Rebuild)N
+1443(the)X
+1568(list)X
+1692(of)X
+1786(messages.)X
+2156(This)X
+2325(can)X
+2464(be)X
+2567(used)X
+2741(whenever)X
+3081(you)X
+3228(suspect)X
+2 f
+3490(xmh)X
+1 f
+3624('s)X
+3708(idea)X
+3868(of)X
+3961(what)X
+4143(mes-)X
+1163 4296(sages)N
+1359(you)X
+1501(have)X
+1675(is)X
+1749(wrong.)X
+2015(\(In)X
+2130(particular,)X
+2479(this)X
+2615(is)X
+2689(useful)X
+2906(if)X
+2976(you)X
+3117(ever)X
+3277(change)X
+3526(things)X
+3742(using)X
+3936(straight)X
+4197(mh)X
+1163 4392(commands)N
+1530(without)X
+1794(using)X
+2 f
+1987(xmh)X
+1 f
+2121(.\))X
+3 f
+843 4526(Pick)N
+1014(Messages)X
+1 f
+1163 4622(De\256ne)N
+1397(a)X
+1453(new)X
+1607 0.2031(message-sequence.)AX
+2261(\(See)X
+2424(MESSAGE-SEQUENCES.\))X
+843 4756(The)N
+1008(following)X
+1359(buttons)X
+1634(will)X
+1798(appear)X
+2053(but)X
+2195(will)X
+2359(be)X
+2475(sensitive)X
+2795(only)X
+2976(if)X
+3064(the)X
+3201(current)X
+3468(folder)X
+3699(has)X
+3845(any)X
+4000(message-)X
+843 4852(sequences)N
+1189(de\256ned)X
+1445(\(See)X
+1608(MESSAGE-SEQUENCES\).)X
+3 f
+843 4986(Open)N
+1049(Sequence)X
+1 f
+1163 5082(Change)N
+1428(the)X
+1546(viewed)X
+1798(sequence)X
+2113(to)X
+2195(be)X
+2291(the)X
+2409(same)X
+2594(as)X
+2681(the)X
+2799(selected)X
+3078(sequence.)X
+3 f
+843 5216(Add)N
+1009(to)X
+1096(Sequence)X
+1 f
+1163 5312(Add)N
+1321(the)X
+1439(selected)X
+1718(messages)X
+2041(to)X
+2123(the)X
+2241(selected)X
+2520(sequence.)X
+3 f
+843 5446(Remove)N
+1140(from)X
+1330(Sequence)X
+1 f
+1163 5542(Remove)N
+1450(the)X
+1568(selected)X
+1847(messages)X
+2170(from)X
+2346(the)X
+2464(selected)X
+2743(sequence.)X
+555 6144(X)N
+633(Version)X
+907(11)X
+2202(1)X
+2262(March)X
+2492(1988)X
+4259(4)X
+
+5 p
+%%Page: 5 5
+10 s 0 xH 0 xS 1 f
+555 384(XMH)N
+755(\()X
+795(1)X
+848(\))X
+1954(UNIX)X
+2175(Programmer's)X
+2654(Manual)X
+3979(XMH)X
+4179(\()X
+4219(1)X
+4272(\))X
+3 f
+843 768(Delete)N
+1078(Sequence)X
+1 f
+1163 864(Remove)N
+1464(the)X
+1596(selected)X
+1888(sequence)X
+2216(entirely.)X
+2534(Note)X
+2723(the)X
+2854(messages)X
+3190(themselves)X
+3579(are)X
+3711(not)X
+3846(affected;)X
+4161(they)X
+1163 960(simply)N
+1400(are)X
+1519(no)X
+1619(longer)X
+1844(grouped)X
+2127(together)X
+2410(as)X
+2497(a)X
+2553 0.2031(message-sequence.)AX
+3 f
+9 s
+555 1190(VIEW)N
+785(WINDOWS)X
+1 f
+10 s
+843 1286(The)N
+989(commands)X
+1357(in)X
+1440(these)X
+1626(windows)X
+1936(are)X
+2056(the)X
+2175(same)X
+2361(as)X
+2448(the)X
+2566(message)X
+2858(commands)X
+3225(by)X
+3325(the)X
+3443(same)X
+3628(name,)X
+3842(except)X
+4072(instead)X
+843 1382(of)N
+936(affecting)X
+1248(the)X
+1372(selected)X
+1656(messages,)X
+2004(they)X
+2167(affect)X
+2376(the)X
+2499(viewed)X
+2756(message.)X
+3093(In)X
+3185(addition)X
+3472(there)X
+3658(is)X
+3736(the)X
+3859(``Edit)X
+4071(View'')X
+843 1478(button,)N
+1094(which)X
+1317(allows)X
+1553(you)X
+1700(to)X
+1789(edit)X
+1936(the)X
+2061(message)X
+2360(being)X
+2565(viewed.)X
+2864(While)X
+3086(editing,)X
+3354(the)X
+3478(``Edit)X
+3691(View'')X
+3945(button)X
+4175(will)X
+843 1574(change)N
+1091(to)X
+1173(a)X
+1229(``Save)X
+1459(View'')X
+1707(button,)X
+1951(which)X
+2167(should)X
+2400(be)X
+2496(pressed)X
+2757(to)X
+2839(save)X
+3002(your)X
+3169(edits.)X
+3 f
+9 s
+555 1804(COMPOSITION)N
+1113(WINDOWS)X
+1 f
+10 s
+843 1900(Aside)N
+1051(from)X
+1228(the)X
+1347(normal)X
+1595(text)X
+1736(editing)X
+1979(functions,)X
+2318(there)X
+2500(are)X
+2620(three)X
+2801(command)X
+3137(buttons)X
+3392(associated)X
+3742(with)X
+3904(composition)X
+843 1996(windows:)N
+3 f
+843 2130(Abort)N
+1068(Comp)X
+1 f
+1163 2226(Abort)N
+1372(this)X
+1509(composition)X
+1926(window.)X
+2246(If)X
+2322(changes)X
+2603(have)X
+2776(been)X
+2949(made,)X
+3164(you)X
+3305(will)X
+3450(be)X
+3547(asked)X
+3751(to)X
+3834(con\256rm)X
+4104(losing)X
+1163 2322(them.)N
+3 f
+843 2456(Send)N
+1 f
+1163(Send)X
+1347(this)X
+1486(composition.)X
+1945(If)X
+2023(any)X
+2163(errors)X
+2375(appear)X
+2614(in)X
+2699(the)X
+2820(message)X
+3115(header,)X
+3373(you)X
+3516(will)X
+3663(receive)X
+3919(a)X
+3978(mail)X
+4143(mes-)X
+1163 2552(sage)N
+1326(containing)X
+1684(this)X
+1819(composition)X
+2234(and)X
+2370(a)X
+2426(description)X
+2802(of)X
+2889(the)X
+3007(error.)X
+3 f
+843 2686(Save)N
+1 f
+1163(Save)X
+1347(this)X
+1490(composition)X
+1913(in)X
+2003(your)X
+2178(drafts)X
+2389(folder.)X
+2649(\(If)X
+2758(you)X
+2906(do)X
+3014(not)X
+3143(have)X
+3322(a)X
+3385(folder)X
+3604(named)X
+3845(``drafts'',)X
+4183(one)X
+1163 2782(will)N
+1311(be)X
+1411(created.\))X
+1735(Then)X
+1924(you)X
+2068(can)X
+2204(safely)X
+2420(close)X
+2609(the)X
+2731(composition.)X
+3190(At)X
+3294(some)X
+3486(future)X
+3701(date,)X
+3878(you)X
+4021(can)X
+4156(con-)X
+1163 2878(tinue)N
+1344(working)X
+1632(on)X
+1733(the)X
+1852(composition)X
+2268(by)X
+2369(opening)X
+2648(your)X
+2816(drafts)X
+3020(folder,)X
+3253(selecting)X
+3559(the)X
+3678(message,)X
+3990(and)X
+4126(using)X
+1163 2974(the)N
+1281(``Use)X
+1480(as)X
+1567(Composition'')X
+2053(command.)X
+3 f
+9 s
+555 3204(TEXT)N
+781(EDITING)X
+1123(COMMANDS)X
+1 f
+10 s
+843 3300(All)N
+968(of)X
+1058(the)X
+1179(text)X
+1322(editing)X
+1567(commands)X
+1937(are)X
+2059(actually)X
+2335(de\256ned)X
+2593(by)X
+2695(the)X
+2815(Text)X
+2984(widget)X
+3224(in)X
+3308(the)X
+3428(X)X
+3508(Toolkit.)X
+3805(The)X
+3952(commands)X
+843 3396(may)N
+1008(be)X
+1111(bound)X
+1337(to)X
+1425(different)X
+1728(keys)X
+1901(than)X
+2065(the)X
+2189(defaults)X
+2469(described)X
+2803(below)X
+3025(through)X
+3300(the)X
+3424(standard)X
+3722(X)X
+3806(Toolkit)X
+4067(key)X
+4209(re-)X
+843 3492(binding)N
+1107(mechanisms.)X
+1563(See)X
+1699(the)X
+1817(X)X
+1895(Toolkit)X
+2150(and)X
+2286(Athena)X
+2538(Widgets)X
+2825(documentation)X
+3321(for)X
+3435(more)X
+3620(details.)X
+843 3684(Whenever)N
+1196(you)X
+1338(are)X
+1459(asked)X
+1664(to)X
+1747(enter)X
+1929(any)X
+2066(text,)X
+2227(you)X
+2368(will)X
+2513(be)X
+2610(using)X
+2804(a)X
+2861(standard)X
+3154(text)X
+3295(editing)X
+3538(interface.)X
+3881(Various)X
+4156(con-)X
+843 3780(trol)N
+978(and)X
+1118(meta)X
+1298(keystroke)X
+1634(combinations)X
+2089(are)X
+2212(bound)X
+2436(to)X
+2522(a)X
+2582(somewhat)X
+2931(Emacs-like)X
+3315(set)X
+3427(of)X
+3517(commands.)X
+3927(In)X
+4017(addition,)X
+843 3876(the)N
+965(pointer)X
+1216(buttons)X
+1475(may)X
+1637(be)X
+1737(used)X
+1908(to)X
+1994(select)X
+2201(a)X
+2260(portion)X
+2514(of)X
+2604(text)X
+2747(or)X
+2837(to)X
+2922(move)X
+3123(the)X
+3244(insertion)X
+3547(point)X
+3734(in)X
+3819(the)X
+3940(text.)X
+4103(Press-)X
+843 3972(ing)N
+972(pointer)X
+1226(button)X
+1457(1)X
+1524(causes)X
+1761(the)X
+1886(insertion)X
+2193(point)X
+2383(to)X
+2471(move)X
+2675(to)X
+2763(the)X
+2887(pointer.)X
+3180(Double-clicking)X
+3727(button)X
+3957(1)X
+4023(selects)X
+4263(a)X
+843 4068(word,)N
+1051(triple-clicking)X
+1528(selects)X
+1765(a)X
+1824(paragraph,)X
+2189(and)X
+2327(quadruple-clicking)X
+2955(selects)X
+3191(everything.)X
+3596(Any)X
+3756(selection)X
+4063(may)X
+4223(be)X
+843 4164(extended)N
+1153(in)X
+1235(either)X
+1438(direction)X
+1743(by)X
+1843(using)X
+2036(pointer)X
+2283(button)X
+2507(3.)X
+843 4356(In)N
+932(the)X
+1052(following,)X
+1405(a)X
+2 f
+1463(line)X
+1 f
+1605(refers)X
+1811(to)X
+1895(one)X
+2033(displayed)X
+2362(row)X
+2509(of)X
+2598(characters)X
+2947(in)X
+3031(the)X
+3151(window.)X
+3471(A)X
+2 f
+3550(paragraph)X
+1 f
+3913(refers)X
+4118(to)X
+4201(the)X
+843 4452(text)N
+990(between)X
+1285(carriage)X
+1572(returns.)X
+1862(Text)X
+2036(within)X
+2266(a)X
+2328(paragraph)X
+2676(is)X
+2755(broken)X
+3004(into)X
+3154(lines)X
+3331(based)X
+3540(on)X
+3646(the)X
+3770(current)X
+4024(width)X
+4232(of)X
+843 4548(the)N
+961(window.)X
+843 4740(The)N
+988(following)X
+1319(keystroke)X
+1651(combinations)X
+2102(are)X
+2221(de\256ned:)X
+3 f
+843 4874(Control-A)N
+1 f
+1163 4970(Move)N
+1370(to)X
+1452(the)X
+1570(beginning)X
+1910(of)X
+1997(the)X
+2115(current)X
+2363(line.)X
+3 f
+843 5104(Control-B,)N
+1230(Control-H,)X
+1626(Backspace)X
+1 f
+1163 5200(Move)N
+1370(backward)X
+1703(one)X
+1839(character.)X
+3 f
+843 5334(Control-D)N
+1 f
+1163 5430(Delete)N
+1393(the)X
+1511(next)X
+1669(character.)X
+3 f
+843 5564(Control-E)N
+1 f
+1163 5660(Move)N
+1370(to)X
+1452(the)X
+1570(end)X
+1706(of)X
+1793(the)X
+1911(current)X
+2159(line.)X
+555 6144(X)N
+633(Version)X
+907(11)X
+2202(1)X
+2262(March)X
+2492(1988)X
+4259(5)X
+
+6 p
+%%Page: 6 6
+10 s 0 xH 0 xS 1 f
+555 384(XMH)N
+755(\()X
+795(1)X
+848(\))X
+1954(UNIX)X
+2175(Programmer's)X
+2654(Manual)X
+3979(XMH)X
+4179(\()X
+4219(1)X
+4272(\))X
+3 f
+843 768(Control-F)N
+1 f
+1163 864(Move)N
+1370(forward)X
+1645(one)X
+1781(character.)X
+3 f
+843 998(Control-J,)N
+1217(LineFeed)X
+1 f
+1163 1094(Create)N
+1393(a)X
+1449(new)X
+1603(paragraph)X
+1945(with)X
+2107(the)X
+2225(same)X
+2410(indentation)X
+2790(as)X
+2877(the)X
+2995(previous)X
+3291(one.)X
+3 f
+843 1228(Control-K)N
+1 f
+1163 1324(Kill)N
+1307(the)X
+1425(rest)X
+1561(of)X
+1648(this)X
+1783(line.)X
+3 f
+843 1458(Control-L)N
+1 f
+1163 1554(Repaint)N
+1432(this)X
+1567(window.)X
+3 f
+843 1688(Control-M,)N
+1253(Return)X
+1 f
+1163 1784(New)N
+1335(paragraph.)X
+3 f
+843 1918(Control-N)N
+1 f
+1163 2014(Move)N
+1370(down)X
+1568(to)X
+1650(the)X
+1768(next)X
+1926(line.)X
+3 f
+843 2148(Control-O)N
+1 f
+1163 2244(Break)N
+1375(this)X
+1510(paragraph)X
+1852(into)X
+1996(two.)X
+3 f
+843 2378(Control-P)N
+1 f
+1163 2474(Move)N
+1370(up)X
+1470(to)X
+1552(the)X
+1670(previous)X
+1966(line.)X
+3 f
+843 2608(Control-V)N
+1 f
+1163 2704(Move)N
+1370(down)X
+1568(to)X
+1650(the)X
+1768(next)X
+1926(screenfull)X
+2263(of)X
+2350(text.)X
+3 f
+843 2838(Control-W)N
+1 f
+1163 2934(Kill)N
+1307(the)X
+1425(selected)X
+1704(text.)X
+3 f
+843 3068(Control-Y)N
+1 f
+1163 3164(Insert)N
+1366(the)X
+1484(last)X
+1615(killed)X
+1817(text.)X
+3 f
+843 3298(Control-Z)N
+1 f
+1163 3394(Scroll)N
+1374(the)X
+1492(text)X
+1632(one)X
+1768(line)X
+1908(up.)X
+3 f
+843 3528(Meta-<)N
+1 f
+1163(Move)X
+1370(to)X
+1452(the)X
+1570(beginning)X
+1910(of)X
+1997(the)X
+2115(document.)X
+3 f
+843 3662(Meta->)N
+1 f
+1163(Move)X
+1370(to)X
+1452(the)X
+1570(end)X
+1706(of)X
+1793(the)X
+1911(document.)X
+3 f
+843 3796(Meta-[)N
+1 f
+1163(Move)X
+1370(backward)X
+1703(one)X
+1839(paragraph.)X
+3 f
+843 3930(Meta-])N
+1 f
+1163(Move)X
+1370(forward)X
+1645(one)X
+1781(paragraph.)X
+3 f
+843 4064(Meta-B)N
+1 f
+1163(Move)X
+1370(backward)X
+1703(one)X
+1839(word.)X
+3 f
+843 4198(Meta-D)N
+1 f
+1163(Kill)X
+1307(the)X
+1425(next)X
+1583(word.)X
+3 f
+843 4332(Meta-F)N
+1 f
+1163(Move)X
+1370(forward)X
+1645(one)X
+1781(word.)X
+3 f
+843 4466(Meta-H,)N
+1151 0.3625(Meta-Delete)AX
+1 f
+1163 4562(Kill)N
+1307(the)X
+1425(previous)X
+1721(word.)X
+3 f
+843 4696(Meta-I)N
+1 f
+1163(Insert)X
+1372(a)X
+1434(\256le.)X
+1602(If)X
+1682(any)X
+1824(text)X
+1970(is)X
+2049(selected,)X
+2354(use)X
+2486(the)X
+2609(selected)X
+2893(text)X
+3038(as)X
+3130(the)X
+3253(\256lename.)X
+3594(Otherwise,)X
+3969(a)X
+4030(box)X
+4175(will)X
+1163 4792(appear)N
+1398(in)X
+1480(which)X
+1696(you)X
+1836(can)X
+1968(type)X
+2126(the)X
+2244(desired)X
+2496(\256lename.)X
+3 f
+843 4926(Meta-V)N
+1 f
+1163(Move)X
+1370(up)X
+1470(to)X
+1552(the)X
+1670(previous)X
+1966(screenfull)X
+2303(of)X
+2390(text.)X
+3 f
+843 5060(Meta-Y)N
+1 f
+1163(Stuff)X
+1344(the)X
+1463(last)X
+1595(selected)X
+1875(text)X
+2016(here.)X
+2216(Note)X
+2392(that)X
+2532(this)X
+2667(can)X
+2799(be)X
+2895(text)X
+3035(selected)X
+3314(in)X
+3396(some)X
+3585(other)X
+3770(text)X
+3910(subwindow.)X
+1163 5156(Also,)N
+1357(if)X
+1429(you)X
+1572(select)X
+1778(some)X
+1969(text)X
+2111(in)X
+2195(an)X
+2293(xterm)X
+2502(window,)X
+2802(it)X
+2868(may)X
+3028(be)X
+3126(inserted)X
+3402(in)X
+3486(an)X
+2 f
+3584(xmh)X
+1 f
+3740(window)X
+4020(with)X
+4184(this)X
+1163 5252(command.)N
+1539(Pressing)X
+1830(pointer)X
+2077(button)X
+2301(2)X
+2361(is)X
+2434(equivalent)X
+2788(to)X
+2870(this.)X
+3 f
+843 5386(Meta-Z)N
+1 f
+1163(Scroll)X
+1374(the)X
+1492(text)X
+1632(one)X
+1768(line)X
+1908(down.)X
+3 f
+843 5520(Delete)N
+1 f
+1163(Delete)X
+1393(the)X
+1511(previous)X
+1807(character.)X
+555 6144(X)N
+633(Version)X
+907(11)X
+2202(1)X
+2262(March)X
+2492(1988)X
+4259(6)X
+
+7 p
+%%Page: 7 7
+10 s 0 xH 0 xS 1 f
+555 384(XMH)N
+755(\()X
+795(1)X
+848(\))X
+1954(UNIX)X
+2175(Programmer's)X
+2654(Manual)X
+3979(XMH)X
+4179(\()X
+4219(1)X
+4272(\))X
+3 f
+9 s
+555 768(CONFIRMATION)N
+1173(WINDOWS)X
+1 f
+10 s
+843 864(Whenever)N
+1199(you)X
+1344(press)X
+1534(a)X
+1595(button)X
+1824(that)X
+1969(may)X
+2132(cause)X
+2336(you)X
+2481(to)X
+2568(lose)X
+2721(some)X
+2914(work)X
+3103(or)X
+3194(is)X
+3271(otherwise)X
+3607(dangerous,)X
+3981(a)X
+4041(window)X
+843 960(will)N
+1008(appear)X
+1264(asking)X
+1514(you)X
+1675(to)X
+1778(con\256rm)X
+2068(the)X
+2207(action.)X
+2484(This)X
+2667(window)X
+2966(will)X
+3131(contain)X
+3408(an)X
+3525(``Abort'')X
+3861(button)X
+4106(and)X
+4263(a)X
+843 1056(``Con\256rm'')N
+1243(button.)X
+1513(Pressing)X
+1810(the)X
+1934(``Abort'')X
+2255(button)X
+2485(cancels)X
+2748(the)X
+2872(operation,)X
+3220(and)X
+3361(pressing)X
+3653(the)X
+3776(``Con\256rm'')X
+4175(will)X
+843 1152(proceed)N
+1123(with)X
+1290(the)X
+1413(operation.)X
+1781(\(A)X
+1891(very)X
+2059(handy)X
+2280(shortcut)X
+2563(exists:)X
+2792(if)X
+2866(you)X
+3011(press)X
+3201(the)X
+3324(offending)X
+3661(button)X
+3889(again,)X
+4107(it)X
+4175(will)X
+843 1248(be)N
+956(interpreted)X
+1341(as)X
+1445(a)X
+1518(``Con\256rm''.)X
+1969(If)X
+2060(you)X
+2217(press)X
+2419(any)X
+2571(other)X
+2772(command)X
+3124(button,)X
+3384(it)X
+3464(will)X
+3624(be)X
+3736(interpreted)X
+4120(as)X
+4223(an)X
+843 1344(``Abort''.\))N
+3 f
+9 s
+555 1574(MESSAGE-SEQUENCES)N
+1 f
+10 s
+843 1670(A)N
+922(mh)X
+1045(message)X
+1338(sequence)X
+1654(is)X
+1728(just)X
+1863(a)X
+1919(set)X
+2028(of)X
+2115(messages)X
+2438(associated)X
+2788(with)X
+2950(some)X
+3139(name.)X
+3373(They)X
+3558(are)X
+3677(local)X
+3853(to)X
+3935(a)X
+3991(particular)X
+843 1766(folder;)N
+1080(two)X
+1223(different)X
+1523(folders)X
+1769(can)X
+1904(have)X
+2079(sequences)X
+2428(with)X
+2593(the)X
+2714(same)X
+2902(name.)X
+3139(In)X
+3229(all)X
+3332(folders,)X
+3598(the)X
+3719(sequence)X
+4036(``all'')X
+4246(is)X
+843 1862(prede\256ned;)N
+1225(it)X
+1290(consists)X
+1564(of)X
+1652(the)X
+1771(set)X
+1881(of)X
+1969(all)X
+2070(messages)X
+2394(in)X
+2477(that)X
+2618(folder.)X
+2871(\(The)X
+3044(sequence)X
+3359(``cur'')X
+3590(is)X
+3663(also)X
+3812(usually)X
+4063(de\256ned)X
+843 1958(for)N
+959(every)X
+1160(folder;)X
+1396(it)X
+1462(consists)X
+1737(of)X
+1826(only)X
+1990(the)X
+2110(current)X
+2360(message.)X
+2 f
+2694(Xmh)X
+1 f
+2863(hides)X
+3054(``cur'')X
+3287(from)X
+3464(the)X
+3583(user,)X
+3758(instead)X
+4006(placing)X
+4263(a)X
+843 2054(``+'')N
+1020(by)X
+1124(the)X
+1246(current)X
+1498(message.)X
+1834(Also,)X
+2 f
+2029(xmh)X
+1 f
+2187(does)X
+2358(not)X
+2484(support)X
+2748(the)X
+2870(``unseen'')X
+3225(sequence,)X
+3564(so)X
+3659(that)X
+3803(one)X
+3942(is)X
+4018(also)X
+4170(hid-)X
+843 2150(den)N
+979(from)X
+1155(the)X
+1273(user.\))X
+843 2342(The)N
+1007(message)X
+1317(sequences)X
+1681(for)X
+1813(a)X
+1887(folder)X
+2117(are)X
+2254(displayed)X
+2599(as)X
+2704(buttons)X
+2977(containing)X
+3353(the)X
+3489(names)X
+3732(of)X
+3837(the)X
+3973(sequences)X
+843 2438(\(including)N
+1200(one)X
+1344(for)X
+1466(``all''\).)X
+1749(The)X
+1902(table)X
+2086(of)X
+2181(contents)X
+2476(\(aka)X
+2643(``toc''\))X
+2904(is)X
+2984(at)X
+3069(any)X
+3212(one)X
+3355(time)X
+3524(displaying)X
+3884(one)X
+4027(message)X
+843 2534(sequence.)N
+1205(This)X
+1374(is)X
+1454(called)X
+1673(the)X
+1798(``viewed)X
+2111(sequence'';)X
+2509(if)X
+2585(it's)X
+2714(not)X
+2843(``all'',)X
+3077(its)X
+3178(name)X
+3378(will)X
+3528(be)X
+3630(displayed)X
+3963(in)X
+4051(the)X
+4175(title)X
+843 2630(bar)N
+972(just)X
+1113(after)X
+1287(the)X
+1411(folder)X
+1629(name.)X
+1869(Also,)X
+2066(at)X
+2150(any)X
+2292(time)X
+2460(one)X
+2602(of)X
+2695(the)X
+2819(sequence)X
+3140(buttons)X
+3400(will)X
+3549(be)X
+3650(highlighted.)X
+4079(This)X
+4246(is)X
+843 2726(called)N
+1061(the)X
+1185(``selected)X
+1524(sequence''.)X
+1939(Note)X
+2121(that)X
+2267(the)X
+2391(viewed)X
+2649(sequence)X
+2970(and)X
+3112(the)X
+3236(selected)X
+3521(sequence)X
+3842(are)X
+3966(not)X
+4093(neces-)X
+843 2822(sarily)N
+1041(the)X
+1159(same.)X
+1384(\(This)X
+1573(all)X
+1673(pretty)X
+1880(much)X
+2078(corresponds)X
+2486(to)X
+2568(the)X
+2686(way)X
+2840(the)X
+2958(folder)X
+3170(buttons)X
+3425(work.\))X
+843 3014(The)N
+3 f
+989(Open)X
+1196(Sequence)X
+1 f
+(,)S
+3 f
+1557(Add)X
+1724(to)X
+1812(Sequence)X
+1 f
+(,)S
+3 f
+2173(Remove)X
+2471(from)X
+2662(Sequence)X
+1 f
+(,)S
+3022(and)X
+3 f
+3158(Delete)X
+3393(Sequence)X
+1 f
+3733(buttons)X
+3988(are)X
+4107(active)X
+843 3110(only)N
+1005(if)X
+1074(the)X
+1192(viewed)X
+1444(folder)X
+1656(contains)X
+1943 0.1838(message-sequences.)AX
+843 3244(Note)N
+1022(that)X
+1165(none)X
+1344(of)X
+1434(the)X
+1555(above)X
+1770(actually)X
+2047(effect)X
+2254(whether)X
+2536(a)X
+2595(message)X
+2890(is)X
+2966(in)X
+3051(the)X
+3172(folder.)X
+3427(Remember)X
+3802(that)X
+3945(a)X
+4004(sequence)X
+843 3340(is)N
+916(a)X
+972(set)X
+1081(of)X
+1168(messages)X
+1491(within)X
+1715(the)X
+1833(folder;)X
+2067(the)X
+2185(above)X
+2397(operations)X
+2751(just)X
+2886(affect)X
+3090(what)X
+3266(messages)X
+3589(are)X
+3708(in)X
+3790(that)X
+3930(set.)X
+843 3532(To)N
+962(create)X
+1185(a)X
+1251(new)X
+1415(sequence,)X
+1760(press)X
+1955(the)X
+2083(``Pick'')X
+2363(button.)X
+2637(A)X
+2725(new)X
+2889(window)X
+3177(will)X
+3331(appear,)X
+3596(with)X
+3767(lots)X
+3911(of)X
+4007(places)X
+4237(to)X
+843 3628(enter)N
+1027(text.)X
+1189(Basically,)X
+1529(you)X
+1671(can)X
+1805(describe)X
+2095(the)X
+2215(sequence's)X
+2590(initial)X
+2798(set)X
+2909(of)X
+2998(messages)X
+3323(based)X
+3528(on)X
+3630(characteristics)X
+4112(of)X
+4201(the)X
+843 3724(message.)N
+1184(Thus,)X
+1393(you)X
+1542(can)X
+1683(de\256ne)X
+1907(a)X
+1971(sequence)X
+2294(to)X
+2384(be)X
+2488(all)X
+2596(the)X
+2722(messages)X
+3053(that)X
+3201(were)X
+3386(from)X
+3570(a)X
+3634(particular)X
+3970(person,)X
+4232(or)X
+843 3820(with)N
+1013(a)X
+1077(particular)X
+1413(subject,)X
+1688(and)X
+1832(so)X
+1931(on.)X
+2079(You)X
+2245(can)X
+2384(also)X
+2540(connect)X
+2817(things)X
+3039(up)X
+3146(with)X
+3315(boolean)X
+3596(operators,)X
+3942(so)X
+4040(you)X
+4187(can)X
+843 3916(select)N
+1046(all)X
+1146(things)X
+1361(from)X
+1537(``weissman'')X
+1981(with)X
+2143(the)X
+2261(subject)X
+2508(``xmh''.)X
+843 4108(Hopefully,)N
+1210(the)X
+1330(layout)X
+1552(is)X
+1627(fairly)X
+1823(obvious.)X
+2138(The)X
+2285(simplest)X
+2573(cases)X
+2765(are)X
+2886(the)X
+3006(easiest:)X
+3264(just)X
+3401(point)X
+3587(to)X
+3670(the)X
+3789(proper)X
+4020(\256eld)X
+4183(and)X
+843 4204(type.)N
+1041(If)X
+1115(you)X
+1255(enter)X
+1436(in)X
+1518(more)X
+1703(than)X
+1861(one)X
+1997(\256eld,)X
+2179(it)X
+2243(will)X
+2387(only)X
+2549(select)X
+2752(messages)X
+3075(which)X
+3291(match)X
+3507(all)X
+3607(non-empty)X
+3974(\256elds.)X
+843 4396(The)N
+990(more)X
+1176(complicated)X
+1589(cases)X
+1780(arise)X
+1953(when)X
+2148(you)X
+2289(want)X
+2466(things)X
+2682(that)X
+2823(match)X
+3040(one)X
+3177(\256eld)X
+3340(or)X
+3428(another)X
+3690(one,)X
+3847(but)X
+3970(not)X
+4093(neces-)X
+843 4492(sarily)N
+1049(both.)X
+1259(That's)X
+1492(what)X
+1676(all)X
+1784(the)X
+1910(``or'')X
+2113(buttons)X
+2376(are)X
+2503(for.)X
+2665(If)X
+2747(you)X
+2895(want)X
+3078(all)X
+3185(things)X
+3407(with)X
+3576(the)X
+3701(subject)X
+3955(``xmh'')X
+4232(or)X
+843 4588(``xterm'',)N
+1181(just)X
+1319(press)X
+1507(the)X
+1628(``or'')X
+1826(button)X
+2053(next)X
+2214(to)X
+2299(the)X
+2420(``Subject:'')X
+2812(\256eld.)X
+3016(Another)X
+3301(box)X
+3443(will)X
+3589(appear)X
+3826(where)X
+4045(you)X
+4187(can)X
+843 4684(enter)N
+1024(another)X
+1285(subject.)X
+843 4876(If)N
+920(you)X
+1063(want)X
+1242(all)X
+1345(things)X
+1562(either)X
+1767(from)X
+1945(``weissman'')X
+2391(or)X
+2480(with)X
+2644(subject)X
+2893(``xmh'',)X
+3185(but)X
+3309(not)X
+3433(necessarily)X
+3812(both,)X
+3996(select)X
+4201(the)X
+843 4972(``-Or-'')N
+1119(button.)X
+1392(This)X
+1563(will)X
+1716(essentially)X
+2083(double)X
+2330(the)X
+2457(size)X
+2611(of)X
+2707(the)X
+2834(form.)X
+3059(You)X
+3226(can)X
+3366(then)X
+3532(enter)X
+3721(``weissman'')X
+4173(in)X
+4263(a)X
+843 5068(from:)N
+1041(box)X
+1181(on)X
+1281(the)X
+1399(top)X
+1521(half,)X
+1686(and)X
+1822(``xmh'')X
+2092(in)X
+2174(a)X
+2230(subject:)X
+2499(box)X
+2639(on)X
+2739(the)X
+2857(lower)X
+3060(part.)X
+843 5260(If)N
+921(you)X
+1065(ever)X
+1228(select)X
+1435(the)X
+1557(``Skip'')X
+1835(button,)X
+2083(then)X
+2245(only)X
+2411(those)X
+2604(messages)X
+2931(that)X
+2 f
+3075(don't)X
+1 f
+3268(match)X
+3488(the)X
+3610(\256elds)X
+3806(on)X
+3909(that)X
+4052(row)X
+4200(are)X
+843 5356(included.)N
+843 5548(Finally,)N
+1110(in)X
+1193(the)X
+1312(bottom)X
+1559(part)X
+1705(of)X
+1793(the)X
+1912(window)X
+2191(will)X
+2336(appear)X
+2572(several)X
+2821(more)X
+3007(boxes.)X
+3255(One)X
+3410(is)X
+3484(the)X
+3603(name)X
+3798(of)X
+3886(the)X
+4004(sequence)X
+843 5644(you're)N
+1074(de\256ning.)X
+1397(\(It)X
+1494(defaults)X
+1769(to)X
+1852(the)X
+1971(name)X
+2166(of)X
+2254(the)X
+2373(selected)X
+2653(sequence)X
+2969(when)X
+3164(``Pick'')X
+3435(was)X
+3581(pressed,)X
+3862(or)X
+3949(to)X
+4031(``temp'')X
+843 5740(if)N
+922(``all'')X
+1140(was)X
+1295(the)X
+1423(selected)X
+1712(sequence.\))X
+2104(Another)X
+2397(box)X
+2547(de\256nes)X
+2804(which)X
+3030(sequence)X
+3355(to)X
+3447(look)X
+3618(through)X
+3896(for)X
+4019(potential)X
+843 5836(members)N
+1157(of)X
+1244(this)X
+1379(sequence;)X
+1716(it)X
+1780(defaults)X
+2054(to)X
+2136(the)X
+2254(viewed)X
+2506(sequence)X
+2821(when)X
+3015(``Pick'')X
+3285(was)X
+3430(pressed.)X
+555 6220(X)N
+633(Version)X
+907(11)X
+2202(1)X
+2262(March)X
+2492(1988)X
+4259(7)X
+
+8 p
+%%Page: 8 8
+10 s 0 xH 0 xS 1 f
+555 384(XMH)N
+755(\()X
+795(1)X
+848(\))X
+1954(UNIX)X
+2175(Programmer's)X
+2654(Manual)X
+3979(XMH)X
+4179(\()X
+4219(1)X
+4272(\))X
+843 768(Two)N
+1012(more)X
+1199(boxes)X
+1408(de\256ne)X
+1626(a)X
+1684(date)X
+1840(range;)X
+2062(only)X
+2225(messages)X
+2549(within)X
+2774(that)X
+2915(date)X
+3070(range)X
+3270(will)X
+3415(be)X
+3512(considered.)X
+3921(These)X
+4134(dates)X
+843 864(must)N
+1022(be)X
+1122(entered)X
+1383(in)X
+1469(822-style)X
+1791(format:)X
+2051(each)X
+2223(date)X
+2381(is)X
+2458(of)X
+2549(the)X
+2671(form)X
+2851(``dd)X
+3009(mmm)X
+3219(yy)X
+3323(hh:mm:ss)X
+3657(zzz'',)X
+3863(where)X
+4084(dd)X
+4187(is)X
+4263(a)X
+843 960(one)N
+982(or)X
+1072(two)X
+1215(digit)X
+1384(day)X
+1523(of)X
+1613(the)X
+1733(month,)X
+1979(mmm)X
+2187(is)X
+2262(the)X
+2382(three-letter)X
+2757(abbreviation)X
+3180(for)X
+3296(a)X
+3354(month,)X
+3600(and)X
+3738(yy)X
+3840(is)X
+3915(a)X
+3973(year.)X
+4174(The)X
+843 1056(remaining)N
+1191(\256elds)X
+1387(are)X
+1509(optional:)X
+1816(hh,)X
+1939(mm,)X
+2106(and)X
+2245(ss)X
+2330(specify)X
+2585(a)X
+2644(time)X
+2809(of)X
+2899(day,)X
+3058(and)X
+3197(zzz)X
+3328(selects)X
+3565(a)X
+3623(time)X
+3787(zone.)X
+4001(Note)X
+4179(that)X
+843 1152(if)N
+917(the)X
+1040(time)X
+1207(is)X
+1285(left)X
+1417(out,)X
+1564(it)X
+1633(defaults)X
+1912(to)X
+1999(midnight;)X
+2333(thus)X
+2490(if)X
+2563(you)X
+2707(select)X
+2914(a)X
+2974(range)X
+3177(of)X
+3268(``7)X
+3386(nov)X
+3530(86'')X
+3688(-)X
+3739(``8)X
+3857(nov)X
+4001(86'',)X
+4179(you)X
+843 1248(will)N
+987(only)X
+1149(get)X
+1267(messages)X
+1590(from)X
+1766(the)X
+1884(7th,)X
+2026(as)X
+2113(all)X
+2213(messages)X
+2536(on)X
+2636(the)X
+2754(8th)X
+2876(will)X
+3020(have)X
+3192(arrived)X
+3440(after)X
+3608(midnight.)X
+843 1440(``Date)N
+1078(\256eld'')X
+1302(speci\256es)X
+1606(which)X
+1830(date)X
+1992(\256eld)X
+2162(in)X
+2252(the)X
+2378(header)X
+2621(to)X
+2711(look)X
+2881(at)X
+2967(for)X
+3089(this)X
+3232(date)X
+3394(range;)X
+3623(it)X
+3695(probably)X
+4008(won't)X
+4223(be)X
+843 1536(useful)N
+1062(to)X
+1147(anyone.)X
+1442(If)X
+1519(the)X
+1640(sequence)X
+1958(you're)X
+2190(de\256ning)X
+2474(already)X
+2733(exists,)X
+2957(you)X
+3099(can)X
+3233(optionally)X
+3579(merge)X
+3802(the)X
+3922(old)X
+4046(set)X
+4157(with)X
+843 1632(the)N
+964(new;)X
+1143(that's)X
+1344(what)X
+1523(the)X
+1644(``Yes'')X
+1900(and)X
+2039(``No'')X
+2267(buttons)X
+2524(are)X
+2645(all)X
+2747(about.)X
+2987(Finally,)X
+3255(you)X
+3397(can)X
+3531(``OK'')X
+3777(the)X
+3897(whole)X
+4115(thing,)X
+843 1728(or)N
+930(``Cancel'')X
+1281(it.)X
+843 1920(In)N
+939(general,)X
+1225(most)X
+1409(people)X
+1651(will)X
+1803(rarely)X
+2019(use)X
+2154(these)X
+2347(features.)X
+2670(However,)X
+3013(it's)X
+3143(nice)X
+3305(to)X
+3395(occasionally)X
+3824(use)X
+3959(``Pick'')X
+4237(to)X
+843 2016(\256nd)N
+991(some)X
+1184(messages,)X
+1531(look)X
+1697(through)X
+1970(them,)X
+2174(and)X
+2314(then)X
+2476(hit)X
+2584(``Delete)X
+2872(Sequence'')X
+3258(to)X
+3344(put)X
+3470(things)X
+3689(back)X
+3865(in)X
+3951(their)X
+4121(origi-)X
+843 2112(nal)N
+961(state.)X
+3 f
+9 s
+555 2342(CUSTOMIZING)N
+1113(XMH)X
+1 f
+10 s
+843 2438(As)N
+955(with)X
+1120(all)X
+1223(standard)X
+1518(X)X
+1599(applications,)X
+2 f
+2028(xmh)X
+1 f
+2184(may)X
+2344(be)X
+2442(customized)X
+2829(through)X
+3100(entries)X
+3336(in)X
+3420(the)X
+3540(resource)X
+3835(manager.)X
+4174(The)X
+843 2534(following)N
+1176(resource)X
+1471(manager)X
+1770(entries)X
+2006(are)X
+2127(de\256ned:)X
+2407([Note:)X
+2634(the)X
+2754(entry)X
+2941(names)X
+3168(must)X
+3345(be)X
+3443(entered)X
+3701(in)X
+3784(either)X
+3988(all)X
+4089(lower-)X
+843 2630(case,)N
+1022(or)X
+1109(in)X
+1191(the)X
+1309(exact)X
+1499(case)X
+1658(shown)X
+1887(below.])X
+3 f
+843 2764(BackGround)N
+1 f
+1163 2860(Background)N
+1575(color.)X
+1800(Currently,)X
+2147(this)X
+2282(will)X
+2426(effect)X
+2630(only)X
+2792(buttons.)X
+3087(\(Default)X
+3375(is)X
+3448(white.\))X
+3 f
+843 2994(ButtonFont)N
+1 f
+1163 3090(What)N
+1357(font)X
+1506(to)X
+1588(use)X
+1715(for)X
+1829(button)X
+2053(names.)X
+2318(\(Default)X
+2606(is)X
+2679(``timrom10''.\))X
+3 f
+843 3224(CheckNewMail)N
+1 f
+1163 3320(If)N
+1242(True,)X
+2 f
+1439(xmh)X
+1 f
+1598(will)X
+1746(check)X
+1958(at)X
+2040(regular)X
+2292(intervals)X
+2592(to)X
+2678(see)X
+2805(if)X
+2878(new)X
+3036(mail)X
+3202(has)X
+3333(arrived)X
+3585(for)X
+3703(any)X
+3843(of)X
+3934(the)X
+4056(folders.)X
+1163 3416(A)N
+1241(visual)X
+1452(indication)X
+1792(will)X
+1936(be)X
+2032(given)X
+2230(if)X
+2299(new)X
+2453(mail)X
+2615(is)X
+2688(waiting)X
+2948(to)X
+3030(be)X
+3126(retrieved.)X
+3472(\(Default)X
+3760(is)X
+3833(True.\))X
+3 f
+843 3550(CompButtonLines)N
+1 f
+1163 3646(How)N
+1339(many)X
+1537(rows)X
+1713(of)X
+1800(buttons)X
+2055(to)X
+2137(display)X
+2388(under)X
+2591(a)X
+2647(composition.)X
+3102(\(Default)X
+3390(is)X
+3463(1.\))X
+3 f
+843 3780(CompFont)N
+1 f
+1163 3876(What)N
+1357(font)X
+1506(to)X
+1588(use)X
+1715(when)X
+1909(composing)X
+2280(a)X
+2336(message.)X
+2668(\(Default)X
+2956(is)X
+3029(``6x13''.\))X
+3 f
+843 4010(CompGeometry)N
+1 f
+1163 4106(Initial)N
+1374(geometry)X
+1697(for)X
+1811(windows)X
+2120(containing)X
+2478(compositions.)X
+3 f
+843 4240(CompLines)N
+1 f
+1163 4336(How)N
+1339(many)X
+1537(lines)X
+1708(of)X
+1795(a)X
+1851(composition)X
+2266(to)X
+2348(display.)X
+2639(\(Default)X
+2927(is)X
+3000(20.\))X
+3 f
+843 4470(Con\256rmFont)N
+1 f
+1163 4566(What)N
+1357(font)X
+1506(to)X
+1588(use)X
+1715(for)X
+1829(con\256rmation)X
+2258(windows.)X
+2587(\(Default)X
+2875(is)X
+2948(``timrom10b''.\))X
+3 f
+843 4700(FolderButtonLines)N
+1 f
+1163 4796(How)N
+1339(many)X
+1537(rows)X
+1713(of)X
+1800(folder)X
+2012(command)X
+2348(buttons)X
+2603(to)X
+2685(display.)X
+2976(\(Default)X
+3264(is)X
+3337(1.\))X
+3 f
+843 4930(FolderLines)N
+1 f
+1163 5026(How)N
+1339(many)X
+1537(rows)X
+1713(of)X
+1800(foldername)X
+2186(buttons)X
+2441(to)X
+2523(display.)X
+2814(\(Default)X
+3102(is)X
+3175(1.\))X
+3 f
+843 5160(ForeGround)N
+1 f
+1163 5256(Foreground)N
+1557(color.)X
+1782(Currently,)X
+2129(this)X
+2264(will)X
+2408(effect)X
+2612(only)X
+2774(title)X
+2918(bars)X
+3072(and)X
+3208(buttons.)X
+3503(\(Default)X
+3791(is)X
+3864(black.\))X
+3 f
+843 5390(Geometry)N
+1 f
+1163 5486(Default)N
+1424(geometry)X
+1747(to)X
+1829(use.)X
+1996(\(Default)X
+2284(is)X
+2357(none.\))X
+3 f
+843 5620(HideBoringHeaders)N
+1 f
+1163 5716(If)N
+1245(``on'',)X
+1481(then)X
+2 f
+1647(xmh)X
+1 f
+1809(will)X
+1961(attempt)X
+2229(to)X
+2319(skip)X
+2480(uninteresting)X
+2926(header)X
+3169(lines)X
+3348(within)X
+3580(messages)X
+3911(by)X
+4019(scrolling)X
+1163 5812(them)N
+1343(off.)X
+1497(\(Default)X
+1785(is)X
+1858(``on''.\))X
+555 6196(X)N
+633(Version)X
+907(11)X
+2202(1)X
+2262(March)X
+2492(1988)X
+4259(8)X
+
+9 p
+%%Page: 9 9
+10 s 0 xH 0 xS 1 f
+555 384(XMH)N
+755(\()X
+795(1)X
+848(\))X
+1954(UNIX)X
+2175(Programmer's)X
+2654(Manual)X
+3979(XMH)X
+4179(\()X
+4219(1)X
+4272(\))X
+3 f
+843 768(InitialFolder)N
+1 f
+1163 864(Which)N
+1414(folder)X
+1642(to)X
+1740(display)X
+2007(on)X
+2123(startup.)X
+2417(May)X
+2600(also)X
+2765(be)X
+2877(set)X
+3002(with)X
+3180(the)X
+3314(command-line)X
+3813(option)X
+3 f
+4053(-initial)X
+1 f
+4279(.)X
+1163 960(\(Default)N
+1451(is)X
+1524(``inbox''.\))X
+3 f
+843 1094(InitialIncFile)N
+1 f
+1163 1190(The)N
+1313(\256le)X
+1440(name)X
+1639(of)X
+1731(your)X
+1903(incoming)X
+2230(mail)X
+2397(drop.)X
+2 f
+2609(xmh)X
+1 f
+2768(tries)X
+2931(to)X
+3018(construct)X
+3337(a)X
+3398(\256lename)X
+3699(for)X
+3818(the)X
+3940(``inc)X
+4116(-\256le'')X
+1163 1286(command,)N
+1521(but)X
+1645(in)X
+1729(some)X
+1920(installations)X
+2328(\(e.g.)X
+2493(those)X
+2684(using)X
+2879(the)X
+2999(Post)X
+3158(Of\256ce)X
+3381(Protocol\))X
+3701(no)X
+3803(\256le)X
+3926(is)X
+4000(appropri-)X
+1163 1382(ate.)N
+1322(In)X
+1414(this)X
+1554(case,)X
+3 f
+1738(InitialIncFile)X
+1 f
+2211(should)X
+2449(be)X
+2550(speci\256ed)X
+2860(as)X
+2952(the)X
+3075(empty)X
+3300(string,)X
+3527(and)X
+2 f
+3668(inc)X
+1 f
+3791(will)X
+3940(be)X
+4041(invoked)X
+1163 1478(without)N
+1427(a)X
+1483(-\256le)X
+1632(argument.)X
+3 f
+843 1612(LabelFont)N
+1 f
+1163 1708(What)N
+1357(font)X
+1506(to)X
+1588(use)X
+1715(for)X
+1829(the)X
+1947(title)X
+2091(bars.)X
+2265(\(Default)X
+2553(is)X
+2626(``timrom10i''.\))X
+3 f
+843 1842(MailPath)N
+1 f
+1938(The)Y
+1324(full)X
+1471(path)X
+1644(pre\256x)X
+1866(for)X
+1995(locating)X
+2288(your)X
+2470(mail)X
+2647(folders.)X
+2945(May)X
+3127(also)X
+3291(be)X
+3402(set)X
+3526(with)X
+3703(the)X
+3836(command-line)X
+1163 2034(option,)N
+3 f
+1411(-path)X
+1 f
+1593(.)X
+1637(\(Default)X
+1929(is)X
+2006(the)X
+2128(``Path'')X
+2402(component)X
+2782(in)X
+2868($HOME/.mh_pro\256le,)X
+3580(or)X
+3670(``$HOME/Mail'')X
+4250(if)X
+1163 2130(none.\))N
+3 f
+843 2264(MailWaitingFlag)N
+1 f
+1163 2360(If)N
+1255(True,)X
+2 f
+1465(xmh)X
+1 f
+1637(will)X
+1799(attempt)X
+2077(to)X
+2177(set)X
+2304(an)X
+2418(indication)X
+2776(in)X
+2876(it's)X
+3016(icon)X
+3192(when)X
+3404(new)X
+3576(mail)X
+3756(is)X
+3847(waiting)X
+4124(to)X
+4223(be)X
+1163 2456(retrieved.)N
+1516(If)X
+1597(this)X
+1739(option)X
+1970(is)X
+2050(True,)X
+2249(then)X
+2414(CheckNewMail)X
+2949(is)X
+3029(assumed)X
+3332(to)X
+3420(be)X
+3522(True)X
+3700(as)X
+3793(well.)X
+3997(The)X
+3 f
+4148(-\257ag)X
+1 f
+1163 2552(command)N
+1499(line)X
+1639(option)X
+1863(is)X
+1936(a)X
+1992(quick)X
+2190(way)X
+2344(to)X
+2426(turn)X
+2575(MailWaitingFlag)X
+3146(on.)X
+3 f
+843 2686(MhPath)N
+1 f
+1163(What)X
+1369(directory)X
+1691(in)X
+1785(which)X
+2013(to)X
+2107(\256nd)X
+2263(the)X
+2393(mh)X
+2527(commands.)X
+2946(If)X
+3032(a)X
+3100(command)X
+3448(isn't)X
+3622(found)X
+3841(here,)X
+4032(then)X
+4201(the)X
+1163 2782(directories)N
+1522(in)X
+1604(the)X
+1722(user's)X
+1934(path)X
+2092(are)X
+2211(searched.)X
+2553(\(Default)X
+2841(is)X
+2914(``/usr/local/mh6''.\))X
+3 f
+843 2916(PickGeometry)N
+1 f
+1163 3012(Initial)N
+1374(geometry)X
+1697(for)X
+1811(pick)X
+1969(windows.)X
+3 f
+843 3146(PickEntryFont)N
+1 f
+1163 3242(What)N
+1357(font)X
+1506(to)X
+1588(use)X
+1715(for)X
+1829(user)X
+1983(text)X
+2123(\256elds)X
+2316(in)X
+2398(pick)X
+2556(windows.)X
+2905(\(Default)X
+3193(is)X
+3266(``timrom10''.\))X
+3 f
+843 3376(PickTextFont)N
+1 f
+1163 3472(What)N
+1357(font)X
+1506(to)X
+1588(use)X
+1715(for)X
+1829(static)X
+2018(text)X
+2158(\256elds)X
+2351(in)X
+2433(pick)X
+2591(windows.)X
+2940(\(Default)X
+3228(is)X
+3301(``timrom10''.\))X
+3 f
+843 3606(PrintCommand)N
+1 f
+1163 3702(What)N
+1359(sh)X
+1452(command)X
+1790(to)X
+1874(execute)X
+2141(to)X
+2224(print)X
+2396(a)X
+2453(message.)X
+2786(Note)X
+2963(that)X
+3104(stdout)X
+3320(and)X
+3457(stderr)X
+3661(must)X
+3837(be)X
+3934(speci\256cally)X
+1163 3798(redirected!)N
+1557(If)X
+1636(a)X
+1697(message)X
+1994(or)X
+2086(range)X
+2290(of)X
+2382(messages)X
+2709(is)X
+2786(selected)X
+3069(for)X
+3187(printing,)X
+3484(the)X
+3606(full)X
+3741(\256le)X
+3867(paths)X
+4060(of)X
+4151(each)X
+1163 3894(message)N
+1475(\256le)X
+1617(is)X
+1710(appended)X
+2057(to)X
+2158(the)X
+2295(speci\256ed)X
+2619(print)X
+2809(command.)X
+3224(\(Default)X
+3531(is)X
+3623(``enscript)X
+3970(>/dev/null)X
+1163 3990(2>/dev/null''\).)N
+3 f
+843 4124(TempDir)N
+1 f
+1163 4220(Directory)N
+1492(for)X
+2 f
+1607(xmh)X
+1 f
+1761(to)X
+1843(store)X
+2019(temporary)X
+2369(directories.)X
+2768(For)X
+2899(privacy,)X
+3180(a)X
+3236(user)X
+3390(might)X
+3596(want)X
+3772(to)X
+3854(change)X
+4102(this)X
+4237(to)X
+1163 4316(a)N
+1219(private)X
+1462(directory.)X
+1812(\(Default)X
+2100(is)X
+2173(``/tmp''.\))X
+3 f
+843 4450(TocButtonLines)N
+1 f
+1163 4546(How)N
+1339(many)X
+1537(rows)X
+1713(of)X
+1800(message)X
+2092(command)X
+2428(buttons)X
+2683(to)X
+2765(display.)X
+3056(\(Default)X
+3344(is)X
+3417(1.\))X
+3 f
+843 4680(TocFont)N
+1 f
+1163(What)X
+1357(font)X
+1506(to)X
+1588(use)X
+1715(for)X
+1829(a)X
+1885(folder's)X
+2155(table)X
+2331(of)X
+2418(contents.)X
+2745(\(Default)X
+3033(is)X
+3106(``6x13''.\))X
+3 f
+843 4814(TocGeometry)N
+1 f
+1163 4910(Initial)N
+1374(geometry)X
+1697(for)X
+1811(master)X
+2 f
+2045(xmh)X
+1 f
+2199(windows.)X
+3 f
+843 5044(TocLines)N
+1 f
+1163 5140(How)N
+1339(messages)X
+1662(to)X
+1744(display)X
+1995(in)X
+2077(a)X
+2133(folder's)X
+2403(table)X
+2579(of)X
+2666(contents.)X
+2993(\(Default)X
+3281(is)X
+3354(10.\))X
+3 f
+843 5274(TocWidth)N
+1 f
+1163 5370(How)N
+1348(many)X
+1555(characters)X
+1911(to)X
+2002(generate)X
+2304(for)X
+2427(each)X
+2604(message)X
+2904(in)X
+2994(a)X
+3058(folder's)X
+3336(table)X
+3520(of)X
+3615(contents.)X
+3950(\(Default)X
+4246(is)X
+1163 5466(100.)N
+1343(Use)X
+1488(80)X
+1588(if)X
+1657(you)X
+1797(plan)X
+1955(to)X
+2037(use)X
+2 f
+2164(mhe)X
+1 f
+2318(a)X
+2374(lot.\))X
+3 f
+843 5600(ViewButtonLines)N
+1 f
+1163 5696(How)N
+1339(many)X
+1537(rows)X
+1713(of)X
+1800(buttons)X
+2055(to)X
+2137(display)X
+2388(under)X
+2591(a)X
+2647(view)X
+2823(of)X
+2910(a)X
+2966(message.)X
+3298(\(Default)X
+3586(is)X
+3659(1.\))X
+555 6144(X)N
+633(Version)X
+907(11)X
+2202(1)X
+2262(March)X
+2492(1988)X
+4259(9)X
+
+10 p
+%%Page: 10 10
+10 s 0 xH 0 xS 1 f
+555 384(XMH)N
+755(\()X
+795(1)X
+848(\))X
+1954(UNIX)X
+2175(Programmer's)X
+2654(Manual)X
+3979(XMH)X
+4179(\()X
+4219(1)X
+4272(\))X
+3 f
+843 768(ViewFont)N
+1 f
+1163 864(What)N
+1357(font)X
+1506(to)X
+1588(use)X
+1715(for)X
+1829(a)X
+1885(view)X
+2061(of)X
+2148(a)X
+2204(message.)X
+2536(\(Default)X
+2824(is)X
+2897(``6x13''.\))X
+3 f
+843 998(ViewGeometry)N
+1 f
+1163 1094(Initial)N
+1374(geometry)X
+1697(for)X
+1811(windows)X
+2120(showing)X
+2411(only)X
+2573(a)X
+2629(view)X
+2805(of)X
+2892(a)X
+2948(message.)X
+3 f
+843 1228(ViewLines)N
+1 f
+1163 1324(How)N
+1339(many)X
+1537(lines)X
+1708(of)X
+1795(a)X
+1851(message)X
+2143(to)X
+2225(display.)X
+2516(\(Default)X
+2804(is)X
+2877(20.\))X
+843 1458(If)N
+928(TocGeometry,)X
+1425(ViewGeometry,)X
+1971(CompGeometry,)X
+2538(or)X
+2636(PickGeometry)X
+3130(are)X
+3260(not)X
+3393(speci\256ed,)X
+3729(then)X
+3898(the)X
+4027(value)X
+4232(of)X
+843 1554(Geometry)N
+1186(is)X
+1261(used)X
+1430(instead.)X
+1719(If)X
+1795(the)X
+1915(resulting)X
+2217(height)X
+2439(is)X
+2514(not)X
+2638(speci\256ed)X
+2945(\(e.g.,)X
+3130("",)X
+3238("=500",)X
+3511("+0-0"\),)X
+3798(then)X
+3957(the)X
+4076(default)X
+843 1650(height)N
+1070(is)X
+1150(calculated)X
+1503(from)X
+1686(the)X
+1811(fonts)X
+1998(and)X
+2141(line)X
+2288(counts)X
+2524(speci\256ed)X
+2836(above.)X
+3094(If)X
+3174(the)X
+3298(width)X
+3506(is)X
+3585(not)X
+3713(speci\256ed)X
+4024(\(e.g.,)X
+4213("",)X
+843 1746("=x300",)N
+1155("-0+0\),)X
+1408(then)X
+1566(half)X
+1711(of)X
+1798(the)X
+1916(display)X
+2167(width)X
+2369(is)X
+2442(used.)X
+2649(If)X
+2723(unspeci\256ed,)X
+3128(the)X
+3246(height)X
+3466(of)X
+3553(a)X
+3609(pick)X
+3767(window)X
+4045(defaults)X
+843 1842(to)N
+925(half)X
+1070(the)X
+1188(height)X
+1408(of)X
+1495(the)X
+1613(display.)X
+843 2034(Any)N
+1005(of)X
+1096(these)X
+1285(options)X
+1544(may)X
+1706(also)X
+1859(be)X
+1958(speci\256ed)X
+2266(on)X
+2369(the)X
+2490(command)X
+2829(line)X
+2972(by)X
+3075(using)X
+3271(the)X
+3392(standard)X
+3687(X)X
+3768(Toolkit)X
+4026(resource)X
+843 2130(speci\256cation)N
+1268(mechanism.)X
+1693(Thus,)X
+1893(to)X
+1975(run)X
+2 f
+2102(xmh)X
+1 f
+2256(showing)X
+2547(all)X
+2647(message)X
+2939(headers,)X
+843 2322(%)N
+930(xmh)X
+1092(-xrm)X
+1268(')X
+9 f
+1295(*)X
+1 f
+ 0.1488(HideBoringHeaders:off')AS
+3 f
+9 s
+555 2552(FILES)N
+1 f
+10 s
+843 2648(\304/Mail)N
+843 2840(\304/.mh_pro\256le)N
+3 f
+9 s
+555 3070(SEE)N
+721(ALSO)X
+1 f
+10 s
+843 3166(X\(1\),)N
+1035(xrdb\(1\),)X
+1316(X)X
+1394(Toolkit,)X
+1669(mh\(1\))X
+1885(-)X
+1932(the)X
+2050(mh)X
+2172(Mail)X
+2343(Handler)X
+3 f
+9 s
+555 3396(BUGS)N
+1 f
+10 s
+843 3492(Printing)N
+1120(support)X
+1380(is)X
+1453(minimal.)X
+843 3684(Keyboard)N
+1180(shortcuts)X
+1489(for)X
+1603(commands)X
+1970(would)X
+2190(be)X
+2286(nice.)X
+843 3876(Should)N
+1089(handle)X
+1323(the)X
+1441(``unseen'')X
+1792 0.2031(message-sequence.)AX
+843 4068(Should)N
+1089(determine)X
+1430(by)X
+1530(itself)X
+1710(if)X
+1779(the)X
+1897(user)X
+2051(hasn't)X
+2267(used)X
+2 f
+2434(mh)X
+1 f
+2552(before,)X
+2798(and)X
+2934(offer)X
+3111(to)X
+3193(set)X
+3302(things)X
+3517(up)X
+3617(for)X
+3731(him)X
+3875(or)X
+3962(her.)X
+843 4260(Still)N
+995(a)X
+1051(few)X
+1192(commands)X
+1559(missing)X
+1827(\(rename)X
+2111(folder,)X
+2343(remail)X
+2568(message\).)X
+843 4452(Needs)N
+1064(sub-folder)X
+1414(support.)X
+3 f
+9 s
+555 4682(COPYRIGHT)N
+1 f
+10 s
+843 4778(Copyright)N
+1187(1988,)X
+1387(Digital)X
+1629(Equipment)X
+2000(Corporation.)X
+843 4874(See)N
+2 f
+979(X\(1\))X
+1 f
+1142(for)X
+1256(a)X
+1312(full)X
+1443(statement)X
+1770(of)X
+1857(rights)X
+2059(and)X
+2195(permissions.)X
+3 f
+9 s
+555 5008(AUTHOR)N
+1 f
+10 s
+843 5104(Terry)N
+1042(Weissman,)X
+1416(Digital)X
+1658(Western)X
+1946(Research)X
+2261(Laboratory)X
+555 6144(X)N
+633(Version)X
+907(11)X
+2202(1)X
+2262(March)X
+2492(1988)X
+4219(10)X
+
+10 p
+%%Trailer
+xt
+
+xs

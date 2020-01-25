@@ -1,0 +1,2 @@
+.IP \fIlist_length\fP 1i
+Specifies the number of entries (not the byte size) allocated for list_return.

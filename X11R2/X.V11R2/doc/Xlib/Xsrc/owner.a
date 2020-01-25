@@ -1,0 +1,5 @@
+.\" $Header: owner.a,v 1.2 88/02/25 22:29:35 jg Exp $
+.IP \fIowner\fP 1i
+Specifies the owner of the specified selection atom.
+You can pass a window ID or
+.PN None .

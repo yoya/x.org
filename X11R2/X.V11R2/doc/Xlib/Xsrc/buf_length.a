@@ -1,0 +1,3 @@
+.IP \fIbytes_buffer\fP 1i
+Specifies the length of the buffer.
+No more than bytes_buffer of translation are returned.

@@ -1,0 +1,4 @@
+.\" $Header: ncolors1.a,v 1.1 87/09/28 13:08:18 mento Exp $
+.IP \fIncolors\fP 1i
+Specifies the number of pixel values that are to be returned in the 
+pixels_return array. 

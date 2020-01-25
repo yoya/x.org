@@ -1,0 +1,37 @@
+.TH XInstallColormap 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XInstallColormap, XUninstallColormap, XListInstalledColormaps \- install colormaps
+.SH SYNTAX
+.so ../Xsrc/XInsCmap.f
+.LP
+.so ../Xsrc/XUninsCmap.f
+.LP
+.so ../Xsrc/XLstInsCmaps.f
+.SH ARGUMENTS
+.so ../Xsrc/cmap.a
+.so ../Xsrc/display.a
+.so ../Xsrc/num.a
+.so ../Xsrc/w.a
+.SH DESCRIPTION
+.so ../Xdescrip/XInsCmap.d
+.ds fd .PN XInstallColormap
+.so ../Xsrc/errsent4.com
+.PN BadColor 
+error.
+.LP
+.so ../Xdescrip/XUninsCmap.d
+.ds fd .PN XUninstallColormap
+.so ../Xsrc/errsent4.com
+.PN BadColor 
+error.
+.LP
+.so ../Xdescrip/XLstInsCmaps.d
+.ds fd .PN XListInstalledColormaps
+.so ../Xsrc/errsent4.com
+.PN BadWindow 
+error.
+.SH DIAGNOSTICS
+.so ../Xerrors/badcolor.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface\fP

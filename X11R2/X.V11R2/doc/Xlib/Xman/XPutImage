@@ -1,0 +1,60 @@
+.TH XPutImage 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XPutImage, XGetImage, XGetSubImage \- transfer images
+.SH SYNTAX
+.so ../Xsrc/XPutImage.f
+.LP
+.so ../Xsrc/XGetImage.f
+.LP
+.so ../Xsrc/XGetSImage.f
+.SH ARGUMENTS
+.so ../Xsrc/d.a
+.so ../Xsrc/destxy1.a
+These coordinates determine where the subimage will be placed within the
+destination image.
+.so ../Xsrc/display.a
+.so ../Xsrc/dstxy_image.a
+.so ../Xsrc/format_img.a
+.so ../Xsrc/gc.a
+.so ../Xsrc/image.a
+.so ../Xsrc/plane_mask.a
+.so ../Xsrc/srcxy_image.a
+.so ../Xsrc/wdhtimage.a
+.so ../Xsrc/xyimage.a
+.SH DESCRIPTION
+.so ../Xdescrip/XPutImage.d
+.ds fd .PN XPutImage
+.so ../Xsrc/errsent.com
+.PN BadDrawable ,
+.PN BadGC ,
+.PN BadMatch ,
+and
+.PN BadValue 
+errors.
+.LP
+.so ../Xdescrip/XGetImage.d
+.ds fd .PN XGetImage
+.so ../Xsrc/errsent.com
+.PN BadDrawable ,
+.PN BadMatch ,
+and
+.PN BadValue 
+errors.
+.LP
+.so ../Xdescrip/XGetSImage.d
+.ds fd .PN XGetSubImage
+.so ../Xsrc/errsent.com
+.PN BadDrawable ,
+.PN BadGC ,
+.PN BadMatch ,
+and
+.PN BadValue 
+errors.
+.SH DIAGNOSTICS
+.so ../Xerrors/baddrawable.e
+.so ../Xerrors/badgc.e
+.so ../Xerrors/badmatch1.e
+.so ../Xerrors/badmatch2.e
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface\fP

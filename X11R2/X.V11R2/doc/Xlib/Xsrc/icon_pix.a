@@ -1,0 +1,3 @@
+.IP \fIicon_pixmap\fP 1i
+Specifies the single plane pixmap that is to be used for the icon or
+.PN None .

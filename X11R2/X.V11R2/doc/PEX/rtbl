@@ -1,0 +1,142 @@
+.LP
+The renderer components, in order, are listed in the following table.
+The abbreviation
+"draw." means that the default value is determined from the drawable
+at the time a \fBPEXBeginRendering\fP request is executed.
+.LP
+.ID
+.ta 0.5i 2.4i 3.8i
+	\fBAttribute Name	Data Type	Default Value\fP
+.ta
+.ta 0.5i 2.2i 4.0i
+	pipeline_context	PIPELINE_CONTEXT_ID	\fINull\fP
+	current_path	LISTofELEMENT_REF	\fINull\fP
+	renderer_state	RENDERER_STATE	\fIIdle\fP
+	marker_bundle	LOOKUP_TABLE_ID	\fINull\fP
+	text_bundle	LOOKUP_TABLE_ID	\fINull\fP
+	line_bundle	LOOKUP_TABLE_ID	\fINull\fP
+	interior_bundle	LOOKUP_TABLE_ID	\fINull\fP
+	edge_bundle	LOOKUP_TABLE_ID	\fINull\fP
+	view_table	LOOKUP_TABLE_ID	\fINull\fP
+	color_table	LOOKUP_TABLE_ID	\fINull\fP
+	depth_cue_table	LOOKUP_TABLE_ID	\fINull\fP
+	light_table	LOOKUP_TABLE_ID	\fINull\fP
+	color_approx_table	LOOKUP_TABLE_ID	\fINull\fP
+	pattern_table	LOOKUP_TABLE_ID	\fINull\fP
+	text_font_table	LOOKUP_TABLE_ID	\fINull\fP
+	highlight_inclusion	NAME_SET_ID	\fINull\fP
+	highlight_exclusion	NAME_SET_ID	\fINull\fP
+	invisibility_inclusion	NAME_SET_ID	\fINull\fP
+	invisibility_exclusion	NAME_SET_ID	\fINull\fP
+	HLHSR_mode	HLHSR_MODE	1
+	NPC_subvolume	NPC_SUBVOLUME	(0,0,0),(1,1,1)
+	viewport	VIEWPORT	draw.
+.ta
+.DE
+.LP
+The attributes of the renderer resource are defined as follows:
+
+.Bl "pipeline_context_id"
+This attribute specifies the resource id of the pipeline context
+from which initial rendering pipeline attribute values will be copied whenever
+a \fBPEXBeginRendering\fP request is executed.
+
+.Bl "current_path"
+This attribute contains a list of element references for
+keeping track of paths for client-side traversal.
+
+.Bl "renderer_state"
+This attribute contains the current state of the renderer.  The
+\fIrenderer_state\fP is set to \fIRendering\fP whenever a
+\fBPEXBeginRendering\fP request is processed, and to \fIIdle\fP whenever a
+\fBPEXEndRendering\fP request is processed.
+
+.Bl "marker_bundle"
+This attribute contains the resource id of the marker bundle lookup table
+to be used when rendering.
+
+.Bl "text_bundle"
+This attribute contains the resource id of the text bundle lookup table to
+be used when rendering.
+
+.Bl "line_bundle	"
+This attribute contains the resource id of the line bundle lookup table to
+be used when rendering.
+
+.Bl "interior_bundle"
+This attribute contains the resource id of the interior bundle lookup table to
+be used when rendering.
+
+.Bl "edge_bundle"
+This attribute contains the resource id of the edge bundle lookup table to
+be used when rendering.
+
+.Bl "view_table"
+This attribute contains the resource id of the view lookup table to
+be used when rendering.
+
+.Bl "color_table"
+This attribute contains the resource id of the color lookup table to
+be used to resolve references to indexed colors.
+
+.Bl "depth_cue_table"
+This attribute contains the resource id of the depth-cue lookup table to
+be used when rendering.
+
+.Bl "light_table"
+This attribute contains the resource id of the light lookup table to
+be used when rendering.
+
+.Bl "color_approx_table"
+This attribute contains the resource id of the lookup table to
+be used during the color approximation stage of the rendering pipeline.
+The lookup table may either be of type \fIRGBApprox\fP or
+\fIIntensityApprox\fP.  Definitions for both types of tables can
+be found in the section dealing with lookup table requests.
+
+.Bl "pattern_table"
+This attribute contains the resource id of the lookup table to
+be used when referencing patterns.
+
+.Bl "text_font_table"
+This attribute contains the resource id of the lookup table to
+be used when referencing text fonts.
+
+.Bl "highlight_inclusion"
+This attribute contains the resource id of the name set to be used
+as the highlight inclusion set.
+
+.Bl "highlight_exclusion"
+This attribute contains the resource id of the name set to be used
+as the highlight exclusion set.
+
+.Bl "invisibility_inclusion"
+This attribute contains the resource id of the name set to be used
+as the invisibility inclusion set.
+
+.Bl "invisibility_exclusion"
+This attribute contains the resource id of the name set to be used
+as the invisibility exclusion set.
+
+.Bl "HLHSR_mode"
+This attribute contains the hidden line/hidden surface method
+used when resolving visibility of overlapping primitives.
+The effect of setting a renderer's \fIHLHSR_mode\fP while its
+\fIrenderer_state\fP attribute is set to \fIRendering\fP
+is implementation-dependent.
+
+.Bl "NPC_subvolume"
+This attribute contains the normalized project coordinates for the
+sub-volume space that is to be mapped to the viewport.
+
+.Bl "viewport"
+This is used to describe the area within a drawable in which 3D graphics
+primitives may appear.  The viewport coordinates are specified with an
+x,y offset (in pixels) from the upper left corner of the drawable.
+It is permissible to specify a viewport with boundaries outside of the
+drawable.  Geometry that is mapped to values outside the drawable will
+be clipped.  If a viewport is not specified by the time a
+\fBPEXBeginRendering\fP request is processed,
+the viewport will be set to the largest rectangle, anchored at the
+lower left corner, that achieves an isotropic mapping
+to the NPC_subvolume on that drawable.

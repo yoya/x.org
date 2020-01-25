@@ -1,0 +1,6 @@
+.\" $Header: ownerevents2.a,v 1.1 87/09/28 13:10:01 mento Exp $
+.IP \fIowner_events\fP 1i
+Specifies if the pointer events are to be reported normally (pass
+.PN True )
+or with respect to the grab window if selected by the event mask (pass
+.PN False ).

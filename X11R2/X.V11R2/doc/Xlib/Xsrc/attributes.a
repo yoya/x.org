@@ -1,0 +1,6 @@
+.\" $Header: attributes.a,v 1.1 87/09/28 12:30:07 mento Exp $
+.IP \fIattributes\fP 1i
+Attributes of the window to be set at creation time should be set in
+this structure.
+The valuemask should have the appropriate bits
+set to indicate which attributes have been set in the structure.

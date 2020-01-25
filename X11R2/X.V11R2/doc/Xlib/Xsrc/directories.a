@@ -1,0 +1,5 @@
+.\" $Header: directories.a,v 1.1 87/09/28 12:57:23 mento Exp $
+.IP \fIdirectories\fP 1i
+Specifies the directory path used to look for a font.
+Setting the path to the empty list restores the default path defined
+for the X server.

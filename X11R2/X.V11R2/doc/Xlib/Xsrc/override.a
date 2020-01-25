@@ -1,0 +1,7 @@
+.\" $Header: override.a,v 1.1 87/09/28 13:09:56 mento Exp $
+.IP \fIoverride\fP 1i
+Specifies whether the window manager application should tamper with the
+specified window.
+If the value is True, then the window manager should not tamper with the
+specified window.
+If the value is False, then the window manager can tamper with the window.

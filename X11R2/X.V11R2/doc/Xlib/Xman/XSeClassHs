@@ -1,0 +1,44 @@
+.TH XSetClassHint 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XSetClassHint, XGetClassHint \- set or get class hint
+.SH SYNTAX
+.so ../Xsrc/XSetClassHs.f
+.LP
+.so ../Xsrc/XGetClassHs.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/w.a
+.so ../Xsrc/class_hint.a
+.so ../Xsrc/class_hint2.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSetClassHs.d
+.ds fd .PN XSetClassHint
+.so ../Xsrc/errsent.com
+.PN BadAlloc
+and
+.PN BadWindow 
+errors.
+.LP
+.so ../Xdescrip/XGetClassHs.d
+.ds fd .PN XGetClassHint
+.so ../Xsrc/errsent4.com
+.PN BadWindow 
+error.
+.SH PROPERTY
+WM_CLASS
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XSetCommand(3X),
+XSetIconName(3X),
+XSetIconSizeHints(3X),
+XSetNormalHints(3X),
+XSetSizeHints(3X),
+XSetStandardProperties(3X),
+XSetTransientForHint(3X),
+XSetWMHints(3X),
+XSetZoomHints(3X),
+XStoreName(3X)
+.br
+\fIXlib \- C Language X Interface\fP

@@ -1,0 +1,203 @@
+#define PassCDebugFlags 'CDEBUGFLAGS=$(CDEBUGFLAGS)' 'CC=$(CC)'
+
+        SUBDIRS = dix $(ALLDDXDIRS) $(ALLOSDIRS)
+    STD_DEFINES = ServerDefines
+    CDEBUGFLAGS = ServerCDebugFlags
+     EXTENSIONS = $(EXTENSIONSRC)/server/libext.a
+         EXTDIR = $(EXTENSIONSRC)/server
+     ALLDDXDIRS = ddx/snf ddx/mi ddx/cfb ddx/mfb \
+                  ddx/dec/lk201 ddx/dec/qvss ddx/dec/qdss ddx/dec/qdss/libtl \
+                  ddx/sun \
+                  ddx/apollo \
+                  ddx/ibm \
+                  ddx/hp/hp ddx/hp/mfb ddx/hp/cfb ddx/hp/gbx ddx/hp/mob \
+                  ddx/hp/topcat ddx/hp/catseye ddx/hp/ren
+      ALLOSDIRS = os/sysV os/4.2bsd os/hpux
+        SUBDIRS = dix $(ALLDDXDIRS) $(ALLOSDIRS)
+           UNIX = os/4.2bsd/libos.a
+           SYSV = os/sysV/libos.a
+           HPUX = os/hpux/libos.a
+            MFB = ddx/mfb/libmfb.a
+            CFB = ddx/cfb/libcfb.a
+             MI = ddx/mi/libmi.a
+            DIX = dix/libdix.a
+            SNF = ddx/snf/libsnf.a
+         APOLLO = ddx/apollo/libapollo.a
+            APC = ddx/apollo/apc/libapc.a
+            SUN = ddx/sun/libsun.a
+             HP = ddx/hp/hp/libhp.a
+        SYSLIBS = -lm -ldbm
+    ALLPOSSIBLE = Xqvss Xqdss Xsun Xibm Xapollo Xhp
+
+#ifndef	XqvssServer
+#define	XqvssServer /* as nothing */
+#endif
+
+#ifndef	XqdssServer
+#define	XqdssServer /* as nothing */
+#endif
+
+#ifndef	XsunServer
+#define	XsunServer /* as nothing */
+#endif
+
+#ifndef	XHPServer
+#define	XHPServer /* as nothing */
+#endif
+
+#ifndef	XapolloServer
+#define	XapolloServer /* as nothing */
+#endif
+
+#ifndef	XibmServer
+#define	XibmServer /* as nothing */
+#endif
+
+# for now, don't split this across lines, because imake will keep a trailing slash
+ALL = XqvssServer XqdssServer XsunServer XapolloServer XibmServer XHPServer
+
+#
+# This turns off the default rule for compiling .c files because
+# this makefile does not really know how to build it.  This is really
+# just a hack because of sun's version of make and nfs.
+#
+.c.o:
+
+all: $(ALL)
+
+#
+# qvss server
+#
+QVSSDIRS = dix ddx/snf ddx/mi ddx/mfb ddx/dec/lk201 ddx/dec/qvss os/4.2bsd
+QVSSOBJS = ddx/dec/qvss/init.o ddx/dec/qvss/qvss_io.o ddx/dec/lk201/lk201.o
+QVSSLIBS = $(DIX) $(SNF) $(UNIX) $(MFB) $(MI) $(EXTENSIONS)
+XqvssDIRS = $(QVSSDIRS)
+
+ServerTarget(Xqvss,$(EXTDIR) $(QVSSDIRS),$(QVSSOBJS),$(QVSSLIBS),$(SYSLIBS))
+
+#
+# qdss server
+#
+QDSSDIRS = dix ddx/snf ddx/mi ddx/mfb ddx/dec/lk201 ddx/dec/qdss \
+           ddx/dec/qdss/libtl os/4.2bsd
+QDSSOBJS = ddx/dec/qdss/init.o ddx/dec/qdss/qdss_io.o ddx/dec/lk201/lk201.o
+QDSSLIBS = ddx/dec/qdss/libqdss.a ddx/dec/qdss/libtl/libtl.a \
+           ddx/dec/qdss/libqdss.a \
+           $(DIX) $(SNF) $(UNIX) $(MFB) $(MI) $(EXTENSIONS)
+XqdssDIRS = $(QDSSDIRS)
+
+ServerTarget(Xqdss,$(EXTDIR) $(QDSSDIRS),$(QDSSOBJS),$(QDSSLIBS),$(SYSLIBS))
+
+
+#
+# sun server
+#
+#ifdef UseSunWindowsInServer
+SUNWINDOWSLIBS = -lsunwindow -lpixrect
+#endif
+SUNDIRS = dix ddx/snf ddx/mi ddx/mfb ddx/cfb ddx/sun os/4.2bsd
+SUNOBJS = ddx/sun/sunInit.o
+SUNLIBS = $(SUN) $(CFB) $(DIX) $(SNF) $(UNIX) $(MFB) $(MI) $(EXTENSIONS)
+SUNSYSLIBS = $(SYSLIBS) $(SUNWINDOWSLIBS)
+XsunDIRS = $(SUNDIRS)
+
+ServerTarget(Xsun,$(EXTDIR) $(SUNDIRS),$(SUNOBJS),$(SUNLIBS),$(SUNSYSLIBS))
+
+#
+# HP server
+#
+HPDIRS = dix ddx/snf ddx/mi ddx/hp/hp ddx/hp/mfb ddx/hp/cfb ddx/hp/gbx \
+         ddx/hp/mob ddx/hp/topcat ddx/hp/catseye ddx/hp/ren os/hpux
+HPOBJS = ddx/hp/hp/init.o
+HPLIBS = $(DIX) $(EXTENSIONS) $(HP) \
+          ddx/hp/gbx/libgbx.a \
+          ddx/hp/mob/libmob.a \
+          ddx/hp/topcat/libtopcat.a \
+          ddx/hp/catseye/libcatseye.a \
+          ddx/hp/ren/libren.a \
+	  $(HP) \
+          ddx/hp/mfb/libmfb.a \
+          ddx/hp/cfb/libcfb.a \
+          ddx/hp/ren/libren.a \
+          $(SNF) $(HPUX) $(MI)
+#if ServerMallocLib
+HPMALLOCLIB = -lmalloc
+#endif
+HPSYSLIBS = $(SYSLIBS) $(HPMALLOCLIB)
+XhpDIRS = $(HPDIRS)
+
+ServerTarget(Xhp,$(EXTDIR) $(HPDIRS),$(HPOBJS),$(HPLIBS),$(HPSYSLIBS))
+
+#
+# ibm server
+#
+#if RtSpecialMalloc
+IBMALLOCLIB = ddx/ibm/rt/librtalloc.a
+#else
+IBMALLOCLIB = 
+#endif
+
+IBMDIRS = dix ddx/snf ddx/mi ddx/mfb ddx/ibm os/4.2bsd
+IBMOBJS = ddx/ibm/rt/rt.o
+IBMLIBS = ddx/ibm/libibm.a $(IBMALLOCLIB) \
+		$(DIX) $(UNIX) $(MFB) $(MI) $(EXTENSIONS)
+IBMSYSLIBS = $(SYSLIBS)
+XibmDIRS = $(IBMDIRS)
+
+ServerTarget(Xibm,$(EXTDIR) $(IBMDIRS),$(IBMOBJS),$(IBMLIBS),$(IBMSYSLIBS))
+
+#
+# apollo server
+#
+APOLLODIRS = dix ddx/snf ddx/mi ddx/mfb ddx/apollo os/4.2bsd
+APOLLOOBJS = ddx/apollo/ap_init.o /sys/traits/io_traits
+APOLLOLIBS = $(APOLLO) $(APC) $(DIX) $(SNF) $(UNIX) $(MFB) $(MI) $(EXTENSIONS)
+XapolloDIRS = $(APOLLODIRS)
+
+ServerTarget(Xapollo,$(EXTDIR) $(APOLLODIRS),$(APOLLOOBJS),$(APOLLOLIBS),$(SYSLIBS))
+
+#
+# other, necessary targets
+#
+CleanSubdirs($(SUBDIRS))
+TagSubdirs($(SUBDIRS))
+MakefileSubdirs($(SUBDIRS))
+InstallMultiple($(ALL),$(BINDIR))
+
+#
+# Gad, but I wish this wasn't so complicated.  All this because
+# If we are making two servers, then there may be two lists of
+# directories to depend or whatever, most of which are duplicates
+#
+#define DoServerSubdirList(target)					@@\
+target::								@@\
+	@for i in $(ALL); do \						@@\
+		dirs="$$dirs \$$($${i}DIRS)"; \				@@\
+	done; \								@@\
+	$(MAKE) $(MFLAGS) Real/**/target \				@@\
+		"SERVERSUBDIRS=$$dirs" \				@@\
+		LINT=$(LINT) DESTDIR=$(DESTDIR)				@@\
+									@@\
+Real/**/target:								@@\
+	@subdirs=`ls -d $(SERVERSUBDIRS) | sort -u`; \			@@\
+	for i in $$subdirs; do \					@@\
+		echo "target/**/ing $$i"; \				@@\
+		(cd $$i ; $(MAKE) $(MFLAGS) target \			@@\
+			LINT=$(LINT) DESTDIR=$(DESTDIR) ); \		@@\
+	done
+
+DoServerSubdirList(depend)
+DoServerSubdirList(install)
+DoServerSubdirList(lintlib)
+DoServerSubdirList(lint)
+
+$(EXTDIR) $(SUBDIRS): FRC
+	@cd $@ ; echo "making $@"; \
+	$(MAKE) $(MFLAGS) PassCDebugFlags all
+
+clean::
+	$(RM) $(ALLPOSSIBLE)
+
+InstallManPage(Xserver,$(MANDIR))
+
+FRC:

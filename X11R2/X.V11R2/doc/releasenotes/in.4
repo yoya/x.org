@@ -1,0 +1,243 @@
+.ne 6
+.NH 1
+What's New in this Release
+.LP
+This release differs from the previous one in the following areas:
+.\".ll -5
+.\".in +5
+.IP "X now has an official name"
+.br
+The X Consortium has designated the following as the official names of the
+X Window System:
+.sp
+.ce 5
+X
+X Window System
+X Version 11
+X Window System, Version 11
+X11
+.sp
+Note that the phrases X.11, X-11, X Windows or any permutation thereof, are
+explicitly excluded from this list and should not be used to describe the
+X Window System (window system should be thought of as one word).  In addition,
+\fIX Window System\fP is a trademark of MIT and should be acknowledged
+as such whenever it is used.
+.IP "many, many bugs fixed"
+.br
+A large number of bugs have been fixed in the server, the libraries, 
+and the
+clients.  Many parts of the sample server that were broken in 
+in the previous release have been
+fixed, and client workarounds for old bugs have been removed; old servers
+may not work properly with new clients.
+Many of the byte order problems have
+been fixed; this release should work equally well on both big endian and 
+little endian architectures.
+.IP "new servers"
+.br
+Native ddx source code has been contributed for the following servers:
+Apollo's monochrome and color displays; Digital's QDSS display;
+Hewlett-Packard's 9000/series 300 machines 
+(310, 320, 330, and 350) with the 98547A, 98545A, and 98544A displays; and
+IBM's EGA, Megapel, 8514, and VGA displays.  All of these server 
+implementations use special display hardware to gain good performance.
+.IP "compressed fonts"
+.br
+Many servers now do automatic uncompression of fonts that are stored in
+\fIcompress(1)\fP format.  This can save a substantial amount of disk space
+for seldomly used fonts.  
+.IP "Xrm merged into Xlib"
+.br
+The Resource Manager has been merged into Xlib and is now used by the
+\fIXGetDefault\fP routine and the X Toolkit.  This means that 
+defaults stored in the server using the \fIxrdb(1)\fP program are now honored
+by all programs.  There is also a new environment variable called
+XENVIRONMENT, that specifies the name of an additional resource file to 
+be merged in on top of the server defaults and any application defaults.
+The format for specifying resources has changed slightly to allow wildcarding
+within resource hierarchies (i.e. ``program*name: value'').  See the Xlib
+documentation on using the Resource Manager for more details.
+.IP "X Toolkit Specification and implementation"
+.br
+The X Toolkit Specification and a sample implementation are included in this
+release.  The X Toolkit provides a collection of resource, event, and 
+object managers upon which user interface objects called \fIwidgets\fP are
+built.  This specification is currently under review by the X Consortium
+for possible inclusion in the X standard.  The beginnings of an Athena
+widget set are also provided.
+.IP "new -display and -geometry command line arguments"
+.br
+All supported clients have been changed to require a ``-display'' argument
+in command line specifications of the X server to use.  Programs in 
+previous releases mistakenly assumed that any command line argument that
+contained a colon (:) was a display name.  This caused severe problems for
+sites with distributed file systems and for the new ``-xrm'' command line
+option in all X Toolkit clients.  Similarly, the old ``=geom'' is being
+replaced by ``-geometry geom''.  \fBAll programs should accept
+-display and -geometry.\fP  Unambiguous abbreviations are allowed so long
+as the full name may also be given.
+.IP "fewer flushes in Xlib"
+.br
+The Xlib event checking routines 
+\fIXNextEvent\fP,
+\fIXPeekEvent\fP,
+\fIXIfEvent\fP,
+\fIXCheckIfEvent\fP,
+\fIXPeekIfEvent\fP,
+\fIXWindowEvent\fP,
+\fIXCheckWindowEvent\fP,
+\fIXMaskEvent\fP,
+\fIXCheckMaskEvent\fP,
+\fIXCheckTypedEvent\fP,
+\fIXCheckTypedWindowEvent\fP, and
+\fIXPendingEvent\fP
+have been changed to only flush the output buffer when they are about to 
+block, instead
+of doing a flush on every call.  This modification is compatible with the 
+previous release and should not require any client code changes.  Applications
+that do a lot of event checking will notice an increase in performance.
+.IP "new send_event flag in Xlib XEvents"
+.br
+Events originating from another client using the \fIXSendEvent\fP routine
+no longer have the eighth bit of the event type set.  Instead, a new 
+``send_event'' flag has been added to the various event structures.  Because
+of this, \fBall clients should be recompiled before being linked with the new 
+library.\fP
+.IP "padding added to Xlib XEvents"
+.br
+To provide room in the event structures for extensions, a small amount of 
+padding has been added to all events.  Although no client
+code changes are necessary, \fBall programs should be recompiled before being
+linked with the new library.\fP
+.IP "serial number tracking in Xlib"
+.br
+Support for tracking serial numbers of requests has been added.  The
+protocol provides this information, but the previous release of the library
+discarded it.  Two new macros \fINextRequest\fP and
+\fILastKnownRequestProcessed\fP (and corresponding routines) have been added
+to return the serial number of the next request and the serial number of
+the last request known to have been executed by the server.
+.IP "new XEventsQueued routine in Xlib"
+.br
+A new routine, \fIXEventsQueued\fP, has been added to bring together the 
+functionality of \fIXQLength\fP and \fIXPending\fP (i.e. they have been 
+rewritten to use the new routine) and to add the ability to
+do a ``non-flushing \fIXPending\fP.''  New clients
+should use \fIXEventsQueued\fP instead of the old routines.
+.IP "new XCreatePixmapFromBitmapData routine in Xlib"
+.br
+A new routine, \fIXCreatePixmapFromBitmapData\fP, has been added to create
+pixmaps of arbitrary depths given \fIbitmap(1)\fP format data.  This should be
+used to create tiles (for backgrounds and borders) rather than
+\fIXCreateBitmapFromData\fP (which creates masks for defining clipping 
+regions, cursor shapes, icon shapes, and stipple patterns).
+.IP "misdeclared types fixed in Xlib
+.br
+A number of width, height, and byte count arguments that should have been 
+declared unsigned, but were not, have been fixed.
+.IP "new XUnionRectWithRegion to Xlib"
+.br
+A new routine, \fIXUnionRectWithRegion\fP, has been added to merge a rectangle
+with a region.  This is useful for implementing exposure compression.
+.IP "XPutImage, XPutPixel and XGetPixel fixed in Xlib"
+.br
+The Xlib routines \fIXPutImage\fP, \fIXPutPixel\fP and \fIXGetPixel\fP 
+have had many bugs fixed.
+.IP "new X10 to X11 protocol translator"
+.br
+A client that masquerades as an X10 server but which uses X11 for input
+and output is now available.  It allows
+X10 programs to run, unmodified, on X11 displays and should make changing
+over from X10 to X11 much easier.
+.IP "reimplementations of old clients"
+.br
+The \fIxrdb\fP and \fIxmodmap\fP clients have been rewritten to provide 
+a substantial number of new features.  The new \fIxrdb\fP can use the
+C preprocessor to selectively load resources, merge in new
+resources, and edit current defaults into resource files.  The new
+\fIxmodmap\fP reads description files that allow you to remap keys on the
+keyboard as well as redefine modifier keys.  Both programs support the syntax
+of the versions in the previous release (except for the new -display 
+requirements).
+.IP "new clients"
+.br
+Two new programs, \fIxlogo\fP and \fIxbiff\fP, have been added to the
+supported distribution.  These programs use the Logo and Mailbox widgets
+from the Athena widget set:  \fIxlogo\fP displays the X Window System logo, and
+\fIxbiff\fP provides a little mailbox that pops up when you have mail.
+.IP "old X Toolkit removed"
+.br
+All of the clients that used the old versions of the X Toolkit now use the
+version available in this release.  Therefore, libXtk and liboldXtk have been
+dropped from this release.
+.IP "new InterViews toolkit"
+.br
+Source code and documentation for a
+new version of the InterViews toolkit from Stanford University are available
+in the user-contributed distribution.
+.IP "Andrew Toolkit"
+.br
+Source code and documentation for the Andrew Toolkit, developed by IBM and 
+Carnegie-Mellon University are available in the user-contributed distribution.
+.IP "Xrlib"
+.br
+Source code and documentation for an X11 version of the Hewlett-Packard
+Xrlib toolkit are available in the user-contributed distribution.
+.IP "CLUE"
+.br
+The Common Lisp User Interface Environment draft specification is available 
+in the user-contributed distribution.
+.IP "Cray patches"
+.br
+A collection of patches to make the version of Xlib distributed in the previous
+release work on a CRAY-XMP or CRAY-2 under UNICOS is available in the 
+user-contributed distribution.  Support for these platforms will be integrated
+in the next release.
+.IP "MetaFont GF to X BDF converter"
+.br
+A filter for generating X BDF font files from MetaFont GF descriptions is
+available in the user-contributed distribution.
+.IP "new gnuplot"
+.br
+A new version of the gnuplot package is available in the user-contributed
+distribution.
+.IP "Kanji xterm"
+.br
+A version of \fIxterm\fP that supports kanji is available in the
+user-contributed distribution.  A public domain Kanji font has also been
+added to \fIfonts/bdf/\fP.
+.IP "XMenu no longer supported"
+.br
+The XMenu package is obsolete and will no longer be supported.  It has been
+moved to the user-contributed distribution and will be dropped from future
+releases.
+.IP "Portable Bitmap Toolkit"
+.br
+A ``Portable Bitmap Toolkit'' for converting bitmaps to and from various
+formats is available in the user-contributed distribution.
+.IP "TeXX"
+.br
+A dvi file previewer for examining \fITeX\fP output is available in the 
+user-contributed distribution.
+.IP "xcalendar"
+.br
+A sample X Toolkit application for maintaining a desktop calendar is available
+in the user-contributed distribution.
+.IP "xman"
+.br
+A rewrite of the X10 \fIxman\fP program to the X Toolkit is available in the
+user-contributed distribution.
+.IP "xmore"
+.br
+A rewrite of the X10 \fIxmore\fP program to the X Toolkit is available in the
+user-contributed distribution.
+.IP "xperfmon"
+.br
+A system parameter monitor for operating systems derived from 4.2bsd is 
+available in the user-contributed distribution.
+.IP "xshell"
+.br
+A port of the X10 \fIxshell\fP program is available in the user-contributed
+distribution.
+.\".in -5
+.\".ll +5

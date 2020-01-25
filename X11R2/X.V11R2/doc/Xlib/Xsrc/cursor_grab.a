@@ -1,0 +1,3 @@
+.\" $Header: cursor_grab.a,v 1.1 87/09/28 12:55:50 mento Exp $
+.IP \fIcursor\fP 1i
+Specifies the cursor that is to be displayed during the grab. 

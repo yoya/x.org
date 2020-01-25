@@ -1,0 +1,59 @@
+.TH XCreateFontCursor 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XCreateFontCursor, XCreatePixmapCursor, XCreateGlyphCursor \- create cursors
+.SH SYNTAX
+.so ../Xsrc/XCursor.f
+.LP
+.so ../Xsrc/XCreCursor.f
+.LP
+.so ../Xsrc/XCreateGlCur.f
+.SH ARGUMENTS
+.so ../Xsrc/bcolor.a
+.so ../Xsrc/display.a
+.so ../Xsrc/mask_cursor.a
+.so ../Xsrc/mchar.a
+.so ../Xsrc/mfont.a
+.so ../Xsrc/schar.a
+.so ../Xsrc/scolor.a
+.so ../Xsrc/sfont.a
+.so ../Xsrc/shape_cur.a
+.so ../Xsrc/source.a
+.so ../Xsrc/xy.a
+.SH DESCRIPTION
+.so ../Xdescrip/XCursor.d
+.ds fd .PN XCreateFontCursor
+.so ../Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadMatch ,
+and
+.PN BadValue 
+errors.
+.LP
+.so ../Xdescrip/XCreCursor.d
+.ds fd .PN XCreatePixmapCursor
+.so ../Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadMatch ,
+and
+.PN BadPixmap 
+errors.
+.LP
+.so ../Xdescrip/XCreateGlCur.d
+.ds fd .PN XCreateGlyphCursor
+.so ../Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadFont ,
+and
+.PN BadValue 
+errors.
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badfont.e
+.so ../Xerrors/badmatch2.e
+.so ../Xerrors/badpixmap.e
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+XDefineCursor(3X),
+XRecolorCursor(3X)
+.br
+\fIXlib \- C Language X Interface\fP

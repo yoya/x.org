@@ -1,0 +1,293 @@
+.AC "Renderers" 1
+.LP
+.RU
+.LP
+A \fIrenderer\fP is a PEX resource that can be created for
+the purpose of doing 3D rendering.  A renderer consists of resource id's
+for various tables and name sets,
+the resource id of a pipeline context from
+which the initial
+rendering pipeline attributes will be copied,
+and other attributes.
+A renderer also manages the HLHSR
+buffer needed for some hidden line/hidden surface algorithms.
+If there are lots of primitives stored in this buffer, the renderer
+resource can be very heavyweight.  Once the buffer is emptied, this
+resource again becomes fairly lightweight.
+.LP
+Some renderer resource requests require an
+\fIitem_mask\fP parameter.
+Each bit in the \fIitem_mask\fP indicates whether or not
+the corresponding attribute is to be set/queried.
+There is a corresponding entry in the \fIitem_list\fP
+for each set bit in \fIitem_mask\fP.
+It is therefore possible
+to set/query one or many renderer attributes with a single request.
+.so rtbl
+.bp
+
+.AC "Renderer Resource Management" 2
+.LP                   
+The renderer is an X11 resource and carries all of the 
+responsibilities and
+access rights of X11 resources.  These requests manage the creation and
+freeing of renderer resources.
+
+.AC "Create Renderer" 3
+.Fs
+.Na PEXCreateRenderer
+.Rq      
+.Pa format FORMAT
+.Pa rdr_id RENDERER_ID
+.Pa drawable_example DRAWABLE_ID
+.Pa item_mask BITMASK
+.Pa item_list LISTofVALUE
+.Se
+Drawable, PipelineContext, NameSet, LookupTable, FloatingPointFormat, Value,
+Alloc
+.Ds                     
+This request creates a renderer resource for the specified
+\fIrdr_id\fP.  It can be used to render onto drawables with the
+same root window and depth as the example drawable specified
+by \fIdrawable_example\fP.
+The \fIitem_mask\fP defines those renderer attributes
+that are to be explicitly set at the time the resource is created.
+The \fIitem_list\fP 
+contains the corresponding
+list of values used to modify the newly-created renderer.
+Floating point values in \fIitem_list\fP will be in the floating
+point format specified in \fIformat\fP.
+.Fe
+
+
+.AC "Free Renderer" 3
+.Fs
+.Na PEXFreeRenderer
+.Rq                 
+.Pa rdr_id RENDERER_ID
+.Se
+Renderer
+.Ds
+This request
+deletes the association between the resource id
+and the renderer.  The renderer resource's storage will be
+freed when no other resource references it.
+If the renderer's \fIrenderer_state\fP attribute is set to \fIRendering\fP
+when this request is processed, an implicit \fBPEXEndRendering\fP
+request will be performed before the renderer is freed.
+.Fe
+.bp
+.AC "Renderer Modification" 2
+.LP
+These requests can be used to modify attributes of renderer resources.
+.AC "Change Renderer" 3
+.Fs
+.Na PEXChangeRenderer
+.Rq
+.Pa format FORMAT
+.Pa rdr_id RENDERER_ID
+.Pa item_mask BITMASK
+.Pa item_list LISTofVALUE
+.Se
+Renderer, Match, Value, FloatingPointFormat, NameSet, LookupTable,
+PipelineContext
+.Ds       
+This request changes components of a renderer.  
+The \fIitem_mask\fP and \fIitem_list\fP
+specify which components are to be changed.
+Each bit in the \fIitem_mask\fP indicates whether or not
+there is a corresponding entry in the \fIitem_list\fP.
+It is therefore possible
+to modify one or many renderer attributes with a
+\fBPEXChangeRenderer\fP request.
+A renderer's \fIcurrent_path\fP attribute is read-only, therefore
+attempts to modify it will be ignored.
+Floating point values in \fIitem_list\fP will be in the floating
+point format specified in \fIformat\fP.
+The \fIrender_state\fP attribute is read-only, so attempts
+to change it will be ignored.
+.Fe
+
+.AC "Renderer Inquiry" 2
+.LP
+These requests inquire renderer attributes.
+.AC "Get Renderer Attributes" 3
+.Fs
+.Na PEXGetRendererAttributes
+.Rq
+.Pa format FORMAT
+.Pa rdr_id RENDERER_ID
+.Pa item_mask BITMASK
+.Re
+.Pa item_list LISTofVALUE
+.Se
+Renderer, Match, FloatingPointFormat
+.Ds       
+This request will return components of
+the renderer specified by \fIrdr_id\fP.
+The \fIitem_mask\fP specifies which components are to be inquired and returned.
+The specified attributes of the renderer will be returned in
+\fIitem_list\fP.
+Floating point values in \fIitem_list\fP will be returned in the floating
+point format specified in \fIformat\fP.
+.Fe
+.bp
+
+.AC "Client-Side Traversal Support" 2
+.LP
+These requests provide support for client-side structure
+traversal.  PEX currently provides only rendering support
+for client-side traversal.  Picking and searching functionality
+must be done by the client.
+
+.AC "Begin Rendering" 3
+.Fs
+.Na PEXBeginRendering
+.Rq
+.Pa rdr_id RENDERER_ID
+.Pa drawable_id DRAWABLE_ID
+.Se
+Renderer, Drawable
+.Ds 
+This request causes rendering to begin on the drawable specified by
+\fIdrawable_id\fP.  The output of the renderer specified by \fIrdr_id\fP
+is bound to that drawable until a \fBPEXEndRendering\fP request is
+processed.  The initial rendering pipeline attributes are copied into
+the renderer
+from the pipeline context specified by the renderer's \fIpipeline_context\fP
+attribute.  If \fIpipeline_context\fP is \fINull\fP, the rendering
+pipeline attributes are all set to their default values.  The
+renderer's \fIrenderer_state\fP attribute is set to \fIRendering\fP and
+its \fIcurrent_path\fP attribute is set to the null list.
+.LP
+If the specified drawable does not have the same root and depth as
+the drawable that was passed in the request to create the renderer,
+a Match error will be generated.
+If the renderer's \fIrender_state\fP attribute is currently
+set to \fIRendering\fP, an implicit \fIPEXEndRendering\fP request
+is performed prior to executing the request.
+.Fe
+
+
+.AC "End Rendering" 3
+.Fs
+.Na PEXEndRendering
+.Rq
+.Pa rdr_id RENDERER_ID
+.Se
+Renderer
+.Ds       
+This request causes any pending output for the renderer specified
+by \fIrdr_id\fP to be rendered onto the drawable.  The \fIrender_state\fP
+attribute of the renderer is set to \fIIdle\fP.
+.Fe
+.bp
+
+.AC "Begin Structure" 3
+.Fs
+.Na PEXBeginStructure
+.Rq
+.Pa rdr_id RENDERER_ID
+.Pa s_id CARD32
+.Se
+Renderer
+.Ds       
+This request causes the rendering pipeline attributes in the
+renderer specified by \fIrdr_id\fP to be saved.
+The attributes of the renderer resource itself
+(i.e., the
+attributes of a renderer that can be set/queried,
+including table and name set resource id's)
+are not saved.
+The element offset of the last entry in the renderer's
+\fIcurrent_path\fP is incremented (to account for the
+client-side "execute structure" command), then
+the name specified by \fIs_id\fP together
+with an element offset of zero is appended to the
+\fIcurrent_path\fP attribute.  Each subsequent output command
+will cause the element offset to be bumped by one until the
+next \fBPEXBeginStructure\fP request or the next
+\fBPEXEndStructure\fP request.
+.LP
+After saving the current rendering pipeline attributes,
+the \fIglobal_transform\fP attribute is set
+to the matrix computed by concatenating
+the current \fIlocal_transform\fP and the
+current \fIglobal_transform\fP matrices.  Then
+the \fIlocal_transform\fP matrix is set
+to the identity matrix.
+.Fe
+
+
+
+.AC "End Structure" 3
+.Fs
+.Na PEXEndStructure
+.Rq
+.Pa rdr_id RENDERER_ID
+.Se
+Renderer
+.Ds       
+This request restores the last-saved rendering pipeline attributes
+in the renderer specified by \fIrdr_id\fP.
+In addition, the last element reference in the renderer's \fIcurrent_path\fP
+is removed, and subsequent output commands will cause the element
+offset of the element reference at the end of the list to be incremented.
+This request itself does not cause an increment to \fIcurrent_path\fP.
+.Fe
+.bp
+
+
+.AC "Rendering Commands" 2
+.LP
+These requests cause output commands to be processed by a renderer.
+
+.AC "Render Output Commands" 3
+.Fs
+.Na PEXRenderOutputCommands
+.Rq
+.Pa format FORMAT
+.Pa rdr_id RENDERER_ID
+.Pa cmds LISTofOUTPUT_CMD
+.Se
+Renderer, FloatingPointFormat, DirectColorFormat
+.Ds       
+If the \fIrender_state\fP attribute of the
+renderer specified by \fIrdr_id\fP is set to \fIRender\fP,
+the output commands in \fIcmds\fP will be immediately processed.
+If the \fIrender_state\fP attribute is set to \fIIdle\fP, the
+commands will be ignored.
+Floating point values in \fIcmds\fP will be in the floating
+point format specified in \fIformat\fP.
+Similarly, direct color values in \fIcmds\fP will be in the direct color
+format specified in \fIformat\fP.
+The formats for the various types of output commands
+can be found in the "Output Commands" section.
+.Fe
+
+
+
+.AC "Render Network" 3
+.Fs
+.Na PEXRenderNetwork
+.Rq
+.Pa rdr_id RENDERER_ID
+.Pa drawable_id DRAWABLE_ID
+.Pa s_id STRUCTURE
+.Se
+Renderer, Drawable, Structure
+.Ds       
+This request causes the structure network rooted at \fIs_id\fP
+to be traversed and rendered on \fIdrawable_id\fP, using the renderer
+specified by \fIrdr_id\fP.
+.LP
+This functionality is equivalent to the following (pseudo-)requests:
+.ID
+\fIPEXBeginRendering\fP(\fIr_id\fP, \fIdrawable_id\fP)
+\fIPEXRenderOutputCmds\fP(execute structure(\fIs_id\fP))
+\fIPEXEndRendering\fP(\fIr_id\fP)
+.DE
+.Fe
+.bp
+
+

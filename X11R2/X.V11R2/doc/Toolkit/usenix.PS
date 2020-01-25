@@ -1,0 +1,3003 @@
+%!PS-Adobe-1.0
+%%Title: usenix.mss
+%%DocumentFonts: (atend)
+%%Creator: Paul Asente,WSL,8536665,3274458 and Scribe 5(1501)
+%%CreationDate: 25 February 1988 08:47
+%%Pages: (atend)
+%%EndComments
+% PostScript Prelude for Scribe.
+/BS {/SV save def 0.0 792.0 translate .01 -.01 scale} bind def
+/ES {showpage SV restore} bind def
+/SC {setrgbcolor} bind def
+/FMTX matrix def
+/RDF {WFT SLT 0.0 eq
+  {SSZ 0.0 0.0 SSZ neg 0.0 0.0 FMTX astore}
+  {SSZ 0.0 SLT sin SLT cos div SSZ mul SSZ neg 0.0 0.0 FMTX astore}
+  ifelse makefont setfont} bind def
+/SLT 0.0 def
+/SI { /SLT exch cvr def RDF} bind def
+/WFT /Courier findfont def
+/SF { /WFT exch findfont def RDF} bind def
+/SSZ 1000.0 def
+/SS { /SSZ exch 100.0 mul def RDF} bind def
+/AF { /WFT exch findfont def /SSZ exch 100.0 mul def RDF} bind def
+/MT /moveto load def
+/XM {currentpoint exch pop moveto} bind def
+/UL {gsave newpath moveto dup 2.0 div 0.0 exch rmoveto
+   setlinewidth 0.0 rlineto stroke grestore} bind def
+/LH {gsave newpath moveto setlinewidth
+   0.0 rlineto
+   gsave stroke grestore} bind def
+/LV {gsave newpath moveto setlinewidth
+   0.0 exch rlineto
+   gsave stroke grestore} bind def
+/BX {gsave newpath moveto setlinewidth
+   exch
+   dup 0.0 rlineto
+   exch 0.0 exch neg rlineto
+   neg 0.0 rlineto
+   closepath
+   gsave stroke grestore} bind def
+/BX1 {grestore} bind def
+/BX2 {setlinewidth 1 setgray stroke grestore} bind def
+/PB {/PV save def translate 100.0 -100.0 scale pop} bind def
+/PE {PV restore} bind def
+/SH /show load def
+/MX {exch show 0.0 rmoveto} bind def
+/W {0 32 4 -1 roll widthshow} bind def
+/WX {0 32 5 -1 roll widthshow 0.0 rmoveto} bind def
+%%EndProlog
+%%Page: 1 1 
+BS
+0 SI
+15 /Helvetica-Bold AF
+23805 8294 MT
+(Using the X Toolkit)SH
+29849 10203 MT
+(or)SH
+22681 12112 MT
+(How to Write a Widget)SH
+10 /Helvetica AF
+26877 14465 MT
+(Joel McCormack)SH
+8 SS 
+25265 15851 MT
+(Western Research Laboratory)SH
+10 SS 
+27904 17383 MT
+(Paul Asente)SH
+8 SS 
+25398 18769 MT
+(Western Software Laboratory)SH
+10 SS 
+23931 20301 MT
+(Digital Equipment Corporation)SH
+43200 50 9000 22184 UL
+13 /Helvetica-Bold AF
+27963 25600 MT
+(Abstract)SH
+10 /Helvetica AF
+9000 28133 MT
+(The X11 Window)
+104 W( System defines a network protocol)
+103 W( [4])
+SH( for communication between a graphics)103 W
+9000 29276 MT
+(server and an application.  The X library)
+145 W( [1])
+SH( provides a)
+145 W( procedural interface to the protocol, in)146 W
+9000 30419 MT
+(which most calls are a thin veneer over the underlying protocol operations.)SH
+9000 32275 MT
+(The X toolkit)
+94 W( [2])
+SH( is an object-oriented construction kit)
+94 W( built on top of the X library.  The toolkit is)93 W
+9000 33418 MT
+(used to write)
+52 W( user interface components \050``widgets''\051, to organize a set of widget instances into a)53 W
+9000 34561 MT
+(complete user interface, and to link a user interface)
+315 W( with the functionality provided by an)314 W
+9000 35704 MT
+(application.)SH
+9000 37560 MT
+(This paper briefly describes the goals and structure of the)
+134 W( X toolkit, shows a small application)135 W
+9000 38703 MT
+(program that uses the toolkit, then shows two of the user interface components \050widgets\051 used by)12 W
+8 SS 
+15726 39500 MT
+(1)SH
+10 SS 
+9000 39851 MT
+(the application.)SH
+43200 50 9000 41194 UL
+12 /Helvetica-Bold AF
+9000 44029 MT
+(1. An Introduction to X)SH
+10 /Helvetica AF
+10112 45455 MT
+(The X11 Window System defines a distributed, asynchronous protocol by which graphics)254 W
+9000 46881 MT
+(servers and applications communicate.  A graphics server can)
+48 W( support multiple applications, and)47 W
+9000 48307 MT
+(an application can use multiple servers.)SH
+10112 50446 MT
+(An application and a server can run on the same)
+131 W( or on different machines.  The X protocol)132 W
+9000 51872 MT
+(assumes a server and an application are connected by a fast communication)
+168 W( link like shared)167 W
+9000 53298 MT
+(memory, Ethernet, or even a)
+72 W( fast leased line.  To minimize the effects of network latency, the X)73 W
+9000 54724 MT
+(protocol is asynchronous: neither the)
+36 W( server nor the application wait for acknowledgements.  The)35 W
+9000 56150 MT
+(X library occasionally feigns synchronicity for the convenience of the application;)
+18 W( for example, the)19 W
+9000 57576 MT
+(application can query the mouse position or)
+151 W( ask for a new colormap entry by simply calling a)150 W
+9000 59002 MT
+(procedure that waits for a reply from the server.)SH
+10112 61141 MT
+(The X library provides a procedural)
+4 W( interface to the protocol.  An application calls procedures in)5 W
+9000 62567 MT
+(the X library to send)
+150 W( window management and drawing commands to the server.  The server)149 W
+9000 63993 MT
+(sends event notifications to)
+12 W( the application in response to user actions \050moving the mouse, typing)13 W
+9000 65419 MT
+(on the keyboard\051)
+215 W( and screen geometry changes \050window exposure, size or position change,)214 W
+9000 66845 MT
+(iconification\051. The)
+804 W( X library queues events and packages them into a record structure; an)263 W
+10800 50 9000 70292 UL
+6 SS 
+9890 71687 MT
+(1)SH
+8 SS 
+10224 72000 MT
+(This paper submitted to)SH
+6 SS 
+18805 XM
+(USENIX)SH
+8 SS 
+(, Summer, 1988.  Reprinted with the permission of the)SH
+6 SS 
+40377 XM
+(USENIX)SH
+8 SS 
+42832 XM
+(Association.)SH
+ES
+%%Page: 2 2 
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(2)SH
+/Helvetica SF
+9000 7929 MT
+(application periodically polls the library for the next event.)SH
+12 /Helvetica-Bold AF
+9000 10964 MT
+(2. Why a Toolkit?)SH
+10 /Helvetica AF
+10112 12390 MT
+(The X library provides a powerful low-level interface, but this flexibility has a cost: even)
+42 W( simple)41 W
+9000 13816 MT
+(programs require many lines of code. The primary goal)
+154 W( of the X toolkit is to reduce the effort)155 W
+9000 15242 MT
+(needed to write an X application. While a program)
+44 W( to write ``Hello, world'' based directly on the X)43 W
+9000 16668 MT
+(library takes 40 executable statements)
+163 W( [3],)
+SH( the equivalent toolkit)
+163 W( program takes 5.  The toolkit)164 W
+9000 18094 MT
+(enables programmers to write a library of widgets like text labels, scroll bars,)
+65 W( command buttons,)64 W
+9000 19520 MT
+(and menus, and to assemble these widgets into a complete)
+33 W( user interface with just a few lines of)34 W
+9000 20946 MT
+(code.)SH
+10112 23085 MT
+(A secondary goal is to allow user customization of applications.)
+73 W( Users)
+422 W( can specify resources)72 W
+9000 24511 MT
+(like colors, fonts, border widths, and sizes for)
+25 W( any widget or for various sets of widgets with just a)26 W
+9000 25937 MT
+(few lines of text.)SH
+10112 28076 MT
+(Finally, when an application synchronously queries the server it suffers)
+57 W( the latency inherent in)56 W
+9000 29502 MT
+(a round trip -)278 W
+15336 XM
+(-)SH
+15502 XM
+(-)SH
+15668 XM
+(- hundreds of these queries quickly add up to several seconds.  The toolkit)279 W
+9000 30928 MT
+(extensively caches data on the application side to minimize this time.)SH
+12 /Helvetica-Bold AF
+9000 33963 MT
+(3. Intrinsics, Widgets, and Applications)SH
+10 /Helvetica AF
+10112 35389 MT
+(The intrinsics layer of the toolkit is a mostly policy-free foundation upon which)
+164 W( widgets and)163 W
+9000 36815 MT
+(applications are built.  The)
+44 W( intrinsics contain facilities to create, organize, and destroy widgets; to)45 W
+9000 38241 MT
+(translate event sequences from the server into procedure calls that applications and widgets have)1 W
+9000 39667 MT
+(registered; to read and write widget state; and to negotiate over screen real estate when a)
+18 W( widget)19 W
+9000 41093 MT
+(changes size or position.  It also includes)
+119 W( a few predefined widgets that deal with much of the)118 W
+9000 42519 MT
+(boiler-plate data and code common to all widgets.)SH
+10112 44658 MT
+(A widget is a user interface component implemented using calls to the)
+160 W( intrinsics and the X)161 W
+9000 46084 MT
+(library. MIT's)
+608 W( Project Athena delivers a sample set of widgets with the toolkit intrinsics,which)164 W
+9000 47510 MT
+(serve as examples of how)
+195 W( to write commonly seen user interface components.  The sample)196 W
+9000 48936 MT
+(widgets can be replaced, customized, or used)
+9 W( as is.  Many applications use only existing widgets;)8 W
+9000 50362 MT
+(a few supplement these with their own specialized widgets.)SH
+10112 52501 MT
+(An application uses the intrinsics to tie widgets)
+87 W( together into a user interface and to bind this)88 W
+9000 53927 MT
+(user interface to functions implemented by)
+83 W( the application.  Applications typically interact with X)82 W
+9000 55353 MT
+(only through the toolkit.  If an application programmer wants some specialized user interface)185 W
+9000 56779 MT
+(component, he doesn't embed it in his application,)
+102 W( but instead writes a new widget that can be)101 W
+9000 58205 MT
+(reused and shared with other programmers.)SH
+12 /Helvetica-Bold AF
+9000 61240 MT
+(4. How an Application Writer Sees the World)SH
+10 /Helvetica AF
+10112 62666 MT
+(An application)
+81 W( consists of three conceptual parts: application functionality, user interface, and)82 W
+9000 64092 MT
+(links between the two.  This)
+26 W( division makes it easier to modify the user interface without recoding)25 W
+9000 65518 MT
+(the functionality.  In actual code,)
+289 W( the division between the interface and its linkage to the)290 W
+9000 66944 MT
+(functionality is not)
+117 W( clearly visible: the statements that link the user interface to the application's)116 W
+9000 68370 MT
+(function are usually intertwined with the construction of that interface.)SH
+10112 70509 MT
+(The application functionality is a set of ``callback'' routines the toolkit calls in response to user)64 W
+9000 71935 MT
+(actions. The)
+594 W( xmh mail handler has routines to include new mail, read a message,)
+158 W( reply to a)157 W
+ES
+%%Page: 3 3 
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(3)SH
+/Helvetica SF
+9000 7929 MT
+(message, and so forth. When a user clicks on a command button in)
+20 W( the user interface, the button)21 W
+9000 9355 MT
+(calls one or more of these routines.)SH
+10112 11494 MT
+(The user interface is a tree of widget)
+155 W( instances.  Figure 4-1 shows the tree created by the)154 W
+9000 12920 MT
+(example program below.  The internal nodes are composite)
+253 W( widgets, which don't have any)254 W
+9000 14346 MT
+(display or input semantics of their own,)
+209 W( but are concerned only with managing the size and)208 W
+9000 15772 MT
+(position of their children.  The)
+46 W( leaves of the tree are primitive widgets.  A primitive widget cannot)47 W
+9000 17198 MT
+(have children, and is concerned only with displaying portions)
+68 W( of its state and responding to user)67 W
+9000 18624 MT
+(input.)SH
+10112 20763 MT
+(An application links its functionality to)
+351 W( its user interface by binding callbacks and data)352 W
+9000 22189 MT
+(structures to widgets as it creates them.)SH
+10112 24328 MT
+(When the intrinsics invoke a callback routine, they pass)
+41 W( the widget that caused the invocation,)40 W
+9000 25754 MT
+(data registered with the toolkit when the)
+26 W( application bound the callback, and widget-specific data.)27 W
+9000 27180 MT
+(The application)
+101 W( uses the application data if it needs to associate additional information with the)100 W
+9000 28606 MT
+(widget. The)
+468 W( format of the)
+95 W( widget data is defined by the particular widget:  A scroll-bar ``thumb-)96 W
+9000 30032 MT
+(changed'' callback passes the address of a structure containing the new positioning)
+66 W( information,)65 W
+9000 31458 MT
+(while a command button callback supplies no extra information and so passes NULL.)SH
+1 SS 
+14400 9000 47001 PB %!PS-Adobe-2.0 EPSF-1.2
+%%Creator:Adobe Illustrator(TM) 1.1 M00006056N
+%%For:Christopher Kent DEC Western Research Laboratory
+%%Title:Instance tree
+%%CreationDate:2/18/88 12:43 PM
+%%DocumentProcSets:Adobe_Illustrator_1.1 0 0
+%%DocumentSuppliedProcSets:Adobe_Illustrator_1.1 0 0
+%%DocumentFonts:Courier
+%%+Helvetica
+%%BoundingBox:133 5.5 312 126.5
+%%TemplateBox:334 -38.5 334 -38.5
+%%EndComments
+%%BeginProcSet:Adobe_Illustrator_1.1 0 0
+% Copyright (C) 1987 Adobe Systems Incorporated.
+% All Rights Reserved.
+% Adobe Illustrator is a trademark of Adobe Systems Incorporated.
+/Adobe_Illustrator_1.1 dup 100 dict def load begin
+/Version 0 def
+/Revision 0 def
+% definition operators
+/bdef {bind def} bind def
+/ldef {load def} bdef
+/xdef {exch def} bdef
+% graphic state operators
+/_K {3 index add neg dup 0 lt {pop 0} if 3 1 roll} bdef
+/_k /setcmybcolor where 
+{/setcmybcolor get} {{1 sub 4 1 roll _K _K _K setrgbcolor pop} bind} ifelse def
+/g {/_b xdef /p {_b setgray} def} bdef
+/G {/_B xdef /P {_B setgray} def} bdef
+/k {/_b xdef /_y xdef /_m xdef /_c xdef /p {_c _m _y _b _k} def} bdef
+/K {/_B xdef /_Y xdef /_M xdef /_C xdef /P {_C _M _Y _B _k} def} bdef
+/d /setdash ldef
+/_i currentflat def
+/i {dup 0 eq {pop _i} if setflat} bdef
+/j /setlinejoin ldef
+/J /setlinecap ldef
+/M /setmiterlimit ldef
+/w /setlinewidth ldef
+% path construction operators
+/_R {.25 sub round .25 add} bdef
+/_r {transform _R exch _R exch itransform} bdef
+/c {_r curveto} bdef
+/C /c ldef
+/v {currentpoint 6 2 roll _r curveto} bdef
+/V /v ldef
+/y {_r 2 copy curveto} bdef
+/Y /y ldef
+/l {_r lineto} bdef
+/L /l ldef
+/m {_r moveto} bdef
+% error operators
+/_e [] def
+/_E {_e length 0 ne {gsave 0 g 0 G 0 i 0 J 0 j 1 w 10 M [] 0 d
+/Courier 20 0 0 1 z [0.966 0.259 -0.259 0.966
+_e 0 get _e 2 get add 2 div _e 1 get _e 3 get add 2 div] e _f t T grestore} if} bdef
+/_fill {{fill} stopped
+{/_e [pathbbox] def /_f (ERROR: can't fill, increase flatness) def n _E} if} bdef
+/_stroke {{stroke} stopped
+{/_e [pathbbox] def /_f (ERROR: can't stroke, increase flatness) def n _E} if} bdef
+% path painting operators
+/n /newpath ldef
+/N /n ldef
+/F {p _fill} bdef
+/f {closepath F} bdef
+/S {P _stroke} bdef
+/s {closepath S} bdef
+/B {gsave F grestore S} bdef
+/b {closepath B} bdef
+% text block construction and painting operators
+/_s /ashow ldef
+/_S {(?) exch {2 copy 0 exch put pop dup false charpath currentpoint _g setmatrix
+_stroke _G setmatrix moveto 3 copy pop rmoveto} forall pop pop pop n} bdef
+/_A {_a moveto _t exch 0 exch} bdef
+/_L {0 _l neg translate _G currentmatrix pop} bdef
+/_w {dup stringwidth exch 3 -1 roll length 1 sub _t mul add exch} bdef
+/_z [{0 0} bind {dup _w exch neg 2 div exch neg 2 div} bind {dup _w exch neg exch neg} bind] def
+/z {_z exch get /_a xdef /_t xdef /_l xdef exch findfont exch scalefont setfont} bdef
+/_g matrix def
+/_G matrix def
+/_D {_g currentmatrix pop gsave concat _G currentmatrix pop} bdef
+/e {_D p /t {_A _s _L} def} bdef
+/r {_D P /t {_A _S _L} def} bdef
+/a {_D /t {dup p _A _s P _A _S _L} def} bdef
+/o {_D /t {pop _L} def} bdef
+/T {grestore} bdef
+% group construction operators
+/u {} bdef
+/U {} bdef
+% font construction operators
+/Z {findfont begin currentdict dup length dict begin
+{1 index /FID ne {def} {pop pop} ifelse} forall /FontName exch def dup length 0 ne
+{/Encoding Encoding 256 array copy def 0 exch {dup type /nametype eq
+{Encoding 2 index 2 index put pop 1 add} {exch pop} ifelse} forall} if pop
+currentdict dup end end /FontName get exch definefont pop} bdef
+end
+%%EndProcSet
+%%EndProlog
+%%BeginSetup
+Adobe_Illustrator_1.1 begin
+n
+%%BeginEncoding:_Helvetica Helvetica
+[
+39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/.notdef/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/.notdef/.notdef/.notdef/yen/.notdef/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/.notdef
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron
+]/_Helvetica/Helvetica Z
+%%EndEncoding
+%%EndSetup
+1 g
+0 G
+0 i
+1 J
+0 j
+0.25 w
+10 M
+[]0 d
+%%Note:
+189.1502 85.1003 m
+254.3998 85.1003 l
+254.3998 56.3002 l
+189.1502 56.3002 l
+189.1502 85.1003 l
+b
+188.2502 123.9004 m
+253.4998 123.9004 l
+253.4998 95.1003 l
+188.2502 95.1003 l
+188.2502 123.9004 l
+b
+243.5998 36.7001 m
+308.8494 36.7001 l
+308.8494 7.9 l
+243.5998 7.9 l
+243.5998 36.7001 l
+b
+243.5998 36.7001 m
+308.8494 36.7001 l
+308.8494 7.9 l
+243.5998 7.9 l
+243.5998 36.7001 l
+b
+222 94.7003 m
+222 84.7003 l
+B
+222 55.9002 m
+222 46.3002 l
+B
+168.0004 36.7001 m
+168.0004 46.3002 l
+275.9996 46.3002 l
+275.9996 36.7001 l
+B
+243.5998 36.7001 m
+308.8494 36.7001 l
+308.8494 7.9 l
+243.5998 7.9 l
+243.5998 36.7001 l
+b
+135.6006 36.7001 m
+200.8501 36.7001 l
+200.8501 7.9 l
+135.6006 7.9 l
+135.6006 36.7001 l
+b
+0 g
+0 J
+1 w
+/_Helvetica 18 20 0 1 z
+[0.45 0 0 0.4 221.55 110.3004]e
+(Application)t
+(Shell)t
+()t
+T
+[0.45 0 0 0.4 222 68.7002]e
+(Form)t
+()t
+T
+[0.45 0 0 0.4 168.0004 21.1]e
+(Label)t
+()t
+T
+[0.45 0 0 0.4 275.9996 21.1]e
+(Command)t
+()t
+T
+%%Trailer
+_E end
+ PE 10 /Helvetica-Bold AF
+14399 49530 MT
+(Figure 4-1:)SH
+/Helvetica SF
+20345 XM
+(The widget instance tree for the ``Goodbye, world'' program.)SH
+12 /Helvetica-Bold AF
+9000 52565 MT
+(5. A Simple Application: Goodbye, world.)SH
+10 /Helvetica AF
+10112 53991 MT
+(``Hello, world'' has earned itself a beloved niche in the hearts of all C programmers.)
+133 W( Times)546 W
+9000 55417 MT
+(change, however, so to show)
+216 W( the capabilities of the toolkit we present a more sophisticated)215 W
+9000 56843 MT
+(example: the)
+598 W( ``Goodbye,)
+160 W( world'' program.  It displays a window with a label and a command)161 W
+9000 58269 MT
+(button; when the command button is clicked with the mouse the program prints a farewell)271 W
+9000 59695 MT
+(message and terminates \050Figure 5-1\051.)SH
+1 SS 
+7200 9000 68038 PB %!PS-Adobe-2.0 EPSF-1.2
+%%Creator: 
+%%Title: stdout
+%%CreationDate: 
+%%BoundingBox: 
+/picstr 15 string def
+
+162 0 translate
+102 63 scale
+118 73 1 [118 0 0 -73 0 73]
+{ currentfile picstr readhexstring pop }
+image
+000000000000000000000000000001
+000000000000000000000000000001
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff1
+3ffffffffffffffffffffffffffff1
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff1
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff1
+3ffffffffffffffffffffffffffff0
+3ff000000000000000000000003ff0
+3ff7ffffffffffffffffffffffbff0
+3ff7ffffffffffffffffffffffbff0
+3ff7ffffffffffffffffffffffbff0
+3ff7ffffffffffffffffffffffbff1
+3ff7c7fffebfffffffffffcfefbff0
+3ff7bbfffebfffffffffffefefbff0
+3ff7bffffebfffffffffffefefbff0
+3ff7bf1c7086ec7ffeec69ef0fbff0
+3ff7beebaebaebbffeeba6eeefbff0
+3ff7b2ebaebae83ffeabafeeefbff0
+3ff7baebaebacbfffeabafeeefbff0
+3ff7baebaebb2bb9feabafeeefbff0
+3ff7c71c7087ec7bff5c6fc70fbff0
+3ff7fffffffeeff7ffffffffffbff0
+3ff7ffffffff1fffffffffffffbff0
+3ff7ffffffffffffffffffffffbff0
+3ff7ffffffffffffffffffffffbff0
+3ff000000000000000000000003ff0
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff0
+3ff0000000000000000000000ffff0
+3ff7ffffffffffffffffffffeffff0
+3ff7ffffffffffffffffffffeffff0
+3ff7ffffffffffffffffffffeffff0
+3ff7ffffffffffffffffffffeffff0
+3ff7c73fffbffffffbffbfffeffff0
+3ff7bbbeffbffffffbffbbffeffff0
+3ff7bfbfffbffffffbffbfffeffff0
+3ff7bfbcf1b7fc69c3fc33c7effff0
+3ff7bfbeeeafffa6bbfbbbbbeffff0
+3ff7bfbeef9ffc2ebbfbbb83effff0
+3ff7bfbeefaffbaebbfbbbbfeffff0
+3ff7bbbeeeb7fbaebbfbbbbbeffff0
+3ff7c71c71bbfc2ec3fc31c7effff0
+3ff7ffffffffffffffffffffeffff0
+3ff7ffffffffffffffffffffeffff0
+3ff7ffffffffffffffffffffeffff0
+3ff7ffffffffffffffffffffeffff0
+3ff0000000000000000000000ffff0
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff0
+3ffffffffffffffffffffffffffff0
+000000000000000000000000000000
+000000000000000000000000000000
+ PE 10 /Helvetica-Bold AF
+17761 70567 MT
+(Figure 5-1:)SH
+/Helvetica SF
+23707 XM
+(The output of the ``Goodbye, world'' program)SH
+ES
+%%Page: 4 4 
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(4)SH
+/Helvetica SF
+10112 7929 MT
+(Our example shows the main program and simple)
+207 W( but complete versions of the label and)208 W
+9000 9355 MT
+(command widgets it uses.  We)
+367 W( omit many details due to space limitations, and instead)366 W
+9000 10781 MT
+(concentrate on the general flavor)
+103 W( of toolkit programming.  Refer to the intrinsics documentation)104 W
+9278 12207 MT
+([2] for further information.)SH
+8 SS 
+9000 13933 MT
+(#include "Intrinsic.h")SH
+9000 14887 MT
+(#include "Atoms.h")SH
+9000 15841 MT
+(#include "Form.h")SH
+9000 16795 MT
+(#include "Label.h")SH
+9000 17749 MT
+(#include "Command.h")SH
+9000 19657 MT
+(void Callback\050widget, clientData, callData\051)SH
+9888 20611 MT
+(Widget widget;)SH
+9888 21565 MT
+(caddr_t clientData, callData;)SH
+9000 22519 MT
+({)SH
+9888 23473 MT
+(\050void\051 printf\050"Goodbye, cruel world\134n"\051;)SH
+9888 24427 MT
+(exit\0500\051;)SH
+9000 25381 MT
+(})SH
+9000 27289 MT
+(int main\050argc, argv\051)SH
+9888 28243 MT
+(unsigned int argc;)SH
+9888 29197 MT
+(char **argv;)SH
+9000 30151 MT
+({)SH
+9888 31105 MT
+(Widget toplevel, box, label, command;)SH
+9888 32059 MT
+(Arg arg[25];)SH
+9888 33013 MT
+(unsigned int n;)SH
+9888 34921 MT
+(toplevel = XtInitialize\050"goodbye", "Goodbye", NULL, 0, &argc, argv\051;)SH
+9888 36829 MT
+(box = XtCreateManagedWidget\050"box", formWidgetClass, toplevel, \050Arg *\051 NULL, 0\051;)SH
+9888 38737 MT
+(n = 0;)SH
+9888 39691 MT
+(XtSetArg\050arg[n], XtNx, 10\051;)SH
+28800 XM
+(n++;)SH
+9888 40645 MT
+(XtSetArg\050arg[n], XtNy, 10\051;)SH
+28800 XM
+(n++;)SH
+9888 41599 MT
+(XtSetArg\050arg[n], XtNlabel, "Goodbye, world"\051;)SH
+28800 XM
+(n++;)SH
+9888 42553 MT
+(label = XtCreateManagedWidget\050"label", labelWidgetClass, box, arg, n\051;)SH
+9888 44461 MT
+(n = 0;)SH
+9888 45415 MT
+(XtSetArg\050arg[n], XtNx, 10\051;)SH
+28800 XM
+(n++;)SH
+9888 46369 MT
+(XtSetArg\050arg[n], XtNy, 40\051;)SH
+28800 XM
+(n++;)SH
+9888 47323 MT
+(XtSetArg\050arg[n], XtNlabel, "Click and die"\051;)SH
+28800 XM
+(n++;)SH
+9888 48277 MT
+(command = XtCreateManagedWidget\050"command", commandWidgetClass, box, arg, n\051;)SH
+9888 49231 MT
+(XtAddCallback\050command, XtNcallback, Callback, NULL\051;)SH
+9888 51139 MT
+(XtRealizeWidget\050toplevel\051;)SH
+9888 52093 MT
+(XtMainLoop\050\051;)SH
+9000 53047 MT
+(})SH
+10 /Helvetica-Bold AF
+17706 54730 MT
+(Figure 5-2:)SH
+/Helvetica SF
+23652 XM
+(Goodbye.c: The)
+278 W( ``Goodbye, world'' program.)SH
+10112 56869 MT
+(Figure 5-2 is the goodbye application.)
+349 W( ``Intrinsic.h'')
+974 W( contains the definitions needed for)348 W
+9000 58295 MT
+(applications to use the toolkit, ``Atoms.h'' contains predefined strings used)
+126 W( as resource names,)127 W
+9000 59721 MT
+(and ``Form.h'', ``Label.h'', and ``Command.h'' contain the definitions needed to use these widgets.)SH
+10112 61860 MT
+(The callback procedure)25 W
+/Helvetica-Bold SF
+20858 XM
+(Callback)SH
+/Helvetica SF
+25274 XM
+(needs no additional information, so it ignores its parameters.)24 W
+9000 63286 MT
+(It prints an exit message and terminates the program.)SH
+10112 65425 MT
+(The main program declares four widgets,)22 W
+/Helvetica-Oblique SF
+28695 XM
+(toplevel)SH
+/Helvetica SF
+(,)SH
+/Helvetica-Oblique SF
+32719 XM
+(box)SH
+/Helvetica SF
+(,)SH
+/Helvetica-Oblique SF
+34910 XM
+(label)SH
+/Helvetica SF
+(, and)23 W
+/Helvetica-Oblique SF
+39570 XM
+(command)SH
+/Helvetica SF
+(. Each)
+324 W( application)23 W
+9000 66851 MT
+(needs a special top level widget called a)116 W
+/Helvetica-Bold SF
+28048 XM
+(Shell)SH
+/Helvetica SF
+30832 XM
+(that holds exactly)
+116 W( one child and communicates)115 W
+9000 68277 MT
+(with the outside world.  Our application has two children, contained in the widget)SH
+/Helvetica-Oblique SF
+44739 XM
+(box)SH
+/Helvetica SF
+(.)SH
+10112 70416 MT
+(The application first calls the routine)69 W
+/Helvetica-Bold SF
+26755 XM
+(XtInitialize)SH
+/Helvetica SF
+(.)SH
+/Helvetica-Bold SF
+32675 XM
+(XtInitialize)SH
+/Helvetica SF
+37969 XM
+(establishes the name and class)70 W
+9000 71842 MT
+(of the application based upon its first two parameters and uses these to read in user preferences)32 W
+ES
+%%Page: 5 5 
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(5)SH
+/Helvetica SF
+9000 7929 MT
+(for application and)
+16 W( widget resources.  These preferences can be overridden by the command line)17 W
+9000 9355 MT
+(arguments passed in as the last)
+85 W( two parameters.)84 W
+/Helvetica-Bold SF
+31882 XM
+(XtInitialize)SH
+/Helvetica SF
+37190 XM
+(establishes a connection with the)84 W
+9000 10781 MT
+(server and returns a)SH
+/Helvetica-Bold SF
+18226 XM
+(Shell)SH
+/Helvetica SF
+20894 XM
+(widget for the application to use.)SH
+/Helvetica-Bold SF
+10112 12920 MT
+(Main)SH
+/Helvetica SF
+12962 XM
+(creates the)
+294 W( container widget, a Form widget named ``box,'' as a child of)295 W
+/Helvetica-Oblique SF
+48476 XM
+(toplevel)SH
+/Helvetica SF
+(.)SH
+/Helvetica-Bold SF
+9000 14346 MT
+(XtCreateManagedWidget)SH
+/Helvetica SF
+21165 XM
+(takes five parameters: the name of the widget instance, the class)
+108 W( of)107 W
+9000 15772 MT
+(the widget, a widget to use as the parent, a)
+36 W( list of arguments to the widget, and the length of this)37 W
+9000 17198 MT
+(list. ``Box'')
+278 W( has no extra arguments and so passes NULL and 0 as the last two parameters.)SH
+10112 19337 MT
+(To create the label widget, the application provides values for)
+268 W( the label's)267 W
+/Helvetica-Oblique SF
+45507 XM
+(x)SH
+/Helvetica SF
+(,)SH
+/Helvetica-Oblique SF
+46830 XM
+(y)SH
+/Helvetica SF
+47875 XM
+(and)SH
+/Helvetica-Oblique SF
+50088 XM
+(label)SH
+/Helvetica SF
+9000 20763 MT
+(resources by passing a list of name-value pairs.)44 W
+/Helvetica-Bold SF
+31071 XM
+(XtSetArg)SH
+/Helvetica SF
+35671 XM
+(is used to create this)
+44 W( list in a stylized)45 W
+9000 22189 MT
+(coding metaphor that makes it easier to add, delete, or change the settings in the code)
+91 W( without)90 W
+9000 23615 MT
+(making mistakes.)71 W
+/Helvetica-Bold SF
+17493 XM
+(XtCreateManagedWidget)SH
+/Helvetica SF
+29621 XM
+(creates a new widget, called ``label,'' using)71 W
+/Helvetica-Oblique SF
+49182 XM
+(box)SH
+/Helvetica SF
+51144 XM
+(as)SH
+9000 25041 MT
+(its parent and the assigned resources to override default values.)SH
+10112 27180 MT
+(The application creates the command widget similarly, then attaches)
+133 W( the callback procedure)132 W
+/Helvetica-Bold SF
+9000 28606 MT
+(Callback)SH
+/Helvetica SF
+13531 XM
+(to it using)140 W
+/Helvetica-Bold SF
+18509 XM
+(XtAddCallback)SH
+/Helvetica SF
+(. When)
+558 W( the command button is activated, the toolkit calls)140 W
+/Helvetica-Bold SF
+9000 30032 MT
+(Callback)SH
+/Helvetica SF
+13391 XM
+(and the program terminates.)SH
+12 /Helvetica-Bold AF
+9000 33067 MT
+(6. How a Widget Writer Sees the World)SH
+10 /Helvetica AF
+10112 34493 MT
+(Sometimes an application writer needs to write a new widget.  It will often be a slight)
+50 W( variation)49 W
+9000 35919 MT
+(on an existing widget, but can be something completely different.  In either)
+4 W( case, the toolkit allows)5 W
+9000 37345 MT
+(the writer to ignore parts the new widget has in)
+43 W( common with an existing widget and concentrate)42 W
+9000 38771 MT
+(on the differences.)SH
+10112 40910 MT
+(To accomplish this, the toolkit)
+39 W( supports a single-inheritance class hierarchy.  Each widget type)40 W
+9000 42336 MT
+(is a class with a single superclass and possibly many)
+57 W( subclasses.  A subclass contains both the)56 W
+9000 43762 MT
+(declarations of its superclass and data and routines to implement its additional functionality.)
+108 W( A)496 W
+9000 45188 MT
+(subclass can inherit procedures \050often called ``methods''\051 from its)
+127 W( superclass or can implement)126 W
+9000 46614 MT
+(equivalent semantics itself.  Any operation that is valid for a class is valid for all subclasses.)SH
+10112 48753 MT
+(Figure 6-1)
+261 W( shows an abbreviated class hierarchy of the widget set distributed by Project)262 W
+9000 50179 MT
+(Athena. The)
+384 W( toolkit intrinsics define the four special classes)53 W
+/Helvetica-Bold SF
+36263 XM
+(Core)SH
+/Helvetica SF
+(,)SH
+/Helvetica-Bold SF
+39149 XM
+(Composite)SH
+/Helvetica SF
+(,)SH
+/Helvetica-Bold SF
+44924 XM
+(Constraint)SH
+/Helvetica SF
+(, and)52 W
+/Helvetica-Bold SF
+9000 51605 MT
+(Shell)SH
+/Helvetica SF
+(. All)
+278 W( other classes are implemented as direct or indirect subclasses of these.)SH
+10112 53744 MT
+(The top of the class hierarchy is the)97 W
+/Helvetica-Bold SF
+26951 XM
+(Core)SH
+/Helvetica SF
+29604 XM
+(widget, which contains declarations)
+97 W( and code that)98 W
+9000 55170 MT
+(are common to all widgets.)
+235 W( It)
+747 W( declares the parent widget pointer, name, size and position,)234 W
+9000 56596 MT
+(background, and border color, and defines the methods to maintain this data.)SH
+10112 58735 MT
+(The)SH
+/Helvetica-Bold SF
+12284 XM
+(Composite)SH
+/Helvetica SF
+17900 XM
+(widget is)
+171 W( the superclass for widgets that can contain children.  It contains)172 W
+9000 60161 MT
+(methods for adding and deleting children and for negotiating with them about size and placement.)SH
+10112 62300 MT
+(The)SH
+/Helvetica-Bold SF
+12208 XM
+(Constraint)SH
+/Helvetica SF
+17580 XM
+(widget is the superclass for composite widgets that maintain extra contraints)94 W
+9000 63726 MT
+(on a per-child basis.  For example, many constraint subclasses keep minimum)
+151 W( and maximum)152 W
+9000 65152 MT
+(allowable sizes for each child.)SH
+10112 67291 MT
+(The)SH
+/Helvetica-Bold SF
+12166 XM
+(Shell)SH
+/Helvetica SF
+14887 XM
+(widget provides)
+53 W( the interface between the internally consistent, cached world of the)52 W
+9000 68717 MT
+(toolkit and the external world of X windows.  Shell widgets communicate with the window)287 W
+9000 70143 MT
+(manager and are are used to ``pop up'' other widgets like menus and dialog boxes.)SH
+ES
+%%Page: 6 6 
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(6)SH
+1 SS 
+20160 9000 27360 PB %!PS-Adobe-2.0 EPSF-1.2
+%%Creator:Adobe Illustrator(TM) 1.1 M00006056N
+%%For:Christopher Kent DEC Western Research Laboratory
+%%Title:Class tree
+%%CreationDate:2/18/88 12:38 PM
+%%DocumentProcSets:Adobe_Illustrator_1.1 0 0
+%%DocumentSuppliedProcSets:Adobe_Illustrator_1.1 0 0
+%%DocumentFonts:Courier
+%%+Helvetica
+%%BoundingBox:14 3.5 431 181.5
+%%TemplateBox:276 19.5 276 19.5
+%%EndComments
+%%BeginProcSet:Adobe_Illustrator_1.1 0 0
+% Copyright (C) 1987 Adobe Systems Incorporated.
+% All Rights Reserved.
+% Adobe Illustrator is a trademark of Adobe Systems Incorporated.
+/Adobe_Illustrator_1.1 dup 100 dict def load begin
+/Version 0 def
+/Revision 0 def
+% definition operators
+/bdef {bind def} bind def
+/ldef {load def} bdef
+/xdef {exch def} bdef
+% graphic state operators
+/_K {3 index add neg dup 0 lt {pop 0} if 3 1 roll} bdef
+/_k /setcmybcolor where 
+{/setcmybcolor get} {{1 sub 4 1 roll _K _K _K setrgbcolor pop} bind} ifelse def
+/g {/_b xdef /p {_b setgray} def} bdef
+/G {/_B xdef /P {_B setgray} def} bdef
+/k {/_b xdef /_y xdef /_m xdef /_c xdef /p {_c _m _y _b _k} def} bdef
+/K {/_B xdef /_Y xdef /_M xdef /_C xdef /P {_C _M _Y _B _k} def} bdef
+/d /setdash ldef
+/_i currentflat def
+/i {dup 0 eq {pop _i} if setflat} bdef
+/j /setlinejoin ldef
+/J /setlinecap ldef
+/M /setmiterlimit ldef
+/w /setlinewidth ldef
+% path construction operators
+/_R {.25 sub round .25 add} bdef
+/_r {transform _R exch _R exch itransform} bdef
+/c {_r curveto} bdef
+/C /c ldef
+/v {currentpoint 6 2 roll _r curveto} bdef
+/V /v ldef
+/y {_r 2 copy curveto} bdef
+/Y /y ldef
+/l {_r lineto} bdef
+/L /l ldef
+/m {_r moveto} bdef
+% error operators
+/_e [] def
+/_E {_e length 0 ne {gsave 0 g 0 G 0 i 0 J 0 j 1 w 10 M [] 0 d
+/Courier 20 0 0 1 z [0.966 0.259 -0.259 0.966
+_e 0 get _e 2 get add 2 div _e 1 get _e 3 get add 2 div] e _f t T grestore} if} bdef
+/_fill {{fill} stopped
+{/_e [pathbbox] def /_f (ERROR: can't fill, increase flatness) def n _E} if} bdef
+/_stroke {{stroke} stopped
+{/_e [pathbbox] def /_f (ERROR: can't stroke, increase flatness) def n _E} if} bdef
+% path painting operators
+/n /newpath ldef
+/N /n ldef
+/F {p _fill} bdef
+/f {closepath F} bdef
+/S {P _stroke} bdef
+/s {closepath S} bdef
+/B {gsave F grestore S} bdef
+/b {closepath B} bdef
+% text block construction and painting operators
+/_s /ashow ldef
+/_S {(?) exch {2 copy 0 exch put pop dup false charpath currentpoint _g setmatrix
+_stroke _G setmatrix moveto 3 copy pop rmoveto} forall pop pop pop n} bdef
+/_A {_a moveto _t exch 0 exch} bdef
+/_L {0 _l neg translate _G currentmatrix pop} bdef
+/_w {dup stringwidth exch 3 -1 roll length 1 sub _t mul add exch} bdef
+/_z [{0 0} bind {dup _w exch neg 2 div exch neg 2 div} bind {dup _w exch neg exch neg} bind] def
+/z {_z exch get /_a xdef /_t xdef /_l xdef exch findfont exch scalefont setfont} bdef
+/_g matrix def
+/_G matrix def
+/_D {_g currentmatrix pop gsave concat _G currentmatrix pop} bdef
+/e {_D p /t {_A _s _L} def} bdef
+/r {_D P /t {_A _S _L} def} bdef
+/a {_D /t {dup p _A _s P _A _S _L} def} bdef
+/o {_D /t {pop _L} def} bdef
+/T {grestore} bdef
+% group construction operators
+/u {} bdef
+/U {} bdef
+% font construction operators
+/Z {findfont begin currentdict dup length dict begin
+{1 index /FID ne {def} {pop pop} ifelse} forall /FontName exch def dup length 0 ne
+{/Encoding Encoding 256 array copy def 0 exch {dup type /nametype eq
+{Encoding 2 index 2 index put pop 1 add} {exch pop} ifelse} forall} if pop
+currentdict dup end end /FontName get exch definefont pop} bdef
+end
+%%EndProcSet
+%%EndProlog
+%%BeginSetup
+Adobe_Illustrator_1.1 begin
+n
+%%BeginEncoding:_Helvetica Helvetica
+[
+39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/.notdef/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/.notdef/.notdef/.notdef/yen/.notdef/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/.notdef
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron
+]/_Helvetica/Helvetica Z
+%%EndEncoding
+%%EndSetup
+0 g
+0 G
+0 i
+1 J
+0 j
+0.25 w
+10 M
+[]0 d
+%%Note:
+146.6004 178.7007 m
+211.85 178.7007 l
+211.85 149.9006 l
+146.6004 149.9006 l
+146.6004 178.7007 l
+s
+0 J
+/_Helvetica 18 20 0 1 z
+[0.45 0 0 0.4 180.5752 162.3006]e
+(Core)t
+()t
+T
+1 J
+189.8001 131.1005 m
+255.0497 131.1005 l
+255.0497 102.3004 l
+189.8001 102.3004 l
+189.8001 131.1005 l
+s
+0 J
+[0.45 0 0 0.4 222.3124 114.4004]e
+(Text)t
+T
+1 J
+189.9126 83.1003 m
+255.1622 83.1003 l
+255.1622 54.3002 l
+189.9126 54.3002 l
+189.9126 83.1003 l
+s
+0 J
+[0.45 0 0 0.4 222.1999 66.3002]e
+(ButtonBox)t
+T
+1 J
+276.1995 83.1003 m
+341.4491 83.1003 l
+341.4491 54.3002 l
+276.1995 54.3002 l
+276.1995 83.1003 l
+s
+0 J
+[0.45 0 0 0.4 308.5993 66.3002]e
+(Constraint)t
+T
+1 J
+17.0013 131.1005 m
+82.2508 131.1005 l
+82.2508 102.3004 l
+17.0013 102.3004 l
+17.0013 131.1005 l
+s
+0 J
+[0.45 0 0 0.4 49.4011 114.3004]e
+(Label)t
+T
+1 J
+16.8888 83.1003 m
+82.1383 83.1003 l
+82.1383 54.3002 l
+16.8888 54.3002 l
+16.8888 83.1003 l
+s
+0 J
+[0.45 0 0 0.4 49.7386 66.3002]e
+(Command)t
+T
+1 J
+16.8888 35.1001 m
+82.1383 35.1001 l
+82.1383 6.3 l
+16.8888 6.3 l
+16.8888 35.1001 l
+s
+0 J
+[0.45 0 0 0.4 49.5136 18.3]e
+(Boolean)t
+T
+1 J
+103.4007 131.3005 m
+168.6502 131.3005 l
+168.6502 102.5004 l
+103.4007 102.5004 l
+103.4007 131.3005 l
+s
+0 J
+[0.45 0 0 0.4 135.8005 114.3004]e
+(Scrollbar)t
+T
+1 J
+276.1995 131.0005 m
+341.4491 131.0005 l
+341.4491 102.2004 l
+276.1995 102.2004 l
+276.1995 131.0005 l
+s
+0 J
+[0.45 0 0 0.4 308.5993 114.3004]e
+(Composite)t
+T
+1 J
+103.4007 83.1003 m
+168.6502 83.1003 l
+168.6502 54.3002 l
+103.4007 54.3002 l
+103.4007 83.1003 l
+s
+0 J
+[0.45 0 0 0.4 135.8005 66.3002]e
+(Shell)t
+T
+1 J
+362.5989 83.1003 m
+427.8485 83.1003 l
+427.8485 54.3002 l
+362.5989 54.3002 l
+362.5989 83.1003 l
+s
+0 J
+[0.45 0 0 0.4 394.9987 66.3002]e
+(Menu)t
+T
+1 J
+232.9998 35.0001 m
+298.2494 35.0001 l
+298.2494 6.2 l
+232.9998 6.2 l
+232.9998 35.0001 l
+s
+0 J
+[0.45 0 0 0.4 265.3996 18.3]e
+(Form)t
+T
+1 J
+319.3992 35.0001 m
+384.6488 35.0001 l
+384.6488 6.2 l
+319.3992 6.2 l
+319.3992 35.0001 l
+s
+0 J
+[0.45 0 0 0.4 351.799 18.3]e
+(Pane)t
+T
+265.3996 34.7001 m
+265.3996 44.3002 l
+351.799 44.3002 l
+351.799 34.7001 l
+S
+1 w
+49.4011 35.1001 m
+49.4011 54.3002 l
+F
+49.4011 83.1003 m
+49.4011 102.3004 l
+F
+308.5993 44.3002 m
+308.5993 54.3002 l
+F
+0.25 w
+49.4011 131.1005 m
+49.4011 140.7005 l
+308.5993 140.7005 l
+308.5993 130.9005 l
+S
+179.0002 149.9006 m
+179.0002 140.7005 l
+S
+135.8005 131.3005 m
+135.8005 140.7005 l
+S
+222.1999 131.1005 m
+222.1999 140.7005 l
+S
+135.8005 83.1003 m
+135.8005 92.7003 l
+394.9987 92.7003 l
+394.9987 83.1003 l
+S
+222.1999 83.1003 m
+222.1999 92.7003 l
+308.5993 92.7003 l
+308.5993 83.1003 l
+S
+308.5993 102.1004 m
+308.5993 92.7003 l
+S
+%%Trailer
+_E end
+ PE 10 SS 
+16983 29889 MT
+(Figure 6-1:)SH
+/Helvetica SF
+22929 XM
+(The class tree for the Project Athena widget set.)SH
+10112 32028 MT
+(To create a new widget class, a programmer)
+224 W( first looks at the existing class hierarchy to)223 W
+9000 33454 MT
+(determine if something similar already exists.  If the new widget)
+17 W( is similar to an existing widget he)18 W
+9000 34880 MT
+(creates a subclass of that widget;)
+24 W( otherwise he creates a direct subclass of)23 W
+/Helvetica-Bold SF
+42708 XM
+(Core)SH
+/Helvetica SF
+(,)SH
+/Helvetica-Bold SF
+45565 XM
+(Composite)SH
+/Helvetica SF
+(, or)23 W
+/Helvetica-Bold SF
+9000 36306 MT
+(Constraint)SH
+/Helvetica SF
+(;)SH
+10112 38445 MT
+(The widgets below show both types of)
+156 W( subclass.)157 W
+/Helvetica-Bold SF
+32983 XM
+(Label)SH
+/Helvetica SF
+36030 XM
+(is a subclass of)157 W
+/Helvetica-Bold SF
+43772 XM
+(Core)SH
+/Helvetica SF
+46485 XM
+(and requires)157 W
+9000 39871 MT
+(many lines of declarations and code.)148 W
+/Helvetica-Bold SF
+26822 XM
+(Command)SH
+/Helvetica SF
+32137 XM
+(is just like)148 W
+/Helvetica-Bold SF
+37193 XM
+(Label)SH
+/Helvetica SF
+(, but adds a pinch of extra)148 W
+9000 41297 MT
+(semantics. It)
+304 W( is a subclass of)13 W
+/Helvetica-Bold SF
+22374 XM
+(Label)SH
+/Helvetica SF
+25277 XM
+(and requires relatively)
+13 W( little code -)14 W
+40072 XM
+(-)SH
+40238 XM
+(-)SH
+40404 XM
+(- most of its functionality is)14 W
+9000 42723 MT
+(inherited from)SH
+/Helvetica-Bold SF
+15391 XM
+(Label)SH
+/Helvetica SF
+(.)SH
+12 /Helvetica-Bold AF
+9000 45758 MT
+(7. A Simple Label Widget)SH
+10 /Helvetica AF
+10112 47184 MT
+(A widget)
+26 W( definition is split into three files:  a public header file containing information needed to)25 W
+9000 48610 MT
+(use the widget, a private header)
+SH( file containing information needed to subclass the widget, and an)1 W
+9000 50036 MT
+(implementation file with the code that defines the widget's behavior.)SH
+8 SS 
+9000 51762 MT
+(#define XtNforeground)SH
+18000 XM
+("foreground")SH
+9000 52716 MT
+(#define XtNlabel)SH
+18000 XM
+("label")SH
+9000 53670 MT
+(#define XtNfont)SH
+18000 XM
+("font")SH
+9000 55578 MT
+(typedef struct _LabelRec *LabelWidget;)SH
+9000 56532 MT
+(extern WidgetClass labelWidgetClass;)SH
+10 /Helvetica-Bold AF
+19595 58215 MT
+(Figure 7-1:)SH
+/Helvetica SF
+25541 XM
+(Label.h: The)
+278 W( label public header file)SH
+10112 60354 MT
+(Figure 7-1 shows the public)
+44 W( header file for)43 W
+/Helvetica-Bold SF
+29357 XM
+(Label)SH
+/Helvetica SF
+(. It)
+364 W( defines the names of the three resources)43 W
+9000 61780 MT
+(label adds)
+163 W( to)164 W
+/Helvetica-Bold SF
+15439 XM
+(Core)SH
+/Helvetica SF
+(,)SH
+/Helvetica-Bold SF
+18437 XM
+(XtNforeground)SH
+/Helvetica SF
+(,)SH
+/Helvetica-Bold SF
+26212 XM
+(XtNlabel)SH
+/Helvetica SF
+(, and)164 W
+/Helvetica-Bold SF
+33043 XM
+(XtNfont)SH
+/Helvetica SF
+(, a type definition for label widget)164 W
+9000 63206 MT
+(instances, and an external declaration for the class, used in)SH
+/Helvetica-Bold SF
+35569 XM
+(XtCreateManagedWidget)SH
+/Helvetica SF
+(.)SH
+10112 65345 MT
+(Figure 7-2 is the private header file for)264 W
+/Helvetica-Bold SF
+29398 XM
+(Label)SH
+/Helvetica SF
+32552 XM
+(and contains the class and)
+264 W( instance data)263 W
+9000 66771 MT
+(structure declarations.  Label's)
+187 W( class structure consists of the Core class part, included in all)188 W
+9000 68197 MT
+(widgets, and label's own class part.  Label's)
+57 W( class part needs no extra information, but since the)56 W
+9000 69623 MT
+(C compiler cannot handle empty structures it has a)SH
+/Helvetica-Oblique SF
+31787 XM
+(make_compiler_happy)SH
+/Helvetica SF
+42124 XM
+(field.)SH
+10112 71762 MT
+(The label part record has the fields)
+SH( needed for each label instance.  The fields)1 W
+/Helvetica-Oblique SF
+44861 XM
+(foreground)SH
+/Helvetica SF
+(,)SH
+/Helvetica-Oblique SF
+50254 XM
+(font)SH
+/Helvetica SF
+(,)SH
+ES
+%%Page: 7 7 
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(7)SH
+8 /Helvetica AF
+9000 7783 MT
+(#include "Label.h")SH
+9000 9691 MT
+(typedef struct {)SH
+9888 10645 MT
+(int make_compiler_happy;)SH
+9000 11599 MT
+(} LabelClassPart;)SH
+9000 13507 MT
+(typedef struct _LabelClassRec {)SH
+9888 14461 MT
+(CoreClassPart)SH
+18000 XM
+(core_class;)SH
+9888 15415 MT
+(LabelClassPart)SH
+18000 XM
+(label_class;)SH
+9000 16369 MT
+(} LabelClassRec, *LabelWidgetClass;)SH
+9000 18277 MT
+(extern LabelClassRec labelClassRec;)SH
+9000 20185 MT
+(typedef struct {)SH
+9888 21139 MT
+(Pixel)SH
+18000 XM
+(foreground;)SH
+9888 22093 MT
+(XFontStruct)SH
+18000 XM
+(*font;)SH
+9888 23047 MT
+(char)SH
+18000 XM
+(*label;)SH
+9888 24001 MT
+(GC)SH
+18000 XM
+(normal_GC;)SH
+9888 24955 MT
+(Dimension)SH
+18000 XM
+(label_width, label_height;)SH
+9888 25909 MT
+(int)SH
+18000 XM
+(label_len;)SH
+9000 26863 MT
+(} LabelPart;)SH
+9000 28771 MT
+(typedef struct _LabelRec {)SH
+9888 29725 MT
+(CorePart)SH
+18000 XM
+(core;)SH
+9888 30679 MT
+(LabelPart)SH
+18000 XM
+(label;)SH
+9000 31633 MT
+(} LabelRec;)SH
+9000 33541 MT
+(#define WIDTH_PAD 4)SH
+9000 34495 MT
+(#define HEIGHT_PAD 2)SH
+10 /Helvetica-Bold AF
+19206 36178 MT
+(Figure 7-2:)SH
+/Helvetica SF
+25152 XM
+(LabelP.h: The label private header file)SH
+9000 38050 MT
+(and)SH
+/Helvetica-Oblique SF
+11124 XM
+(label)SH
+/Helvetica SF
+13692 XM
+(correspond to the resources defined in the public header file.  The other)
+178 W( fields are)177 W
+9000 39476 MT
+(derived by the widget implementation and are described later.  All label)
+34 W( instances get a complete)35 W
+/Helvetica-Bold SF
+9000 40902 MT
+(LabelRec)SH
+/Helvetica SF
+13724 XM
+(consisting of the core fields common to all widgets and the special fields used by label.)SH
+10112 43041 MT
+(Figure 7-3 is the implementation of)57 W
+/Helvetica-Bold SF
+26127 XM
+(Label)SH
+/Helvetica SF
+(. Its)
+392 W( header files include)
+57 W( ``IntrinsicP.h,'' the intrinsics)56 W
+9000 44467 MT
+(header file for widget programmers, and ``LabelP.h,'' the label private header file.)SH
+10112 46606 MT
+(The)SH
+/Helvetica-Oblique SF
+12382 XM
+(resources)SH
+/Helvetica SF
+17320 XM
+(array contains the definitions for the label-specific resources.  Each entry)270 W
+9000 48032 MT
+(contains, among other things, the resource name \050)39 W
+/Helvetica-Bold SF
+(XtNforeground)SH
+/Helvetica SF
+(\051, its type \050)38 W
+/Helvetica-Bold SF
+(XtRPixel)SH
+/Helvetica SF
+(\051, its offset)38 W
+9000 49458 MT
+(in the widget record \050)330 W
+/Helvetica-Bold SF
+(XtOffset)SH
+/Helvetica SF
+(\050...\051\051, its default value \050``Black''\051, and the type of its default)331 W
+9000 50884 MT
+(\050)SH
+/Helvetica-Bold SF
+(XtRString)SH
+/Helvetica SF
+(\051. The)
+718 W( intrinsics initializes new records with)
+220 W( these defaults unless the values are)219 W
+9000 52310 MT
+(overridden in the argument list passed to the creation routine or in the user preferences file.)SH
+10112 54449 MT
+(The next part is)
+23 W( the initializor for label's class record. The)24 W
+/Helvetica-Oblique SF
+35882 XM
+(superclass)SH
+/Helvetica SF
+40963 XM
+(field is the address of the)24 W
+9000 55875 MT
+(class record for Label's superclass.  The)
+66 W( class initialization procedures do any initialization code)65 W
+9000 57301 MT
+(specific to this class;)
+72 W( since label has none these are NULL.  The)73 W
+/Helvetica-Oblique SF
+38570 XM
+(initialize)SH
+/Helvetica SF
+42477 XM
+(procedure is called to)73 W
+9000 58727 MT
+(initialize label)
+102 W( widget instances.)101 W
+/Helvetica-Oblique SF
+23956 XM
+(Realize)SH
+/Helvetica SF
+27669 XM
+(gets called to create the widget's window; here it gets)101 W
+9000 60153 MT
+(inherited from its)
+214 W( superclass because label doesn't do anything special.  The)215 W
+/Helvetica-Oblique SF
+45649 XM
+(resources)SH
+/Helvetica SF
+50532 XM
+(and)SH
+/Helvetica-Oblique SF
+9000 61579 MT
+(num_resources)SH
+/Helvetica SF
+16196 XM
+(fields describe label's resource list.)27 W
+/Helvetica-Oblique SF
+32363 XM
+(Destroy)SH
+/Helvetica SF
+(,)SH
+/Helvetica-Oblique SF
+36391 XM
+(resize)SH
+/Helvetica SF
+(, and)27 W
+/Helvetica-Oblique SF
+41614 XM
+(expose)SH
+/Helvetica SF
+45143 XM
+(are called when)27 W
+9000 63005 MT
+(the widget is destroyed, resized, or needs redisplay. The)48 W
+/Helvetica-Oblique SF
+34721 XM
+(set_values)SH
+/Helvetica SF
+39827 XM
+(procedure gets called)
+48 W( when)49 W
+9000 64431 MT
+(the application tries to change any of the widget's state.)SH
+10112 66570 MT
+(The two routines)435 W
+/Helvetica-Bold SF
+19087 XM
+(SetTextWidthAndHeight)SH
+/Helvetica SF
+31244 XM
+(and)SH
+/Helvetica-Bold SF
+33625 XM
+(GetNormalGC)SH
+/Helvetica SF
+40949 XM
+(are internal routines to)434 W
+9000 67996 MT
+(maintain the derived fields in the widget record.)SH
+10112 70135 MT
+(When the application)
+SH( creates a new label widget, the intrinsics call)1 W
+/Helvetica-Bold SF
+39689 XM
+(Initialize)SH
+/Helvetica SF
+(. It)
+280 W( uses the label's)1 W
+9000 71561 MT
+(name as the text to be displayed)
+155 W( if none was provided.  After computing the derived fields, it)154 W
+ES
+%%Page: 8 8 
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(8)SH
+8 /Helvetica AF
+9000 7783 MT
+(#include <stdio.h>)SH
+9000 8737 MT
+(#include <string.h>)SH
+9000 9691 MT
+(#include "IntrinsicP.h")SH
+9000 10645 MT
+(#include "LabelP.h")SH
+9000 11599 MT
+(#include "Atoms.h")SH
+9000 13507 MT
+(static XtResource resources[] = {)SH
+9888 14461 MT
+({XtNforeground, XtCForeground, XtRPixel, sizeof\050Pixel\051, XtOffset\050LabelWidget, label.foreground\051, XtRString, "Black"},)SH
+9888 15415 MT
+({XtNfont, XtCFont,)
+222 W( XtRFontStruct, sizeof\050XFontStruct *\051, XtOffset\050LabelWidget, label.font\051, XtRString, "fixed"},)SH
+9888 16369 MT
+({XtNlabel, XtCLabel,)
+222 W( XtRString, sizeof\050String\051, XtOffset\050LabelWidget, label.label\051, XtRString, NULL},)SH
+9000 17323 MT
+(};)SH
+9000 19231 MT
+(static void Initialize\050\051, Redisplay\050\051, Destroy\050\051;)SH
+9000 20185 MT
+(static Boolean SetValues\050\051;)SH
+9000 22093 MT
+(LabelClassRec labelClassRec = {)SH
+9444 23047 MT
+({)SH
+9888 24001 MT
+(/* superclass)SH
+18000 XM
+(*/)SH
+23760 XM
+(\050WidgetClass\051 &widgetClassRec,)SH
+9888 24955 MT
+(/* class_name)SH
+18000 XM
+(*/)SH
+23760 XM
+("Label",)SH
+9888 25909 MT
+(/* widget_size)SH
+18000 XM
+(*/)SH
+23760 XM
+(sizeof\050LabelRec\051,)SH
+9888 26863 MT
+(/* class_initialize)SH
+18000 XM
+(*/)SH
+23760 XM
+(NULL,)SH
+9888 27817 MT
+(/* class_part_initialize)SH
+18000 XM
+(*/)SH
+23760 XM
+(NULL,)SH
+9888 28771 MT
+(/* class_inited)SH
+18000 XM
+(*/)SH
+23760 XM
+(FALSE,)SH
+9888 29725 MT
+(/* initialize)SH
+18000 XM
+(*/)SH
+23760 XM
+(Initialize,)SH
+9888 30679 MT
+(/* initialize_hook)SH
+18000 XM
+(*/)SH
+23760 XM
+(NULL,)SH
+9888 31633 MT
+(/* realize)SH
+18000 XM
+(*/)SH
+23760 XM
+(XtInheritRealize,)SH
+9888 32587 MT
+(/* actions)SH
+18000 XM
+(*/)SH
+23760 XM
+(NULL,)SH
+9888 33541 MT
+(/* num_actions)SH
+18000 XM
+(*/)SH
+23760 XM
+(0,)SH
+9888 34495 MT
+(/* resources)SH
+18000 XM
+(*/)SH
+23760 XM
+(resources,)SH
+9888 35449 MT
+(/* num_resources)SH
+18000 XM
+(*/)SH
+23760 XM
+(XtNumber\050resources\051,)SH
+9888 36403 MT
+(/* xrm_class)SH
+18000 XM
+(*/)SH
+23760 XM
+(NULLQUARK,)SH
+9888 37357 MT
+(/* input flags)SH
+18000 XM
+(*/)SH
+23760 XM
+(TRUE, TRUE, TRUE, FALSE,)SH
+9888 38311 MT
+(/* destroy)SH
+18000 XM
+(*/)SH
+23760 XM
+(Destroy,)SH
+9888 39265 MT
+(/* resize)SH
+18000 XM
+(*/)SH
+23760 XM
+(XtInheritResize,)SH
+9888 40219 MT
+(/* expose)SH
+18000 XM
+(*/)SH
+23760 XM
+(Redisplay,)SH
+9888 41173 MT
+(/* set_values)SH
+18000 XM
+(*/)SH
+23760 XM
+(SetValues,)SH
+9888 42127 MT
+(/* set_values_hook)SH
+18000 XM
+(*/)SH
+23760 XM
+(NULL,)SH
+9888 43081 MT
+(/* set_values_almost)SH
+18000 XM
+(*/)SH
+23760 XM
+(XtInheritSetValuesAlmost,)SH
+9888 44035 MT
+(/* get_values_hook)SH
+18000 XM
+(*/)SH
+23760 XM
+(NULL,)SH
+9888 44989 MT
+(/* accept_focus)SH
+18000 XM
+(*/)SH
+23760 XM
+(NULL,)SH
+9888 45943 MT
+(/* version)SH
+18000 XM
+(*/)SH
+23760 XM
+(XtVersion,)SH
+9888 46897 MT
+(/* callback offsets)SH
+18000 XM
+(*/)SH
+23760 XM
+(NULL,)SH
+9888 47851 MT
+(/* tm_table)SH
+18000 XM
+(*/)SH
+23760 XM
+(NULL,)SH
+9444 48805 MT
+(})SH
+9000 49759 MT
+(};)SH
+9000 51667 MT
+(WidgetClass labelWidgetClass = \050WidgetClass\051 &labelClassRec;)SH
+9000 53575 MT
+(static void SetTextWidthAndHeight\050lw\051)SH
+9888 54529 MT
+(LabelWidget lw;)SH
+9000 55483 MT
+({)SH
+9888 56437 MT
+(lw->label.label_len)SH
+18000 XM
+(= strlen\050lw->label.label\051;)SH
+9888 57391 MT
+(lw->label.label_height)SH
+18000 XM
+(= lw->label.font->max_bounds.ascent + lw->label.font->max_bounds.descent;)SH
+9888 58345 MT
+(lw->label.label_width)SH
+18000 XM
+(= XTextWidth\050fs, lw->label.label, lw->label.label_len\051;)SH
+9000 59299 MT
+(})SH
+9000 61207 MT
+(static void GetNormalGC\050lw\051)SH
+9888 62161 MT
+(LabelWidget lw;)SH
+9000 63115 MT
+({)SH
+9888 64069 MT
+(XGCValues values;)SH
+9888 65977 MT
+(values.foreground)SH
+18000 XM
+(= lw->label.foreground;)SH
+9888 66931 MT
+(values.font)SH
+18000 XM
+(= lw->label.font->fid;)SH
+9888 67885 MT
+(lw->label.normal_GC)SH
+18000 XM
+(= XtGetGC\050\050Widget\051 lw, GCForeground | GCFont, &values\051;)SH
+9000 68839 MT
+(})SH
+10 /Helvetica-Bold AF
+17678 70522 MT
+(Figure 7-3:)SH
+/Helvetica SF
+23624 XM
+(Label.c: The)
+278 W( label implementation file, part 1)SH
+ES
+%%Page: 9 9 
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(9)SH
+8 /Helvetica AF
+9000 7783 MT
+(static void Initialize\050request, new\051)SH
+9888 8737 MT
+(Widget request, new;)SH
+9000 9691 MT
+({)SH
+9888 10645 MT
+(LabelWidget lw = \050LabelWidget\051 new;)SH
+9888 12553 MT
+(if \050lw->label.label == NULL\051 lw->label.label = strcpy\050XtMalloc\050strlen\050lw->core.name\051 + 1\051, lw->core.name\051;)SH
+9888 14461 MT
+(GetNormalGC\050lw\051;)SH
+9888 15415 MT
+(SetTextWidthAndHeight\050lw\051;)SH
+9888 17323 MT
+(if \050lw->core.width == 0\051 lw->core.width = lw->label.label_width + 2 * WIDTH_PAD;)SH
+9888 18277 MT
+(if \050lw->core.height == 0\051 lw->core.height = lw->label.label_height + 2 * HEIGHT_PAD;)SH
+9000 19231 MT
+(})SH
+9000 21139 MT
+(static void Redisplay\050w, event\051)SH
+9888 22093 MT
+(Widget w;)SH
+9888 23047 MT
+(XEvent *event;)SH
+9000 24001 MT
+({)SH
+9888 24955 MT
+(LabelWidget lw = \050LabelWidget\051 w;)SH
+9888 26863 MT
+(XDrawString\050XtDisplay\050w\051, XtWindow\050w\051, lw->label.normal_GC, WIDTH_PAD,)SH
+11664 27817 MT
+(HEIGHT_PAD + lw->label.font->max_bounds.ascent, lw->label.label, lw->label.label_len\051;)SH
+9000 28771 MT
+(})SH
+9000 30679 MT
+(static Boolean SetValues\050old, request, new\051)SH
+9888 31633 MT
+(Widget old,)
+222 W( request, new;)SH
+9000 32587 MT
+({)SH
+9888 33541 MT
+(LabelWidget oldlw = \050LabelWidget\051 old, newlw = \050LabelWidget\051 new;)SH
+9888 35449 MT
+(if \050newlw->label.label == NULL\051 newlw->label.label = newlw->core.name;)SH
+9888 37357 MT
+(if \050\050urlw->label.label != newlw->label.label || oldlw->label.font != newlw->label.font\051 SetTextWidthAndHeight\050newlw\051;)SH
+9888 39265 MT
+(if \050oldlw->label.label != newlw->label.label\051 {)SH
+10776 40219 MT
+(if \050newlw->label.label != NULL\051 newlw->label.label = strcpy\050XtMalloc\050newlw->label.label_len+1\051, newlw->label.label\051;)SH
+10776 42127 MT
+(XtFree\050\050char *\051 oldlw->label.label\051;)SH
+10776 44035 MT
+(if \050oldlw->core.width == newlw->core.width\051 newlw->core.width = newlw->label.label_width + 2 * WIDTH_PAD;)SH
+10776 44989 MT
+(if \050oldlw->core.height == newlw->core.height\051 newlw->core.height = newlw->label.label_height + 2 * HEIGHT_PAD;)SH
+9888 45943 MT
+(})SH
+9888 47851 MT
+(if \050oldlw->label.foreground != newlw->label.foreground || oldlw->label.font->fid != newlw->label.font->fid\051 {)SH
+10776 48805 MT
+(GetNormalGC\050newlw\051;)SH
+10776 49759 MT
+(XtDestroyGC\050oldlw->label.normal_GC\051;)SH
+9888 50713 MT
+(})SH
+9888 51667 MT
+(return TRUE;)SH
+9000 52621 MT
+(})SH
+9000 54529 MT
+(static void Destroy\050w\051)SH
+9888 55483 MT
+(Widget w;)SH
+9000 56437 MT
+({)SH
+9888 57391 MT
+(LabelWidget lw = \050LabelWidget\051 w;)SH
+9888 59299 MT
+(XtDestroyGC\050lw->label.normal_GC\051;)SH
+9888 60253 MT
+(XtFree\050lw->label.label\051;)SH
+9888 61207 MT
+(XFreeFontInfo\050\050char **\051 NULL, lw->label.font, 0\051;)SH
+9000 62161 MT
+(})SH
+10 /Helvetica-Bold AF
+25764 63844 MT
+(Figure 7-3)SH
+/Helvetica SF
+(, continued)SH
+9000 65716 MT
+(checks if the application specified the label's)175 W
+/Helvetica-Oblique SF
+30124 XM
+(width)SH
+/Helvetica SF
+32912 XM
+(or)SH
+/Helvetica-Oblique SF
+34255 XM
+(height)SH
+/Helvetica SF
+37433 XM
+(and if not computes appropriate)176 W
+9000 67142 MT
+(values based upon the size of the label text.)SH
+/Helvetica-Bold SF
+10112 69281 MT
+(Redisplay)SH
+/Helvetica SF
+15114 XM
+(displays the label text by calling)SH
+/Helvetica-Bold SF
+29398 XM
+(XDrawString)SH
+/Helvetica SF
+(.)SH
+/Helvetica-Bold SF
+10112 71420 MT
+(SetValues)SH
+/Helvetica SF
+15184 XM
+(is called when the application changes the contents of)14 W
+/Helvetica-Bold SF
+39489 XM
+(Label)SH
+/Helvetica SF
+(. Its arguments include)13 W
+ES
+%%Page: 10 10 
+BS
+0 SI
+10 /Helvetica-Bold AF
+30044 4329 MT
+(10)SH
+/Helvetica-Oblique SF
+9000 7929 MT
+(old)SH
+/Helvetica SF
+(, the widget as it is now, and)291 W
+/Helvetica-Oblique SF
+25503 XM
+(new)SH
+/Helvetica SF
+(, a copy of the widget with the requested changes.)292 W
+/Helvetica-Bold SF
+9000 9355 MT
+(SetValues)SH
+/Helvetica SF
+14141 XM
+(must make)83 W
+/Helvetica-Oblique SF
+19475 XM
+(new)SH
+/Helvetica SF
+21670 XM
+(a consistent widget by updating all derived fields, allocating storage)82 W
+9000 10781 MT
+(for changed pointer fields, and freeing the storage for old pointer values.)SH
+10112 12920 MT
+(It again uses the name for the text if)
+108 W( necessary.  If the text or font has changed,)109 W
+/Helvetica-Bold SF
+47420 XM
+(SetValues)SH
+/Helvetica SF
+9000 14346 MT
+(recomputes the text dimensions.  If the label text has changed, it)
+135 W( allocates a copy of the text,)134 W
+9000 15772 MT
+(frees the old storage, and, unless the user has specifically overridden the)
+96 W( size, recomputes the)97 W
+9000 17198 MT
+(widget size.)
+54 W( Finally)
+384 W( it creates a new graphics context and destroys the old one if the foreground)53 W
+9000 18624 MT
+(or font has changed.)SH
+10112 20763 MT
+(The last routine,)230 W
+/Helvetica-Bold SF
+18250 XM
+(Destroy)SH
+/Helvetica SF
+(, gets called when)
+230 W( a label widget is destroyed and frees all the)231 W
+9000 22189 MT
+(allocated storage associated with it.)SH
+12 /Helvetica-Bold AF
+9000 25224 MT
+(8. A Simple Command Widget)SH
+10 SS 
+10112 26650 MT
+(Command)SH
+/Helvetica SF
+15444 XM
+(is quite similar to)165 W
+/Helvetica-Bold SF
+23828 XM
+(Label)SH
+/Helvetica SF
+(, and so needs)
+165 W( only a bit of extra code.  Its public and)164 W
+9000 28076 MT
+(private header files, Figures 8-1 and 8-2 are analogous to those for)SH
+/Helvetica-Bold SF
+38904 XM
+(Label)SH
+/Helvetica SF
+(.)SH
+8 SS 
+9000 29802 MT
+(typedef struct _CommandRec *CommandWidget;)SH
+9000 30756 MT
+(extern WidgetClass commandWidgetClass;)SH
+10 /Helvetica-Bold AF
+15844 32439 MT
+(Figure 8-1:)SH
+/Helvetica SF
+21790 XM
+(Command.h: The)
+278 W( command button public header file)SH
+8 SS 
+9000 34165 MT
+(#include "Command.h")SH
+9000 36073 MT
+(typedef struct _CommandClass {)SH
+9888 37027 MT
+(int make_compiler_happy;)SH
+9000 37981 MT
+(} CommandClassPart;)SH
+9000 39889 MT
+(typedef struct _CommandClassRec {)SH
+9888 40843 MT
+(CoreClassPart)SH
+18000 XM
+(core_class;)SH
+9888 41797 MT
+(LabelClassPart)SH
+18000 XM
+(label_class;)SH
+9888 42751 MT
+(CommandClassPart)SH
+18000 XM
+(command_class;)SH
+9000 43705 MT
+(} CommandClassRec, *CommandWidgetClass;)SH
+9000 45613 MT
+(extern CommandClassRec commandClassRec;)SH
+9000 47521 MT
+(typedef struct {)SH
+9888 48475 MT
+(XtCallbackList)SH
+18000 XM
+(callback_list;)SH
+9000 49429 MT
+(} CommandPart;)SH
+9000 51337 MT
+(typedef struct _CommandRec {)SH
+9888 52291 MT
+(CorePart)SH
+18000 XM
+(core;)SH
+9888 53245 MT
+(LabelPart)SH
+18000 XM
+(label;)SH
+9888 54199 MT
+(CommandPart)SH
+18000 XM
+(command;)SH
+9000 55153 MT
+(} CommandRec;)SH
+10 /Helvetica-Bold AF
+15316 56836 MT
+(Figure 8-2:)SH
+/Helvetica SF
+21262 XM
+(CommandP.h: The)
+278 W( command button private header file)SH
+10112 58975 MT
+(Figure 8-3 is the implementation of the command widget.)SH
+10112 61114 MT
+(Some widget class information is)367 W
+/Helvetica-Oblique SF
+26785 XM
+(chained)SH
+/Helvetica SF
+30932 XM
+(by the intrinsics, meaning)
+367 W( that the intrinsics)368 W
+9000 62540 MT
+(automatically use information in the superclass to supplement information in the superclass.)
+27 W( The)330 W
+9000 63966 MT
+(resource list is chained data:  a subclass has all)
+43 W( its superclass's resources in addition to its own.)44 W
+/Helvetica-Oblique SF
+9000 65392 MT
+(Initialize)SH
+/Helvetica SF
+(,)SH
+/Helvetica-Oblique SF
+13476 XM
+(set_values)SH
+/Helvetica SF
+(, and)307 W
+/Helvetica-Oblique SF
+21372 XM
+(destroy)SH
+/Helvetica SF
+25236 XM
+(are chained procedures:  the superclass's corresponding)307 W
+9000 66818 MT
+(procedure is called in addition to the subclass's.)
+300 W( Chained)
+880 W( procedures are never explicitly)301 W
+9000 68244 MT
+(inherited; if a class)
+51 W( has nothing to add to its parent it just specifies NULL.  The command widget)50 W
+9000 69670 MT
+(has NULL)SH
+/Helvetica-Oblique SF
+13724 XM
+(initialize)SH
+/Helvetica SF
+17558 XM
+(and)SH
+/Helvetica-Oblique SF
+19504 XM
+(set_values)SH
+/Helvetica SF
+24562 XM
+(procedures, and adds its own)SH
+/Helvetica-Oblique SF
+37902 XM
+(destroy)SH
+/Helvetica SF
+41459 XM
+(procedure to label's.)SH
+10112 71809 MT
+(The intrinsics do not automatically call superclass procedures for)168 W
+/Helvetica-Oblique SF
+40523 XM
+(unchained)SH
+/Helvetica SF
+45584 XM
+(operations like)169 W
+ES
+%%Page: 11 11 
+BS
+0 SI
+10 /Helvetica-Bold AF
+30044 4329 MT
+(11)SH
+8 /Helvetica AF
+9000 7783 MT
+(#include <stdio.h>)SH
+9000 8737 MT
+(#include "IntrinsicP.h")SH
+9000 9691 MT
+(#include "LabelP.h")SH
+9000 10645 MT
+(#include "CommandP.h")SH
+9000 11599 MT
+(#include "Atoms.h")SH
+9000 13507 MT
+(static XtResource resources[] = {)SH
+9888 14461 MT
+({XtNcallback, XtCCallback, XtRCallback, sizeof\050caddr_t\051,)SH
+10776 15415 MT
+(XtOffset\050CommandWidget, command.callback_list\051, XtRCallback, \050caddr_t\051 NULL},)SH
+9000 16369 MT
+(};)SH
+9000 18277 MT
+(static void Notify\050\051, Destroy\050\051;)SH
+9000 20185 MT
+(static char translations[] = "<Button1Down>:)SH
+28800 XM
+(notify\050\051";)SH
+9000 22093 MT
+(static XtActionsRec actionsList[] = { {"notify",)SH
+28800 XM
+(Notify} };)SH
+9000 24001 MT
+(CommandClassRec commandClassRec = {)SH
+9444 24955 MT
+({)SH
+9888 25909 MT
+(/* superclass)SH
+18000 XM
+(*/)SH
+23760 XM
+(\050WidgetClass\051 &labelClassRec,)SH
+9888 26863 MT
+(/* class_name)SH
+18000 XM
+(*/)SH
+23760 XM
+("Command",)SH
+9888 27817 MT
+(/* widget_size)SH
+18000 XM
+(*/)SH
+23760 XM
+(sizeof\050CommandRec\051,)SH
+9888 28771 MT
+(/* class_initialize)SH
+18000 XM
+(*/)SH
+23760 XM
+(NULL,)SH
+9888 29725 MT
+(/* class_part_initialize)SH
+18000 XM
+(*/)SH
+23760 XM
+(NULL,)SH
+9888 30679 MT
+(/* class_inited)SH
+18000 XM
+(*/)SH
+23760 XM
+(FALSE,)SH
+9888 31633 MT
+(/* initialize)SH
+18000 XM
+(*/)SH
+23760 XM
+(NULL,)SH
+9888 32587 MT
+(/* initialize_hook)SH
+18000 XM
+(*/)SH
+23760 XM
+(NULL,)SH
+9888 33541 MT
+(/* realize)SH
+18000 XM
+(*/)SH
+23760 XM
+(XtInheritRealize,)SH
+9888 34495 MT
+(/* actions)SH
+18000 XM
+(*/)SH
+23760 XM
+(actionsList,)SH
+9888 35449 MT
+(/* num_actions)SH
+18000 XM
+(*/)SH
+23760 XM
+(XtNumber\050actionsList\051,)SH
+9888 36403 MT
+(/* resources)SH
+18000 XM
+(*/)SH
+23760 XM
+(resources,)SH
+9888 37357 MT
+(/* num_resources)SH
+18000 XM
+(*/)SH
+23760 XM
+(XtNumber\050resources\051,)SH
+9888 38311 MT
+(/* xrm_class)SH
+18000 XM
+(*/)SH
+23760 XM
+(NULLQUARK,)SH
+9888 39265 MT
+(/* input flags)SH
+18000 XM
+(*/)SH
+23760 XM
+(TRUE, TRUE, TRUE, FALSE,)SH
+9888 40219 MT
+(/* destroy)SH
+18000 XM
+(*/)SH
+23760 XM
+(Destroy,)SH
+9888 41173 MT
+(/* resize)SH
+18000 XM
+(*/)SH
+23760 XM
+(XtInheritResize,)SH
+9888 42127 MT
+(/* expose)SH
+18000 XM
+(*/)SH
+23760 XM
+(XtInheritExpose,)SH
+9888 43081 MT
+(/* set_values)SH
+18000 XM
+(*/)SH
+23760 XM
+(NULL,)SH
+9888 44035 MT
+(/* set_values_hook)SH
+18000 XM
+(*/)SH
+23760 XM
+(NULL,)SH
+9888 44989 MT
+(/* set_values_almost)SH
+18000 XM
+(*/)SH
+23760 XM
+(XtInheritSetValuesAlmost,)SH
+9888 45943 MT
+(/* get_values_hook)SH
+18000 XM
+(*/)SH
+23760 XM
+(NULL,)SH
+9888 46897 MT
+(/* accept_focus)SH
+18000 XM
+(*/)SH
+23760 XM
+(NULL,)SH
+9888 47851 MT
+(/* version)SH
+18000 XM
+(*/)SH
+23760 XM
+(XtVersion,)SH
+9888 48805 MT
+(/* callback offsets)SH
+18000 XM
+(*/)SH
+23760 XM
+(NULL,)SH
+9888 49759 MT
+(/* tm_table)SH
+18000 XM
+(*/)SH
+23760 XM
+(translations,)SH
+9444 50713 MT
+(})SH
+9000 51667 MT
+(};)SH
+9000 53575 MT
+(WidgetClass commandWidgetClass = \050WidgetClass\051 &commandClassRec;)SH
+9000 55483 MT
+(static void Notify\050w, event\051)SH
+9888 56437 MT
+(Widget w;)SH
+9888 57391 MT
+(XEvent *event;)SH
+9000 58345 MT
+({)SH
+9888 59299 MT
+(XtCallCallbacks\050w, XtNcallback, NULL\051;)SH
+9000 60253 MT
+(})SH
+9000 62161 MT
+(static void Destroy\050w\051)SH
+9888 63115 MT
+(Widget w;)SH
+9000 64069 MT
+({)SH
+9888 65023 MT
+(XtRemoveAllCallbacks\050w, XtNcallback\051;)SH
+9000 65977 MT
+(})SH
+10 /Helvetica-Bold AF
+15483 68614 MT
+(Figure 8-3:)SH
+/Helvetica SF
+21429 XM
+(Command.c: The)
+278 W( command button implementation file)SH
+ES
+%%Page: 12 12 
+BS
+0 SI
+10 /Helvetica-Bold AF
+30044 4329 MT
+(12)SH
+/Helvetica-Oblique SF
+9000 7929 MT
+(realize)SH
+/Helvetica SF
+(,)SH
+/Helvetica-Oblique SF
+12784 XM
+(resize)SH
+/Helvetica SF
+(, and)283 W
+/Helvetica-Oblique SF
+18519 XM
+(expose)SH
+/Helvetica SF
+(. A)
+844 W( class can inherit its superclass's operation by specifying a)283 W
+9000 9355 MT
+(procedure like)66 W
+/Helvetica-Bold SF
+15690 XM
+(XtInheritRealize)SH
+/Helvetica SF
+23536 XM
+(in its class record.)66 W
+/Helvetica-Bold SF
+32425 XM
+(Command)SH
+/Helvetica SF
+37659 XM
+(inherits all unchained operations)67 W
+9000 10781 MT
+(from)SH
+/Helvetica-Bold SF
+11278 XM
+(Label)SH
+/Helvetica SF
+(.)SH
+10112 12920 MT
+(Command is different from label in that)
+272 W( it has an additional resource, a callback, and a)271 W
+9000 14346 MT
+(translation. A)
+410 W( full paper could be written on translations, so suffice it to say that)
+66 W( the)67 W
+/Helvetica-Oblique SF
+47087 XM
+(translations)SH
+/Helvetica SF
+9000 15772 MT
+(and)SH
+/Helvetica-Oblique SF
+11209 XM
+(actionsList)SH
+/Helvetica SF
+16474 XM
+(tables instruct the intrinsics to call command's)262 W
+/Helvetica-Bold SF
+38870 XM
+(Notify)SH
+/Helvetica SF
+42243 XM
+(procedure if the user)262 W
+9000 17198 MT
+(presses the left)
+26 W( mouse button the command widget.)27 W
+/Helvetica-Bold SF
+32697 XM
+(Notify)SH
+/Helvetica SF
+35835 XM
+(calls the callback that the application)27 W
+9000 18624 MT
+(previously associated with the widget, passing NULL as the widget data.)SH
+10112 20763 MT
+(Command's only additional procedure is)SH
+/Helvetica-Bold SF
+28174 XM
+(Destroy)SH
+/Helvetica SF
+(, which frees its dynamic storage.)SH
+12 /Helvetica-Bold AF
+9000 23798 MT
+(9. Conclusion)SH
+10 /Helvetica AF
+10112 25224 MT
+(The X protocol and library support)
+220 W( a powerful model of an application's interaction with a)219 W
+9000 26650 MT
+(graphics device, but provide)
+302 W( too primitive a layer for even the simplest application to use)303 W
+9000 28076 MT
+(conveniently.)SH
+10112 30215 MT
+(By trading off some flexibility for a large gain in simplicity, the X toolkit makes writing)
+220 W( an)219 W
+9000 31641 MT
+(application that uses existing widgets easy.  The)
+193 W( toolkit takes care of low-level bookkeeping,)194 W
+9000 33067 MT
+(leaving the application writer free to concentrate on application functionality and user interface)140 W
+9000 34493 MT
+(design.)SH
+10112 36632 MT
+(When an application writer must)
+47 W( create a specialized widget, the toolkit's object-oriented class)48 W
+9000 38058 MT
+(system makes this task easy, too.  The widget's superclass)
+77 W( takes care of common functionality,)76 W
+9000 39484 MT
+(leaving the)
+26 W( widget writer free to concentrate on what is new and different.  Once written, this new)27 W
+9000 40910 MT
+(widget can be used in other applications.)SH
+12 /Helvetica-Bold AF
+9000 43945 MT
+(References)SH
+10 SS 
+9000 45817 MT
+(1.)SH
+/Helvetica SF
+10390 XM
+(Jim Gettys, Ron Newman, Robert W. Scheifler.)SH
+/Helvetica-Oblique SF
+31507 XM
+(Xlib - C Language Interface.)SH
+/Helvetica SF
+44792 XM
+(Massachusetts)SH
+9000 46960 MT
+(Institute of Technology, 1987.)SH
+/Helvetica-Bold SF
+9000 48832 MT
+(2.)SH
+/Helvetica SF
+10390 XM
+(Joel McCormack.)SH
+/Helvetica-Oblique SF
+18391 XM
+(X Toolkit Library - C Language Interface.)SH
+/Helvetica SF
+37233 XM
+(Massachusetts Institute of)SH
+9000 49975 MT
+(Technology, 1987.)SH
+/Helvetica-Bold SF
+9000 51847 MT
+(3.)SH
+/Helvetica SF
+10390 XM
+(David S. H. Rosenthal.  ``A Simple X.11 Client Program, or, How hard can it really be to write)SH
+9000 52990 MT
+(`Hello, World'?'')SH
+/Helvetica-Oblique SF
+16445 XM
+(?? ??)SH
+/Helvetica SF
+(, ?? \050?? ??\051, ??. Not yet published.)SH
+/Helvetica-Bold SF
+9000 54862 MT
+(4.)SH
+/Helvetica SF
+10390 XM
+(Robert W. Scheifler.)SH
+/Helvetica-Oblique SF
+19615 XM
+(X Window System Protocol.)SH
+/Helvetica SF
+32786 XM
+(Massachusetts Institute of Technology,)SH
+9000 56005 MT
+(1987.)SH
+ES
+%%Page: i 13 
+BS
+0 SI
+10 /Helvetica-Bold AF
+30461 4329 MT
+(i)SH
+12 SS 
+25533 8075 MT
+(Table of Contents)SH
+11 SS 
+10836 9319 MT
+(1. An Introduction to X)SH
+51588 XM
+(1)SH
+10836 10563 MT
+(2. Why a Toolkit?)SH
+51588 XM
+(2)SH
+10836 11807 MT
+(3. Intrinsics, Widgets, and Applications)SH
+51588 XM
+(2)SH
+10836 13051 MT
+(4. How an Application Writer Sees the World)SH
+51588 XM
+(2)SH
+10836 14295 MT
+(5. A Simple Application: Goodbye, world.)SH
+51588 XM
+(3)SH
+10836 15539 MT
+(6. How a Widget Writer Sees the World)SH
+51588 XM
+(5)SH
+10836 16783 MT
+(7. A Simple Label Widget)SH
+51588 XM
+(6)SH
+10836 18027 MT
+(8. A Simple Command Widget)SH
+50976 XM
+(10)SH
+10836 19271 MT
+(9. Conclusion)SH
+50976 XM
+(12)SH
+10836 20515 MT
+(References)SH
+50976 XM
+(12)SH
+ES
+%%Page: ii 14 
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(ii)SH
+12 SS 
+26465 8075 MT
+(List of Figures)SH
+11 SS 
+10836 9319 MT
+(Figure 4-1:)
+SH( The)
+612 W( widget instance tree for the ``Goodbye, world'' program.)SH
+51588 XM
+(3)SH
+10836 10563 MT
+(Figure 5-1:)
+SH( The)
+612 W( output of the ``Goodbye, world'' program)SH
+51588 XM
+(3)SH
+10836 11807 MT
+(Figure 5-2:)
+SH( Goodbye.c:)
+612 W( The)
+306 W( ``Goodbye, world'' program.)SH
+51588 XM
+(4)SH
+10836 13051 MT
+(Figure 6-1:)
+SH( The)
+612 W( class tree for the Project Athena widget set.)SH
+51588 XM
+(6)SH
+10836 14295 MT
+(Figure 7-1:)
+SH( Label.h:)
+612 W( The)
+306 W( label public header file)SH
+51588 XM
+(6)SH
+10836 15539 MT
+(Figure 7-2:)
+SH( LabelP.h:)
+612 W( The label private header file)SH
+51588 XM
+(7)SH
+10836 16783 MT
+(Figure 7-3:)
+SH( Label.c:)
+612 W( The)
+306 W( label implementation file, part 1)SH
+51588 XM
+(8)SH
+10836 18027 MT
+(Figure 8-1:)
+SH( Command.h:)
+612 W( The)
+306 W( command button public header file)SH
+50976 XM
+(10)SH
+10836 19271 MT
+(Figure 8-2:)
+SH( CommandP.h:)
+612 W( The)
+306 W( command button private header file)SH
+50976 XM
+(10)SH
+10836 20515 MT
+(Figure 8-3:)
+SH( Command.c:)
+612 W( The)
+306 W( command button implementation file)SH
+50976 XM
+(11)SH
+ES
+%%Trailer
+%%Pages: 14 
+%%DocumentFonts: Helvetica Helvetica-Bold Helvetica-Oblique

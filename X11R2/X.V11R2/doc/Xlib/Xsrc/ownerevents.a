@@ -1,0 +1,6 @@
+.\" $Header: ownerevents.a,v 1.1 87/09/28 13:10:00 mento Exp $
+.IP \fIowner_events\fP 1i
+Specifies a boolean value of either 
+.PN True 
+or 
+.PN False .

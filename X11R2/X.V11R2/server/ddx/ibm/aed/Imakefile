@@ -1,0 +1,60 @@
+SRCS = 		aedgetsp.c \
+		aedcursor.c \
+		aedfont.c \
+		aedtext.c \
+		aedscrinit.c \
+		aedfillsp.c \
+		aedgc.c \
+		aedsetsp.c \
+		aedutils.c \
+		aedio.c \
+		aedpntwin.c \
+		aedline.c \
+		aedimggblt.c \
+		aedcparea.c \
+		aedpixmap.c \
+		mfbutils.c \
+		aedfillrct.c \
+		aedpntarea.c \
+		aeddebug.c \
+		aeddline.c \
+		aedpolyseg.c \
+		aedpushpxl.c \
+		aedwindow.c
+
+OBJS = 		aedgetsp.o \
+		aedcursor.o \
+		aedfont.o \
+		aedtext.o \
+		aedscrinit.o \
+		aedfillsp.o \
+		aedgc.o \
+		aedsetsp.o \
+		aedutils.o \
+		aedio.o \
+		aedpntwin.o \
+		aedline.o \
+		aedimggblt.o \
+		aedcparea.o \
+		aedpixmap.o \
+		mfbutils.o \
+		aedfillrct.o \
+		aedpntarea.o \
+		aeddebug.o \
+		aeddline.o \
+		aedpolyseg.o \
+		aedpushpxl.o \
+		aedwindow.o
+
+INCLUDES = -I. -I../rt -I../../mfb -I../../../include -I$(INCLUDESRC)
+CDEBUGFLAGS = ServerCDebugFlags
+
+NormalLibraryObjectRule()
+
+NormalRelocatableTarget(aed,$(OBJS))
+
+DependTarget()
+
+NormalLintTarget($(SRCS))
+
+lintlib:

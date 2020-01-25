@@ -1,0 +1,27 @@
+.TH XSetCloseDownMode 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XSetCloseDownMode, XKillClient \- control clients
+.SH SYNTAX
+.so ../Xsrc/XChClsDwnMd.f
+.LP
+.so ../Xsrc/XKillClient.f
+.SH ARGUMENTS
+.so ../Xsrc/closemode.a
+.so ../Xsrc/display.a
+.so ../Xsrc/resource.a
+.SH DESCRIPTION
+.so ../Xdescrip/XChClsDwnMd.d
+.ds fd .PN XSetCloseDownMode
+.so ../Xsrc/errsent4.com
+.PN BadValue 
+error.
+.LP
+.so ../Xdescrip/XKillClient.d
+.ds fd .PN XKillClient
+.so ../Xsrc/errsent4.com
+.PN BadValue 
+error.
+.SH DIAGNOSTICS
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface\fP

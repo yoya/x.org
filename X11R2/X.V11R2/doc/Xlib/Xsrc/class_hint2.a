@@ -1,0 +1,4 @@
+.IP \fIclass_hints_return\fP 1i
+Returns the 
+.PN XClassHints
+structure.

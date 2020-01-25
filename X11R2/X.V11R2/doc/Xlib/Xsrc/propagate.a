@@ -1,0 +1,6 @@
+.\" $Header: propagate.a,v 1.2 88/02/25 22:30:14 jg Exp $
+.IP \fIpropagate\fP 1i
+Specifies a boolean value that is either 
+.PN True 
+or 
+.PN False .

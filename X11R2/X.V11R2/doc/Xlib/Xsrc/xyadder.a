@@ -1,0 +1,6 @@
+.\" $Header: xyadder.a,v 1.1 87/09/28 13:20:19 mento Exp $
+.IP \fIxadder\fP 1i
+.br
+.ns
+.IP \fIyadder\fP 1i
+Specify additional interior padding needed in the window.

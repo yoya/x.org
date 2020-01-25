@@ -1,0 +1,72 @@
+.LP
+The pick device descriptor components, in order,
+are listed in the following table.
+The abbreviation
+"pick dev. dep." stands for "pick-device-dependent", meaning that the
+default value is determined by the pick device type.
+The abbreviation
+"draw." means that the default value is determined from the drawable
+bound to the PHIGS workstation resource at the time it was created.
+.LP
+.ID
+.ta 0.1i 1.7i 3.3i
+	\fBAttribute Name	Data Type	Default Value\fP
+.ta
+.ta 0.2i 1.5i 3.4i
+	pick_status	{\fINoPick, Ok\fP}	\fINoPick\fP
+	pick_path	PICK_PATH	\fINull\fP
+	pick_path_order	{\fITopFirst, BottomFirst\fP}	\fITopFirst\fP
+	pick_inclusion	NAME_SET_ID	\fINull\fP
+	pick_exclusion	NAME_SET_ID	\fINull\fP
+	pick_data_rec	LISTofCARD8	pick dev. dep.
+	prompt_echo_type	PROMPT_ECHO_TYPE	pick dev. dep.
+	echo_volume	VIEWPORT	draw.
+	echo_switch	{\fINoEcho, Echo\fP}	\fINoEcho\fP
+.ta
+.DE
+.LP
+The components of the pick device descriptor are defined as follows:
+
+.Bl "pick_status"
+This attribute contains the initial pick status that will be
+bound to a pick measure resource.
+
+.Bl "pick_path"
+This attribute contains the initial pick path that will be
+bound to a pick measure resource.
+
+.Bl "pick_path_order"
+This attribute specifies
+the order in which elements of the picked path are to be written
+into a pick measure resource.  If the order is \fITopFirst\fP,
+elements of the pick measure's \fIpicked_path\fP attribute will
+be listed in the order they would have been encountered during
+a traversal, while if the order is \fIBottomFirst\fP they will
+be listed in the opposite order.
+
+.Bl "pick_inclusion"
+This attribute specifies the resource id of the name set resource that is to be
+used as the pick inclusion filter during picking operations.
+
+.Bl "pick_exclusion"
+This attribute specifies the resource id of the name set resource that is to be
+used as the pick exclusion filter during picking operations.
+
+.Bl "pick_data_rec"
+This attribute contains
+a pick-device-dependent data record used to initialize a pick measure
+resource when it is created.
+
+.Bl "prompt_echo_type"
+This attribute
+contains an enumerated type value that specifies the prompt/echo type
+to be used during picking operations.  The allowable types are described
+in the "Extension Information" section.
+
+.Bl "echo_volume"
+This attribute specifies
+where prompting and/or echoing is to occur.
+
+.Bl "echo_switch"
+This attribute specifies the
+initial echo state for a pick measure.

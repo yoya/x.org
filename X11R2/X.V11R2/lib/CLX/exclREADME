@@ -1,0 +1,30 @@
+How to make CLX work with Franz Common Lisp:
+
+% foreach i (*.lisp)
+? mv $i $i:r.cl
+? end
+% mv defsystem.cl defsystem.cl.MIT
+% mv excldefsys.cl defsystem.cl
+% cc -O -c excldep.c socket.c
+
+	If you are using Allegro 2.2 CL:
+	% uudecode exclfasl2.2-uu
+	% cl
+	<cl> :cl defsystem
+	<cl> (compile-system 'xlib::clx)
+	<cl> (load-system 'xlib::clx)
+	<cl> (dumplisp :name "CLX")
+
+	If you are using ExCL 2.0 CL:
+	% uudecode exclfasl2.0-uu
+	% cl
+	<cl> :cf defsystem
+	<cl> :ld defsystem
+	<cl> (xlib::compile-clx)
+	<cl> (dumplisp :name "CLX")
+
+
+Please report Franz specific CLX bugs to:
+
+	ucbvax!franz!bugs
+	bugs%franz.UUCP@ucbarpa.Berkeley.EDU

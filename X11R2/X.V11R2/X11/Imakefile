@@ -1,0 +1,119 @@
+EXPORTS = \
+	X.h \
+	XWDFile.h \
+	Xatom.h \
+	Xmd.h \
+	Xos.h \
+	Xproto.h \
+	Xprotostr.h \
+	copyright.h \
+	keysym.h \
+	keysymdef.h \
+	DECkeysym.h
+
+IMPORTS = \
+	$(OLDXLIBSRC)/X10.h \
+	$(XLIBSRC)/Xlib.h \
+	$(XLIBSRC)/Xresource.h \
+	$(XLIBSRC)/Xutil.h \
+	$(FONTSRC)/cursorfont.h \
+	$(TOOLKITSRC)/Cardinals.h \
+	$(TOOLKITSRC)/Composite.h \
+	$(TOOLKITSRC)/CompositeP.h \
+	$(TOOLKITSRC)/Constraint.h \
+	$(TOOLKITSRC)/ConstrainP.h \
+	$(TOOLKITSRC)/Convert.h \
+	$(TOOLKITSRC)/Core.h \
+	$(TOOLKITSRC)/CoreP.h \
+	$(TOOLKITSRC)/Intrinsic.h \
+	$(TOOLKITSRC)/IntrinsicP.h \
+	$(TOOLKITSRC)/Misc.h \
+	$(TOOLKITSRC)/Quarks.h \
+	$(TOOLKITSRC)/Shell.h \
+	$(TOOLKITSRC)/ShellP.h \
+	$(TOOLKITSRC)/StringDefs.h \
+	$(TOOLKITSRC)/TM.h \
+	$(TOOLKITSRC)/Vendor.h \
+	$(TOOLKITSRC)/VendorP.h \
+	$(AWIDGETSRC)/AsciiText.h \
+	$(AWIDGETSRC)/AsciiTextP.h \
+	$(AWIDGETSRC)/Box.h \
+	$(AWIDGETSRC)/BoxP.h \
+	$(AWIDGETSRC)/Cascade.h \
+	$(AWIDGETSRC)/CascadeP.h \
+	$(AWIDGETSRC)/Clock.h \
+	$(AWIDGETSRC)/ClockP.h \
+	$(AWIDGETSRC)/Command.h \
+	$(AWIDGETSRC)/CommandP.h \
+	$(AWIDGETSRC)/Dialog.h \
+	$(AWIDGETSRC)/DialogP.h \
+	$(AWIDGETSRC)/Form.h \
+	$(AWIDGETSRC)/FormP.h \
+	$(AWIDGETSRC)/Grip.h \
+	$(AWIDGETSRC)/GripP.h \
+	$(AWIDGETSRC)/Label.h \
+	$(AWIDGETSRC)/LabelP.h \
+	$(AWIDGETSRC)/Load.h \
+	$(AWIDGETSRC)/LoadP.h \
+	$(AWIDGETSRC)/Logo.h \
+	$(AWIDGETSRC)/LogoP.h \
+	$(AWIDGETSRC)/Mailbox.h \
+	$(AWIDGETSRC)/MailboxP.h \
+	$(AWIDGETSRC)/Scroll.h \
+	$(AWIDGETSRC)/ScrollP.h \
+	$(AWIDGETSRC)/Simple.h \
+	$(AWIDGETSRC)/SimpleP.h \
+	$(AWIDGETSRC)/Text.h \
+	$(AWIDGETSRC)/TextP.h \
+	$(AWIDGETSRC)/VPaned.h \
+	$(AWIDGETSRC)/VPanedP.h \
+	$(AWIDGETSRC)/Viewport.h \
+	$(AWIDGETSRC)/ViewportP.h
+
+SUBIMPORTS = \
+	$(EXTENSIONSRC)/include/zoid.h \
+	$(EXTENSIONSRC)/include/bezier.h
+   
+SUBDIRS = bitmaps
+
+INSTALLFLAGS = $(INSTINCFLAGS)
+
+all: $(IMPORTS) $(SUBIMPORTS) extensions
+	@-(list=`echo $(IMPORTS) | sed -e 's/[^ ]*\///g'`; set -x; $(RM) $$list)
+	$(LN) $(IMPORTS) .
+	@-(list=`echo $(SUBIMPORTS) | sed -e 's/[^ ]*\///g'`; \
+		set -x; cd extensions; $(RM) $$list)
+	@for i in $(SUBIMPORTS); do \
+		(set -x; cd extensions; $(LN) ../$$i .); \
+	done
+	$(RM) Atoms.h
+	$(LN) StringDefs.h Atoms.h
+
+extensions:
+	-mkdir $@
+	
+install::
+	-mkdir $(INCDIR)
+
+InstallMultiple($(EXPORTS),$(INCDIR))
+
+clean::
+	@-(list=`echo $(IMPORTS) | sed -e 's/[^ ]*\///g'`; set -x; $(RM) $$list)
+	@-(list=`echo $(SUBIMPORTS) | sed -e 's/[^ ]*\///g'`; \
+		set -x; cd extensions; $(RM) $$list)
+	$(RM) Atoms.h
+
+install::
+	-cd $(INCDIR); mkdir $(SUBDIRS)
+	@for i in $(SUBDIRS); do \
+		( \
+			set -x; \
+			cd $$i ; \
+			for f in * ; do \
+			$(INSTALL) -c $(INSTALLFLAGS) $$f $(INCDIR)/$$i; \
+			done; \
+		); \
+	done
+
+depend:
+	@echo "depend: skipping X11"

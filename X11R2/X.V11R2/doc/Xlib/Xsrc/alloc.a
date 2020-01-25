@@ -1,0 +1,7 @@
+.\" $Header: alloc.a,v 1.1 87/09/28 11:00:29 mento Exp $
+.IP \fIalloc\fP 1i
+Specifies the color map entries to be allocated.
+You can pass one of these constants: 
+.PN AllocNone 
+or 
+.PN AllocAll .

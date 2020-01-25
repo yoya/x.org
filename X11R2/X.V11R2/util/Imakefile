@@ -1,0 +1,9 @@
+#define IHaveSubdirs
+#define PassCDebugFlags 'CDEBUGFLAGS=$(CDEBUGFLAGS)'
+
+SUBDIRS = makedepend rgb
+
+MakeSubdirs($(SUBDIRS))
+MakeSubdirs(imake)
+DependSubdirs($(SUBDIRS))
+CleanSubdirs(imake)

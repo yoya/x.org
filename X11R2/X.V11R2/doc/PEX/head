@@ -1,0 +1,161 @@
+.\"
+.\"
+.\"  This macro puts the section numbers, labels, and page numbers out
+.\"   to the standard output.   aps, crw, rjr.
+.\"   WARNING: This macro assumes certain knowledge about the the ms
+.\"   packages work (what number and string registers are used, to be exact).
+.\"
+.de AC
+.NH \\$2
+\\$1
+.\"
+.\"  This indents section heading of level two or greater.
+.\"
+.tm .Bg \\n(NS
+.tm \\*(SN \\$1
+.tm .Ed \\n%
+..
+
+.de AP
+.\"
+.\"  This indents section heading of level two or greater.
+.\"
+.tm .Bg 1
+.tm \\$1
+.tm .Ed \\n%
+..
+
+.de RU
+.br
+\l'6i'
+.sp
+..
+
+.de AR
+.IP \\$1 1.0i
+..
+
+.de Sh		\" start a section (chapter type)
+.bp
+.NH 1
+\fB\\$1\fP
+.tm .Nh "\\$1" "\\n%" "0" "\\n(H1" "\\n(H2" "\\n(H3"	 \" zero is for chapter,group
+..
+
+.de Nh		\" Start a new section
+.ds RH \\$1
+.nr In 0 1
+.ds Ic \\$1
+.nr Ac 0 1
+.LP
+.NH 2
+\\$1
+.tm .Nh "\\$1" "\\n%" "1" "\\n(H1" "\\n(H2" "\\n(H3"   	\" one is for sub-chapter
+..
+
+.de Fs		\" Function Start
+..
+
+.de Nn		\" Start name of function
+.NH 3
+\\$1
+..
+
+.de Na		\" Start name of function
+.sp
+.LP
+.in 0.5i
+.ti -0.5i
+\fBName:\fP 
+.ti 0.5i
+\fB\\$1\fP
+..
+
+.de Or		\" name of output request
+.sp -1
+.LP
+\fB\\$1\fP
+.tm .Bg 3
+.tm \\$1
+.tm .Ed \\n%
+..
+
+.de Op		\" add an output request parameter
+.br
+.RS
+\fI\\$1 : \fP  \\$2
+.RE
+..
+
+.de Ds		\" Start Description of function
+.LP
+.ti -0.5i
+\fBDescription:\fP
+.LP
+..
+
+.de Pa		\" add a parameter
+.ti 0.5i
+\fI\\$1 : \fP  \\$2
+..
+
+.de Rq		\" Start Request list
+.LP
+.ti -0.5i
+\fBRequest:\fP
+..
+
+.de Re		\" Start Reply list
+.LP
+.ti -0.5i
+\fBReply:\fP
+..
+
+.de Se		\" Start ERRORS list
+.LP
+.ti -0.5i
+\fBErrors:\fP
+.ti 0.5i
+..
+
+.de Fe		\" End of Function
+.in 0i
+..
+
+.de Bl		\" Start of bullet item
+.sp -1
+.IP "\fI\\$1\fP"
+..
+                                      
+.de Af		\" Start of asf attribute description
+This attribute contains the aspect source flag for the
+\fI\\$2\fP attribute.  When rendering, if the value for \fI\\$1\fP
+is set to \fIIndividual\fP, the value for the
+\fI\\$2\fP attribute
+will be obtained directly from the current \fI\\$2\fP
+value.
+If the value for \fI\\$1\fP is set to \fIBundled\fP, the value for the
+\fI\\$2\fP attribute will be obtained from the
+\fI\\$4\fP'th entry in the
+lookup table whose resource id is specified by \fI\\$3\fP.
+..
+
+.de 2d		\" Description of 2d primtives
+When processed, this command will cause \\$1 primitives to be drawn.
+This primitive
+functions exactly as the 3D \\$1 primitive
+except that modeling
+coordinate positions are specified using only \fIx-\fP and \fIy-\fP
+coordinates, and the \fIz\fP-coordinate is always assumed to be zero.
+..
+
+.de Es		\" Start of enumerated type description table
+.LD
+.ta
+.ta 0.2i 1.7i
+..
+
+.de Ee		\" End of enumerated type description table
+.ta
+.DE
+..

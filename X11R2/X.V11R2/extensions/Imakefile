@@ -1,0 +1,8 @@
+#define IHaveSubdirs
+#define PassCDebugFlags
+
+        SUBDIRS = lib include test server
+
+MakeSubdirs($(SUBDIRS))
+DependSubdirs($(SUBDIRS))
+MakeLintLibSubdirs(lib)

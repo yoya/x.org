@@ -1,0 +1,4 @@
+.\" $Header: func.a,v 1.1 87/09/28 13:00:21 mento Exp $
+.IP \fIproc\fP 1i
+Specifies the function to be called after an Xlib function that generates a
+protocol request completes its work.

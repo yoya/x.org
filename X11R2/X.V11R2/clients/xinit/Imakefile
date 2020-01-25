@@ -1,0 +1,4 @@
+        DEFINES = ConnectionFlags
+LOCAL_LIBRARIES = $(XLIB)
+
+SimpleProgramTarget(xinit)

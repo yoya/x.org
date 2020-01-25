@@ -1,0 +1,5 @@
+.\" $Header: values3.a,v 1.1 87/09/28 13:17:44 mento Exp $
+.IP \fIvalues_return\fP 1i
+Returns the current keyboard parameter in the specified
+.PN XKeyboardState 
+structure.

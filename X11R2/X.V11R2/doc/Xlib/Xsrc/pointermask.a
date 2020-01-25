@@ -1,0 +1,17 @@
+.\" $Header: pointermask.a,v 1.1 87/09/28 13:10:49 mento Exp $
+.IP \fIevent_mask\fP 1i
+Specifies which pointer events are reported to the client.
+They can be the bitwise inclusive OR of these pointer event mask bits:
+.PN ButtonPressMask ,
+.PN ButtonReleaseMask ,
+.PN EnterWindowMask ,
+.PN LeaveWindowMask ,
+.PN PointerMotionMask ,
+.PN PointerMotionHintMask ,
+.PN Button1MotionMask ,
+.PN Button2MotionMask ,
+.PN Button3MotionMask ,
+.PN Button4MotionMask ,
+.PN Button5MotionMask ,
+.PN ButtonMotionMask ,
+.PN KeyMapStateMask .

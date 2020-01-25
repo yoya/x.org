@@ -1,0 +1,24 @@
+.TH XSetPointerMapping 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XSetPointerMapping, XGetPointerMapping \- manipulate pointer settings
+.SH SYNTAX
+.so ../Xsrc/XSetPMap.f
+.LP
+.so ../Xsrc/XGetPMap.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/map.a
+.so ../Xsrc/nmap.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSetPMap.d
+.ds fd .PN XSetPointerMapping
+.so ../Xsrc/errsent4.com
+.PN BadValue 
+error.
+.LP
+.so ../Xdescrip/XGetPMap.d
+.SH "SEE ALSO"
+XChangeKeyboardControl(3X),
+XChangeKeyboardMapping(3X)
+.br
+\fIXlib \- C Language X Interface\fP

@@ -1,0 +1,3 @@
+.\" $Header: defs_ret.a,v 1.2 88/02/19 14:47:16 mento Exp $
+.IP \fIdefs_in_out\fP 1i
+Specifies or returns an array of color definition structures.

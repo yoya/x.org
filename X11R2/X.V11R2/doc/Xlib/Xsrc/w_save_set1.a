@@ -1,0 +1,4 @@
+.\" $Header: w_save_set1.a,v 1.2 88/02/11 16:44:23 mento Exp $
+.IP \fIw_remove\fP 1i
+Specifies the window ID of the window whose children you want to remove 
+from the client's save-set.

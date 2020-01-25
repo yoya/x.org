@@ -1,0 +1,6 @@
+.IP \fIx_hot\fP 1i
+.br
+.ns
+.IP \fIy_hot\fP 1i
+Specifies where to place the hot spot coordinates (or -1,-1 if none are present)
+in the file.

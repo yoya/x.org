@@ -1,0 +1,82 @@
+.TH XCreateGC 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XCreateGC, XCopyGC, XChangeGC, XFreeGC \- create and free graphics contexts
+.SH SYNTAX
+.so ../Xsrc/XCreateGC.f
+.LP
+.so ../Xsrc/XCopyGC.f
+.LP
+.so ../Xsrc/XChGC.f
+.LP
+.so ../Xsrc/XFreeGC.f
+.SH ARGUMENTS
+.so ../Xsrc/d.a
+.so ../Xsrc/dest.a
+.so ../Xsrc/display.a
+.so ../Xsrc/gc.a
+.so ../Xsrc/src.a
+.so ../Xsrc/valuemask3.a
+.so ../Xsrc/valuemask2.a
+.so ../Xsrc/valuemask1.a
+.so ../Xsrc/values1.a
+.SH DESCRIPTION
+.so ../Xdescrip/XCreateGC.d
+.ds fd .PN XCreateGC
+.so ../Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadDrawable ,
+.PN BadFont ,
+.PN BadMatch ,
+.PN BadPixmap ,
+and
+.PN BadValue 
+errors.
+.LP
+.so ../Xdescrip/XCopyGC.d
+.ds fd .PN XCopyGC
+.so ../Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadGC ,
+.PN BadMatch ,
+and
+.PN BadValue 
+errors.
+.LP
+.so ../Xdescrip/XChGC.d
+.ds fd .PN XChangeGC
+.so ../Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadFont ,
+.PN BadGC ,
+.PN BadMatch ,
+.PN BadPixmap ,
+and
+.PN BadValue 
+errors.
+.LP
+.so ../Xdescrip/XFreeGC.d
+.LP
+.ds fd .PN XFreeGC
+.so ../Xsrc/errsent4.com
+.PN BadGC 
+error.
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/baddrawable.e
+.so ../Xerrors/badfont.e
+.so ../Xerrors/badgc.e
+.so ../Xerrors/badmatch1.e
+.so ../Xerrors/badmatch2.e
+.so ../Xerrors/badpixmap.e
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+XQueryBestSize(3X),
+XSetArcMode(3X),
+XSetClipOrigin(3X),
+XSetFillStyle(3X),
+XSetFont(3X),
+XSetLineAttributes(3X),
+XSetState(3X),
+XSetTile(3X)
+.br
+\fIXlib \- C Language X Interface\fP

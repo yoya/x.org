@@ -1,0 +1,189 @@
+.AC "Search Contexts" 1
+.LP
+.RU
+.LP
+A \fIsearch context\fP is a PEX resource that allows clients
+to perform searching operations on structure networks.
+Search contexts
+are lightweight resources.
+This section
+describes the operations that can be performed
+on search context resources
+and the operations that can be performed using search context resources.
+PEX currently provides no support for searching of client-side
+structure networks.
+.LP
+Some of the requests in this section affect attributes of a search
+context.
+The \fIitem_mask\fP and \fIitem_list\fP parameters
+specify which components are to be affected.
+Each bit in the \fIitem_mask\fP indicates whether or not
+the corresponding attribute is affected.  In the cases where
+search context attributes are being set or queried,
+there is a corresponding entry in the \fIitem_list\fP
+for each set bit in \fIitem_mask\fP.
+It is therefore possible
+to affect one or many search context attributes with a single request.
+.LP
+Some of the attributes in a search context
+are references to other resources.  In general, the semantics of
+dealing with references to nonexistent resources is implementation-dependent.
+"Reasonable" implementations might choose to treat references to
+nonexistent name sets resources as though they were references to a
+name set resource that contains a null name list.
+Also, the resource id returned when such an attribute is queried
+is not guaranteed to be valid, since the resource with that id
+may already have been freed.  It is up to the client to manage
+all references to a resource when it is freed so that this situation
+does not occur.
+.so sctbl
+.bp
+
+.AC "Search Context Resource Management" 2
+.LP                   
+The search context is an X11 resource and carries all of the 
+responsibilities and
+access rights of X11 resources.  These requests manage the creation,
+freeing, and copying of search contexts.
+
+.AC "Create Search Context" 3
+.Fs
+.Na PEXCreateSearchContext
+.Rq      
+.Pa format FORMAT
+.Pa sc_id SEARCH_CONTEXT_ID
+.Pa item_mask BITMASK
+.Pa item_list LISTofVALUE
+.Se
+SearchContext, Value, Match, FloatingPointFormat, Alloc
+.Ds                     
+This request creates a search context resource for the specified
+\fIsc_id\fP.  
+The \fIitem_mask\fP defines those search context attributes
+that are to be explicitly set at the time the resource is created.
+The \fIitem_list\fP 
+contains the corresponding
+list of values used to modify the newly-created search context.
+Floating point values in \fIitem_list\fP will be in the floating
+point format specified in \fIformat\fP.
+.Fe
+
+
+
+
+.AC "Copy Search Context" 3
+.Fs
+.Na PEXCopySearchContext
+.Rq                 
+.Pa src_sc_id SEARCH_CONTEXT_ID
+.Pa dest_sc_id SEARCH_CONTEXT_ID
+.Pa item_mask BITMASK
+.Se
+SearchContext
+.Ds            
+This request copies the source search context
+\fIsrc_sc_id\fP to a destination search context \fIdest_sc_id\fP.
+The \fIdest_sc_id\fP must already exist as a valid resource.
+The \fIitem_mask\fP     
+indicates which values
+in the search context will be copied.
+.Fe
+.bp
+
+
+.AC "Free Search Context" 3
+.Fs
+.Na PEXFreeSearchContext
+.Rq                 
+.Pa sc_id SEARCH_CONTEXT_ID
+.Se
+SearchContext
+.Ds            
+This request deletes the association between the resource id
+and the search context.  The search context storage will be
+freed when no other resource references it.
+.Fe
+.bp
+.AC "Search Context Inquiry" 2
+.LP
+These requests inquire search context attributes.
+
+.AC "Get Search Context" 3
+.Fs
+.Na PEXGetSearchContext
+.Rq
+.Pa format FORMAT
+.Pa sc_id SEARCH_CONTEXT_ID
+.Pa item_mask BITMASK
+.Re
+.Pa item_list LISTofVALUE
+.Se
+SearchContext, Match
+.Ds       
+This request will return components of
+the search context specified by \fIsc_id\fP.
+The \fIitem_mask\fP specifies which components are to be inquired and returned.
+The specified attributes of the search context will be returned in
+\fIitem_list\fP.
+Floating point values in \fIitem_list\fP will be returned in the floating
+point format specified in \fIformat\fP.
+.Fe
+
+.AC "Search Context Modification" 2
+.LP
+These requests can be used to modify attributes of search context resources.
+
+.AC "Change Search Context" 3
+.Fs
+.Na PEXChangeSearchContext
+.Rq
+.Pa format FORMAT
+.Pa sc_id SEARCH_CONTEXT_ID
+.Pa item_mask BITMASK
+.Pa item_list LISTofVALUE
+.Se
+SearchContext, Match, Value, FloatingPointFormat
+.Ds       
+This request changes components of a search context.  
+The \fIitem_mask\fP and \fIitem_list\fP
+specify which components are to be changed.
+Each bit in the \fIitem_mask\fP indicates whether or not
+there is a corresponding entry in the \fIitem_list\fP.
+It is therefore possible
+to modify one or many search context attributes with a
+\fBPEXChangeSearchContext\fP request.
+Floating point values in \fIitem_list\fP will be in the floating
+point format specified in \fIformat\fP.
+.Fe
+.bp
+
+.AC "Structure Network Searching" 2
+.LP
+This section describes requests that use search context resources to
+perform structure network searching operations.
+
+.AC "Search Network" 3
+.Fs
+.Na PEXSearchNetwork
+.Rq
+.Pa sc_id SEARCH_CONTEXT_ID
+.Re
+.Pa found_path LISTofELEMENT_REF
+.Se
+SearchContext
+.Ds       
+This request causes a spatial search in world coordinates
+to be performed on a structure
+network.  The parameters of the searching operation are found in the
+search context \fIsc_id\fP.
+The search begins at the element \fIfollowing\fP
+the one indicated by the \fIstart_path\fP attribute of \fIsc_id\fP.
+The search is terminated once the end of the structure indicated
+by \fIsearch_ceiling\fP has been reached.
+The first element that meets the search criteria is returned in
+\fIfound_path\fP.  If no element is found, \fIfound_path\fP will be
+null.  After the search has completed, the \fIstart_path\fP attribute
+of \fIsc_id\fP will be set to the value that is returned in \fIfound_path\fP.
+.Fe
+.bp
+

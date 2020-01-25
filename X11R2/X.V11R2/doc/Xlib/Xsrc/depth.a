@@ -1,0 +1,7 @@
+.\" $Header: depth.a,v 1.1 87/09/28 12:57:06 mento Exp $
+.IP \fIdepth\fP 1i
+A depth of zero for class 
+.PN InputOutput 
+or 
+.PN CopyFromParent
+means the depth is taken from the parent.

@@ -1,0 +1,361 @@
+.TH X 1 "1 March 1988"  "X Version 11"
+.SH NAME
+X - a portable, network transparent window system
+.SH SYNOPSIS
+.PP
+X is a network transparent window system developed at MIT which
+runs under a wide variety of operating systems.  The standard distribution
+from MIT works on Ultrix-32 Version 1.2 (and higher), 4.3BSD Unix,
+SunOS 3.2 (and higher), HP-UX 6.01, and DOMAIN/IX 9.7.  In addition, many vendors
+support the X Window System under other operating systems.
+.SH "THE OFFICIAL NAMES"
+The official names of the software described herein are:
+.sp
+.ce 5
+X
+.br
+X Window System
+.br
+X Version 11
+.br
+X Window System, Version 11
+.br
+X11
+.sp
+Note that the phrases X.11, X-11, X Windows or any permutation thereof, are
+explicity excluded from this list and should not be used to describe the
+X Window System (window system should be thought of as one word).
+.PP
+\fIX Window System\fP is a trademark of the
+Massachusetts Institute of Technology.
+.SH DESCRIPTION
+X window system servers run on computers with bitmap displays.
+The server
+distributes user input to, and accepts output requests from various
+client programs through a variety of different interprocess
+communication channels.  Although the most common case is for the client
+programs to be
+running on the same machine as the server, clients can be run transparently
+from other machines (including machines with different architectures and
+operating systems) as well.
+.PP
+X supports overlapping hierarchical subwindows and text and
+graphics operations, on both monochrome and color
+displays.
+For a full explanation of functions, see the
+\fIXlib - C Language X Interface\fP manual, the
+\fIX Window System Protocol\fP specification,
+and various toolkit documents.
+.PP
+When you first log in on a display running X, you are
+usually using the \fIxterm(1)\fP terminal emulator program.
+You need not learn anything extra to use a display running X as
+a terminal beyond moving the mouse cursor into the login window to
+log in normally.
+.PP
+The core \fIX\fP protocol provides mechanism, not policy.  
+Windows are manipulated (including
+moving, resizing and iconifying) not by the server itself, but 
+by a separate program called a ``window manager'' of your choosing.
+This program is
+simply another client and requires no special privileges.  If you
+don't like the ones that are supplied (see \fIuwm(1)\fP and \fIwm(1)\fP),
+you can write your own.
+.PP
+The number of programs that use \fIX\fP is growing rapidly.  Of particular
+interest are:
+a terminal emulator (\fIxterm(1)\fP),
+window managers (\fIwm(1)\fP and \fIuwm(1)\fP), 
+a mailer reader (\fIxmh(1)\fP),
+a bitmap editor (\fIbitmap(1)\fP),
+an access control program (\fIxhost(1)\fP),
+user preference setting programs (\fIxset(1)\fP, \fIxsetroot(1)\fP,
+and \fIxmodmap(1)\fP),
+a load monitor (\fIxload(1)\fP), clock (\fIxclock(1)\fP),
+a font displayer (\fIxfd(1)\fP),
+a protocol translator for running X10 programs (\fIx10tox11(1)\fP),
+and various demos (\fIico(1)\fP, \fImuncher(1)\fP, \fIpuzzle(1)\fP, etc.).
+
+.SH DISPLAY SPECIFICATION
+.PP
+When you first log in, the environment variable DISPLAY will be
+set to a string specifying the name of the machine on which the server is
+running, a number indicating which of possibly several servers
+to use, and possibly a number indicating the default screen of the
+server (usually this is omitted and defaults to 0).
+By convention, servers on a particular machine are numbered starting
+with zero.  The format 
+of the DISPLAY string depends on the type of communications channel used
+to contact the server.
+
+.ne 6
+The following connection protocols are supported:
+.TP 8
+.B TCP\/IP
+.br
+DISPLAY should be set to ``\fIhost\fP:\fIdpy\fP.\fIscreen\fP''
+where \fIhost\fP
+is the symbolic name of the machine (e.g. expo), \fIdpy\fP
+is the number of the display (usually 0), and \fIscreen\fP
+is the number of the screen.  The \fIscreen\fP and preceding period are
+optional, with the default value being zero (0).
+Full Internet 
+domain names (e.g. expo.lcs.mit.edu) are allowed for the host name.
+.TP 8
+.B "Unix domain"
+.br
+DISPLAY should be set to ``unix:\fIdpy\fP.\fIscreen\fP'',
+where \fIdpy\fP is the display number and \fIscreen\fP is
+the screen number; \fIscreen\fP and the preceding period are
+optional, with the default value being zero (0).
+.TP 8
+.B DECnet
+.br
+DISPLAY should be set to ``\fInodename\fP::\fIdpy\fP.\fIscreen\fP''
+where \fInodename\fP
+is the symbolic name of the machine,
+\fIdpy\fP is the display number, and \fIscreen\fP is
+the screen number; \fIscreen\fP and the preceding period are
+optional, with the default value being zero (0).
+.PP
+Most programs accept a command line argument of the form 
+``-display \fIdisplay\fP'' that can be used to override the
+DISPLAY environment variable.
+.PP
+.SH GEOMETRY SPECIFICATION
+One of the advantages of using window systems over hardwired terminals is that 
+applications don't have to be restricted to a particular size or location
+on the screen.
+Although the layout of windows on a display is controlled
+by the window manager that the user is running, most applications accept
+a command line argument that is treated as the prefered size and location
+for this particular application's window.
+.PP
+This argument, usually specified as ``-geometry WxH+X+Y,'' indicates that
+the window should have a width of W and height of H (usually measured in
+pixels or characters, depending on the application),
+and the upper left corner X pixels to the right and Y pixels below the
+upper left corner of the screen (origin (0,0)).  ``WxH'' can be omitted
+to obtain the default application size, or ``+X+Y'' can be omitted
+to obtain the default application position (which is usually then left up
+to the window manager or user to choose).
+The X and Y values may be negative to
+position the window off the screen.  In addition, if minus signs are used
+instead of plus signs (e.g. WxH-X-Y), then (X,Y) represents the location
+of the lower right hand corner of the window relative to the lower right
+hand corner of the screen.
+.PP
+By combining plus and minus signs, the window may be place relative to any
+of the four corners of the screen.  For example:
+.TP 8
+.I "555\fPx\fI333+11+22"
+This will request a window 555 pixels wide and 333 pixels tall, with the
+upper left corner located at (11,22).
+.TP 8
+.I "300\fPx\fI200-0+0"
+This will request a window measuring 300 by 200 pixels in the upper right
+hand corner of the screen.
+.TP 8
+.I "48\fPx\fI48--5--10"
+This will request a window measuring 48 by 48 pixels whose lower right
+hand corner is 5 pixel off the right edge and the screen and 10 pixels off
+the bottom edge.
+.PP
+.SH COMMAND LINE ARGUMENTS
+Most X programs attempt to use a common set of names for their command line
+arguments.
+The X Toolkit automatically handles the following arguments:
+.TP 8
+.B \-bg \fIcolor\fP, \fB\-background \fIcolor\fP
+Either option specifies the color to use for the window background.
+.TP 8
+.B \-bd \fIcolor\fP, \fB\-bordercolor \fIcolor\fP
+Either option specifies the color to use for the window border.
+.TP 8
+.B \-bw \fInumber\fP, \fB\-borderwidth \fInumber\fP
+Either option specifies the width in pixels of the window border.
+.TP 8
+.B \-display \fIdisplay\fP
+This option specifies the name of the X server to use.
+.TP 8
+.B \-fg \fIcolor\fP, \fB\-foreground \fIcolor\fP
+Either option specifies the color to use for text or graphics.
+.TP 8
+.B \-fn \fIfont\fP, \fB-font \fIfont\fP
+Either option specifies the font to use for displaying text.
+.TP 8
+.B \-geometry \fIgeometry\fP
+This option specifies the initial size and location of the window.
+.TP 8
+.B \-iconic
+.br
+This option indicates that application should start out in an iconic state.  
+Note that how
+this state is represented is controlled by the window manager that the user
+is running.
+.TP 8
+.B \-name
+.br
+This option specifies the name under which resources for the
+application should be found.  This option is useful in shell
+aliases to distinguish between invocations of an application,
+without resorting to creating links to alter the executable file name.
+.TP 8
+.B \-rv\fP, \fB\-reverse\fP
+Either option indicates that the program should simulate reverse video if 
+possible, often by swapping the foreground and background colors.  Not all
+programs honor this or implement it correctly.  It is usually only used on
+monochrome displays.
+.TP 8
+.B \+rv
+.br
+This option indicates that the program should not simulate reverse video.  
+This is used to
+override any defaults since reverse video doesn't always work properly.
+.TP 8
+.B \-synchronous
+This option indicates that requests to the X server should be sent 
+synchronously, instead of asynchronously.  Since 
+.I Xlib
+normally buffers requests to the server, errors do not necessarily get reported
+immediately after they occur.  This option turns off the buffering so that
+the application can be debugged.  It should never be used with a working 
+program.
+.TP 8
+.B \-title \fIstring\fP
+This option specifies the title to be used for this window.  This information 
+is sometimes
+used by a window manager to provide some sort of header identifying the window.
+.TP 8
+.B \-xrm \fIresourcestring\fP
+This option specifies a resource name and value to override any defaults.  It 
+is also very useful for setting resources that don't have explicitly command 
+line arguments.
+.SH "RESOURCES"
+To make the tailoring of applications to personal preferences easier, X 
+supports several mechanisms for storing default values for program resources 
+(e.g. background color, window title, etc.)
+Resources are specified as strings of the form 
+\fI``name*subname*subsubname...: value''\fP (see the
+.I Xlib
+manual section \fIUsing the Resource Manager\fP for more details) that are 
+loaded into a
+client when it starts up.  The \fIXlib\fP routine
+.I XGetDefault(3X)
+and the resource utilities within the X Toolkit
+obtain resources from the following sources:
+.TP 8
+.B "RESOURCE_MANAGER root window property"
+Any global resources that should be available to clients on all machines 
+should be stored in the RESOURCE_MANAGER property on the
+root window using the \fIxrdb(1)\fP program.  
+.TP 8
+.B "application-specific directory"
+Any application- or machine-specific resources can be stored in
+the class resource files located in the XAPPLOADDIR directory (this is a 
+configuration parameter that is /usr/lib/X11/app-defaults in the 
+standard distribution).
+.TP 8
+.B XENVIRONMENT
+Any user- and machine-specific resources may be specified by setting
+the XENVIRONMENT environment variable to the name of a resource file
+to be loaded by all applications.  If this variable is not defined,
+the X Toolkit looks for a file named .Xdefaults-\fIhostname\fP,
+where \fIhostname\fP is the name of the host where the application
+is executing.
+.TP 8
+.B \-xrm \fIresourcestring\fP
+Applications that use the X Toolkit can have resources specified from the 
+command line.  The \fIresourcestring\fP is a single resource name and value as
+shown above.  Note that if the string contains characters interpreted by
+the shell (e.g., asterisk), they must be quoted.
+Any number of \fB\-xrm\fP arguments may be given on the
+command line.
+.PP
+Program resources are organized into groups called ``classes,'' so that 
+collections of individual ``instance'' resources 
+can be set all at once.  By convention, the instance name of a resource
+begins with a lowercase letter and class name with an upper case letter.
+Multiple word resources are concatentated with the first letter of the 
+succeeding words capitalized.  Applications written with the X Toolkit
+will have at least the following resources:
+.PP
+.TP 8
+.B background (\fPclass\fB Background)
+This resource specifies the color to use for the window background.
+.PP
+.TP 8
+.B borderWidth (\fPclass\fB BorderWidth)
+This resource specifies the width in pixels of the window border.
+.PP
+.TP 8
+.B borderColor (\fPclass\fB BorderColor)
+This resource specifies the color to use for the window border.
+.PP
+Most X Toolkit applications also have the resource \fBforeground\fP
+(class \fBForeground\fP), specifying the color to use for text
+and graphics within the window.
+.PP
+By combining class and instance specifications, application preferences 
+can be set quickly and easily.  Users of color displays will frequently
+want to set Background and Foreground classes to particular defaults.
+Specific color instances such as text cursors can then be overridden
+without having to define all of the related resources.
+.PP
+When a named resource is unavailable (for example, a color named
+chartrusse or a font named teeneyweeney), normally no error message
+will be printed; whether or not useful results ensue is dependent
+on the particular application.  If you wish to see error messages
+(for example, if an application is failing for an unknown reason),
+you may specify the value ``on'' for the resource named
+``StringConversionWarnings.''  If you want
+such warnings for all applications, specify ``*StringConversionWarnings:on''
+to the resource manager.  If you want warnings only for a single
+application named ``zowie'', specify ``zowie*StringConversionWarnings:on''
+to the resource manager.
+.SH DIAGNOSTICS
+The default error handler uses the Resource Manager to build diagnostic
+messages when error conditions arise.  The default error database is
+stored in the file XErrorDB in the directory specified by the LIBDIR
+configuration parameter (/usr/lib/X11 in the standard distribution).  If
+this file is not installed, error messages will tend to be somewhat cryptic.
+.SH "SEE ALSO"
+.PP
+xterm(1), bitmap(1), ico(1), muncher(1), plaid(1), puzzle(1),
+resize(1), uwm(1), wm(1), x10tox11(1), xbiff(1), xcalc(1),
+xclock(1), xedit(1), xfd(1), xhost(1), xinit(1), xload(1),
+xlogo(1), xlsfonts(1), xmh(1), xmodmap(1), xpr(1), xprkbd(1),
+xprop(1), xrdb(1), xrefresh(1), xset(1), xsetroot(1), xwd(1),
+xwininfo(1), xwud(1), Xserver(1), Xapollo(1), Xqdss(1), Xqvss(1), Xsun(1),
+kbd_mode(1), todm(1), tox(1), biff(1), init(8), ttys(5),
+.I "Xlib \- C Language X Interface,"
+.I "X Toolkit Intrinsics - C Language X Interface"
+.SH COPYRIGHT
+The following copyright and permission notice outlines the rights and
+restrictions covering most parts of the standard distribution of the X Window
+System from MIT.  Other parts have additional or different copyrights
+and permissions; see the individual source files.
+.sp
+Copyright 1984, 1985, 1986, 1987, 1988, Massachusetts Institute of 
+Technology.
+.sp
+Permission to use, copy, modify, and distribute this
+software and its documentation for any purpose and without
+fee is hereby granted, provided that the above copyright
+notice appear in all copies and that both that copyright
+notice and this permission notice appear in supporting
+documentation, and that the name of M.I.T. not be used in
+advertising or publicity pertaining to distribution of the
+software without specific, written prior permission.
+M.I.T. makes no representations about the suitability of
+this software for any purpose.  It is provided "as is"
+without express or implied warranty.
+.sp
+This software is not subject to any license of the American
+Telephone and Telegraph Company or of the Regents of the
+University of California.
+.SH AUTHORS
+.PP
+It is no longer feasible to list all people who have contributed
+something to X, but see doc/contributors in the standard sources.
+

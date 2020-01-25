@@ -1,0 +1,581 @@
+.AC "Extension Information" 2
+.LP
+These requests return static information
+about the PEX extension and what it supports.
+Information about specific capabilities and tradeoffs should be
+found in the documentation describing a particular PEX server implementation
+(e.g., what is the "best" HLHSR method or floating point format or direct
+color format to use, whether quick update really does anything, what
+range of line and surface edge widths are supported, etc.)
+
+.AC "Get Extension Information" 3
+.Fs
+.Na "PEXGetExtensionInfo"
+.Rq                 
+.Pa client_protocol_major_version CARD16
+.Pa client_protocol_minor_version CARD16
+.Re
+.Pa protocol_major_version CARD16
+.Pa protocol_minor_version CARD16
+.Pa vendor STRING
+.Pa release_number CARD32
+.Se
+Drawable
+.Ds              
+The \fIclient_protocol_major_version\fP and the 
+\fIclient_protocol_minor_version\fP
+indicate what version of the protocol the client
+expects the server to implement.
+The protocol version numbers
+returned indicate the protocol the PEX extension actually supports.
+This might not equal the version sent by the client.
+A PEX extension can (but need
+not) support more than one version simultaneously.
+The \fIprotocol_major_version\fP and the \fIprotocol_minor_version\fP are
+a mechanism to support future revisions of the PEX protocol which
+may be necessary.
+In general, the major version would increment for incompatible changes,
+and the minor version would increment for small, upward-compatible changes.
+Barring changes, the \fIprotocol_major_version\fP will be three, and the
+\fIprotocol_minor_version\fP will be zero.
+.Fe
+.bp
+
+
+.AC "Get Enumerated Type Information" 3
+.Fs
+.Na "PEXGetEnumeratedTypeInfo"
+.Rq
+.Pa drawable_id DRAWABLE_ID
+.Pa enum_types LISTofENUM_TYPE
+.Pa item_mask BITMASK
+.Re
+.Pa types LISTofLISTofENUM_TYPE_DESC
+.Se
+Drawable, EnumType
+.Ds
+This request returns information about the enumerated types specified
+by \fIenum_types\fP.
+It returns information about the enumerated
+types that are supported for drawables that have the same root window
+and depth as the drawable indicated by
+\fIdrawable_id\fP.  The \fIitem_mask\fP indicates the data that is to
+be returned in each enumerated type descriptor.  The components
+of an enumerated type descriptor (and the corresponding bits of
+\fIitem_mask\fP) are:
+.ID
+	index	: CARD32
+	mnemonic	: STRING
+.DE
+If the \fIindex\fP bit is set in \fIitem_mask\fP, only the index
+values will be returned for the defined values.
+If the \fImnemonic\fP bit is set in \fIitem_mask\fP, only mnemonics
+will be returned for the defined values.
+If both the \fIindex\fP and \fImnemonic\fP bits are set,
+both indices and mnemonics
+will be returned for the defined values.
+.LP
+The various enumerated types and registered values are listed below.
+Each registered value is followed by the mnemonic string that is
+returned and a brief description.
+Any values less than zero are implementation-dependent (consult
+the implementation documentation for their descriptions), and any numbers
+greater than the listed values are reserved for future registration.
+
+
+.Bl "MarkerType"
+The marker type specifies the shape of the marker primitive that
+is to be drawn when rendering marker primitives.  The registered values
+are:
+.Es
+1	Dot	"." which is always displayed as the smallest displayable
+		dot (the \fImarker_scale\fP attribute is ignored) with the dot
+		at the marker position.
+2	Cross	"+" (cross or plus sign) with intersection at the marker position.
+3	Asterisk	"*" with intersection at the marker position.
+4	Circle	"o" with center at marker position
+5	X	"x" with intersection at the marker position.
+.Ee
+
+
+.Bl "ATextStyle"
+The annotation text style specifies the style that
+is to be used when rendering annotation text primitives.  The registered values
+are:
+.Es
+1	NotConnected	The annotation text primitive will be drawn with no
+		line connecting it to the reference point.
+2	Connected	The annotation text primitive will be connected to
+		the reference point with a line, which will be drawn
+		using the current set of polyline/curve attributes
+.Ee
+
+
+.Bl "InteriorStyle"
+The interior style specifies the style that
+is to be used when rendering surface primitives.
+The registered values are:
+.Es
+1	Hollow	The interiors of surface primitives are not filled, but the
+		boundary is drawn using the surface color.  If the surface
+		primitive is clipped, the boundary must be drawn along
+		the clipped boundary as well.
+2	Solid	The interiors of surface primitives are filled using the
+		surface color.
+3	Pattern	The interiors of surface primitives are filled using the
+		pattern table entry specified by the interior style index.
+4	Hatch	The interiors of surface primitives are filled using the
+		surface color and the hatch style whose index is specified
+		by the interior style index.
+5	Empty	The interior of the surface primitive is not drawn at all.
+.Ee
+
+
+.Bl "HatchStyle"
+The hatch style specifies the method that
+is to be used to render surface primitives when the interior
+style is set to \fIHatch\fP.  There are currently no registered hatch styles.
+
+
+.Bl "LineType"
+The line type specifies the style that
+is to be used when rendering polyline and curve primitives.
+The registered values are:
+.Es
+1	Solid	Draw the polyline or curve with a solid, unbroken line.
+2	Dashed	Draw the polyline or curve with a line that is dashed.
+3	Dotted	Draw the polyline or curve with a line that is dotted.
+4	DashDot	Draw the polyline or curve with a line that contains
+		alternating dots and dashes.
+.Ee
+It is implementation-dependent whether the sequence for the
+\fIDashed\fP, \fIDotted\fP, and \fIDashDot\fP line types is restarted
+or continued at the start of the polyline, at the start of a clipped
+segment of a polyline, and at each vertex of a polyline.
+
+
+.Bl "SurfaceEdgeType"
+The surface edge type specifies the style that
+is to be used when rendering surface edges.
+The registered values are:
+.Es
+1	Solid	Draw the surface edge with a solid, unbroken line.
+2	Dashed	Draw the surface edge with a line that is dashed.
+3	Dotted	Draw the surface edge with a line that is dotted.
+4	DashDot	Draw the surface edge with a line that contains alternating
+		dots and dashes.
+.Ee
+It is implementation-dependent whether the sequence for the
+\fIDashed\fP, \fIDotted\fP, and \fIDashDot\fP edge types is restarted
+or continued at the start of the edge, at the start of a clipped
+segment of an edge, and at each vertex.
+ 
+
+.Bl "PickDeviceType"
+The pick device type specifies the type of pick device that
+is to be used to perform picking operations.
+There are currently no registered pick devices.
+
+
+.Bl "PolylineInterpMethod"
+The polyline interpolation method specifies the style that
+is to be used when rendering polyline primitives that have colors
+specified per-vertex.
+Depth-cueing is applied as a post-process
+to polylines regardless of the polyline interpolation method.
+The registered values are:
+.Es
+1	None	No interpolation will be performed between polyline vertices.
+		If color values are supplied they differ for the endpoints
+		of a polyline segment, they will be used to compute an
+		average color which will be used for the entire segment.
+2	Color	The polyline's vertex colors (if present) are used.  Color
+		values along each polyline segment are then computed by
+		linearly interpolating between the color values at the
+		vertices.
+.Ee
+
+
+.Bl "CurveDisplayMethod"
+The curve display method specifies the method that
+is to be used when rendering parametric curve primitives.
+The registered values are:
+.Es
+1	Constant	This technique tessellates the curve with equal
+		parametric increments.  If the control value is
+		negative, the technique evaluates the curve at just
+		the parametric bounds. If the control value is positive,
+		the technique evaluates the curve at the number of points
+		between the parameter bounds.   
+
+2	ConstantBetweenKnots	This technique tessellates the curve with equal
+		parametric increments between successive pairs of knots.
+		When the curve includes knots, if the control value is
+		negative, the technique evaluates the curve at just the
+		parametric bounds, plus all knots which are between the
+		parametric bounds.  If the control value is positive, the
+		technique evaluates the curve at the number of points
+		between the knots, but only if these parametric values
+		are between the parametric bounds.
+
+3	WCS_Metric	This technique tessellates the curve until the length
+		of every line segment, in world coordinates, is less
+		than the tolerance.
+
+4	NPC_Metric	This technique tessellates the curve until the length
+		of every line segment, in normalized projection
+		coordinates, is less than the tolerance.
+
+5	WCS_ChordalDev	This technique tessellates the curve until the maximum
+		deviation (in world coordinates) between the line and
+		the curve is less than the tolerance.
+
+6	NPC_ChordalDev	This technique tessellates the curve until the maximum
+		deviation (in normalized projection coordinates) between
+		the line and the curve is less than the tolerance.
+.Ee
+
+
+.Bl "CurveForm"
+The curve form specifies the form that
+is to be used when rendering parametric curve primitives.
+The registered values are:
+.Es
+1	UniformBSpline	A uniform B-spline curve approximates the data points
+		supplied.  Given m control points and the positive order
+		n (<=m), a series of m-n+1 polynomial spans of order n
+		which are connected with parametric continuity of class
+		n-2 are drawn.  For example, a cubic B-spline curve of
+		order 4 will have continuity of all derivatives up to and
+		including the second.  In the degenerate case where the
+		specified m is less than n, a B-spline of order m will
+		be generated.
+
+2	PiecewiseBezier	This type of curve (order n) is produced by interpolating
+		its first and n'th control points and approximating the
+		other (interior) control points in a well-defined, variation-
+		diminishing way.  A common use of these curves is to chain
+		them together end-to-end to represent more complicated
+		curves.  The piecewise Bezier curve of order n is a curve
+		composed of spans of order n which meet at the n'th control
+		point and every (n-1)'st control point thereafter with
+		positional continuity.  A well-formed piecewise Bezier
+		curve of order n will have m control points where m = n
+		plus some integer multiple of (n-1).  When excess control
+		points are provided, they will be ignored.  In the degenerate
+		case where the specified m is less than n, a Bezier curve
+		of order m will be generated.
+
+
+.Bl "ReflectionModel"
+The reflection model specifies the method that
+is used to perform the light source shading computation
+when rendering surface primitives.  The input to the light source shading
+computation is known as the \fIbase color\fP and the output is known
+as the \fIshaded color\fP.
+If a normal exists at the
+point at which the reflection model is to be evaluated, it will be
+used.  Otherwise, if a normal exists for the facet containin the point,
+it will be used to evaluate the reflection model.  If no normal exists,
+the reflection model is evaluated, if possible, without a normal.
+The registered values are:
+.Es
+1	NoShading	No light source shading computation is performed.  The
+		surface color is not affected by light source illumination
+		(effectively, shaded color == base color).
+2	Ambient	Only the ambient terms of the lighting equation are used.
+		The shaded color will be the base color as seen under
+		ambient light.
+3	Diffuse	Only the ambient and diffuse terms of the lighting equation
+		are used.  The shaded color will be the base color as
+		seen under ambient light, plus a diffuse reflection
+		component from each light source.
+4	Specular	The ambient, diffuse, and specular terms of the lighting
+		equation are all used during the light source shading
+		computation.  The shaded color will be the same as for
+		\fIDiffuse\fP, plus a specular reflection component from
+		each light source.
+.Ee
+
+
+.Bl "SurfaceInterpMethod"
+The surface interpolation method specifies the method that
+is used to compute color values in surface interiors
+when rendering surface primitives.
+Depth-cueing is applied as a post-process
+to surface primitives regardless of the surface interpolation method.
+The registered values are:
+.Es
+1	None	The color resulting from a single light source computation is
+		used for the entire surface.  No interpolation will be
+		performed across surface interiors or edges.
+2	Color	The colors are computed at the vertices of the surface according
+		to the current \fIreflection_model\fP.  These color values
+		are then linearly interpolated across the interior of the
+		surface or the edges.
+3	DotProduct	The lighting equation dot products are computed at the
+		vertices.  These dot products are linearly interpolated
+		and the light source shading computation is applied using
+		these values to compute the color value at each pixel in
+		the interior of a surface or along a surface edge.
+4	Normal	An attempt is made to determine a normal and perform the light
+		source shading computation as accurately as possible at
+		each pixel in the interior of a surface or along a surface
+		edge.
+.Ee
+
+
+.Bl "SurfaceDisplayMethod"
+The surface display method specifies how to display parametric surface 
+primitives.
+The registered values are:
+.Es
+1	Constant	This technique tessellates the parametric surface with
+		equal parametric increments.  The function requires two
+		control values. The two control values specify how to
+		subdivide the two parametric dimensions. If the control
+		value is negative, the technique evaluates the surface at
+		just the s or t parametric bounds. If the control value is
+		positive, the technique evaluates the surface at points
+		between the s or t parameter bounds.  The control value,
+		in this case, represents the number of parametric samples
+		between the bounds.
+
+2	ConstantBetweenKnots	This technique tessellates the surface with equal parametric
+		increments between successive pairs of knots.  When the
+		surface includes knots, if the control values are negative,
+		the technique evaluates the surface at the s or t parametric
+		bounds, plus all the knots between the s or t parametric
+		bounds.  If the control values are positive, the technique
+		evaluates the surface at points between the knots, but only
+		if these parametric samples are between the s or t parametric
+		bounds.
+
+3	WCS_Metric	This technique tessellates the surface until the length of every
+		line segment, in world coordinates, is less than the tolerance. 
+
+4	NPC_Metric	This technique tessellates the surface until the length of every
+		line segment, in normalized projection coordinates, is less
+		than the tolerance.
+
+5	WC_PlanarDev	This technique tessellates the surface into facets.  The
+		technique subdivides the surface until the maximum deviation,
+		in world coordinates, between the plane and the surface is
+		less than the tolerance. 
+
+6	NPC_PlanarDev	This technique tessellates the surface into facets.  The
+		technique subdivides the surface until the maximum deviation,
+		in normalize projection coordinates, between the plane and the
+		surface is less than the tolerance. 
+
+
+.Bl "SurfaceForm"
+The surface form specifies the form that
+is to be used when rendering parametric surface primitives.
+The registered values are:
+.Es
+1	UniformBSpline	A uniform B-spline surface approximates the control
+		points supplied with an array of bi-polynomial surface
+		patches of order specified in the s and t directions.  It
+		does not necessarily interpolate any of the control points.
+		Continuity between patches is completely analogous to the
+		continuity of B-spline curve spans.   For example, a mesh
+		defining an array of bicubic patches (order 4) will have
+		positional and first and second parametric derivative
+		continuity between patches.
+
+		In the degenerate case where the specified mesh dimension
+		is less than the polynomial order for that direction, a
+		polynomial of order equal to the mesh dimension will be
+		generated.
+
+2	PiecewiseBezier	This form interpolates the corner points of the control
+		mesh and approximates the other (interior) control points
+		in a well-defined, variation-diminishing way.  The surface
+		may have different orders associated with each direction and 
+		thus require a different number of rows and columns in the
+		control mesh.  The dimensions of the mesh are the respective
+		orders, the order in the s direction is equal to the number
+		of columns of the mesh and the order on the t direction is
+		equal to the number of rows.  One use of these surfaces is
+		to make arrays of them to describe more complicated surfaces.
+
+		The piecewise Bezier surface is composed of an array of
+		patches abutted at the edges with at least positional
+		continuity by virtue of sharing their "edge" control points.
+		This compositing of patches implies the appropriate
+		dimensionality of the control mesh in a manner analogous
+		to the piecewise extension of  curves.  A well-formed
+		piecewise Bezier surface of order n in the s direction
+		will thus have m columns of control points where m = n
+		plus some integer multiple of (n-1), and similarly in the
+		t direction.
+
+		Where excess rows or columns of control points are provided,
+		they will be ignored.  In the degenerate case where the
+		specified row or column is less than the polynomial order
+		for the associated direction, a Bezier surface of order
+		equal to the row or column dimension will be generated.
+.Ee
+
+
+.Bl "ModelClipOperator"
+The model clip operator defines the operation that is to be used
+to combine the specified halfspaces with the current composite
+modeling clipping volume.
+The registered values are:
+.Es
+1	Replace	The specified halfspaces are used to create a new composite
+		modeling clipping volume that replaces the current composite
+		modeling clipping volume.
+2	Intersection	The specified halfspaces are and'ed with the current
+		composite modeling clipping volume to compute a new composite
+		modeling clipping volume.
+.Ee
+
+
+.Bl "LightType"
+The light type defines the characteristics of the light sources
+that can be used in light source shading computations.
+The registered values are:
+.Es
+1	Ambient	A light source that affects all surface primitives uniformly.
+		Ambient light sources have only a color attribute.
+2	WCS_Vector	A light source that is specified in world coordinates
+		with a color and a direction vector.
+3	WCS_Point	A light source that is specified in world coordinates
+		with a color, a position, and two attenuation coefficients.
+4	WCS_Spot	A light source that is specified in world coordinates
+		with a color, a position, a direction vector, a concentration
+		exponent, two attenuation coefficients and a spread angle.
+.Ee
+
+
+.Bl "DirectColorFormat"
+The direct color format defines the format of direct color values.
+The registered values are:
+.Es
+1	RGBFloat	A color that is passed as three floating point values,
+		in the order red, green, blue.  A color in this format
+		has a type defined by:
+			COLOR_RGB_FLOAT	: [r, g, b : FLOAT]
+2	CIEFloat	A color that is passed as three floating point values,
+		in the order x, y (CIE diagram coefficients), and luminance.
+		A color in this format has a type defined by:
+			COLOR_CIE_FLOAT	: [x, y, luminance : FLOAT]
+3	HSVFloat	A color that is passed as three floating point values,
+		in the order hue, saturation, and value.  A color in this
+		format has a type defined by:
+			COLOR_HSV_FLOAT	: [hue, saturation, value : FLOAT]
+4	HLSFloat	A color that is passed as three floating point values,
+		in the order hue, lightness, and saturation.  A color in this
+		format has a type defined by:
+			COLOR_HSV_FLOAT	: [hue, lightness, saturation : FLOAT]
+5	RGBInt8	A color that is passed as a unit of four bytes, in the
+		order red, green, blue.  A color in this format has a type
+		defined by:
+			COLOR_RGB_INT8	: [r, g, b, pad : CARD8]
+6	RGBInt16	A color that is passed as three short integer values
+		in the order red, green, blue.  A color in this format has
+		a type defined by:
+			COLOR_RGB_INT16	: [r, g, b : CARD16]
+.Ee
+
+
+.Bl "FloatFormat"
+The floating point format defines the format of floating point values.
+The registered values are:
+.Es
+1	IEEE_754_32	An IEEE 754 standard 32-bit floating point value.
+2	DEC_F_Floating	A DEC F-floating value.
+.Ee
+
+
+.Bl "HLHSRMode"
+The HLHSR mode defines the method used to do hidden line/hidden surface
+removal.
+The registered values are:
+.Es
+1	Off	All output primitives are drawn to the screen in the
+		order they are processed.  No attempt will be made
+		to remove hidden surfaces.
+2	ZBuffer	Visibility is resolved at each pixel using a depth-,
+		or z-buffering technique.  The z-buffering method and
+		the number of bits of precision in the z values is
+		device-dependent.  This technique permits visibility
+		to be computed without an intermediate storage area for
+		transformed data, can be used to incrementally add primitives
+		to an image, and is an HLHSR method which is of linear order.
+3	Painters	Output primitives are buffered as they are processed.
+		When the renderer is freed or reinitialized, the primitives
+		in the buffer are sorted based on the average depth and
+		rendered back-to-front.  This technique is fairly fast
+		for small numbers of primitives, but requires an intermediate
+		storage area.  This technique does not guarantee totally
+		correct results, since it fails in cases involving cyclically
+		overlapping or interpenetrating objects, and in other, even
+		simpler cases.
+4	Scanline	Output primitives are buffered as they are received.
+		When the renderer is freed or reinitialized, the primitives
+		in the buffer are sorted and visibility is computed in scan
+		line order.  This technique can be fairly fast for small
+		numbers of polygons, but uses an intermediate storage area
+		to buffer output primitives and must perform a sorting step.
+5	HiddenLineOnly	Only visible lines will be drawn.  Output primitives
+		may be buffered as they are received.  When the
+		renderer is freed or reinitialized, the primitives in the
+		buffer are sorted and a hidden line computation is performed.
+.Ee
+
+
+.Bl "PromptEchoType"
+The prompt echo type defines the method used to do prompting and echoing
+during picking operations.
+The registered values are:
+.Es
+1	EchoPrimitive	Use an implementation-dependent technique that at
+		least highlights the picked primitive for a short period
+		of time.
+2	EchoStructure	Echo the contiguous group of primitives with the same
+		pick id as the picked primitive, or all of the primitives
+		of the structure with the same pick id as the picked primitive.
+3	EchoNetwork	Echo the entire posted structure network that contains
+		the picked primitive.
+.Ee
+
+
+.Bl "DisplayUpdateMode"
+The display update mode defines the manner in which changes will affect
+the displayed image.
+The registered values are:
+.Es
+1	VisualizeEach	Visualize each change as it occurs. (PHIGS - ASAP)
+2	VisualizeEasy	Visualize only the changes that are "easy to do" (PHIGS -
+		WAIT/UWOR).  Things that are "easy to do" are those that
+		have a dynamic modification of \fIIMM\fP or can be updated
+		without a regeneration of the displayed image.  If regeneration
+		is "easy to do" (as defined by the PEX implementor), then a
+		regeneration may occur.
+3	VisualizeNone	Visualize none of the changes (PHIGS - WAIT/NIVE).  The
+		changes are applied, but the image is not regenerated until
+		there is an explicit request to do so.
+4	SimulateSome	Visualize the easy changes and simulate those changes
+		that can be simulated.  (PHIGS - WAIT/UQUM)
+5	VisualizeWhenever	All changes will eventually be visualized.  If regenerations
+		are necessary, they will be performed at the server's
+		convenience.  One regeneration may cause a number of changes
+		to be visualized.  The client can issue an update workstation
+		request to guarantee that all changes have been visualized.
+		(PHIGS - ASTI/NIVE)
+.Ee
+It should be noted that implicit image regenerations may be performed when
+the display update is one of
+\fIVisualizeEach\fP, \fIVisualizeWhenever\fP, or \fISimulateSome\fP.
+If such a regeneration occurs, the display surface will be cleared
+and any output that was not generated by traversing the posted structure
+list (such as output from core X) will be lost.  \fIVisualizeEasy\fP
+and \fIVisualizeNone\fP will not cause implicit regenerations to occur.
+.Fe
+.bp
+
+

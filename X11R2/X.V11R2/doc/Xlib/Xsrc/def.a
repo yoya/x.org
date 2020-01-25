@@ -1,0 +1,8 @@
+.\" $Header: def.a,v 1.2 88/02/24 16:54:32 mento Exp $
+.IP \fIexact_def_return\fP 1i
+Returns the exact colors for later use and sets the
+.PN DoRed ,
+.PN DoGreen ,
+and
+.PN DoBlue
+flags.

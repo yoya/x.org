@@ -1,0 +1,615 @@
+.NH 1
+Contents of this Release
+.LP
+This release contains almost 70 megabytes of source code and documentation
+on two tapes of two \fItar(1)\fP files each (one for code, the other for
+printable versions of documentation).
+.LP
+The first distribution, containing software that is supported by the 
+staff of the X Consortium, is made up of the directories listed below.
+If you find a reproducible bug in this section of the release,
+please fill out a copy of the form located in
+\fIdoc/bugs/bug-report\fP and mail it to \fIxbugs@expo.lcs.mit.edu\fP.
+.\".ll -5
+.\".in +5 
+.IP "X11/"
+.br
+This directory contains copies of all of the public headers used in X 
+client programs.  This entire subtree gets copied to the directory specified
+by the INCDIR configuration parameter in \fIutil/imake.includes/Imake.tmpl\fP
+(by default, \fI/usr/include/X11\fP)
+during the ``make install'' phase.  \fBAll programs should use 
+``<X11/\fIfilename\fP>'' when #including X header files.\fR
+.IP "X11/bitmaps/"
+.br
+This directory contains a number of single plane images stored 
+in \fIbitmap(1)\fP format
+(read and written with the Xlib routines \fIXReadBitmapFile\fP and 
+\fIXWriteBitmapFile\fP).  They are often #included in C programs and may be 
+used as background tiles with \fIxsetroot\fP utility.  Also, the X Toolkit
+allows users to specify the names of files in this directory to be used
+as cursor.  For more 
+information, see the manual page for \fIbitmap(1)\fP and the
+file \fIutil/bm-convert/bm-convert.doc\fP.
+.IP "clients/"
+.br
+This directory is the top of the user program source tree.  There are 
+other programs in the \fIdemos/\fP and \fIexamples/\fP trees, but they
+are for demonstration purposes only.  A number of other very useful
+user-contributed programs can be found under \fIcontrib/\fP.
+.IP "clients/bitmap/"
+.br
+This directory contains 
+an editor for creating and modifying single plane bitmap images (such
+as the ones stored in \fIX11/bitmaps/\fP) used in defining two color
+tiles (for doing stipple-filled areas) and masks (for clipping and 
+specifying cursor images).
+All resources can be specified both from the command line and in your
+defaults.  In addition, a new
+``-nodashed'' option prevents \fIbitmap\fP from using dashed grid lines.
+.IP "clients/uwm/"
+.br
+This directory contains 
+the most mature, publicly available window manager for X.  It has had
+several bugs fixed (including menu color specifications and setting the
+save-unders on popup windows, although the sample server still doesn't 
+implement this attribute), but
+is essentially the same as it was on the previous release.
+.IP "clients/x10tox11/"
+.br
+This directory contains
+an X10 to X11 protocol translator.  It masquerades as an X10 server,
+converting X10 requests into X11 requests and X11 events into X10 events
+(i.e. it is not a libnest implementation).  The \fIx10tox11\fP program
+allows X10 programs to be run unmodified on an X11 server, making 
+converting from X10 to X11 much easier.
+.IP "clients/xbiff/"
+.br
+This directory contains
+a simple little program that displays a picture of a mailbox whose
+flag goes up when you get new mail.  It uses the Mailbox widget in the
+Athena widget set.
+.IP "clients/xcalc/"
+.br
+This directory contains 
+a desktop calculator program that emulates a TI-30, an HP-10C, and
+a slide rule.  A number of bugs (especially problems with color displays)
+have been fixed in this release.  This program should be rewritten as
+a collection of widgets.
+.IP "clients/xclock/"
+.br
+This directory contains 
+the standard X clock program.  It can display the time in either analog
+or digital format.  It uses the Clock widget in the Athena widget set.
+.IP "clients/xedit/"
+.br
+This directory contains
+a simple text editor built on top of the X Toolkit.  
+.IP "clients/xfd/"
+.br
+This directory contains
+a utility for displaying the characters in a font.  
+.IP "clients/xhost/"
+.br
+This directory contains
+a utility for controlling access to the display on a host by host
+basis.
+.IP "clients/xinit/"
+.br
+This directory contains a utility for
+starting an X server and an initial client (usually a
+terminal emulator) on systems that don't have support for doing so from
+\fI/etc/init\fP.
+.IP "clients/xload/"
+.br
+This directory contains
+a program for monitoring machine load averages.  It displays a histogram of
+the most recent load averages and is often used to monitor machines in a
+network.  It uses the Load widget from the Athena widget set, which will 
+need to be modified if you are porting X to a new operating system.
+.IP "clients/xlogo/"
+.br
+This directory contains a 
+program that uses the Logo widget from the Athena widget set to 
+display the new X Window System logo.
+.IP "clients/xlsfonts/"
+.br
+This directory contains a utility for listing the fonts that are available 
+on a given server.  If you request long listings
+from a server with many compressed fonts, your display will 
+``freeze'' for a long time.
+.IP "clients/xmh/"
+.br
+This directory contains a
+visual interface to the MH mail handling system.
+.IP "clients/xmodmap/"
+.br
+This directory contains
+a utility for remapping your keyboard.  It reads descriptions of
+keyboard and modifier mappings and is usually run when you login or first
+start up X.  This program has been completely rewritten since the last 
+release.
+.IP "clients/xpr/"
+.br
+This directory contains
+utilities for printing screen dump of images obtained with \fIxwd\fP.
+.IP "clients/xprop/"
+.br
+This directory contains
+a utility for examining the properties attached to a given window.
+.IP "clients/xrdb/"
+.br
+This directory contains
+a utility for loading default resource definitions into the server.
+It is usually run when you login or first start up X.  Now 
+that \fIXGetDefault\fP has been changed to look at this information, \fIxrdb\fP
+is \fBvery\fP useful.  This program has been completely rewritten 
+since the last release.
+.IP "clients/xrefresh/"
+.br
+This directory contains
+a simple utility for refreshing all or part of your screen.  It
+now uses a window with no background, by default, so that windows repaint
+smoothly.  It also accepts geometry specifications so that you can refresh 
+just part of the screen.
+.IP "clients/xset/"
+.br
+This directory contains
+a utility for setting various personal preferences for 
+keyclick, pointer acceleration, etc.
+.IP "clients/xsetroot/"
+.br
+This directory contains a utility for setting the background of the root 
+window.  It now works properly with color.
+.IP "clients/xterm/"
+.br
+This directory contains
+a VT102 and Tektronix 4014 terminal emulator.  A number of bugs,
+especially in Tektronix mode have been fixed since the previous release.
+It now uses the proper version of the X Toolkit.
+.IP "clients/xwd/"
+.br
+This directory contains
+a utility for dumping images of windows.  It is usually used to 
+take a snapshop of a window for printing or for later displaying with the
+\fIxwud\fP program.  Some servers still have problems with XY format images.
+.IP "clients/xwininfo/"
+.br
+This directory contains 
+a utility for examining the various attributes of a window (such
+as size, placement, window manager information, etc.).  It is frequently used
+with \fIxprop\fP to examine the window hierarchy.
+.IP "clients/xwud/"
+.br
+This directory contains
+a utility for displaying images that were previously creating using
+the \fIxwd\fP utility.
+.IP "demos/"
+.br
+This directory contains several programs that are fun to watch, but are not
+of much use beyond that.
+.IP "demos/ico/"
+.br
+This directory contains
+a neat program that rolls a many-sided (you get to choose among several)
+object around the screen.  The new ``-faces'' and ``-colors'' command line
+options are particularly recommended.  Some servers can't handle the 
+``-dbl'' option when used with ``-faces''.
+.IP "demos/muncher, demos/plaid/"
+.br
+These directories contain programs for drawing cute pictures.
+.IP "demos/puzzle/"
+.br
+This directory contains a ``rearrange the tiles'' puzzle game for X11.
+The major addition for
+this release is the ability to have images on the tile faces.  If you have a
+color display, try running ``puzzle -picture mandrill.cm''.
+.IP "demos/wm/"
+.br
+This directory contains
+the ``other'' window manager.  It is somewhat ugly, but it does do
+title bars.
+.IP "doc/"
+.br
+This directory contains all of the documents describing the standard 
+distribution.  Manual pages for the various clients can be found in the 
+individual program source directories. 
+.IP "doc/HelloWorld/"
+.br
+This directory contains David Rosenthal's \fIHello, World\fP paper on using
+toolkits.
+.IP "doc/PEX/"
+.br
+This directory contains the proposed X3D-PEX specification for providing
+Phigs and Phigs+ functionality.
+.IP "doc/Protocol/"
+.br
+This directory contains the official specification of the X Protocol.  
+This is the final authority of what is and is not part of the X protocol
+and is part of the X standard.
+.IP "doc/Server/"
+.br
+This directory contains several guides to porting the X server to new
+platforms.
+.IP "doc/Toolkit/"
+.br
+This directory contains the Specification for the X Toolkit Intrinsics.  This 
+document now under review by the X Consortium for possible inclusion in 
+the X standard.  This is the final authority on what is and is not part of the
+X Toolkit Intrinsics.  This directory also contains documentation on the Athena
+widget set.
+.IP "doc/Xlib/"
+.br
+This directory contains the source for the Xlib programming guide and 
+manual pages.
+There is an untested script called \fIdoc/Xlib/Xman/expand.names\fP that will
+rename the manual pages to match the names of the routines that they describe.
+.IP "doc/bugs/"
+.br
+This directory contains a template for submittings bugs reports (see 
+\fIdoc/bugs/bug-report\fP).  Please use this form when reporting bugs in the
+supported distribution to \fIxbugs@expo.lcs.mit.edu\fP.
+.IP "doc/conventions/"
+This directory contains the most recent draft of the new \fIInter-Client 
+Communications Conventions Manual\fP.  \fBThis is required reading for all 
+toolkit and window manager builders.\fP
+.IP "doc/fonts/"
+.br
+This directory contains a proposal made by Digital Equipment Corp. for a
+more descriptive scheme for naming fonts.
+.IP "doc/releasenotes/"
+.br
+This directory contains the sources for this document.
+.IP "examples/"
+.br
+This directory contains various example programs that don't belong anywhere
+else.
+.IP "examples/CLX/"
+.br
+This directory contains several samples of how to use the CLX Common Lisp
+X interface.
+.IP "examples/Xaw/"
+.br
+This directory contains several small programs that test out the various
+Athena widgets.
+.IP "examples/xev/"
+.br
+This directory contains a trivial program for looking at the information
+that is returned in various Button and Key events.  It is useful for setting
+up keymap files for \fIxmodmap\fP.
+.IP "extensions/"
+.br
+This directory contains the source code for several sample server extensions.
+.IP "fonts/"
+.br
+This directory contains the sources for various fonts and a compiler for
+generating Server Natural Format files.  The user-contributed distribution
+has a MetaFont GF format to X BDF format converter that font
+enthusiasts may find very useful.
+.IP "fonts/bdf/"
+.br
+This directory contains the source for 120 fonts.  Unfortunately, there are
+no coherent families yet (this is where the gftobdf converter will be quite
+handy).  BDF stands for ``Bitmap Distribution Format'' and is an extension
+of the Adobe Inc. standard ASCII format for font distribution.  You can buy
+fonts from Adobe in a format very similar to this, although make sure that you
+order both the bitmap and metric files.  See the document \fIdoc/bdf.ps\fP 
+for a description of the BDF encoding.
+.IP "fonts/compiler/"
+.br
+This directory contains the source for the BDF to server natural format
+font compiler.  This program can be configured to produce fonts for a 
+variety of different server architectures.  
+.IP "fonts/snf/"
+.br
+This directory contains the compiled version of the fonts.  SNF stands for
+Server Natural Format and is the representation that the sample server uses.
+It is important to note that although most servers will probably accept the
+SNF format, there is no requirement that they do so.
+.IP "lib/"
+.br
+This directory contains all of the major libraries in the standard
+distribution. 
+.IP "lib/CLX/"
+.br
+This directory contains the CLX Common Lisp X package.  This is a native
+Common Lisp interface to the X protocol (i.e. it doesn't use Xlib) that 
+will be under review 
+by the X Consortium for possible inclusion in the X standard.
+.IP "lib/X/"
+.br
+This directory contains the Xlib C language programming library.  
+The interface provided by this package
+is part of the X standard (i.e. any vendor that ships any C interface
+must ship Xlib in order to call its product X).  Vendors are free to change
+the internals, but the interface must remain the same.  There
+have been a number of fixes made to the image manipulation routines, and the
+event checking routines have been changed to flush the output buffer only
+when blocking.  No changes to client code should be necessary.  However due
+to changes in several of the major data structures, all programs should be
+recompiled before being linked with the new library.
+.IP "lib/X/hp/"
+.br
+This directory contains routines for making Xlib work on Hewlett-Packard
+computers and are generally useful for System V machines.
+.IP "lib/Xaw/"
+.br
+This directory contains the Athena widget set.  It is the beginning of
+a growing collection of user interface objects built on top of the X Toolkit
+Intrinsics.  Widgets are used in building higher-level applications, and should
+ideally provide as much mechanism and as little policy as possible (that is 
+for user interface toolkits, user interface management systems, and
+applications to implement).
+.IP "lib/Xt/"
+.br
+This directory contains a sample implementation of the X Toolkit Intrinsics,
+a collection of resource, event, and object managers that provide a mechanism 
+for building user interfaces objects called \fIwidgets\fP.
+.IP "lib/oldX/"
+.br
+This directory contains X11 implementations of the X10 \fIXDraw\fP (including
+spline support) and \fIAssocTable\fP routines.
+.IP "server/"
+.br
+This directory contains a sample server for the core protocol.  It should
+match the X Protocol Specification fairly closely, but the Specification is
+the final authority.  Read the documentation in the \fIdoc/Server\fP 
+directory, any README files in the \fIserver/ddx/\fP directories, 
+and study the code very hard before trying to make any changes.
+.IP "server/ddx/"
+.br
+This directory contains the device dependant libraries for a number of
+different platforms.  Study any README files before 
+building or installing any servers.
+.IP "server/ddx/apollo/"
+.br
+This directory contains full sources for building a server that runs on
+monochrome and color Apollo displays.  The README file gives hints and
+prerequisites for building this server.
+.IP "server/ddx/cfb/"
+.br
+This directory contains a sample ``color frame buffer'' library for getting
+color ports off the ground.  After a server is running, it should then be 
+optimized to use any available hardware support.  
+The cfb code is very slow, but very portable.
+.IP "server/ddx/dec/"
+.br
+This directory contains full sources for building servers for both the 
+monochrome QVSS and the color QDSS displays.  It also has routines for
+manipulating LK201 keyboards.
+.IP "server/ddx/hp/"
+.br
+This directory contains full sources for building a server that runs on 
+the HP 9000/300 series (310, 320, 330, and 350) workstations with the
+98547A, 985475A, and 98544A color and monochrome displays.  This is the
+first publicly available port based on System V.
+.IP "server/ddx/ibm/"
+.br
+This directory contains sources for building a server that runs on the
+AED, APA16, APA19, EGA, Megapel, 8514 and VGA displays under IBM 4.3bsd
+(i.e. not under AIX).
+.IP "server/ddx/mfb/"
+.br
+This directory contains a sample ``monochrome frame buffer'' library for 
+getting monochrome ports off the ground.  If hardware support is available,
+it should be used wherever possible once a server is running.  
+The mfb code gets respectable performance and is very portable.
+.IP "server/ddx/mi/"
+.br
+This directory contains a machine independent implementation of the various
+graphics operations.  It is frequently used with the mfb and cfb libraries in
+porting the server to new platforms and in manipulating in-memory pixmaps.
+It is designed to be very portable.
+.IP "server/ddx/snf/"
+.br
+This directory contains the routines for manipulating SNF fonts.
+Most servers use the SNF out of convenience, but there
+is no requirement that they do so.
+.IP "server/ddx/sun/"
+.br
+This directory contains full sources for building a server that runs on 
+Sun bw2 and various cg displays.  It uses the cfb library instead of a lot of 
+device specific routines and is therefore somewhat slower than some of 
+the other color servers in the supported distribution.  See the README file
+in this directory before building or installing the Sun server.
+.IP "server/dix/"
+.br
+This directory contains the device independent portions of the sample X server.
+It is highly recommended that you not change any code in this directory as it
+will prevent you from upgrading to new versions.  If you find problems or have
+a proposal for a change that would making porting to new platforms easier,
+fill out a copy of the form \fIdoc/bugs/bug-report\fP and send it to
+\fIxbugs@expo.lcs.mit.edu\fP.
+.IP "server/include/"
+.br
+This directory contains header files that are used throughout the server.
+.IP "server/os/"
+.br
+This directory contains the various operating system dependent portions of 
+the server.
+.IP "server/os/4.2bsd/"
+.br
+This directory contains the routines needed to make the sample server run
+under operating systems derived from 4.2bsd.
+.IP "server/os/hpux/"
+.br
+This directory contains the routines needed to make the sample server run
+under HP-UX 6.01.  This is the first implementation based on System V 
+that is publicly available.  It uses sockets, though, not streams.
+.IP "server/os/sysV/"
+.br
+It is hoped that this directory will one day contain the routines needed to
+make the sample server run under generic System V.  Contributions will be
+gladly accepted.
+.IP "util/"
+.br
+This directory contains various programs and scripts for building 
+and configuring the release.  The programs in this section should be the 
+first ported when bringing up X on a new platform.
+.IP "util/bm-convert/"
+.br
+The directory contains a filter for converting X10 format bitmap file to
+X11 format (see \fIbitmap(1)\fP for additional information).
+.IP "util/dist.clean/"
+.br
+This directory contains scripts for cleaning out the source tree before 
+doing distributions.
+.IP "util/imake/"
+.br
+This directory contains the most important build utility.  The \fIimake\fP
+program is used to generate the appropriate machine dependent Makefiles from
+machine independent descriptions called Imakefiles.  It uses the C preprocessor
+so that symbolic names and macro functions may be defined.  It has its own
+handcrafted Makefile, and a special program for determining the initial
+compilation flags.  If you are porting the release to a new machine,
+you may need to edit \fIutil/imake/ccflags.c\fP to add any compiler flags that 
+your machine will need when compiling \fIimake\fP.  \fIImake\fP will be built
+automatically as part of ``make World.''
+.IP "util/imake.includes/"
+.br
+This somewhat obscure directory contains the configuration files 
+that \fImake\fP uses in generating the various Makefiles in the release.  
+Before doing ``make World,'' check the \fIutil/imake.includes/Imake.tmpl\fP
+and \fIutil/imake.includes/\fBmachine\fI\.macros\fR files to make sure that
+they are properly set up for your machine.  If you are porting X to a new
+machine, study these files carefully.
+.IP "util/makedepend/"
+.br
+This directory contains a program for automatically generating dependencies
+for Makefiles.  It is used as part of the build process to ensure that the 
+right files are recompiled whenever any source files are changed.  If the 
+configuration
+parameter CppSourcesPresent is defined in the appropriate
+\fIutil/imake.includes/\fBmachine\fI\.macros\fR file, \fImakedepend\fP will
+have a copy of the C preprocessor built into it for speed.  This is not 
+necessary and is not done in this release.  \fIMakedepend\fP is built
+automatically as part of the ``make World'' phase.
+.IP "util/patch/"
+.br
+This directory contain's Larry Wall's \fIpatch\fP program, an extraordinarily
+useful program for patching diffs into source code.  This program is not
+built automatically in this release; it is provided simply for
+the convenience of people who do not have access to the comp.sources.unix
+archives.
+.IP "util/rgb/"
+.br
+This directory contains a sample RGB color database and a program to compile
+it.  A better database is sorely needed, but nobody has volunteered one yet.
+This release adds gray, grey, brown, and case insensitivity.  You
+should recompile and reinstall a new rgb database.
+.\".in -5
+.\".ll +5
+.LP
+The user-contributed distribution contains the directories listed below.  Bugs
+in this section of the release should be reported to the individual authors 
+rather than to \fIxbugs\fP.
+.\".ll -5
+.\".in +5 
+.IP "contrib/InterViews/"
+.br
+This directory contains the latest release of the InterViews C++ toolkit 
+from Stanford University.
+.IP "contrib/Xr11/"
+.br
+This directory contains the Xrlib toolkit from Hewlett-Packard.
+.IP "contrib/andrew/"
+.br
+This directory contains the Andrew Toolkit from IBM and Carnegie-Mellon 
+University.  This package forms the basis of the CMU Andrew System.
+.IP "contrib/clue/"
+.br
+This directory contains the CLUE Common Lisp User Interface Environment 
+proposal from Texas Instruments Inc.
+.IP "contrib/cray/"
+.br
+This directory contains patches for the previous release of Xlib to make 
+it run on CRAY-XMP and CRAY-2 computers under UNICOS.  Support for these 
+systems will be integrated into the next release.
+.IP "contrib/cursor/"
+.br
+This directory contains a test program for cursors.
+.IP "contrib/emacs/"
+.br
+This directory contains a README file explaining that X11 support is now
+available in the standard distributions of GNU Emacs and has, therefore,
+been dropped from this release.
+.IP "contrib/examples/"
+.br
+This directory contains user-contributed examples of how to use various
+libraries in this release.
+.IP "contrib/examples/Xt/"
+.br
+This directory contains user-contributed examples of widgets and applications
+built with an intermediate version of the X Toolkit.  They should be
+relatively straightforward to get working with this release of the Intrinsics
+and the Athena widgets.
+.IP "contrib/gfto/"
+.br
+This directory contains an alpha version of a MetaFont GF format to X BDF
+format translator.  It should be very useful in generating families of
+fonts.
+.IP "contrib/gnuplot/"
+.br
+This directory contains a more recent version of the gnuplot interactive
+plotting package.
+.IP "contrib/kterm/"
+.br
+This directory contains a version of \fIxterm\fP that supports Kanji fonts.
+The non-Kanji sections should correspond fairly closely to the sources found 
+in \fIclients/xterm/\fP.  A public domain Kanji font has been added to 
+\fIfonts/bdf/\fP in the supported distribution.  However, some servers don't 
+implement 16 bit fonts correctly.
+.IP "contrib/menus/"
+.br
+This directory contains a sample menu widget.
+.IP "contrib/oldXMenu/"
+.br
+This directory contains the XMenu package from the previous release. 
+As the various toolkits
+have rendered this library quite obsolete, it will be dropped from future 
+releases.
+.IP "contrib/paint/"
+.br
+This directory contains a very simple, no frills scribbling program, useful for
+demonstrating various graphics operations.  There is a real need for a 
+sophisticated paint program if anyone would like to contribute one.
+.IP "contrib/pbm/"
+.br
+This directory contains a ``Portable Bitmap Toolkit'' for converting bitmaps
+between a variety of formats.
+.IP "contrib/postps/"
+.br
+This directory contains a simple utility for previewing a subset of PostScript
+as it commonly appears in documents produced by the Scribe and nroff text
+formatters.
+.IP "contrib/reborder/"
+.br
+This directory contains a small utility program for resetting window borders.
+This is useful for recovering window managers that change border sizes.
+.IP "contrib/texx/"
+.br
+This directory contains the TeXX dvi file previewer.
+.IP "contrib/vtobdf/"
+.br
+This directory contains a vfont to BDF font translator.
+.IP "contrib/xcalendar/"
+.br
+This directory contains a sample personal calendar program written with the
+X Toolkit.  
+.IP "contrib/xman/"
+.br
+This directory contains a rewrite of the X10 \fIxman\fP program, using the
+X Toolkit.
+.IP "contrib/xmore/"
+.br
+This directory contains a rewrite of the X10 \fIxmore\fP program, using the
+the X Toolkit.
+.IP "contrib/xperfmon/"
+.br
+This directory contains a system parameter monitor for operating systems
+derived from 4.2bsd.
+.IP "contrib/xshell/"
+.br
+This directory contains a port of the X10 \fIxshell\fP program.
+.\".in -5
+.\".ll +5

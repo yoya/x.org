@@ -1,0 +1,64 @@
+.TH XCreateColormap 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XCreateColormap, XCopyColormapAndFree, XFreeColormap, XSetWindowColormap 
+\- create, copy, or destroy colormaps
+.SH SYNTAX
+.so ../Xsrc/XCreateCmap.f
+.LP
+.so ../Xsrc/XCopyCmapFr.f
+.LP
+.so ../Xsrc/XFreeCmap.f
+.LP
+.so ../Xsrc/XChCmap.f
+.SH ARGUMENTS
+.so ../Xsrc/alloc.a
+.so ../Xsrc/cmap.a
+.so ../Xsrc/display.a
+.so ../Xsrc/visual1.a
+.so ../Xsrc/w.a
+.SH DESCRIPTION
+.so ../Xdescrip/XCreateCmap.d
+.ds fd .PN XCreateColormap
+.so ../Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadMatch ,
+.PN BadValue ,
+and
+.PN BadWindow 
+errors.
+.LP
+.so ../Xdescrip/XCopyCmapFr.d
+.ds fd .PN XCopyColormapAndFree
+.so ../Xsrc/errsent.com
+.PN BadAlloc
+and
+.PN BadColor 
+errors.
+.LP
+.so ../Xdescrip/XFreeCmap.d
+.ds fd .PN XFreeColormap
+.so ../Xsrc/errsent4.com
+.PN BadColor 
+error.
+.LP
+.so ../Xdescrip/XChCmap.d
+.ds fd .PN XSetWindowColormap
+.so ../Xsrc/errsent.com
+.PN BadColor ,
+.PN BadMatch ,
+and
+.PN BadWindow 
+errors.
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badcolor.e
+.so ../Xerrors/badmatch1.e
+.so ../Xerrors/badmatch2.e
+.so ../Xerrors/badvalue.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XAllocColor(3X),
+XQueryColor(3X),
+XStoreColors(3X)
+.br
+\fIXlib \- C Language X Interface\fP

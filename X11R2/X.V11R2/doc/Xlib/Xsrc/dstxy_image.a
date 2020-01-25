@@ -1,0 +1,7 @@
+.IP \fIdst_x\fP 1i
+.br
+.ns
+.IP \fIdst_y\fP 1i
+Specify the x and y coordinates.
+These are the coordinates of the subimage and are relative to the origin of the
+drawable where the image will be drawn.

@@ -1,0 +1,3 @@
+.IP \fIargv\fP 1i
+Specifies a pointer to the command and arguments used to start
+the application.

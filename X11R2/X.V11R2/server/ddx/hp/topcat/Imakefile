@@ -1,0 +1,29 @@
+SRCS =	\
+	topcat.c	\
+	topcatgc.c	\
+	tcLines.c	\
+	tcGlyph.c	\
+	tcText.c tcshadow.c tcwindow.c
+
+OBJS = \
+	topcat.o	\
+	topcatgc.o	\
+	tcLines.o	\
+	tcGlyph.o	\
+	tcText.o tcshadow.o tcwindow.o
+
+STD_DEFINES = ServerDefines
+CDEBUGFLAGS = ServerCDebugFlags
+   INCLUDES = -I. -I../hp -I../../../include -I../mfb -I../../../dix \
+              -I$(INCLUDESRC)
+   LINTLIBS = ../../../dix/llib-ldix.ln ../../../os/4.2bsd/llib-los.ln \
+	      ../mfb/llib-lmfb.ln ../cfb/llib-lcfb.ln ../../mi/llib-lmi.ln \
+	      ../hp/llib-lhp.ln		
+
+NormalLibraryObjectRule()
+NormalLibraryTarget(topcat,$(OBJS))
+NormalLintTarget($(SRCS))
+
+lintlib:
+
+DependTarget()

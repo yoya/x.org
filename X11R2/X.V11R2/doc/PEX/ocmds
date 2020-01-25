@@ -1,0 +1,1700 @@
+.AC "Output Commands" 1
+.LP
+.RU
+.LP
+This section defines output commands.  Output commands are commands
+that are capable of being processed by a renderer or
+stored as structure elements.  The format of each of the
+commands is listed below.
+Output commands may be passed
+to the server to be processed immediately by a renderer with the
+\fBPEXRenderOutputCommands\fP request.
+Output commands may be passed
+to the server to be stored in a structure with the
+\fBPEXStoreStructure\fP and
+\fBPEXStoreElements\fP requests.
+Output commands may be retrieved by a client from a structure resource
+with the
+\fBPEXFetchStructure\fP and 
+\fBPEXFetchElementRange\fP requests.
+.LP
+Output commands are always executed in exactly the same fashion, no
+matter whether
+they are processed immediately by a renderer or processed as part of
+a structure traversal.
+In general, when executed, an output command that contains inappropriate or
+illegal values is ignored.  However, only the bogus output command is
+ignored.  Other output commands in the structure network or output command
+stream will be executed if they contain valid data.
+.AC "Data Formats" 2
+.LP
+Each of the requests listed above takes a format word (which is a parameter
+of type FORMAT).
+This format word contains a specification for floating point format
+(type FLOAT_FORMAT) and for direct color format (type COLOR_FORMAT).
+For those requests sending data from the client to the server,
+this format word is used to indicate to the server the format of any
+floating point values or direct color values that are contained in the request.
+For those requests requiring data to be sent back to the client,
+the format is used to indicate to the server how it should format
+the floating point or direct color data in the reply sent back to the client.
+.LP
+Color values are passed as a flag and a value.  The flag specifies whether
+the color is an index value or a direct color value.
+PEX servers are required to be able to
+deal with indexed colors
+and at least one type of direct color.
+Indexed colors are specified using an index which is used to obtain
+the color from a color lookup table.
+Direct colors are specified
+directly as RGB, HSV, HLS, or CIE color values.  PEX
+servers are free to store direct colors in whatever format they choose, but
+they must be capable of converting direct color values back into one
+of the supported direct color types when queried by the client.
+.LP
+After being passed to the server,
+floating point and direct color values
+may be converted to server-specific formats
+before being used by a renderer or stored in structures.
+The implication of this is that some precision may be lost if floating
+point or direct color values are later
+retrieved by the client.
+.AC "Output Command Descriptions" 2
+.LP
+The list below describes the format of the output commands that are supported.  Each
+contains a 32-bit opcode that uniquely defines the output command (as well
+as uniquely identifying the structure element if the command is stored
+in a structure), a 32-bit size field\(dg which specifies the length of the
+output command in units of four bytes, and
+the data needed to specify the output command.
+.FS
+\(dg X currently uses a CARD16 to specify request size.
+.FE
+
+.Or "Marker type"
+.Op marker_type MARKER_TYPE
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fImarker_type\fP attribute.
+
+.Or "Marker scale"
+.Op scale FLOAT
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fImarker_scale\fP attribute.
+
+.Or "Marker color index"
+.Op color TABLE_INDEX
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fImarker_color\fP attribute,
+setting the
+color type to \fIIndexed\fP and the color value to the index specified by
+\fIcolor\fP.
+
+.Or "Marker color"
+.Op color COLOR_SPECIFIER
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fImarker_color\fP attribute,
+setting the
+color type and value as specified.
+If color type is \fIDirect\fP, the value is interpreted using the color format
+word that is passed with the request.
+
+.Or "Marker bundle index"
+.Op index TABLE_INDEX
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fImarker_bundle_index\fP attribute.
+
+.Or "Text font"
+.Op index TABLE_INDEX
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fItext_font\fP attribute.
+
+.Or "Text precision"
+.Op precision TEXT_PRECISION
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fItext_precision\fP attribute.
+
+.Or "Character expansion"
+.Op expansion FLOAT
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIchar_expansion\fP attribute.
+
+.Or "Character spacing"
+.Op spacing FLOAT
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIchar_spacing\fP attribute.
+
+.Or "Text color index"
+.Op color TABLE_INDEX
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fItext_color\fP attribute,
+setting the
+color type to \fIIndexed\fP and the color value to the index specified by
+\fIcolor\fP.
+
+.Or "Text color"
+.Op color COLOR_SPECIFIER
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fItext_color\fP attribute,
+setting the
+color type and value as specified.
+If color type is \fIDirect\fP, the value is interpreted using the color format
+word that is passed with the request.
+
+.Or "Character height"
+.Op height FLOAT
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIchar_height\fP attribute.
+
+.Or "Character up vector"
+.Op up VECTOR_2D
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIchar_up_vector\fP attribute.
+
+.Or "Text path"
+.Op path TEXT_PATH
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fItext_path\fP attribute.
+
+.Or "Text alignment"
+.Op alignment TEXT_ALIGNMENT
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's
+\fItext_alignment\fP attribute.
+
+.Or "Annotation text height"
+.Op height FLOAT
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIatext_height\fP attribute.
+
+.Or "Annotation text up vector"
+.Op up VECTOR_2D
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIatext_up_vector\fP attribute.
+
+.Or "Annotation text path"
+.Op path TEXT_PATH
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIatext_path\fP attribute.
+
+.Or "Annotation text alignment"
+.Op alignment TEXT_ALIGNMENT
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's
+\fIatext_alignment\fP attribute.
+
+.Or "Annotation text style"
+.Op index ATEXT_STYLE
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIatext_style\fP attribute.
+
+.Or "Text bundle index"
+.Op index TABLE_INDEX
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fItext_bundle_index\fP attribute.
+
+.Or "Line type"
+.Op line_type LINE_TYPE
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIline_type\fP attribute.
+
+.Or "Line width"
+.Op width FLOAT
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIline_width\fP attribute.
+
+.Or "Line color index"
+.Op color TABLE_INDEX
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIline_color\fP attribute,
+setting the
+color type to \fIIndexed\fP and the color value to the index specified by
+\fIcolor\fP.
+
+.Or "Line color"
+.Op color COLOR_SPECIFIER
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIline_color\fP attribute,
+setting the
+color type and value as specified.
+If color type is \fIDirect\fP, the value is interpreted using the color format
+word that is passed with the request.
+
+.Or "Curve display method"
+.Op display_method CURVE_DISPLAY
+.Op tolerance FLOAT
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIcurve_method\fP
+and \fIcurve_tolerance\fP
+attributes.
+
+.Or "Polyline interpolation method"
+.Op polyline_interp POLYLINE_INTERP
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIpolyline_interp\fP attribute.
+
+.Or "Line bundle index"
+.Op index TABLE_INDEX
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIline_bundle_index\fP attribute.
+
+.Or "Interior style"
+.Op interior_style INTERIOR_STYLE
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIinterior_style\fP attribute.
+
+.Or "Interior style index"
+.Op index TYPE_OR_TABLE_INDEX
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIinterior_style_index\fP attribute.
+
+.Or "Surface color index"
+.Op color TABLE_INDEX
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIsurface_color\fP attribute,
+setting the
+color type to \fIIndexed\fP and the color value to the index specified by
+\fIcolor\fP.
+
+.Or "Surface color"
+.Op color COLOR_SPECIFIER
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIsurface_color\fP attribute,
+setting the
+color type and value as specified.
+If color type is \fIDirect\fP, the value is interpreted using the color format
+word that is passed with the request.
+
+.Or "Surface reflection attributes"
+.Op ambient FLOAT
+.Op diffuse FLOAT
+.Op specular FLOAT
+.Op specular_color COLOR_SPECIFIER
+.Op specular_conc FLOAT
+.Op transmission_coef FLOAT
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's
+\fIambient_coef\fP, \fIdiffuse_coef\fP,
+\fIspecular_coef\fP, \fIspecular_color\fP,
+\fIspecular_conc\fP, and \fItransmission_coef\fP
+attributes.
+
+.Or "Backface surface color index"
+.Op color TABLE_INDEX
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIbf_surface_color\fP attribute,
+setting the
+color type to \fIIndexed\fP and the color value to the index specified by
+\fIcolor\fP.
+
+.Or "Backface surface color"
+.Op color COLOR_SPECIFIER
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIbf_surface_color\fP attribute,
+setting the
+color type and value as specified.
+If color type is \fIDirect\fP, the value is interpreted using the color format
+word that is passed with the request.
+
+.Or "Backface surface reflection attributes"
+.Op ambient FLOAT
+.Op diffuse FLOAT
+.Op specular FLOAT
+.Op specular_color COLOR_SPECIFIER
+.Op specular_conc FLOAT
+.Op transmission_coef FLOAT
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's
+\fIbf_ambient_coef\fP, \fIbf_diffuse_coef\fP,
+\fIbf_specular_coef\fP, \fIbf_specular_color\fP,
+\fIbf_specular_conc\fP, and \fIbf_transmission_coef\fP
+attributes.
+
+.Or "Reflection model"
+.Op reflection_model REFLECTION_MODEL
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIreflection_model\fP attribute.
+
+.Or "Surface interpolation method"
+.Op surface_interp SURFACE_INTERP
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIsurface_interp\fP attribute.
+       
+.Or "Surface display method"
+.Op display_method SURFACE_DISPLAY
+.Op tolerance TOLERANCE
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIsurface_display\fP and
+\fIsurface_tolerance\fP attributes.
+       
+.Or "Face processing mode"
+.Op culling_mode CULL_MODE
+.Op distinguish BOOLEAN
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIculling_mode\fP and
+\fIdistinguish\fP attributes.
+
+.Or "Normal reorientation mode"
+.Op normalflip BOOLEAN
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fInormalflip\fP attribute.
+
+.Or "Pattern size"
+.Op size COORD_2D
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIpattern_size\fP attribute.
+
+.Or "Pattern reference point"
+.Op point COORD_2D
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIpattern_ref_pt\fP attribute.
+
+.Or "Pattern reference point and vectors"
+.Op ref_pt COORD_3D
+.Op vector1 VECTOR_3D
+.Op vector2 VECTOR_3D
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIpattern_ref_pt\fP, \fIpattern_ref_vec1\fP,
+and \fIpattern_ref_vec2\fP attributes.
+
+.Or "Interior bundle index"
+.Op index TABLE_INDEX
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIinterior_bundle_index\fP attribute.
+
+.Or "Surface edge flag"
+.Op onoff SWITCH
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIsurface_edges\fP attribute.
+
+.Or "Surface edge type"
+.Op edge_type SURFACE_EDGE_TYPE
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIsurface_edge_type\fP attribute.
+
+.Or "Surface edge width"
+.Op width FLOAT
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIsurface_edge_width\fP attribute.
+
+.Or "Surface edge color index"
+.Op color TABLE_INDEX
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIsurface_edge_color\fP attribute,
+setting the
+color type to \fIIndexed\fP and the color value to the index specified by
+\fIcolor\fP.
+
+.Or "Surface edge color"
+.Op color COLOR_SPECIFIER
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIsurface_edge_color\fP attribute,
+setting the
+color type and value as specified.
+If color type is \fIDirect\fP, the value is interpreted using the color format
+word that is passed with the request.
+
+.Or "Edge bundle index"
+.Op index TABLE_INDEX
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIedge_bundle_index\fP attribute.
+
+.Or "Set individual ASF"
+.Op attribute ASF_ATTRIBUTE
+.Op source ASF_VALUE
+.IP
+When processed by a renderer,
+this command will
+modify the specified ASF (aspect source flag) attribute in the
+renderer.  Depending on the value of \fIattribute\fP,
+one of the following rendering pipeline attributes will be modified:
+.DS
+\fImarker_type_asf\fP		\fIinterior_style_asf\fP
+\fImarker_scale_asf\fP		\fIinterior_style_index_asf\fP
+\fImarker_color_asf\fP		\fIsurface_color_asf\fP
+\fItext_font_asf\fP		\fIsurface_interp_asf\fP
+\fItext_prec_asf\fP		\fIreflection_model_asf\fP
+\fIchar_expansion_asf\fP	\fIsurface_edges_asf\fP
+\fIchar_spacing_asf\fP		\fIsurface_edge_type_asf\fP
+\fItext_color_asf\fP		\fIsurface_edge_width_asf\fP
+\fIline_type_asf\fP		\fIsurface_edge_color_asf\fP
+\fIline_width_asf\fP	
+\fIline_color_asf\fP	
+\fIpolyline_interp_asf\fP
+.DE
+
+.Or "Local transform 3D"
+.Op comp_type COMPOSITION
+.Op matrix MATRIX
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIlocal_transform\fP attribute.
+If \fIcomp_type\fP is \fIPreConcatenate\fP, the specified matrix is 
+pre-concatenated
+to the local model transformation matrix.  If \fIcomp_type\fP is 
+\fIPostConcatentate,\fP the specified matrix is post-concatenated to the 
+local modeling transform.  If \fIcomp_type\fP is \fIReplace\fP, the
+specified matrix replaces the local modeling transform.
+
+.Or "Local transform 2D"
+.Op comp_type COMPOSITION
+.Op matrix MATRIX_3X3
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIlocal_transform\fP attribute.  This command is
+identical to \fIlocal transform 3D\fP except that the specified matrix
+is a 3 \(mu 3 matrix instead of a 4 \(mu 4 matrix.  Before the concatenation
+occurs, the 3 \(mu 3 matrix represented by
+.IP
+.EQ
+left [
+    {
+    ~~~ pile { a above " " above d above " " above g }
+    ~~~ pile { b above " " above e above " " above h }
+    ~~~ pile { c above " " above f above " " above j }
+    }
+    ~~~ right ]
+.EN
+.sp
+will be expanded to a 4 \(mu 4 matrix as follows:
+.IP
+.EQ
+left [
+    {
+    ~~~ pile { a above " " above d above " " above g }
+    ~~~ pile { b above " " above e above " " above h }
+    ~~~ pile { c above " " above f above " " above j }
+    }
+    ~~~ right ] ->
+left [
+    {
+    ~~~ pile { a above " " above d above " " above 0 above " " above g }
+    ~~~ pile { b above " " above e above " " above 0 above " " above h }
+    ~~~ pile { 0 above " " above 0 above " " above 1 above " " above 0 }
+    ~~~ pile { c above " " above f above " " above 0 above " " above j }
+    }
+    ~~~ right ]
+.EN
+
+.Or "Global transform 3D"
+.Op matrix MATRIX
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIglobal_transform\fP attribute.
+
+.Or "Global transform 2D"
+.Op matrix MATRIX_3X3
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIglobal_transform\fP attribute.  This command is
+identical to \fIglobal transform 3D\fP except that the specified matrix
+is a 3 \(mu 3 matrix instead of a 4 \(mu 4 matrix.  Before the concatenation
+occurs, the 3 \(mu 3 matrix represented by
+.IP
+.EQ
+left [
+    {
+    ~~~ pile { a above " " above d above " " above g }
+    ~~~ pile { b above " " above e above " " above h }
+    ~~~ pile { c above " " above f above " " above j }
+    }
+    ~~~ right ]
+.EN
+.sp
+will be expanded to a 4 \(mu 4 matrix as follows:
+.IP
+.EQ
+left [
+    {
+    ~~~ pile { a above " " above d above " " above g }
+    ~~~ pile { b above " " above e above " " above h }
+    ~~~ pile { c above " " above f above " " above j }
+    }
+    ~~~ right ] ->
+left [
+    {
+    ~~~ pile { a above " " above d above " " above 0 above " " above g }
+    ~~~ pile { b above " " above e above " " above 0 above " " above h }
+    ~~~ pile { 0 above " " above 0 above " " above 1 above " " above 0 }
+    ~~~ pile { c above " " above f above " " above 0 above " " above j }
+    }
+    ~~~ right ]
+.EN
+
+.Or "Model clip"
+.Op onoff SWITCH
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fImodel_clip\fP attribute.
+
+.Or "Set model clip volume 3D"
+.Op operator OPERATOR
+.Op halfspaces LISTofHALFSPACE
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fImodel_clip_volume\fP attribute.
+The operator indicated by \fIoperator\fP will be used to combine the
+specified list of \fIhalfspaces\fP with the current modeling clipping
+volume to form a new modeling clipping volume.  The halfspaces
+are specified in world coordinates.
+If an operator is specified that is not supported, or if a halfspace
+is found to be degenerate, the action specified by the command is ignored.
+
+.Or "Set model clip volume 2D"
+.Op operator OPERATOR
+.Op halfspaces LISTofHALFSPACE_2D
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fImodel_clip_volume\fP attribute.
+The operator indicated by \fIoperator\fP will be used to combine the
+specified list of \fIhalfspaces\fP with the current modeling clipping
+volume to form a new modeling clipping volume.  The halfspaces
+are specified in world coordinates, with the z component of each
+point and vector assumed to be zero.
+If an operator is specified that is not supported, or if a halfspace
+is found to be degenerate, the action specified by the command is ignored.
+
+.Or "Restore model clip volume"
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fImodel_clip_volume\fP attribute.
+The modeling clipping volume will be restored to
+the last saved modeling clipping volume.  If there is no saved
+modeling clipping volume that can be restored,
+the modeling clipping volume is restored to
+its default state.
+
+.Or "View index"
+.Op index TABLE_INDEX
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIview_index\fP attribute.
+
+.Or "Light source state"
+.Op enable BITMASK
+.Op disable BITMASK
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIlight_state\fP attribute.  First, the enable
+mask is applied to the current \fIlight_state\fP.  Each set bit in the
+\fIenable\fP array will cause the corresponding light source to
+be activated.  Then the disable mask is applied.  Each set bit in the
+\fIdisable\fP array will cause the corresponding light source to
+be deactivated.
+
+.Or "Depth cue index"
+.Op index TABLE_INDEX
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIdepth_cue_index\fP attribute.
+
+.Or "Pick id       "
+.Op pickid CARD32
+.IP
+When processed by a renderer,
+this command will
+modify the renderer's \fIpick_id\fP attribute.
+
+.Or "HLHSR identifier"
+.Op id CARD32
+.IP
+When processed by a renderer,
+the effect of this command is implementation-dependent.
+It is provided for PHIGS compatibility purposes.
+
+.Or "Add names to name set"
+.Op names LISTofNAME
+.IP
+When processed by a renderer,
+this command will
+add names to the renderer's name set.
+
+.Or "Remove names from name set"
+.Op names LISTofNAME
+.IP
+When processed by a renderer,
+this command will
+remove names from the name set resource specified by the
+renderer's \fIname_set\fP attribute.
+
+.Or "Execute structure"
+.Op s_id STRUCTURE_ID
+.IP
+When processed by a renderer,
+this output command transfers flow-of-control to the specified
+structure.  
+Processing of output commands
+will then commence with the first structure element in the structure
+specified by \fIs_id\fP.
+When all of the elements in the called
+structure have been processed, control will be returned.
+When 
+this command is executed, all of the rendering pipeline
+attribute values in the renderer are saved.  Then,
+the current global modeling transform is set to the current composite
+modeling transform and the current local modeling matrix is set
+to the identity matrix.
+When control is returned,
+the saved rendering pipeline
+attribute values are restored.
+If the structure specified by \fIs_id\fP does not exist at the
+time the "execute structure" command is processed by a renderer,
+the execute structure command is effectively a no-op.
+
+.Or "Label"
+.Op label CARD32
+.IP
+When processed by a renderer,
+this output command is a no-op.  Its main usefulness
+is when used as a structure element to maintain the specified
+\fIlabel\fP as an aid to navigation during structure editing.
+
+.Or "Application data"
+.Op data LISTofCARD8
+.IP
+When processed by a renderer,
+this output command is a no-op.  It's main usefulness
+is when used as a structure element in order to maintain the specified
+client application data.
+
+.Or "GSE"
+.Op id CARD32
+.Op data LISTofCARD8
+.IP
+When processed by a renderer, the effect of
+this command is implementation-dependent.
+Because of floating point and color format discrepancies across
+a network interface, it is not anticipated that the GSE will provide
+a useful extension mechanism, but
+it is provided for PHIGS compatibility purposes.
+
+.Or "Marker 3D"
+.Op points LISTofCOORD_3D
+.IP
+When processed by a renderer,
+this command will cause marker primitives to be rendered.
+A marker is a geometric primitive with only one geometric attribute -
+its position.  
+The list \fIpoints\fP contains a list of 
+3D coordinates, each of which specifies the position
+of a marker in modeling coordinates.
+.IP
+During the rendering process, the marker's position is transformed
+to a position in device coordinates.  A marker has no geometric size,
+so geometric transformations will not affect the displayed size of the marker.
+The marker's color is transformed only
+by the depth-cueing computation (the light-source shading
+stage of the rendering pipeline affects only surfaces)
+and mapped to a device color.  The method used to clip marker primitives
+is implementation-dependent.
+.IP
+Depending on the setting of the marker attribute ASF values,
+the \fImarker_color\fP,
+\fImarker_type\fP, and \fImarker_scale\fP attributes are
+either obtained directly from the current marker attribute values
+or from the \fImarker_bundle_index\fP'th entry in the
+renderer's \fImarker_bundle\fP.
+
+.Or "Marker 2D"
+.Op points LISTofCOORD_2D
+.IP
+.2d "marker"
+
+.Or "Text 3D"
+.Op origin COORD_3D
+.Op vector1 VECTOR_3D
+.Op vector2 VECTOR_3D
+.Op string STRING
+.IP
+When processed by a renderer,
+this command will cause a text string to be rendered.
+The parameter
+\fIstring\fP contains the text string to be rendered.
+The text string is located on a plane defined by its position and
+direction vectors.
+The origin of the string is a point in modeling
+coordinates indicated by \fIorigin\fP, and the string's
+direction is indicated by the direction vectors \fIvector1\fP and
+\fIvector2\fP.
+\fIVector1\fP defines the positive \fIx\fP-axis of
+the text local coordinate system.
+\fIVector2\fP defines the positive \fIy\fP-axis of
+the text local coordinate system.
+If the two vectors are parallel, or if one of the two vectors is
+zero length, the values <1,0,0> and <0,1,0> will be used instead.
+.IP
+Depending on the setting of the text attribute ASF values,
+the \fItext_color\fP,
+\fItext_precision\fP,
+\fIchar_expansion\fP,
+\fIchar_spacing\fP, and
+\fItext_font\fP attributes are
+either obtained directly from the current text attribute values or from the
+\fItext_bundle_index\fP'th entry in the renderer's
+\fItext_bundle\fP.
+The
+\fIchar_height\fP,
+\fIchar_up_vector\fP,
+\fItext_path\fP, \fItext_halignment\fP, and
+\fItext_valignment\fP attributes
+are also used when drawing the text primitive.
+An attempt is made to render the text string as accurately
+as possible with the current \fItext_font\fP.
+The directions specified by
+\fIchar_up_vector\fP and \fItext_path\fP
+will be relative to the text local coordinate system.
+.IP
+During the rendering process, each string's position is transformed
+to a position in device coordinates.  The string's color is transformed 
+only
+by the depth-cueing computation (the light-source shading
+stage of the rendering pipeline affects only surfaces)
+and mapped to a device color.  
+The text string is clipped depending on the current text precision value.
+If the text precision is \fIString\fP, clipping is done in an
+implementation-dependent fashion.
+If the text precision is \fIChar\fP, clipping is done on at least a
+character-by-character basis.
+If the text precision is \fIStroke\fP, clipping is performed at the clipping
+boundaries for each character.
+
+.Or "Text 2D"
+.Op origin COORD_2D
+.Op string STRING
+.IP
+.2d "text"
+
+.Or "Annotation text 3D"
+.Op origin COORD_3D
+.Op offset COORD_3D
+.Op string STRING
+.IP
+When processed by a renderer,
+this command will cause an annotation text string to be rendered.
+The parameter
+\fIstring\fP contains the text string to be rendered.
+The origin of the string is a point in modeling
+coordinates indicated by \fIorigin\fP.
+An offset value in normalized projection coordinates is specified
+by \fIoffset\fP.
+The point at which the annotation text string is to be placed is
+called the annotation point, and is
+computed by adding \fIoffset\fP to the
+transformed \fIorigin\fP point.
+The \fIz\fP-component of the annotation point specifies the
+the \fIx-y\fP plane in normalized projection coordinate space on
+which the annotation text string will be placed.
+.IP
+Depending on the setting of the text attribute ASF values,
+the \fItext_color\fP,
+\fItext_precision\fP,
+\fIchar_expansion\fP,
+\fIchar_spacing\fP, and
+\fItext_font\fP attributes are
+either obtained directly from the current text attribute values or from the
+\fItext_bundle_index\fP'th entry in the renderer's
+\fItext_bundle\fP.
+The
+\fIatext_height\fP,
+\fIatext_path\fP,
+\fIatext_h_alignment\fP,
+\fIatext_v_alignment\fP,
+\fIatext_up_vector\fP,
+\fIatext_style\fP,
+attributes are also used when rendering the text string.
+.IP
+The annotation text string's color is transformed 
+only
+by the depth-cueing computation (the light-source shading
+stage of the rendering pipeline affects only surfaces)
+and mapped to a device color.  
+The entire annotation text primitive is clipped if \fIorigin\fP is clipped.  If
+\fIorigin\fP is not clipped, 
+the annotation text will be clipped
+according to text clipping rules and the connection line, if present,
+will be clipped according to polyline clipping rules, except that
+modeling clipping will be ignored.
+
+.Or "Annotation text 2D"
+.Op origin COORD_2D
+.Op offset COORD_2D
+.Op string STRING
+.IP
+.2d "annotation text"
+
+.Or "Polyline 3D"
+.Op vertices LISTofCOORD_3D
+.IP
+When processed by a renderer,
+this command will cause a polyline to be rendered.
+The polyline is defined by the list of vertices that are specified
+in \fIvertices\fP, each of which is a coordinate in the modeling
+coordinate system.
+The vertices are joined together
+by line segments.  The first vertex of a polyline is connected to the
+second, the second connected to the third, and so on.  The last vertex
+is \fInot\fP connected to the first.
+.IP
+Depending on the setting of the line attribute ASF values,
+\fIline_color\fP,
+\fIline_type\fP, and
+\fIline_width\fP attributes are
+either obtained directly from the current line attribute values or from the
+\fIline_bundle_index\fP'th entry in the renderer's
+\fIline_bundle\fP.
+.IP
+Polylines have no geometric width,
+only length, so transformations will affect only the displayed length
+of a polyline.
+The polyline colors are transformed only
+by the depth-cueing computation (the light-source shading
+stage of the rendering pipeline affects only surfaces)
+and mapped to device colors.  
+Polylines are not displayed if they are
+outside the currently defined clipping volume.
+Polylines that cross the
+clipping volume are clipped, and only the portion(s) inside the clipping
+volume is (are) displayed.
+.IP
+A polyline with less than two vertices is considered degenerate and
+is treated in an implementation-dependent manner.
+
+.Or "Polyline 2D"
+.Op vertices LISTofCOORD_2D
+.IP
+.2d "polyline"
+
+.Or "Polyline set 3D with data"
+.Op color_type COLOR_TYPE
+.Op vert_attributes BITMASK
+.Op vertices LISTofLISTofVERTEX
+.IP
+When processed by a renderer,
+this command will cause a series of polylines to be rendered.
+The behavior of this primitive is identical to that of the
+3D polyline primitive, except that multiple polylines can be drawn,
+and additional information can be specified at each polyline vertex.
+Color values that are passed will either be \fIIndexed\fP or \fIDirect\fP,
+depending on \fIcolor_type\fP.
+The parameter \fIattributes\fP indicates the attributes which are
+specified at each polyline vertex.  The components of the vertex attributes
+bitmask are, in order:
+.DS
+	color		COLOR
+.DE
+If any of the attribute bits is set, the corresponding attributes
+must be present for each vertex, and they must
+be passed after the coordinate data for each vertex in the
+order that they appear in the list above.
+.IP
+If color values are passed per vertex, they are considered to be part
+of the primitive and are used instead of the \fIline_color\fP attribute.
+In addition, the use of per-vertex colors is affected by the
+\fIpolyline_interp\fP attribute, which is obtained directly
+from the \fIpolyline_interp\fP value if the
+\fIpolyline_interp_asf\fP attribute is set to \fIIndividual\fP or from the
+\fIline_bundle_index\fP'th entry in the renderer's \fIline_bundle\fP.
+The \fIpolyline_interp\fP attribute defines how color values between
+the vertices are to be computed.
+
+.Or "Parametric Curve"
+.Op curve_form CURVE_FORM
+.Op curve_order CARD32
+.Op curve_type CURVE_TYPE
+.Op points LISTofCOORD
+.IP
+When processed by a renderer,
+this command will cause a parametric polynomial
+curve to be rendered.
+The renderer will draw the
+piecewise parametric
+curve as a function of uniform samples in the parametric coordinate space.  
+The curve shape is specified as a list of control points in the 
+analytic coordinate space. 
+.IP
+The \fIcurve_type\fP parameter specifies
+whether the curve is \fIRational\fP
+or \fINonRational\fP.
+If the \fIcurve_type\fP is \fIRational\fP, then the client
+must provide the point list as homogeneous modeling coordinates
+(COORD_4D), otherwise 
+the client must provide the point list as non-homogeneous modeling
+coordinates (COORD_3D). 
+.IP
+\fICurve_order\fP specifies the order of the polynomial expression.
+The \fIcurve_form\fP
+parameter implies the basis function.
+The registered curve forms are described in the "Extension Information"
+section under the discussion of enumerated types.
+.IP
+Depending on the setting of the line attribute ASF values, the
+\fIline_color\fP,
+\fIline_type\fP, and
+\fIline_width\fP attributes are
+either obtained directly from the current line attribute values or from the
+\fIline_bundle_index\fP'th entry in the renderer's
+\fIline_bundle\fP.
+
+.Or "Non-Uniform B-Spline Curve" 3
+.Op curve_order CARD32
+.Op tmin FLOAT
+.Op tmax FLOAT
+.Op curve_type CURVE_TYPE
+.Op curve_knots LISTofFLOAT
+.Op points LISTofCOORD
+.IP
+When processed by a renderer,
+this command will cause a non-uniform B-spline
+curve to be rendered.
+The \fIcurve_order\fP is specified as a positive integer.
+The spline
+shape is specified using a list of knots (\fIcurve_knots\fP)
+in the parametric coordinate space, plus
+a list of points (\fIpoints\fP) in the analytic coordinate space.
+The spline order equals
+the number of knots minus the number of points. The sequence of
+knots, t(0) <= t(1) <= <= t(k+1), must be monotonic positive.     
+.IP
+The \fIcurve_type\fP parameter specifies whether the curve is \fIRational\fP
+or \fINonRational\fP.
+If the \fIcurve_type\fP is \fIRational\fP, then the client
+must provide the point list as homogeneous modeling coordinates (COORD_4D),
+otherwise the client must provide the point list as non-homogeneous
+modeling coordinates (COORD_3D). 
+.IP
+The client may restrict the spline to a specific region,
+\fItmin\fP < t < \fItmax\fP,
+in the parametric coordinate space.  The parametric bounds,
+\fItmin\fP <= \fItmax\fP, 
+specify the region in the parametric coordinate space over which the 
+spline is to be evaluated.  The parametric bounds must satisfy the 
+restriction \fItmin\fP >= t(0), \fItmax\fP <= t(k+1)
+.IP
+Depending on the setting of the line attribute ASF values,
+\fIline_color\fP,
+\fIline_type\fP, and
+\fIline_width\fP attributes are
+either obtained directly from the current line attribute values or from the
+\fIline_bundle_index\fP'th entry in the renderer's
+\fIline_bundle\fP.
+
+.Or "Fill area 3D"
+.Op vertices LISTofCOORD_3D
+.IP
+When processed by a renderer,
+this command will cause a fill area primitive to be rendered.
+A fill area is defined by a list of vertices which are to be joined together
+to form a planar surface.  (Fill areas are not strictly
+required to be planar, but strange shading artifacts can occur if
+a fill area is not planar or nearly so.)
+The first vertex of a fill area is connected to the
+second, the second connected to the third, and so on.  The last vertex
+is implicitly connected to the first.
+.IP
+During the rendering process, the fill area vertices are transformed
+to positions in device coordinates.
+The surface colors are transformed
+by the light source shading computation (which utilizes the interior style
+and the reflectance model) and are further modified by the
+depth-cueing computation
+and mapped to device colors.  
+Fill areas are not displayed if they are
+outside the currently-defined clipping volume.
+Fill areas that cross the
+clipping volume are clipped, and only the portion(s) inside the clipping
+volume is (are) displayed.
+.IP
+A fill area with less than three vertices is considered degenerate and
+is treated in an implementation-dependent manner.  A fill area can
+cross over itself to create a complex shape.  The odd-even rule is
+used for determining the points that lie in the interior of a fill area.
+.IP
+Depending on the setting of the surface attribute ASF values, the
+\fIsurface_color\fP,
+\fIinterior_style\fP,
+\fIinterior_style_index\fP,
+\fIsurface_interp\fP, and
+\fIrefl_model\fP attributes are
+either obtained directly from the current surface attribute values or from the
+\fIinterior_bundle_index\fP'th entry in the renderer's
+\fIinterior_bundle\fP.
+If, when rendered, the fill area is determined to be front-facing with
+respect to the point of view, the
+\fIsurface_color\fP (obtained as previously described),
+\fIambient_coef\fP,
+\fIdiffuse_coef\fP,
+\fIspecular_coef\fP,
+\fIspecular_color\fP,
+\fIspecular_conc\fP, and
+\fItransmission_coef\fP attributes are used to compute the color(s) of the
+fill area.
+If the fill area is determined to be back-facing with
+respect to the point of view, the
+\fIbf_surface_color\fP,
+\fIbf_ambient_coef\fP,
+\fIbf_diffuse_coef\fP,
+\fIbf_specular_coef\fP,
+\fIbf_specular_color\fP,
+\fIbf_specular_conc\fP,
+\fIbf_transmission_coef\fP attributes are used instead.
+Regardless of the orientation of the fill area, if the \fIinterior_style\fP
+is \fIPattern\fP, the
+\fIpattern_size\fP,
+\fIpattern_ref_pt\fP,
+\fIpattern_ref_vec1\fP, and
+\fIpattern_ref_vec2\fP attributes may be used to
+pattern the fill area.
+Fill area primitives do not utilize the surface edge attributes.
+
+.Or "Fill area 2D"
+.Op vertices LISTofCOORD_2D
+.IP
+.2d "fill area"
+
+.Or "Fill area 3D with data"
+.Op color_type COLOR_TYPE
+.Op facet_attributes BITMASK
+.Op vert_attributes BITMASK
+.Op facet FACET
+.IP
+When processed by a renderer,
+this command will cause a fill area to be rendered.
+The behavior of this primitive is identical to that of the
+3D fill area primitive, except that
+additional information can be specified
+for the fill area itself and for
+each vertex.
+Color values that are passed will either be \fIIndexed\fP or \fIDirect\fP,
+depending on \fIcolor_type\fP.
+.IP
+The parameter \fIfacet_attributes\fP indicates the attributes which are
+specified for the fill area.  The components of the facet attributes
+bitmask are, in order:
+.DS
+	color		COLOR
+	normal	VECTOR_3D
+.DE
+If any of the attribute bits is set, the corresponding attribute
+must be present in the data that defines the fill area facet and they
+must be passed in the
+order that they appear in the list above.  If a color value is
+passed per facet, it is taken to be the intrinsic color of the front face
+of the facet.  If a normal is passed per facet, it is taken to be
+the normal to the facet.  (Normals need not be normalized.)
+.IP
+The parameter \fIvertex_attributes\fP specifies the attributes which are
+specified at each fill area vertex.  The components of the vertex attributes
+bitmask are, in order:
+.DS
+	color		COLOR
+	normal	VECTOR_3D
+.DE
+If any of the attribute bits is set, the corresponding attributes
+must be present for each vertex, and they must
+be passed after the coordinate data for each vertex in the
+order that they appear in the list above.
+.IP
+If color values are passed per vertex, they are considered to be part
+of the primitive and are used instead of the \fIsurface_color\fP attribute.
+If normals are passed per vertex, they are taken to be
+the normals at the vertices of the fill area.
+In addition, the use of per-vertex colors is affected by the
+\fIsurface_interp\fP attribute, which is obtained directly
+from the \fIsurface_interp\fP value if the
+\fIsurface_interp_asf\fP attribute is set to \fIIndividual\fP or from the
+\fIinterior_bundle_index\fP'th entry in the renderer's
+\fIinterior_bundle\fP.
+The \fIsurface_interp\fP attribute defines how color values between
+the vertices are to be computed.
+
+
+.Or "Fill area set 3D"
+.Op vertices LISTofLISTofCOORD_3D
+.IP
+When processed by a renderer,
+this command will cause a fill area set primitive to
+be drawn.  This type of primitive is essentially a set of fill area
+primitives.  Together, this set of fill areas defines a polygon with
+islands or holes.  In addition, the existence and appearance of surface
+edges is controlled with the surface edge attributes.
+.IP
+Depending on the setting of the surface edge attribute ASF values, the
+\fIsurface_edges\fP,
+\fIsurface_edge_color\fP,
+\fIsurface_edge_type\fP, and 
+\fIsurface_edge_width\fP attributes are
+either obtained directly from the current surface edge
+attribute values or from the
+\fIedge_bundle_index\fP'th entry in the renderer's
+\fIedge_bundle\fP.
+
+.Or "Fill area set 2D"
+.Op vertices LISTofLISTofCOORD_2D
+.IP
+.2d "fill area set"
+
+.Or "Fill area set 3D with data"
+.Op color_type COLOR_TYPE
+.Op normal VECTOR_3D
+.Op facet_attributes BITMASK
+.Op vert_attributes BITMASK
+.Op facets LISTofFACET
+.IP
+When processed by a renderer,
+this command will cause a fill area set to be rendered.
+The behavior of this primitive is identical to that of the
+3D fill area set primitive, except that
+additional information can be specified
+for each facet of the fill area, for each edge, and for
+each vertex.
+Color values that are passed will either be \fIIndexed\fP or \fIDirect\fP,
+depending on \fIcolor_type\fP.  A normal for the fill area set is
+specified in \fInormal\fP.
+.IP
+The parameter \fIfacet_attributes\fP indicates the attributes which are
+specified for each facet of the fill area set.
+The components of the facet attributes bitmask are, in order:
+.DS
+	color		COLOR
+.DE
+If any of the attribute bits is set, the corresponding attributes
+must be present in the data that defines each fill area set facet and
+must be passed in the
+order that they appear in the list above.  If a color value is
+passed per facet, it is taken to be the intrinsic color of the front face
+of the facet.
+.IP
+The parameter \fIvertex_attributes\fP specifies the attributes which are
+specified at each fill area set vertex.  The components of the vertex
+attributes bitmask are, in order:
+.DS
+	color		COLOR
+	normal	VECTOR_3D
+	edges		SWITCH
+.DE
+If any of the attribute bits is set, the corresponding attributes
+must be present for each vertex, and they must
+be passed after the coordinate data for each vertex in the
+order that they appear in the list above.
+.IP
+If color values are passed per facet or
+per vertex, they are considered to be part
+of the primitive and are used instead of the \fIsurface_color\fP attribute.
+If normals are passed per vertex, they are taken to be
+the normals at the vertices of the fill area.
+If surface edge flags are specified per vertex, each flag specifies
+whether to draw the edge from the vertex with which the flag is specified
+to the next vertex.  (E.g., for a facet with four vertices, the edge
+flag associated with vertex #1 indicates whether to draw edge #1-#2,
+edge flag #2 specifies edge #2-#3, edge flag #3 specifies edge #3-#4,
+and edge flag #4 specifies edge #4-#1.)  Surface edges are always drawn
+with the surface edge color, never with per facet or per vertex colors.
+.IP
+In addition, the use of per-vertex colors is affected by the
+\fIsurface_interp\fP attribute, which is obtained directly
+from the \fIsurface_interp\fP value if the
+\fIsurface_interp_asf\fP attribute is set to \fIIndividual\fP or from the
+\fIinterior_bundle_index\fP'th entry in the renderer's
+\fIinterior_bundle\fP.
+The \fIsurface_interp\fP attribute defines how color values between
+the vertices are to be computed.
+
+.Or "Triangle strip"
+.Op color_type COLOR_TYPE
+.Op facet_attributes BITMASK
+.Op vert_attributes BITMASK
+.Op facet_data LISTofOPT_FACET_DATA
+.Op vertices LISTofVERTEX
+.IP
+When processed by a renderer,
+this command will cause a triangle strip primitive to
+be drawn.
+Color values that are passed will either be \fIIndexed\fP or \fIDirect\fP,
+depending on \fIcolor_type\fP.
+The parameter \fIfacet_attributes\fP indicates the attributes which are
+specified for each facet of the triangular strip.
+The components of the facet attributes bitmask are, in order:
+.DS
+	color		COLOR
+	normal	VECTOR_3D
+.DE
+If any of the attribute bits is set, the corresponding attribute
+must be present in \fIfacet_data\fP, which is
+the data that defines each triangular facet.
+The attributes that are passed in this way must be passed in the
+order that they appear in the list above.  If a color value is
+passed per facet, it is taken to be the intrinsic color of the front face
+of the facet.  If a normal is passed per facet, it is taken to be
+the normal to the facet.  (Normals need not be normalized.)
+There will be n-2 entries in the \fIfacet_data\fP list, where n is
+the number of entries in the \fIvertices\fP list.
+.IP
+The parameter \fIvertex_attributes\fP specifies the attributes which are
+specified at each triangle strip vertex.  The components of the vertex
+attributes bitmask are, in order:
+.DS
+	color		COLOR
+	normal	VECTOR_3D
+.DE
+If any of the attribute bits is set, the corresponding attribute
+must be present for each vertex, and it must
+be passed after the coordinate data for each vertex.  The
+attributes that are passed in this way must be passed in the
+order that they appear in the list above.
+.IP
+If color values are passed per vertex, they are considered to be part
+of the primitive and are used instead of the \fIsurface_color\fP attribute.
+If normals are passed per vertex, they are taken to be
+the normals at the vertices of the facet.
+.IP
+The triangular strip is created
+from the vertex array.  The strip is composed
+of n-2 triangles, where n is the number of vertices.  The first triangle
+is formed from the first three vertices in the list, the second triangle
+is formed by the second through the fourth vertices in the list, etc., up
+to the last triangle, which is formed by the last three vertices in the
+list.  A strip with less than three vertices is considered degenerate
+and is treated in an implementation-dependent manner.
+.IP
+All attributes that affect the representation of fill area sets also
+affect the representation of the triangle strip primitive.
+
+.Or "Quadrilateral mesh"
+.Op color_type COLOR_TYPE
+.Op m_pts CARD16
+.Op n_pts CARD16
+.Op facet_attributes BITMASK
+.Op vert_attributes BITMASK
+.Op facet_data LISTofFACET_DATA
+.Op vertices LISTofVERTEX
+.IP
+When processed by a renderer,
+this command will cause a quadrilateral mesh primitive
+to be rendered.
+Color values that are passed will either be \fIIndexed\fP or \fIDirect\fP,
+depending on \fIcolor_type\fP.
+The parameter \fIfacet_attributes\fP indicates the attributes which are
+specified for each facet of the quadrilateral mesh.
+The components of the facet attributes bitmask are, in order:
+.DS
+	color		COLOR
+	normal	VECTOR_3D
+.DE
+If any of the attribute bits is set, the corresponding attribute
+must be present in \fIfacet_data\fP, which is
+the data that defines each quadrilateral facet.
+The attributes that are passed in this way must be passed in the
+order that they appear in the list above.  If a color value is
+passed per facet, it is taken to be the intrinsic color of the front face
+of the facet.  If a normal is passed per facet, it is taken to be
+the normal to the facet.  (Normals need not be normalized.)
+.IP
+The parameter \fIvertex_attributes\fP specifies the attributes which are
+specified at each quadrilateral mesh vertex.  The components of the vertex
+attributes bitmask are, in order:
+.DS
+	color		COLOR
+	normal	VECTOR_3D
+.DE
+If any of the attribute bits is set, the corresponding attribute
+must be present for each vertex, and it must
+be passed after the coordinate data for each vertex.  The
+attributes that are passed in this way must be passed in the
+order that they appear in the list above.
+.IP
+If color values are passed per vertex, they are considered to be part
+of the primitive and are used instead of the \fIsurface_color\fP attribute.
+If normals are passed per vertex, they are taken to be
+the normals at the vertices of the facet.
+.IP
+The surface will be created
+from the vertex array.  The
+(ith,jth), (i+1th,jth), (i+1th,j+1th) and (ith,j+1th) vertices are connected
+to create a single facet. 
+Adjacent vertices are interconnected until the entire
+facet network is processed.
+It is allowable for the boundary of a single facet to 
+not reside in a single plane.  The treatment of the vertex attributes
+in this case is implementation-dependent.  
+If either array dimension is zero, the treatment of
+the primitive is implementation-dependent.
+.IP
+All attributes that affect the representation of fill area sets also
+affect the representation the quadrilateral mesh primitive.
+
+.Or "Indexed polygon"
+.Op color_type COLOR_TYPE
+.Op facet_attributes BITMASK
+.Op vert_attributes BITMASK
+.Op edge_attributes BITMASK
+.Op facet_data LISTofINDEXED_FACET
+.Op vertices LISTofVERTEX
+.IP
+When processed by a renderer,
+this command will
+draw a set of polygons that are connected:  polygons may share geometry
+and attribute information at vertices.  This request is provided to save
+space and allow increased performance for a very common type of surface.
+Shading calculations and transformations may need only be performed once
+per shared vertex instead of once for every polygon that shares the vertex.
+Similarly, data can be transmitted across the network once per unique
+vertex instead of once for every polygon sharing the vertex.
+Color values that are passed will either be \fIIndexed\fP or \fIDirect\fP,
+depending on \fIcolor_type\fP.
+.IP
+The parameter \fIfacet_attributes\fP indicates the attributes which are
+specified for each facet of the indexed polygon.
+The components of the facet attributes bitmask are, in order:
+.DS
+	color		COLOR
+	normal	VECTOR_3D
+.DE
+If any of the attribute bits is set, the corresponding attribute
+must be present in \fIfacet_data\fP, which is
+the data that defines each facet.
+The attributes that are passed in this way must be passed in the
+order that they appear in the list above.  If a color value is
+passed per facet, it is taken to be the intrinsic color of the front face
+of the facet.  If a normal is passed per facet, it is taken to be
+the normal to the facet.  (Normals need not be normalized.)
+.IP
+The parameter \fIvertex_attributes\fP specifies the attributes which are
+specified at each indexed polygon vertex.  The components of the vertex
+attributes bitmask are, in order:
+.DS
+	color		COLOR
+	normal	VECTOR_3D
+.DE
+If any of the attribute bits is set, the corresponding attribute
+must be present for each vertex, and it must
+be passed after the coordinate data for each vertex.  The
+attributes that are passed in this way must be passed in the
+order that they appear in the list above.
+If color values are passed per vertex, they are considered to be part
+of the primitive and are used instead of the \fIsurface_color\fP attribute.
+If normals are passed per vertex, they are taken to be
+the normals at the vertices of the facet.
+.IP
+The parameter \fIedge_attributes\fP specifies the attributes which are
+specified at each indexed polygon edge.  The components of the attributes
+bitmask are, in order:
+.DS
+	edges	SWITCH
+.DE
+If any of the attribute bits is set, the corresponding attribute
+must be present for each edge in the connection list.
+The
+attributes that are passed in this way must be passed in the
+order that they appear in the list above.
+If surface edge flags are specified, each flag specifies
+whether to draw the edge from the vertex with which the flag is specified
+to the next vertex.  (E.g., for a facet with four vertices, the edge
+flag associated with vertex #1 indicates whether to draw edge #1-#2,
+edge flag #2 specifies edge #2-#3, edge flag #3 specifies edge #3-#4,
+and edge flag #4 specifies edge #4-#1.)  Surface edges are always drawn
+with the surface edge color, never with per facet or per vertex colors.
+.IP
+The list \fIfacet_data\fP is the list of indexed polygons.  Each polygon
+contains a list of vertex indices into the \fIvertices\fP list.
+Vertices are numbered indexed starting from zero (i.e., the first vertex
+is referenced as vertex 0).
+If an out-of-range vertex index is encountered
+in the connection list, the vertex will be skipped and a Value error
+will be generated.
+.IP
+All attributes that affect the representation of fill area sets also
+affect the representation of the indexed polygon primitive.
+
+.Or "Parametric Polynomial Surface"
+.Op surf_form SURFACE_FORM
+.Op surf_s_order CARD32
+.Op surf_t_order CARD32
+.Op surf_type SURFACE_TYPE
+.Op points LISTofVERTEX
+.IP
+When processed by a renderer,
+this command will draw a parametric polynomial surface.
+A polynomial surface is described as a function of uniform 
+samples in the s,t parametric coordinate space.  The
+surface shape is specified as a mesh of control points in the analytic coordinate space. 
+.IP
+The \fIsurf_type\fP parameter specifies whether the surface is \fIRational\fP
+or \fINonRational\fP.
+If the \fIsurf_type\fP is \fIRational\fP, then
+the renderer divides the points by
+the homogeneous coordinate.
+If the \fIsurf_type\fP is \fIRational\fP, then the client
+must provide the point list as homogeneous modeling coordinates (COORD_3D); otherwise 
+the client must provide the point list as non-homogeneous modeling coordinates
+(COORD_4D). 
+.IP
+The \fIsurf_s_order\fP and \fIsurf_t_order\fP parameters specify the order
+of the polynomial 
+expression.  The \fIsurf_form\fP parameter implies the basis function.
+The registered surface forms are described in the "Extension Information"
+section under the discussion of enumerated types.
+.IP
+All attributes that affect the representation of fill area sets also
+affect the representation of the parametric polynomial surface primitive.
+
+.Or "Non-Uniform B-Spline Surface" 3
+.Op surface_form SURFACE_FORM
+.Op surface_s_order CARD32
+.Op surface_t_order CARD32
+.Op surface_s_knots LISTofVALUE
+.Op surface_t_knots LISTofVALUE
+.Op surface_type SURFACE_TYPE
+.Op points LISTofCOORD
+.Op smin FLOAT
+.Op smax FLOAT
+.Op tmin FLOAT
+.Op tmax FLOAT
+.Op trim_order LISTofLISTofCARD32
+.Op trim_knots LISTofLISTofVALUE
+.Op trim_types LISTofLISTofVALUE
+.Op trim_points LISTofLISTofCOORD
+.Op trim_visibility LISTofLISTofBOOLEAN
+.IP
+When processed by a renderer,
+this command will draw a non-uniform B-Spline surface.
+It generates the spline surface as a function of s and t the 
+parametric variables.  The order of the 
+parametric variables are specified as positive integers.  The client specifies 
+the spline shape through two lists of knots in the parametric coordinate 
+space, plus one array of points in the analytic coordinate space.  The knot
+sequence, s(0) <= s(1) <= <= s(j+1) and t(0) <= t(1) <= <= t(k+1), must 
+be monotonic positive. 
+.IP
+The client may restrict the spline surface to a specific region, \fIsmin\fP < s 
+< \fIsmax\fP, \fItmin\fP < t < \fItmax\fP,
+of the parametric coordinate space.  The 
+parametric bounds, \fIsmin\fP <= \fIsmax\fP, \fItmin\fP <= \fItmax\fP,
+specify the rectangle
+in the parametric coordinate space over which the interface is to evaluate 
+the spline surface.  The parametric bounds must satisfy the restriction:
+.DS C
+\fIsmin\fP >= s(0), \fIsmax\fP <= s(j+1), \fItmin\fP >= t(0), \fItmax\fP <= t(k+1)  
+.DE
+.IP
+The \fIsurface_type\fP parameter specifies whether the surface is \fIRational\fP
+or \fINonRational\fP.
+If the \fIsurface_type\fP is \fIRational\fP, then
+the renderer divides the points by
+the homogeneous coordinate.
+If the \fIsurface_type\fP is \fIRational\fP, then the client
+must provide the point list as homogeneous modeling coordinates; otherwise 
+the client must provide the point list as non-homogeneous modeling coordinates. 
+.IP
+In addition to the parametric bounds, the client may specify multiple 
+trim curves.  These curves serve to further restrict the region in 
+parametric coordinate space over which the interface is to evaluate the 
+spline surface.  If the client elects to provide the trim curve, both the 
+bounds and the curves restrict the surface.  The separate trim
+curves consist of spline segments.  The spline segments reside in the s,t 
+parametric coordinate space.  The client may composite these spline segments
+to create more complex curves.  The curve boundary must close to the first
+vertex.  The separate curves must not
+project outside the parametric bounds.  Each separate curve must not
+intersect itself.  The curves, as a collection, also must not intersect
+themselves.  If the renderer tessellates the primitive, it is 
+implementation-dependent whether these rules are applied before
+or after the tessellation operation.
+.IP
+All attributes that affect the representation of fill area sets also
+affect the representation of the non-uniform B-spline surface primitive.
+
+.Or "Cell array 3D"
+.Op point1 COORD_3D
+.Op point2 COORD_3D
+.Op point3 COORD_3D
+.Op dx CARD32
+.Op dy CARD32
+.Op colors LISTofTABLE_INDEX
+.IP
+When processed by a renderer,
+this command will cause a cell array primitive to be rendered.
+Color values that are passed will be of type \fIIndexed\fP.
+A cell array is a parallelogram of equal-sized cells, each of which is
+a parallelogram and has a single color.
+Each cell has a width defined by:
+.DS C
+width = sqrt((point1.x - point2.x)**2 + (point1.y - point2.y)**2 + (point1.z - point2.z)**2) / dx
+.DE
+.IP
+and a height defined by:
+.DS C
+height = sqrt((point1.x - point3.x)**2 + (point1.y - point3.y)**2 + (point1.z - point3.z)**2) / dy
+.DE
+The colors are specified in a one-dimensional array of size \fIdx * dy\fP.
+The color of each cell is specified by the index of the corresponding
+element in the \fIcolors\fP array.
+Colors are stored in this array by rows, that is, the column number varies
+fastest as colors are stored into the array.  The first color in the
+array is the color at the cell at the corner of \fIpoint1\fP, and subsequent
+colors represent the colors of cells proceeding to to \fIpoint2\fP.
+
+.Or "Cell array 2D"
+.Op color_type COLOR_TYPE
+.Op point1 COORD_2D
+.Op point2 COORD_2D
+.Op dx CARD32
+.Op dy CARD32
+.Op colors LISTofCOLOR
+.IP
+.2d "cell array"
+In addition, the cell array is defined by two points which define a
+rectangle that is taken to be aligned with the modeling coordinate axes.
+
+.Or "Extended cell array 3D"
+.Op color_type COLOR_TYPE
+.Op point1 COORD_3D
+.Op point2 COORD_3D
+.Op point3 COORD_3D
+.Op dx CARD32
+.Op dy CARD32
+.Op colors LISTofCOLOR
+.IP
+When processed by a renderer,
+this command has the same effect as the "cell array 3D" primitive,
+except that the colors may be passed as \fIIndexed\fP or \fIDirect\fP
+color values, depending on the setting of \fIcolor_type\fP.
+
+.Or "GDP 3D"
+.Op gdp_id CARD32
+.Op points LISTofCOORD_3D
+.Op data LISTofCARD8
+.IP
+When processed by a renderer,
+the effect of this command is implementation-dependent.
+Because of floating point and color format discrepancies across
+a network interface, it is not anticipated that the GDP 3D will provide
+a useful extension mechanism, but
+it is provided for PHIGS
+compatibility purposes.
+
+.Or "GDP 2D"
+.Op gdp_id CARD32
+.Op points LISTofCOORD_2D
+.Op data LISTofCARD8
+.IP
+When processed by a renderer,
+the effect of this command is implementation-dependent.
+Because of floating point and color format discrepancies across
+a network interface, it is not anticipated that the GDP 2D will provide
+a useful extension mechanism, but
+It is provided for PHIGS
+compatibility purposes.
+
+.bp

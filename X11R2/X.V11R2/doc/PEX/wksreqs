@@ -1,0 +1,658 @@
+.AC "PHIGS Workstations" 1
+.LP
+.RU
+.LP
+A \fIPHIGS workstation\fP is a PEX resource that combines
+other resources into a single entity that behaves in a manner
+similar to the PHIGS abstraction of a "workstation".
+The PHIGS workstation has built into it all of the capabilities
+of the renderer resource described earlier.  A PHIGS workstation,
+with its lookup tables and name sets, effectively contains an
+instance of a renderer, but it contains functionality above and
+beyond that found in a renderer resource.
+.LP
+This section
+describes the operations that can be performed
+on PHIGS workstation resources
+and the operations that can be performed using PHIGS workstation resources.
+In addition to the
+attributes listed below, the PHIGS workstation resource also
+contains an implementation-dependent number of 
+pick device descriptors that support picking operations.
+These can be set and queried with
+requests found in the next section, "Picking".
+.AC "PHIGS Workstation Resource Management" 2
+.LP                   
+The PHIGS workstation is an X11 resource and carries all of the 
+responsibilities and
+access rights of X11 resources.  These requests manage the creation,
+freeing, and copying of PHIGS workstation resources.
+.AC "Create PHIGS Workstation" 3
+.Fs
+.Na PEXCreatePhigsWKS
+.Rq 
+.Pa wks_id PHIGS_WKS_ID
+.Pa drawable_id DRAWABLE_ID
+.Pa line_bundle LOOKUP_TABLE_ID
+.Pa marker_bundle LOOKUP_TABLE_ID
+.Pa text_bundle	LOOKUP_TABLE_ID
+.Pa interior_bundle LOOKUP_TABLE_ID
+.Pa edge_bundle LOOKUP_TABLE_ID
+.Pa color_table LOOKUP_TABLE_ID
+.Pa pattern_table LOOKUP_TABLE_ID
+.Pa text_font_table LOOKUP_TABLE_ID
+.Pa depth_cue_table LOOKUP_TABLE_ID
+.Pa color_approx LOOKUP_TABLE_ID
+.Pa highlight_incl NAME_SET_ID
+.Pa highlight_excl NAME_SET_ID
+.Pa invis_incl NAME_SET_ID
+.Pa invis_excl NAME_SET_ID
+.Se
+PhigsWKS, Drawable, Match, LookupTable, NameSet
+.Ds                     
+This request creates a PHIGS workstation resource for the specified
+\fIwks_id\fP.  
+The drawable specified by \fIdrawable_id\fP is associated with
+the newly-created PHIGS workstation resource.
+The named tables and namesets are also bound to the PHIGS workstation
+resource for use during rendering.
+A view table that supports current and requested view table entries
+is allocated for the PHIGS workstation automatically at creation time.
+The requests \fBPEXSetViewRep\fP and \fBPEXGetViewRep\fP can be used
+to modify and query the PHIGS workstation view table.
+.Fe
+.bp
+
+.AC "Free PHIGS Workstation" 3
+.Fs
+.Na PEXFreePhigsWKS
+.Rq                 
+.Pa wks_id PHIGS_WKS_ID
+.Se
+PhigsWKS
+.Ds            
+This request deletes the association between the resource id
+and the PHIGS workstation.  The PHIGS workstation storage will be
+freed when no other resource references it.
+.Fe
+.bp
+
+.AC "PHIGS Workstation Inquiry" 2
+.LP
+This section defines requests that can be used to get information
+about a PHIGS workstation resource.
+
+.AC "Get PHIGS Workstation Info" 3
+.Fs
+.Na PEXGetWKSInfo
+.Rq                 
+.Pa format FORMAT
+.Pa wks_id PHIGS_WKS_ID
+.Pa item_mask BITMASK
+.Re
+.Pa item_list LISTofVALUE
+.Se
+PhigsWKS, FloatingPointFormat, Match
+.Ds
+This request returns attributes of the PHIGS workstation
+resource indicated by \fIwks_id\fP.  Floating point values will be returned
+in the floating point format specified by \fIformat\fP.  The parameter
+\fIitem_mask\fP indicates which attributes are to be returned.  For each
+bit that is set in \fIitem_mask\fP, a corresponding value is returned
+in \fIitem_list\fP.
+.LP
+In the table below, the abbreviation
+"create wks req." indicates that the parameter is set by the
+\fBPEXCreatePhigsWKS\fP request.
+The abbreviation
+"draw." means that the default value is determined from the drawable
+at the time the PHIGS workstation resource is created.
+The attributes that may be returned, in order, are:
+.ID
+.ta 0.2i 1.8i 3.2i
+	\fBAttribute Name	Data Type	Default\fP
+.ta
+.ta 0.3i 1.6i 3.0i
+	display_update	DISPLAY_UPDATE	\fIVisualizeNone\fP
+	visual_state	VISUAL_STATE	\fICorrect\fP
+	display_surface	DISPLAY_STATE	\fIEmpty\fP
+	view_update	UPDATE_STATE	\fINotPending\fP
+	defined_views	LISTofTABLE_INDEX	View 0 defined
+	wks_update	UPDATE_STATE	\fINotPending\fP
+	req_NPC_subvolume	NPC_SUBVOLUME	(0,0,0),(1,1,1)
+	cur_NPC_subvolume	NPC_SUBVOLUME	(0,0,0),(1,1,1)
+	req_wks_viewpt	VIEWPORT	draw.
+	cur_wks_viewpt	VIEWPORT	draw.
+	HLHSR_update	UPDATE_STATE	\fINotPending\fP
+	req_HLHSR_mode	HLHSR_MODE	1
+	cur_HLHSR_mode	HLHSR_MODE	1
+	drawable_id	DRAWABLE_ID	create wks req.
+	line_bundle	LOOKUP_TABLE_ID	create wks req.
+	marker_bundle	LOOKUP_TABLE_ID	create wks req.
+	text_bundle	LOOKUP_TABLE_ID	create wks req.
+	interior_bundle	LOOKUP_TABLE_ID	create wks req.
+	edge_bundle	LOOKUP_TABLE_ID	create wks req.
+	color_table	LOOKUP_TABLE_ID	create wks req.
+	pattern_table	LOOKUP_TABLE_ID	create wks req.
+	text_font_table	LOOKUP_TABLE_ID	create wks req.
+	depth_cue_table	LOOKUP_TABLE_ID	create wks req.
+	color_approx	LOOKUP_TABLE_ID	create wks req.
+	highlight_incl	NAME_SET_ID	create wks req.
+	highlight_excl	NAME_SET_ID	create wks req.
+	invis_incl	NAME_SET_ID	create wks req.
+	invis_excl	NAME_SET_ID	create wks req.
+	posted_structs	LISTofSTRUCTURE_ID	\fINull\fP
+
+.Bl "display_update"
+Returns the PHIGS workstation's current display update mode.  This mode
+specifies how the PHIGS workstation attempts to visualize changes,
+and can be set with the \fBPEXSetDisplayUpdateMode\fP request.
+
+.Bl "visual_state"
+Returns the PHIGS workstation's current visual state.  The visual state
+will be \fICorrect\fP if there are no deferred actions and no changes have
+been simulated on the display surface.
+The visual state will be \fIDeferred\fP if there are deferred
+actions, or if there are deferred actions and some changes have
+been simulated on the display surface.
+The visual state will be \fISimulated\fP if there are no deferred
+actions, but some changes have
+been simulated on the display surface.
+
+.Bl "display_surface"
+Returns the current status of the PHIGS workstation's display surface.
+The display surface will be \fIEmpty\fP if nothing has been rendered on the
+drawable, \fINotEmpty\fP otherwise.
+
+.Bl "view_update"
+Returns \fIPending\fP or \fINotPending\fP, depending on whether there are
+view modification requests that have yet to be made current.
+
+.Bl "defined_views"
+Returns the list of view table entries that are defined in the PHIGS
+workstation's current view table.
+The list of defined view indices will be returned
+in the order of view priority.
+
+.Bl "wks_update"
+Returns \fIPending\fP or \fINotPending\fP, depending on whether there are
+workstation transformation requests that have yet to be made current.
+
+.Bl "req_NPC_subvolume"
+Returns the value for the PHIGS workstation's NPC subvolume specification
+that has been requested but has not yet been made current.
+
+.Bl "cur_NPC_subvolume"
+Returns the current value for the PHIGS workstation's NPC
+subvolume specification.
+
+.Bl "req_wks_viewpt"
+Returns the value for the PHIGS workstation's viewport specification
+that has been requested but has not yet been made current.
+
+.Bl "cur_wks_viewpt"
+Returns the current value for the PHIGS workstation's viewport specification.
+
+.Bl "HLHSR_update"
+Returns \fIPending\fP or \fINotPending\fP, depending on whether there are
+HLHSR mode requests that have yet to be made current.
+
+.Bl "req_HLHSR_mode"
+Returns the value for the PHIGS workstation's HLHSR mode
+that has been requested but has not yet been made current.
+
+.Bl "cur_HLHSR_mode"
+Returns the current value for the PHIGS workstation's HLHSR mode.
+
+.Bl "drawable_id"
+Returns the resource id of the drawable that is being used as the
+display surface.
+
+.Bl "line_bundle"
+Returns the resource id of the PHIGS workstation's line bundle table.
+
+.Bl "marker_bundle"
+Returns the resource id of the PHIGS workstation's marker bundle table.
+
+.Bl "text_bundle"
+Returns the resource id of the PHIGS workstation's text bundle table.
+
+.Bl "interior_bundle"
+Returns the resource id of the PHIGS workstation's interior bundle table.
+
+.Bl "edge_bundle"
+Returns the resource id of the PHIGS workstation's edge bundle table.
+
+.Bl "color_table"
+Returns the resource id of the PHIGS workstation's color bundle table.
+
+.Bl "pattern_table"
+Returns the resource id of the PHIGS workstation's pattern table.
+
+.Bl "text_font_table"
+Returns the resource id of the PHIGS workstation's text font table.
+
+.Bl "depth_cue_table"
+Returns the resource id of the PHIGS workstation's depth-cue table.
+
+.Bl "color_approx"
+Returns the resource id of the PHIGS workstation's color table.
+
+.Bl "highlight_incl"
+Returns the resource id of the PHIGS workstation's highlight inclusion
+name set.
+
+.Bl "highlight_excl"
+Returns the resource id of the PHIGS workstation's highlight exclusion
+name set.
+
+.Bl "invis_incl"
+Returns the resource id of the PHIGS workstation's invisibility inclusion
+name set.
+
+.Bl "invis_excl"
+Returns the resource id of the PHIGS workstation's invisibility exclusion
+name set.
+
+.Bl "posted_structs"
+Returns the resource ids of structures in the PHIGS workstation's
+posted structure list.
+The list will be returned in structure priority order.
+.DE
+.Fs
+.bp
+
+.AC "Get Dynamics" 3
+.Fs
+.Na PEXGetDynamics
+.Rq                 
+.Pa drawable_id DRAWABLE_ID
+.Pa item_mask BITMASK_ARRAY
+.Re
+.Pa item_list LISTofVALUE
+.Se
+Drawable
+.Ds
+This request returns information about the dynamics that
+are supported by PHIGS workstations associated with drawables
+of the type specified by \fIdrawable_id\fP.
+Each bit in the \fIitem_mask\fP indicates whether or not
+the corresponding attribute is to be returned.
+The specified values are returned in \fIitem_list\fP.
+The list of dynamics, in order, is as follows:
+.DS
+.ta 0.2i 1.8i 3.5i
+	\fBAttribute Name	Data Type	Description\fP
+.ta
+.ta 0.3i 1.5i 3.0i
+	view_rep	DYNAMIC_TYPE	Changes to view table
+	line_bundle	DYNAMIC_TYPE	Changes to line bundle
+	marker_bundle	DYNAMIC_TYPE	Changes to marker bundle
+	text_bundle	DYNAMIC_TYPE	Changes to text bundle
+	interior_bundle	DYNAMIC_TYPE	Changes to interior bundle
+	edge_bundle	DYNAMIC_TYPE	Changes to edge bundle
+	pattern_table	DYNAMIC_TYPE	Changes to pattern table
+	color_table	DYNAMIC_TYPE	Changes to color table
+	wks_transform	DYNAMIC_TYPE	Changes to workstation transformations
+	highlight_filter	DYNAMIC_TYPE	Changes to highlight name set
+	invisibility_filter	DYNAMIC_TYPE	Changes to invisibility name set
+	HLHSR_mode	DYNAMIC_TYPE	Changes to HLHSR mode
+	structure_modify	DYNAMIC_TYPE	Structure modifications (edits)
+	post_structure	DYNAMIC_TYPE	Additions to posted structure list
+	unpost_structure	DYNAMIC_TYPE	Deletions from posted structure list
+	delete_structure	DYNAMIC_TYPE	Deletion of structure resources
+	reference_modify	DYNAMIC_TYPE	Structure reference modifications
+.ta
+.DE
+The value returned for each of the items in the list above can
+be one of \fIIMM, IRG,\fP or \fICBS\fP, where
+\fIIMM\fP
+means that the specified action can be performed and the correct
+image displayed immediately,
+\fIIRG\fP
+means that the specified action requires a regeneration of the image,
+and \fICBS\fP
+means that the specified action can be simulated immediately if the PHIGS
+workstation's \fIdisplay_update\fP mode is set to \fISimulateSome\fP.
+.Fe
+.bp
+
+.AC "Get PHIGS Workstation View Representation" 3
+.Fs
+.Na PEXGetViewRep
+.Rq                 
+.Pa format FORMAT
+.Pa wks_id PHIGS_WKS_ID
+.Pa index TABLE_INDEX
+.Re
+.Pa view_update VIEW_UPDATE
+.Pa requested VIEW_REP
+.Pa current VIEW_REP
+.Se
+PhigsWKS
+.Ds
+This request returns
+the value of the view update state and
+the specified entries in the requested and current view
+tables in the PHIGS workstation specified by \fIwks_id\fP.
+The \fIview_update\fP will be \fIPending\fP
+if a view change has been requested but not established.
+If the specified entry is not defined, an error will
+be generated and the contents of the reply parameters
+will be undefined.  Floating point values will be returned
+in the floating point format specified by \fIformat\fP.
+.Fe
+.bp
+	
+.AC "PHIGS Workstation Manipulation" 2
+.LP
+
+.AC "Redraw All Structures" 3
+.Fs
+.Na PEXRedrawAllStructures
+.Rq
+.Pa wks_id PHIGS_WKS_ID
+.Se
+PhigsWKS
+.Ds       
+This request redraws all the posted structures contained in the
+PHIGS workstation resource specified by \fIwks_id\fP.
+First, if the PHIGS workstation's \fIdisplay_surface\fP attribute
+is \fINonEmpty\fP,
+its drawable is cleared to the color stored in
+entry zero of its color lookup table.
+Then, if any of its \fIview_update\fP, \fIwks_update\fP, or \fIHLHSR_update\fP
+attributes is set to \fIPending\fP, the requested values are made
+the current values and the attribute is set to \fINotPending\fP.
+After this, all the posted structures are traversed
+and rendered (in priority order).
+Finally, the PHIGS workstation's \fIvisual_state\fP attribute is set
+to \fICorrect\fP.
+.Fe
+
+
+
+
+.AC "Update Workstation" 3
+.Fs
+.Na PEXUpdateWorkstation
+.Rq
+.Pa wks_id PHIGS_WKS_ID
+.Se
+PhigsWKS
+.Ds
+This request will perform actions identical to \fBPEXRedrawAllStructures\fP
+on the PHIGS workstation specified by \fIwks_id\fP
+if its \fIvisual_state\fP attribute
+is currently set to \fIDeferred\fP or \fISimulated\fP.
+.Fe
+.bp
+
+.AC "Execute Deferred Actions" 3
+.Fs
+.Na PEXExecuteDeferredActions
+.Rq
+.Pa wks_id PHIGS_WKS_ID
+.Se
+PhigsWKS
+.Ds       
+This request causes all the deferred actions on the PHIGS workstation specified
+by \fIwks_id\fP to be executed.
+.Fe
+
+
+
+
+.AC "Set View Priority" 3
+.Fs
+.Na PEXSetViewPriority
+.Rq
+.Pa wks_id PHIGS_WKS_ID
+.Pa index1 TABLE_INDEX
+.Pa index2 TABLE_INDEX
+.Pa priority "{\fIHigher, Lower\fP}"
+.Se
+PhigsWKS
+.Ds       
+This request
+sets the relative priorities of entries in \fIwks_id\fP's current view table.
+The priority
+of view table entry \fIindex1\fP with respect
+to view table entry \fIindex2\fP is set to the next
+\fIHigher\fP or \fILower\fP priority.
+These priorities are used to determine the order in which view
+table entries are tested when selecting the inverse viewing transformation
+to use for transformation from device coordinates to world coordinates.
+.Fe
+.bp
+
+.AC "Set Display Update Mode" 3
+.Fs
+.Na PEXSetDisplayUpdateMode
+.Rq
+.Pa wks_id PHIGS_WKS_ID
+.Pa display_update DISPLAY_UPDATE
+.Se
+PhigsWKS
+.Ds       
+This request sets the \fIdisplay_update\fP
+attribute of the PHIGS workstation resource specified by \fIwks_id\fP.
+This attribute defines how changes to the display surface will be visualized.
+The list of permissible display update modes is
+defined in the "Extension Information" section that describes
+enumerated types.
+.Fe
+
+
+
+
+.AC "Map Points" 3
+.Fs
+.Na PEXMapPoints
+.Rq
+.Pa format FORMAT
+.Pa wks_id PHIGS_WKS_ID
+.Pa dc_points LISTofDRAWABLE_COORD
+.Re
+.Pa wc_points LISTofCOORD_3D
+.Pa view_index TABLE_INDEX
+.Se
+PhigsWKS, FloatingPointFormat
+.Ds       
+This request maps the device coordinate points in \fIdc_points\fP
+to the world coordinate points in \fIwc_points\fP
+using the PHIGS workstation resource specified
+by \fIwks_id\fP.
+Each view in the PHIGS workstation's current view table is checked to
+see if it contains all the specified device coordinate
+points.  The index of the view with the highest
+view priority that contains all the points is
+returned in \fIview_index\fP.  The points are transformed to world
+coordinates by passing them through the inverse of
+the view transform associated with the view index and returned in
+\fIwc_points\fP.  Floating point values are passed and will be returned
+in the floating point format specified by \fIformat\fP.
+.Fe
+.bp
+
+
+.AC "PHIGS Workstation Update Requests" 2
+.LP
+This section defines requests that can be used to set "requested"
+values for PHIGS workstation resources.
+
+.AC "Set View Representation" 3
+.Fs
+.Na PEXSetViewRep
+.Rq
+.Pa format FORMAT
+.Pa wks_id PHIGS_WKS_ID
+.Pa view_rep VIEW_REP
+.Se
+PhigsWKS, FloatingPointFormat
+.Ds       
+This request sets an entry in the view table of 
+the PHIGS workstation specified by \fIwks_id\fP to
+the view representation indicated by \fIview_rep\fP.
+The PHIGS workstation's 
+\fIview_update\fP attribute is set to \fIPending\fP.
+All requested views will be made current
+whenever the workstation is updated.
+.Fe
+
+
+
+.AC "Set Workstation Window" 3
+.Fs
+.Na PEXSetWKSWindow
+.Rq
+.Pa format FORMAT
+.Pa wks_id PHIGS_WKS_ID
+.Pa NPC_subvolume NPC_SUBVOLUME
+.Se
+PhigsWKS, FloatingPointFormat
+.Ds       
+This request specifies
+the NPC subvolume (PHIGS workstation window)
+values that are to be used instead of the current values
+in the workstation specified by \fIwks_id\fP.
+If the PHIGS workstation's \fIdisplay_surface\fP attribute is \fIEmpty\fP,
+or if the dynamic modification for its \fIwks_transform\fP is \fIIMM\fP,
+its \fIcur_NPC_subvolume\fP attribute is modified with the values contained
+in \fINPC_subvolume\fP.  Otherwise,
+its \fIreq_NPC_subvolume\fP attribute is modified.  The next time
+the PHIGS workstation is updated, the
+\fIreq_NPC_subvolume\fP values will be copied to
+\fIcur_NPC_subvolume\fP.
+.Fe
+.bp
+
+.AC "Set Workstation Viewport" 3
+.Fs
+.Na PEXSetWKSViewport
+.Rq
+.Pa format FORMAT
+.Pa wks_id PHIGS_WKS_ID
+.Pa viewport VIEWPORT
+.Se
+PhigsWKS, FloatingPointFormat
+.Ds       
+This request specifies the viewport values
+that are to be used instead of the current values
+in the workstation specified by \fIwks_id\fP.
+If the PHIGS workstation's \fIdisplay_surface\fP attribute is \fIEmpty\fP,
+or if the dynamic modification for its \fIwks_transform\fP is \fIIMM\fP,
+its \fIcur_viewport\fP attribute is modified with the values contained
+in \fIviewport\fP.  Otherwise,
+its \fIreq_viewport\fP attribute is modified.  The next time
+the PHIGS workstation is updated, the
+\fIreq_viewport\fP values will be copied to
+\fIcur_viewport\fP.
+.Fe
+
+
+
+
+.AC "Set HLHSR Mode" 3
+.Fs
+.Na PEXSetHLHSRMode
+.Rq
+.Pa wks_id PHIGS_WKS_ID
+.Pa mode HLHSR_MODE
+.Se
+PhigsWKS
+.Ds       
+This request specifies the HLHSR mode
+that is to be used instead of the current value
+in the workstation specified by \fIwks_id\fP.
+If the PHIGS workstation's \fIdisplay_surface\fP attribute is \fIEmpty\fP,
+or if the dynamic modification for its \fIHLHSR_mode\fP is \fIIMM\fP,
+its \fIcur_HLHSR_mode\fP attribute is modified with the values contained
+in \fIviewport\fP.  Otherwise,
+its \fIreq_HLHSR_mode\fP attribute is modified.  The next time
+the PHIGS workstation is updated, the
+\fIreq_HLHSR_mode\fP values will be copied to
+\fIcur_HLHSR_mode\fP.
+.Fe
+.bp
+
+.AC "Posting/Unposting Structures" 2
+.LP
+This section describes the requests that can be used to post and
+unpost structures on a PHIGS workstation resource.
+
+.AC "Post Structure" 3
+.Fs
+.Na PEXPostStructure
+.Rq
+.Pa wks_id PHIGS_WKS_ID
+.Pa s_id STRUCTURE_ID
+.Pa priority CARD32
+.Se
+PhigsWKS, Structure
+.Ds 
+This request adds the structure specified by \fIs_id\fP
+to the list of posted structures
+in the PHIGS workstation \fIwks_id\fP.  A priority
+is also provided to indicate the priority of the newly-posted
+structure with respect to the structures
+already in the posted structure list.
+If multiple structures are posted for display to the same display
+space location, the implementation will ensure the display of the
+higher priority structure.
+If two structures have the same priority, the last posted structure
+has the higher priority.  If \fIs_id\fP is not a valid structure resource id,
+the request is ignored.
+.Fe
+
+
+
+
+.AC "Unpost Structure" 3
+.Fs
+.Na PEXUnpostStructure
+.Rq
+.Pa wks_id PHIGS_WKS_ID
+.Pa s_id STRUCTURE_ID
+.Se
+PhigsWKS, Structure
+.Ds       
+This request
+removes the structure specified by \fIs_id\fP from 
+\fIwks_id\fP's posted structure list.  If \fIs_id\fP is not found in
+the posted structure list,
+the request is ignored.
+.Fe
+.bp
+
+.AC "Unpost All Structures" 3
+.Fs
+.Na PEXUnpostAllStructures
+.Rq
+.Pa wks_id PHIGS_WKS_ID
+.Se
+PhigsWKS
+.Ds       
+This request
+removes all structures from
+\fIwks_id\fP's posted structure list.
+.Fe
+
+
+
+
+.AC "Get PHIGS Workstation Postings" 3
+.Fs
+.Na PEXGetWKSPostings
+.Rq
+.Pa s_id STRUCTURE_ID
+.Re
+.Pa wks_id PHIGS_WKS_ID
+.Se
+Structure
+.Ds       
+This request returns a list of all of the PHIGS workstation
+resources to which
+\fIs_id\fP has been posted.
+.Fe
+.bp

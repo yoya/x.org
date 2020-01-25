@@ -1,0 +1,18 @@
+          SRCS1 = xhw0.c
+          SRCS2 = xhw1.c
+          SRCS3 = xhw3.c
+          SRCS4 = hw.c
+          OBJS1 = xhw0.o
+          OBJS2 = xhw1.o
+          OBJS3 = xhw3.o
+          OBJS4 = hw.o
+
+SingleProgramTarget(xhw0, $(OBJS1), $(XLIB), )
+
+SingleProgramTarget(xhw1, $(OBJS2), $(XLIB), )
+
+SingleProgramTarget(xhw3, $(OBJS3), $(XTOOLLIB) $(OLDXRMLIB) $(XLIB), )
+
+SingleProgramTarget(hw, $(OBJS4),, )
+
+

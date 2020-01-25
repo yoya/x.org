@@ -1,0 +1,57 @@
+.DA "1 March 1988"
+
+.sp 10
+
+.in +25
+March 1, 1988
+.in -25
+
+.sp 2
+
+Release 2 of Version 11 of the X Window System is brought to you by the
+MIT X Consortium.  The X Consortium is a collection of industrial and
+academic organizations, administered within the MIT Laboratory for
+Computer Science, dedicated to providing continued technical leadership
+for X, evolving the system to incorporate a wider range of graphics
+capabilities, integrating support into more programming languages, and
+developing better user interface technologies.  The X Consortium is open
+to any organization.
+
+I believe that you will find this release to be a solid base for
+applications development.  Several new, fast servers are available in
+this release, making development possible on a wide range of platforms.
+The X Toolkit has received considerable review and redesign, and should
+now provide a good base for building user interfaces.  In addition,
+several other toolkits are available in the user-contributed software
+distribution.
+
+The Consortium is committed to producing standard, stable interfaces for
+systems and applications development.  Both the core protocol
+specification and the C Xlib interface are considered part of the X
+standard.  The core protocol has not changed from the previous release;
+the C Xlib interface has had changes to the Resource Manager routines as
+a result of experience with the X Toolkit, but is otherwise compatible
+with the previous release.
+
+The X Toolkit Intrinsics are currently under review by the Consortium
+for possible inclusion in the standard.  The CLX interface is in the
+final stages of development, and will be reviewed by the Consortium in
+the near future.  Development of a sample implementation of the proposed
+X3D-PEX extension, supporting Phigs and Phigs+ functionality, is
+underway; once the design has been validated, the extension will be
+reviewed by the Consortium for possible inclusion in the standard.
+
+This release would not have been possible without the hard work and long
+hours put in by the MIT staff; my thanks to Jim Fulton of the MIT
+Laboratory for Computer Science, Ralph Swick of MIT Project Athena and
+Digital Equipment Corporation, and Ron Newman of MIT Project Athena.
+
+.sp 2
+
+.nf
+.in +25
+\'til the next release,
+.sp 1
+Bob Scheifler
+Director, MIT X Consortium
+MIT Laboratory for Computer Science

@@ -1,0 +1,6 @@
+.\" $Header: discard.a,v 1.1 87/09/28 12:57:25 mento Exp $
+.IP \fIdiscard\fP 1i
+Specifies whether 
+.PN XSync
+discards all events on the event queue.
+You can pass the value 0 or 1.

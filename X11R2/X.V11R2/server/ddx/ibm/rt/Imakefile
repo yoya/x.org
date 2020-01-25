@@ -1,0 +1,91 @@
+SRCS =		malloc.c \
+		plumber.c \
+		rtinit.c \
+		rtcolor.c \
+		rtcursor.c \
+		rtmouse.c \
+		rtkeyboard.c \
+		rtscreen.c \
+		rtio.c \
+		rtutils.c 
+
+LIBOBJS =	rtcolor.o\
+		rtcursor.o \
+		rtinit.o\
+		rtio.o\
+		rtmouse.o \
+		rtkeyboard.o \
+		rtscreen.o \
+		rtutils.o 
+
+ALLOCOBJS =	malloc.o \
+		plumber.o
+
+OBJS =		$(OTHROBJS) $(LIBOBJS) $(ALLOCOBJS)
+
+#define	ListCreate(name)\
+SCREENS0= name
+#define	ListCreateEmpty()\
+SCREENS0= 
+#define	ListAdd(last,new,name)\
+SCREENS/**/new= $(SCREENS/**/last) name
+#define	ListAddEmpty(last,new)\
+SCREENS/**/new= $(SCREENS/**/last)
+
+
+#if RtInclude8514
+ListCreate(-DRT_8514)
+#else
+ListCreateEmpty()
+#endif
+#if RtIncludeAED
+ListAdd(0,1,-DRT_AED)
+#else
+ListAddEmpty(0,1)
+#endif
+#if RtIncludeAPA16
+ListAdd(1,2,-DRT_APA16)
+#else
+ListAddEmpty(1,2)
+#endif
+#if RtIncludeEGA
+ListAdd(2,3,-DRT_EGA)
+#else
+ListAddEmpty(2,3)
+#endif
+#if RtIncludeMPEL
+ListAdd(3,4,-DRT_MPEL)
+#else
+ListAddEmpty(3,4)
+#endif
+#if RtIncludeVGA
+ListAdd(4,5,-DRT_VGA)
+#else
+ListAddEmpty(4,5)
+#endif
+SCREENS= $(SCREENS5)
+
+CDEBUGFLAGS = ServerCDebugFlags
+#if SpecialMalloc
+OS_DEFINES = -DSPECIAL_MALLOC
+#else
+OS_DEFINES =
+#endif
+
+DEFINES = $(OS_DEFINES) $(SCREENS)
+
+INCLUDES = -I. -I../../../include -I$(INCLUDESRC) -I../../mfb
+
+NormalLibraryObjectRule()
+
+all::	$(OTHROBJS)
+NormalRelocatableTarget(rt,$(LIBOBJS))
+NormalLibraryTarget(rtalloc,$(ALLOCOBJS))
+
+NormalLintTarget($(SRCS))
+
+lintlib:
+
+DependTarget()
+
+rtscreen.o rtinit.o rtio.o rtutils.o:	Makefile

@@ -1,0 +1,29 @@
+Please send just ONE bug report per mail message.  Reports should be sent to
+
+                            xbugs@expo.lcs.mit.edu
+
+
+
+VERSION:
+	X11 release 2
+
+CLIENT MACHINE:
+	(e.g. Sun 3/280, Microvax II, HP 9000, IBM PC/RT, etc.)
+
+CLIENT OPERATING SYSTEM:
+	(e.g. Ultrix 2.0, SunOS 3.4, 4.3bsd, etc.)
+
+DISPLAY:
+	(e.g. QVSS, GPX, CG4, HP TOPCAT, etc.)
+
+SYNOPSIS:
+	 (Brief description of the problem)
+
+DESCRIPTION:
+	 (More detailed description)
+
+REPEAT-BY:
+	(What you did to get the error; include test program if appropriate)
+
+FIX:
+	(Preferred, but not necessary)

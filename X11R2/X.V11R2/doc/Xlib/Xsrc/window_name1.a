@@ -1,0 +1,3 @@
+.\" $Header: window_name1.a,v 1.1 87/09/28 13:19:00 mento Exp $
+.IP \fIwindow_name_return\fP 1i
+Returns a pointer to the window name, which will be a null-terminated string.

@@ -1,0 +1,71 @@
+.TH XFillRectangle 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XFillRectangle, XFillRectangles, XFillPolygon, XFillArc, XFillArcs \- fill rectangles, polygons, or arcs
+.SH SYNTAX
+.so ../Xsrc/XFillRect.f
+.LP
+.so ../Xsrc/XFillRects.f
+.LP
+.so ../Xsrc/XFillPoly.f
+.LP
+.so ../Xsrc/XFillArc.f
+.LP
+.so ../Xsrc/XFillArcs.f
+.SH ARGUMENTS
+.so ../Xsrc/angle1.a
+.so ../Xsrc/angle2.a
+.so ../Xsrc/arcs.a
+.so ../Xsrc/d.a
+.so ../Xsrc/display.a
+.so ../Xsrc/gc.a
+.so ../Xsrc/mode.a
+.so ../Xsrc/narcs.a
+.so ../Xsrc/npoints.a
+.so ../Xsrc/nrectangles.a
+.so ../Xsrc/points.a
+.so ../Xsrc/rectangles.a
+.so ../Xsrc/shape.a
+.so ../Xsrc/widtheight.a
+.so ../Xsrc/xy.a
+.SH DESCRIPTION
+.so ../Xdescrip/XFillRect.d
+.LP
+.ds fd .PN XFillRectangle
+.ds fe .PN XFillRectangles
+.so ../Xsrc/errsent3.com
+.PN BadDrawable ,
+.PN BadGC ,
+and
+.PN BadMatch 
+errors.
+.LP
+.so ../Xdescrip/XFillPoly.d
+.ds .PN XFillPolygon
+.so ../Xsrc/errsent.com
+.PN BadDrawable ,
+.PN BadGC ,
+.PN BadMatch ,
+and
+.PN BadValue 
+errors.
+.LP
+.so ../Xdescrip/XFillArc.d
+.ds fd .PN XFillArc
+.ds fe .PN XFillArcs
+.so ../Xsrc/errsent3.com
+.PN BadDrawable ,
+.PN BadGC ,
+and
+.PN BadMatch 
+errors.
+.SH DIAGNOSTICS
+.so ../Xerrors/baddrawable.e
+.so ../Xerrors/badgc.e
+.so ../Xerrors/badmatch1.e
+.so ../Xerrors/badmatch2.e
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+XDrawArc(3X),
+XDrawRectangle(3X)
+.br
+\fIXlib \- C Language X Interface\fP

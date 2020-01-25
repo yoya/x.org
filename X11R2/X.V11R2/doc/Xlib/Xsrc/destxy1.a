@@ -1,0 +1,8 @@
+.\" $Header: destxy1.a,v 1.1 87/09/28 12:57:18 mento Exp $
+.IP \fIdest_x\fP 1i
+.br
+.ns
+.IP \fIdest_y\fP 1i
+Specify the x and y coordinates of the destination rectangle relative to
+its origin.
+These coordinates specify the upper left corner of the destination rectangle.

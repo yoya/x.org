@@ -1,0 +1,3 @@
+.IP \fIlist\fP 1i
+Specifies the search list returned by
+.PN XrmQGetSearchList .

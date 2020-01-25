@@ -1,0 +1,3 @@
+.\" $Header: width0.a,v 1.1 87/09/28 13:18:40 mento Exp $
+.IP \fIwidth0\fP 1i
+Returns the base width for the specified window.

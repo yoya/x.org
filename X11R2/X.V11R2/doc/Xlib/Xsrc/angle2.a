@@ -1,0 +1,4 @@
+.\" $Header: angle2.a,v 1.1 87/09/28 11:00:33 mento Exp $
+.IP \fIangle2\fP 1i
+Specifies the path and extent of the arc relative to the start of the
+arc, in units of degrees * 64.

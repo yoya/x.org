@@ -1,0 +1,39 @@
+.TH XDPR 1 "1 March 1988" "X Version 11"
+.SH NAME
+xdpr \- dump an X window directly to the printer
+.SH SYNOPSIS
+.B xdpr
+[-option ...]
+.SH DESCRIPTION
+\fIXdpr\fP runs the commands 
+.IR xwd (1),
+.IR xpr (1), and
+.IR lpr (1)
+to dump an X window, process it for a laser printer, and print
+it out.  This is the easiest way to get a printout of a window.
+\fIXdpr\fP by default will print the largest possible representation 
+of the window on the output page.
+.PP
+.TP
+.B -P\fIprinter\fP
+This option specifies the name of the printer to be used.
+.TP
+.B \-display \fIdisplay\fP
+This option specifies the X server to contact; see \fIX(1)\fP.
+.PP
+Any other arguments 
+will be passed as arguments to the 
+.IR xpr(1)
+command.
+.SH SEE ALSO
+X(1), xwd(1), xpr(1), xwud(1)
+.SH ENVIRONMENT
+DISPLAY - for which display to use be default.
+.SH COPYRIGHT
+Copyright 1988, Massachusetts Institute of Technology.
+.br
+See \fIX(1)\fP for a full statement of rights and permissions.
+.SH AUTHOR
+Michael R. Gretzinger, MIT Project Athena
+.br
+Jim Gettys, MIT Project Athena

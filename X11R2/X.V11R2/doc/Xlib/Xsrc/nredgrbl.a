@@ -1,0 +1,12 @@
+.\" $Header: nredgrbl.a,v 1.1 87/09/28 13:08:41 mento Exp $
+.IP \fInreds\fP 1i
+.br
+.ns
+.IP \fIngreens\fP 1i
+.br
+.ns
+.IP \fInblues\fP 1i
+.br
+.ns
+Specify the number of red, green, and blue colors (shades).
+The value you pass must be non-negative. 

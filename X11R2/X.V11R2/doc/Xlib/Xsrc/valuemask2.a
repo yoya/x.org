@@ -1,0 +1,6 @@
+.\" $Header: valuemask2.a,v 1.1 87/09/28 13:17:36 mento Exp $
+.IP \fIvaluemask_copy\fP 1i
+Specifies which components in the source graphics context are to be 
+copied to the destination graphics context.
+This argument is the bitwise inclusive OR of one or more of the valid 
+GC component masks.

@@ -1,0 +1,35 @@
+.TH XReadBitmapFile 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XReadBitmapFile, XWriteBitmapFile, XCreatePixmapFromBitmapData, XCreateBitmapFromData \- manipulate bitmaps
+.SH SYNTAX
+.so ../Xsrc/XRBitFile.f
+.LP
+.so ../Xsrc/XWBitFile.f
+.LP
+.so ../Xsrc/XCPFBitData.f
+.LP
+.so ../Xsrc/XCreBmap.f
+.SH ARGUMENTS
+.so ../Xsrc/write_bmap.a
+.so ../Xsrc/read_bmap.a
+.so ../Xsrc/d.a
+.so ../Xsrc/data2.a
+.so ../Xsrc/data_bmap.a
+.so ../Xsrc/display.a
+.so ../Xsrc/depth1.a
+.so ../Xsrc/fg_bg.a
+.so ../Xsrc/filename.a
+.so ../Xsrc/widtheight.a
+.so ../Xsrc/widtheight3.a
+.so ../Xsrc/xy_hot.a
+.so ../Xsrc/xy_hot2.a
+.SH DESCRIPTION
+.so ../Xdescrip/XRBitFile.d
+.LP
+.so ../Xdescrip/XWBitFile.d
+.LP
+.so ../Xdescrip/XCPFBitData.d
+.LP
+.so ../Xdescrip/XCreBmap.d
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface\fP

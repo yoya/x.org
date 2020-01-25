@@ -1,0 +1,1162 @@
+%!PS-Adobe-1.0
+%%Creator: orpheus:mento (Al Mento,,,,)
+%%Title: stdin (ditroff)
+%%CreationDate: Sat Feb 27 21:24:55 1988
+%%EndComments
+% lib/psdit.pro -- prolog for psdit (ditroff) files
+% Copyright (c) 1984, 1985 Adobe Systems Incorporated. All Rights Reserved.
+% last edit: shore Sat Nov 23 20:28:03 1985
+% RCSID: $Header: psdit.pro,v 2.1 85/11/24 12:19:43 shore Rel $
+
+/$DITroff 140 dict def $DITroff begin
+/fontnum 1 def /fontsize 10 def /fontheight 10 def /fontslant 0 def
+/xi {0 72 11 mul translate 72 resolution div dup neg scale 0 0 moveto
+  /fontnum 1 def /fontsize 10 def /fontheight 10 def /fontslant 0 def F
+  /pagesave save def}def
+/PB{save /psv exch def currentpoint translate 
+  resolution 72 div dup neg scale 0 0 moveto}def
+/PE{psv restore}def
+/arctoobig 90 def /arctoosmall .05 def
+/m1 matrix def /m2 matrix def /m3 matrix def /oldmat matrix def
+/tan{dup sin exch cos div}def
+/point{resolution 72 div mul}def
+/dround	{transform round exch round exch itransform}def
+/xT{/devname exch def}def
+/xr{/mh exch def /my exch def /resolution exch def}def
+/xp{}def
+/xs{docsave restore end}def
+/xt{}def
+/xf{/fontname exch def /slotno exch def fontnames slotno get fontname eq not
+ {fonts slotno fontname findfont put fontnames slotno fontname put}if}def
+/xH{/fontheight exch def F}def
+/xS{/fontslant exch def F}def
+/s{/fontsize exch def /fontheight fontsize def F}def
+/f{/fontnum exch def F}def
+/F{fontheight 0 le {/fontheight fontsize def}if
+   fonts fontnum get fontsize point 0 0 fontheight point neg 0 0 m1 astore
+   fontslant 0 ne{1 0 fontslant tan 1 0 0 m2 astore m3 concatmatrix}if
+   makefont setfont .04 fontsize point mul 0 dround pop setlinewidth}def
+/X{exch currentpoint exch pop moveto show}def
+/N{3 1 roll moveto show}def
+/Y{exch currentpoint pop exch moveto show}def
+/S{show}def
+/ditpush{}def/ditpop{}def
+/AX{3 -1 roll currentpoint exch pop moveto 0 exch ashow}def
+/AN{4 2 roll moveto 0 exch ashow}def
+/AY{3 -1 roll currentpoint pop exch moveto 0 exch ashow}def
+/AS{0 exch ashow}def
+/MX{currentpoint exch pop moveto}def
+/MY{currentpoint pop exch moveto}def
+/MXY{moveto}def
+/cb{pop}def	% action on unknown char -- nothing for now
+/n{}def/w{}def
+/p{pop showpage pagesave restore /pagesave save def}def
+/abspoint{currentpoint exch pop add exch currentpoint pop add exch}def
+/distance{dup mul exch dup mul add sqrt}def
+/dstroke{currentpoint stroke moveto}def
+/Dl{2 copy gsave rlineto stroke grestore rmoveto}def
+/arcellipse{/diamv exch def /diamh exch def oldmat currentmatrix pop
+ currentpoint translate 1 diamv diamh div scale /rad diamh 2 div def
+ currentpoint exch rad add exch rad -180 180 arc oldmat setmatrix}def
+/Dc{dup arcellipse dstroke}def
+/De{arcellipse dstroke}def
+/Da{/endv exch def /endh exch def /centerv exch def /centerh exch def
+ /cradius centerv centerv mul centerh centerh mul add sqrt def
+ /eradius endv endv mul endh endh mul add sqrt def
+ /endang endv endh atan def
+ /startang centerv neg centerh neg atan def
+ /sweep startang endang sub dup 0 lt{360 add}if def
+ sweep arctoobig gt
+ {/midang startang sweep 2 div sub def /midrad cradius eradius add 2 div def
+  /midh midang cos midrad mul def /midv midang sin midrad mul def
+  midh neg midv neg endh endv centerh centerv midh midv Da
+  currentpoint moveto Da}
+ {sweep arctoosmall ge
+  {/controldelt 1 sweep 2 div cos sub 3 sweep 2 div sin mul div 4 mul def
+  centerv neg controldelt mul centerh controldelt mul
+  endv neg controldelt mul centerh add endh add
+  endh controldelt mul centerv add endv add
+  centerh endh add centerv endv add rcurveto dstroke}
+ {centerh endh add centerv endv add rlineto dstroke}ifelse}ifelse}def
+
+/Barray 200 array def % 200 values in a wiggle
+/D~{mark}def
+/D~~{counttomark Barray exch 0 exch getinterval astore /Bcontrol exch def pop
+ /Blen Bcontrol length def Blen 4 ge Blen 2 mod 0 eq and
+ {Bcontrol 0 get Bcontrol 1 get abspoint /Ycont exch def /Xcont exch def
+  Bcontrol 0 2 copy get 2 mul put Bcontrol 1 2 copy get 2 mul put
+  Bcontrol Blen 2 sub 2 copy get 2 mul put
+  Bcontrol Blen 1 sub 2 copy get 2 mul put
+  /Ybi /Xbi currentpoint 3 1 roll def def 0 2 Blen 4 sub
+  {/i exch def
+   Bcontrol i get 3 div Bcontrol i 1 add get 3 div
+   Bcontrol i get 3 mul Bcontrol i 2 add get add 6 div
+   Bcontrol i 1 add get 3 mul Bcontrol i 3 add get add 6 div
+   /Xbi Xcont Bcontrol i 2 add get 2 div add def
+   /Ybi Ycont Bcontrol i 3 add get 2 div add def
+   /Xcont Xcont Bcontrol i 2 add get add def
+   /Ycont Ycont Bcontrol i 3 add get add def
+   Xbi currentpoint pop sub Ybi currentpoint exch pop sub rcurveto
+  }for dstroke}if}def
+end
+/ditstart{$DITroff begin
+ /nfonts 60 def			% NFONTS makedev/ditroff dependent!
+ /fonts[nfonts{0}repeat]def
+ /fontnames[nfonts{()}repeat]def
+/docsave save def
+}def
+
+% character outcalls
+/oc {/pswid exch def /cc exch def /name exch def
+   /ditwid pswid fontsize mul resolution mul 72000 div def
+   /ditsiz fontsize resolution mul 72 div def
+   ocprocs name known{ocprocs name get exec}{name cb}
+   ifelse}def
+/fractm [.65 0 0 .6 0 0] def
+/fraction
+ {/fden exch def /fnum exch def gsave /cf currentfont def
+  cf fractm makefont setfont 0 .3 dm 2 copy neg rmoveto
+  fnum show rmoveto currentfont cf setfont(\244)show setfont fden show 
+  grestore ditwid 0 rmoveto} def
+/oce {grestore ditwid 0 rmoveto}def
+/dm {ditsiz mul}def
+/ocprocs 50 dict def ocprocs begin
+(14){(1)(4)fraction}def
+(12){(1)(2)fraction}def
+(34){(3)(4)fraction}def
+(13){(1)(3)fraction}def
+(23){(2)(3)fraction}def
+(18){(1)(8)fraction}def
+(38){(3)(8)fraction}def
+(58){(5)(8)fraction}def
+(78){(7)(8)fraction}def
+(sr){gsave 0 .06 dm rmoveto(\326)show oce}def
+(is){gsave 0 .15 dm rmoveto(\362)show oce}def
+(->){gsave 0 .02 dm rmoveto(\256)show oce}def
+(<-){gsave 0 .02 dm rmoveto(\254)show oce}def
+(==){gsave 0 .05 dm rmoveto(\272)show oce}def
+end
+
+% an attempt at a PostScript FONT to implement ditroff special chars
+% this will enable us to 
+%	cache the little buggers
+%	generate faster, more compact PS out of psdit
+%	confuse everyone (including myself)!
+50 dict dup begin
+/FontType 3 def
+/FontName /DIThacks def
+/FontMatrix [.001 0 0 .001 0 0] def
+/FontBBox [-260 -260 900 900] def% a lie but ...
+/Encoding 256 array def
+0 1 255{Encoding exch /.notdef put}for
+Encoding
+ dup 8#040/space put %space
+ dup 8#110/rc put %right ceil
+ dup 8#111/lt put %left  top curl
+ dup 8#112/bv put %bold vert
+ dup 8#113/lk put %left  mid curl
+ dup 8#114/lb put %left  bot curl
+ dup 8#115/rt put %right top curl
+ dup 8#116/rk put %right mid curl
+ dup 8#117/rb put %right bot curl
+ dup 8#120/rf put %right floor
+ dup 8#121/lf put %left  floor
+ dup 8#122/lc put %left  ceil
+ dup 8#140/sq put %square
+ dup 8#141/bx put %box
+ dup 8#142/ci put %circle
+ dup 8#143/br put %box rule
+ dup 8#144/rn put %root extender
+ dup 8#145/vr put %vertical rule
+ dup 8#146/ob put %outline bullet
+ dup 8#147/bu put %bullet
+ dup 8#150/ru put %rule
+ dup 8#151/ul put %underline
+ pop
+/DITfd 100 dict def
+/BuildChar{0 begin
+ /cc exch def /fd exch def
+ /charname fd /Encoding get cc get def
+ /charwid fd /Metrics get charname get def
+ /charproc fd /CharProcs get charname get def
+ charwid 0 fd /FontBBox get aload pop setcachedevice
+ 2 setlinejoin 40 setlinewidth
+ newpath 0 0 moveto gsave charproc grestore
+ end}def
+/BuildChar load 0 DITfd put
+%/UniqueID 5 def
+/CharProcs 50 dict def
+CharProcs begin
+/space{}def
+/.notdef{}def
+/ru{500 0 rls}def
+/rn{0 840 moveto 500 0 rls}def
+/vr{0 800 moveto 0 -770 rls}def
+/bv{0 800 moveto 0 -1000 rls}def
+/br{0 750 moveto 0 -1000 rls}def
+/ul{0 -140 moveto 500 0 rls}def
+/ob{200 250 rmoveto currentpoint newpath 200 0 360 arc closepath stroke}def
+/bu{200 250 rmoveto currentpoint newpath 200 0 360 arc closepath fill}def
+/sq{80 0 rmoveto currentpoint dround newpath moveto
+    640 0 rlineto 0 640 rlineto -640 0 rlineto closepath stroke}def
+/bx{80 0 rmoveto currentpoint dround newpath moveto
+    640 0 rlineto 0 640 rlineto -640 0 rlineto closepath fill}def
+/ci{500 360 rmoveto currentpoint newpath 333 0 360 arc
+    50 setlinewidth stroke}def
+
+/lt{0 -200 moveto 0 550 rlineto currx 800 2cx s4 add exch s4 a4p stroke}def
+/lb{0 800 moveto 0 -550 rlineto currx -200 2cx s4 add exch s4 a4p stroke}def
+/rt{0 -200 moveto 0 550 rlineto currx 800 2cx s4 sub exch s4 a4p stroke}def
+/rb{0 800 moveto 0 -500 rlineto currx -200 2cx s4 sub exch s4 a4p stroke}def
+/lk{0 800 moveto 0 300 -300 300 s4 arcto pop pop 1000 sub
+    0 300 4 2 roll s4 a4p 0 -200 lineto stroke}def
+/rk{0 800 moveto 0 300 s2 300 s4 arcto pop pop 1000 sub
+    0 300 4 2 roll s4 a4p 0 -200 lineto stroke}def
+/lf{0 800 moveto 0 -1000 rlineto s4 0 rls}def
+/rf{0 800 moveto 0 -1000 rlineto s4 neg 0 rls}def
+/lc{0 -200 moveto 0 1000 rlineto s4 0 rls}def
+/rc{0 -200 moveto 0 1000 rlineto s4 neg 0 rls}def
+end
+
+/Metrics 50 dict def Metrics begin
+/.notdef 0 def
+/space 500 def
+/ru 500 def
+/br 0 def
+/lt 416 def
+/lb 416 def
+/rt 416 def
+/rb 416 def
+/lk 416 def
+/rk 416 def
+/rc 416 def
+/lc 416 def
+/rf 416 def
+/lf 416 def
+/bv 416 def
+/ob 350 def
+/bu 350 def
+/ci 750 def
+/bx 750 def
+/sq 750 def
+/rn 500 def
+/ul 500 def
+/vr 0 def
+end
+
+DITfd begin
+/s2 500 def /s4 250 def /s3 333 def
+/a4p{arcto pop pop pop pop}def
+/2cx{2 copy exch}def
+/rls{rlineto stroke}def
+/currx{currentpoint pop}def
+/dround{transform round exch round exch itransform} def
+end
+end
+/DIThacks exch definefont pop
+ditstart
+(psc)xT
+576 1 1 xr
+1(Times-Roman)xf 1 f
+2(Times-Italic)xf 2 f
+3(Times-Bold)xf 3 f
+4(Times-BoldItalic)xf 4 f
+5(Helvetica)xf 5 f
+6(Helvetica-Bold)xf 6 f
+7(Courier)xf 7 f
+8(Courier-Bold)xf 8 f
+9(Symbol)xf 9 f
+10(DIThacks)xf 10 f
+10 s
+1 f
+xi
+%%EndProlog
+
+%%Page: 34 1
+10 s 0 xH 0 xS 1 f
+3 f
+576 474(X)N
+654(Toolkit)X
+922(Widgets)X
+3535(X11,)X
+3713(Release)X
+3992(2)X
+1 f
+18 s
+2140 834(Index)N
+3 f
+12 s
+576 1086(A)N
+1 f
+10 s
+576 1266(Application:)N
+636 1356(programmer,)N
+1073(2)X
+576 1446(Arg,)N
+3 f
+11 s
+743(11)X
+1 f
+10 s
+576 1536(ArgList,)N
+3 f
+11 s
+867(11)X
+1 f
+10 s
+(,)S
+995(15,)X
+1115(16)X
+576 1626(asciiDiskWidgetClass,)N
+1323(20)X
+576 1716(asciiStringWidgetClass,)N
+1367(20)X
+576 1806(AsciiText,)N
+932(17)X
+3 f
+12 s
+576 1986(B)N
+1 f
+10 s
+576 2166(Box)N
+729(widget,)X
+3 f
+11 s
+989(27)X
+1 f
+10 s
+636 2256(adding)N
+874(children,)X
+1177(27)X
+636 2346(creating,)N
+935(27)X
+636 2436(destroying,)N
+1014(27)X
+636 2526(removing)N
+963(children,)X
+1266(27)X
+636 2616(resources,)N
+980(27)X
+576 2706(boxWidgetClass,)N
+1145(27)X
+3 f
+12 s
+576 2886(C)N
+1 f
+10 s
+576 3066(CallbackProc,)N
+3 f
+11 s
+1050(9)X
+1 f
+10 s
+576 3156(Child,)N
+793(2)X
+576 3246(Class,)N
+789(2)X
+576 3336(Client,)N
+811(2)X
+576 3426(Command)N
+929(widget,)X
+3 f
+11 s
+1189(14)X
+1 f
+10 s
+636 3516(creating,)N
+935(15)X
+636 3606(destroying,)N
+1014(16)X
+636 3696(resources,)N
+980(14)X
+576 3786(commandWidgetClass,)N
+1341(14,)X
+1461(15)X
+576 3876(Creating)N
+872(widgets:)X
+636 3966(Box,)N
+809(27)X
+636 4056(Command,)N
+1009(15)X
+636 4146(Dialog,)N
+894(31)X
+636 4236(Form,)N
+849(30)X
+636 4326(Grip,)N
+823(33)X
+636 4416(Label,)N
+859(17)X
+636 4506(Scrollbar,)N
+970(25)X
+636 4596(Text)N
+803(\256le,)X
+945(20)X
+636 4686(Text)N
+803(string,)X
+1025(20)X
+636 4776(VPaned,)N
+930(28)X
+3 f
+12 s
+576 4956(D)N
+1 f
+10 s
+576 5136(delete,)N
+808(18)X
+576 5226(Destroying)N
+952(widgets:)X
+636 5316(Box,)N
+809(27)X
+636 5406(Command,)N
+1009(16)X
+636 5496(Dialog,)N
+894(32)X
+636 5586(Form,)N
+849(30)X
+636 5676(Grip,)N
+823(33)X
+636 5766(Label,)N
+859(17)X
+2444 1086(Scrollbar,)N
+2778(26)X
+2444 1176(Viewport,)N
+2787(27)X
+2444 1266(VPaned,)N
+2738(29)X
+2384 1356(Dialog)N
+2622(widget,)X
+3 f
+11 s
+2882(31)X
+1 f
+10 s
+2444 1446(adding)N
+2682(children,)X
+2985(32)X
+2444 1536(creating,)N
+2743(31)X
+2444 1626(destroying,)N
+2822(32)X
+2444 1716(removing)N
+2771(children,)X
+3074(32)X
+2444 1806(resources,)N
+2788(31)X
+2384 1896(dialogWidgetClass,)N
+3033(31,)X
+3153(32)X
+2384 1986(Display,)N
+2673(4)X
+3 f
+12 s
+2384 2166(E)N
+1 f
+10 s
+2384 2346(editable,)N
+2678(21)X
+2384 2436(end_pos,)N
+2691(23)X
+3 f
+12 s
+2384 2616(F)N
+1 f
+10 s
+2384 2796(False,)N
+2593(7,)X
+2673(28)X
+2384 2886(forceBars,)N
+2737(26)X
+2384 2976(Form)N
+2577(widget,)X
+3 f
+11 s
+2837(29)X
+1 f
+10 s
+2444 3066(adding)N
+2682(children,)X
+2985(30)X
+2444 3156(child)N
+2624(resources,)X
+2968(30)X
+2444 3246(creating,)N
+2743(30)X
+2444 3336(deleting)N
+2722(children,)X
+3025(30)X
+2444 3426(destroying,)N
+2822(30)X
+2444 3516(resources,)N
+2788(29)X
+2384 3606(formWidgetClass,)N
+2989(29,)X
+3109(30)X
+2384 3696(Full:)N
+2444 3786(name,)N
+2658(2)X
+3 f
+12 s
+2384 3966(G)N
+1 f
+10 s
+2384 4146(Grip)N
+2551(widget,)X
+3 f
+11 s
+2811(32)X
+1 f
+10 s
+2444 4236(creating,)N
+2743(33)X
+2444 4326(destroying,)N
+2822(33)X
+2444 4416(GripAction)N
+2829(table,)X
+3025(32)X
+2384 4506(gripWidgetClass,)N
+2962(32,)X
+3082(33)X
+3 f
+12 s
+2384 4686(H)N
+1 f
+10 s
+2384 4866(highlight,)N
+2712(15)X
+2384 4956(hSpace,)N
+2656(27)X
+3 f
+12 s
+2384 5136(I)N
+1 f
+10 s
+2384 5316(Instance,)N
+2692(2)X
+3 f
+12 s
+2384 5496(K)N
+10 s
+2264 6048(34)N
+
+35 p
+%%Page: 35 2
+10 s 0 xH 0 xS 3 f
+576 474(X)N
+654(Toolkit)X
+922(Widgets)X
+3535(X11,)X
+3713(Release)X
+3992(2)X
+1 f
+576 762(kill,)N
+722(18)X
+3 f
+12 s
+576 942(L)N
+1 f
+10 s
+576 1122(Label)N
+779(widget,)X
+3 f
+11 s
+1039(16)X
+1 f
+10 s
+636 1212(creating,)N
+935(17)X
+636 1302(destroying,)N
+1014(17)X
+636 1392(resources,)N
+980(16)X
+576 1482(labelWidgetClass,)N
+1181(16,)X
+1301(17)X
+576 1572(libX.a,)N
+814(11)X
+576 1662(libXaw.a,)N
+908(11)X
+576 1752(libXt.a,)N
+836(11)X
+3 f
+12 s
+576 1932(M)N
+1 f
+10 s
+576 2112(Method,)N
+865(2)X
+3 f
+12 s
+576 2292(N)N
+1 f
+10 s
+576 2472(Name,)N
+808(2)X
+576 2562(notify,)N
+807(15)X
+3 f
+12 s
+576 2742(O)N
+1 f
+10 s
+576 2922(Object,)N
+830(2)X
+3 f
+12 s
+576 3102(P)N
+1 f
+10 s
+576 3282(Parent,)N
+821(2)X
+3 f
+12 s
+576 3462(R)N
+1 f
+10 s
+576 3642(resizeHeight,)N
+1022(21)X
+576 3732(resizeWidth,)N
+1004(21)X
+576 3822(Resource,)N
+915(2)X
+3 f
+12 s
+576 4002(S)N
+1 f
+10 s
+576 4182(Screen,)N
+835(4)X
+576 4272(Scrollbar)N
+890(widget,)X
+3 f
+11 s
+1150(23)X
+1 f
+10 s
+636 4362(creating,)N
+935(25)X
+636 4452(destroying,)N
+1014(26)X
+636 4542(resources,)N
+980(24)X
+636 4632(setting)N
+869(thumb)X
+1093(values,)X
+1338(25)X
+576 4722(scrollbarWidgetClass,)N
+1306(24,)X
+1426(25)X
+576 4812(scrollHorizontal,)N
+1137(21)X
+576 4902(scrollOnOver\257ow,)N
+1195(21)X
+576 4992(ScrollProc,)N
+3 f
+11 s
+956(25)X
+1 f
+10 s
+576 5082(scrollVertical,)N
+1053(21)X
+576 5172(set,)N
+705(15)X
+576 5262(start_pos,)N
+905(23)X
+576 5352(stuff,)N
+763(19)X
+2384 762(Superclass,)N
+2767(3)X
+3 f
+12 s
+2384 942(T)N
+1 f
+10 s
+2384 1122(Text)N
+2551(widget,)X
+3 f
+11 s
+2811(17)X
+1 f
+10 s
+2444 1212(creating,)N
+2743(20)X
+2444 1302(default)N
+2687(bindings,)X
+3002(19)X
+2444 1392(edit)N
+2584(modes,)X
+2833(18)X
+2444 1482(resources,)N
+2788(20)X
+2384 1572(textWidgetClass,)N
+2953(20)X
+2384 1662(ThumbProc,)N
+3 f
+11 s
+2804(25)X
+1 f
+10 s
+2384 1752(True,)N
+2576(7,)X
+2656(28)X
+3 f
+12 s
+2384 1932(U)N
+1 f
+10 s
+2384 2112(unhighlight,)N
+2792(15)X
+2384 2202(unkill,)N
+2610(19)X
+2384 2292(unset,)N
+2593(15)X
+2384 2382(User,)N
+2576(3)X
+3 f
+12 s
+2384 2562(V)N
+1 f
+10 s
+2384 2742(Viewport)N
+2707(widget,)X
+3 f
+11 s
+2967(26)X
+1 f
+10 s
+2444 2832(creating,)N
+2743(26)X
+2444 2922(destroying,)N
+2822(27)X
+2444 3012(inserting)N
+2744(a)X
+2800(child,)X
+3000(26)X
+2444 3102(removing)N
+2771(a)X
+2827(child,)X
+3027(26)X
+2444 3192(resources,)N
+2788(26)X
+2384 3282(viewportWidgetClass,)N
+3118(26)X
+2384 3372(VPaned)N
+2658(widget,)X
+3 f
+11 s
+2918(27)X
+1 f
+10 s
+2444 3462(adding)N
+2682(pane,)X
+2874(28)X
+2444 3552(change)N
+2692(height)X
+2912(settings,)X
+3196(29)X
+2444 3642(child)N
+2624(resources,)X
+2968(28)X
+2444 3732(creating,)N
+2743(28)X
+2444 3822(deleting)N
+2722(pane,)X
+2914(28)X
+2444 3912(destroying,)N
+2822(29)X
+2444 4002(disable)N
+2691(auto-recon\256guring,)X
+3328(29)X
+2444 4092(disable)N
+2691(pane)X
+2863(resizing,)X
+3157(28)X
+2444 4182(enable)N
+2674(auto-recon\256guring,)X
+3311(29)X
+2444 4272(enable)N
+2674(pane)X
+2846(resizing,)X
+3140(28)X
+2444 4362(resources,)N
+2788(28)X
+2384 4452(vPanedWidgetClass,)N
+3069(28)X
+2384 4542(vSpace,)N
+2656(27)X
+3 f
+12 s
+2384 4722(W)N
+1 f
+10 s
+2384 4902(Widget,)N
+2660(3)X
+2444 4992(class,)N
+2640(3)X
+2444 5082(programmer,)N
+2881(3)X
+2384 5172(wordBreak,)N
+2781(21)X
+3 f
+12 s
+2384 5352(X)N
+1 f
+10 s
+2384 5532(X11/Command.h,)N
+2977(10)X
+2384 5622(X11/Intrinsic.h,)N
+2911(10)X
+2384 5712(X11/Label.h,)N
+2827(10)X
+2384 5802(X11/Xlib.h,)N
+2786(10)X
+3 f
+2264 6048(35)N
+
+36 p
+%%Page: 36 3
+10 s 0 xH 0 xS 3 f
+576 474(X)N
+654(Toolkit)X
+922(Widgets)X
+3535(X11,)X
+3713(Release)X
+3992(2)X
+1 f
+576 762(XFetchBytes,)N
+1034(20,)X
+1154(22)X
+576 852(XrmParseCommand,)N
+1270(5)X
+576 942(XtAddCallback,)N
+3 f
+11 s
+1121(10)X
+1 f
+10 s
+(,)S
+1249(11)X
+576 1032(XtCallbackList,)N
+3 f
+11 s
+1107(10)X
+1 f
+10 s
+576 1122(XtCallbackProc,)N
+1128(10)X
+576 1212(XtCallCallbacks,)N
+1145(10)X
+576 1302(XtChainBottom,)N
+1126(30)X
+576 1392(XtChainLeft,)N
+1021(30)X
+576 1482(XtChainRight,)N
+1064(30)X
+576 1572(XtChainTop,)N
+1016(30)X
+576 1662 0.1488(XtCreateManagedWidget,)AN
+1441(6,)X
+1521(11)X
+576 1752(XtCreateWidget,)N
+1148(4,)X
+1234(5,)X
+3 f
+11 s
+1322(6)X
+1 f
+10 s
+(,)S
+1412(9,)X
+1498(10,)X
+1624(11,)X
+1749(15,)X
+1874(17,)X
+1999(20,)X
+2124(25,)X
+576 1842(26,)N
+696(27,)X
+816(28,)X
+936(30,)X
+1056(31,)X
+1176(32,)X
+1296(33)X
+576 1932(XtDestroyWidget,)N
+1192(6,)X
+3 f
+11 s
+1280(8)X
+1 f
+10 s
+(,)S
+1370(14,)X
+1496(16,)X
+1622(17,)X
+1748(20,)X
+1874(24,)X
+1999(26,)X
+2124(27,)X
+576 2022(28,)N
+696(29,)X
+816(30,)X
+936(31,)X
+1056(32,)X
+1176(33)X
+576 2112(XtDialogCreate,)N
+3 f
+11 s
+1126(31)X
+1 f
+10 s
+(,)S
+1254(32)X
+576 2202(XtDialogGetValueString,)N
+3 f
+11 s
+1419(32)X
+1 f
+10 s
+576 2292(XtEdgeType,)N
+3 f
+11 s
+1028(30)X
+1 f
+10 s
+576 2382(XtError,)N
+866(6)X
+576 2472(XtGetValues,)N
+3 f
+11 s
+1037(8)X
+1 f
+10 s
+(,)S
+1121(9)X
+576 2562(XtInitialize,)N
+3 f
+11 s
+983(5)X
+1 f
+10 s
+(,)S
+1067(10)X
+576 2652(XtJustifyCenter,)N
+1123(15,)X
+1243(16)X
+576 2742(XtJustifyLeft,)N
+1043(15,)X
+1163(16)X
+576 2832(XtJustifyRight,)N
+1086(15,)X
+1206(16)X
+576 2922(XtMainLoop,)N
+1034(11)X
+576 3012(XtManageChild,,)N
+1152(11)X
+576 3102(XtManageChild,)N
+1132(5,)X
+1212(11)X
+576 3192(XtManageChildren,)N
+3 f
+11 s
+1237(8)X
+1 f
+10 s
+(,)S
+1321(29)X
+576 3282(XtMapWidget,)N
+1087(6,)X
+1175(7,)X
+3 f
+11 s
+1265(8)X
+1 f
+10 s
+(,)S
+1357(14,)X
+1485(16,)X
+1613(20,)X
+1741(24,)X
+1869(26,)X
+1997(27,)X
+2124(28,)X
+576 3372(29,)N
+696(31,)X
+816(32)X
+576 3462(XtN,)N
+754(10,)X
+874(11)X
+576 3552(XtNbottom,)N
+980(30)X
+576 3642(XtNcallback,)N
+1022(11,)X
+1142(16)X
+576 3732(XtNdestroyCallback,)N
+1275(10,)X
+1395(16,)X
+1515(17)X
+576 3822(XtNeditType,)N
+1039(21)X
+576 3912(XtN\256le,)N
+856(21)X
+576 4002(XtNfont,)N
+883(21)X
+576 4092(XtNforeground,)N
+1111(11)X
+576 4182(XtNfromHoriz,)N
+1093(30)X
+576 4272(XtNfromVert,)N
+1053(30)X
+576 4362(XtNheight,)N
+954(15,)X
+1074(16,)X
+1194(25)X
+576 4452(XtNhorizDistance,)N
+1200(30)X
+576 4542(XtNinternalHeight,)N
+1217(15,)X
+1337(16)X
+576 4632(XtNinternalWidth,)N
+1199(15,)X
+1319(16)X
+576 4722(XtNjustify,)N
+958(15,)X
+1078(16)X
+576 4812(XtNlabel,)N
+910(15,)X
+1030(16)X
+576 4902(XtNleft,)N
+861(30)X
+576 4992(XtNlength,)N
+954(21,)X
+1074(25)X
+576 5082(XtNright,)N
+905(30)X
+576 5172(XtNselectionTypes,)N
+1235(22)X
+576 5262(XtNsensitive,)N
+1034(15,)X
+1154(16)X
+576 5352(XtNtextOptions,)N
+1127(21)X
+576 5442(XtNthickness,)N
+1052(25)X
+576 5532(XtNtop,)N
+856(30)X
+576 5622(XtNumber,)N
+959(12)X
+576 5712(XtNvertDistance,)N
+1160(30)X
+576 5802(XtNwidth,)N
+936(15,)X
+1056(16,)X
+1176(25)X
+2384 762(XtPanedAllowResize,)N
+3 f
+11 s
+3116(28)X
+1 f
+10 s
+2384 852(XtPanedSetMinMax,)N
+3 f
+11 s
+3084(29)X
+1 f
+10 s
+2384 942(XtPanedSetRe\256gureMode,)N
+3 f
+11 s
+3267(29)X
+1 f
+10 s
+2384 1032(XtRealizeWidget,)N
+2981(5,)X
+3061(6,)X
+3 f
+11 s
+3143(7)X
+1 f
+10 s
+2384 1122(XtRemoveAllCallbacks,)N
+3189(10)X
+2384 1212(XtRemoveCallback,)N
+3056(10)X
+2384 1302(XtRemoveCallbacks,)N
+3087(10)X
+2384 1392(XtRubber,)N
+2740(30)X
+2384 1482(XtScrollbarSetThumb,)N
+3 f
+11 s
+3133(25)X
+1 f
+10 s
+(,)S
+3261(26)X
+2384 1572(XtScrollbarThumb,)N
+3029(26)X
+2384 1662(XtSetArg,)N
+2731(12)X
+2384 1752(XtSetMappedWhenManaged,)N
+3360(7)X
+2384 1842(XtSetValues,)N
+3 f
+11 s
+2831(9)X
+1 f
+10 s
+2384 1932(XttextAppend,)N
+2878(21)X
+2384 2022(XtTextBlock,)N
+3 f
+11 s
+2844(23)X
+1 f
+10 s
+2384 2112(XttextEdit,)N
+2757(21)X
+2384 2202(XtTextGetSelectionPos,)N
+3 f
+11 s
+3182(23)X
+1 f
+10 s
+2384 2292(XtTextGetValues,)N
+2990(21)X
+2384 2382(XttextRead,)N
+2789(21)X
+2384 2472(XtTextReplace,)N
+3 f
+11 s
+2912(23)X
+1 f
+10 s
+2384 2562(XtTextSelectType,)N
+3012(22)X
+2384 2652(XtTextSetSelection,)N
+3 f
+11 s
+3053(22)X
+1 f
+10 s
+2384 2742(XtTextSetValues,)N
+2976(21)X
+2384 2832(XtTextUnsetSelection,)N
+3 f
+11 s
+3138(22)X
+1 f
+10 s
+2384 2922(XtUnmanageChild,)N
+3029(26,)X
+3149(27,)X
+3269(30,)X
+3389(32)X
+2384 3012(XtUnmanageWidget,)N
+3088(28)X
+3 f
+2264 6048(36)N
+
+3 p
+%%Trailer
+xt
+
+xs

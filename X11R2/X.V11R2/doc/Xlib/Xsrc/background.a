@@ -1,0 +1,4 @@
+.\" $Header: background.a,v 1.1 87/09/28 12:53:03 mento Exp $
+.IP \fIbackground\fP 1i
+Specifies the background you want to set for the specified
+graphics context.

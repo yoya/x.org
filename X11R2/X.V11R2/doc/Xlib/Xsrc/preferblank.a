@@ -1,0 +1,8 @@
+.\" $Header: preferblank.a,v 1.1 87/09/28 13:10:59 mento Exp $
+.IP \fIprefer_blanking\fP 1i
+Specifies whether to enable screen blanking.
+Possible values are
+.PN DontPreferBlanking ,
+.PN PreferBlanking ,
+or
+.PN DefaultBlanking .

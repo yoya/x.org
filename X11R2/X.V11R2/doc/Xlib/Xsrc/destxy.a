@@ -1,0 +1,6 @@
+.\" $Header: destxy.a,v 1.1 87/09/28 12:57:17 mento Exp $
+.IP \fIdest_x_return\fP 1i
+.br
+.ns
+.IP \fIdest_y_return\fP 1i
+Returns the x and y coordinates within the destination window.

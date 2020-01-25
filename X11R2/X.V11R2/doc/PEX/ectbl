@@ -1,0 +1,46 @@
+.LP
+The editing context components, in order, are listed in the following table.
+.LP
+.ID
+.ta 0.1i 2.0i 3.5i
+	\fBAttribute Name	Data Type	Default Value\fP
+.ta
+.ta 0.2i 1.9i 3.7i
+	structure_id	STRUCTURE_ID	\fINull\fP
+	element_ptr	CARD32	0
+	editing_mode	EDIT_MODE	\fIStructureInsert\fP
+.ta
+.DE
+
+.LP
+The attributes of the editing context resource are defined as follows:
+
+.Bl "structure_id"
+This attribute of an editing context resource contains the resource
+id of the structure that is to be edited.
+
+.Bl "element_ptr"
+This attribute contains the offset of an element in a structure.  It is
+used in conjunction with the editing context's structure id attribute
+in order to determine the editing position.
+Whenever an editing context is used as a destination in a structure
+editing request,
+the element pointer attribute will be updated as a side effect
+of the operation.
+
+.Bl "editing_mode"
+This sets the editing mode attribute for the editing context. 
+If the mode is \fIStructureInsert\fP, 
+output requests used to create structure elements
+will cause elements to be inserted into
+the specified structure.  Elements will be
+inserted into the structure
+\fIafter\fP the structure element specified by the
+element pointer.  The element pointer will then be
+incremented by the number of elements inserted.
+If the mode is \fIStructureReplace\fP, output
+requests used to create structure elements
+will cause structure elements to
+replace elements starting at the location specified by the
+element pointer.
+.bp

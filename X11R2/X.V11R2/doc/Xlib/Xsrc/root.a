@@ -1,0 +1,3 @@
+.\" $Header: root.a,v 1.1 87/09/28 13:12:28 mento Exp $
+.IP \fIroot_return\fP 1i
+Returns the root window ID for the specified window.

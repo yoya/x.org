@@ -1,0 +1,32 @@
+.TH XSetInputFocus 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XSetInputFocus, XGetInputFocus \- control input focus
+.SH SYNTAX
+.so ../Xsrc/XSetInFocus.f
+.LP
+.so ../Xsrc/XGetInFocus.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/focus1.a
+.so ../Xsrc/focus.a
+.so ../Xsrc/revertto.a
+.so ../Xsrc/reverttoret.a
+.so ../Xsrc/time.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSetInFocus.d
+.ds fd .PN XSetInputFocus
+.so ../Xsrc/errsent.com
+.PN BadMatch ,
+.PN BadValue ,
+and
+.PN BadWindow 
+errors.
+.LP
+.so ../Xdescrip/XGetInFocus.d
+.SH DIAGNOSTICS
+.so ../Xerrors/badvalue.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XWarpPointer(3X)
+.br
+\fIXlib \- C Language X Interface\fP

@@ -1,0 +1,5 @@
+.\" $Header: windatt.a,v 1.2 88/02/10 07:06:00 mento Exp $
+.IP \fIwindow_attributes_return\fP 1i
+Returns the specified window's attributes in the
+.PN XWindowAttributes
+structure.

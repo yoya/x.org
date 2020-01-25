@@ -1,0 +1,1238 @@
+%!PS-Adobe-1.0
+%%Title: bdf.mss
+%%DocumentFonts: (atend)
+%%Creator: Philip Karlton,WSL,8536677,4082526684 and Scribe 5(1501)
+%%CreationDate: 16 September 1987 15:31
+%%Pages: (atend)
+%%EndComments
+% PostScript Prelude for Scribe.
+/BS {/SV save def 0.0 792.0 translate .01 -.01 scale} bind def
+/ES {showpage SV restore} bind def
+/SC {setrgbcolor} bind def
+/FMTX matrix def
+/RDF {WFT SLT 0.0 eq
+  {SSZ 0.0 0.0 SSZ neg 0.0 0.0 FMTX astore}
+  {SSZ 0.0 SLT sin SLT cos div SSZ mul SSZ neg 0.0 0.0 FMTX astore}
+  ifelse makefont setfont} bind def
+/SLT 0.0 def
+/SI { /SLT exch cvr def RDF} bind def
+/WFT /Courier findfont def
+/SF { /WFT exch findfont def RDF} bind def
+/SSZ 1000.0 def
+/SS { /SSZ exch 100.0 mul def RDF} bind def
+/AF { /WFT exch findfont def /SSZ exch 100.0 mul def RDF} bind def
+/MT /moveto load def
+/XM {currentpoint exch pop moveto} bind def
+/UL {gsave newpath moveto dup 2.0 div 0.0 exch rmoveto
+   setlinewidth 0.0 rlineto stroke grestore} bind def
+/LH {gsave newpath moveto setlinewidth
+   0.0 rlineto
+   gsave stroke grestore} bind def
+/LV {gsave newpath moveto setlinewidth
+   0.0 exch rlineto
+   gsave stroke grestore} bind def
+/BX {gsave newpath moveto setlinewidth
+   exch
+   dup 0.0 rlineto
+   exch 0.0 exch neg rlineto
+   neg 0.0 rlineto
+   closepath
+   gsave stroke grestore} bind def
+/BX1 {grestore} bind def
+/BX2 {setlinewidth 1 setgray stroke grestore} bind def
+/PB {/PV save def translate 100.0 -100.0 scale pop} bind def
+/PE {PV restore} bind def
+/SH /show load def
+/MX {exch show 0.0 rmoveto} bind def
+/W {0 32 4 -1 roll widthshow} bind def
+/WX {0 32 5 -1 roll widthshow 0.0 rmoveto} bind def
+%%EndProlog
+%%Page: 0 1 
+BS
+0 SI
+17 /Times-Bold AF
+15089 14099 MT
+(Character Bitmap Distribution Format 2.1)SH
+15 SS 
+24140 17944 MT
+(Adobe Systems, Inc.)SH
+12 SS 
+21983 20664 MT
+(Version of 16 September 87 15:31)SH
+/Times-Roman SF
+19425 39840 MT
+(Copyright)SH
+/Symbol SF
+24593 XM
+(\323)SH
+/Times-Roman SF
+25841 XM
+(1984, 1987, Adobe Systems, Inc.)SH
+18262 42766 MT
+(Permission to use, copy, modify, and distribute this)SH
+16165 44143 MT
+(software and its documentation for any purpose and without)SH
+17182 45520 MT
+(fee is hereby granted, provided that the above copyright)SH
+17547 46897 MT
+(notice appear in all copies and that both that copyright)SH
+17613 48274 MT
+(notice and this permission notice appear in supporting)SH
+26882 49651 MT
+(documentation.)SH
+ES
+%%Page: 1 2 
+BS
+0 SI
+10 /Times-BoldItalic AF
+7200 4291 MT
+(Character Bitmap Distribution Format)SH
+/Times-Roman SF
+53500 XM
+(1)SH
+14 /Times-Bold AF
+7200 8138 MT
+(1. Introduction)SH
+12 /Times-Roman AF
+8200 9515 MT
+(This document)
+130 W( describes Adobe Systems's character bitmap distribution format,
+version 2.1.)129 W
+7200 10892 MT
+(The format is intended to be easily understood)
+230 W( by both humans and computers. The format)231 W
+7200 12269 MT
+(described in this document is subject to change without prior notification.)SH
+14 /Times-Bold AF
+7200 16087 MT
+(2. Tape Format)SH
+12 /Times-Roman AF
+8200 17464 MT
+(Each tape)
+209 W( is 1600 BPI, nine track, unlabeled, and contains two or more
+files. Each file is)208 W
+7200 18841 MT
+(followed by an EOF mark. The last)
+154 W( file on the tape is followed by two EOF marks. Physical)155 W
+7200 20218 MT
+(records contain 512 bytes. The last physical record in a file
+\050preceding an EOF mark\051)
+231 W( may)230 W
+7200 21595 MT
+(contain fewer than 512 bytes.)SH
+8200 24074 MT
+(Each file is encoded in)
+22 W( the printable characters \050octal 40 through 176\051 of)23 W
+10 SS 
+43598 XM
+(USASCII)SH
+12 SS 
+47810 XM
+(plus carriage)23 W
+7200 25451 MT
+(return and linefeed. Each file consists of)
+305 W( a sequence of variable-length lines. Each line is)304 W
+7200 26828 MT
+(terminated by a carriage-return \050octal 015\051 and line-feed
+\050octal 012\051. The first file on the tape)
+60 W( is)61 W
+7200 28205 MT
+(the Adobe Systems Copyright notice. Following)
+100 W( files are font files.  The format of font files is)99 W
+7200 29582 MT
+(described in the following sections.)SH
+10 SS 
+31788 31680 MT
+(1)SH
+12 SS 
+8200 32061 MT
+(Note: font tapes may also be obtained in UNIX)115 W
+/Times-Bold SF
+32703 XM
+(tar)SH
+/Times-Roman SF
+34651 XM
+(format. Be sure to specify tar format if)116 W
+7200 33438 MT
+(desired. No other tape formats are currently supported by Adobe Systems.)SH
+14 /Times-Bold AF
+7200 37256 MT
+(3. File Format)SH
+12 /Times-Roman AF
+8200 38633 MT
+(Character bitmap information will)
+15 W( be distributed in an)14 W
+10 SS 
+34589 XM
+(USASCII)SH
+12 SS 
+38792 XM
+(encoded, human readable form.)14 W
+7200 40010 MT
+(The information about a particular family and face at)
+68 W( one size and orientation will be contained)69 W
+7200 41387 MT
+(in one file. The file begins with information pertaining to)
+104 W( the face as a whole, followed by the)103 W
+7200 42764 MT
+(information and bitmaps for the individual characters.)SH
+8200 45243 MT
+(A font bitmap description file has the following general form, where each item)
+26 W( is contained on)27 W
+7200 46620 MT
+(a separate line of text in the file. Items on a line are separated by spaces.)SH
+9600 48186 MT
+(1.)SH
+10800 XM
+(The word)290 W
+10 SS 
+16312 XM
+(STARTFONT)SH
+12 SS 
+22680 XM
+(followed by a version number)
+290 W( indicating the exact file)289 W
+10800 49472 MT
+(format used. The version described here is number)SH
+/Times-Bold SF
+35435 XM
+(2.1)SH
+/Times-Roman SF
+(.)SH
+9600 51501 MT
+(2.)SH
+10800 XM
+(One or more lines beginning with the word)22 W
+10 SS 
+31978 XM
+(COMMENT)SH
+12 SS 
+(. These lines may be ignored)22 W
+10800 52787 MT
+(by any program reading the file.)SH
+9600 54816 MT
+(3.)SH
+10800 XM
+(The word)124 W
+10 SS 
+15979 XM
+(FONT)SH
+12 SS 
+19013 XM
+(followed by the)123 W
+/Times-Bold SF
+27216 XM
+(family name)123 W
+/Times-Roman SF
+34130 XM
+(and the)123 W
+/Times-Bold SF
+38176 XM
+(face name)123 W
+/Times-Roman SF
+43888 XM
+(separated by a)123 W
+10800 56102 MT
+(hyphen.)SH
+9600 58131 MT
+(4.)SH
+10800 XM
+(The word)87 W
+10 SS 
+15906 XM
+(SIZE)SH
+12 SS 
+18404 XM
+(followed by the)87 W
+/Times-Bold SF
+26499 XM
+(point size)87 W
+/Times-Roman SF
+31808 XM
+(of the characters, the)87 W
+/Times-Bold SF
+42456 XM
+(x resolution)88 W
+/Times-Roman SF
+(, and)88 W
+10800 59417 MT
+(the)SH
+/Times-Bold SF
+12567 XM
+(y resolution)SH
+/Times-Roman SF
+18902 XM
+(of the device for which these characters were intended.)SH
+9600 61446 MT
+(5.)SH
+10800 XM
+(The word)68 W
+10 SS 
+15868 XM
+(FONTBOUNDINGBOX)SH
+12 SS 
+26290 XM
+(followed by the)68 W
+/Times-Bold SF
+34327 XM
+(width in x)67 W
+/Times-Roman SF
+(,)SH
+/Times-Bold SF
+40263 XM
+(height in y)67 W
+/Times-Roman SF
+(, and the x)67 W
+10800 62732 MT
+(and y displacement)
+61 W( of the lower left corner from the)62 W
+/Times-Bold SF
+36754 XM
+(origin)SH
+/Times-Roman SF
+(. \050See)
+424 W( the examples in)62 W
+10800 64018 MT
+(section 4\051.)SH
+9600 66047 MT
+(6.)SH
+10800 XM
+(Optionally the word)121 W
+10 SS 
+21131 XM
+(STARTPROPERTIES)SH
+12 SS 
+30609 XM
+(followed by the)
+121 W( number of properties \050)120 W
+/Times-Bold SF
+(p)SH
+/Times-Roman SF
+(\051)SH
+10800 67333 MT
+(that follow.)SH
+10800 50 7200 69990 UL
+8 SS 
+8200 71655 MT
+(1)SH
+10 SS 
+8600 72000 MT
+(UNIX is a trademark of Bell Laboratories.)SH
+7200 75600 MT
+(Adobe Systems, Inc.)SH
+38696 XM
+(Version 2.1 of 16 September 87 15:31)SH
+ES
+%%Page: 2 3 
+BS
+0 SI
+10 /Times-BoldItalic AF
+7200 4291 MT
+(Character Bitmap Distribution Format)SH
+/Times-Roman SF
+53500 XM
+(2)SH
+12 SS 
+9600 8023 MT
+(7.)SH
+10800 XM
+(Then come)52 W
+/Times-Bold SF
+16570 XM
+(p)SH
+/Times-Roman SF
+17589 XM
+(lines consisting of a word for the)52 W
+/Times-Bold SF
+34056 XM
+(property name)52 W
+/Times-Roman SF
+42093 XM
+(followed by either)53 W
+10800 9309 MT
+(an integer or string surrounded)
+67 W( by quotedbl \050042\051. Internal quotedbl characters are)66 W
+10800 10595 MT
+(indicated by using two in a row.)SH
+9600 12624 MT
+(8.)SH
+10800 XM
+(The property section, if it exists, is terminated by ENDPROPERTIES)SH
+9600 14653 MT
+(9.)SH
+10800 XM
+(The word)SH
+10 SS 
+15732 XM
+(CHARS)SH
+12 SS 
+19366 XM
+(followed by the number of character segments \050)SH
+/Times-Bold SF
+(c)SH
+/Times-Roman SF
+(\051 that follow.)SH
+9000 16682 MT
+(10.)SH
+10800 XM
+(Then come)SH
+/Times-Bold SF
+16466 XM
+(c)SH
+/Times-Roman SF
+17299 XM
+(character segments of the form:)SH
+13267 18248 MT
+(a.)SH
+14400 XM
+(The word)292 W
+10 SS 
+19917 XM
+(STARTCHAR)SH
+12 SS 
+26455 XM
+(followed by up to 14 characters \050no blanks\051 of)293 W
+14400 19534 MT
+(descriptive)SH
+/Times-Bold SF
+19968 XM
+(name)SH
+/Times-Roman SF
+23068 XM
+(of the glyph.)SH
+13200 21563 MT
+(b.)SH
+14400 XM
+(The word)32 W
+10 SS 
+19395 XM
+(ENCODING)SH
+12 SS 
+24947 XM
+(followed by a positive integer representing the Adobe)31 W
+14400 22849 MT
+(Standard Encoding)
+174 W( value. If the character is)175 W
+/Times-Italic SF
+36958 XM
+(not)SH
+/Times-Roman SF
+38967 XM
+(a member of the Adobe)175 W
+14400 24135 MT
+(Standard Encoding,)181 W
+10 SS 
+24529 XM
+(ENCODING)SH
+12 SS 
+30231 XM
+(is followed by -1 and an optional)
+181 W( integer)180 W
+14400 25421 MT
+(specifying the glyph index.)SH
+13267 27450 MT
+(c.)SH
+14400 XM
+(The word)75 W
+10 SS 
+19482 XM
+(SWIDTH)SH
+12 SS 
+23745 XM
+(followed by the)75 W
+/Times-Bold SF
+31804 XM
+(scalable width)75 W
+/Times-Roman SF
+39556 XM
+(in x and)
+75 W( y of character.)76 W
+14400 28736 MT
+(Scalable widths are in units)
+98 W( of 1/1000th of the size of the character. If the)97 W
+14400 30022 MT
+(size of)
+137 W( the character is)138 W
+/Times-Italic SF
+26123 XM
+(p)SH
+/Times-Roman SF
+27161 XM
+(points, the width information must be scaled by)138 W
+/Times-Italic SF
+14400 31308 MT
+(p)SH
+/Times-Roman SF
+(/1000 to get the width of the character in printer's)
+258 W( points. This width)257 W
+14400 32594 MT
+(information should be considered as a vector indication the position)
+87 W( of the)88 W
+14400 33880 MT
+(next character's origin)
+131 W( relative to the origin of this character.  To convert)130 W
+14400 35166 MT
+(the scalable width to the width in device pixels,)
+209 W( multiply)210 W
+10 SS 
+44000 XM
+(SWIDTH)SH
+12 SS 
+48398 XM
+(times)SH
+/Times-Italic SF
+14400 36452 MT
+(p)SH
+/Times-Roman SF
+(/1000 times)93 W
+/Times-Italic SF
+21122 XM
+(r)SH
+/Times-Roman SF
+(/72 where)93 W
+/Times-Italic SF
+26841 XM
+(r)SH
+/Times-Roman SF
+27701 XM
+(is the device resolution in pixels per inch.  The)92 W
+14400 37738 MT
+(result is)
+139 W( a real number giving the ideal print width in device pixels.  The)140 W
+14400 39024 MT
+(actual device width must of course be an integral)
+100 W( number of device pixels)99 W
+14400 40310 MT
+(and is given in the next entry.)SH
+13200 42339 MT
+(d.)SH
+14400 XM
+(The word)191 W
+10 SS 
+19714 XM
+(DWIDTH)SH
+12 SS 
+24259 XM
+(followed by the width in x and)
+191 W( y of the character in)192 W
+14400 43625 MT
+(device units.  Like the)9 W
+10 SS 
+25380 XM
+(SWIDTH)SH
+12 SS 
+(, this width)
+9 W( information is a vector indicating)8 W
+14400 44911 MT
+(the position of the next character's)
+282 W( origin relative to the origin of this)283 W
+14400 46197 MT
+(character.)SH
+13267 48226 MT
+(e.)SH
+14400 XM
+(The word)68 W
+10 SS 
+19468 XM
+(BBX)SH
+12 SS 
+21892 XM
+(followed by the)68 W
+/Times-Bold SF
+29929 XM
+(width)SH
+/Times-Roman SF
+33230 XM
+(in x \050)67 W
+/Times-Italic SF
+(BBw)SH
+/Times-Roman SF
+(\051,)SH
+/Times-Bold SF
+39231 XM
+(height)SH
+/Times-Roman SF
+42799 XM
+(in y \050)67 W
+/Times-Italic SF
+(BBh)SH
+/Times-Roman SF
+(\051 and x)67 W
+14400 49512 MT
+(and y displacement \050)108 W
+/Times-Italic SF
+(BBox, BBoy)108 W
+/Times-Roman SF
+(\051 of the lower left corner from)
+108 W( the)109 W
+/Times-Bold SF
+47932 XM
+(origin)SH
+/Times-Roman SF
+14400 50798 MT
+(of the character.)SH
+13400 52827 MT
+(f.)SH
+14400 XM
+(The optional word)725 W
+10 SS 
+25742 XM
+(ATTRIBUTES)SH
+12 SS 
+32877 XM
+(followed by the attributes as 4)724 W
+/Times-Bold SF
+14400 54113 MT
+(hex-encoded)SH
+/Times-Roman SF
+21195 XM
+(characters. The interpretation of these attributes)
+95 W( is undefined)96 W
+14400 55399 MT
+(in this document.)SH
+13200 57428 MT
+(g.)SH
+14400 XM
+(The word)SH
+10 SS 
+19332 XM
+(BITMAP)SH
+12 SS 
+(.)SH
+13200 59457 MT
+(h.)SH
+/Times-Italic SF
+14400 XM
+(h)SH
+/Times-Roman SF
+15542 XM
+(lines of)242 W
+/Times-Bold SF
+19894 XM
+(hex-encoded bitmap)241 W
+/Times-Roman SF
+(, padded on the right with zero's to the)241 W
+14400 60743 MT
+(nearest byte \050i.e., multiple of 8\051.)SH
+13466 62772 MT
+(i.)SH
+14400 XM
+(The word)SH
+10 SS 
+19332 XM
+(ENDCHAR)SH
+12 SS 
+(.)SH
+9000 64801 MT
+(11.)SH
+10800 XM
+(The file is terminated with the word)SH
+10 SS 
+28370 XM
+(ENDFONT)SH
+12 SS 
+(.)SH
+10 SS 
+7200 75600 MT
+(Adobe Systems, Inc.)SH
+38696 XM
+(Version 2.1 of 16 September 87 15:31)SH
+ES
+%%Page: 3 4 
+BS
+0 SI
+10 /Times-BoldItalic AF
+7200 4291 MT
+(Character Bitmap Distribution Format)SH
+/Times-Roman SF
+53500 XM
+(3)SH
+14 /Times-Bold AF
+7200 8138 MT
+(4. Metric Information)SH
+12 /Times-Roman AF
+8200 9515 MT
+(Figures 4-1 and 4-2 best illustrate the bitmap format and character
+metric information.)SH
+1 SS 
+21600 7200 56881 PB mark
+/inch {72 mul}def
+
+/Helvetica findfont [10 0 0 10 0 0] makefont setfont
+
+/ShowCache
+   {$sc begin
+    gsave
+(Helvetica-Oblique) (/adobe/fonts/Helvetica/Oblique/)(j) 
+0.0208333 -1.82131e-09 -1.82131e-09 -0.0208333 0 0 
+22 9 7.5625 0 -2 -16  CachedChar
+0 [6 8 ] Bits
+1 [6 8 ] Bits
+2 [6 8 ] Bits
+3 [6 8 ] Bits
+5 [5 7 ] Bits
+6 [5 7 ] Bits
+7 [5 7 ] Bits
+8 [5 7 ] Bits
+9 [4 6 ] Bits
+10 [4 6 ] Bits
+11 [4 6 ] Bits
+12 [4 6 ] Bits
+13 [4 6 ] Bits
+14 [3 5 ] Bits
+15 [3 5 ] Bits
+16 [3 5 ] Bits
+17 [3 5 ] Bits
+18 [2 5 ] Bits
+19 [1 4 ] Bits
+20 [0 3 ] Bits
+21 [0 2 ] Bits
+ EndCachedChar
+    grestore
+    end
+   } def
+
+/$sc 120 dict def
+$sc begin
+
+/CN 100 string def
+/CachedChar
+   {/sl save def
+    /yo exch def /xo exch def
+    /yi exch def /xi exch def
+    /wb exch def /hb exch def
+    6 array astore /cmat exch def
+    /cname exch def
+    /fpath exch def
+    /fname exch def
+    DoScale                     % fit the character maximally onto the page
+    Grid
+    gsave
+    DoLabs
+    xo neg yo neg translate
+    OrigMarks
+   } def
+
+/DoLabs
+   {gsave
+    /Helvetica findfont [1 0 0 1 0 0] makefont setfont
+    0.1 setlinewidth
+    newpath
+    0 -1.5 moveto
+    0.5 0.5 rmoveto -0.5 -0.5 rlineto 0.5 -0.5 rlineto
+    0 -1.5 moveto wb -1.5 lineto
+    -0.5 0.5 rmoveto 0.5 -0.5 rlineto -0.5 -0.5 rlineto
+    stroke newpath
+    wb 0.5 sub (BBw ) stringwidth pop sub -0.5 moveto 
+    gsave 1 -1 scale (BBw) show grestore
+    -1 0.5 moveto -1.5 0 lineto -2 0.5 lineto
+    -1.5 0 moveto -1.5 hb lineto
+    -0.5 -0.5 rmoveto 0.5 0.5 rlineto 0.5 -0.5 rlineto
+    stroke newpath
+    -1.5 (BBh ) stringwidth pop sub hb 1 sub moveto 
+    gsave 1 -1 scale (BBh) show grestore
+    xo neg -3 moveto 0 -3 lineto 
+    0.5 0.5 rmoveto -0.5 -0.5 rlineto 0.5 -0.5 rlineto
+    stroke newpath
+    newpath
+    xo neg -3 moveto
+    gsave 1 -1 scale ( BBox) show grestore
+    newpath
+%    -3 yo neg moveto -3 0 lineto
+%    0.5 0.5 rmoveto -0.5 -0.5 rlineto -0.5 0.5 rlineto
+%    stroke newpath
+    -4 yo neg moveto -4 hb lineto % ???? lower left??????
+    -0.5 -0.5 rmoveto 0.5 0.5 rlineto 0.5 -0.5 rlineto
+    stroke newpath
+    -4 (BBoy ) stringwidth pop sub yo neg moveto
+    gsave 1 -1 scale (BBoy) show grestore 
+    grestore
+   } def
+
+/DoScale
+   {3 72 mul hb div dup scale   % hb == 3 inches
+    0 hb translate
+    1 -1 scale
+   } def
+
+/OrigMarks
+   {gsave
+    0 setgray
+    .17 setlinewidth
+    newpath 0 -1 moveto 0 1 lineto stroke
+    newpath -1 0 moveto 1 0 lineto stroke
+    .13 setlinewidth
+    /xii xi round def
+    newpath xii -.8 moveto 0 1.6 rlineto stroke
+    newpath xii .8 sub 0 moveto 1.6 0 rlineto stroke
+    grestore
+   } def
+
+/Bits
+   {/xa exch def
+    /yy exch yo add def
+    gsave 0.2 setgray
+    0 2 xa length 1 sub
+       {/i exch def
+        xa i get 1 xa i 1 add get
+           {/xx exch xo add def
+            newpath xx 0.2 add yy 0.2 add moveto 
+            0 0.6 rlineto 0.6 0 rlineto 0 -0.6 rlineto closepath fill
+           } for 
+       } for
+    grestore
+   } def
+
+/EndCachedChar
+   {
+    grestore
+    sl restore
+   } def
+
+/Grid
+   {gsave
+    /wbround wb 8 div 0.5 add round cvi 8 mul def
+    wbround 1 add 
+       {newpath 0 0 moveto 0 hb lineto closepath fill
+        1 0 translate 
+        (-) print
+       } repeat
+    grestore
+    gsave
+    hb 1 add 
+       {newpath 0 0 moveto wbround 0 lineto closepath fill
+        0 1 translate
+        (|) print
+       } repeat
+    grestore
+    () = 
+   } def
+end
+
+190 18 translate
+ShowCache
+cleartomark
+
+ PE 12 SS 
+20113 59504 MT
+(BBw = 9, BBh = 22, BBox = -2, BBoy = -6)SH
+23028 60790 MT
+(Rounded character width = 8  0)SH
+22506 62076 MT
+(``+'' = character origin and width)SH
+/Times-Bold SF
+20767 63968 MT
+(Figure 4-1:)SH
+/Times-Roman SF
+27367 XM
+(An example of a descender)SH
+10 SS 
+7200 75600 MT
+(Adobe Systems, Inc.)SH
+38696 XM
+(Version 2.1 of 16 September 87 15:31)SH
+ES
+%%Page: 4 5 
+BS
+0 SI
+10 /Times-BoldItalic AF
+7200 4291 MT
+(Character Bitmap Distribution Format)SH
+/Times-Roman SF
+53500 XM
+(4)SH
+1 SS 
+21600 7200 53280 PB mark
+/inch {72 mul}def
+
+/Helvetica findfont [10 0 0 10 0 0] makefont setfont
+
+/ShowCache
+   {$sc begin
+    gsave
+(Helvetica-Oblique) (FontPath)(rightquote) 
+0.0222222 -1.94273e-09 -1.94273e-09 -0.0222222 0 0 
+6 4 4.95555 0 2 -18  CachedChar
+0 [1 3 ] Bits
+1 [1 3 ] Bits
+2 [1 3 ] Bits
+3 [1 2 ] Bits
+4 [0 2 ] Bits
+5 [0 1 ] Bits
+ EndCachedChar
+
+    grestore
+    end
+   } def
+
+/$sc 120 dict def
+$sc begin
+
+/CN 100 string def
+/CachedChar
+   {/sl save def
+    /yo exch def /xo exch def
+    /yi exch def /xi exch def
+    /wb exch def /hb exch def
+    6 array astore /cmat exch def
+    /cname exch def
+    /fpath exch def
+    /fname exch def
+    DoScale                     % fit the character maximally onto the page
+    Grid
+    gsave
+    DoLabs
+    xo neg yo neg translate
+    OrigMarks
+   } def
+
+/DoLabs
+   {gsave
+    /Helvetica findfont [1 0 0 1 0 0] makefont setfont
+    0.1 setlinewidth
+    newpath
+    0 -1.5 moveto
+    0.5 0.5 rmoveto -0.5 -0.5 rlineto 0.5 -0.5 rlineto
+    0 -1.5 moveto wb -1.5 lineto
+    -0.5 0.5 rmoveto 0.5 -0.5 rlineto -0.5 -0.5 rlineto
+    stroke newpath
+    wb 0.5 sub (BBw ) stringwidth pop sub -0.5 moveto 
+    gsave 1 -1 scale (BBw) show grestore
+    -1 0.5 moveto -1.5 0 lineto -2 0.5 lineto
+    -1.5 0 moveto -1.5 hb lineto
+    -0.5 -0.5 rmoveto 0.5 0.5 rlineto 0.5 -0.5 rlineto
+    stroke newpath
+    -1.5 (BBh ) stringwidth pop sub hb 1 sub moveto 
+    gsave 1 -1 scale (BBh) show grestore
+    xo neg -3 moveto  0 -3 lineto 
+    -0.5 0.5 rmoveto 0.5 -0.5 rlineto -0.5 -0.5 rlineto
+    stroke newpath
+    newpath
+    0.5 -3 moveto gsave 1 -1 scale ( BBox) show grestore
+    newpath
+    -4 yo neg moveto 0 -12 rlineto
+%    -3 yo neg moveto -3 yo neg hb add lineto % ???? lowerleft?
+    0.5 0.5 rmoveto -0.5 -0.5 rlineto -0.5 0.5 rlineto
+    stroke newpath
+    -4 (BBoy ) stringwidth pop sub yo neg moveto
+    gsave 1 -1 scale (BBoy) show grestore 
+    grestore
+   } def
+
+/DoScale
+   {
+%    3 72 mul hb div dup scale          % hb == 3 inches
+%   0 hb translate
+%    1 -1 scale
+    3 72 mul 22 div dup scale
+    0 22 translate 
+    1 -1 scale
+    } def
+
+/OrigMarks
+   {gsave
+    0 setgray
+    .17 setlinewidth
+    newpath 0 -1 moveto 0 1 lineto stroke
+    newpath -1 0 moveto 1 0 lineto stroke
+    .13 setlinewidth
+    /xii xi round def
+    newpath xii -.8 moveto 0 1.6 rlineto stroke
+    newpath xii .8 sub 0 moveto 1.6 0 rlineto stroke
+    grestore
+   } def
+
+/Bits
+   {/xa exch def
+    /yy exch yo add def
+    gsave 0.2 setgray
+    0 2 xa length 1 sub
+       {/i exch def
+        xa i get 1 xa i 1 add get
+           {/xx exch xo add def
+            newpath xx 0.2 add yy 0.2 add moveto 
+            0 0.6 rlineto 0.6 0 rlineto 0 -0.6 rlineto closepath fill
+           } for 
+       } for
+    grestore
+   } def
+
+/EndCachedChar
+   {
+    grestore
+    sl restore
+   } def
+
+/Grid
+   {gsave
+    /wbround wb 8 div 0.5 add round cvi 8 mul def
+    wbround 1 add 
+       {newpath 0 0 moveto 0 hb lineto closepath fill
+        1 0 translate 
+        (-) print
+       } repeat
+    grestore
+    gsave
+    hb 1 add 
+       {newpath 0 0 moveto wbround 0 lineto closepath fill
+        0 1 translate
+        (|) print
+       } repeat
+    grestore
+    () = 
+   } def
+end
+
+190 18 translate
+ShowCache
+cleartomark
+
+ PE 12 SS 
+19836 55903 MT
+(BBh = 6, BBw = 4, BBox = +2, BBoy = +12)SH
+23178 57189 MT
+(Rounded character width = 5 0)SH
+/Times-Bold SF
+14464 59081 MT
+(Figure 4-2:)SH
+/Times-Roman SF
+21064 XM
+(An example with the origin outside the bounding box)SH
+10 SS 
+7200 75600 MT
+(Adobe Systems, Inc.)SH
+38696 XM
+(Version 2.1 of 16 September 87 15:31)SH
+ES
+%%Page: 5 6 
+BS
+0 SI
+10 /Times-BoldItalic AF
+7200 4291 MT
+(Character Bitmap Distribution Format)SH
+/Times-Roman SF
+53500 XM
+(5)SH
+14 /Times-Bold AF
+7200 8138 MT
+(5. An Example File)SH
+12 /Times-Roman AF
+8200 9515 MT
+(Figure 5-1 is an abbreviated example of)
+237 W( a bitmap file containing the specification of two)238 W
+10 SS 
+24969 10511 MT
+(2)SH
+12 SS 
+7200 10892 MT
+(characters \050the j and quoteright in 4\051.)SH
+9 /Courier-Bold AF
+9360 12785 MT
+(STARTFONT 2.1)SH
+9360 13823 MT
+(COMMENT This is a sample font in 2.1 format.)SH
+9360 14861 MT
+(FONT Helvetica-Bold)SH
+9360 15899 MT
+(SIZE 8 200 200)SH
+9360 16937 MT
+(FONTBOUNDINGBOX 9 24 -2 -6)SH
+9360 17975 MT
+(STARTPROPERTIES 2)SH
+9360 19013 MT
+(MinSpace 4)SH
+9360 20051 MT
+(Copyright "Copyright \050c\051 1987 Adobe Systems, Inc.")SH
+9360 21089 MT
+(ENDPROPERTIES)SH
+9360 22127 MT
+(CHARS 2)SH
+9360 23165 MT
+(STARTCHAR j)SH
+9360 24203 MT
+(ENCODING 106)SH
+9360 25241 MT
+(SWIDTH 355 0)SH
+9360 26279 MT
+(DWIDTH 8 0)SH
+9360 27317 MT
+(BBX 9 22 -2 -6)SH
+9360 28355 MT
+(BITMAP)SH
+9360 29393 MT
+(0380)SH
+9360 30431 MT
+(0380)SH
+9360 31469 MT
+(0380)SH
+9360 32507 MT
+(0380)SH
+9360 33545 MT
+(0000)SH
+9360 34583 MT
+(0700)SH
+9360 35621 MT
+(0700)SH
+9360 36659 MT
+(0700)SH
+9360 37697 MT
+(0700)SH
+9360 38735 MT
+(0E00)SH
+9360 39773 MT
+(0E00)SH
+9360 40811 MT
+(0E00)SH
+9360 41849 MT
+(0E00)SH
+9360 42887 MT
+(0E00)SH
+9360 43925 MT
+(1C00)SH
+9360 44963 MT
+(1C00)SH
+9360 46001 MT
+(1C00)SH
+9360 47039 MT
+(1C00)SH
+9360 48077 MT
+(2C00)SH
+9360 49115 MT
+(7800)SH
+9360 50153 MT
+(F000)SH
+9360 51191 MT
+(E000)SH
+9360 52229 MT
+(ENDCHAR)SH
+9360 53267 MT
+(STARTCHAR quoteright)SH
+9360 54305 MT
+(ENCODING 39)SH
+9360 55343 MT
+(SWIDTH 223 0)SH
+9360 56381 MT
+(DWIDTH 5 0)SH
+9360 57419 MT
+(BBX 4 5 2 12)SH
+9360 58457 MT
+(ATTRIBUTES 01C0)SH
+9360 59495 MT
+(BITMAP)SH
+9360 60533 MT
+(70)SH
+9360 61571 MT
+(70)SH
+9360 62609 MT
+(60)SH
+9360 63647 MT
+(E0)SH
+9360 64685 MT
+(C0)SH
+9360 65723 MT
+(ENDCHAR)SH
+9360 66761 MT
+(ENDFONT)SH
+12 /Times-Bold AF
+22382 68653 MT
+(Figure 5-1:)SH
+/Times-Roman SF
+28982 XM
+(A short example file)SH
+10800 50 7200 69990 UL
+8 SS 
+8200 71655 MT
+(2)SH
+10 SS 
+8600 72000 MT
+(Helvetica)SH
+/Symbol SF
+(\322)SH
+/Times-Roman SF
+13472 XM
+(is a registered trademark of Allied Corporation.)SH
+7200 75600 MT
+(Adobe Systems, Inc.)SH
+38696 XM
+(Version 2.1 of 16 September 87 15:31)SH
+ES
+%%Page: i 7 
+BS
+0 SI
+10 /Times-BoldItalic AF
+7200 4291 MT
+(Character Bitmap Distribution Format)SH
+/Times-Roman SF
+53722 XM
+(i)SH
+14 /Times-Bold AF
+25272 8138 MT
+(Table of Contents)SH
+13 SS 
+9150 9482 MT
+(1. Introduction)SH
+53350 XM
+(1)SH
+9150 10826 MT
+(2. Tape Format)SH
+53350 XM
+(1)SH
+9150 12170 MT
+(3. File Format)SH
+53350 XM
+(1)SH
+9150 13514 MT
+(4. Metric Information)SH
+53350 XM
+(3)SH
+9150 14858 MT
+(5. An Example File)SH
+53350 XM
+(5)SH
+10 /Times-Roman AF
+7200 75600 MT
+(Adobe Systems, Inc.)SH
+38696 XM
+(Version 2.1 of 16 September 87 15:31)SH
+ES
+%%Page: ii 8 
+BS
+0 SI
+10 /Times-BoldItalic AF
+7200 4291 MT
+(Character Bitmap Distribution Format)SH
+/Times-Roman SF
+53444 XM
+(ii)SH
+14 /Times-Bold AF
+26244 8138 MT
+(List of Figures)SH
+13 SS 
+9150 9482 MT
+(Figure 4-1:)
+SH( An)
+650 W( example of a descender)SH
+53350 XM
+(3)SH
+9150 10826 MT
+(Figure 4-2:)
+SH( An)
+650 W( example with the origin outside the bounding box)SH
+53350 XM
+(4)SH
+9150 12170 MT
+(Figure 5-1:)
+SH( A)
+650 W( short example file)SH
+53350 XM
+(5)SH
+10 /Times-Roman AF
+7200 75600 MT
+(Adobe Systems, Inc.)SH
+38696 XM
+(Version 2.1 of 16 September 87 15:31)SH
+ES
+%%Trailer
+%%Pages: 8 
+%%DocumentFonts: Times-Roman Times-Bold Symbol Times-BoldItalic
+Times-Italic Courier-Bold

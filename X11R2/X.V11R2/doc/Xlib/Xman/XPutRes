@@ -1,0 +1,37 @@
+.TH XrmPutResource 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XrmPutResource, XrmQPutResource, XrmPutStringResource, XrmQPutStringResource, XrmPutLineResource \- store database resources
+.SH SYNTAX
+.so ../Xsrc/XrmPRes.f
+.LP
+.so ../Xsrc/XrmQPRes.f
+.LP
+.so ../Xsrc/XrmPSRes.f
+.LP
+.so ../Xsrc/XrmQPSRes.f
+.LP
+.so ../Xsrc/XrmPLRes.f
+.SH ARGUMENTS
+.so ../Xsrc/bindings.a
+.so ../Xsrc/database.a
+.so ../Xsrc/res_line.a
+.so ../Xsrc/quarks.a
+.so ../Xsrc/resource1.a
+.so ../Xsrc/specifier.a
+.so ../Xsrc/res_type.a
+.so ../Xsrc/res_value.a
+.SH DESCRIPTION
+.so ../Xdescrip/XrmPRes.d
+.LP
+.so ../Xdescrip/XrmPSRes.d
+.LP
+.so ../Xdescrip/XrmQPSRes.d
+.LP
+.so ../Xdescrip/XrmPLRes.d
+.SH "SEE ALSO"
+XrmGetResource(3X),
+XrmInitialize(3X),
+XrmMergeDatabases(3X),
+XrmUniqueQuark(3X)
+.br
+\fIXlib \- C Language X Interface\fP

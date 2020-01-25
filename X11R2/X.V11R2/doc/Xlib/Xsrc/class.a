@@ -1,0 +1,12 @@
+.\" $Header: class.a,v 1.1 87/09/28 12:55:15 mento Exp $
+.IP \fIclass\fP 1i
+Specifies the created window's class.
+You can pass one of these constants:
+.PN InputOutput , 
+.PN InputOnly , 
+or 
+.PN CopyFromParent .
+A class of 
+.PN CopyFromParent
+means the class
+is taken from the parent.

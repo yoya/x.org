@@ -1,0 +1,5 @@
+.\" $Header: mfont.a,v 1.2 88/02/25 22:28:31 jg Exp $
+.IP \fImask_font\fP 1i
+Specifies the font for the mask glyph. 
+You can also pass 
+.PN None .

@@ -1,0 +1,98 @@
+            TOP = TOPDIR
+             AS = as
+             CC = hc
+            CPP = /lib/cpp
+             LD = ld
+           LINT = lint
+        INSTALL = install
+           TAGS = ctags
+             RM = rm -f
+             MV = mv
+             LN = ln -s
+         RANLIB = ranlib
+             AR = ar clq
+             LS = ls
+       LINTOPTS = -axz
+    LINTLIBFLAG = -C
+           MAKE = make
+    STD_DEFINES =
+    CDEBUGFLAGS = -O
+        DESTDIR =
+
+#define MakeContributed		NO	/* make contrib/ */
+
+/* 
+ * This defines the name of server you want.
+ * affected: .../X11/server/Makefile
+ */
+#define XibmServer Xibm
+
+/* 
+ * These define the screens the server will allow
+ * affected:	.../server/ddx/ibm/Makefile
+ *		.../server/ddx/ibm/rt/Makefile
+ * Also, be sure to remove .../server/ddx/ibm/rt/rtscreen.o
+ */
+#define	RtInclude8514	YES
+#define	RtIncludeAED	YES
+#define	RtIncludeAPA16	YES
+#define	RtIncludeEGA	YES
+#define	RtIncludeMPEL	YES
+#define	RtIncludeVGA	YES
+
+/* define this as you like for normal library compilation */
+#define LibraryDefines
+#define LibraryCDebugFlags	-O
+
+/* define this as you like for server compilation */
+#define ServerDefines		-DCOMPRESSED_FONTS
+#define	ServerCDebugFlags	-O
+
+/* -DTCPCONN allows TCP connections */
+/* -DUNIXCONN allows Unix domain connections */
+/* -DDNETCONN allows DECnet connections */
+
+#define ConnectionFlags		-DTCPCONN -DUNIXCONN
+
+/* This defines the extensions you want */
+/* #define ExtensionDefines	-DZOID -DBEZIER */
+#define ExtensionDefines
+
+#define InstallLintLibs		YES	/* install .ln libraries */
+#define InstallManPages		YES	/* install man pages */
+#define InstallAppDefFiles	YES	/* install application defaults */
+#define DebugLibX		NO	/* debugged X library */
+#define DebugLibXArchive	NO	/* archive file of above */
+#define ProfileLibX		NO	/* profiled X library */
+#define ProfileLibXArchive	NO	/* archive file of above */
+#define DebugOldLibX		NO	/* debugged old X library */
+#define ProfileOldLibX		NO	/* profiled old X library */
+#define DebugLibXt		NO	/* debugged toolkit library */
+#define ProfileLibXt		NO	/* profiled toolkit library */
+#define DebugLibXaw		NO	/* debugged widget library */
+#define ProfileLibXaw		NO	/* profiled widget library */
+#define DebugLibXext		NO	/* debugged Xext library */
+#define ProfileLibXext		NO	/* profiled Xext library */
+
+	/*
+	 * affected:	.../server/ddx/ibm/rt/Makefile
+	 *		.../server/os/4.2bsd/Makefile
+	 * remove:	.../server/ddx/ibm/rt/rtinit.o
+	 *		.../server/ddx/ibm/rt/rtio.o
+	 *		.../server/ddx/ibm/rt/rtutils.o
+	 *		.../server/os/4.2bsd/utils.o
+	 */
+#define	SpecialMalloc		YES
+
+/*
+ * Uncomment this if you have cpp sources.
+ */
+/* #define CppSourcesPresent /usr/src/lib/cpp */
+
+/*
+ * use only one tab here.
+ */
+#define ManSuffix	n	/* for /usr/man/man?/manpage.? */
+
+/* uncomment this if your make program has MAKEFLAGS but not MFLAGS */
+/* #define ConstructMFLAGS */

@@ -1,0 +1,72 @@
+.TH XAddHost 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XAddHost, XAddHosts, XListHosts, XRemoveHost, XRemoveHosts, XSetAccessControl, XEnableAccessControl, XDisableAccessContro \- control host access
+.SH SYNTAX
+.so ../Xsrc/XAddHost.f
+.LP
+.so ../Xsrc/XAddHosts.f
+.LP
+.so ../Xsrc/XGetHosts.f
+.LP
+.so ../Xsrc/XRemoveHost.f
+.LP
+.so ../Xsrc/XRemoveHosts.f
+.LP
+.so ../Xsrc/XChAccsCntrl.f
+.LP
+.so ../Xsrc/XEnAccsCntrl.f
+.LP
+.so ../Xsrc/XDisAcsCntrl.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/chcntrlmode.a
+.so ../Xsrc/host.a
+.so ../Xsrc/hosts.a
+.so ../Xsrc/nhosts.a
+.so ../Xsrc/num_hosts.a
+.so ../Xsrc/state.a
+.SH DESCRIPTION
+.so ../Xdescrip/XAddHost.d
+.LP
+.so ../Xdescrip/XAddHosts.d
+.LP
+.so ../Xdescrip/XGetHosts.d
+.LP
+.so ../Xdescrip/XRemoveHost.d
+.LP
+.so ../Xdescrip/XRemoveHosts.d
+.LP
+.so ../Xdescrip/XChAccsCntrl.d
+.LP
+.so ../Xdescrip/XEnAccsCntrl.d
+.LP
+.so ../Xdescrip/XDisAcsCntrl.d
+.LP
+.ds fd .PN XAddHost
+.ds fe .PN XAddHosts
+.ds ff .PN XRemoveHost
+.ds fg .PN XRemoveHosts
+.so ../Xsrc/errsent7.com
+.PN BadAlloc
+and
+.PN BadValue 
+errors.
+.LP
+.ds fd .PN XSetAccessControl
+.so ../Xsrc/errsent.com 
+.PN BadAlloc
+and
+.PN BadValue 
+errors.
+.LP
+.ds fd .PN XEnableAccessControl
+.ds fe .PN XDisableAccessControl
+.so ../Xsrc/errsent6.com
+.PN BadAccess 
+error.
+.SH DIAGNOSTICS
+.so ../Xerrors/badaccess4.e
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface\fP

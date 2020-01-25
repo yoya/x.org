@@ -1,0 +1,222 @@
+.TH XSERVER 1 "1 March 1988"  "X Version 11"
+.SH NAME
+X - X Window System server
+.SH SYNOPSIS
+.B X
+displaynumber [-option ...] ttyname
+.SH DESCRIPTION
+.I X
+is the window system server.  On operating systems derived from 4.3bsd, it is 
+run automatically by \fIinit(8)\fP, otherwise it is started from the
+\fIxinit(1)\fP program.  The \fIdisplaynumber\fP argument is used
+by clients in their DISPLAY environment variables to indicate which server
+to contact (large machines may have several displays attached).  This
+number is usually in the range of 0-6 and is also used in determining the
+names of various startup files.  The \fIttyname\fP argument is passed in
+by \fIinit\fP and isn't used.
+.PP
+The executable that is invoked when \fIX\fP is run
+is actually one of a collection of programs that depend on the hardware
+that is installed on the machine.  Any additional features are described in
+the documentation for that server.
+.PP
+The sample server has support for the following protocols:
+.TP 8
+.B TCP\/IP
+.br
+The server listens on port htons(6000+N), where N is the display number.
+.TP 8
+.B "Unix Domain"
+The file name for the socket is X_UNIX_PATH* where X_UNIX_PATH
+is a configuration parameter (/tmp/.X11-unix/X in the standard release) and
+"*" is the display number.
+.TP 8
+.B "DECnet"
+.br
+The server responds to connections to object ``X*'', where "*''
+is the display number.
+.PP
+When the sample server starts up, it takes over the display.  If you 
+are running on a workstation whose console is the display, you cannot log into
+the console while the server is running.
+.SH OPTIONS
+The following options can be given on the command line to any X server, usually
+when it is
+started by \fIinit(1)\fP using information stored in the file \fI/etc/ttys\fP.
+(see \fIttys(5)\fP for details):
+.TP 8
+.B \-a \fInumber\fP
+sets pointer acceleration (i.e. the ratio of how much is reported to how much
+the user actually moved the pointer).
+.TP 8
+.B \-c
+turns off key-click.
+.TP 8
+.B c \fIvolume\fP
+sets key-click volume (allowable range: 0-8).
+.TP 8
+.B \-f \fIvolume\fP
+sets feep (bell) volume (allowable range: 0-7).
+.TP 8
+.B \-logo
+turns on the X Window System logo display in the screen-saver.
+There is currently no way to change this from a client.
+.TP 8
+.B nologo
+turns off the X Window System logo display in the screen-saver.
+There is currently no way to change this from a client.
+.TP 8
+.B \-p \fIminutes\fP
+sets screen-saver pattern cycle time in minutes.
+.TP 8
+.B \-r
+turns off auto-repeat.
+.TP 8
+.B r
+turns on auto-repeat.
+.TP 8
+.B \-s \fIminutes\fP
+sets screen-saver timeout time in minutes.
+.TP 8
+.B \-t \fInumbers\fP
+sets pointer acceleration threshold in pixels (i.e. after how many pixels
+pointer acceleration should take effect).
+.TP 8
+.B \-to \fIseconds\fP
+sets default screensaver timeout in seconds.
+.TP 8
+.B v
+sets video-on screen-saver preference.
+.TP 8
+.B \-v
+sets video-off screen-saver preference
+.TP 8
+.B \-co \fIfilename\fP
+sets name of RGB color database
+.TP 8
+.B \-help
+prints a usage message
+.TP 8
+.B \-fp \fIfontPath
+sets the search path for fonts
+.TP 8
+.B \-fc \fIcursorFont\fP
+sets default cursor font
+.TP 8
+.B \-fn \fIfont\fP
+sets the default font
+.PP
+Specific implementations may have other command line options.
+.SH "RUNNING FROM INIT"
+.PP
+On operating systems such as 4.3bsd and Ultrix, the server and your login 
+window are normally started automatically by 
+\fIinit(8)\fP.
+.PP
+By convention, the pseudoterminal with the
+highest minor device number (e.g. \fI\/dev\/ttyqf\fP and \fI\/dev\/ptyqf\fP)
+is renamed for
+the lowest display number (e.g. \fI\/dev\/ttyv0\fP and \fI\/dev\/ptyv0\fP).
+Machines that have more than one
+display can repeat this process using \fIttyqe\fP for \fIttyv1\fP, and 
+so on.
+.PP
+With this done, you can set up \fI\/etc\/ttys\fP to run \fIX\fP and \fIxterm\fP
+by adding the following entry (the \\'s is to make the lines fit on this 
+manual page, the real entries have to occupy just one line):
+.sp
+.nf
+	ttyv0 "/etc/xterm -L -geometry -1+1 -display :0" xterm on \\
+		secure window="/etc/X :0 -c -l"
+.fi
+.sp
+on the client machine.  
+.PP
+Important note:  some versions of \fIinit\fP have relatively small
+program name buffer sizes, so you may find that you can't list many 
+\fIxterm\fP options.
+In addition, some \fIinit\fP's will treat the sharp signs that are used in
+specifying colors (such as for window backgrounds) as comments for the whole 
+line.  If you run into problems
+such as this you may want to write a small program that just exec's 
+\fIxterm\fP with the proper arguments and have \fIinit\fP run that instead.
+.PP
+If all else fails, set the display up to be a dumb terminal and use the
+\fIxinit\fP program after logging in.
+.SH "SECURITY"
+.I X
+uses an access control list for deciding whether or not to accept a
+connection from a given cleint.  This list
+initially consists of the machine on which the server is running, and any
+hosts listed in the file
+\fI/etc/X*.hosts\fP
+(where \fI*\fP is the display number).  This file should contain one line
+per host name, with no white space.  If a name ends in ``::'', it is assumed
+to be a DECnet host, otherwise it is interpreted as an Internet host.
+.PP
+The user can manipulate a dynamic form of this list in the server
+using the \fIxhost(1)\fP program from
+the same machine as the server.
+.PP
+Unlike some window systems, \fIX\fP does not have any notion of 
+window operation permissions or
+place any restrictions on what a client can do; if
+a program can connect to a display, it has full run of the screen.  There
+is support for using 
+authentication services on connection startup beyond the simple host name
+check, but it is not used in the standard distribution.
+.SH "SIGNALS"
+.I X
+will catch the SIGHUP signal sent by \fIinit(8)\fP
+after the initial process (usually
+the login \fIxterm(1)\fP) started on the display terminates.
+This signal causes all connections to be closed (thereby ``disowning'' the
+terminal), all resources to be freed, and all defaults restored.
+.SH DIAGNOSTICS
+Too numerous to list them all.
+If run from \fIinit(8)\fP, errors are logged in the file \fI/usr/adm/X*msgs\fP,
+.SH FILES
+.TP 30
+/etc/X*.hosts
+Initial access control list
+.TP 30
+/usr/lib/X11/fonts
+Font directory
+.TP 30
+/usr/lib/X11/rgb.txt
+Color database
+.TP 30
+/tmp/.X11-unix/X*
+Unix domain socket
+.TP 30
+/usr/adm/X*msgs
+Error log file
+.SH "SEE ALSO"
+X(1), xinit(1), xterm(1), xwm(1), xhost(1), xset(1), xsetroot(1), ttys(5),
+init(8), Xqdss(1), Xqvss(1), Xsun(1), Xapollo(1),
+.I "X Window System Protocol,"
+.I "Definition of the Porting Layer for the X v11 Sample Server,"
+.I "Strategies for Porting the X v11 Sample Server,"
+.I "Godzilla's Guide to Porting the X V11 Sample Server"
+.SH BUGS
+The option syntax is inconsistent with itself and \fIxset(1)\fP.
+.PP
+The acceleration option should take a numerator and a denominator like the
+protocol.
+.PP
+If
+.I X
+dies before its clients, new clients won't be able to connect until all
+existing connections have their TCP TIME_WAIT timers expire.
+.PP
+The color database is missing a large number of colors.  However, there
+doesn't seem to be a better one available that can generate RGB values.
+.SH COPYRIGHT
+Copyright 1988, Massachusetts Institute of Technology.
+.br
+See \fIX(1)\fP for a full statement of rights and permissions.
+.SH AUTHORS
+The sample server was originally written by
+Susan Angebranndt, Raymond Drewry, Philip Karlton, and Todd Newman,
+with support from a cast of thouands.  See also the \fIdoc/contributors\fP
+file.

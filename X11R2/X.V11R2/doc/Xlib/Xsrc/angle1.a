@@ -1,0 +1,4 @@
+.\" $Header: angle1.a,v 1.1 87/09/28 11:00:32 mento Exp $
+.IP \fIangle1\fP 1i
+Specifies the start of the arc relative to the three-o-clock position
+from the center, in units of degrees * 64.

@@ -1,0 +1,36 @@
+.TH XSetCommand 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XSetCommand \- set command atom
+.SH SYNTAX
+.so ../Xsrc/XSetCmd.f
+.SH ARGUMENTS
+.so ../Xsrc/argc.a
+.so ../Xsrc/argv.a
+.so ../Xsrc/display.a
+.so ../Xsrc/w.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSetCmd.d
+.ds fd .PN XSetCommand
+.so ../Xsrc/errsent.com
+.PN BadAlloc
+and
+.PN BadWindow 
+errors.
+.SH PROPERTY
+WM_COMMAND
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XSetClassHint(3X),
+XSetIconName(3X),
+XSetIconSizeHints(3X),
+XSetNormalHints(3X),
+XSetSizeHints(3X),
+XSetStandardProperties(3X),
+XSetTransientForHint(3X),
+XSetWMHints(3X),
+XSetZoomHints(3X),
+XStoreName(3X)
+.br
+\fIXlib \- C Language X Interface\fP

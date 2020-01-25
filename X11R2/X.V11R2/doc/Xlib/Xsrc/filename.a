@@ -1,0 +1,4 @@
+.\" $Header: filename.a,v 1.1 87/09/28 12:59:34 mento Exp $
+.IP \fIfilename\fP 1i
+Specifies the file name to use.
+The format of the file name is operating system specific.

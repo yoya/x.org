@@ -1,0 +1,29 @@
+.so head
+.so title
+.nr LL 6.5i
+.nr PD 0.1i
+.nr HM 1.2i
+.nr FM 1.0i
+.nr PO 1.0i
+.DA "PEX Version 3.00, 14-Dec-1987"
+.EH ''-%-''
+.OH ''-%-''
+.so copyright
+.bp 1
+.so ack
+.so formats
+.so types
+.so errors
+.so events
+.so extinfo
+.so ocmds
+.so tablereqs
+.so pcreqs
+.so rdrreqs
+.so strucreqs
+.so ecreqs
+.so namesets
+.so screqs
+.so wksreqs
+.so pickreqs
+.so fontreqs

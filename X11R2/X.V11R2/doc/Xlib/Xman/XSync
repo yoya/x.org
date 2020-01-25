@@ -1,0 +1,19 @@
+.TH XSynchronize 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XSynchronize, XSetAfterFunction \- enable or diable synchronization 
+.SH SYNTAX
+.so ../Xsrc/XSynchronize.f
+.LP
+.so ../Xsrc/XSyncHandler.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/func.a
+.so ../Xsrc/onoff.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSynchronize.d
+.LP
+.so ../Xdescrip/XSyncHandler.d
+.SH "SEE ALSO"
+XSetErrorHandler(3X)
+.br
+\fIXlib \- C Language X Interface\fP

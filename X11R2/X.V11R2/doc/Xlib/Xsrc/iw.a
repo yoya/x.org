@@ -1,0 +1,4 @@
+.\" $Header: iw.a,v 1.1 87/09/28 13:03:01 mento Exp $
+.IP \fIiw\fP 1i
+Specifies the icon window to be set to the specified window.
+The icon window must be sibling of the specified window.

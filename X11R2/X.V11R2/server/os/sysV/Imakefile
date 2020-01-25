@@ -1,0 +1,16 @@
+# DO NOT DELETE THIS LINE -- make depend depends on it.
+
+SRCS = util.c
+OBJS = util.o 
+STD_DEFINES = ServerDefines
+DEFINES= ConnectionFlags
+CDEBUGFLAGS = ServerCDebugFlags
+INCLUDES = -I.  -I../../include -I$(INCLUDESRC)
+LINTLIBS = ../../dix/llib-ldix.ln
+
+NormalLibraryObjectRule()
+NormalLibraryTarget(os,$(OBJS))
+LintLibraryTarget(os,$(SRCS))
+NormalLintTarget($(SRCS))
+
+DependTarget()

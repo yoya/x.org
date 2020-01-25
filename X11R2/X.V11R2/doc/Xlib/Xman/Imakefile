@@ -1,0 +1,133 @@
+# Makefile for the Xlib manpages.
+
+TROFF= psroff
+PRINTER= lpr
+
+#define Dot3XList(arg) \@@	arg.3X
+#define CreateRule(arg) @@arg.3X: arg@@	(cat macros.t; soelim $?) > $@
+#define NoSuffixList(arg) \@@	arg
+
+#define ManPages(transform) \
+	transform(XAddHost) \
+	transform(XAllColor) \
+	transform(XAllEvents) \
+	transform(XCKControl) \
+	transform(XCKMapping) \
+	transform(XCPControl) \
+	transform(XCSSet) \
+	transform(XCWAttrib) \
+	transform(XClearArea) \
+	transform(XConfigWin) \
+	transform(XCopyArea) \
+	transform(XCreCmap) \
+	transform(XCreFCur) \
+	transform(XCreGC) \
+	transform(XCreImage) \
+	transform(XCrePmap) \
+	transform(XCreReg) \
+	transform(XCreWin) \
+	transform(XDefCur) \
+	transform(XDesWin) \
+	transform(XDrArc) \
+	transform(XDrIString) \
+	transform(XDrLine) \
+	transform(XDrPoint) \
+	transform(XDrRect) \
+	transform(XDrString) \
+	transform(XDrText) \
+	transform(XERegion) \
+	transform(XFillRect) \
+	transform(XFlush) \
+	transform(XFree) \
+	transform(XGetDef) \
+	transform(XGetRes) \
+	transform(XGetVInfo) \
+	transform(XGetWAttr) \
+	transform(XGetWProp) \
+	transform(XGrButton) \
+	transform(XGrKey) \
+	transform(XGrKeybrd) \
+	transform(XGrPntr) \
+	transform(XGrServer) \
+	transform(XIfEvent) \
+	transform(XInitial) \
+	transform(XInstCmap) \
+	transform(XInterReg) \
+	transform(XInternA) \
+	transform(XListFont) \
+	transform(XLoadFont) \
+	transform(XLookKsym) \
+	transform(XMDBases) \
+	transform(XMapWin) \
+	transform(XOpDsply) \
+	transform(XParGeom) \
+	transform(XPolyReg) \
+	transform(XPutBEvnt) \
+	transform(XPutImage) \
+	transform(XPutRes) \
+	transform(XQBSize) \
+	transform(XQColor) \
+	transform(XQPointer) \
+	transform(XQTree) \
+	transform(XRaiseWin) \
+	transform(XReadBF) \
+	transform(XRecCur) \
+	transform(XReparWin) \
+	transform(XSContext) \
+	transform(XSInput) \
+	transform(XSeArcMod) \
+	transform(XSeClassHs) \
+	transform(XSeClipO) \
+	transform(XSeClosDM) \
+	transform(XSeCommnd) \
+	transform(XSeErrHan) \
+	transform(XSeFillS) \
+	transform(XSeFont) \
+	transform(XSeFontP) \
+	transform(XSeIcName) \
+	transform(XSeIconSHs) \
+	transform(XSeInFocus) \
+	transform(XSeLAttr) \
+	transform(XSeNormHs) \
+	transform(XSePMap) \
+	transform(XSeScSav) \
+	transform(XSeSelOwn) \
+	transform(XSeSizeHs) \
+	transform(XSeStandC) \
+	transform(XSeStandP) \
+	transform(XSeState) \
+	transform(XSeTile) \
+	transform(XSeTransHs) \
+	transform(XSeWMHs) \
+	transform(XSeZoomHs) \
+	transform(XStBytes) \
+	transform(XStColors) \
+	transform(XStName) \
+	transform(XStTKeysym) \
+	transform(XSync) \
+	transform(XTextExt) \
+	transform(XTextWid) \
+	transform(XTranWCo) \
+	transform(XUQuark) \
+	transform(XUnmapWin) \
+	transform(XWarpPntr) \
+	transform(XWinEvent)
+
+INSTALLFLAGS = $(INSTMANFLAGS)
+    MANPAGES = ManPages(Dot3XList)
+   TROFFSRCS = macros.t ManPages(NoSuffixList)
+
+all: $(MANPAGES)
+
+man.PS:	macros.t $(TROFFSRCS)
+	$(TROFF) -t -man $(TROFFSRCS) > $@.tmp
+	$(MV) $@.tmp $@
+
+clean::
+	$(RM) $(MANPAGES)
+
+ManPages(CreateRule)
+
+InstallMultiple($(MANPAGES),$(MANDIR))
+
+depend:

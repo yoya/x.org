@@ -1,0 +1,637 @@
+.LP
+The pipeline context components, in order, are listed in the following table.
+The abbreviation
+"imp. dep." stands for "implementation-dependent", meaning that the
+default value is determined by the PEX extension implementor.
+The abbreviation
+"draw." means that the default value is determined from the drawable
+at the time the pipeline context is created.
+.LP
+.ID
+.ta 0.4i 2.4i 3.9i
+	\fBAttribute Name	Data Type	Default Value\fP
+.ta
+.ta 0.5i 2.2i 4.0i
+    \fIMarker attributes\fP
+	marker_type	MARKER_TYPE	3
+	marker_scale	FLOAT	1.0
+	marker_color	COLOR_SPECIFIER	{\fIIndexed\fP, 1}
+    \fIMarker ASF attributes\fP
+	marker_type_asf	ASF_VALUE	\fIIndividual\fP
+	marker_scale_asf	ASF_VALUE	\fIIndividual\fP
+	marker_color_asf	ASF_VALUE	\fIIndividual\fP
+	marker_bundle_index	TABLE_INDEX	1
+    \fIText attributes\fP
+	text_font	TABLE_INDEX	1
+	text_precision	TEXT_PRECISION	\fIString\fP
+	char_expansion	FLOAT	1.0
+	char_spacing	FLOAT	0.0
+	text_color	COLOR_SPECIFIER	{\fIIndexed\fP, 1}
+	char_height	FLOAT	0.01
+	char_up_vector	VECTOR_2D	<0.0 1.0>
+	text_path	TEXT_PATH	\fIRight\fP
+	text_alignment	TEXT_ALIGNMENT	{\fINormal, Normal\fP}
+	atext_height	FLOAT	0.01
+	atext_up_vector	VECTOR_2D	<0.0 1.0>
+	atext_path	TEXT_PATH	\fIRight\fP
+	atext_alignment	TEXT_ALIGNMENT	{\fINormal, Normal\fP}
+	atext_style	ATEXT_STYLE	1
+    \fIText ASF attributes\fP
+	text_font_asf	ASF_VALUE	\fIIndividual\fP
+	text_precision_asf	ASF_VALUE	\fIIndividual\fP
+	char_expansion_asf	ASF_VALUE	\fIIndividual\fP
+	char_spacing_asf	ASF_VALUE	\fIIndividual\fP
+	text_color_asf	ASF_VALUE	\fIIndividual\fP
+	text_bundle_index	TABLE_INDEX	1
+    \fILine and curve attributes\fP
+	line_type	LINE_TYPE	1
+	line_width	FLOAT	1.0
+	line_color	COLOR_SPECIFIER	{\fIIndexed\fP, 1}
+	curve_display	CURVE_DISPLAY	1
+	curve_tolerance	FLOAT	1.0
+	polyline_interp	POLYLINE_INTERP	1
+    \fILine and curve ASF attributes\fP
+	line_type_asf	ASF_VALUE	\fIIndividual\fP
+	line_width_asf	ASF_VALUE	\fIIndividual\fP
+	line_color_asf	ASF_VALUE	\fIIndividual\fP
+	polyline_interp_asf	ASF_VALUE	\fIIndividual\fP
+	line_bundle_index	TABLE_INDEX	1
+    \fISurface attributes\fP
+	interior_style	INTERIOR_STYLE	1
+	interior_style_index	TYPE_OR_TABLE_INDEX	1
+	surface_color	COLOR_SPECIFIER	{\fIIndexed\fP, 1}
+	ambient_coef	FLOAT	1.0
+	diffuse_coef	FLOAT	1.0
+	specular_coef	FLOAT	1.0
+	specular_color	COLOR_SPECIFIER	{\fIIndexed\fP, 1}
+	specular_conc	FLOAT	0.0
+	transmission_coef	FLOAT	0.0
+	bf_surface_color	COLOR_SPECIFIER	{\fIIndexed\fP, 1}
+	bf_ambient_coef	FLOAT	1.0
+	bf_diffuse_coef	FLOAT	1.0
+	bf_specular_coef	FLOAT	1.0
+	bf_specular_color	COLOR_SPECIFIER	{\fIIndexed\fP, 1}
+	bf_specular_conc	FLOAT	0.0
+	bf_transmission_coef	FLOAT	0.0
+	reflection_model	REFLECTION_MODEL	1
+	surface_interp	SURFACE_INTERP	1
+	surface_display	SURFACE_DISPLAY	1
+	surface_tolerance	TOLERANCE	{1.0, 1.0}
+	culling_mode	CULL_MODE	\fIBackFaces\fP
+	distinguish	BOOLEAN	\fIFalse\fP
+	normalflip	BOOLEAN	\fIFalse\fP
+	pattern_size	COORD_2D	(1.0, 1.0)
+	pattern_ref_pt	COORD_3D	(0.0, 0.0, 0.0)
+	pattern_ref_vec1	VECTOR_3D	<1 0 0>
+	pattern_ref_vec2	VECTOR_3D	<0 1 0>
+    \fISurface ASF attributes\fP
+	interior_style_asf	ASF_VALUE	\fIIndividual\fP
+	interior_style_index_asf	ASF_VALUE	\fIIndividual\fP
+	surface_color_asf	ASF_VALUE	\fIIndividual\fP
+	reflection_model_asf	ASF_VALUE	\fIIndividual\fP
+	surface_interp_asf	ASF_VALUE	\fIIndividual\fP
+	interior_bundle_index	TABLE_INDEX	1
+    \fISurface edge attributes\fP
+	surface_edges	SWITCH	\fIOff\fP
+	surface_edge_type	SURFACE_EDGE_TYPE	1
+	surface_edge_width	FLOAT	1.0
+	surface_edge_color	COLOR_SPECIFIER	{\fIIndexed\fP, 1}
+    \fISurface edge ASF attributes\fP
+	surface_edges_asf	ASF_VALUE	\fIIndividual\fP
+	surface_edge_type_asf	ASF_VALUE	\fIIndividual\fP
+	surface_edge_width_asf	ASF_VALUE	\fIIndividual\fP
+	surface_edge_color_asf	ASF_VALUE	\fIIndividual\fP
+	edge_bundle_index	TABLE_INDEX	1
+    \fIGeometry transformation attributes\fP
+	local_transform	MATRIX	identity
+	global_transform	MATRIX	identity
+	model_clip	SWITCH	\fIOff\fP
+	model_clip_volume	LISTofHALF_SPACE	\fINull\fP
+	view_index	TABLE_INDEX	0
+    \fIColor transformation attributes\fP
+	light_state	BITMASK	all zeros
+	depth_cue_index	TABLE_INDEX	1
+    \fIMiscellaneous attributes\fP
+	pick_id	CARD32	0
+	HLHSR_identifier	CARD32	0
+	name_set \(dg	NAME_SET_ID	imp. dep.
+.ta
+
+.DE
+.FS
+\(dg When pipeline context attributes are copied to a renderer
+the actual \fIcontents\fP of the name set resource is copied, and
+not the resource id of the name set.
+.FE
+
+.LP
+The attributes of the pipeline context resource are defined as follows:
+
+.Bl "marker_type"
+This attribute contains the marker type to use when drawing marker primitives.
+See the "Extension Information" section for descriptions of the registered
+marker types.
+
+.Bl "marker_scale"
+This attribute contains the marker scale factor
+to use when drawing marker primitives.
+
+.Bl "marker_color"
+This attribute contains the color value to use when drawing marker primitives.
+
+.Bl "marker_type_asf"
+.Af "marker_type_asf" "marker_type" "marker bundle" "marker_bundle_index"
+
+.Bl "marker_scale_asf"
+.Af "marker_scale_asf" "marker_scale" "marker bundle" "marker_bundle_index"
+
+.Bl "marker_color_asf"
+.Af "marker_color_asf" "marker_color" "marker bundle" "marker_bundle_index"
+
+.Bl "marker_bundle_index"
+This attribute contains the lookup table index to be used to obtain
+bundled marker attributes from the marker bundle table.
+
+.Bl "text_font"
+This attribute contains the font to use when drawing text
+and annotation text primitives.
+
+.Bl "text_precision"
+This attribute contains the text precision to use when drawing text
+and annotation text primitives.
+
+.Bl "char_expansion"
+This attribute contains the character expansion
+to use when drawing text primitives.
+The character 
+expansion factor is the deviation of the width to height
+ratio of the characters from the ratio indicated by the 
+font designer.
+
+.Bl "char_spacing"
+This attribute contains the character spacing
+to use when drawing text primitives.
+Character spacing
+specifies how much additional space is to be inserted between
+two adjacent character bodies and is specified as a fraction of the
+font-nominal character height.
+
+.Bl "text_color"
+This attribute contains the color value to use when drawing text
+and annotation text primitives.
+
+.Bl "char_height"
+This attribute contains the character height
+to use when drawing text primitives.
+The character height
+is specified in modeling coordinates.
+
+.Bl "char_up_vector"
+This attribute contains the character up vector
+to use when drawing text primitives.
+The up vector
+is specified in modeling coordinates.
+
+.Bl "text_path "
+This attribute contains the text path to use when drawing text primitives
+(i.e., the writing path of the text string).
+
+.Bl "text_alignment"
+This attribute contains the horizontal and vertical alignment
+to use when drawing text primitives.
+
+.Bl "atext_height"
+This attribute contains the character height
+to use when drawing annotation text primitives.
+The character height
+is specified in modeling coordinates.
+
+.Bl "atext_up_vector"
+This attribute contains the character up vector
+to use when drawing annotation text primitives.
+The up vector is specified in the text local coordinate system.
+
+.Bl "atext_path"
+This attribute contains the text path
+to use when drawing annotation text primitives
+(i.e. the writing path of the annotation text string).
+
+.Bl "atext_alignment"
+This attribute contains the horizontal and vertical alignment
+to use when drawing annotation text primitives.
+
+.Bl "atext_style"
+This attribute contains the annotation text style
+to use when drawing annotation text primitives.
+See the "Extension Information" section for descriptions of the registered
+annotation text styles.
+
+.Bl "text_font_asf"
+.Af "text_font_asf" "text_font" "text bundle" "text_bundle_index"
+
+.Bl "text_prec_asf"
+.Af "text_prec_asf" "text_precision" "text bundle" "text_bundle_index"
+
+.Bl "char_expansion_asf"
+.Af "char_expansion_asf" "char_expansion" "text bundle" "text_bundle_index"
+
+.Bl "char_spacing_asf"
+.Af "char_spacing_asf" "char_spacing" "text bundle" "text_bundle_index"
+
+.Bl "text_color_asf"
+.Af "text_color_asf" "text_color" "text bundle" "text_bundle_index"
+
+.Bl "text_bundle_index"
+This attribute contains the lookup table index to be used to obtain
+bundled text attributes from the text bundle table.
+
+.Bl "line_type"
+This attribute contains the type to use when drawing polyline
+and curve primitives.
+See the "Extension Information" section for descriptions of the registered
+line types.
+
+.Bl "line_width"
+This attribute contains the width to use when drawing polyline or
+curve primitives.
+This is the scale factor applied to the width of the polyline or curve
+primitive when it
+is to be rendered.  Line width is applied in 2D raster
+coordinates after the primitive has been transformed from 3D
+space to 2D raster space.
+The range of line widths supported by the implementation should
+be described in the implementation documentation.
+
+.Bl "line_color"
+This attribute contains the color value to use when drawing polyline
+and curve primitives.
+
+.Bl "curve_display"
+This attribute contains the curve display method
+to use when drawing curve primitives.
+See the "Extension Information" section for descriptions of the registered
+curve display methods.
+
+.Bl "curve_tolerance"
+This attribute contains the curve tolerance
+to use when drawing curve primitives.
+See the "Extension Information" section for descriptions of how the
+curve tolerance is used with the various curve display methods.
+ 
+.Bl "polyline_interp"
+This attribute contains the polyline interpolation method
+to use when drawing polyline primitives.
+See the "Extension Information" section for descriptions of the registered
+polyline interpolation methods.
+
+.Bl "line_type_asf"
+.Af "line_type_asf" "line_type" "line bundle" "line_bundle_index"
+
+.Bl "line_width_asf"
+.Af "line_width_asf" "line_width" "line bundle" "line_bundle_index"
+
+.Bl "line_color_asf"
+.Af "line_color_asf" "line_color" "line bundle" "line_bundle_index"
+
+.Bl "polyline_interp_asf"
+.Af "polyline_interp_asf" "polyline_interp" "line bundle" "line_bundle_index"
+
+.Bl "line_bundle_index"
+This attribute contains the lookup table index to be used to obtain
+bundled polyline and curve attributes from the line bundle table.
+
+.Bl "interior_style"
+This attribute contains the interior style
+to use when drawing surface primitives.
+See the "Extension Information" section for descriptions of the registered
+interior styles.
+
+.Bl "interior_style_index"
+This attribute contains the index to use
+if the interior style is of
+type \fIPattern\fP or \fIHatch\fP.
+The interior style index contains the table index of
+the pattern table entry to be used
+when the interior
+style is \fIPattern\fP,
+and the hatch table enumerated type index to be used
+when the interior
+style is \fIHatch\fP.
+
+.Bl "surface_color"
+This attribute contains the color value to use when drawing surface primitives.
+
+.Bl "ambient_coef"
+This attribute contains the ambient coefficient to be used in
+the light source shading computations when rendering surfaces
+(area-defining primitives).
+
+.Bl "diffuse_coef"
+This attribute contains the diffuse coefficient to be used in
+the light source shading computations when rendering surfaces
+(area-defining primitives).
+
+.Bl "specular_coef"
+This attribute contains the specular coefficient to be used in
+the light source shading computations when rendering surfaces
+(area-defining primitives).
+
+.Bl "specular_color"
+This attribute contains the specular color to be used in
+the light source shading computations when rendering surfaces
+(area-defining primitives).
+The specular color attribute provides an additional coefficient per primary
+for use in the specular reflection computation.  This allows highlights
+to be computed that are some color other than that of the light source.
+
+.Bl "specular_conc"
+This attribute contains the specular concentration to be used in
+the light source shading computations when rendering surfaces
+(area-defining primitives).
+The specular concentration
+defines the sharpness
+of the specular highlights or the "shininess" of a surface.  This
+value is typically used as the exponent in the specular reflection
+term of lighting equations.
+If \fIspecular_conc\fP = zero, specular
+highlights are very broad.  If \fIspecular_conc\fP >> 0,
+the highlights are very small and sharp, as if the surface
+was very shiny.
+
+.Bl "transmission_coef"
+This attribute contains the transmission coefficient to be used in
+the light source shading computations when rendering surfaces
+(area-defining primitives).
+The transmission coefficient indicates the amount of light that passes
+through a surface.
+A transmission coefficient of zero indicates that
+the surface is opaque (lets no light through).
+A transmission coefficient of 1.0 indicates that
+the surface is totally invisible (lets all light through).
+
+.Bl "bf_surface_color"
+This attribute contains the color value to use when rendering
+backfacing surface primitives.
+
+.Bl "bf_ambient_coef"
+This attribute contains the ambient coefficient to be used in
+the light source shading computations when rendering backfacing
+surfaces.
+
+.Bl "bf_diffuse_coef"
+This attribute contains the diffuse coefficient to be used in
+the light source shading computations when rendering backfacing
+surfaces.
+
+.Bl "bf_specular_coef"
+This attribute contains the specular coefficient to be used in
+the light source shading computations when rendering backfacing
+surfaces.
+
+.Bl "bf_specular_color"
+This attribute contains the specular color to be used in
+the light source shading computations when rendering backfacing
+surfaces.
+The specular color attribute provides an additional coefficient per primary
+for use in the specular reflection computation.  This allows highlights
+to be computed that are some color other than that of the light source.
+
+.Bl "bf_specular_conc"
+This attribute contains the specular concentration to be used in
+the light source shading computations when rendering backfacing
+surfaces.
+The specular concentration
+defines the sharpness
+of the specular highlights or the "shininess" of a surface.  This
+value is typically used as the exponent in the specular reflection
+term of lighting equations.
+If \fIspecular_conc\fP = zero, specular
+highlights are very broad.  If \fIspecular_conc\fP >> 0,
+the highlights are very small and sharp, as if the surface
+was very shiny.
+
+.Bl "bf_transmission_coef"
+This attribute contains the transmission coefficient to be used in
+the light source shading computations when rendering
+backfacing surfaces.
+The transmission coefficient indicates the amount of light that passes
+through a surface.
+A transmission coefficient of zero indicates that
+the surface is opaque (lets no light through).
+A transmission coefficient of 1.0 indicates that
+the surface is totally invisible (lets all light through).
+
+.Bl "reflection_model"
+This attribute contains the reflection model
+to use when drawing surface primitives.
+See the "Extension Information" section for descriptions of the registered
+reflection models.
+
+.Bl "surface_interp"
+This attribute contains the surface interpolation method
+to use when drawing surface primitives.
+See the "Extension Information" section for descriptions of the registered
+surface interpolation methods.
+
+.Bl "surface_display"
+This attribute contains the surface display method
+to use when drawing surface primitives.
+See the "Extension Information" section for descriptions of the registered
+surface display methods.
+
+.Bl "surface_tolerance"
+This attribute contains the surface display method
+to use when drawing surface primitives.
+See the "Extension Information" section for descriptions of how the
+surface tolerance is used with the various surface display methods.
+
+.Bl "culling_mode"
+This attribute contains the culling mode that is used in processing
+backfacing surfaces.
+If the culling mode
+is \fIBackFaces\fP, all back-facing surfaces will be culled and
+only front-facing surfaces will be rendered.
+If the culling mode
+is \fIFrontFaces\fP, all front-facing surfaces will be culled and
+only back-facing surfaces will be rendered.
+If the culling mode is
+\fINone\fP, both front- and back-facing polygons will be rendered.
+
+.Bl "distinguish"
+This attribute contains the distinguish mode that is used in processing
+backfacing surfaces.
+This flag
+selects whether back-facing surfaces are rendered with the back-face
+surface attributes or the front-face surface attributes.
+If distinguish is \fITrue\fP,
+then back-face attributes are used to render the surface.
+If \fIdistinguish\fP is \fIFalse\fP,
+then front-face attributes are used to render the surface.
+.IP
+
+.Bl "normalflip"
+This attribute contains the normalflip mode that is used in processing
+backfacing surfaces.
+\fINormalflip\fP
+selects whether back-facing surfaces have their normals negated (flipped)
+in order to perform the light source shading calculations.
+If \fInormalflip\fP is \fITrue\fP,
+the normal(s) of a back-facing surface will be flipped before the
+light source shading calculations are performed.
+If \fInormalflip\fP is \fIFalse\fP,
+the normal(s) of a back-facing surface will not be flipped before the
+light source shading calculations are performed.
+
+.Bl "pattern_size"
+This attribute contains the pattern size
+to use when drawing surface primitives.
+The value (\fIx\fP,0) will be used as the pattern width 
+vector and
+the value (0,\fIy\fP) will be used as the pattern height
+vector.
+If the interior style is \fIPattern\fP, the renderer
+attempts to use 
+these values, plus the pattern reference point and the pattern reference 
+vector, to position, scale, and rotate the pattern on the surface. 
+
+.Bl "pattern_ref_pt"
+This attribute contains the pattern reference point
+to use when drawing surface primitives.
+If the interior style
+is \fIPattern\fP, the renderer attempts
+to use the pattern reference point, reference vectors, and
+the pattern size to position and scale the pattern on the surface. 
+
+.Bl "pattern_ref_vec1"
+.IP
+This attribute contains the first of two pattern reference vectors
+to be used when interior style is \fIPattern\fP.
+When the interior style is \fIPattern\fP,
+the renderer attempts to use the two pattern reference vectors,
+the pattern reference point, and
+the pattern size to position, scale, and rotate the pattern on the 
+surface. 
+
+.Bl "pattern_ref_vec2"
+.IP
+This attribute contains the second of two pattern reference vectors
+to be used when interior style is \fIPattern\fP.
+When the interior style is \fIPattern\fP,
+the renderer attempts to use the two pattern reference vectors,
+the pattern reference point, and
+the pattern size to position, scale, and rotate the pattern on the 
+surface. 
+
+.Bl "interior_style_asf"
+.Af "interior_style_asf" "interior_style" "interior bundle" "interior_bundle_index"
+
+.Bl "interior_style_index_asf"
+.Af "interior_style_index_asf" "interior_style_index" "interior bundle" "interior_bundle_index"
+
+.Bl "surface_color_asf"
+.Af "surface_color_asf" "surface_color" "interior bundle" "interior_bundle_index"
+
+.Bl "reflection_model_asf"
+.Af "reflection_model_asf" "reflection_model" "interior bundle" "interior_bundle_index"
+
+.Bl "surface_interp_asf"
+.Af "surface_interp_asf" "surface_interp" "interior bundle" "interior_bundle_index"
+
+.Bl "interior_bundle_index"
+This attribute contains the lookup table index to be used to obtain
+bundled interior attributes from the interior bundle table.
+
+.Bl "surface_edges"
+This attribute contains the surface edge flag attribute, which
+is used to enable or disable surface edge drawing.  
+If \fIonoff\fP is
+\fIOff\fP, surface edge drawing is disabled.  If \fIonoff\fP 
+is \fIOn\fP, surface edge
+drawing is enabled.  Surface edges are drawn using the surface
+edge color, surface edge type, and surface edge width.
+Because of GKS compatibility requirements, surface edge
+attributes are ignored when rendering fill area primitives
+but are used when rendering fill area set primitives.
+
+.Bl "surface_edge_type"
+This attribute contains the edge type
+to use when drawing surface edges.
+See the "Extension Information" section for descriptions of the registered
+surface edge types.
+
+.Bl "surface_edge_width"
+This attribute contains the edge width
+to use when drawing surface edges.
+This is the scale factor applied to the width of a surface edge when a
+surface edge is to be rendered.  It is applied in 2D raster
+coordinates after a surface edge primitive has been transformed from 3D
+space to 2D raster space.
+The range of surface edge widths supported by the implementation should
+be described in the implementation documentation.
+
+.Bl "surface_edge_color"
+This attribute contains the color value to use when drawing surface edges.
+
+.Bl "surface_edges_asf"
+.Af "surface_edges_asf" "surface_edges" "edge bundle" "edge_bundle_index"
+
+.Bl "surface_edge_type_asf"
+.Af "surface_edge_type_asf" "surface_edge_type" "edge bundle" "edge_bundle_index"
+
+.Bl "surface_edge_width_asf"
+.Af "surface_edge_width_asf" "surface_edge_width" "edge bundle" "edge_bundle_index"
+
+.Bl "surface_edge_color_asf"
+.Af "surface_edge_color_asf" "surface_edge_color" "edge bundle" "edge_bundle_index"
+
+.Bl "edge_bundle_index"
+This attribute contains the lookup table index to be used to obtain
+bundled surface edge attributes from the surface edge bundle table.
+
+.Bl "local_transform"
+This attribute contains the local modeling transformation matrix that is used
+when drawing output primitives.
+
+.Bl "global_transform"
+This attribute contains the global modeling transformation matrix that is used
+when drawing output primitives.
+
+.Bl "model_clip"
+This attribute contains the model clipping flag that indicates whether
+or not to perform modeling clipping
+when drawing output primitives.
+
+.Bl "model_clip_volume"
+This attribute contains the model clipping volume that is used
+whenever modeling clipping is enabled.
+
+.Bl "view_index"
+This attribute contains the lookup table index to be used to obtain
+viewing attributes from the view table.
+
+.Bl "light_state"
+This attribute contains a bit mask that defines which lights are on
+and which are off.  Values of zero indicate lights that are off, values
+of one indicate lights that are on.
+
+.Bl "depth_cue_index"
+This attribute contains the lookup table index to be used to obtain
+bundled depth-cue attributes from the depth-cue bundle table.
+
+.Bl "pick_id     "
+This attribute contains the pick id, which
+is used in conjunction with picking operations.
+
+.Bl "HLHSR_identifier"
+This attribute contains an HLHSR identifier.
+The HLHSR identifier has an implementation-dependent
+meaning.  Conceptually, this attribute is bound to
+all output primitives as they enter the rendering
+pipeline.
+
+.Bl "name_set"
+This attribute contains a reference to a name set resource.
+When attributes of a pipeline context are copied to a renderer,
+the \fIcontents\fP of this nameset are copied to the renderer.
+
+.bp

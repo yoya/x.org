@@ -1,0 +1,3 @@
+.IP \fIfont_ID\fP 1i
+Specifies the appropriate font ID previously returned by
+.PN XLoadFont .

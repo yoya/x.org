@@ -1,0 +1,6 @@
+.\" $Header: srcxy1.a,v 1.1 87/09/28 13:13:42 mento Exp $
+.IP \fIsrc_x\fP 1i
+.br
+.ns
+.IP \fIsrc_y\fP 1i
+Specify the x and y coordinates within the source window.

@@ -1,0 +1,3 @@
+.\" $Header: def_io.a,v 1.3 88/02/19 14:48:45 mento Exp $
+.IP \fIscreen_in_out\fP 1i
+Specifies or returns the values actually used in the color map.

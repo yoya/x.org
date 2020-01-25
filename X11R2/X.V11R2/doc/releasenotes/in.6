@@ -1,0 +1,168 @@
+.NH 1
+Xlib - C Language X Interface
+.LP
+A number of changes have been made to the Xlib manual since the last release.
+Page numbers of function definitions and items in the index are 
+now indicated in a special font.  We wish to thank the many people who 
+spent considerable time and effort submitting extensive comments.  
+.LP
+\fBDue to changes in several of the internal data structures, all programs 
+must be recompiled before being linked with the new library.\fP  Existing 
+binaries
+will, of course, continue to run.  Only the resource manager and extension
+mechanism have been changed in any incompatible ways.  Programs that do not
+make direct use of these facilities should not require any changes to 
+recompile.
+.NH 2
+Changes to the base Xlib
+.LP
+The default error handler now uses the Resource Manager to obtain diagnostic
+messages from the error message database \fIXErrorDB\fP in the directory
+specified by the LIBDIR configuration parameter in 
+\fIutil/imake.includes/Imake.tmpl\fP (by default,
+\fI/usr/lib/X11/\fP).
+This makes individual and site customization of error
+messages much simpler than in previous releases.  If you are upgrading from
+a previous release, remember to install the error database or else error
+messages will continue to be somewhat cryptic.
+.LP
+All programs that use either the X Toolkit or the Xlib routine
+\fIXGetDefault\fP now obtain resources in the same manner.  The
+\fIxrdb(1)\fP program now provides the ability to define
+default resources that are available to all clients, 
+making \fI\.Xdefaults\fP files obsolete.
+To override the global defaults, an additional resource file can be specified
+by setting the XENVIRONMENT environment variable.  Finally, applications 
+written with the X Toolkit can also have resources specified at run time 
+using the command line option ``-xrm''.
+.LP
+The event managing routines no longer flush the output buffer on every call.
+Instead, the buffer will only be written to the network if 
+a routine is about to block.  Clients that use the following routines
+should notice an increase in performance: \fIXNextEvent\fP,
+\fIXPeekEvent\fP, \fIXIfEvent\fP, \fIXCheckIfEvent\fP, \fIXPeekIfEvent\fP,
+\fIXWindowEvent\fP,    \fIXCheckWindowEvent\fP,    \fIXMaskEvent\fP,
+\fIXCheckMaskEvent\fP, \fIXCheckTypedEvent\fP, \fIXCheckTypedWindowEvent\fP,
+and \fIXPendingEvent\fP.  This is a compatible change that should require no
+modifications to any client programs.
+.LP
+A new routine called \fIXEventsQueued\fP has been added to Xlib to provide
+one interface for determining the number of events in input
+queue.  This function superceeds the old \fIXQLength\fP and \fIXPending\fP
+routines, and they have been rewritten to simply call this routine.  It
+also provides the ability to read any pending events off the network
+without flushing the output queue.
+New clients should  use \fIXEventsQueued\fP instead of the old routines.
+.LP
+A new \fIsend_event\fP field has been added to the XEvent structures.  
+Events that are sent from another client using the \fIXSendEvent\fP  
+routine now have this flag set to True instead having the eighth bit of
+the event type set.  This allows clients that don't care about the origin
+of events do not have to mask the bit themselves.
+.LP
+To provide room in the event structures for anticipated extensions, a small
+amount of additional padding has been to added to all XEvent structures.  
+No client source code changes are required.
+.LP
+The previous release did not provide any mechanism for accessing the 
+serial numbers that are required in all requests.  Two new macros,
+\fINextRequest\fP and \fILastKnownRequestProcessed\fP (and corresponding  
+routines), have been added to return the serial number
+of the next request and the serial number  of  the
+last  request  known  to have been executed by the
+server, respectively.
+.LP
+Many applications writers mistakenly used the \fIXCreateBitmapFromData\fP
+routine in the previous release to create tiles for window backgrounds
+and borders, resulting in incorrect programs that could not run on 
+color and gray scale displays.  This routine should only be used to create 
+bitmaps for specifying stipple patterns, clipping regions, cursor shapes, 
+and icon shapes.  A new routine called \fIXCreatePixmapFromBitmapData\fP has 
+been added to create pixmaps for tiles and images from data in
+\fIbitmap(1)\fP format.
+.LP
+Several misdeclared function arguments have been fixed in this release.
+The bytes_after_return argument  of  the  \fIXGetWindowProperty\fP  
+has been changed from (long *) to (unsigned long *).  Similarly, 
+several routines that took signed width and height arguments now take
+unsigned arguments instead.
+.LP
+A new routine called \fIXUnionRectWithRegion\fP has been added to the
+region package in Xlib.  This procedure can be used to add a rectangle to
+region, which is very useful in implementing exposure event compression.
+.LP
+The \fIXPutImage\fP, \fIXPutPixel\fP and \fIXGetPixel\fP routines 
+have had many bugs fixed and should now be much closer to being correct.
+.LP
+Errors in the descriptions of several of the modifier map functions have
+been corrected, including the addition of the \fIXDeleteModifiermapEntry\fP 
+and \fIXInsertModifiermapEntry\fP routines.
+.LP
+The documentation for \fIXPolygonRegion\fP has been corrected.
+.LP
+The \fIXSendEvent\fP routine now returns a Status indicating whether or not the
+given XEvent was successfully converted into a wire event.  Extension mechanism
+wire to host and host to wire conversion functions have been changed to 
+return a boolean result
+indicating whether or not the event should be queued.  This makes merging two
+wire events into a single user visible event possible.  Extension libraries
+should be the only code requiring source changes.
+.NH 2
+Changes to the Resource Manager
+.LP
+Because the Resource Manager is now used in Xlib by the default error handler 
+and by the routine \fIXGetDefault\fP, it is no longer a separate library.
+Applications that link against Xrm explicitly (such as old toolkit 
+programs) will have to have the additional library removed from any 
+Imakefiles or Makefiles.
+.LP
+Experience with the X Toolkit revealed that several of the interfaces within
+the Resource Manager were incorrectly designed.  Any applications that make 
+direct calls
+into the Xrm library instead of going through the X Toolkit will 
+probably have to be 
+modified.  The interfaces to these routines will now remain stable.
+In addition, the documentation for the Resource Manager
+(including how to specify default resources) has been completely rewritten.
+.LP
+The following procedures, which were artifacts of the X10 implementation of
+the X Toolkit, have been removed:
+\fIXrmNewQuarkList\fP, \fIXrmFreeQuarkList\fP, \fIXrmQuarkListLength\fP,
+\fIXrmCopyQuarkList\fP, \fIXrmFreeNameList\fP, \fIXrmNameListLength\fP, 
+\fIXrmFreeClassList\fP, and \fIXrmClassListLength\fP.  In addition, the 
+converter types and routines were not general enough to warrant inclusion in
+Xlib and have been removed (similar functionality has been implemented in
+the X Toolkit):  \fIXrmTypeConverter\fP, \fIXrmRegisterTypeConverter\fP,
+and \fIXrmConvert\fP.
+.LP
+Additional support in the form of new \fIXrmBinding\fP and \fIXrmBindingList\fP
+types and the new routine \fIXrmStringToBindingAndQuarkList\fP
+has added for tight and loose binding of resource names
+(see the Xlib documentation for details).
+.LP
+The \fIXrmPutResource\fP routine has been changed to 
+take a string rather than a quark list for the resource name.  
+Several new routines have been added for merging objects of various types
+into the resource database:  \fIXrmQPutResource\fP, 
+\fIXrmPutStringResource\fP, and \fIXrmPutLineResource\fP.
+.LP
+The \fIXrmGetResource\fP and \fIXrmQGetResource\fP
+routines have been changed in several ways as a result
+of moving the conversion routines out of the Resource Manager.  
+.LP
+The routine \fIXrmGetSearchList\fP has been changed to \fIXrmQGetSearchList\fP.
+Similarly, \fIXrmGetSearchResource\fP is now \fIXrmQGetSearchResource\fP and
+several arguments have changed.  All names that contained ``DataBase'' have
+been changed to ``Database''.  The routines \fIXrmGetDatabase\fP,
+\fIXrmLoadDatabase\fP, and \fIXrmPutDatabase\fP have been renamed 
+\fIXrmGetFileDatabase\fP, \fIGetStringDatabase\fP, and
+\fIXrmPutfileDatabase\fP, respectively.
+.LP
+A new command line option type XrmoptionResArg has been added indicating that
+this argument contains the rest of the command line.
+.LP
+A new routine, \fIXpermalloc\fP has been added for quickly allocating storage
+that will now be freed.
+.LP 
+All Resource Manager names containing ``Atom'' have been changed to use 
+``String'', to avoid confusion with core X protocol Atoms.  

@@ -1,0 +1,53 @@
+.TH XSetArcMode 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XSetArcMode, XSetSubwindowMode, XSetGraphicsExposure \- GC convience routines
+.SH SYNTAX
+.so ../Xsrc/XSetArcMode.f
+.LP
+.so ../Xsrc/XSetSubMode.f
+.LP
+.so ../Xsrc/XSetGrExp.f
+.SH ARGUMENTS
+.so ../Xsrc/arc_mode.a
+.so ../Xsrc/display.a
+.so ../Xsrc/gc.a
+.so ../Xsrc/graph_exp.a
+.so ../Xsrc/sub_mode.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSetArcMode.d
+.ds fd .PN XSetArcMode
+.so ../Xsrc/errsent.com
+.PN BadGC 
+and
+.PN BadValue 
+errors.
+.LP
+.so ../Xdescrip/XSetSubMode.d
+.ds fd .PN XSetSubwindowMode
+.so ../Xsrc/errsent.com
+.PN BadGC
+and
+.PN BadValue 
+errors.
+.LP
+.so ../Xdescrip/XSetGrExp.d
+.ds fd .PN XSetGraphicsExposures
+.so ../Xsrc/errsent.com
+.PN BadGC 
+and
+.PN BadValue 
+errors.
+.SH DIAGNOSTICS
+.so ../Xerrors/badgc.e
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+XCreateGC(3X),
+XQueryBestSize(3X),
+XSetClipOrigin(3X),
+XSetFillStyle(3X),
+XSetFont(3X),
+XSetLineAttributes(3X),
+XSetState(3X),
+XSetTile(3X)
+.br
+\fIXlib \- C Language X Interface\fP

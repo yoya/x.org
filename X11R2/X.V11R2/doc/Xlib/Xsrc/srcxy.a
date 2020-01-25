@@ -1,0 +1,8 @@
+.\" $Header: srcxy.a,v 1.1 87/09/28 13:13:41 mento Exp $
+.IP \fIsrc_x\fP 1i
+.br
+.ns
+.IP \fIsrc_y\fP 1i
+Specify the x and y coordinates of the source rectangle relative to
+its origin.
+These coordinates specify the upper left corner of the source rectangle.

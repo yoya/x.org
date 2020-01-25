@@ -1,0 +1,7 @@
+.IP \fIargs\fP 1i
+Specifies the arguments passed in from the 
+.PN XIfEvent ,
+.PN XCheckIfEvent ,
+or
+.PN XPeekIfEvent 
+function.

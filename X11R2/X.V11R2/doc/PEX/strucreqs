@@ -1,0 +1,323 @@
+.AC "Structure Requests" 1
+.LP
+.RU
+.LP
+This section details the usage and management of structure resources.
+A structure is a resource which stores output commands for later
+execution.  A structure has no settable attributes, but it has a
+size (number of elements and length in four byte units if it were to be
+returned to the client).  Additional information
+about structures (ancestors, descendants, etc.) is also available
+and is determined by the contents of the structure elements.
+.AC "Structure Resource Management" 2
+.LP
+A structure is an X11 resource and carries all of the 
+responsibilities and
+access rights of X11 resources.  These requests manage the creation,
+deletion, and general manipulation of structures.
+
+
+.AC "Create Structure" 3
+.Fs
+.Na PEXCreateStructure
+.Rq                  
+.Pa s_id STRUCTURE_ID
+.Se
+Structure, Alloc
+.Ds      
+This request creates a structure resource with the specified \fIs_id\fP.
+.Fe
+
+
+
+.AC "Copy Structure" 3
+.Fs
+.Na PEXCopyStructure
+.Rq                  
+.Pa src_s_id STRUCTURE_ID
+.Pa dest_s_id STRUCTURE_ID
+.Se
+Structure
+.Ds      
+The structure elements in \fIsrc_s_id\fP are copied to \fIdest_s_id\fP.
+Any structure elements in \fIdest_s_id\fP are deleted prior to the copy
+operation (as if a \fBPEXEmptyStructure\fP request was performed
+on \fIdest_s_id\fP prior to the copy operation).
+.Fe
+.bp
+
+.AC "Free Structure" 3
+.Fs
+.Na PEXFreeStructure
+.Rq                  
+.Pa s_id STRUCTURE_ID
+.Se
+Structure
+.Ds      
+This request deletes the association between the resource id
+and the structure.  The structure storage will be
+freed when no other resource references it.
+.Fe
+
+
+
+
+.AC "Delete Structures" 3
+.Fs
+.Na PEXDeleteStructures
+.Rq                  
+.Pa list LISTofSTRUCTURE_ID
+.Pa ref_flag "{\fIDeleteRefs, LeaveRefs\fP}"
+.Se
+Structure
+.Ds 
+This request effectively performs a \fIPEXFreeStructure\fP request
+on each of the structures specified in \fIlist\fP.  In addition,
+if \fIref_flag\fP is set to \fIDeleteRefs\fP,
+any structure element in any of the remaining structures
+in the server that references one of the structures in \fIlist\fP will
+be deleted.
+.Fe
+.bp
+
+.AC "Structure Inquiry" 2
+.LP
+These requests inquire attributes and other information about structures.
+
+.AC "Fetch Structure" 3
+.Fs
+.Na PEXFetchStructure
+.Rq
+.Pa format FORMAT
+.Pa s_id STRUCTURE_ID
+.Re
+.Pa elements LISTofOUTPUT_CMD
+.Se
+Structure, Value, FloatingPointFormat, DirectColorFormat
+.Ds       
+This request returns all of the structure elements in the structure
+specified by \fIs_id\fP.
+The number of elements returned and the elements themselves are
+returned in \fIelements\fP.
+A \fBPEXGetStructureInfo\fP request can be done prior to the 
+\fBPEXFetchStructure\fP request in order to determine the amount
+of memory needed for an array in which to place all of the returned
+structure elements.
+Floating point values in \fIelements\fP will be returned in the floating
+point format specified in \fIformat\fP.
+Similarly, direct color values in \fIelements\fP will be returned
+in the direct color
+format specified in \fIformat\fP.
+The formats for the various types of output commands
+can be found in the "Output Commands" section.
+.LP
+.Fe
+.bp
+
+.AC "Get Structure Info" 3
+.Fs
+.Na PEXGetStructureInfo
+.Rq
+.Pa s_id STRUCTURE_ID
+.Pa item_mask BITMASK
+.Re
+.Pa item_list LISTofVALUE
+.Se
+Structure
+.Ds       
+This request returns information about the structure specified by \fIs_id\fP.
+Up to three pieces of information may be returned by this request,
+depending on \fIitem_mask\fP.
+The items that may be returned and the corresponding bits of \fIitem_mask\fP
+are, in order:
+.ID
+	num_elements	CARD32
+	length		CARD32
+	num_refs		CARD32
+.DE
+If the \fInum_elements\fP bit is set in \fIitem_mask\fP, the first entry in
+\fIitem_list\fP contains the number of structure elements in the specified
+structure.
+If the structure
+is empty, \fInum_elements\fP will be zero.
+If the \fIlength\fP bit is set in \fIitem_mask\fP, the amount of data
+that would be returned if a \fBPEXFetchStructure\fP request was performed
+will be returned, in units of four bytes.
+This provides the
+client information needed to allocate memory prior
+to doing a \fBPEXFetchStructure\fP request.
+If the \fInum_refs\fP bit is set in \fImask\fP, the number of
+"execute structure" elements in other structure resources
+in the server that reference \fIs_id\fP will
+be returned.
+.Fe
+
+.AC "Get Structures In Network" 3
+.Fs
+.Na PEXGetStructuresInNetwork
+.Rq
+.Pa s_id STRUCTURE_ID
+.Pa which "{\fIAll, Orphans\fP}"
+.Re
+.Pa structures LISTofSTRUCTURE_ID
+.Se
+Structure
+.Ds
+This request returns a list of unique structure resource id's that are
+referenced in the structure network rooted at \fIs_id\fP.
+If \fIwhich\fP is \fIAll\fP, all of the structure resources
+referenced in the structure network rooted at \fIs_id\fP will
+be returned in the list \fIstructures\fP.
+If \fIwhich\fP is \fIOrphans\fP, the id's of all of the structure resources
+that would become orphans (no longer referenced should the network be
+deleted) are returned.
+.Fe
+.bp
+
+.AC "Get Ancestors" 3
+.Fs
+.Na PEXGetAncestors
+.Rq
+.Pa s_id STRUCTURE_ID
+.Pa path_order "{\fITopFirst, BottomFirst\fP}"
+.Pa path_depth CARD32
+.Re
+.Pa paths LISTofLISTofELEMENT_REF
+.Se
+Structure
+.Ds
+This request returns all of the paths which reference the structure
+specified by \fIs_id\fP.  At a minimum, each path will
+contain an ELEMENT_REF with structure_id = \fIs_id\fP and offset = 0.
+The \fIpath_depth\fP indicates the maximum length
+of each LISTofELEMENT_REF, except that a \fIpath_depth\fP = 0 means
+that the full path is to be returned.  The \fIpath_order\fP indicates how
+each LISTofELEMENT_REF is to be ordered.
+If \fIpath_order\fP = \fITopFirst\fP, each path that is returned in
+\fIpaths\fP will begin with the root structure of the structure network
+that contains \fIs_id\fP.
+If \fIpath_order\fP = \fIBottomFirst\fP, each path that is returned in
+\fIpaths\fP will begin with \fIs_id\fP and proceed up the structure
+network tree until the root structure is reached.
+.LP
+For instance, specifying \fIpath_depth\fP = 0 and \fIpath_order\fP =
+\fITopFirst\fP would cause all paths to \fIs_id\fP to be returned in
+the order that they would be traversed.  
+Specifying \fIpath_depth\fP = 1 and \fIpath_order\fP =
+\fITopFirst\fP would cause all the structures at the top of each structure
+network containing \fIs_id\fP to be returned.
+Specifying \fIpath_depth\fP = 2 and \fIpath_order\fP =
+\fIBottomFirst\fP would cause all the parents of
+\fIs_id\fP to be returned.
+Specifying \fIpath_depth\fP = 1 and \fIpath_order\fP =
+\fIBottomFirst\fP could be used to determine the number of references
+to \fIs_id\fP.
+.Fe
+.bp
+
+.AC "Get Descendants" 3
+.Fs
+.Na PEXGetDescendants
+.Rq
+.Pa s_id STRUCTURE_ID
+.Pa path_order "{\fITopFirst, BottomFirst\fP}"
+.Pa path_depth CARD32
+.Re
+.Pa paths LISTofLISTofELEMENT_REF
+.Se
+Structure
+.Ds
+This request returns all of the paths which are referenced by the structure
+specified by \fIs_id\fP.  At a minimum, each path will
+contain an ELEMENT_REF with a structure_id equal to the
+bottom-most element of the path and an offset of zero.
+The \fIpath_depth\fP indicates the maximum length
+of each LISTofELEMENT_REF, except that a \fIpath_depth\fP = 0 means
+that the full path is to be returned.  The \fIpath_order\fP indicates how
+each LISTofELEMENT_REF is to be ordered.
+If \fIpath_order\fP = \fITopFirst\fP, each path that is returned in
+\fIpaths\fP will begin with the structure specified by \fIs_id\fP.
+If \fIpath_order\fP = \fIBottomFirst\fP, each path that is returned in
+\fIpaths\fP will begin with the structure that is a leaf node in
+the structure network tree that is rooted at \fIs_id\fP.
+.LP
+For instance, specifying \fIpath_depth\fP = 0 and \fIpath_order\fP =
+\fITopFirst\fP would cause all paths from \fIs_id\fP to the leaf
+nodes in the structure network tree to be returned in
+the order that they would be traversed.  
+Specifying \fIpath_depth\fP = 2 and \fIpath_order\fP =
+\fITopFirst\fP would cause all the children of
+\fIs_id\fP to be returned.
+Specifying \fIpath_depth\fP = 1 and \fIpath_order\fP =
+\fIBottomFirst\fP could be used to determine all of the bottom-most
+structures of the structure network rooted at \fIs_id\fP.
+.Fe
+.bp
+
+.AC "Structure Resource Modification" 2
+.LP
+This section contains requests that can be used to modify structure resources.
+
+
+
+.AC "Empty Structure" 3
+.Fs
+.Na PEXEmptyStructure
+.Rq                  
+.Pa s_id STRUCTURE_ID
+.Se
+Structure
+.Ds 
+This request deletes all the structure elements in the structure
+resource specified by \fIs_id\fP, effectively leaving a structure
+resource that contains no structure elements and is of length zero.
+.Fe
+
+
+
+
+.AC "Store Structure" 3
+.Fs
+.Na PEXStoreStructure
+.Rq                  
+.Pa format FORMAT
+.Pa s_id STRUCTURE_ID
+.Pa elements LISTofOUTPUT_CMD
+.Se
+Structure, FloatingPointFormat, DirectColorFormat, Value
+.Ds 
+This request effectively performs a \fBPEXEmptyStructure\fP request
+on the structure specified by \fIs_id\fP.  Then, the list of output commands
+contained in \fIelements\fP is used to create structure elements which
+are stored in the structure.
+Floating point values in \fIelements\fP will be in the floating
+point format specified in \fIformat\fP.
+Similarly, direct color values in \fIelements\fP will be in the direct color
+format specified in \fIformat\fP.
+The formats for the various types of output commands
+can be found in the "Output Commands" section.
+.Fe
+.bp
+
+
+.AC "Change Structure References" 3
+.Fs
+.Na PEXChangeStructureReferences
+.Rq
+.Pa old_s_id STRUCTURE_ID
+.Pa new_s_id STRUCTURE_ID
+.Se
+Structure
+.Ds              
+This request changes any "execute structure" elements in the server
+that reference the structure specified by
+\fIold_s_id\fP into "execute structure" elements that 
+reference the structure specified by
+\fInew_s_id\fP.
+.LP
+Any references to the structure \fInew_s_id\fP that existed before this
+request are not affected.  If there were references to the structure
+resource specified by \fIold_s_id\fP and the structure resource specified by
+\fInew_s_id\fP does not exist, an error is returned and no action is taken.
+.Fe
+.bp                                                     

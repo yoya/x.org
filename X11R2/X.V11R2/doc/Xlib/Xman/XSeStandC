@@ -1,0 +1,36 @@
+.TH XSetStandardColormap 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XSetStandardColormap, XGetStandardColormap \- set or get standard colormaps
+.SH SYNTAX
+.so ../Xsrc/XSetSCmap.f
+.LP
+.so ../Xsrc/XGetSCmap.f
+.SH ARGUMENTS
+.so ../Xsrc/cmap.a
+.so ../Xsrc/cmap_ret.a
+.so ../Xsrc/display.a
+.so ../Xsrc/property.a
+.so ../Xsrc/w.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSetSCmap.d
+.ds fd .PN XSetStandardColormap
+.so ../Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadAtom ,
+and
+.PN BadWindow 
+errors.
+.LP
+.so ../Xdescrip/XGetSCmap.d
+.ds fd .PN XGetStandardColormap
+.so ../Xsrc/errsent.com
+.PN BadAtom
+and
+.PN BadWindow 
+errors.
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badatom.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface\fP

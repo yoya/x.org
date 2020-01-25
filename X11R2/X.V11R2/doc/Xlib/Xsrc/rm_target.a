@@ -1,0 +1,3 @@
+.IP \fItarget_db\fP 1i
+Specifies a pointer to the resource database into which the source 
+database is to be merged.

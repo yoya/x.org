@@ -1,0 +1,3 @@
+.\" $Header: tile1.a,v 1.1 87/09/28 13:15:13 mento Exp $
+.IP \fItile\fP 1i
+Specifies the fill tile you want to set for the specified graphics context. 

@@ -1,0 +1,3 @@
+.\" $Header: handler.a,v 1.1 87/09/28 13:01:56 mento Exp $
+.IP \fIhandler\fP 1i
+Specifies the program's supplied error handler.

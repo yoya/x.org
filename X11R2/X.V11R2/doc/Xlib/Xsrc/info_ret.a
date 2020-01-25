@@ -1,0 +1,3 @@
+.IP \fIfree_info\fP 1i
+Must be the pointer to font information returned by
+.PN XListFontWithInfo .

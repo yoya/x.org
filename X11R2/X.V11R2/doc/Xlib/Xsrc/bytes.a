@@ -1,0 +1,4 @@
+.\" $Header: bytes.a,v 1.1 87/09/28 12:53:39 mento Exp $
+.IP \fIbytes\fP 1i
+Specifies the string of bytes you want stored.
+The byte string is not necessarily ASCII or null-terminated.

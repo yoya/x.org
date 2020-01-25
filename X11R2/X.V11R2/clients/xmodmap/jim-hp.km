@@ -1,0 +1,27 @@
+!
+! On the HP, the following keycodes are bound to keys
+! with the following key caps:
+!
+!     101  Backspace
+!      55  Caps
+!      14  Ctrl
+!      15  Break/Reset
+!      86  Stop
+!      84  F1
+!
+! I prefer using ``keycode'' over ``keysym'' so that
+! I can rerun the file to fix up my keyboard.
+!
+! This sets the backspace key to generate Delete,
+! flushes all caps lock bindings, assigned a control
+! key to what used to be the caps lock key, makes the
+! F1 generate ESC, and makes the Break/Reset key be
+! a shift lock.
+
+keycode 101 = Delete
+keycode 55 = Control_R
+clear Lock
+add Control = Control_R
+keycode 84 = Escape
+keycode 15 = Caps_Lock
+add Lock = Caps_Lock

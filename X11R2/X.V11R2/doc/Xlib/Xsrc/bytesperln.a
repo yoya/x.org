@@ -1,0 +1,6 @@
+.IP \fIbytes_per_line\fP 1i
+Specifies the number of bytes in the client image between
+the start of one scanline and the start of the next.  
+If you pass a zero value, 
+Xlib assumes that the scanlines are contiguous
+in memory and calculates the value of bytes_per_line itself.

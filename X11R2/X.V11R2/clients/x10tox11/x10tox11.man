@@ -1,0 +1,35 @@
+.\" $Header: x10tox11.man,v 4.6 88/02/29 08:55:51 rws Exp $
+.TH X10TOX11 1 "1 March 1988" "X Version 11"
+.SH NAME
+x10tox11 \- X version 10 to version 11 protocol converter
+.SH SYNOPSIS
+.B x10tox11
+[-display host:display]
+.SH DESCRIPTION
+.I x10tox11
+masquerades as an X Window System Version 10 server.
+It enables an X Version 10 client to run unchanged under X Version 11
+by converting Version 10 requests into appropriate Version 11 requests,
+and by converting all Version 11 events received from the server into
+Version 10 events.
+From the perspective of Version 10 clients,
+all Version 11 clients look like Version 10 clients;
+and from the perspective of Version 11 clients,
+all Version 10 clients just look like Version 11 clients.
+Hence, a Version 11 window manager can manipulate Version 10 clients.
+.PP
+This program does NOT use the X10 
+.I libnest
+ddX library.  It does actual protocol translation, rather than simply using
+X11 graphics calls to implement X10 low level operations.  As a result, it
+is both faster and more robust than the X10 Xnest server.
+.SH "SEE ALSO"
+X(1), Xserver(1)
+.SH BUGS
+There are limitations with respect
+to emulating Version 10 through a Version 11 server.
+See the file README in the sources for more details.
+.SH COPYRIGHT
+Copyright 1988, Tektronix Inc.
+.SH AUTHOR
+Todd Brunhoff, Visual Systems Laboratory, Tektronix.

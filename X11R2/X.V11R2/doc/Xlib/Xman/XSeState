@@ -1,0 +1,69 @@
+.TH XSetState 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XSetState, XSetFunction, XSetPlanemask, XSetForeground, XSetBackground 
+\- GC convience routines
+.SH SYNTAX
+.so ../Xsrc/XSetState.f
+.LP
+.so ../Xsrc/XSetFunc.f
+.LP
+.so ../Xsrc/XSetPlnMsk.f
+.LP
+.so ../Xsrc/XSetFgrnd.f
+.LP
+.so ../Xsrc/XSetBckgrnd.f
+.SH ARGUMENTS
+.so ../Xsrc/background.a
+.so ../Xsrc/display.a
+.so ../Xsrc/foreground.a
+.so ../Xsrc/function.a
+.so ../Xsrc/gc.a
+.so ../Xsrc/plane_mask.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSetState.d
+.ds fd .PN XSetState
+.so ../Xsrc/errsent.com
+.PN BadGC
+and
+.PN BadValue 
+errors.
+.LP
+.so ../Xdescrip/XSetFunc.d
+.ds fd .PN XSetFunction
+.so ../Xsrc/errsent.com
+.PN BadGC 
+and
+.PN BadValue 
+errors.
+.LP
+.so ../Xdescrip/XSetPlnMsk.d
+.ds fd .PN XSetPlaneMask
+.so ../Xsrc/errsent4.com
+.PN BadGC 
+error.
+.LP
+.so ../Xdescrip/XSetFgrnd.d
+.ds fd .PN XSetForeground
+.so ../Xsrc/errsent4.com
+.PN BadGC 
+error.
+.LP
+.so ../Xdescrip/XSetBckgrnd.d
+.ds fd .PN XSetBackground
+.so ../Xsrc/errsent4.com
+.PN BadGC 
+error.
+.SH DIAGNOSTICS
+.so ../Xerrors/badgc.e
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+XCreateGC(3X),
+XQueryBestSize(3X),
+XSetArcMode(3X),
+XSetClipOrigin(3X),
+XSetFillStyle(3X),
+XSetFont(3X),
+XSetLineAttributes(3X),
+XSetTile(3X)
+.br
+\fIXlib \- C Language X Interface\fP

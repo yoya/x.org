@@ -1,0 +1,8 @@
+.\" $Header: direction.a,v 1.1 87/09/28 12:57:22 mento Exp $
+.IP \fIdirection\fP 1i
+Specifies the direction (up or down) that you want to circulate
+the window. 
+You can pass one of these constants:
+.PN RaiseLowest
+or
+.PN LowerHighest .

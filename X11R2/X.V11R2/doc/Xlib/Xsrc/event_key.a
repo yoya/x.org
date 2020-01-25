@@ -1,0 +1,5 @@
+.IP \fIevent_struct\fP 1i
+Specifies the key event structure to be used:
+.PN XKeyPressedEvent
+or
+.PN XKeyReleasedEvent .

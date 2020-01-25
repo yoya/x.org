@@ -1,0 +1,164 @@
+.AC "Pipeline Contexts" 1
+.LP
+.RU
+.LP
+A \fIpipeline context\fP is a PEX resource that contains an instance of the
+attributes that describe a rendering pipeline.  The attributes
+in a pipeline context are copied to a renderer resource whenever
+a \fBPEXBeginRendering\fP request is executed.
+Pipeline contexts
+are semi-lightweight resources - they contain a relatively large
+number of attributes that can be modified.
+This section
+describes pipeline context attributes and the operations that can be performed
+on pipeline context resources.
+.LP
+Some of the requests in this section affect attributes of a pipeline
+context.
+The \fIitem_mask\fP and \fIitem_list\fP parameters
+specify which components are to be affected.
+Each bit in the \fIitem_mask\fP indicates whether or not
+the corresponding attribute is affected.  In the cases where
+pipeline context attributes are being set or queried,
+there is a corresponding entry in the \fIitem_list\fP
+for each set bit in \fIitem_mask\fP.
+It is therefore possible
+to affect one or many pipeline context attributes with a single request.
+.LP
+Some of the attributes in a pipeline context
+are references to other resources.  In general, the semantics of
+dealing with references to nonexistent resources is implementation-dependent.
+"Reasonable" implementations might choose to treat references to
+nonexistent name sets resources as though they were references to a
+name set resource that contains a null name list.
+As another example,
+if a lookup table resource id is null, any references to an entry
+in that table might map to a default predefined entry for that type of table.
+Also, the resource id returned when such an attribute is queried
+is not guaranteed to be valid, since the resource with that id
+may already have been freed.  It is up to the client to manage
+all references to a resource when it is freed so that this situation
+does not occur.
+.so pctbl
+
+.AC "Pipeline Context Resource Management" 2
+.LP                   
+The pipeline context is an X11 resource and carries all of the 
+responsibilities and
+access rights of X11 resources.  These requests manage the creation,
+freeing, and copying of pipeline contexts.
+
+.AC "Create Pipeline Context" 3
+.Fs
+.Na PEXCreatePipelineContext
+.Rq      
+.Pa format FORMAT
+.Pa pc_id PIPELINE_CONTEXT_ID
+.Pa item_mask BITMASK_ARRAY
+.Pa item_list LISTofVALUE
+.Se
+PipelineContext, Value, Match, FloatingPointFormat, DirectColorFormat, Alloc
+.Ds                     
+This request creates a pipeline context resource for the specified
+\fIpc_id\fP.  
+The \fIitem_mask\fP defines those pipeline context attributes
+that are to be explicitly set at the time the resource is created.
+The \fIitem_list\fP 
+contains the corresponding
+list of values used to modify the newly-created pipeline context.
+Floating point values in \fIitem_list\fP will be in the floating
+point format specified in \fIformat\fP.
+Similarly, direct color values in \fIitem_list\fP will be
+in the direct color format specified in \fIformat\fP.
+.Fe
+
+
+
+.AC "Copy Pipeline Context" 3
+.Fs
+.Na PEXCopyPipelineContext
+.Rq                 
+.Pa src_pc_id PIPELINE_CONTEXT_ID
+.Pa dest_pc_id PIPELINE_CONTEXT_ID
+.Pa item_mask BITMASK_ARRAY
+.Se
+PipelineContext
+.Ds            
+This request copies the source pipeline context
+\fIsrc_pc_id\fP to a destination pipeline context \fIdest_pc_id\fP.
+The \fIdest_pc_id\fP must already exist as a valid resource.
+The \fIitem_mask\fP     
+indicates which values
+in the pipeline context will be copied.
+.Fe
+.bp
+
+
+.AC "Free Pipeline Context" 3
+.Fs
+.Na PEXFreePipelineContext
+.Rq                 
+.Pa pc_id PIPELINE_CONTEXT_ID
+.Se
+PipelineContext
+.Ds            
+This request deletes the association between the resource id
+and the pipeline context.  The pipeline context storage will be
+freed when no other resource references it.
+.Fe
+.bp
+
+
+.AC "Pipeline Context Inquiry" 2
+.LP
+These requests inquire pipeline context attributes.
+.AC "Get Pipeline Context" 3
+.Fs
+.Na PEXGetPipelineContext
+.Rq
+.Pa format FORMAT
+.Pa pc_id PIPELINE_CONTEXT_ID
+.Pa item_mask BITMASK_ARRAY
+.Re
+.Pa item_list LISTofVALUE
+.Se
+PipelineContext, Match, FloatingPointFormat, DirectColorFormat
+.Ds       
+This request will return components of
+the pipeline context specified by \fIpc_id\fP.
+The \fIitem_mask\fP specifies which components are to be inquired and returned.
+The specified attributes of the pipeline context will be returned in
+\fIitem_list\fP.
+Floating point values in \fIitem_list\fP will be returned in the floating
+point format specified in \fIformat\fP.
+Similarly, direct color values in \fIitem_list\fP will be returned
+in the direct color format specified in \fIformat\fP.
+.Fe
+
+
+.AC "Pipeline Context Modification" 2
+.LP
+These request can be used to modify attributes of pipeline context resources.
+.AC "Change Pipeline Context" 3
+.Fs
+.Na PEXChangePipelineContext
+.Rq
+.Pa format FORMAT
+.Pa pc_id PIPELINE_CONTEXT_ID
+.Pa item_mask BITMASK_ARRAY
+.Pa item_list LISTofVALUE
+.Se
+PipelineContext, Match, Value, FloatingPointFormat, DirectColorFormat
+.Ds       
+This request will modify components of
+the pipeline context specified by \fIpc_id\fP.
+The \fIitem_mask\fP specifies which components are to be modified.
+The values for the attributes that are to be modified are contained in
+\fIitem_list\fP.
+Floating point values in \fIitem_list\fP will be in the floating
+point format specified in \fIformat\fP.
+Similarly, direct color values in \fIitem_list\fP will be
+in the direct color format specified in \fIformat\fP.
+.Fe
+.bp
+

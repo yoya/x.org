@@ -1,0 +1,37 @@
+# $Header: Imakefile,v 1.7 88/02/23 16:08:02 rws Exp $
+       INCLUDES = -I$(TOP) -I$(INCLUDESRC) -I$(XLIBSRC) -I../include
+           SRCS = XFillZoids.c XBezier.c
+           OBJS = XFillZoids.o XBezier.o
+       LINTLIBS = $(LINTXLIB)
+
+#if DebugLibXext && ProfileLibXext
+DebuggedAndProfiledLibraryObjectRule()
+#else
+# if DebugLibXext
+DebuggedLibraryObjectRule()
+# else
+#  if ProfileLibXext
+ProfiledLibraryObjectRule()
+#  else
+NormalLibraryObjectRule()
+#  endif
+# endif
+#endif
+
+NormalLibraryTarget(Xext,$(OBJS))
+LintLibraryTarget(Xext,$(SRCS))
+InstallLibrary(Xext,$(USRLIBDIR))
+InstallLintLibrary(Xext,$(LINTLIBDIR))
+
+#if ProfileLibXext
+ProfiledLibraryTarget(Xext,$(OBJS))
+InstallLibrary(Xext_p,$(USRLIBDIR))
+#endif
+
+#if DebugLibXext
+DebuggedLibraryTarget(Xext,$(OBJS))
+#endif
+
+DependTarget()
+
+NormalLintTarget($(SRCS))

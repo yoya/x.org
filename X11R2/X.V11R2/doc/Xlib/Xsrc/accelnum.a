@@ -1,0 +1,3 @@
+.\" $Header: accelnum.a,v 1.1 87/09/28 11:00:21 mento Exp $
+.IP \fIaccel_numerator\fP 1i
+Specifies the numerator for the acceleration multiplier.

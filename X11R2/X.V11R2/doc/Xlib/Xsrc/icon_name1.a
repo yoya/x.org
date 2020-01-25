@@ -1,0 +1,4 @@
+.\" $Header: icon_name1.a,v 1.1 87/09/28 13:02:41 mento Exp $
+.IP \fIicon_name_return\fP 1i
+Returns a pointer to the name to be displayed in the window's icon. 
+The name will be a null-terminated string.

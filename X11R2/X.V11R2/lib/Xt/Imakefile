@@ -1,0 +1,129 @@
+    STD_DEFINES = LibraryDefines
+    APP_DEFINES = -DXAPPLOADDIR=\"$(XAPPLOADDIR)$(PATHSEP)\"
+    CDEBUGFLAGS = LibraryCDebugFlags
+       INCLUDES = -I. -I$(XLIBSRC) -I$(TOP) -I$(TOP)/X11
+   INSTALLFLAGS = $(INSTINCFLAGS)
+       LINTLIBS = $(LINTXLIB)
+
+HEADERS = \
+	Cardinals.h \
+	Composite.h \
+	CompositeP.h \
+	Constraint.h \
+	ConstrainP.h \
+	Convert.h \
+	Core.h \
+	CoreP.h \
+	Intrinsic.h \
+	IntrinsicP.h \
+	Misc.h \
+	Quarks.h \
+	Shell.h \
+	ShellP.h \
+	StringDefs.h \
+	TM.h \
+	Vendor.h \
+	VendorP.h
+
+SRCS = \
+	Alloc.c \
+	ArgList.c \
+	Callback.c \
+	Composite.c \
+	Constraint.c \
+	Convert.c \
+	Converters.c \
+	Core.c \
+	Create.c \
+	Cursors.c \
+	Destroy.c \
+	Error.c \
+	Event.c \
+	GCManager.c \
+	Geometry.c \
+	Initialize.c \
+	Intrinsic.c \
+	Manage.c \
+	NextEvent.c \
+	Popup.c \
+	Resources.c \
+	Shell.c \
+	TMparse.c \
+	TMstate.c \
+	Vendor.c
+
+OBJS = \
+	Alloc.o \
+	ArgList.o \
+	Callback.o \
+	Composite.o \
+	Constraint.o \
+	Convert.o \
+	Converters.o \
+	Core.o \
+	Create.o \
+	Cursors.o \
+	Destroy.o \
+	Error.o \
+	Event.o \
+	GCManager.o \
+	Geometry.o \
+	Initialize.o \
+	Intrinsic.o \
+	Manage.o \
+	NextEvent.o \
+	Popup.o \
+	Resources.o \
+	Shell.o \
+	TMparse.o \
+	TMstate.o \
+	Vendor.o
+
+all:: Atoms.h
+
+Atoms.h: StringDefs.h
+	$(RM) Atoms.h
+	$(LN) StringDefs.h Atoms.h
+
+#if DebugLibXt && ProfileLibXt
+DebuggedAndProfiledLibraryObjectRule()
+SpecialDebuggedAndProfiledObjectRule(Initialize.o,$(IRULESRC)/Imake.tmpl,$(APP_DEFINES))
+#else
+# if DebugLibXt
+DebuggedLibraryObjectRule()
+SpecialDebuggedObjectRule(Initialize.o,$(IRULESRC)/Imake.tmpl,$(APP_DEFINES))
+# else
+#  if ProfileLibXt
+ProfiledLibraryObjectRule()
+SpecialProfiledObjectRule(Initialize.o,$(IRULESRC)/Imake.tmpl,$(APP_DEFINES))
+#  else
+NormalLibraryObjectRule()
+SpecialObjectRule(Initialize.o,$(IRULESRC)/Imake.tmpl,$(APP_DEFINES))
+#  endif
+# endif
+#endif
+
+NormalLibraryTarget(Xt,$(OBJS))
+LintLibraryTarget(Xt,$(SRCS))
+InstallLibrary(Xt,$(USRLIBDIR))
+InstallLintLibrary(Xt,$(LINTLIBDIR))
+
+#if ProfileLibXt
+ProfiledLibraryTarget(Xt,$(OBJS))
+InstallLibrary(Xt_p,$(USRLIBDIR))
+#endif
+
+#if DebugLibXt
+DebuggedLibraryTarget(Xt,$(OBJS))
+#endif
+
+InstallMultiple($(HEADERS),$(INCDIR))
+
+depend:: Atoms.h
+
+DependTarget()
+
+NormalLintTarget($(SRCS))
+
+clean::
+	$(RM) Atoms.h

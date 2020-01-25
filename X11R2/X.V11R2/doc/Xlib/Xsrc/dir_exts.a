@@ -1,0 +1,5 @@
+.IP \fIdirection_return\fP 1i
+Returns the value of the direction hint member:
+.PN FontLeftToRight
+or
+.PN FontRightToLeft .

@@ -1,0 +1,5 @@
+.\" $Header: confineto.a,v 1.1 87/09/28 12:55:40 mento Exp $
+.IP \fIconfine_to\fP 1i
+Specifies the window to confine the pointer in or
+.PN None  
+if it is not to be confined.

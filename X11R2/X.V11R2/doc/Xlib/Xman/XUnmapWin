@@ -1,0 +1,33 @@
+.TH XUnmapWindow 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XUnmapWindow, XUnmapSubwindows \- unmap windows
+.SH SYNTAX
+.so ../Xsrc/XUnmapWindow.f
+.LP
+.so ../Xsrc/XUnmapSubs.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/w.a
+.SH DESCRIPTION
+.so ../Xdescrip/XUnmapWindow.d
+.ds fd .PN XUnmapWindow
+.so ../Xsrc/errsent4.com
+.PN BadWindow 
+error.
+.LP
+.so ../Xdescrip/XUnmapSubs.d
+.ds fd .PN XUnmapSubwindows
+.so ../Xsrc/errsent4.com
+.PN BadWindow 
+error.
+.SH DIAGNOSTICS
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XChangeWindowAttributes(3X),
+XConfigureWindow(3X),
+XCreateWindow(3X),
+XDestroyWindow(3X),
+XMapWindow(3X)
+XRaiseWindow(3X)
+.br
+\fIXlib \- C Language X Interface\fP

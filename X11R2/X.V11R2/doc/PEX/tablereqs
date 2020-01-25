@@ -1,0 +1,564 @@
+.AC "Lookup Tables" 1
+.LP
+.RU
+.LP
+A \fIlookup table\fP is a PEX resource that allows clients
+to create tables of values for various purposes.  Lookup
+tables are used to support a level of indirection for some
+output primitive  attributes as well as for storing view information,
+light source descriptions, depth-cue information, etc.
+.LP
+Tables may be sparse, therefore tables consist of index/entry
+pairs.  The index is the number that will be used to reference
+that entry.  The range of allowable indices for each type of
+table is given in the description of each table type.
+An entry is the collection of information (or the data record) that
+is defined for each type of table.  The table descriptions in this section
+include the definition of an entry for each type of table.
+A table entry may contain one or more values, depending on the table
+type.  For instance, in the \fIMarkerBundle\fP table type, each entry
+in the table consists of an index, a marker type value, a marker scale
+value and a marker color value.
+.LP
+A lookup table may have predefined entries.  These are entries that
+are filled in automatically by the server when the table is created.
+Predefined table entries may be overwritten.
+If a table entry that is not defined is referenced, the default table
+entry will be used.  If the default table entry is not defined, then
+the default attribute values (as listed in the "Pipeline Context" section)
+will be used as the default entry.  (In cases where there are no corresponding
+pipeline context default attribute values, references to undefined table
+entries will be ignored.)
+The default entry for all tables
+is one, except for the view table whose default entry is zero.
+.LP
+The allowable types, and the format
+of their entries are as follows:
+ 
+
+.Bl "LineBundle   (1..n, default = 1)"
+This type of lookup table is used
+to maintain attributes for drawing polyline and curve primitives.
+Depending on the setting of the aspect source flag
+attributes, polyline and curve attributes may be obtained from a line
+bundle table.
+Each entry in this type of table consists of the following:
+.DS
+.ta 1.0i 2.25i
+	line_type	LINE_TYPE
+	line_width	FLOAT
+	line_color	COLOR_SPECIFIER
+	polyline_interp	POLYLINE_INTERP
+.ta
+.DE
+The attributes stored in a line bundle table are defined and used in
+the same fashion as the pipeline context attribute of the same name.
+
+
+.Bl "MarkerBundle   (1..n, default = 1)"
+This type of lookup table is used
+to maintain attributes for drawing marker primitives.
+Depending on the setting of the aspect source flag
+attributes, marker attributes may be obtained from a marker bundle table.
+Each entry in this type of table consists of the following:
+.DS
+.ta 1.0i 2.25i
+	marker_type	MARKER_TYPE
+	marker_scale	FLOAT
+	marker_color	COLOR_SPECIFIER
+.ta
+.DE
+The attributes stored in a marker bundle table are defined and used in
+the same fashion as the pipeline context attribute of the same name.
+
+
+.Bl "TextBundle   (1..n, default = 1)"
+This type of lookup table is used
+to maintain attributes for drawing text and annotation text primitives.
+Depending on the setting of the aspect source flag
+attributes, text and annotation text attributes may be obtained from a
+text bundle table.
+Each entry in this type of table consists of the following:
+.DS
+.ta 1.0i 2.25i
+	text_font	TABLE_INDEX
+	text_precision	TEXT_PRECISION
+	char_expansion	FLOAT
+	char_spacing	FLOAT
+	text_color	COLOR_SPECIFIER
+.ta
+.DE
+The attributes stored in a text bundle table are defined and used in
+the same fashion as the pipeline context attribute of the same name.
+
+
+.Bl "InteriorBundle   (1..n, default = 1)"
+This type of lookup table is used
+to maintain attributes for drawing surface primitives.
+Depending on the setting of the aspect source flag
+attributes, surface attributes may be obtained from an interior bundle table.
+Each entry in this type of table consists of the following:
+.DS
+.ta 1.0i 2.25i
+	interior_style	INTERIOR_STYLE
+	interior_style_index	TYPE_OR_TABLE_INDEX
+	surface_color	COLOR_SPECIFIER
+	surface_interp	SURFACE_INTERP
+	reflection_model	REFLECTION_MODEL
+.ta
+.DE
+The attributes stored in an interior bundle table are defined and used in
+the same fashion as the pipeline context attribute of the same name.
+
+
+.Bl "EdgeBundle   (1..n, default = 1)"
+This type of lookup table is used
+to maintain attributes for drawing edges of surface primitives.
+Depending on the setting of the aspect source flag
+attributes, surface edge attributes may be obtained from an edge bundle table.
+Each entry in this type of table consists of the following:
+.DS
+.ta 1.0i 2.25i
+	surface_edges	SWITCH
+	surface_edge_type	SURFACE_EDGE_TYPE
+	surface_edge_width	FLOAT
+	surface_edge_color	COLOR_SPECIFIER
+.ta
+.DE
+The attributes stored in an edge bundle table are defined and used in
+the same fashion as the pipeline context attribute of the same name.
+
+
+.Bl "Pattern   (1..n, default = 1)"
+This type of lookup table can be used to maintain patterns for use
+when \fIinterior_style\fP is set to \fIPattern\fP.
+.DS
+.ta 1.0i 2.25i
+	numx	CARD16
+	numy	CARD16
+	color_type	COLOR_TYPE
+	colors	LISTofCOLOR
+.ta
+.DE
+A pattern rectangle is comprised of \fInumx\fP by \fInumy\fP cells.
+\fIColor_type\fP indicates whether the color values are stored as
+indexed or direct color values.  The colors are stored in the array
+row-by-row.  The upper left hand cell in the pattern rectangle is the
+first one in the list of colors, followed by the remaining cells in
+the first row.  The color values for cells in the second row follow,
+and so on.
+
+
+.Bl "Color   (0..n, default = 1)"
+This type of lookup table can be used to resolve indirect
+color references.  Consequently, all color values in this type
+of table must be specified as direct colors.
+.DS
+.ta 1.0i 2.25i
+	color	DIRECT_COLOR
+.ta
+.DE
+
+
+.Bl "TextFont   (1..n, default = 1)"
+This type of lookup table is used to maintain a list of X font
+resource id's.  Font values are specified as indices when using
+output commands.  A font index can be used with a table of this type
+in order to obtain the actual font to be used.
+.DS
+.ta 1.0i 2.25i
+	font	FONT_ID
+.ta
+.DE
+
+
+.Bl "View   (0..n, default = 0)"
+This type of lookup table is used to maintain viewing information.
+"Views" are then specified as indices, which are used to look up the
+appropriate information in a view lookup table.
+.DS
+.ta 1.0i 2.25i
+	orientation	MATRIX
+	mapping	MATRIX
+	clip_limits	NPC_SUBVOLUME
+	clip_xy	SWITCH
+	clip_back	SWITCH
+	clip_front	SWITCH
+.ta
+.DE
+\fIOrientation\fP is a matrix which maps geometry in world coordinates
+to view reference (a.k.a., eye or viewing) coordinates.
+\fIMapping\fP is a matrix which maps geometry in view reference coordinates
+to normalized projection coordinates.
+The \fIclip_limits\fP specify the minimum and maximum of a rectangular
+volume in normalized projection coordinates.
+\fIClip_xy\fP, \fIclip_back\fP, and \fIclip_front\fP are flags which
+indicate whether to clip against the side, back, and front planes of the
+volume specified by \fIclip_limits\fP.
+The NPC subvolume, along with the clip indicators and clip limits,
+determines the actual clipping volume for each view.
+
+
+
+.Bl "Light   (1..n, default = 1)"
+This type of lookup table is used
+to maintain light source definitions for use in light source shading
+computations.
+.DS
+.ta 1.0i 2.25i
+	light_type	LIGHT_TYPE
+	color 	COLOR_SPECIFIER
+	direction	VECTOR_3D
+	point	COORD_3D
+	concentration	FLOAT
+	spread_angle	FLOAT
+	attenuation	[factor1, factor2 : FLOAT]
+.ta
+.DE
+Depending on the type of light, some of the values in a table entry
+may be ignored.
+
+
+.Bl "DepthCue   (1..n, default = 1)"
+This type of lookup table is used
+to maintain depth-cueing information.
+.DS
+.ta 1.0i 2.25i
+	mode	SWITCH
+	front_plane	FLOAT
+	back_plane	FLOAT
+	front_scaling	FLOAT
+	back_scaling	FLOAT
+	color	COLOR_SPECIFIER
+.ta
+.DE
+
+
+.Bl "RGBApprox   (1..n, default = 1)" 
+This type of lookup table is used
+to define the way that a
+renderer will transform rendering pipeline color values
+into pixel values in the case where the target is an RGB frame buffer
+of some type.
+The information in this type of table is bound to a renderer when
+the renderer is created.
+The only entry that is ever used for a table of this
+type is the entry with index value equal to one.
+.DS
+.ta 1.0i 2.25i
+	red_offset	CARD16
+	green_offset	CARD16
+	blue_offset	CARD16
+	red_range	CARD16
+	green_range	CARD16
+	blue_range	CARD16
+	red_multiplier	CARD32
+	green_multiplier	CARD32
+	blue_multiplier	CARD32
+	dither		SWITCH
+.ta
+.DE
+When this type of color approximation lookup table is bound
+to a renderer or a PHIGS workstation,
+each color that has been computed in the rendering pipeline is
+converted to red, green, and blue intensity values.  Each of
+the three intensity values is then mapped to an integer value
+as follows:
+.DS I
+red intensity is mapped into the range [red_offset, red_offset+red_range-1]
+green intensity is mapped into the range [green_offset, green_offset+green_range-1]
+blue intensity is mapped into the range [blue_offset, blue_offset+blue_range-1]
+.DE
+Then, a single pixel value is formed by computing
+.DS
+pixel = red_mult * red + green_mult * green + blue_mult * blue
+.DE
+
+
+.Bl "IntensityApprox   (1..n, default = 1)"
+This type of lookup table is used
+to define the way that a
+renderer will transform rendering pipeline color values
+into pixel values in the case where the target is an intensity-valued
+frame buffer of some type.
+.DS
+.ta 1.0i 2.25i
+	offset	CARD32
+	range	CARD16
+	dither	SWITCH
+.ta
+.DE
+When this type of color approximation lookup table is bound
+to a renderer or a PHIGS workstation,
+each color that has been computed in the rendering pipeline is
+converted to an intensity value.  The pixel values to be written
+are computed by mapping the intensity range into the
+range of pixel values specified by
+[offset, offset+range-1].
+\fIDither\fP is treated as a hint to the renderer as to whether
+or not some attempt at dithering should be performed.  Whether
+or not dithering is supported and the dithering algorithm that
+is used are implementation-dependent.
+.sp
+This type of table may have multiple entries.  The entry to be
+used depends on the type of primitive being rendered and the
+current color for that primive.
+If the current color type
+for the output primitive is \fIDirect\fP, entry one in the
+\fIIntensityApprox\fP table will always be used to convert
+pipeline color values into pixels.
+If the current color type
+for the output primitive is \fIIndexed\fP, the color index will
+be used as the index into the
+\fIIntensityApprox\fP table to determine which entry of
+the table will be used to convert
+pipeline color values into pixels.
+.bp
+
+.AC "Lookup Table Resource Management" 2
+.LP                   
+The lookup table is an X11 resource and carries all of the 
+responsibilities and
+access rights of X11 resources.  These requests manage the creation,
+freeing, and copying of lookup table.
+
+.AC "Create Lookup Table" 3
+.Fs
+.Na PEXCreateLookupTable
+.Rq      
+.Pa drawable_example DRAWABLE_ID
+.Pa lut_id LOOKUP_TABLE_ID
+.Pa table_type TABLE_TYPE
+.Se
+Drawable, LookupTable, Value, TableType, Alloc
+.Ds                     
+This request creates a lookup table resource for the specified
+\fIlut_id\fP, for use with drawables with the same root window and depth
+as the example drawable specified by \fIdrawable_example\fP. 
+The \fItable_type\fP parameter indicates the type of lookup
+table that is to be created.
+Some entries of a lookup table may be defined at the time the resource
+is created.  The number of predefined entries and their contents are
+dependent on the type of table and are
+implementation-dependent.
+.Fe
+
+
+
+.AC "Copy Lookup Table" 3
+.Fs
+.Na PEXCopyLookupTable
+.Rq                 
+.Pa src_lut_id LOOKUP_TABLE_ID
+.Pa dest_lut_id LOOKUP_TABLE_ID
+.Se
+LookupTable, TableType
+.Ds            
+This request copies the source lookup table
+\fIsrc_lut_id\fP to a destination lookup table \fIdest_lut_id\fP,
+after first deleting all the entries in the destination lookup table.
+The \fIdest_lut_id\fP must already exist as a valid resource and
+it must be of the same type as \fIsrc_lut_id\fP.
+.Fe
+.bp
+
+.AC "Free Lookup Table" 3
+.Fs
+.Na PEXFreeLookupTable
+.Rq                 
+.Pa lut_id LOOKUP_TABLE_ID
+.Se
+LookupTable
+.Ds            
+This request deletes the association between the resource id
+and the lookup table.  The lookup table storage will be
+freed when no other resource references it.
+.Fe
+.bp
+
+.AC "Lookup Table Inquiry" 2
+.LP
+These requests inquire lookup table attributes.
+.AC "Get Table Info" 3
+.Fs
+.Na PEXGetTableInfo
+.Rq
+.Pa drawable_example DRAWABLE_ID
+.Pa table_type TABLE_TYPE
+.Pa item_mask BITMASK
+.Re
+.Pa item_list LISTofVALUE
+.Se
+Drawable, TableType
+.Ds       
+This request will return information about lookup tables of the
+specified \fItable_type\fP if they were to be used with drawables
+of the same root and depth as \fIdrawable_example\fP.  The values
+that may be returned in \fIitem_list\fP if specified by the
+corresponding bit in \fIitem_mask\fP are defined as follows:
+.ID
+definable_entries	CARD16
+num_predefined	CARD16
+predefined_min	TABLE_INDEX
+predefined_max	TABLE_INDEX
+.DE
+\fIDefinable_entries\fP is the maximum number of entries that
+can be defined in this type of table, and
+includes the number of predefined entries.
+.Fe
+.bp
+
+.AC "Get Predefined Entries" 3
+.Fs
+.Na PEXGetPredefinedEntries
+.Rq
+.Pa format FORMAT
+.Pa drawable_example DRAWABLE_ID
+.Pa table_type TABLE_TYPE
+.Pa start TABLE_INDEX
+.Pa count CARD16
+.Re
+.Pa entries LISTofTABLE_ENTRY
+.Se
+TableType, Value, FloatingPointFormat, DirectColorFormat
+.Ds       
+This request will return the values for predefined table
+entries of the specified \fItable_type\fP if they were to be
+used with drawables
+of the same root and depth as \fIdrawable_example\fP.  The values
+The default entry will be returned for each entry in the range
+that is not predefined.
+\fICount\fP table entries will be returned in \fIentries\fP, starting
+with the table entry specified by \fIstart\fP.  The values in
+\fIentries\fP will be in the format described for the table type
+in the \fIPEXCreateLookupTable\fP request.
+Floating point values in \fIentries\fP will be returned in the floating
+point format specified in \fIformat\fP.
+Similarly, direct color values in \fIentries\fP will be returned
+in the direct color format specified in \fIformat\fP.
+.Fe
+
+
+.AC "Get Defined Indices" 3
+.Fs
+.Na PEXGetDefinedIndices
+.Rq
+.Pa lut_id LOOKUP_TABLE_ID
+.Re
+.Pa defined_indices LISTofTABLE_INDEX
+.Se
+LookupTable
+.Ds       
+This request will return in \fIdefined_indices\fP
+a list of all the indices that are currently defined in the lookup
+table resource specified by \fIlut_id\fP.  The entries returned
+include those predefined by the server and those that have been
+defined by clients.
+.Fe
+.bp
+
+
+.AC "Get Lookup Table Entry" 3
+.Fs
+.Na PEXGetTableEntry
+.Rq
+.Pa format FORMAT
+.Pa lut_id LOOKUP_TABLE_ID
+.Pa index TABLE_INDEX
+.Re
+.Pa status "{\fIDefined, Default\fP}"
+.Pa entry TABLE_ENTRY
+.Se
+LookupTable, Value, FloatingPointFormat, DirectColorFormat
+.Ds       
+This request will return
+the lookup table entry specified by \fIindex\fP.
+The entry will be obtained from the lookup table specified
+by \fIlut_id\fP and will be of the format indicated by \fIlut_id\fP's
+table type.  If the entry in the lookup table
+is defined, its contents will be returned
+in \fIentry\fP and \fIstatus\fP will be set to \fIDefined\fP.
+If the entry in the lookup table
+is not defined, the values for the default entry for that table type
+will be returned
+in \fIentry\fP and \fIstatus\fP will be set to \fIDefault\fP.
+Floating point values in \fIentry\fP will be returned in the floating
+point format specified in \fIformat\fP.
+Similarly, direct color values in \fIentry\fP will be returned
+in the direct color format specified in \fIformat\fP.
+.Fe
+
+
+.AC "Get Lookup Table Entries" 3
+.Fs
+.Na PEXGetTableEntries
+.Rq
+.Pa format FORMAT
+.Pa lut_id LOOKUP_TABLE_ID
+.Pa start TABLE_INDEX
+.Pa count CARD16
+.Re
+.Pa entries LISTofTABLE_ENTRY
+.Se
+LookupTable, Value, FloatingPointFormat, DirectColorFormat
+.Ds       
+This request will return \fIcount\fP table entries from the lookup
+table specified by \fIlut_id\fP, starting at the entry specified
+by \fIstart\fP.  The default entry will be returned for any entry
+in the requested range that is not defined.
+Floating point values in \fIentries\fP will be returned in the floating
+point format specified in \fIformat\fP.
+Similarly, direct color values in \fIentries\fP will be returned
+in the direct color format specified in \fIformat\fP.
+.Fe
+.bp
+
+.AC "Lookup Table Modification" 2
+.LP
+This section contains requests that modify lookup table resources.
+
+
+.AC "Set Lookup Table Entries" 3
+.Fs
+.Na PEXSetTableEntries
+.Rq
+.Pa format FORMAT
+.Pa lut_id LOOKUP_TABLE_ID
+.Pa start TABLE_INDEX
+.Pa count CARD16
+.Pa entries LISTofTABLE_ENTRY
+.Se
+LookupTable, Value, FloatingPointFormat, DirectColorFormat
+.Ds       
+This request will set \fIcount\fP lookup table entries in
+the lookup table resource specified by \fIlut_id\fP, starting
+at the entry indicated by \fIstart\fP.
+The values to use when setting the entries in the lookup table
+are provided in \fIentries\fP, and are in the format specified
+for a lookup table of \fIlut_id\fP's type.
+Floating point values in \fIentries\fP will be in the floating
+point format specified in \fIformat\fP.
+Similarly, direct color values in \fIentries\fP will be 
+in the direct color format specified in \fIformat\fP.
+.Fe
+
+
+
+
+.AC "Delete Lookup Table Entries" 3
+.Fs
+.Na PEXDeleteTableEntries
+.Rq
+.Pa lut_id LOOKUP_TABLE_ID
+.Pa start TABLE_INDEX
+.Pa count CARD16
+.Se
+LookupTable, Value
+.Ds       
+This request will delete \fIcount\fP lookup table entries in
+the lookup table resource specified by \fIlut_id\fP, starting
+at the entry indicated by \fIstart\fP.
+.Fe
+.bp
+
+

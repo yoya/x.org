@@ -1,0 +1,65 @@
+.AC "Errors" 3
+.LP
+The PEX Protocol uses the same set of error codes as the X11 Protocol
+when applicable.
+Additional error codes are provided for PEX-specific errors.
+The following error codes can be returned by the various PEX requests:
+
+.Bl "DirectColorFormat"
+The specified direct color format is not supported.
+
+.Bl "EditingContext"
+A value for a editing context argument is illegal or does not name a defined
+editing context resource.
+
+.Bl "FloatingPointFormat"
+The specified floating point format is not supported.
+
+.Bl "Label      "
+A value for a label is not found in the specified structure.
+
+.Bl "LookupTable"
+A value for a lookup table argument is illegal or does not name a defined
+lookup table resource.
+
+.Bl "Nameset"
+A value for a name set argument is illegal or does not name a defined
+name set resource.
+
+.Bl "Path         "
+A value for a structure network path contains inappropriate or
+illegal values.
+
+.Bl "PhigsWKS"
+A value for a PHIGS workstation argument is illegal or does not name a defined
+PHIGS workstation resource.
+
+.Bl "PickDevice"
+A value for a pick device type argument does not name a defined
+pick device type.
+
+.Bl "PickMeasure"
+A value for a pick measure argument is illegal or does not name a defined
+pick measure resource.
+
+.Bl "PipelineContext"
+A value for a pipeline context argument is illegal or does not name a defined
+pipeline context resource.
+
+.Bl "Renderer"
+A value for a renderer argument is illegal or does not name a defined
+renderer resource.
+
+.Bl "SearchContext"
+A value for a search context argument is illegal or does not name a defined
+search context resource.
+
+.Bl "Structure"
+A value for a structure argument is illegal or does not name a defined
+structure resource.
+
+.Bl "TableIndex"
+A value for a lookup table index specifies a value in the
+lookup table that is currently undefined.
+
+

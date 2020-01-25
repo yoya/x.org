@@ -1,0 +1,35 @@
+.TH XDefineCursor 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XDefineCursor, XUndefineCursor \- define cursors
+.SH SYNTAX
+.so ../Xsrc/XDefCursor.f
+.LP
+.so ../Xsrc/XUndefCursor.f
+.SH ARGUMENTS
+.so ../Xsrc/cursor_def.a
+.so ../Xsrc/display.a
+.so ../Xsrc/w.a
+.SH DESCRIPTION
+.so ../Xdescrip/XDefCursor.d
+.ds fd .PN XDefineCursor
+.so ../Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadCursor ,
+and
+.PN BadWindow 
+errors.
+.LP
+.so ../Xdescrip/XUndefCursor.d
+.ds fd .PN XUndefineCursor
+.so ../Xsrc/errsent4.com
+.PN BadWindow 
+error.
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badcursor.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XCreateFontCursor(3X),
+XRecolorCursor(3X)
+.br
+\fIXlib \- C Language X Interface\fP

@@ -1,0 +1,3 @@
+.\" $Header: ptr.a,v 1.1 87/09/28 13:11:16 mento Exp $
+.IP \fIfont_struct\fP 1i
+Specifies the storage associated with the font.

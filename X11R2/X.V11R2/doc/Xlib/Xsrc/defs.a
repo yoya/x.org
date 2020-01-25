@@ -1,0 +1,3 @@
+.\" $Header: defs.a,v 1.2 88/02/10 10:18:11 mento Exp $
+.IP \fIcolor\fP 1i
+Specifies an array of color definition structures to be stored.

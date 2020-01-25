@@ -1,0 +1,14 @@
+# -DTCPCONN allows TCP connections
+# you only need -DDUALTCP if you have both big and little Indian machines
+# -DUNIXCONN allows Unix domain connections
+# -DDNETCONN allows DECnet connections
+       INCLUDES = -I. -I$(TOP)
+        DEFINES = ConnectionFlags -DDUALTCP -DDEBUG
+           OBJS = dispatch.o main.o resource.o
+           SRCS = dispatch.c main.c resource.c
+
+NormalLibraryTarget(X10,$(OBJS))
+LintLibraryTarget(X10,$(SRCS))
+
+DependTarget()
+

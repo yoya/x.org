@@ -1,0 +1,3 @@
+.\" $Header: function.a,v 1.1 87/09/28 13:00:23 mento Exp $
+.IP \fIfunction\fP 1i
+Specifies the function you want to set for the specified graphics context.

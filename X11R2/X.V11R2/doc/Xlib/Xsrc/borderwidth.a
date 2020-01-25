@@ -1,0 +1,9 @@
+.\" $Header: borderwidth.a,v 1.2 88/02/24 07:45:22 mento Exp $
+.IP \fIborder_width\fP 1i
+Specifies, in pixels, the width of the created window's border.
+The border_width for an
+.PN InputOnly
+window must be zero.
+Otherwise, a
+.PN BadMatch
+error is returned.

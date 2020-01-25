@@ -1,0 +1,44 @@
+.TH XSetSelectionOwner 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XSetSelectionOwner, XGetSelectionOwner, XConvertSelection \- manipulate window selection
+.SH SYNTAX
+.so ../Xsrc/XSetSelOwner.f
+.LP
+.so ../Xsrc/XGetSelOwner.f
+.LP
+.so ../Xsrc/XConvertSel.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/owner.a
+.so ../Xsrc/property.a
+.so ../Xsrc/requestor.a
+.so ../Xsrc/selection.a
+.so ../Xsrc/target.a
+.so ../Xsrc/time.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSetSelOwner.d
+.ds fd .PN XSetSelectionOwner
+.so ../Xsrc/errsent.com
+.PN BadAtom
+and
+.PN BadWindow 
+errors.
+.LP
+.so ../Xdescrip/XGetSelOwner.d
+.ds fd .PN XGetSelectionOwner
+.so ../Xsrc/errsent4.com
+.PN BadAtom 
+error.
+.LP
+.so ../Xdescrip/XConvertSel.d
+.ds fd .PN XConvertSelection
+.so ../Xsrc/errsent.com
+.PN BadAtom
+and
+.PN BadWindow 
+errors.
+.SH DIAGNOSTICS
+.so ../Xerrors/badatom.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface\fP

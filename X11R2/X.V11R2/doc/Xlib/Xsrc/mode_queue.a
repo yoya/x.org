@@ -1,0 +1,6 @@
+.IP \fImode\fP 1i
+Specifies the mode.
+You can specify one of these constants:
+.PN QueuedAlready ,
+.PN QueuedAfterFlush ,
+.PN QueuedAfterReading .

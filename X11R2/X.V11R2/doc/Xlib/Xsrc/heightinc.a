@@ -1,0 +1,11 @@
+.\" $Header: heightinc.a,v 1.1 87/09/28 13:02:04 mento Exp $
+.IP \fIheight0\fP 1i
+.br
+.ns
+.IP \fIheightinc\fP 1i
+The inside height of the window is the base height (height0) 
+plus some multiple of the
+height increment (heightinc). 
+The base height must be non-negative, and the height increment must
+be positive.
+By default, the base height is 1 and the height increment is 1.

@@ -1,0 +1,19 @@
+.TH XAllowEvents 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XAllowEvents \- continue frozen event processing
+.SH SYNTAX
+.so ../Xsrc/XAllowEvents.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/eventmode.a
+.so ../Xsrc/time.a
+.SH DESCRIPTION
+.so ../Xdescrip/XAllowEvents.d
+.ds fd .PN XAllowEvents
+.so ../Xsrc/errsent4.com
+.PN BadValue 
+error.
+.SH DIAGNOSTICS
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface\fP

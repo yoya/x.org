@@ -1,0 +1,3 @@
+.\" $Header: list.a,v 1.1 87/09/28 13:06:10 mento Exp $
+.IP \fIlist\fP 1i
+Specifies the array of strings you want to free.

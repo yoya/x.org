@@ -1,0 +1,71 @@
+#define IHaveSubdirs
+#define PassCDebugFlags
+
+      WORLDOPTS = -k
+
+#if MakeContributed
+    CONTRIBDIRS = $(CONTRIBSRC)
+#endif
+
+#
+# Preserve this order: include comes first, clients, demos, contrib come last.
+#
+     DIRSTOMAKE = \
+		$(INCLUDESRC) \
+		$(LIBSRC) \
+		$(SERVERSRC) \
+		$(FONTSRC) \
+		$(EXTENSIONSRC) \
+		$(CLIENTSRC) \
+		$(DEMOSRC) \
+		$(EXAMPLESRC) \
+		$(CONTRIBDIRS)
+        SUBDIRS = \
+		$(DIRSTOMAKE) \
+		$(UTILSRC) \
+		$(XMANSRC)
+    LINTLIBDIRS = \
+		$(EXTENSIONSRC) \
+		$(LIBSRC)
+
+MakeSubdirs($(DIRSTOMAKE) $(RGBSRC) $(XMANSRC))
+MakeLintLibSubdirs($(LINTLIBDIRS))
+
+#
+# before depending, be sure that include has everything in it.
+#
+depend::
+	cd $(INCLUDESRC); $(MAKE)
+
+DependSubdirs($(SUBDIRS))
+
+install::
+	-mkdir $(USRLIBDIR)
+	-mkdir $(BINDIR)
+	-mkdir $(LIBDIR)
+	-mkdir $(LINTLIBDIR)
+	-mkdir $(XAPPLOADDIR)
+	-mkdir $(INCDIR)
+	-mkdir $(FONTDIR)
+	-mkdir $(UWMDIR)
+	-mkdir $(MANDIR)
+
+InstallManPage(X,$(MANDIR))
+
+# don't name your log file make.log when you run this ...
+World::
+	cd $(IMAKESRC); $(MAKE) clean; $(MAKE)
+	-$(MV) Makefile Makefile.bak
+	$(MAKE) -f Makefile.bak Makefile
+	$(MAKE) Makefiles
+	$(MAKE) clean
+	$(MAKE) depend
+	$(MAKE) $(WORLDOPTS)
+
+Everything::
+	cd $(IMAKESRC); $(MAKE)
+	-$(MV) Makefile Makefile.bak
+	$(MAKE) -f Makefile.bak Makefile
+	$(MAKE) Makefiles
+	$(MAKE) depend
+	$(MAKE) $(WORLDOPTS)

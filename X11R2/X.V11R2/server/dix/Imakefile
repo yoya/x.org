@@ -1,0 +1,29 @@
+SRCS = atom.c colormap.c cursor.c dispatch.c dixutils.c events.c \
+	extension.c gc.c globals.c glyphcurs.c grabs.c \
+	initext.c main.c property.c resource.c swaprep.c swapreq.c \
+	tables.c window.c initatoms.c
+OBJS = atom.o colormap.o cursor.o dispatch.o dixutils.o events.o \
+	extension.o gc.o globals.o glyphcurs.o grabs.o \
+	initext.o main.o property.o resource.o swaprep.o swapreq.o \
+	tables.o window.o initatoms.o
+
+ STD_DEFINES = ServerDefines
+ CDEBUGFLAGS = ServerCDebugFlags
+    INCLUDES = -I. -I../include -I$(INCLUDESRC)
+ EXT_DEFINES = ExtensionDefines
+SITE_DEFINES = -DCOMPILEDDEFAULTFONTPATH=\"$(FONTDIR)/\" -DRGB_DB=\"$(LIBDIR)/rgb\"
+    LINTLIBS = ../ddx/snf/llib-lsnf.ln ../os/4.2bsd/llib-los.ln
+
+NormalLibraryObjectRule()
+NormalLibraryTarget(dix,$(OBJS))
+LintLibraryTarget(dix,$(SRCS))
+NormalLintTarget($(SRCS))
+
+SpecialObjectRule(initext.o, $(IRULESRC)/$(MACROFILE), $(EXT_DEFINES))
+
+SpecialObjectRule(globals.o, $(IRULESRC)/Imake.tmpl, $(SITE_DEFINES))
+
+DependTarget()
+
+../../X11/Xatom.h initatoms.c:	BuiltInAtoms buildatoms
+	sh buildatoms

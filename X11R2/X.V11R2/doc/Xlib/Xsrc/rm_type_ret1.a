@@ -1,0 +1,2 @@
+.IP \fIquark_type_return\fP 1i
+Returns a pointer to the representation type of the destination (as a quark).

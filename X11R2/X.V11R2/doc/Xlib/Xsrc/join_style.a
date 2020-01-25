@@ -1,0 +1,9 @@
+.\" $Header: join_style.a,v 1.1 87/09/28 13:03:49 mento Exp $
+.IP \fIjoin_style\fP 1i
+Specifies the line-join style you want to set for 
+the specified graphics context.
+Possible values are
+.PN JoinMiter ,
+.PN JoinRound ,
+or
+.PN JoinBevel .

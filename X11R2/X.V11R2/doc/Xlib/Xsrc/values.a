@@ -1,0 +1,4 @@
+.\" $Header: values.a,v 1.1 87/09/28 13:17:39 mento Exp $
+.IP \fIvalues\fP 1i
+Specifies a pointer to the structure
+.PN XWindowChanges .

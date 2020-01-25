@@ -1,0 +1,7 @@
+.\" $Header: cursor_def.a,v 1.1 87/09/28 12:55:49 mento Exp $
+.IP \fIcursor\fP 1i
+Specifies the cursor that is to be displayed when the pointer is in
+the specified window.
+You can pass
+.PN None 
+if no cursor is to be displayed. 

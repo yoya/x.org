@@ -1,0 +1,4 @@
+.\" $Header: w_save_set.a,v 1.1 87/09/28 13:18:31 mento Exp $
+.IP \fIw_add\fP 1i
+Specifies the window ID of the window whose children you want to add 
+to the client's save-set.

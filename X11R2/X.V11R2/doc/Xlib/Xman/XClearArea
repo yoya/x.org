@@ -1,0 +1,39 @@
+.TH XClearArea 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XClearArea, XClearWindow \- clear windows
+.SH SYNTAX
+.so ../Xsrc/XClearArea.f
+.LP
+.so ../Xsrc/XClear.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/exposures.a
+.so ../Xsrc/w.a
+.so ../Xsrc/widtheight.a
+.so ../Xsrc/xy.a
+.SH DESCRIPTION
+.so ../Xdescrip/XClearArea.d
+.ds fd .PN XClearArea
+.so ../Xsrc/errsent.com
+.PN BadMatch ,
+.PN BadValue ,
+and
+.PN BadWindow 
+errors.
+.LP
+.so ../Xdescrip/XClear.d
+.ds fd .PN XClearWindow
+.so ../Xsrc/errsent.com
+.PN BadMatch ,
+.PN BadValue ,
+and
+.PN BadWindow 
+errors.
+.SH DIAGNOSTICS
+.so ../Xerrors/badmatch1.e
+.so ../Xerrors/badvalue.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XCopyArea(3X)
+.br
+\fIXlib \- C Language X Interface\fP

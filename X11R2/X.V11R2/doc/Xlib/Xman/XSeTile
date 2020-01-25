@@ -1,0 +1,57 @@
+.TH XSetTile 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XSetTile, XSetStipple, XSetTSOrigin \- GC convience routines
+.SH SYNTAX
+.so ../Xsrc/XSetTile.f
+.LP
+.so ../Xsrc/XSetStipple.f
+.LP
+.so ../Xsrc/XSetTSOrig.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/gc.a
+.so ../Xsrc/stipple.a
+.so ../Xsrc/tile1.a
+.so ../Xsrc/tsxy.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSetTile.d
+.ds fd .PN XSetTile
+.so ../Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadGC ,
+.PN BadMatch ,
+and
+.PN BadPixmap 
+errors.
+.LP
+.so ../Xdescrip/XSetStipple.d
+.ds fd .PN XSetStipple
+.so ../Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadGC ,
+.PN BadMatch ,
+and
+.PN BadPixmap 
+errors.
+.LP
+.so ../Xdescrip/XSetTSOrig.d
+.ds fd .PN XSetTSOrigin
+.so ../Xsrc/errsent4.com
+.PN BadGC 
+error.
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badgc.e
+.so ../Xerrors/badmatch2.e
+.so ../Xerrors/badpixmap.e
+.SH "SEE ALSO"
+XCreateGC(3X),
+XQueryBestSize(3X),
+XSetArcMode(3X),
+XSetClipOrigin(3X),
+XSetFillStyle(3X),
+XSetFont(3X),
+XSetLineAttributes(3X),
+XSetState(3X)
+.br
+\fIXlib \- C Language X Interface\fP

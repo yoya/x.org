@@ -1,0 +1,22 @@
+#define IHaveSubdirs
+#define PassCDebugFlags 'CDEBUGFLAGS=$(CDEBUGFLAGS)'
+        X11UTIL = X11/libX11.a
+        X10UTIL = X10/libX10.a
+LOCAL_LIBRARIES = $(X10UTIL) $(X11UTIL) $(OLDXLIB) $(XLIB)
+           OBJS = startup.o
+           SRCS = startup.c
+        DEFINES =
+        SUBDIRS = X11 X10
+       LINTLIBS = X11/llib-lX11.ln X10/llib-lX10.ln $(LINTXLIB)
+
+MakeSubdirs($(SUBDIRS))
+ComplexProgramTarget(x10tox11)
+DependSubdirs($(SUBDIRS))
+MakeLintLibSubdirs($(SUBDIRS))
+DependTarget()
+
+xlibtags:
+	sed -e 's,	\([^	]*\)	,	$(XLIBSRC)/\1	,' \
+		< $(XLIBSRC)/tags | sort -o tags - tags
+
+NormalLintTarget($(SRCS))

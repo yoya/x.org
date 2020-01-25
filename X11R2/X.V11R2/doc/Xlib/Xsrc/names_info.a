@@ -1,0 +1,3 @@
+.IP \fInames\fP 1i
+Must be the list of font names returned by
+.PN XListFontsWithInfo .

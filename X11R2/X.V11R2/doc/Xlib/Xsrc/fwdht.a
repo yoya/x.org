@@ -1,0 +1,6 @@
+.\" $Header: fwdht.a,v 1.1 87/09/28 13:00:25 mento Exp $
+.IP \fIfheight\fP 1i
+.br
+.ns
+.IP \fIfwidth\fP 1i
+Specify the font height and width in pixels (increment size).

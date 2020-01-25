@@ -1,0 +1,483 @@
+/*
+ * This will build an uninstalled program.  This can be used
+ * for multiple programs in the same Makefile.
+ */
+#define	SingleProgramTarget(program,objects,locallibs,syslibs)		@@\
+program: objects locallibs						@@\
+	$(RM) $@							@@\
+	$(CC) -o $@ objects locallibs $(LDFLAGS) syslibs		@@\
+									@@\
+relink::								@@\
+	$(RM) program							@@\
+	$(MAKE) $(MFLAGS) program					@@\
+									@@\
+clean::									@@\
+	$(RM) program
+
+/*
+ * This target can be called by all programs that are contained in
+ * a single c source file.
+ */
+#define	SimpleProgramTarget(program)					@@\
+           OBJS = program.o						@@\
+           SRCS = program.c						@@\
+									@@\
+ComplexProgramTarget(program)
+
+
+/*
+ * This target is the general interface for building a single program
+ */
+#define	ComplexProgramTarget(program)					@@\
+        PROGRAM = program						@@\
+									@@\
+all:: program								@@\
+									@@\
+program: $(OBJS) $(LOCAL_LIBRARIES)					@@\
+	$(RM) $@							@@\
+	$(CC) -o $@ $(OBJS) $(LOCAL_LIBRARIES) $(LDFLAGS)		@@\
+									@@\
+relink::								@@\
+	$(RM) $(PROGRAM)						@@\
+	$(MAKE) $(MFLAGS) $(PROGRAM)					@@\
+									@@\
+InstallProgram(program,$(BINDIR))					@@\
+InstallManPage(program,$(MANDIR))					@@\
+DependTarget()								@@\
+clean::									@@\
+	$(RM) $(PROGRAM)
+
+/*
+ * These targets are the general interface for building multiple programs
+ * in a single Makefile.
+ */
+#define	ComplexProgramTarget_1(program,locallib,syslib)			@@\
+            OBJS = $(OBJS1) $(OBJS2) $(OBJS3)				@@\
+            SRCS = $(SRCS1) $(SRCS2) $(SRCS3)				@@\
+									@@\
+all: $(PROGRAMS)							@@\
+									@@\
+program: $(OBJS1) locallib						@@\
+	$(RM) $@							@@\
+	$(CC) -o $@ $(OBJS1) locallib $(LDFLAGS) syslib			@@\
+									@@\
+InstallProgram(program,$(BINDIR))					@@\
+InstallManPage(program,$(MANDIR))					@@\
+relink::								@@\
+	$(RM) $(PROGRAMS)						@@\
+	$(MAKE) $(MFLAGS) $(PROGRAMS)					@@\
+									@@\
+DependTarget()								@@\
+clean::									@@\
+	$(RM) $(PROGRAMS)
+
+#define	ComplexProgramTarget_2(program,locallib,syslib)			@@\
+program: $(OBJS2) locallib						@@\
+	$(RM) $@							@@\
+	$(CC) -o $@ $(OBJS2) locallib $(LDFLAGS) syslib			@@\
+									@@\
+InstallProgram(program,$(BINDIR))					@@\
+InstallManPage(program,$(MANDIR))
+
+#define	ComplexProgramTarget_3(program,locallib,syslib)			@@\
+program: $(OBJS3) locallib						@@\
+	$(RM) $@							@@\
+	$(CC) -o $@ $(OBJS3) locallib $(LDFLAGS) syslib			@@\
+									@@\
+InstallProgram(program,$(BINDIR))					@@\
+InstallManPage(program,$(MANDIR))
+
+#define	ServerTarget(server,subdirs,objects,libs,syslibs)		@@\
+server: subdirs objects libs						@@\
+	-$(MV) server server.bak					@@\
+	$(CC) $(CDEBUGFLAGS) -o server objects libs syslibs		@@\
+									@@\
+load/**/server:								@@\
+	-$(MV) server server.bak					@@\
+	$(CC) $(CDEBUGFLAGS) -o server objects libs syslibs
+
+/*
+ * Install a Library.
+ */
+#define	InstallLibrary(libname,dest)					@@\
+install:: lib/**/libname.a						@@\
+	$(INSTALL) -c $(INSTLIBFLAGS) lib/**/libname.a dest		@@\
+	$(RANLIB) dest/lib/**/libname.a
+
+/*
+ * Install a Library Alias.
+ */
+#define	InstallLibraryAlias(libname,alias,dest)				@@\
+install::								@@\
+	-(cd dest; $(LN) lib/**/libname.a lib/**/alias.a)
+
+/*
+ * Install a Lint Library.
+ */
+#if InstallLintLibs
+#define	InstallLintLibrary(libname,dest)				@@\
+install:: llib-l/**/libname.ln						@@\
+	$(INSTALL) -c $(INSTLIBFLAGS) llib-l/**/libname.ln dest
+#else
+#define	InstallLintLibrary(libname,dest)
+#endif
+
+/*
+ * Install a man page.
+ */
+#if InstallManPages
+#define	InstallManPage(file,dest)					@@\
+install:: file.man							@@\
+	$(INSTALL) -c $(INSTMANFLAGS) file.man dest/file.ManSuffix
+#else
+#define	InstallManPage(file,dest)
+#endif
+
+/*
+ * Install a non-executable file.
+ */
+#define	InstallNonExec(file,dest)					@@\
+install:: file								@@\
+	$(INSTALL) -c $(INSTALLFLAGS) file dest
+
+/*
+ * Install a program
+ */
+#define	InstallProgram(program,dest)					@@\
+install:: program							@@\
+	$(INSTALL) -c $(INSTALLFLAGS) program dest
+
+/*
+ * Install a shell script
+ */
+#define	InstallScript(program,dest)					@@\
+install:: program.script						@@\
+	$(INSTALL) -c $(INSTALLFLAGS) program.script dest/program
+
+/*
+ * Install multiple programs
+ */
+#define	InstallMultiple(list,dest)					@@\
+install:: list								@@\
+	@case '${MFLAGS}' in *[i]*) set +e;; esac; \			@@\
+	for i in list; do \						@@\
+		(set -x; $(INSTALL) -c $(INSTALLFLAGS) $$i dest); \	@@\
+	done
+
+/*
+ * Install an application defaults file
+ */
+#if InstallAppDefFiles
+#define	InstallAppDefaults(class)					@@\
+install:: class.ad							@@\
+	$(INSTALL) -c $(INSTAPPFLAGS) class.ad $(XAPPLOADDIR)/class
+#else
+#define	InstallAppDefaults(class)
+#endif
+
+/*
+ * This makes the depend target given OBJS.
+ */
+#define	DependTarget()							@@\
+depend:: $(DEPEND)							@@\
+									@@\
+depend::								@@\
+	$(DEPEND) -s "# DO NOT DELETE" $(CFLAGS) $(SRCS)		@@\
+									@@\
+$(DEPEND):								@@\
+	@echo "making $(DEPENDSRC)"; \					@@\
+	cd $(DEPENDSRC); $(MAKE)					@@\
+
+
+#define	CleanTarget()							@@\
+clean::									@@\
+	$(RM_CMD) \#*
+
+#define	TagsTarget()							@@\
+tags::									@@\
+	$(TAGS) -w *.[ch]						@@\
+	$(TAGS) -xw *.[ch] > TAGS
+
+#define	MakefileTarget()						@@\
+Makefile:: $(IMAKE)							@@\
+									@@\
+Makefile:: Imakefile \							@@\
+	$(IRULESRC)/Imake.tmpl \					@@\
+	$(IRULESRC)/Imake.rules \					@@\
+	$(IRULESRC)/$(MACROFILE)					@@\
+		-$(RM) Makefile.bak; $(MV) Makefile Makefile.bak	@@\
+		$(IMAKE_CMD) -DTOPDIR=$(TOP)				@@\
+									@@\
+$(IMAKE):								@@\
+	@echo "making $(IMAKESRC)"; \					@@\
+	cd $(IMAKESRC); $(MAKE)
+
+/*
+ * for objects in libraries
+ */
+#define	NormalLibraryObjectRule()					@@\
+.c.o:									@@\
+	$(RM) $@							@@\
+	$(CC) -c $(CFLAGS) $*.c
+
+#define	ProfiledLibraryObjectRule()					@@\
+.c.o:									@@\
+	$(RM) $@ profiled/$@						@@\
+	$(CC) -pg -c $(CFLAGS) $*.c					@@\
+	$(MV) $*.o profiled/$*.o					@@\
+	$(CC) -c $(CFLAGS) $*.c
+
+#define	DebuggedLibraryObjectRule()					@@\
+.c.o:									@@\
+	$(RM) $@ debugger/$@						@@\
+	$(CC) -g -c $(CFLAGS) $*.c					@@\
+	$(MV) $*.o debugger/$*.o					@@\
+	$(CC) -c $(CFLAGS) $*.c
+
+#define	DebuggedAndProfiledLibraryObjectRule()				@@\
+.c.o:									@@\
+	$(RM) $@ profiled/$@ debugger/$@				@@\
+	$(CC) -pg -c $(CFLAGS) $*.c					@@\
+	$(MV) $*.o profiled/$*.o					@@\
+	$(CC) -g -c $(CFLAGS) $*.c					@@\
+	$(MV) $*.o debugger/$*.o					@@\
+	$(CC) -c $(CFLAGS) $*.c
+
+#define SpecialObjectRule(objs,depends,options)				@@\
+objs:	depends								@@\
+	$(RM) $@							@@\
+	$(CC) -c $(CFLAGS) options $*.c
+
+#define	SpecialProfiledObjectRule(objs,depends,options)			@@\
+objs:	depends								@@\
+	$(RM) $@ profiled/$@						@@\
+	$(CC) -pg -c $(CFLAGS) options $*.c				@@\
+	$(MV) $*.o profiled/$*.o					@@\
+	$(CC) -c $(CFLAGS) options $*.c
+
+#define	SpecialDebuggedObjectRule(objs,depends,options)			@@\
+objs:	depends								@@\
+	$(RM) $@ debugger/$@						@@\
+	$(CC) -g -c $(CFLAGS) options $*.c				@@\
+	$(MV) $*.o debugger/$*.o					@@\
+	$(CC) -c $(CFLAGS) options $*.c
+
+#define	SpecialDebuggedAndProfiledObjectRule(objs,depends,options)	@@\
+objs:	depends								@@\
+	$(RM) $@ profiled/$@ debugger/$@				@@\
+	$(CC) -pg -c $(CFLAGS) options $*.c				@@\
+	$(MV) $*.o profiled/$*.o					@@\
+	$(CC) -g -c $(CFLAGS) options $*.c				@@\
+	$(MV) $*.o debugger/$*.o					@@\
+	$(CC) -c $(CFLAGS) options $*.c
+
+#define	NormalLibraryTarget(libname,objlist)				@@\
+all:: lib/**/libname.a							@@\
+									@@\
+lib/**/libname.a: objlist						@@\
+	$(RM) $@							@@\
+	$(AR) $@ objlist						@@\
+	$(RANLIB) $@
+
+#define	ProfiledLibraryTarget(libname,objlist)				@@\
+all:: lib/**/libname/**/_p.a						@@\
+									@@\
+lib/**/libname/**/_p.a: objlist						@@\
+	$(RM) $@							@@\
+	cd profiled; $(AR) ../$@ objlist				@@\
+	$(RANLIB) $@							@@\
+									@@\
+clean::									@@\
+	$(RM) profiled/?*.o
+
+#define	DebuggedLibraryTarget(libname,objlist)				@@\
+all:: lib/**/libname/**/_d.a						@@\
+									@@\
+lib/**/libname/**/_d.a: objlist						@@\
+	$(RM) $@							@@\
+	cd debugger; $(AR) ../$@ objlist				@@\
+	$(RANLIB) $@							@@\
+									@@\
+clean::									@@\
+	$(RM) debugger/?*.o
+
+#define	AliasedLibraryTarget(libname,alias)				@@\
+all:: lib/**/alias.a							@@\
+lib/**/alias.a: lib/**/libname.a					@@\
+	$(RM) $@							@@\
+	$(LN) lib/**/libname.a $@
+
+/*
+ * produce a relocatable object file instead of a library.
+ * The reasons for this are complex, and I don't really like
+ * it, but I don't see any other way to get the job done.  Sigh.
+ */
+#define	NormalRelocatableTarget(objname,objlist)			@@\
+all::	objname.o							@@\
+									@@\
+objname.o: objlist							@@\
+	$(RM) $@							@@\
+	$(LD) -X -r objlist -o $@
+
+#define	ProfiledRelocatableTarget(objname,objlist)			@@\
+all:: objname/**/_p.o							@@\
+									@@\
+objname/**/_p.o: objlist						@@\
+	$(RM) $@							@@\
+	$(LD) -X -r objlist -o $@					@@\
+									@@\
+clean::									@@\
+	$(RM) profiled/?*.o
+
+#define	DebuggedRelocatableTarget(objname,objlist)			@@\
+all:: objname/**/_d.o							@@\
+									@@\
+objname/**/_d.o: objlist						@@\
+	$(RM) $@							@@\
+	$(LD) -X -r objlist -o $@					@@\
+									@@\
+clean::									@@\
+	$(RM) debugger/?*.o
+
+/*
+ * Note that we force the lint library to always be newer than the
+ * library itself.
+ */
+#define	LintLibraryTarget(libname,srclist)				@@\
+lintlib:: llib-l/**/libname.ln						@@\
+									@@\
+llib-l/**/libname.ln: srclist						@@\
+	$(RM) $@							@@\
+	$(LINT) $(LINTLIBFLAG)/**/libname $(LINTFLAGS) srclist
+
+#define NormalLintTarget(srclist)					@@\
+lint:									@@\
+	$(LINT) $(LINTFLAGS) srclist $(LINTLIBS)			@@\
+lint1:									@@\
+	$(LINT) $(LINTFLAGS) $(FILE) $(LINTLIBS)
+
+/*
+ * if you want CDEBUGFLAGS passed along to subdirectories, then
+ * provide a line like this in the appropriate Imakefile
+ * #define PassCDebugFlags 'CDEBUGFLAGS=$(CDEBUGFLAGS)'
+ */
+#define MakeSubdirs(dirs)						@@\
+NamedMakeSubdirs(all,dirs)
+
+#define NamedMakeSubdirs(name,dirs)					@@\
+name::									@@\
+	@case '${MFLAGS}' in *[ik]*) set +e;; esac; \			@@\
+	for i in dirs ;\						@@\
+	do \								@@\
+		(cd $$i ; echo "making $$i"; \				@@\
+			$(MAKE) PassCDebugFlags $(MFLAGS)); \		@@\
+	done
+
+#define DependSubdirs(dirs)						@@\
+NamedDependSubdirs(depend,dirs)
+
+#define NamedDependSubdirs(name,dirs)					@@\
+name::									@@\
+	@case '${MFLAGS}' in *[ik]*) set +e;; esac; \			@@\
+	for i in dirs ;\						@@\
+	do \								@@\
+		(cd $$i ; echo "depending $$i"; \			@@\
+			$(MAKE) $(MFLAGS) depend ); \			@@\
+	done
+
+#define InstallSubdirs(dirs)						@@\
+install::								@@\
+	@case '${MFLAGS}' in *[ik]*) set +e;; esac; \			@@\
+	for i in dirs ;\						@@\
+	do \								@@\
+		(cd $$i ; echo "installing $$i"; \			@@\
+			$(MAKE) $(MFLAGS) \				@@\
+				DESTDIR='$(DESTDIR)' install ); \	@@\
+	done
+
+#define CleanSubdirs(dirs)						@@\
+clean::									@@\
+	@case '${MFLAGS}' in *[ik]*) set +e;; esac; \			@@\
+	for i in dirs ;\						@@\
+	do \								@@\
+		(cd $$i ; echo "cleaning $$i"; \			@@\
+			$(MAKE) $(MFLAGS) RM_CMD='$(RM_CMD)' clean ); \	@@\
+	done
+
+#define TagSubdirs(dirs)						@@\
+tags::									@@\
+	@case '${MFLAGS}' in *[ik]*) set +e;; esac; \			@@\
+	for i in dirs ;\						@@\
+	do \								@@\
+		(cd $$i ; echo "tagging $$i"; \				@@\
+			$(MAKE) $(MFLAGS) TAGS='$(TAGS)' tags ); \	@@\
+	done
+
+#define LintSubdirs(dirs)						@@\
+lint::									@@\
+	@case '${MFLAGS}' in *[ik]*) set +e;; esac; \			@@\
+	for i in dirs ;\						@@\
+	do \								@@\
+		(cd $$i ; echo "linting $$i"; \				@@\
+			$(MAKE) $(MFLAGS) \				@@\
+				LINTOPTS='$(LINTOPTS)' lint ); \	@@\
+	done
+
+#define MakeLintLibSubdirs(dirs)					@@\
+lintlib::								@@\
+	@case '${MFLAGS}' in *[ik]*) set +e;; esac; \			@@\
+	for i in dirs ;\						@@\
+	do \								@@\
+		(cd $$i ; echo "making lintlib in $$i"; \		@@\
+			$(MAKE) $(MFLAGS) \				@@\
+				LINTOPTS='$(LINTOPTS)' lintlib ); \	@@\
+	done
+
+#define MakeMakeSubdirs(dirs)						@@\
+Makefiles:: $(IMAKE)							@@\
+									@@\
+Makefiles::								@@\
+	@case '${MFLAGS}' in *[ik]*) set +e;; esac; \			@@\
+	for i in dirs ;\						@@\
+	do \								@@\
+		echo "Making Makefiles in $$i..."; \			@@\
+		case "$$i" in \						@@\
+		./?*/?*/?*/?*) newtop=../../../../ sub=subsubsubsub;; \	@@\
+		./?*/?*/?*) newtop=../../../ sub=subsubsub;; \		@@\
+		./?*/?*)    newtop=../../ sub=subsub;; \		@@\
+		./?*)       newtop=../ sub=sub;; \			@@\
+		*/?*/?*/?*)    newtop=../../../../ sub=subsubsubsub;; \	@@\
+		*/?*/?*)    newtop=../../../ sub=subsubsub;; \		@@\
+		*/?*)       newtop=../../ sub=subsub;; \		@@\
+		*)	    newtop=../ sub=sub;; \			@@\
+		esac; \							@@\
+		$(MAKE) $${sub}dirMakefiles NEWTOP=$$newtop \		@@\
+			MAKEFILE_SUBDIR=$$i;\				@@\
+	done
+
+#define MakefileSubdirs(dirs)						@@\
+MakeMakeSubdirs(dirs)							@@\
+									@@\
+subdirMakefiles:							@@\
+	$(RM) $(MAKEFILE_SUBDIR)/Makefile.bak				@@\
+	-$(MV) $(MAKEFILE_SUBDIR)/Makefile $(MAKEFILE_SUBDIR)/Makefile.bak	@@\
+	cd $(MAKEFILE_SUBDIR); $(IMAKE_CMD) -DTOPDIR=$(TOP)/..; \	@@\
+	$(MAKE) $(MFLAGS) Makefiles 					@@\
+									@@\
+subsubdirMakefiles:							@@\
+	$(RM) $(MAKEFILE_SUBDIR)/Makefile.bak				@@\
+	-$(MV) $(MAKEFILE_SUBDIR)/Makefile $(MAKEFILE_SUBDIR)/Makefile.bak	@@\
+	cd $(MAKEFILE_SUBDIR); $(IMAKE_CMD) -DTOPDIR=$(TOP)/../..; \	@@\
+	$(MAKE) $(MFLAGS) Makefiles 					@@\
+									@@\
+subsubsubdirMakefiles:							@@\
+	$(RM) $(MAKEFILE_SUBDIR)/Makefile.bak				@@\
+	-$(MV) $(MAKEFILE_SUBDIR)/Makefile $(MAKEFILE_SUBDIR)/Makefile.bak @@\
+	cd $(MAKEFILE_SUBDIR); $(IMAKE_CMD) -DTOPDIR=$(TOP)/../../..; \	@@\
+	$(MAKE) $(MFLAGS) Makefiles 					@@\
+									@@\
+subsubsubsubdirMakefiles:						@@\
+	$(RM) $(MAKEFILE_SUBDIR)/Makefile.bak				@@\
+	-$(MV) $(MAKEFILE_SUBDIR)/Makefile $(MAKEFILE_SUBDIR)/Makefile.bak @@\
+	cd $(MAKEFILE_SUBDIR); $(IMAKE_CMD) -DTOPDIR=$(TOP)/../../../..; \	@@\
+	$(MAKE) $(MFLAGS) Makefiles

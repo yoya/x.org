@@ -1,0 +1,7 @@
+.IP \fIevent_key\fP 1i
+Specifies the key event that is to be used.
+This event is either a
+.PN KeyPress
+event or a
+.PN KeyRelease
+event.

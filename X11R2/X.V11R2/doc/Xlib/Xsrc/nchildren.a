@@ -1,0 +1,3 @@
+.\" $Header: nchildren.a,v 1.1 87/09/28 13:08:15 mento Exp $
+.IP \fInchildren_return\fP 1i
+Returns the number of children for the specified window.

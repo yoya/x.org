@@ -1,0 +1,42 @@
+.TH XSetFillStyle 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XSetFillStyle, XSetFillRule \- GC convience routines
+.SH SYNTAX
+.so ../Xsrc/XSetFStyle.f
+.LP
+.so ../Xsrc/XSetFRule.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/fill_rule.a
+.so ../Xsrc/fill_style.a
+.so ../Xsrc/gc.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSetFStyle.d
+.ds fd .PN XSetFillStyle
+.so ../Xsrc/errsent.com
+.PN BadGC
+and
+.PN BadValue 
+errors.
+.LP
+.so ../Xdescrip/XSetFRule.d
+.ds fd .PN XSetFillRule
+.so ../Xsrc/errsent.com
+.PN BadGC
+and
+.PN BadValue 
+errors.
+.SH DIAGNOSTICS
+.so ../Xerrors/badgc.e
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+XCreateGC(3X),
+XQueryBestSize(3X),
+XSetArcMode(3X),
+XSetClipOrigin(3X),
+XSetFont(3X),
+XSetLineAttributes(3X),
+XSetState(3X),
+XSetTile(3X)
+.br
+\fIXlib \- C Language X Interface\fP

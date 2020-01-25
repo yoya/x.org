@@ -1,0 +1,9 @@
+.\" $Header: prop_mode.a,v 1.1 87/09/28 13:11:09 mento Exp $
+.\" Changed name of this file to prop_mode.a on 1/13/87
+.IP \fImode\fP 1i
+Specifies the mode of the operation.
+You can pass one of these constants:
+.PN PropModeReplace ,
+.PN PropModePrepend ,
+or
+.PN PropModeAppend .

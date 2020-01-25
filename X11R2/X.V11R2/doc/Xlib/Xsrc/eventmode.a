@@ -1,0 +1,13 @@
+.\" $Header: eventmode.a,v 1.1 87/09/28 12:58:46 mento Exp $
+.IP \fIevent_mode\fP 1i
+Specifies the event mode.
+You can pass one of these constants:
+.PN AsyncPointer , 
+.PN SyncPointer , 
+.PN AsyncKeyboard , 
+.PN SyncKeyboard ,
+.PN ReplayPointer , 
+.PN ReplayKeyboard ,
+.PN AsyncBoth ,
+or
+.PN SyncBoth .

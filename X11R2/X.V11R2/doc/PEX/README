@@ -1,0 +1,50 @@
+
+
+This directory contains the source for the PEX V3.00 Protocol Specification
+document and the accompanying cover letters.  The makefile is set up to take
+advantage of PostScript formatting program "psroff".  You will need to
+edit the makefile if you want to use something other than psroff.
+
+
+Making the document -
+
+make -
+	"make" with no arguments causes the protocol document to be formatted
+	and sent to the printer.
+
+make toc -
+	Causes the protocol document table of contents to be formatted
+	and sent to the printer.  Prior to doing a "make toc" you must have
+	"made" the protocol document itself so that the table of contents
+	information is available.
+
+make ps -
+	Causes a formatted PostScript file to be generated for the protocol
+	document.  The "doc.ps" file can be sent to the printer at a later
+	time.
+
+make tocps -
+	Causes a formatted PostScript file to be generated for the protocol
+	document table of contents.  The "toc.ps" file can be sent to the
+	printer at a later time.  Prior to doing a "make tocps" you must have
+	"made" the protocol document itself so that the table of contents
+	information is available.
+
+make doc.txt -
+	Causes nroff to be used to format the protocol document and send
+	its output to the file "doc.txt".  This generally produces somewhat
+	annoying results, since the document is designed to "look nice" when
+	run through {t,ps,dit}roff, but not when run through nroff.
+
+make toc.txt -
+	Causes nroff to be used to format the protocol document table of
+	contents and send its output to the file "toc.txt".
+
+make cover1 -
+	Causes cover letter #1 to be formatted and sent to the printer.
+
+make cover2 -
+	Causes cover letter #2 to be formatted and sent to the printer.
+
+make cover3 -
+	Causes cover letter #3 to be formatted and sent to the printer.

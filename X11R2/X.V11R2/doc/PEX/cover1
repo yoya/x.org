@@ -1,0 +1,52 @@
+\ 
+.nr PS 10
+.nr VS 12
+.nr LL 6.25i
+.nr PD 0.18i
+.nr PO 1.0i
+.fi
+.LP
+.DS I 4.5i
+December 14, 1987
+.DE
+.PP
+.LP
+Dear X3D Member:
+.LP
+Attached is Version 3.00 of the PEX protocol specification document.
+With this version,
+the PEX Architecture Team feels that all major architectural issues
+have been resolved and an implementation effort may now begin.
+Even though we believe the architectural issues are well in hand,
+we are always interested in receiving specific comments about the
+specification.  It is almost assured that the specification will change
+somewhat during the implementation stage, and we are interested in rectifying
+any and all typos, contradictions, and errors in the PEX documents.
+The PEX specification documents will continue to be updated in conjunction
+with the implementation effort.
+The final version of the specification will be released
+in conjunction with the release of the public implementation software.
+.LP
+An attached document describes in more detail
+the changes that were made to go from PEX V2.00 to PEX V3.00.
+There are four major reasons for the changes that were made:
+.DS
+\(bu Changes to improve support for PHIGS
+\(bu Changes to be more compatible with the spirit and philosophy of X
+\(bu Addition of PHIGS and PHIGS+ functionality that was not yet in PEX
+\(bu Incorporation of October PHIGS and PHIGS+ changes
+.DE
+The first three cover the majority of the changes that were made and
+were largely responsible for the length of time it has taken to produce
+PEX V3.00.
+The Architecture Team is currently working on revising the \fIPEX
+Introduction and Overview\fP document.  Since this effort might take
+several more weeks, and since the Architecture Team
+felt it was important to send out the protocol document as soon as possible,
+the introduction/overview document
+will be mailed out separately when it is ready.
+.LP
+Merry "X"mas to everyone!
+.sp 2
+.ti 4.0i
+PEX Architecture Team

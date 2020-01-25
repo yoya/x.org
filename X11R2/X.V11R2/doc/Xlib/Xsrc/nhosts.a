@@ -1,0 +1,3 @@
+.\" $Header: nhosts.a,v 1.1 87/09/28 13:08:24 mento Exp $
+.IP \fInhosts_return\fP 1i
+Returns the number of hosts currently in the access control list.

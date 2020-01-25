@@ -1,0 +1,6 @@
+.\" $Header: srcwdht.a,v 1.1 87/09/28 13:13:39 mento Exp $
+.IP \fIsrc_width\fP 1i
+.br
+.ns
+.IP \fIsrc_height\fP 1i
+Specify the width and height of the source window.

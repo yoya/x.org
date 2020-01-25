@@ -1,0 +1,161 @@
+.AC "Picking" 1
+.LP
+.RU
+.LP
+The discussion of picking includes both \fIpick device descriptors\fP, which
+are found in PHIGS workstation resources, and \fIpick measures\fP, which
+are themselves resources.
+PEX currently provides no support for picking of client-side
+structure networks.
+
+.AC "Pick Device Descriptors" 2
+.LP
+Each PHIGS workstation resource maintains a list of \fIpick device\fP
+descriptors.  Each entry in this list maintains state
+values for a particular type of pick device, such as a mouse or a 3D tablet.
+Together, the entries in the pick device descriptor list maintain
+state values for all of the pick devices that are supported by the workstation
+resource.  This list of values can be set or inquired for each of the
+supported pick devices.
+.so picktbl1
+.LP
+The requests in this section allow clients to set and inquire the values of
+pick device descriptors that are stored in a PHIGS workstation resource.
+.bp
+
+.AC "Get Pick Device Descriptor" 3
+.Fs
+.Na PEXGetPickDevice
+.Rq
+.Pa format FORMAT
+.Pa wks_id PHIGS_WKS_ID
+.Pa dev_type PICK_DEVICE_TYPE
+.Pa item_mask BITMASK
+.Re
+.Pa item_list LISTofVALUE
+.Se
+PhigsWKS, PickDevice, FloatingPointFormat
+.Ds       
+This request will return components of
+a pick descriptor for the PHIGS workstation resource specified by \fIwks_id\fP.
+The descriptor returned will be the currently-defined descriptor for
+the pick device of the type specified by \fIdev_type\fP.
+The \fIitem_mask\fP specifies which components are to be inquired and
+returned.  The specified attributes of the pick device descriptor
+will be returned in \fIitem_list\fP.
+Floating point values in \fIitem_list\fP will be returned in the floating
+point format specified in \fIformat\fP.
+.Fe
+
+
+.AC "Change Pick Device Descriptor" 3
+.Fs
+.Na PEXChangePickDevice
+.Rq
+.Pa format FORMAT
+.Pa wks_id PHIGS_WKS_ID
+.Pa dev_type PICK_DEVICE_TYPE
+.Pa item_mask BITMASK
+.Pa item_list LISTofVALUE
+.Se
+PhigsWKS, PickDevice, FloatingPointFormat
+.Ds       
+This request will modify components of
+a pick descriptor for the PHIGS workstation resource specified by \fIwks_id\fP.
+The descriptor to be modified will be the currently-defined descriptor for
+the pick device of the type specified by \fIdev_type\fP.
+The \fIitem_mask\fP specifies which components are to be changed.
+The specified attributes of the pick device descriptor
+will be set to the values contained in \fIitem_list\fP.
+Floating point values in \fIitem_list\fP will be in the floating
+point format specified in \fIformat\fP.
+.Fe
+.bp
+
+.AC "Pick Measure Resource Management" 2
+.LP
+.so picktbl2
+.bp
+
+.AC "Create Pick Measure" 3
+.Fs
+.Na PEXCreatePickMeasure
+.Rq      
+.Pa pm_id PICK_MEASURE_ID
+.Pa wks_id PHIGS_WKS_ID
+.Pa dev_type PICK_DEVICE_TYPE
+.Se
+PhigsWKS, PickDevice, Alloc
+.Ds                     
+This request creates a pick measure resource of the type specified
+by \fIdev_type\fP.  The resource id of the pick measure is specified
+by \fIpm_id\fP.  The newly-created pick measure is initialized with the
+values contained in the appropriate pick device descriptor stored
+in the PHIGS workstation resource specified by \fIwks_id\fP.
+.Fe
+
+
+
+.AC "Free Pick Measure" 3
+.Fs
+.Na PEXFreePickMeasure
+.Rq                 
+.Pa pm_id PICK_MEASURE_ID
+.Se
+PickMeasure
+.Ds            
+This request deletes the association between the resource id
+and the pick measure.  The pick measure storage will be
+freed when no other resource references it.
+.Fe
+.bp
+.AC "Pick Measure Inquiry" 2
+.LP
+These requests inquire search pick measure attributes.
+
+.AC "Get Pick Measure Attributes" 3
+.Fs
+.Na PEXGetPickMeasure
+.Rq
+.Pa pm_id PICK_MEASURE_ID
+.Pa item_mask BITMASK
+.Re
+.Pa item_list LISTofVALUE
+.Se
+PickMeasure
+.Ds       
+This request will return components of
+the pick measure specified by \fIpm_id\fP.
+The \fIitem_mask\fP specifies which components are to be inquired and returned.
+The specified attributes of the pick measure will be returned in
+\fIitem_list\fP.
+.Fe
+
+.AC "Pick Operations" 2
+.LP
+These request cause pick operations to occur.
+.AC "Update Pick Measure" 3
+.Fs
+.Na PEXUpdatePickMeasure
+.Rq
+.Pa pm_id PICK_MEASURE_ID
+.Pa input_record LISTofCARD8
+.Se
+PickMeasure
+.Ds       
+This request will update the pick measure specified by \fIpm_id\fP using
+the information found in \fIinput_record\fP.  If this update causes a
+primitive to be picked, the pick measure's \fIpick_status\fP will be
+set to \fIOk\fP and the \fIpicked_prim\fP will be set to the path of the
+picked primitive.  If no primitive was picked, the \fIpick_status\fP
+will be set to \fINoPick\fP.
+.LP
+The data in \fIinput_record\fP is dependent on the type of pick device for
+which the pick measure resource was created.  For example, the input
+record for a pick device that uses a mouse to pick a primitive may
+contain a screen x,y pair.  Specific input record descriptions must
+be documented in the implementation documentation for a particular PEX
+implementation.  \fBPEXGetPickMeasure\fP can be used to return the results
+of a \fBPEXUpdatePickMeasure\fP request.
+.Fe
+.bp

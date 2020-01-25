@@ -1,0 +1,38 @@
+.TH XSetErrorHandler 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XSetErrorHandler, XGetErrorText, XGetErrorDatabaseText, XDisplayName, XSetIOErrorHandler \- default error handlers
+.SH SYNTAX
+.so ../Xsrc/XErrHndlr.f
+.LP
+.so ../Xsrc/XErrDescrip.f
+.LP
+.so ../Xsrc/XDispName.f
+.LP
+.so ../Xsrc/XIOErrHnd.f
+.LP
+.so ../Xsrc/XGEDText.f
+.SH ARGUMENTS
+.so ../Xsrc/buffer_err2.a
+.so ../Xsrc/code.a
+.so ../Xsrc/default.a
+.so ../Xsrc/display.a
+.so ../Xsrc/handler.a
+.so ../Xsrc/length_err.a
+.so ../Xsrc/type_err.a
+.so ../Xsrc/name_err.a
+.so ../Xsrc/nbytes1.a
+.so ../Xsrc/string.a
+.SH DESCRIPTION
+.so ../Xdescrip/XErrHndlr.d
+.LP
+.so ../Xdescrip/XErrDescrip.d
+.LP
+.so ../Xdescrip/XDispName.d
+.LP
+.so ../Xdescrip/XIOErrHnd.d
+.LP
+.so ../Xdescrip/XGEDText.d
+.SH "SEE ALSO"
+XSynchronize(3X)
+.br
+\fIXlib \- C Language X Interface\fP

@@ -1,0 +1,8 @@
+.\" $Header: closemode.a,v 1.1 87/09/28 12:55:27 mento Exp $
+.IP \fIclose_mode\fP 1i
+Specifies the client close down mode you want to change.
+You can pass one of these constants:
+.PN DestroyAll , 
+.PN RetainPermanent , 
+or
+.PN RetainTemporary . 

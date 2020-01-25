@@ -1,0 +1,27 @@
+.TH PLAID 1 "1 March 1988" "X Version 11"
+.SH NAME
+plaid \- paint some plaid-like patterns in an X window
+.SH SYNOPSIS
+.B plaid
+[-option ...]
+.SH OPTIONS
+.TP 8
+.B \-b
+enable backing store for the window
+.TP 8
+.B \-geometry \fIgeometry\fB
+define the initial window geometry; see \fIX(1)\fP.
+.TP 8
+.B \-display \fIdisplay\fB
+specify the display to use; see \fIX(1)\fP.
+.SH DESCRIPTION
+.I Plaid
+displays a continually changing plaid-like pattern in a window.
+.SH "SEE ALSO"
+X(1)
+.SH BUGS
+There are no known bugs.  There are lots of lacking features.
+.SH COPYRIGHT
+Copyright 1988, Massachusetts Institute of Technology.
+.br
+See \fIX(1)\fP for a full statement of rights and permissions.

@@ -1,0 +1,38 @@
+.TH XrmGetResource 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XrmGetResource, XrmQGetResource, XrmQGetSearchList, XrmQGetSearchResource \- retrieve database resources and search lists
+.SH SYNTAX
+.so ../Xsrc/XrmGRes.f
+.LP
+.so ../Xsrc/XrmQGRes.f
+.LP
+.so ../Xsrc/XrmQGSList.f
+.LP
+.so ../Xsrc/XrmQGSRes.f
+.SH ARGUMENTS
+.so ../Xsrc/res_classes.a
+.so ../Xsrc/database1.a
+.so ../Xsrc/list_level.a
+.so ../Xsrc/list_leng.a
+.so ../Xsrc/list_ret.a
+.so ../Xsrc/res_class.a
+.so ../Xsrc/res_names.a
+.so ../Xsrc/rm_type_ret.a
+.so ../Xsrc/res_class2.a
+.so ../Xsrc/res_name2.a
+.so ../Xsrc/rm_type_ret1.a
+.so ../Xsrc/res_name.a
+.so ../Xsrc/rm_value_ret.a
+.SH DESCRIPTION
+.so ../Xdescrip/XrmQGRes.d
+.LP
+.so ../Xdescrip/XrmQGSList.d
+.LP
+.so ../Xdescrip/XrmQGSRes.d
+.SH "SEE ALSO"
+XrmInitialize(3X),
+XrmMergeDatabases(3X),
+XrmPutResource(3X),
+XrmUniqueQuark(3X)
+.br
+\fIXlib \- C Language X Interface\fP

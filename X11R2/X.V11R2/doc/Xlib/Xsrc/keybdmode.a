@@ -1,0 +1,7 @@
+.\" $Header: keybdmode.a,v 1.1 87/09/28 13:04:49 mento Exp $
+.IP \fIkeyboard_mode\fP 1i
+Controls further processing of keyboard events.
+You can pass one of these constants:
+.PN GrabModeSync 
+or
+.PN GrabModeAsync .

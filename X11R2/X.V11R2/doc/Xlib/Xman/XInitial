@@ -1,0 +1,24 @@
+.TH XrmInitialize 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XrmInitialize, XrmParseCommand \- initialize the Resource Manager and parse the command line
+.SH SYNTAX
+.so ../Xsrc/XrmInit.f
+.LP
+.so ../Xsrc/XrmParse.f
+.SH ARGUMENTS
+.so ../Xsrc/parseargc.a
+.so ../Xsrc/parseargv.a
+.so ../Xsrc/database.a
+.so ../Xsrc/dbtable.a
+.so ../Xsrc/dbtcount.a
+.SH DESCRIPTION
+.so ../Xdescrip/XrmInit.d
+.LP
+.so ../Xdescrip/XrmParse.d
+.SH "SEE ALSO"
+XrmGetResource(3X),
+XrmMergeDatabases(3X),
+XrmPutResource(3X),
+XrmUniqueQuark(3X)
+.br
+\fIXlib \- C Language X Interface\fP

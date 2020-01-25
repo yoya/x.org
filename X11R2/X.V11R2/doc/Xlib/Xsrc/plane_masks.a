@@ -1,0 +1,4 @@
+.\" $Header: plane_masks.a,v 1.1 87/09/28 13:10:43 mento Exp $
+.IP \fIplane_mask_return\fP 1i
+Returns an array of plane masks.
+.\" *** JIM: NEED MORE INFO FOR THIS. ***

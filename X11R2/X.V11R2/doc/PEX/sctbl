@@ -1,0 +1,47 @@
+.LP
+The search context components, in order, are listed in the following table.
+.ID
+.ta 0.05i 2.1i 3.5i
+	\fBAttribute Name	Data Type	Default Value\fP
+.ta
+.ta 0.2i 1.9i 3.7i
+	search_pos	COORD_3D	(0,0,0)
+	search_dist	FLOAT	0
+	search_ceiling	CARD16	0
+	start_path	LISTofELEMENT_REF	\fINull\fP
+	incl_list	LISTofNAME_SET_ID	\fINull\fP
+	excl_list	LISTofNAME_SET_ID	\fINull\fP
+.ta
+.DE
+The attributes of the search context resource are defined as follows:
+
+.Bl "search_pos"
+This attribute specifies the search reference position in world coordinates.
+
+.Bl "search_dist"
+This attribute specifies a distance from the search reference position.
+A successful search occurs only when an output primitive element is found
+that satisfies the search filter criteria \fIand\fP is within the
+specified distance from the search reference point.
+
+.Bl "search_ceiling"
+This attribute defines the ceiling of the search operation.
+The search ceiling is an index into the list contained in \fIstart_path\fP.
+Searching stops when the end of the structure specified by
+\fIsearch_ceiling\fP is reached.
+If the ceiling is zero, the search operates without
+a ceiling.
+
+.Bl "start_path"
+This attribute defines the structure network path that is to be used
+as the starting point for the search.  Searching begins at the element
+\fIfollowing\fP the one indicated by the start path.
+
+.Bl "incl_list"
+This attribute contains the list of name set resource id's to
+be used as inclusion sets in the search operation.
+
+.Bl "excl_list"
+This attribute contains the list of name set resource id's to
+be used as exclusion sets in the search operation.
+.bp

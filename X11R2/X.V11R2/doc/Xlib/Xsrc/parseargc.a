@@ -1,0 +1,3 @@
+.IP \fIargc_return\fP 1i
+Before the call, contains the number of arguments. 
+After the call, returns the number of remaining arguments.

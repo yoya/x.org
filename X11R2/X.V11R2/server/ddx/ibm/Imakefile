@@ -1,0 +1,86 @@
+#define IHaveSubdirs
+#define PassCDebugFlags 'CDEBUGFLAGS=$(CDEBUGFLAGS)' 'CC=$(CC)'
+
+#define	ListCreate(name)\
+SUBDIRS0= name @@\
+SUBOBJS0= name/name.o @@\
+DSUBOBJS0= name/name/**/_d.o @@\
+PSUBOBJS0= name/name/**/_p.o
+#define	ListCreateEmpty()\
+SUBDIRS0=  @@\
+SUBOBJS0=  @@\
+DSUBOBJS0=  @@\
+PSUBOBJS0= 
+#define	ListAdd(last,new,name)\
+SUBDIRS/**/new= $(SUBDIRS/**/last) name @@\
+SUBOBJS/**/new= $(SUBOBJS/**/last) name/name.o @@\
+DSUBOBJS/**/new= $(DSUBOBJS/**/last) name/name/**/_d.o @@\
+PSUBOBJS/**/new= $(PSUBOBJS/**/last) name/name/**/_p.o
+#define	ListAddEmpty(last,new)\
+SUBDIRS/**/new= $(SUBDIRS/**/last) @@\
+SUBOBJS/**/new= $(SUBOBJS/**/last) @@\
+DSUBOBJS/**/new= $(DSUBOBJS/**/last) @@\
+PSUBOBJS/**/new= $(PSUBOBJS/**/last)
+
+#if RtInclude8514
+ListCreate(ibm8514)
+#else
+ListCreateEmpty()
+#endif
+#if RtIncludeAED
+ListAdd(0,1,aed)
+#else
+ListAddEmpty(0,1)
+#endif
+#if RtIncludeAPA16
+ListAdd(1,2,apa16)
+#else
+ListAddEmpty(1,2)
+#endif
+#if RtIncludeEGA
+ListAdd(2,3,ega)
+#else
+ListAddEmpty(2,3)
+#endif
+#if RtIncludeMPEL
+ListAdd(3,4,mpel)
+#else
+ListAddEmpty(3,4)
+#endif
+#if RtIncludeVGA
+ListAdd(4,5,vga)
+#else
+ListAddEmpty(4,5)
+#endif
+
+SUBDIRS= rt $(SUBDIRS5) ppc
+SUBOBJS= rt/rt.o $(SUBOBJS5) ppc/ppc.o
+DSUBOBJS= rt/rt_d.o $(DSUBOBJS5) ppc/ppc_d.o
+PSUBOBJS= rt/rt_p.o $(PSUBOBJS5) ppc/ppc_p.o
+
+all::	subdirs
+libibm.a:	Makefile
+
+NormalLibraryTarget(ibm,$(SUBOBJS))
+	
+NamedMakeSubdirs(subdirs,$(SUBDIRS))
+	
+LintSubdirs($(SUBDIRS))
+MakeLintLibSubdirs($(SUBDIRS))
+
+#
+# before doing the depend, be sure that makedepend exists.
+#
+depend:: $(DEPEND)
+
+DependSubdirs($(SUBDIRS))
+
+#
+# before making the makefiles, be sure that imake exists.
+#
+Makefiles:: $(IMAKE)
+
+$(IMAKE):
+	@echo "making $(IMAKESRC)"; \
+	cd $(IMAKESRC); $(MAKE)
+

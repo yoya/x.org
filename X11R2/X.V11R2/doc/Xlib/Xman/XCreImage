@@ -1,0 +1,48 @@
+.TH XCreateImage 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XCreateImage, XGetPixel, XPutPixel, XSubImage, XAddPixel, XDestroyImage \- image utilities
+.SH SYNTAX
+.so ../Xsrc/XCreImage.f
+.LP
+.so ../Xsrc/XGetPixel.f
+.LP
+.so ../Xsrc/XPutPixel.f
+.LP
+.so ../Xsrc/XSubImage.f
+.LP
+.so ../Xsrc/XAddPixel.f
+.LP
+.so ../Xsrc/XDestImage.f
+.SH ARGUMENTS
+.so ../Xsrc/bytesperln.a
+.so ../Xsrc/data_img.a
+.so ../Xsrc/depth_img.a
+.so ../Xsrc/display.a
+.so ../Xsrc/format_img.a
+.so ../Xsrc/height_img.a
+.so ../Xsrc/offset.a
+.so ../Xsrc/pixel_img.a
+.so ../Xsrc/sub_height.a
+.so ../Xsrc/sub_width.a
+.so ../Xsrc/value_img.a
+.so ../Xsrc/visual_img.a
+.so ../Xsrc/width_img.a
+.so ../Xsrc/ximage.a
+.so ../Xsrc/xpad.a
+.so ../Xsrc/xy.a
+.SH DESCRIPTION
+.so ../Xdescrip/XCreImage.d
+.LP
+.so ../Xdescrip/XGetPixel.d
+.LP
+.so ../Xdescrip/XPutPixel.d
+.LP
+.so ../Xdescrip/XSubImage.d
+.LP
+.so ../Xdescrip/XAddPixel.d
+.LP
+.so ../Xdescrip/XDestImage.d
+.SH "SEE ALSO"
+XPutImage(3X)
+.br
+\fIXlib \- C Language X Interface\fP

@@ -1,0 +1,7 @@
+.\" $Header: visual.a,v 1.1 87/09/28 13:17:49 mento Exp $
+.IP \fIvisual\fP 1i
+Specifies the visual type.
+A visual of 
+.PN CopyFromParent 
+means the visual type is taken from the 
+parent.

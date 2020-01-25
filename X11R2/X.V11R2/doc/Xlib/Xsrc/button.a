@@ -1,0 +1,4 @@
+.\" $Header: button.a,v 1.1 87/09/28 12:53:31 mento Exp $
+.IP \fIbutton_grab\fP 1i
+Specifies the pointer button that is to be grabbed when the specified
+modifier keys are down.

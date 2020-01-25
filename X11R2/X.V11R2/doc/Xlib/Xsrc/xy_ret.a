@@ -1,0 +1,6 @@
+.\" $Header: xy_ret.a,v 1.1 87/09/28 13:20:16 mento Exp $
+.IP \fIx_return\fP 1i
+.br
+.ns
+.IP \fIy_return\fP 1i
+Returns the xoffset and yoffset determined.

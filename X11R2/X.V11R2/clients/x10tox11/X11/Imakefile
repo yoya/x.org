@@ -1,0 +1,11 @@
+       SRCS = subr.c proto1.c proto2.c proto3.c proto4.c data.c debug.c \
+	      image.c eventdebug.c events.c sequence.c window.c
+       OBJS = subr.o proto1.o proto2.o proto3.o proto4.o data.o debug.o \
+	      image.o eventdebug.o events.o sequence.o window.o
+    DEFINES = -DDEBUG -DDUALTCP
+   INCLUDES = -I. -I$(TOP)
+
+NormalLibraryTarget(X11,$(OBJS))
+LintLibraryTarget(X11,$(SRCS))
+
+DependTarget()

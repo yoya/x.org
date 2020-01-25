@@ -1,0 +1,45 @@
+.TH XDrawPoint 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XDrawPoint, XDrawPoints \- draw points
+.SH SYNTAX
+.so ../Xsrc/XPoint.f
+.LP
+.so ../Xsrc/XPoints.f
+.SH ARGUMENTS
+.so ../Xsrc/d.a
+.so ../Xsrc/display.a
+.so ../Xsrc/gc.a
+.so ../Xsrc/mode.a
+.so ../Xsrc/npoints.a
+.so ../Xsrc/points.a
+.so ../Xsrc/xy_point.a
+.SH DESCRIPTION
+.so ../Xdescrip/XPoint.d
+.LP
+.ds fd .PN XDrawPoint
+.so ../Xsrc/errsent.com
+.PN BadDrawable ,
+.PN BadGC ,
+and 
+.PN BadMatch 
+errors.
+.ds fe .PN XDrawPoints
+.so ../Xsrc/errsent.com
+.PN BadDrawable ,
+.PN BadGC ,
+.PN BadMatch ,
+and
+.PN BadValue 
+errors.
+.SH DIAGNOSTICS
+.so ../Xerrors/baddrawable.e
+.so ../Xerrors/badgc.e
+.so ../Xerrors/badmatch1.e
+.so ../Xerrors/badmatch2.e
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+XDrawArc(3X),
+XDrawLine(3X),
+XDrawRectangle(3X)
+.br
+\fIXlib \- C Language X Interface\fP

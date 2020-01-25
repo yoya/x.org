@@ -1,0 +1,3 @@
+.\" $Header: type_err.a,v 1.1 87/09/28 13:15:29 mento Exp $
+.IP \fImessage\fP 1i
+Specifies the type of the error message.

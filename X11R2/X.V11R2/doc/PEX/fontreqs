@@ -1,0 +1,196 @@
+.AC "Font Requests" 1
+.LP
+.RU
+.LP
+The PEX font manipulation mechanisms are the same mechanisms as those 
+used for X11 fonts.  The font resource is the same font resource created
+by (and managed by) X11.  Fonts that are used with PEX string precision
+text require more functionality than is currently found in X11 fonts.
+Specifically, string precision text requires scaleable and rotatable
+text fonts.  Because of the added capabilities of these fonts, PEX
+has defined additional query routines that may be used to obtain
+information about fonts.
+.LP
+The following X11 requests are used to manipulate
+font resources (for more details, see the
+\fIX Window System Protocol, Version 11\fP).
+.DS
+	SetFontPath(LISTofSTRING)
+	GetFontPath(LISTofSTRING)
+	ListFonts(STRING,CARD8,LISTofSTRING)
+	OpenFont(FONT,STRING)
+	CloseFont(FONT)
+.DE     
+.LP
+However, because of the inherent differences in the realizations
+of scaleable fonts and the fact that some of the font metrics of such
+fonts are in floating point format, the following X11
+font requests have been augmented:
+.DS
+ 
+	QueryFont augmented by PEXQueryFont
+	ListFontsWithInfo augmented by PEXListFontsWithInfo
+	QueryTextExtents augmented by PEXQueryTextExtents
+ 
+.DE           
+.bp
+.AC "PEX Font Inquiry" 2
+.LP
+The PEX font requests generate replies with logical information specific
+to a font.  The information is encoded in the following data structures.
+.LP
+The PEX_CHARINFO is specified for each glyph of the font and
+is defined as:
+.DS
+ 
+	left_bearing		: FLOAT
+	right_bearing	: FLOAT
+	width			: FLOAT
+	ascent		: FLOAT
+	descent		: FLOAT
+ 
+.DE
+.LP
+The PEX_FONTPROP is defined as:
+.DS
+ 
+	name			: ATOM
+	value			: {CARD32 or CARD64 or FLOAT}
+ 
+.DE           
+.LP
+The PEX_FONTINFO is defined as:
+.DS
+ 
+	first_glyph		: CARD16
+	last_glyph		: CARD16
+	all_glyph_exist	: BOOLEAN
+ 	default_glyph	: CARD16
+	min_bounds		: PEX_CHARINFO
+	max_bounds	: PEX_CHARINFO
+	cap_ratio		: FLOAT
+	base_ratio		: FLOAT
+	properties		: LISTofPEX_FONTPROP
+ 
+.DE
+.LP
+The \fIfirst_glyph\fP, \fIlast_glyph\fP, and \fIdefault_glyph\fP
+are either 1 byte or 2 byte indices to the first glyph, last
+glyph and default glyph of the font.  The \fIdefault_glyph\fP
+specifies the glyph that will be used when an undefined or non-existent
+glyph is used.  If \fIall_glyphs_exist\fP is True, then all glyphs
+within the range of \fIfirst_glyph\fP and \fIlast_glyph\fP have non-zero
+bounded boxes (as specified by PEX_CHARINFO).  
+The \fImin_bounds\fP and \fImax_bounds\fP contain the minimum  and maximum
+values of each individual PEX_CHARINFO component over all glyphs of the
+font.  The bounded box of the font is given by:
+.DS
+ 
+	x		: min_bounds.left_bearing
+	y		: max_bounds.right_bearing
+	width		: max_bounds.right_bearing - min_bounds.left_bearing
+	height	: max_bounds.ascent + max_bounds.descent
+ 
+.DE
+where \fIx\fP and \fIy\fP are the lower left corner of the box, relative
+to the origin.
+The \fIcap_ratio\fP is the
+ratio of the distance between the cap and top lines, to the distance 
+between the base and cap lines.  The \fIbase_ratio\fP is the
+ratio of the distance between the bottom and base lines, to the
+distance between the base and cap lines.
+.LP
+A font is
+not guaranteed to have any \fIproperties\fP.  
+Whether a property value
+is a signed, unsigned or float must be derived from an a priori 
+knowledge of the property.
+                               
+.bp
+.AC "Query PEX Font" 3
+.Fs
+.Na PEXQueryFont
+.Rq      
+.Pa format FORMAT
+.Pa f_id FONT_ID
+.Re
+.Pa font_info PEX_FONTINFO
+.Pa char_info LISTofPEX_CHARINFO
+.Se
+Font
+.Ds                     
+This request generates a reply which contains the logical information
+about a font.
+.Fe
+
+
+.AC "List Fonts with Info" 3
+.Fs
+.Na PEXListFontsWithInfo
+.Rq                    
+.Pa format FORMAT
+.Pa pattern STRING
+.Pa max_names CARD16
+.Re
+.Pa fonts LISTofPEX_FONTDATA
+.Se
+None
+.Ds 
+Like X11 \fBListFonts\fP except that this also returns information about
+each font found.  The information returned for each font is identical
+to what \fBPEXQueryFont\fP would return except that the per-glyph
+metrics are NOT returned.
+.LP
+The item PEX_FONTDATA is defined as:
+.DS
+ 
+	PEX_FONTDATA 	: [name : STRING,
+						    info : PEX_FONTINFO]
+ 
+.DE
+.Fe
+ 
+ 
+.bp
+.AC "Query Text Extents" 3
+.Fs
+.Na PEXQueryTextExtents
+.Rq         
+.Pa format FORMAT
+.Pa f_id FONT_ID
+.Pa pc_id PIPELINE_CONTEXT_ID
+.Pa string STRING
+.Re                  
+.Pa overall_ascent FLOAT
+.Pa overall_descent FLOAT
+.Pa overall_left FLOAT
+.Pa overall_right FLOAT
+.Pa concat_point COORD_2D
+.Se
+PipelineContext, Font
+.Ds                     
+This request generates a reply which contains the logical 
+extents of the specified \fIstring\fP of glyphs.   The extents
+are computed using the font specified by \fIf_id\fP and the
+text attributes in the pipeline context specified by \fIpc_id\fP.
+.LP
+The \fIoverall_ascent\fP is the maximum ascent 
+metrics of all glyphs in the string, and \fIoverall_descent\fP is
+the maximum of the descent metrics.  The \fIoverall_width\fP is the
+sum of the glyph width metrics of all glyphs in the string.
+For each glyph in \fIstring\fP, let \fIW\fP be the sum of the
+glyph width metrics of all glyphs preceding the string,
+let \fIL\fP be the \fIleft_bearing\fP metric of the glyph plus
+\fIW\fP, and let \fIR\fP be the \fIright_bearing\fP metric of the glyph
+plus \fIW\fP.  The \fIoverall_left\fP is the minimum \fIL\fP of
+all glyphs in the \fIstring\fP, and \fIoverall_right\fP is
+the maximum \fIR\fP.  All values are returned in modeling coordinates,
+relative to a text origin of (0,0).
+.LP
+The \fIconcat_point\fP returns the point where the next glyph
+should go if the string is to be extended. This is in modeling coordinates.
+.LP
+If the font specified
+has no defined \fIdefault_glyph\fP, then undefined glyphs
+in \fIstring\fP are taken to have all zero metrics.
+.Fe

@@ -1,0 +1,48 @@
+.TH XGrabButton 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XGrabButton, XUngrabButton \- manipulate the pointer
+.SH SYNTAX
+.so ../Xsrc/XGrabButton.f
+.LP
+.so ../Xsrc/XUngrabBut.f
+.SH ARGUMENTS
+.so ../Xsrc/button.a
+.so ../Xsrc/button2.a
+.so ../Xsrc/confineto.a
+.so ../Xsrc/cursor_grab.a
+.so ../Xsrc/display.a
+.so ../Xsrc/pointermask.a
+.so ../Xsrc/grab_win.a
+.so ../Xsrc/keybdmode.a
+.so ../Xsrc/modifiers.a
+.so ../Xsrc/ownerevents2.a
+.so ../Xsrc/pointermode.a
+.so ../Xsrc/ungrab_win.a
+.SH DESCRIPTION
+.so ../Xdescrip/XGrabButton.d
+.ds fd .PN XGrabButton
+.so ../Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadCursor ,
+.PN BadValue ,
+and
+.PN BadWindow 
+errors.
+.LP
+.so ../Xdescrip/XUngrabBut.d
+.ds fd .PN XUngrabButton
+.so ../Xsrc/errsent4.com
+.PN BadWindow 
+error.
+.SH DIAGNOSTICS
+.so ../Xerrors/badaccess1.e
+.so ../Xerrors/badcursor.e
+.so ../Xerrors/badvalue.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XAllowEvents(3X),
+XGrabPointer(3X),
+XGrabKey(3X),
+XGrabKeyboard(3X),
+.br
+\fIXlib \- C Language X Interface\fP

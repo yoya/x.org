@@ -1,0 +1,43 @@
+.TH XRecolorCursor 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XRecolorCursor, XFreeCursor, XQueryBestCursor \- manipulate cursors
+.SH SYNTAX
+.so ../Xsrc/XRecolorCurs.f
+.LP
+.so ../Xsrc/XFreeCursor.f
+.LP
+.so ../Xsrc/XQryCrsrSh.f
+.SH ARGUMENTS
+.so ../Xsrc/bcolor.a
+.so ../Xsrc/cursor.a
+.so ../Xsrc/d.a
+.so ../Xsrc/display.a
+.so ../Xsrc/scolor.a
+.so ../Xsrc/widtheight5.a
+.so ../Xsrc/rwidtheight2.a
+.SH DESCRIPTION
+.so ../Xdescrip/XRecolorCurs.d
+.ds fd .PN XRecolorCursor
+.so ../Xsrc/errsent4.com
+.PN BadCursor 
+error.
+.LP
+.so ../Xdescrip/XFreeCursor.d
+.ds fd .PN XFreeCursor
+.so ../Xsrc/errsent4.com
+.PN BadCursor 
+error.
+.LP
+.so ../Xdescrip/XQryCrsrSh.d
+.ds fd .PN XQueryBestCursor
+.so ../Xsrc/errsent4.com
+.PN BadDrawable 
+error.
+.SH DIAGNOSTICS
+.so ../Xerrors/badcursor.e
+.so ../Xerrors/baddrawable.e
+.SH "SEE ALSO"
+XCreateFontCursor(3X),
+XDefineCusor(3X)
+.br
+\fIXlib \- C Language X Interface\fP

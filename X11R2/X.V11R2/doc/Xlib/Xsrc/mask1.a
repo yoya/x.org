@@ -1,0 +1,3 @@
+.\" $Header: mask1.a,v 1.1 87/09/28 13:06:53 mento Exp $
+.IP \fImask_return\fP 1i
+Returns the current state of the modifier keys and pointer buttons.

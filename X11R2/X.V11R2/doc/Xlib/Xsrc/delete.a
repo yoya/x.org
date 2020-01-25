@@ -1,0 +1,9 @@
+.\" $Header: delete.a,v 1.1 87/09/28 12:57:04 mento Exp $
+.IP \fIdelete\fP 1i
+.IN "Property" "Deleting"
+Specifies a boolean value that determines whether the property is deleted
+from the window.
+You can pass one of these constants:
+.PN True
+or
+.PN False .

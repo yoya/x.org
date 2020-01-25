@@ -1,0 +1,6 @@
+.\" $Header: destxy2.a,v 1.1 87/09/28 12:57:19 mento Exp $
+.IP \fIdest_x\fP 1i
+.br
+.ns
+.IP \fIdest_y\fP 1i
+Specify the x and y coordinates within the destination window.

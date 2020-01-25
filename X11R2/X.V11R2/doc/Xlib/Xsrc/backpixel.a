@@ -1,0 +1,4 @@
+.\" $Header: backpixel.a,v 1.2 88/02/10 06:41:00 mento Exp $
+.IP \fIbackground\fP 1i
+Specifies the background pixel value of the window.
+

@@ -1,0 +1,7 @@
+.\" $Header: allowexpret.a,v 1.1 87/09/28 11:00:31 mento Exp $
+.IP \fIallow_exposures_return\fP 1i
+Returns the current screen save control value:
+.PN DontAllowExposures ,
+.PN AllowExposures ,
+or
+.PN DefaultExposures .

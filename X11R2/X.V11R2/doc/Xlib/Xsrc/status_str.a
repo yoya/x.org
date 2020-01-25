@@ -1,0 +1,6 @@
+.IP \fIstatus_return\fP 1i
+Specifies either a pointer to the 
+.PN XCompose 
+structure that is to contain compose key state information and 
+that allows compose key processing to take place, or
+.PN NULL .

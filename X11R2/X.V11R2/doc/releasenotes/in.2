@@ -1,0 +1,710 @@
+.NH 1
+Installation
+.LP
+This release contains two separate distributions:
+one for the software that is supported by the staff of the X Consortium, 
+and one for everything else.
+Great pains have been taken to make the supported distribution
+easy to reconfigure, build
+and install on a wide range of platforms.
+.LP
+In this release, most Makefiles are generated automatically by a utility called
+\fIimake\fP.  Initial versions of all of the Makefiles are included
+for those sites that cannot use \fIimake\fP (however, they will undoubtedly
+require patching for your specific machine).  On many systems, X should build 
+correctedly right off the tape.  However, it can
+be reconfigured by changing the parameters in
+the various files in \fIutil/imake.includes/\fP.  To build
+this release of the X Window System, you will need to:
+.\".ll -5
+.\".in +5
+.ne 4
+.IP 1.
+Finish reading these Release Notes.
+.IP 2.
+Create a directory into which you will read the distribution tapes.  
+\fBUnlike previous distributions, the top level directory is
+``.'', not ``X.V11R2''.\fP  Depending on which of the
+four \fItar(1)\fP files you read in, you will need anywhere from 20 to 60
+megabytes for the sources.  Compiling these sources will require an
+additional 20 megabytes for the supported distribution, and
+30 for the user-contributed distribution.
+.IP 3.
+In the directory you just created, read in the desired \fItar(1)\fP
+files.  There are two archives per distribution: the first contains source
+code and the second contains printable versions of documentation (PostScript,
+dvi, runoff, and plain text).  The first
+distribution must always be loaded as it contains the tools, include files, 
+and libraries needed to build the release.  
+.IP 4.
+Check the files \fIutil/imake.includes/Imake.tmpl\fP and 
+\fIutil/imake.includes/*.macros\fP for the machines on which you will be
+building the release.  The configuration parameters found in these
+files control which parts of the release are built as well as directories
+into which the libraries, programs, and data files will be installed.
+The default values have choosen to 
+make this release easy to install on a wide range of machines, including
+systems with Version 10 of X.
+.IP 5.
+If you don't have a lot of 
+space on the file system containing the sources, or if you 
+think that you might want to compile the release on several machines
+using a distributed file system,
+you might want to consider using a shadow source tree containing links back 
+to the main sources (soft links are best; there is a script in 
+\fIutil/lndir.sh\fP to do this).  The phrase \fIbuild tree\fP will be used
+to refer to the directory tree in which compiles are actually done in case
+it is different from the source tree.
+.IP 6.
+Go to the top of the build tree.  If you are not using one of the systems
+for which \fIimake\fP has already been configured, you may wish to save a copy
+of the Makefiles that have been provided.
+.IP 7.
+Additional instructions for particular machines or servers can be found in
+the README files in the \fIserver/ddx/\fBmachine\fI/\fR directories.
+.IP 8.
+Once you are satisfied with the configuration, type
+``make World >& make.world &'' (do not call the output file
+\fImake.log\fP as the ``World'' phase does a ``make clean,'' which deletes
+any file with this name).  The \fIimake\fP and \fImakedepend\fP utilities will
+be created, along with all of the Makefiles and necessary Makefile
+dependencies.  Finally, a ``make -k'' will be done for the entire tree.
+This last step will take anywhere from 2 to 12 hours, depending on your
+machine. 
+.IP 9.
+When the \fImake\fP is done, check the log file for any problems.  Then
+test the critical programs (servers, \fIxterm\fP, \fIxinit\fP,
+etc.) by hand.
+.IP 10.
+Make backup copies of your old X header files, binaries, libraries, etc.
+.IP 11.
+At the top of the build tree, 
+type ``make install >& make.install.''
+You will either have to do this as root, or have created all of the appropriate
+directories (see \fIutil/imake.includes/Imake.tmpl\fP) with write access.  The
+\fIxterm\fP program should be installed setuid to root on most systems.
+.IP 12.
+\fBAdd the new ``-display'' and ``-geometry'' command line arguments to any 
+local programs, scripts, or /etc/ttys entries.\fP
+.\".in -5
+.\".ll +5
+.LP
+If you are installing X for the first time, you may need to do the 
+following.  Check the various README files in the \fIserver/ddx\fP directories
+for additional instructions.
+.\".ll -5
+.\".in +5
+.IP 13.
+Add device drivers or reconfigure your kernel.
+.IP 14.
+Create additional pseudoterminals.
+.IP 15.
+Rename pseudoterminals if you have an \fI/etc/init\fP that supports
+window systems, and add the appropriate lines to \fI/etc/ttys\fP
+(see \fIserver/Xserver.man\fP).
+.IP 16.
+Have all X11 users add the directory specified by the BINDIR configuration
+parameter defined in \fIutil/imake.includes/Imake.tmpl\fP (which is
+\fI/usr/bin/X11\fP, by default) to their search paths.
+.\".in -5
+.\".ll +5
+.LP
+The second release of Version 11 of the X Window System should now be ready
+to use.
+.NH 2
+Prerequisites
+.LP
+This release has been used on the following operating systems:
+.DS
+4.3bsd
+Ultrix 2.0
+SunOS 3.4
+HP-UX 6.01
+Apollo Domain/IX 9.7 (and 9.6 according to its developers)
+IBM 4.3bsd (according its developers)
+.DE
+If you are using versions prior to these, you may run into trouble.
+In particular, the server will not run on IBM 4.2A release 2.  The various
+README files in \fIserver/ddx/\fBmachine\fI/\fR describe particular
+requirements  such as compilers, libraries, preprocessors, etc.  Unfortunately,
+we were not able to test building or running on the IBM PC/RT for this release.
+.LP
+Make sure that your networking and interprocess 
+communication facilities are working properly \fBBEFORE\fP trying to use X.
+If programs such as \fItalk(1)\fP and \fIrlogin(1)\fP don't work, X probably
+won't either.
+.NH 2
+Loading the Distribution
+.LP
+The two distributions in this release are available on
+2400 foot, 1600 BPI magnetic tapes from the MIT Software Distribution Center.
+Each distribution contains
+two \fItar(1)\fP files -- one for source code, the another for 
+printable versions of the documentation -- so that sites with limited 
+disk space can load sections of the release easily.
+The files in all of the archives are stored with paths relative to ``.''
+(not ``X.V11R2'') and fit together to form a single source tree (the 
+user-contributed distribution forms the \fIcontrib/\fP branch).
+.LP
+Before reading in the tapes, make sure that you have enough disk space.  Both
+distributions together will occupy roughly 60 megabytes, although you can save
+17 megabytes by not loading the printable versions of the documentation.  
+The following chart 
+summarizes the sizes of the four \fItar(1)\fP archives:
+.sp
+.\"    tbl me!
+.TS
+center tab (/) ;
+l c c c c l .
+Distribution/Archive/Contents/megabytes/needed
+
+supported/1/source code/20/required
+supported/2/printable documentation/7/optional
+contributed/1/source code/22/recommended
+contributed/2/printable documentation/10/optional
+.TE
+Compiling this release requires roughly 20 megabytes for the supported 
+distribution and 30 megabytes for the user-contributed distribution (which is
+why you might want to build \fIcontrib/\fP by hand).  If you 
+are going to load all four archives, and build both distributions, you will 
+probably need around 120 megabytes of disk space.
+.LP
+Create the directory into which you will put all of the sources.  In this 
+directory, execute the appropriate operating system commands to read in the
+tapes.  On machines on which the default \fItar(1)\fP device is a 1600 BPI
+tape drive, type:
+.DS
+%  mkdir /bigdisk/X
+%  cd /bigdisk/X
+%  tar x
+.DE
+See your system administrator for help.
+.NH 2
+Symbolic Links
+.LP
+This release uses links (symbolic, on machines that support them) in 
+several places to avoid duplication of certain files (mostly header files).  
+If you are building this release on a system
+for which configuration files have not been supplied, you should check
+the LN configuration parameter in the appropriate
+\fIutil/imake.includes/*.macros\fP file (described below).  If your operating
+system does not support soft links, LN should be set either to create hard
+links or to copy the source file.
+.LP
+To move the release to another machine after it has been built, use
+\fItar(1)\fP instead of \fIcp(1)\fP or \fIrcp(1)\fP so that you 
+preserve dates and links.  This is usually done with a command of the form:
+.DS
+%  (chdir /bigdisk/X; tar cf - .) | rsh othermachine "(chdir /moredisk/X; tar xpBf -)"
+.DE
+See your system administrator for help.
+.NH 2
+Configuring the Release
+.LP
+Although Makefiles provide a good start at keeping machine 
+dependencies out of the source code, they are highly redundant, prone
+to error, are not easily configurable.
+.NH 3
+Imake
+.LP
+To make the build process portable as well as easy to maintain and configure, 
+this release of X uses a tool called \fIimake\fP to automatically generate
+Makefiles from machine dependent configuration files, machine independent sets
+of rules, and simple, concise descriptions of the input sources and output
+targets.  It uses the C preprocessor to provide symbolic names, macro 
+functions and conditionals, allowing common tasks to be defined just once 
+for the entire build.  The release is controlled by the following files:
+.IP "\fIutil/imake.includes/Imake.tmpl\fP"
+.br
+This is the template that is used to generate all of the Makefiles, and
+contains all of the \fImake\fP macros and phases that should appear in 
+every Makefile.  This is where the various the directories into which
+programs, libraries, and header files should be installed are specified.
+.IP "\fIutil/imake.includes/Imake.rules\fP"
+.br
+This is where commonly used preprocessor macro functions 
+are defined.  Unless you are adding
+a new type of operation to the distribution, you should not change this file.
+.IP "\fIutil/imake.includes/*.macros\fP"
+.br
+These files are where the definitions for various symbolic
+names and configuration parameters are specified.  There is one \fI\.macros\fP
+for each machine supported in this distribution.  These parameters control
+compiler flags, specific utility program names, the types of
+libraries to be built, and the types of files to be installed.
+.IP "\fIserver/include/site.h\fP"
+This file contains default values for various server configuration
+parameters.  Most of these settings can be altered using command line switches
+and environment variables when starting the server.  
+.LP
+If you have one of the machines that has been tested for this release
+and are satisfied with the defaults, no changes should be necessary.
+If you are building X on a machine for which the appropriate \fI\.macros\fP file
+has not been supplied, study the \fIimake\fP manual page and the 
+other \fI\.macros\fP files very carefully.
+.LP
+There is a slight bootstrapping problem with \fIimake\fP.  It is a sufficiently
+complex program that it needs special command line flags on certain machines,
+information that is normally determined by \fIimake\fP!  For this reason,
+the \fIMakefile\fP for
+\fIimake\fP uses a trivial program that should be compilable on every system
+to obtain the appropriate compiler flags.  If you are porting to a new machine,
+you may need to 
+edit the file \fIutil/imake/ccflags.c\fP.
+.NH 3
+Setting the Installation Directories in Imake.tmpl
+.LP
+This release uses symbolic names for all data and installation directories 
+so that a site may reconfigure the distribution without changing any
+source code.  These symbolic names are stored in the \fIimake\fP template file
+\fIutil/imake.includes/Imake.tmpl\fP.  To change the defaults
+(\fI/usr/include/X11/\fP, \fI/usr/bin/X11/\fP, and \fI/usr/lib/X11/fonts/\fP),
+edit the template file and do a ``make World'' from the top of the build tree.
+(``make Everything'' might be sufficient, but this has not been fully tested).
+It is important not only to remake the Makefiles, but to recompile all of
+the various libraries and programs, since some of the programs require
+pathnames for certain data files.  
+.LP
+The \fIImake.tmpl\fP file contains the following configuration parameters:
+.\".ll -5
+.\".in +5
+.IP "USRLIBDIR = $(DESTDIR)/usr/lib"
+.br
+This is the directory into which library archives will be installed.  The
+DESTDIR macro is defined in the \fI\.macros\fP file for this machine 
+and should not be removed.
+.IP "BINDIR = $(DESTDIR)/usr/bin/X11"
+.br
+This is the directory into which executable programs will be installed.  This
+location should be distinct from any place where X10 binaries might be
+found so that there are no conflicts.  The DESTDIR macro should not be
+removed.
+.IP "LIBDIR = $(USRLIBDIR)/X11"
+.br
+This is the directory into which X specific data files will be installed
+(for example, the rgb data base and the XErrorDB resource file).  This
+location should be distinct from any place where X10 data files might
+be found so that there are no conflicts.
+.IP "LINTLIBDIR = $(USRLIBDIR)/lint"
+.br
+If the InstallLintLibs configuration parameter in the 
+appropriate \fI\.macros\fP file is 
+set to YES, lint libraries will be created and installed into this directory.
+.IP "INCDIR = $(DESTDIR)/usr/include/X11"
+.br
+This is the directory into which header files will be installed.  No matter
+where it is located, it \fBmust\fP end in ``X11'' as all X programs now use
+``#include <X11/\fIfile\fP>'' to avoid conflicts with
+X10.  \fBPrograms that do not use <X11/\fIfile\fP> will not compile.\fR
+The DESTDIR macro should not be removed.
+.IP "FONTDIR = $(LIBDIR)/fonts"
+.br
+This is the directory into which fonts in server natural format (i.e. compiled)
+will be installed.  This location should be distinct from any place in which
+X10 fonts might be found to avoid confusion since the formats are not
+compatible. 
+.IP "UWMDIR = $(LIBDIR)/uwm"
+.br
+This is the directory into which site-wide \fIuwm\fP default files should be
+installed.
+.IP "MANDIR = $(DESTDIR)/usr/man/man/**/ManSuffix"
+.br
+If the InstallManPages configuration parameter in the 
+appropriate \fI\.macros\fP file is
+set to YES, manual pages will be installed into this directory.
+The DESTDIR macro and man/**/ManSuffix name should not be removed.
+.IP "XAPPLOADDIR = $(LIBDIR)/app-defaults"
+.br
+If the InstallAppDefFiles configuration parameter in the 
+appropriate \fI\.macros\fP file
+is set to YES, default resource files for applications that use the
+X Toolkit will be installed into this directory.
+.IP "ADMDIR = $(DESTDIR)/usr/adm"
+.br
+This is the directory in which the server will create its log file.  The
+DESTDIR macro should not be removed.
+.IP "RM_CMD = $(RM) ..."
+.br
+This is the command that should be executed to delete files during the
+``make clean'' phase.  The RM symbolic name is defined in the \fI\.macros\fP 
+file and should not be removed.
+.\".in -5
+.\".ll +5
+.LP
+The remaining definitions should not be changed.
+.NH 3
+Configuration Parameters in *.macros
+.LP
+The configuration parameters listed below determine the programs and
+command line options to be used in building and installing this release.
+.\".ll -5
+.\".in +5
+.IP "SHELL = /bin/sh"
+.br
+This definition specifies that the Bourne shell should be used to execute
+Makefile commands.  On some machines (particularly, System V), \fImake\fP
+will use the program listed in the SHELL environment if this line is not
+present.
+.IP "TOP = TOPDIR"
+.br
+This definition is used to set name the top of the build tree.  TOPDIR is a 
+macro that is passed in from the original Makefile as ``.'' so that all 
+references within the build process are relative paths.  This parameter should 
+\fBnever\fP be changed.
+.IP "\fIPROGRAM\fP = \fIprogram\fP"
+.br
+Instead of hardcoding in the names of various system specific programs,
+this release uses \fImake\fP macros for most of the common
+operations.  This allows you to easily specify particular version programs 
+(such as ``INSTALL = /bigdisk/X/util/bsdinst.sh'' on System V) or
+add command line switches without having to play games with setting up
+special search paths.  There are definitions for AS (assembler), CC (C
+compiler), CPP (C preprocessor), LD (loader), LINT (program checker), INSTALL
+(for copying files from the build tree into the destination tree),
+TAGS (for generating indexed tags files), RM (removing files, -f is usually
+useful), MV (moving files), LN (linking files, machines without symbolic
+links might want to provide a special program), RANLIB (object library sorter),
+AR (command line for creating object libraries), LS (list files), PAS (pascal
+compiler), and MAKE (real make program).
+.IP "LINTOPTS = \fIflags\fP"
+.br
+This is where any special \fIlint\fP flags should be specified.
+.IP "LINTLIBFLAG = \fIflag\fP"
+.br
+This is where the \fIlint\fP option needed to generate lint libraries should be
+specified.  It is usually ``-C'' or ``-o''.
+.IP "STD_DEFINES = \fI\...\fP"
+.br
+This is where any particular C preprocessor definition that should be
+passed to all invocations of the C compiler and the lint utility when building
+client  programs should be specified.  On most systems it is
+left blank, or else contains special compiler directives for setting internal
+tables sizes, etc.
+.IP "CDEBUGFLAGS = -O"
+.br
+This flag is passed to both the C compiler and the loader when building 
+client programs and is usually used to turn on optimizing or debugging.
+.IP "DESTDIR = "
+.br
+This specifies a destination root directory for the 
+``make install'' phases.  It is prepended to every INSTALL target filename
+so that multiple builds and installs can be done on a single machine.
+.\".in -5
+.\".ll +5
+.LP
+In addition to defining \fImake\fP parameters, the \fI\.macros\fP file is used
+to specify machine-dependent configuration information.  In particular, this
+is where you indicate which servers to build, along with whether or not
+debuggable and profilable versions of the standard libraries should be 
+created.  Since these are preprocessor macros, they are evaluated when 
+\fIimake\fP is run, and therefore cannot be overridden from
+the \fImake\fP command line.  If you change any of these parameters, you 
+should rebuild the entire release.
+.LP
+This release is configured to only create optimized versions of
+the libraries and clients, and to create all 
+servers that will run on a
+given machine (i.e. on a Vax, both the QDSS and QVSS servers are built;
+on a Sun, one server for al supported displays is built).  This behavior
+is controlled by the various preprocessor symbols defined in the \fI*.macros\fP
+file and can be altered to fit your site's needs:
+.\".ll -5
+.\".in +5
+.IP "#define MakeContributed NO"
+.br
+This macro specifies whether or not the user-contributed distribution should
+be compiled whenever a full build is done.  Given the size and diversity of
+software in \fIcontrib/\fP, you might find it easier to build the parts you 
+want by hand.
+.IP "#define X\fImachine\fPServer"
+.br
+This macro specifies the servers created in builds on this type
+of machine.  These definitions are used in \fIserver/Imakefile\fP
+to generate the appropriate dependencies for the server Makefile.
+By default, this release will build one server
+on Apollos, IBM PC/RT's, Suns, and HP's, and two servers (QDSS and QVSS)
+on Vaxes.  You should only remove lines of this type if you won't be running
+the indicated kind of server.  This parameter has no effect on any of the
+programming libraries or client programs.
+.IP "#define LibraryDefines, #define LibraryCDebugFlags"
+.br
+These macros are used by some of the base level libraries (Xlib, Xt, and Xaw)
+to override STD_DEFINES
+and CDEBUGFLAGS so that you can create optimized libraries and debugable
+clients in the same build.  They are usually set to the same values as
+STD_DEFINES and CDEBUGFLAGS.
+.IP "#define ServerDefines, #define ServerCDebugFlags"
+.br
+The macros are used by the server to override STD_DEFINES
+and CDEBUGFLAGS so that you can create optimized servers and debugable
+clients in the same build.  They are usually set to the same values as
+STD_DEFINES and CDEBUGFLAGS.
+.IP "#define ConnectionFlags \fI\.\.\.\fP"
+.br
+This macro contains the list of connection types that are supported on this
+type of machine.  It is used in Xlib and in the server to configure the
+low level network handling.
+This release can use -DTCPCONN, -DUNIXCONN, and -DDNETCONN.
+.IP "#define ExtensionDefines"
+.br
+This macro specifies the extensions to be built.
+The only currently available extensions are -DZOID and -DBEZIER, both of
+which are not supported and are for demonstration purposes only.  This
+macro is usually left blank.
+.IP "#define InstallLintLibs YES"
+.br
+This macro indicates whether or not lint libraries should be created and 
+installed
+as part of the ``make install'' phase.  This release will
+install lint libraries by default.  If you don't need lint libraries, set 
+this macro to NO.
+.IP "#define InstallManPages YES"
+.br
+This macro indicates whether or not manual pages should be created and 
+installed
+as part of the ``make install'' phase.  This release will
+install manual pages by default.  After you've done one full install, you
+might want to set this to NO and rebuild all of the Makefiles
+so that you don't have to wait for the manual
+pages every time you ``make install.''
+.IP "#define InstallAppDefFiles YES"
+.br
+This macro indicates whether or not application default resource files
+should be installed in the XAPPLOADDIR directory (as defined in 
+\fIutil/imake.includes/Imake.tmpl\fP)
+as part of the ``make install'' phase.  This release will
+install all application default resource files by default.  After you have
+done one full install and you've changed any of the installed files, you might
+want to set this to NO to prevent those files from being overwritten.
+.IP "#define DebugLib\fIlib\fP NO, #define ProfileLib\fIlib\fP NO"
+.br
+These macros are used to determine which libraries should be created during the
+build.  This release normally only generates optimized, non-profilable
+libraries.  To have any of the optional libraries created, set the appropriate
+macro to YES.
+.IP "/* #define CppSourcesPresent /usr/src/lib/cpp */"
+.br
+If this macro is defined, it specifies the location of sources for the Berkeley
+C preprocessor.  This is used by \fImakedepend\fP to provide extra features.
+It is not necessary for normal use and, by default, is not used 
+in this release.
+.IP "#define ManSuffix n"
+.br
+This macro is used when installing manual pages.  It should be set to 
+``[\fItab\fP][\fI?\fP]'' where [\fI?\fP] provides the correct section
+and extension for manual pages (see the 
+MANDIR \fImake\fP macro defined in \fIImake.tmpl\fP).
+There must be only one tab between the ManSuffix and the character.
+By default, this release will install manual pages in section \fIn\fP.
+.IP "/* define ConstructMFLAGS */
+.br
+This macro should only be defined if your \fImake\fP has the MAKEFLAGS macro
+but not the MFLAGS macro.  None of the servers in this release require this.
+.\".in -5
+.\".ll +5
+.LP
+Any machine-specific configuration parameters should also be defined in the
+machine's .macros file.  See the individual configurations and any
+README files in the \fIserver/ddx/\fBmachine\fI/\fR directories for more 
+details.
+.NH 2
+Building the Release
+.LP
+Once the configuration parameters are set, you should be able to go back to
+the top of the build tree and type ``make World >& make.world &'' to 
+build the release.  Don't redirect the output to ``make.log'' as this
+particular file is deleted as part of the build process.
+This will take anywhere from 2 to 12 hours, depending on the machine used,
+and should complete without any errors on most machines.
+.LP
+If you detect any problems, you should always be able to restart the build
+by typing ``make -k >& make.out &'' at the top of the build tree (the ``-k''
+indicates to \fImake\fP that it should continue on after errors instead of
+aborting).  The
+``make World'' phase should generate all of the Makefiles and create the 
+necessary dependencies.
+.NH 2
+Installing the Results of the Build
+.LP
+As root, go to the top of the build tree and type:
+.DS
+#  make install
+.DE
+If you would rather not do the installation as root, make the necessary
+directories writable by you and do the install from your account.  On most
+systems, \fIxterm\fP should be made setuid to root so that it can 
+allocate pseudoterminals and update \fI/etc/utmp\fP.
+.LP
+If your \fI/etc/termcap\fP and \fI/etc/terminfo\fP databases 
+don't have entries for \fIxterm\fP, install the sample entries provided in
+the \fIclients/xterm/\fP directory.
+.LP
+The \fIxinit(1)\fP program expects that the appropriate server will be 
+installed
+as ``X'' on your machine.  Either rename the server executable, create a link,
+or use the appropriate \fIxinit(1)\fP options.  All X11 users should make sure
+that they have the directory specified by the BINDIR configuration parameter in
+\fIutil/imake.includes/Imake.tmpl\fP (by default, \fI/usr/bin/X11\fP) in their
+search paths.
+.NH 2
+Kernels and Special Files
+.LP
+On some machines, it may be necessary to rebuild the kernel with a new
+device driver, or to at least reconfigure it.  Make sure that the CSR
+addresses in your kernel configuration file and on your hardware match.
+Then, make and install the new kernel and reboot.  Make sure that the
+kernel autoconfigures your display when booting.  
+.LP
+You may need to create special devices for your display, mouse, or keyboard.
+For example, 
+.DS
+#  /etc/mknod /dev/bell c 12 2	# for bell on Sun
+#  MAKEDEV displays		# for displays on the RT/PC
+.DE
+The protection modes on the display device files should be set so that only 
+the server can open them.  If the server is started by \fI/etc/init\fP, the
+protections can be root read/write, everyone else no access; otherwise, they 
+will have to be read/write for everyone for else your server will have to
+be setuid to root.
+.LP
+On a Digital QVSS (VaxStation II), you should use \fIadb\fP to make sure 
+that the kernel variable ``qv_def_scrn'' is set to 2 so that the full width
+of the VR-260 monitor is used (otherwise there will be an unused black strip 
+down the right edge of the screen).  This can be done by changing the
+value either in \fI/vmunix\fP directly or in \fI/sys/vaxuba/qv.o\fP and 
+relinking and reinstalling the kernel.  You will need to reboot for the new
+value to take effect.
+.LP
+For more information, see the appropriate README files and manual pages
+in the \fIserver/ddx/\fBmachine\fI/\fR directories.
+.NH 2
+Testing the Distribution
+.LP
+Even if your system supports running the window system from \fI/etc/init\fP, 
+you should first run it by hand from another terminal to 
+check that everything is installed and working properly.  Error messages
+from the X server will then appear on your terminal, rather than being written
+to \fI/usr/adm/X?msgs\fP (where \fI?\fP is the number of the display).  
+.LP
+The easiest way to test the server is to go to the directory specified by the
+BINDIR configuration parameter in \fIutil/includes/Imake.tmpl\fP (by default,
+\fI/usr/bin/X11\fP), and run the \fIxinit\fP program as follows:
+.DS
+%  cd /usr/bin/X11
+%  xinit &
+.DE
+If all is well, you should see a stipple pattern covering the screen,
+a cursor shaped like an ``X'' that tracks the pointer, and a terminal
+emulator window.  If the window doesn't appear or the cursor doesn't track
+the pointer, make sure that the \fIxterm\fP program is installed properly,
+that any appropriate system devices or configuration files are installed with
+the right protections, and that the font files have been installed.
+For more information, read the manual pages and README files
+in the appropriate \fIserver/ddx/\fBmachine\fI/\fR directory.
+.LP
+From the terminal emulator window, try running some of the other programs:
+.DS
+%  xclock -g 200x200-0+0 &
+%  wm &
+%  xlogo &
+...
+.DE
+.LP
+At this point, you should add the ``-display'' and ``-geometry'' command
+line options before any \fIhost:dpy\fP and \fI=geom\fP specifications in 
+any commands in X scripts, programs, \fI/etc/ttys\fP entries, etc.  
+Otherwise, the scripts will not work under the new release.
+.LP
+X should now be ready to use.
+.NH 2
+Creating Pseudoterminals
+.LP
+Since each \fIxterm\fP will need a pseudoterminal, you should create a
+large number of them
+(you probably will want at least 32 on a small, multiuser system).
+Each pty has two devices, a master and a slave, which are usually
+named /dev/tty[pqrstu][0-f] and
+/dev/pty[pqrstuv][0-f].  If you don't have at least the ``p'' and ``q'' lines
+configured (do an ``ls /dev''), you should have your system administrator add
+them.  This is often done by running the MAKEDEV script in \fI/dev\fP:
+.DS
+#  cd /dev
+#  ./MAKEDEV pty0
+#  ./MAKEDEV pty1
+...
+.DE
+.LP
+.NH 2
+Starting X from /etc/init
+.LP
+For displays on which X is used all of the time, it is convenient to have the
+window system started automatically when the system is booted.  
+Ultrix and 4.3bsd use a new, expanded
+format of the \fI/etc/ttys\fP configuration file that allows you to specify
+a window system and initial program (usually a terminal emulator or session
+manager) to be run.  If your system does not support this sort of 
+functionality, you can skip this section.
+.LP
+\fBWarning:\fP
+This part of the installation should only be done by a system administrator
+as you will be unable to login to the display if this is done wrong.  Before
+starting, make sure that you have read the \fIXserver(1)\fP manual page 
+(source for which may be found in \fIserver/Xserver.man\fP).
+.NH 3
+Setting up the ttyv Terminals
+.LP
+Since most versions of \fI/etc/init\fP require an actual terminal line per
+entry in \fI/etc/ttys\fP, you will need to dedicate one pseudoterminal 
+for each display.  Normally,
+\fIxterm\fP will dynamically allocate a pty, but when it is run with the
+``-L'' flag it will use the line passed to it by \fIinit(8)\fP.
+.LP
+By convention, the pseudoterminal pair with the highest minor device 
+number is renamed \fI[pt]tyv0\fP, the next highest \fI[pt]tyv1\fP, and so on 
+for as many login windows as will be needed.  The highest are chosen instead
+of the lowest so that they don't get in the way of the normal low to high
+search that most programs do when allocating a pty.  On a small 
+system that only
+has ``p'' and ``q'' pseudoterminals, the following commands might be used
+to set up ``v'' terminals for two displays:
+.DS
+#  cd /dev
+#  mv ttyqf ttyv0 ; mv ptyqf ptyv0
+#  mv ttyqe ttyv1 ; mv ptyqe ptyv1
+.DE
+See your system administrator for help.
+.LP
+.NH 3
+Adding Window System Entries to /etc/ttys
+.LP
+Once you have renamed the pseudoterminals, you can add entries for them
+in \fI/etc/ttys\fP.  Again, this only works on systems that have the new 
+4.3bsd format for starting window systems, not on older systems
+that use the 4.2bsd small entry format and \fI/etc/ttytype\fP.  If your machine
+does not have the new format, rename the ttyv's and ptyv's back and go on to
+the next section.
+.LP
+The \fIXserver(1)\fP manual page gives a more detailed description of 
+different ways to set up \fI/etc/ttys\fP
+entries (also see your system documentation).  Usually, the ttyv's
+placed at the bottom of the file and look something like this:
+.DS
+ttyv0 "/usr/bin/X11/xterm -L -geometry 80x24+0+0 :0" xterm off window="/usr/bin/X11/X :0"
+.DE
+Additional comand line options may be specified on either the \fIxterm\fP 
+command line
+or the \fIX\fP command line.  However, many versions of \fIinit\fP
+have fairly small program name buffers, limiting the length of the entry.  
+Also, some versions don't allow pound signs within entries, meaning that 
+arbitrary numeric color specifications cannot be given.  If either of these
+limitations becomes a problem, just write a small program that 
+calls \fIexec(2)\fP with desired program and command line.
+.LP
+Once you have added or changed any entries, you need to signal \fIinit\fP to
+reread \fI/etc/ttys\fP and restart.  This can be done as root by 
+typing the following command (case is significant):
+.DS
+#  kill -HUP 1
+.DE
+This will abort any existing processes on any changed lines before restarting,
+so it should only be done by a system administrator.

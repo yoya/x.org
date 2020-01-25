@@ -1,0 +1,5 @@
+.IP \fIevent\fP 1i
+Specifies a pointer to the 
+.PN XEvent
+structure.
+This structure is a union of the individual structures declared for each event type.

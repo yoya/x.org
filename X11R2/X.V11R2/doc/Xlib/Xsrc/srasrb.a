@@ -1,0 +1,6 @@
+.\" $Header: srasrb.a,v 1.1 87/09/28 13:13:35 mento Exp $
+.IP \fIsra\fP 1i
+.br
+.ns
+.IP \fIsrb\fP 1i
+Specify the two regions with which you want to perform the computation.

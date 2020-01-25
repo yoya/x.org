@@ -1,0 +1,5 @@
+.IP \fIpredecessor\fP 1i
+Specified the window ID from which to extract ancestor client name 
+and class information. 
+Although it is not a requirement, 
+this is typically the parent window of the client's window. 

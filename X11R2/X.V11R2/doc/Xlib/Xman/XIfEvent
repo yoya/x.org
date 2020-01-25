@@ -1,0 +1,25 @@
+.TH XIfEvent 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XIfEvent, XCheckIfEvent, XPeekIfEvent \- check the event queue
+.SH SYNTAX
+.so ../Xsrc/XIfEvent.f
+.LP
+.so ../Xsrc/XCkIfEvent.f
+.LP
+.so ../Xsrc/XPkIfEvent.f
+.SH ARGUMENTS
+.so ../Xsrc/args.a
+.so ../Xsrc/display.a
+.so ../Xsrc/event.a
+.so ../Xsrc/predicate.a
+.SH DESCRIPTION
+.so ../Xdescrip/XIfEvent.d
+.LP
+.so ../Xdescrip/XCkIfEvent.d
+.LP
+.so ../Xdescrip/XPkIfEvent.d
+.SH "SEE ALSO"
+XFlush(3X),
+XPutBackEvent(3X)
+.br
+\fIXlib \- C Language X Interface\fP

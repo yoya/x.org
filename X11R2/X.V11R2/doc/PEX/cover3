@@ -1,0 +1,97 @@
+.sp 1.0
+.TL
+X3D-PEX: Answers to Frequently-Asked Questions
+.AU
+14-Dec-1987
+.LP
+\fIWhat is X3D?\fP
+.IP
+X3D is group of individuals and companies interested
+in defining and tracking 3D graphics extensions
+to the X Window System.
+The first meeting of this organization was in June, 1987.
+X3D will soon be an official subgroup of the
+X Consortium.
+.LP
+\fIHow can I get more information about the X3D group?\fP
+.IP
+For more information, contact the chairman of the X3D group,
+Bert Herzog, of the University of Michigan (bert@citi.umich.edu).
+.LP
+\fIHow often are X3D meetings held and how are they announced?\fP
+.IP
+X3D meetings are being held on an as-needed basis.  The recent history
+has been one about every three months.  Meetings, announcements, and
+discussions are held via an electronic mailing list.  There is currently
+no other mechanism (e.g., mailing flyers by U.S. mail) for disseminating such
+information, so interested people are encouraged to join the mailing
+list.  No provisions have been made for people without e-mail capability,
+so such individuals should locate someone with e-mail access who can
+forward any announcements that are sent out.
+.LP
+\fIHow do I get added to the X3D mailing list?\fP
+.IP
+You can be added to the X3D mailing list by sending a request to
+x11-3d-request@athena.mit.edu.
+.LP
+\fIWhat does X3D do?\fP
+.IP
+The X3D group is currently focusing on an effort called X3D-PEX.
+.LP
+\fIWhat is X3D-PEX?\fP
+.IP
+X3D-PEX (or simply, PEX) is an extension to the X Window System
+that is designed to efficiently support PHIGS and PHIGS+ across
+a performance range of X server platforms.  A further goal of this
+effort is to define the PEX specification and to do a public implementation
+of the specification in a timely fashion.
+.LP
+\fIWhat is the PEX Architecture Team?\fP
+.IP
+The PEX Architecture Team is a small group of X3D members
+that was formed after the
+June, 1987 meeting.  This group of individuals was responsible
+for revising and finalizing the PEX specification by November, 1987,
+and will attempt
+to provide guidance to the individuals involved in the public
+implementation effort in much the same way that Bob Scheifler provided
+guidance to the X11 implementation effort.
+.LP
+\fIHow can I submit comments on the PEX protocol specification?\fP
+.IP
+Comments on the PEX specification document may be addressed to the
+whole X3D organization (via x11-3d@athena.mit.edu) or to the Architecture
+Team only (via x3d-at@3d.dec.com).  It is too late to submit comments
+on the goals or direction of PEX, as the specification period ended
+in November.  However, comments about specifics are always welcome
+(although they are likely to have less and less effect on the specification
+as the implementation effort proceeds).
+.LP
+\fIHow can I report minor errors or typos that I find in the PEX documents?\fP
+.IP
+To report minor errors or typos,
+contact the PEX Document Editor (rost@decwrl.dec.com).
+.bp
+.LP
+\fIHow can I obtain a copy of the PEX specification?\fP
+.IP
+To obtain a copy of the PEX specification documents,
+contact the PEX Document Editor (rost@decwrl.dec.com).
+The documents are currently not intended for public consumption or
+for curiosity-seekers.  We are asking that people who obtain
+the documents contribute to the PEX effort by seriously reviewing
+the documents and offering comments or encouragement, and consider
+how they or their company can contribute to the implementation effort.
+People should be aware that the PEX  specification may change
+slightly as the implementation proceeds.  A final version of the
+PEX specification will be issued in conjunction with the release
+of the public implementation software.
+.LP
+\fIWhen can I expect to see PEX products?\fP
+.IP
+The schedule for the public implementation will be determined by those
+involved in that effort.  The X3D organization makes no promises or
+commitments on behalf of its member organizations.  It is incorrect
+to assume that contribution to the public PEX effort implies a commitment
+to produce PEX products.  That decision is left to the individual
+member organizations.

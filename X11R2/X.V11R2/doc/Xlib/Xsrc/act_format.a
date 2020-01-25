@@ -1,0 +1,3 @@
+.\" $Header: act_format.a,v 1.1 87/09/28 11:00:24 mento Exp $
+.IP \fIactual_format_return\fP 1i
+Returns the actual format of the property.

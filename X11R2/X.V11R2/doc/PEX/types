@@ -1,0 +1,248 @@
+.AC "Common Types" 2
+.LP
+The types listed in this section define the common types used in
+the PEX protocol specification.
+.AC "LISTofFOO" 3
+.LP
+A type name of the form LISTofFOO means a counted list of elements of
+type FOO; the size of the length field may vary (it is not necessarily
+the same size as FOO).  In all cases
+in the PEX protocol
+(except for LISTofVALUE), the length
+field is explicit.
+.AC "BITMASK, BITMASK_ARRAY and LISTofVALUE" 3
+.LP
+The types BITMASK, BITMASK_ARRAY,
+and LISTofVALUE  are somewhat special.  Various requests
+contain arguments of the form:
+.DS
+	item_mask : (BITMASK or BITMASK_ARRAY)
+	item_list   : LISTofVALUE
+.DE
+used to allow the client to specify a subset of a heterogeneous collection
+of "arguments".  The \fIitem_mask\fP specifies which 
+arguments are to be provided;
+each such argument is assigned a unique bit position.  
+The representation of BITMASK and BITMASK_ARRAY may contain more bits
+than there are defined arguments; unused bits in the  \fIitem_mask\fP 
+must be zero (or the extension will generate a Value error).
+The \fIitem_list\fP
+contains
+one item for each one bit in the mask, from least to most significant bit
+in the mask.   
+
+.AC "Floating Point Format - FLOAT" 3
+.LP
+The PEX protocol allows floating-point values to be passed in
+various floating-point formats.
+All floating-point arguments will
+be specified as FLOAT, which is defined to be the
+floating-point type contained in the format word associated with the
+request.  Furthermore, items such as MATRIX, VECTOR, and COORD
+will be in the floating-point format specified
+by the format word associated with the request.
+
+.AC "Colors" 3
+.LP
+In PEX, colors are typically passed as a flag and a value.
+The flag specifies whether
+the color is an index value or a direct color value.
+PEX servers are required to be able to
+deal with indexed colors
+and at least one type of direct color.
+Indexed colors are specified using an index which is used to obtain
+the color from a color lookup table.
+Direct colors are specified
+directly as RGB, HSV, HLS, or CIE color values of some form.
+The list of registered direct color formats can be found in the
+"Extension Information" section.
+PEX servers are free to store direct color values
+in whatever implementation-dependent format they choose, but
+they must be capable of converting those values back into one
+of the supported direct color types when queried by the client.
+
+.AC "Types" 3
+.LP
+The PEX Protocol types are as follows:
+
+.ID
+
+ASF_ATTRIBUTE		: {\fILineTypeASF, LineWidthASF, LineColorASF,
+						MarkerTypeASF, MarkerScaleASF, MarkerColorASF,
+						TextFontASF, TextPrecASF, CharExpansionASF,
+						CharSpacingASF, TextColorASF, InteriorStyleASF,
+						InteriorStyleIndexASF, SurfaceColorASF, SurfaceEdgesASF,
+						SurfaceEdgeTypeASF, SurfaceEdgeWidthASF, SurfaceEdgeColorASF,
+						PolylineInterpASF, SurfaceInterpASF, ReflectionModelASF\fP}
+ASF_VALUE			: {\fIBundled, Individual\fP}
+ATEXT_STYLE			: ENUM_TYPE_INDEX (used with \fIATextStyle\fP enumerated type)
+BITMASK				: CARD32
+BITMASK_ARRAY		: [offset : CARD8,
+					    	array : LISTofCARD8]
+BOOLEAN				: {\fIFalse, True\fP}
+CARD8				: unsigned 8-bit integer
+CARD16				: unsigned 16-bit integer
+CARD32				: unsigned 32-bit integer
+COLOR				: {direct color value\(dg, TABLE_INDEX}
+COLOR_FORMAT		: ENUM_TYPE_INDEX (used with \fIDirectColorFormat\fP enumerated type)
+COLOR_SPECIFIER		: [color_type : COLOR_TYPE,
+						color_value : COLOR]
+COLOR_TYPE			: {\fIDirect, Indexed\fP}
+COMPOSITION			: {\fIPreConcatenate, PostConcatenate, Replace\fP} 
+COORD				: {COORD_2D, COORD_3D, COORD_4D}
+COORD_2D			: [x, y : FLOAT]
+COORD_3D			: [x, y, z : FLOAT] 
+COORD_4D			: [x, y, z, w : FLOAT]
+CULL_MODE			: {\fINone, BackFaces, FrontFaces\fP}
+CURVE_DISPLAY		: ENUM_TYPE_INDEX (used with \fICurveDisplayMethod\fP enumerated type)
+CURVE_FORM			: ENUM_TYPE_INDEX (used with \fICurveForm\fP enumerated type)
+CURVE_TYPE			: {\fIRational, NonRational\fP}
+DIRECT_COLOR		: direct color value\(dg
+.FS
+\(dg See the "Extension Information" section for a list of the registered
+direct color formats.
+.FE
+DISPLAY_STATE		: {\fINotEmpty, Empty\fP}
+DISPLAY_UPDATE		: ENUM_TYPE_INDEX (used with \fIDisplayUpdateMode\fP enumerated type)
+DRAWABLE_COORD		: [x, y : CARD16, z : FLOAT]
+DRAWABLE_ID			: {WINDOW_ID, PIXMAP_ID}
+DYNAMIC_TYPE		: {\fIIMM, IRG, CBS\fP}
+EDGE				: OPT_SWITCH
+EDIT_MODE			: {\fIStructureInsert, StructureReplace\fP}
+EDITING_CONTEXT_ID	: RESOURCE_ID
+ELEMENT_POS			: [whence : {\fIBeginning, Current, End\fP}
+						offset : INT32]
+ELEMENT_RANGE		: [position1, position2 : ELEMENT_POS]
+ELEMENT_REF			: [structure_id : STRUCTURE_ID,
+						offset : CARD32]
+ELEMENT_TYPE		: [owner : CARD8,
+						version : CARD8,
+						element_type : CARD16]
+ENUM_TYPE			: {\fIMarkerType, ATextStyle, InteriorStyle, HatchStyle,
+						LineType, SurfaceEdgeType, PolylineInterpMethod,
+						CurveDisplayMethod, CurveForm, ReflectionModel,
+						SurfaceInterpMethod, SurfaceDisplayMethod, SurfaceForm,
+						ModelClipOperator, LightType, DirectColorFormat,
+						FloatFormat\fP}
+
+ENUM_TYPE_DESC		: [index : ENUM_TYPE_INDEX,
+						descriptor : STRING]
+ENUM_TYPE_INDEX		: INT16
+FACET				: [facet_data : OPT_DATA,
+						vertices : LISTofVERTEX]
+FLOAT				: floating point value*
+.FS
+* See the "Extension Information" section for a list of the registered
+floating point formats.
+.FE
+FLOAT_FORMAT		: ENUM_TYPE_INDEX (used with \fIFloatFormat\fP enumerated type)
+FONT_ID				: RESOURCE_ID
+FORMAT				: [fp_format : FLOAT_FORMAT,
+						direct_color_format : COLOR_FORMAT]
+HALFSPACE			: [point : COORD_3D,
+						vector : VECTOR_3D]
+HALFSPACE_2D			: [point : COORD_2D,
+						vector : VECTOR_2D]
+HATCH_STYLE			: ENUM_TYPE_INDEX (used with \fIHatchStyle\fP enumerated type)
+HLHSR_MODE			: ENUM_TYPE_INDEX (used with \fIHLHSRMode\fP enumerated type)
+INDEXED_FACET		: [facet_data : OPT_DATA,
+						vertices : LISTofVERTEX_INDEX]
+INT8					: signed 8-bit integer
+INT16				: signed 16-bit integer
+INT32				: signed 32-bit integer
+INTERIOR_STYLE		: ENUM_TYPE_INDEX (used with \fIInteriorStyle\fP enumerated type)
+LIGHT_TYPE			: ENUM_TYPE_INDEX (used with \fILightType\fP enumerated type)
+LINE_TYPE			: ENUM_TYPE_INDEX (used with \fILineType\fP enumerated type)
+LOOKUP_TABLE_ID		: RESOURCE_ID
+MARKER_TYPE			: ENUM_TYPE_INDEX (used with \fIMarkerType\fP enumerated type)
+MATRIX				: FLOAT[4][4]
+MATRIX_3X3			: FLOAT[3][3]
+NAME				: CARD32
+NAME_SET_ID			: RESOURCE_ID
+NPC_SUBVOLUME		: [min : COORD_3D,
+						max : COORD_3D]
+OPERATOR			: ENUM_TYPE_INDEX (used with \fIModelClipOperator\fP enumerated type)
+OPT_COLOR			: optional COLOR\(dg
+OPT_DATA			: [color : OPT_COLOR,
+						normal : OPT_NORMAL,
+						edges : OPT_SWITCH ]
+OPT_NORMAL			: optional VECTOR_3D\(dg
+OPT_SWITCH			: optional SWITCH\(dg
+.FS
+\(dg
+Indicates a parameter (or portion of a parameter) that
+may or may not be present in the request.
+However, its presence or absence can always be inferred
+from previous parameters in the request.
+.FE
+OUTPUT_CMD			: [element_type : ELEMENT_TYPE,
+						size : CARD32,
+						data : \(dd ]
+.FS
+\(dd
+See the section "Output Commands" for a description of
+each of the data records that can be passed as an output command.
+.FE
+PHIGS_WKS_ID			: RESOURCE_ID
+PIPELINE_CONTEXT_ID	: RESOURCE_ID
+PICK_DEVICE_TYPE		: ENUM_TYPE_INDEX (used with \fIPickDeviceType\fP enumerated type)
+PICK_MEASURE_ID		: RESOURCE_ID
+PICK_PATH			: [s_id : STRUCTURE_ID,
+						offset : CARD32,
+						pickid : CARD32]
+PIXMAP_ID			: RESOURCE_ID
+POLYLINE_INTERP		: ENUM_TYPE_INDEX (used with \fIPolylineInterpMethod\fP enumerated type)
+PROMPT_ECHO_TYPE	: ENUM_TYPE_INDEX (used with \fIPromptEchoType\fP enumerated type)
+REFLECTION_MODEL	: ENUM_TYPE_INDEX (used with \fIReflectionModel\fP enumerated type)
+RENDERER_ID			: RESOURCE_ID
+RENDERER_STATE		: {\fIRendering, Idle\fP}
+RESOURCE_ID			: 32-bit identifier
+SEARCH_CONTEXT_ID	: RESOURCE_ID
+STRING				: LISTofCARD8
+STRUCTURE_ID			: RESOURCE_ID
+SURFACE_DISPLAY		: ENUM_TYPE_INDEX (used with \fISurfaceDisplayMethod\fP enumerated type)
+SURFACE_EDGE_TYPE	: ENUM_TYPE_INDEX (used with \fISurfaceEdgeType\fP enumerated type)
+SURFACE_FORM		: ENUM_TYPE_INDEX (used with \fISurfaceForm\fP enumerated type)
+SURFACE_INTERP		: ENUM_TYPE_INDEX (used with \fISurfaceInterpMethod\fP enumerated type)
+SURFACE_TYPE			: {\fIRational, NonRational\fP}
+SWITCH				: {\fIOff, On\fP}
+TABLE_ENTRY			: [data : \(dg ]
+.FS
+\(dg
+See the section "Lookup Tables" for a description of
+each of the data records that can be passed/returned as a table entry.
+.FE
+TABLE_INDEX			: CARD16
+TABLE_TYPE			: {\fILineBundle, MarkerBundle, TextBundle, InteriorBundle,
+						EdgeBundle, Pattern, TextFont, Color, View, Light,
+						DepthCue, RGBApprox, IntensityApprox\fP}
+TEXT_ALIGNMENT		: [vertical : TEXT_VALIGNMENT,
+						horizontal : TEXT_HALIGNMENT]
+TEXT_HALIGNMENT		: {\fINormal, Left, Right, Center\fP}
+TEXT_PATH			: {\fIRight, Left, Up, Down\fP}
+TEXT_PRECISION		: {\fIString, Char, Stroke\fP}
+TEXT_VALIGNMENT		: {\fINormal, Top, Cap, Half, Base, Bottom\fP}
+TOLERANCE			: [s, t : FLOAT]
+TYPE_OR_TABLE_INDEX	: {ENUM_TYPE_INDEX, TABLE_INDEX}
+UPDATE_STATE		: {\fINotPending, Pending\fP}
+VECTOR_2D			: [x, y : FLOAT]          
+VECTOR_3D			: [x, y, z : FLOAT]          
+VERTEX				: [point : COORD_3D
+						data : OPT_DATA]
+VERTEX_INDEX		: [data : OPT_DATA,
+						vertices : LISTofCARD16]
+VIEWPORT			: [min : DRAWABLE_COORD,
+						max : DRAWABLE_COORD]
+VIEW_REP				: [index : TABLE_INDEX,
+						orientation : MATRIX,
+						mapping : MATRIX,
+						clip_limits : NPC_SUBVOLUME,
+						clip_xy : SWITCH,
+						clip_back : SWITCH,
+						clip_front : SWITCH]
+VISUAL_STATE			: {\fICorrect, Deferred, Simulated\fP}
+WINDOW_ID			: RESOURCE_ID
+				
+.DE
+
+.bp

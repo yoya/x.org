@@ -1,0 +1,10 @@
+.\" $Header: fill_style.a,v 1.1 87/09/28 12:59:37 mento Exp $
+.IP \fIfill_style\fP 1i
+Specifies the fill style you want to set for 
+the specified graphics context.
+Possible values are
+.PN FillSolid ,
+.PN FillTiled ,
+.PN FillStippled ,
+or
+.PN FillOpaqueStippled .

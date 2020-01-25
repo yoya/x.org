@@ -1,0 +1,5 @@
+.AC "Events" 2
+.LP
+All PEX events will use the same mechanisms as X events.  PEX does
+not introduce any new X events.
+.bp

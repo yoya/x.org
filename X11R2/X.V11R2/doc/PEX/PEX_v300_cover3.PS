@@ -1,0 +1,965 @@
+%!PS-Adobe-1.0
+%%Creator: granite:rost (Randi Rost,WSE,8536721,4082722969)
+%%Title: stdin (ditroff)
+%%CreationDate: Sun Jan 17 21:04:43 1988
+%%EndComments
+%!
+
+% special version for srb
+
+/$DITroff 140 dict def $DITroff begin
+
+/sclmat [455 525 div 0 0 455 525 div 0 0] def
+/dupf 
+   {findfont /ofont exch def
+    /nfont ofont length 1 add dict def
+    ofont
+       {1 index /FID ne
+	   {nfont 3 1 roll put}
+	   {pop pop}ifelse
+       }forall
+    nfont /FontMatrix nfont /FontMatrix get sclmat matrix concatmatrix put
+    dup nfont exch /FontName exch put
+    nfont definefont pop
+   } def
+/Hsqu /Helvetica dupf
+/HOsqu /Helvetica-Oblique dupf
+/HBsqu /Helvetica-Bold dupf
+/HBOsqu /Helvetica-BoldOblique dupf
+
+/fontnum 1 def /fontsize 10 def /fontheight 10 def /fontslant 0 def
+/xi {0 72 11 mul translate 72 resolution div dup neg scale 0 0 moveto
+  /fontnum 1 def /fontsize 10 def /fontheight 10 def /fontslant 0 def F
+  /pagesave save def}def
+/PB{save /psv exch def currentpoint translate 
+  resolution 72 div dup neg scale 0 0 moveto}def
+/PE{psv restore}def
+/arctoobig 90 def /arctoosmall .05 def
+/m1 matrix def /m2 matrix def /m3 matrix def /oldmat matrix def
+/tan{dup sin exch cos div}def
+/point{resolution 72 div mul}def
+/dround	{transform round exch round exch itransform}def
+/xT{/devname exch def}def
+/xr{/mh exch def /my exch def /resolution exch def}def
+/xp{}def
+/xs{docsave restore end}def
+/xt{}def
+/xf{/fontname exch def /slotno exch def fontnames slotno get fontname eq not
+ {fonts slotno fontname findfont put fontnames slotno fontname put}if}def
+/xH{/fontheight exch def F}def
+/xS{/fontslant exch def F}def
+/s{/fontsize exch def /fontheight fontsize def F}def
+/f{/fontnum exch def F}def
+/F{fontheight 0 le {/fontheight fontsize def}if
+   fonts fontnum get fontsize point 0 0 fontheight point neg 0 0 m1 astore
+   fontslant 0 ne{1 0 fontslant tan 1 0 0 m2 astore m3 concatmatrix}if
+   makefont setfont .04 fontsize point mul 0 dround pop setlinewidth}def
+/X{exch currentpoint exch pop moveto show}def
+/N{3 1 roll moveto show}def
+/Y{exch currentpoint pop exch moveto show}def
+/S{show}def
+/ditpush{}def/ditpop{}def
+/AX{3 -1 roll currentpoint exch pop moveto 0 exch ashow}def
+/AN{4 2 roll moveto 0 exch ashow}def
+/AY{3 -1 roll currentpoint pop exch moveto 0 exch ashow}def
+/AS{0 exch ashow}def
+/MX{currentpoint exch pop moveto}def
+/MY{currentpoint pop exch moveto}def
+/MXY{moveto}def
+/cb{pop}def	% action on unknown char -- nothing for now
+/n{}def/w{}def
+/p{pop showpage pagesave restore /pagesave save def}def
+/abspoint{currentpoint exch pop add exch currentpoint pop add exch}def
+/distance{dup mul exch dup mul add sqrt}def
+/dstroke{currentpoint stroke moveto}def
+/Dl{2 copy gsave rlineto stroke grestore rmoveto}def
+/arcellipse{/diamv exch def /diamh exch def oldmat currentmatrix pop
+ currentpoint translate 1 diamv diamh div scale /rad diamh 2 div def
+ currentpoint exch rad add exch rad -180 180 arc oldmat setmatrix}def
+/Dc{dup arcellipse dstroke}def
+/De{arcellipse dstroke}def
+/Da{/endv exch def /endh exch def /centerv exch def /centerh exch def
+ /cradius centerv centerv mul centerh centerh mul add sqrt def
+ /eradius endv endv mul endh endh mul add sqrt def
+ /endang endv endh atan def
+ /startang centerv neg centerh neg atan def
+ /sweep startang endang sub dup 0 lt{360 add}if def
+ sweep arctoobig gt
+ {/midang startang sweep 2 div sub def /midrad cradius eradius add 2 div def
+  /midh midang cos midrad mul def /midv midang sin midrad mul def
+  midh neg midv neg endh endv centerh centerv midh midv Da
+  currentpoint moveto Da}
+ {sweep arctoosmall ge
+  {/controldelt 1 sweep 2 div cos sub 3 sweep 2 div sin mul div 4 mul def
+  centerv neg controldelt mul centerh controldelt mul
+  endv neg controldelt mul centerh add endh add
+  endh controldelt mul centerv add endv add
+  centerh endh add centerv endv add rcurveto dstroke}
+ {centerh endh add centerv endv add rlineto dstroke}ifelse}ifelse}def
+
+/Barray 200 array def % 200 values in a wiggle
+/D~{mark}def
+/D~~{counttomark Barray exch 0 exch getinterval astore /Bcontrol exch def pop
+ /Blen Bcontrol length def Blen 4 ge Blen 2 mod 0 eq and
+ {Bcontrol 0 get Bcontrol 1 get abspoint /Ycont exch def /Xcont exch def
+  Bcontrol 0 2 copy get 2 mul put Bcontrol 1 2 copy get 2 mul put
+  Bcontrol Blen 2 sub 2 copy get 2 mul put
+  Bcontrol Blen 1 sub 2 copy get 2 mul put
+  /Ybi /Xbi currentpoint 3 1 roll def def 0 2 Blen 4 sub
+  {/i exch def
+   Bcontrol i get 3 div Bcontrol i 1 add get 3 div
+   Bcontrol i get 3 mul Bcontrol i 2 add get add 6 div
+   Bcontrol i 1 add get 3 mul Bcontrol i 3 add get add 6 div
+   /Xbi Xcont Bcontrol i 2 add get 2 div add def
+   /Ybi Ycont Bcontrol i 3 add get 2 div add def
+   /Xcont Xcont Bcontrol i 2 add get add def
+   /Ycont Ycont Bcontrol i 3 add get add def
+   Xbi currentpoint pop sub Ybi currentpoint exch pop sub rcurveto
+  }for dstroke}if}def
+end
+/ditstart{$DITroff begin
+ /nfonts 60 def			% NFONTS makedev/ditroff dependent!
+ /fonts[nfonts{0}repeat]def
+ /fontnames[nfonts{()}repeat]def
+/docsave save def
+}def
+
+% character outcalls
+/oc {/pswid exch def /cc exch def /name exch def
+   /ditwid pswid fontsize mul resolution mul 72000 div def
+   /ditsiz fontsize resolution mul 72 div def
+   ocprocs name known{ocprocs name get exec}{name cb}
+   ifelse}def
+/fractm [.65 0 0 .6 0 0] def
+/fraction
+ {/fden exch def /fnum exch def gsave /cf currentfont def
+  cf fractm makefont setfont 0 .3 dm 2 copy neg rmoveto
+  fnum show rmoveto currentfont cf setfont(\244)show setfont fden show 
+  grestore ditwid 0 rmoveto} def
+/oce {grestore ditwid 0 rmoveto}def
+/dm {ditsiz mul}def
+/ocprocs 50 dict def ocprocs begin
+(14){(1)(4)fraction}def
+(12){(1)(2)fraction}def
+(34){(3)(4)fraction}def
+(13){(1)(3)fraction}def
+(23){(2)(3)fraction}def
+(18){(1)(8)fraction}def
+(38){(3)(8)fraction}def
+(58){(5)(8)fraction}def
+(78){(7)(8)fraction}def
+(sr){gsave 0 .06 dm rmoveto(\326)show oce}def
+(is){gsave 0 .15 dm rmoveto(\362)show oce}def
+(->){gsave 0 .02 dm rmoveto(\256)show oce}def
+(<-){gsave 0 .02 dm rmoveto(\254)show oce}def
+(==){gsave 0 .05 dm rmoveto(\272)show oce}def
+end
+
+% an attempt at a PostScript FONT to implement ditroff special chars
+% this will enable us to 
+%	cache the little buggers
+%	generate faster, more compact PS out of psdit
+%	confuse everyone (including myself)!
+50 dict dup begin
+/FontType 3 def
+/FontName /DIThacks def
+/FontMatrix [.001 0.0 0.0 .001 0.0 0.0] def
+/FontBBox [-220 -280 900 900] def% a lie but ...
+/Encoding 256 array def
+0 1 255{Encoding exch /.notdef put}for
+Encoding
+ dup 8#040/space put %space
+ dup 8#110/rc put %right ceil
+ dup 8#111/lt put %left  top curl
+ dup 8#112/bv put %bold vert
+ dup 8#113/lk put %left  mid curl
+ dup 8#114/lb put %left  bot curl
+ dup 8#115/rt put %right top curl
+ dup 8#116/rk put %right mid curl
+ dup 8#117/rb put %right bot curl
+ dup 8#120/rf put %right floor
+ dup 8#121/lf put %left  floor
+ dup 8#122/lc put %left  ceil
+ dup 8#140/sq put %square
+ dup 8#141/bx put %box
+ dup 8#142/ci put %circle
+ dup 8#143/br put %box rule
+ dup 8#144/rn put %root extender
+ dup 8#145/vr put %vertical rule
+ dup 8#146/ob put %outline bullet
+ dup 8#147/bu put %bullet
+ dup 8#150/ru put %rule
+ dup 8#151/ul put %underline
+ pop
+/DITfd 100 dict def
+/BuildChar{0 begin
+ /cc exch def /fd exch def
+ /charname fd /Encoding get cc get def
+ /charwid fd /Metrics get charname get def
+ /charproc fd /CharProcs get charname get def
+ charwid 0 fd /FontBBox get aload pop setcachedevice
+ 2 setlinejoin 40 setlinewidth
+ newpath 0 0 moveto gsave charproc grestore
+ end}def
+/BuildChar load 0 DITfd put
+%/UniqueID 5 def
+/CharProcs 50 dict def
+CharProcs begin
+/space{}def
+/.notdef{}def
+/ru{500 0 rls}def
+/rn{0 840 moveto 500 0 rls}def
+/vr{0 800 moveto 0 -770 rls}def
+/bv{0 800 moveto 0 -1000 rls}def
+/br{0 750 moveto 0 -1000 rls}def
+/ul{0 -250 moveto 500 0 rls}def
+/ob{200 250 rmoveto currentpoint newpath 200 0 360 arc closepath stroke}def
+/bu{200 250 rmoveto currentpoint newpath 200 0 360 arc closepath fill}def
+/sq{80 0 rmoveto currentpoint dround newpath moveto
+    640 0 rlineto 0 640 rlineto -640 0 rlineto closepath stroke}def
+/bx{80 0 rmoveto currentpoint dround newpath moveto
+    640 0 rlineto 0 640 rlineto -640 0 rlineto closepath fill}def
+/ci{355 333 rmoveto currentpoint newpath 333 0 360 arc
+    50 setlinewidth stroke}def
+
+/lt{0 -200 moveto 0 550 rlineto currx 800 2cx s4 add exch s4 a4p stroke}def
+/lb{0 800 moveto 0 -550 rlineto currx -200 2cx s4 add exch s4 a4p stroke}def
+/rt{0 -200 moveto 0 550 rlineto currx 800 2cx s4 sub exch s4 a4p stroke}def
+/rb{0 800 moveto 0 -500 rlineto currx -200 2cx s4 sub exch s4 a4p stroke}def
+/lk{0 800 moveto 0 300 -300 300 s4 arcto pop pop 1000 sub
+    0 300 4 2 roll s4 a4p 0 -200 lineto stroke}def
+/rk{0 800 moveto 0 300 s2 300 s4 arcto pop pop 1000 sub
+    0 300 4 2 roll s4 a4p 0 -200 lineto stroke}def
+/lf{0 800 moveto 0 -1000 rlineto s4 0 rls}def
+/rf{0 800 moveto 0 -1000 rlineto s4 neg 0 rls}def
+/lc{0 -200 moveto 0 1000 rlineto s4 0 rls}def
+/rc{0 -200 moveto 0 1000 rlineto s4 neg 0 rls}def
+end
+
+/Metrics 50 dict def Metrics begin
+/.notdef 0 def
+/space 500 def
+/ru 500 def
+/br 0 def
+/lt 416 def
+/lb 416 def
+/rt 416 def
+/rb 416 def
+/lk 416 def
+/rk 416 def
+/rc 416 def
+/lc 416 def
+/rf 416 def
+/lf 416 def
+/bv 416 def
+/ob 350 def
+/bu 350 def
+/ci 750 def
+/bx 750 def
+/sq 750 def
+/rn 500 def
+/ul 500 def
+/vr 0 def
+end
+
+DITfd begin
+/s2 500 def /s4 250 def /s3 333 def
+/a4p{arcto pop pop pop pop}def
+/2cx{2 copy exch}def
+/rls{rlineto stroke}def
+/currx{currentpoint pop}def
+/dround{transform round exch round exch itransform} def
+end
+end
+/DIThacks exch definefont pop
+
+ditstart
+(psc)xT
+576 1 1 xr
+1(Times-Roman)xf 1 f
+2(Times-Italic)xf 2 f
+3(Times-Bold)xf 3 f
+4(Times-BoldItalic)xf 4 f
+5(Hsqu)xf 5 f
+6(HBsqu)xf 6 f
+7(HOsqu)xf 7 f
+8(Courier)xf 8 f
+9(Symbol)xf 9 f
+10(DIThacks)xf 10 f
+10 s
+1 f
+xi
+%%EndProlog
+
+%%Page: 1 1
+10 s 0 xH 0 xS 1 f
+8 s
+10 s
+32(+)Y
+4332(+)X
+3 f
+12 s
+1225 960(X3D-PEX:)N
+1691(Answers)X
+2066(to)X
+2170(Frequently-Asked)X
+2935(Questions)X
+2 f
+10 s
+2071 1152(14-Dec-1987)N
+555 1612(What)N
+744(is)X
+817(X3D?)X
+1 f
+755 1736(X3D)N
+940(is)X
+1021(group)X
+1236(of)X
+1331(individuals)X
+1714(and)X
+1858(companies)X
+2229(interested)X
+2569(in)X
+2659(de\256ning)X
+2949(and)X
+3093(tracking)X
+3384(3D)X
+3510(graphics)X
+3810(exten-)X
+755 1832(sions)N
+943(to)X
+1029(the)X
+1151(X)X
+1233(Window)X
+1533(System.)X
+1832(The)X
+1981(\256rst)X
+2129(meeting)X
+2410(of)X
+2500(this)X
+2638(organization)X
+3062(was)X
+3210(in)X
+3295(June,)X
+3485(1987.)X
+3708(X3D)X
+3887(will)X
+755 1928(soon)N
+926(be)X
+1022(an)X
+1118(of\256cial)X
+1365(subgroup)X
+1683(of)X
+1770(the)X
+1888(X)X
+1966(Consortium.)X
+2 f
+555 2052(How)N
+726(can)X
+862(I)X
+909(get)X
+1027(more)X
+1212(information)X
+1609(about)X
+1811(the)X
+1929(X3D)X
+2096(group?)X
+1 f
+755 2176(For)N
+897(more)X
+1093(information,)X
+1522(contact)X
+1785(the)X
+1914(chairman)X
+2244(of)X
+2342(the)X
+2471(X3D)X
+2658(group,)X
+2896(Bert)X
+3064(Herzog,)X
+3351(of)X
+3448(the)X
+3576(University)X
+3944(of)X
+755 2272(Michigan)N
+1082(\(bert@citi.umich.edu\).)X
+2 f
+555 2396(How)N
+726(often)X
+906(are)X
+1033(X3D)X
+1200(meetings)X
+1505(held)X
+1663(and)X
+1803(how)X
+1956(are)X
+2083(they)X
+2237(announced?)X
+1 f
+755 2520(X3D)N
+939(meetings)X
+1256(are)X
+1383(being)X
+1589(held)X
+1755(on)X
+1863(an)X
+1967(as-needed)X
+2317(basis.)X
+2545(The)X
+2698(recent)X
+2922(history)X
+3171(has)X
+3305(been)X
+3484(one)X
+3627(about)X
+3832(every)X
+755 2616(three)N
+951(months.)X
+1261(Meetings,)X
+1614(announcements,)X
+2168(and)X
+2319(discussions)X
+2718(are)X
+2851(held)X
+3023(via)X
+3155(an)X
+3265(electronic)X
+3616(mailing)X
+3894(list.)X
+755 2712(There)N
+976(is)X
+1062(currently)X
+1385(no)X
+1498(other)X
+1696(mechanism)X
+2094(\(e.g.,)X
+2289(mailing)X
+2565(\257yers)X
+2775(by)X
+2887(U.S.)X
+3061(mail\))X
+3262(for)X
+3388(disseminating)X
+3864(such)X
+755 2808(information,)N
+1181(so)X
+1280(interested)X
+1620(people)X
+1862(are)X
+1989(encouraged)X
+2388(to)X
+2478(join)X
+2630(the)X
+2756(mailing)X
+3028(list.)X
+3193(No)X
+3319(provisions)X
+3680(have)X
+3859(been)X
+755 2904(made)N
+959(for)X
+1083(people)X
+1326(without)X
+1599(e-mail)X
+1833(capability,)X
+2198(so)X
+2298(such)X
+2474(individuals)X
+2858(should)X
+3100(locate)X
+3321(someone)X
+3635(with)X
+3806(e-mail)X
+755 3000(access)N
+981(who)X
+1139(can)X
+1271(forward)X
+1546(any)X
+1682(announcements)X
+2201(that)X
+2341(are)X
+2460(sent)X
+2609(out.)X
+2 f
+555 3124(How)N
+726(do)X
+826(I)X
+873(get)X
+991(added)X
+1207(to)X
+1289(the)X
+1407(X3D)X
+1574(mailing)X
+1838(list?)X
+1 f
+755 3248(You)N
+913(can)X
+1045(be)X
+1141(added)X
+1353(to)X
+1435(the)X
+1553(X3D)X
+1729(mailing)X
+1993(list)X
+2110(by)X
+2210(sending)X
+2479(a)X
+2535(request)X
+2787(to)X
+2869 0.1056(x11-3d-request@athena.mit.edu.)AX
+2 f
+555 3372(What)N
+744(does)X
+911(X3D)X
+1078(do?)X
+1 f
+755 3496(The)N
+900(X3D)X
+1076(group)X
+1283(is)X
+1356(currently)X
+1666(focusing)X
+1962(on)X
+2062(an)X
+2158(effort)X
+2357(called)X
+2569(X3D-PEX.)X
+2 f
+555 3620(What)N
+744(is)X
+817(X3D-PEX?)X
+1 f
+755 3744(X3D-PEX)N
+1115(\(or)X
+1235(simply,)X
+1498(PEX\))X
+1701(is)X
+1779(an)X
+1880(extension)X
+2212(to)X
+2299(the)X
+2422(X)X
+2505(Window)X
+2806(System)X
+3066(that)X
+3211(is)X
+3289(designed)X
+3599(to)X
+3686(ef\256ciently)X
+755 3840(support)N
+1023(PHIGS)X
+1282(and)X
+1426(PHIGS+)X
+1730(across)X
+1959(a)X
+2023(performance)X
+2458(range)X
+2665(of)X
+2760(X)X
+2846(server)X
+3071(platforms.)X
+3446(A)X
+3532(further)X
+3779(goal)X
+3944(of)X
+755 3936(this)N
+892(effort)X
+1093(is)X
+1168(to)X
+1252(de\256ne)X
+1470(the)X
+1590(PEX)X
+1763(speci\256cation)X
+2190(and)X
+2328(to)X
+2412(do)X
+2514(a)X
+2572(public)X
+2793(implementation)X
+3316(of)X
+3404(the)X
+3523(speci\256cation)X
+3949(in)X
+755 4032(a)N
+811(timely)X
+1035(fashion.)X
+2 f
+555 4156(What)N
+744(is)X
+817(the)X
+935(PEX)X
+1102(Architecture)X
+1523(Team?)X
+1 f
+755 4280(The)N
+903(PEX)X
+1077(Architecture)X
+1502(Team)X
+1708(is)X
+1784(a)X
+1842(small)X
+2037(group)X
+2246(of)X
+2335(X3D)X
+2513(members)X
+2829(that)X
+2971(was)X
+3118(formed)X
+3372(after)X
+3542(the)X
+3662(June,)X
+3851(1987)X
+755 4376(meeting.)N
+1076(This)X
+1241(group)X
+1451(of)X
+1541(individuals)X
+1919(was)X
+2067(responsible)X
+2455(for)X
+2571(revising)X
+2851(and)X
+2989(\256nalizing)X
+3313(the)X
+3433(PEX)X
+3606(speci\256cation)X
+755 4472(by)N
+862(November,)X
+1248(1987,)X
+1455(and)X
+1598(will)X
+1749(attempt)X
+2016(to)X
+2105(provide)X
+2377(guidance)X
+2694(to)X
+2783(the)X
+2908(individuals)X
+3290(involved)X
+3597(in)X
+3686(the)X
+3811(public)X
+755 4568(implementation)N
+1279(effort)X
+1480(in)X
+1564(much)X
+1763(the)X
+1882(same)X
+2068(way)X
+2223(that)X
+2364(Bob)X
+2518(Schei\257er)X
+2824(provided)X
+3130(guidance)X
+3441(to)X
+3524(the)X
+3643(X11)X
+3802(imple-)X
+755 4664(mentation)N
+1095(effort.)X
+2 f
+555 4788(How)N
+726(can)X
+862(I)X
+909(submit)X
+1142(comments)X
+1483(on)X
+1583(the)X
+1701(PEX)X
+1868(protocol)X
+2159(speci\256cation?)X
+1 f
+755 4912(Comments)N
+1122(on)X
+1223(the)X
+1342(PEX)X
+1514(speci\256cation)X
+1940(document)X
+2277(may)X
+2436(be)X
+2533(addressed)X
+2871(to)X
+2954(the)X
+3073(whole)X
+3289(X3D)X
+3465(organization)X
+3886(\(via)X
+755 5008(x11-3d@athena.mit.edu\))N
+1577(or)X
+1666(to)X
+1750(the)X
+1870(Architecture)X
+2294(Team)X
+2499(only)X
+2662(\(via)X
+2808(x3d-at@3d.dec.com\).)X
+3545(It)X
+3615(is)X
+3689(too)X
+3812(late)X
+3949(to)X
+755 5104(submit)N
+998(comments)X
+1353(on)X
+1459(the)X
+1583(goals)X
+1778(or)X
+1871(direction)X
+2182(of)X
+2275(PEX,)X
+2472(as)X
+2565(the)X
+2688(speci\256cation)X
+3118(period)X
+3348(ended)X
+3565(in)X
+3652(November.)X
+755 5200(However,)N
+1097(comments)X
+1453(about)X
+1658(speci\256cs)X
+1961(are)X
+2087(always)X
+2337(welcome)X
+2653(\(although)X
+2986(they)X
+3150(are)X
+3275(likely)X
+3483(to)X
+3571(have)X
+3749(less)X
+3895(and)X
+755 5296(less)N
+895(effect)X
+1099(on)X
+1199(the)X
+1317(speci\256cation)X
+1742(as)X
+1829(the)X
+1947(implementation)X
+2469(effort)X
+2668(proceeds\).)X
+2 f
+555 5420(How)N
+726(can)X
+862(I)X
+909(report)X
+1129(minor)X
+1340(errors)X
+1560(or)X
+1651(typos)X
+1840(that)X
+1984(I)X
+2031(\256nd)X
+2171(in)X
+2253(the)X
+2371(PEX)X
+2538(documents?)X
+1 f
+755 5544(To)N
+864(report)X
+1076(minor)X
+1287(errors)X
+1495(or)X
+1582(typos,)X
+1795(contact)X
+2047(the)X
+2165(PEX)X
+2336(Document)X
+2690(Editor)X
+2910 0.1756(\(rost@decwrl.dec.com\).)AX
+
+2 p
+%%Page: 2 2
+10 s 0 xH 0 xS 1 f
+0 32(+)N
+4332(+)X
+2216 416(-)N
+2263(2)X
+2323(-)X
+2 f
+555 672(How)N
+726(can)X
+862(I)X
+909(obtain)X
+1133(a)X
+1193(copy)X
+1365(of)X
+1447(the)X
+1565(PEX)X
+1732(speci\256cation?)X
+1 f
+755 796(To)N
+896(obtain)X
+1148(a)X
+1236(copy)X
+1444(of)X
+1563(the)X
+1713(PEX)X
+1916(speci\256cation)X
+2373(documents,)X
+2792(contact)X
+3075(the)X
+3224(PEX)X
+3426(Document)X
+3811(Editor)X
+755 892 0.1756(\(rost@decwrl.dec.com\).)AN
+1584(The)X
+1741(documents)X
+2120(are)X
+2251(currently)X
+2573(not)X
+2707(intended)X
+3015(for)X
+3141(public)X
+3373(consumption)X
+3818(or)X
+3917(for)X
+755 988(curiosity-seekers.)N
+1362(We)X
+1497(are)X
+1619(asking)X
+1851(that)X
+1994(people)X
+2231(who)X
+2392(obtain)X
+2615(the)X
+2736(documents)X
+3106(contribute)X
+3454(to)X
+3539(the)X
+3659(PEX)X
+3832(effort)X
+755 1084(by)N
+862(seriously)X
+1177(reviewing)X
+1524(the)X
+1648(documents)X
+2021(and)X
+2163(offering)X
+2448(comments)X
+2803(or)X
+2896(encouragement,)X
+3433(and)X
+3575(consider)X
+3873(how)X
+755 1180(they)N
+918(or)X
+1010(their)X
+1182(company)X
+1501(can)X
+1638(contribute)X
+1988(to)X
+2075(the)X
+2198(implementation)X
+2725(effort.)X
+2969(People)X
+3212(should)X
+3450(be)X
+3551(aware)X
+3769(that)X
+3913(the)X
+755 1276(PEX)N
+950(speci\256cation)X
+1379(may)X
+1541(change)X
+1793(slightly)X
+2056(as)X
+2147(the)X
+2269(implementation)X
+2795(proceeds.)X
+3144(A)X
+3225(\256nal)X
+3390(version)X
+3649(of)X
+3739(the)X
+3860(PEX)X
+755 1372(speci\256cation)N
+1180(will)X
+1324(be)X
+1420(issued)X
+1640(in)X
+1722(conjunction)X
+2120(with)X
+2282(the)X
+2400(release)X
+2644(of)X
+2731(the)X
+2849(public)X
+3069(implementation)X
+3591(software.)X
+2 f
+555 1496(When)N
+758(can)X
+894(I)X
+941(expect)X
+1167(to)X
+1249(see)X
+1372(PEX)X
+1539(products?)X
+1 f
+755 1620(The)N
+903(schedule)X
+1207(for)X
+1324(the)X
+1445(public)X
+1668(implementation)X
+2193(will)X
+2340(be)X
+2439(determined)X
+2823(by)X
+2926(those)X
+3117(involved)X
+3419(in)X
+3503(that)X
+3645(effort.)X
+3886(The)X
+755 1716(X3D)N
+937(organization)X
+1364(makes)X
+1595(no)X
+1701(promises)X
+2016(or)X
+2109(commitments)X
+2570(on)X
+2676(behalf)X
+2903(of)X
+2996(its)X
+3097(member)X
+3386(organizations.)X
+3884(It)X
+3958(is)X
+755 1812(incorrect)N
+1063(to)X
+1147(assume)X
+1405(that)X
+1547(contribution)X
+1960(to)X
+2044(the)X
+2164(public)X
+2386(PEX)X
+2559(effort)X
+2759(implies)X
+3015(a)X
+3072(commitment)X
+3497(to)X
+3580(produce)X
+3860(PEX)X
+755 1908(products.)N
+1091(That)X
+1258(decision)X
+1545(is)X
+1618(left)X
+1745(to)X
+1827(the)X
+1945(individual)X
+2289(member)X
+2572(organizations.)X
+0 6360(+)N
+4332(+)X
+
+2 p
+%%Trailer
+xt
+
+xs

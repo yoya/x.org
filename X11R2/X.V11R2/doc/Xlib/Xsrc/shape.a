@@ -1,0 +1,8 @@
+.\" $Header: shape.a,v 1.1 87/09/28 13:13:21 mento Exp $
+.IP \fIshape\fP 1i
+Specifies an argument that helps the server to improve performance.
+You can pass one of these constants:
+.PN Complex , 
+.PN Convex , 
+or 
+.PN Nonconvex .

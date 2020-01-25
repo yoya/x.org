@@ -1,0 +1,12 @@
+.\" $Header: modifiers.a,v 1.1 87/09/28 13:07:15 mento Exp $
+.IP \fImodifiers\fP 1i
+Specifies the set of keymasks.
+This mask is the bitwise inclusive OR of these keymask bits:
+.PN ShiftMask ,
+.PN LockMask ,
+.PN ControlMask ,
+.PN Mod1Mask ,
+.PN Mod2Mask ,
+.PN Mod3Mask ,
+.PN Mod4Mask ,
+.PN Mod5Mask.

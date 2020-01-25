@@ -1,0 +1,59 @@
+#
+# PRPQ 5799-WZQ (C) COPYRIGHT IBM CORPORATION 1987,1988
+# LICENSED MATERIALS - PROPERTY OF IBM
+# REFER TO COPYRIGHT INSTRUCTIONS FORM NUMBER G120-2083
+#
+# $Header: Imakefile,v 1.3 88/02/17 18:23:43 rws Exp $ 
+# $ACIS:Imakefile 1.3$ 
+SRCS =	 	mpelalu.c \
+		mpelblt.c \
+		mpelcmap.c \
+		mpelcursor.c \
+		mpelfifo.c \
+		mpelfont.c \
+		mpelgc.c \
+		mpelimg.c \
+		mpelio.c \
+		mpellducode.c \
+		mpelpoly.c \
+		mpelscrinit.c \
+		mpelstip.c \
+		mpeltext.c \
+		mpeltile.c \
+		mpelmono.c \
+		mpelline.c \
+		mpelutil.c \
+		mpelxmorg.c
+
+OBJS =	 	mpelalu.o \
+		mpelblt.o \
+		mpelcmap.o \
+		mpelcursor.o \
+		mpelfifo.o \
+		mpelfont.o \
+		mpelgc.o \
+		mpelimg.o \
+		mpelio.o \
+		mpellducode.o \
+		mpelpoly.o \
+		mpelscrinit.o \
+		mpelstip.o \
+		mpeltext.o \
+		mpeltile.o \
+		mpelmono.o \
+		mpelline.o \
+		mpelutil.o \
+		mpelxmorg.o 
+
+CDEBUGFLAGS = ServerCDebugFlags -DTRACE_X
+INCLUDES = -I. -I../rt -I../../mfb -I../ppc -I../../../include -I$(INCLUDESRC)
+
+NormalLibraryObjectRule()
+
+NormalRelocatableTarget(mpel,$(OBJS))
+
+DependTarget()
+
+NormalLintTarget($(SRCS))
+
+lintlib:

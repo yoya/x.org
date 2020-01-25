@@ -1,0 +1,27 @@
+.TH XQueryTree 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XQueryTree \- query window tree information
+.SH SYNTAX
+.so ../Xsrc/XQueryTree.f
+.SH ARGUMENTS
+.so ../Xsrc/children.a
+.so ../Xsrc/display.a
+.so ../Xsrc/nchildren.a
+.so ../Xsrc/parentret.a
+.so ../Xsrc/root.a
+.so ../Xsrc/w.a
+.SH DESCRIPTION
+.so ../Xdescrip/XQueryTree.d
+.ds fd .PN XQueryTree
+.so ../Xsrc/errsent4.com
+.PN BadWindow 
+error. 
+.SH BUGS
+This really should return a screen *, not a root window ID.
+.SH DIAGNOSTICS
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XGetWindowAttributes(3X),
+XQueryPointer(3X)
+.br
+\fIXlib \- C Language X Interface\fP

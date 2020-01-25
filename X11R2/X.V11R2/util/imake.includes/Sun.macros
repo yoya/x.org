@@ -1,0 +1,75 @@
+            TOP = TOPDIR
+             AS = as
+             CC = cc
+            CPP = /lib/cpp
+             LD = ld
+           LINT = lint
+        INSTALL = install
+           TAGS = ctags
+             RM = rm -f
+             MV = mv
+             LN = ln -s
+         RANLIB = ranlib
+             AR = ar clq
+             LS = ls
+       LINTOPTS = -axz
+    LINTLIBFLAG = -C
+           MAKE = make
+    STD_DEFINES =
+    CDEBUGFLAGS = -O
+        DESTDIR =
+
+#define MakeContributed		NO	/* make contrib/ */
+
+/* This defines the server you want */
+#define XsunServer Xsun
+
+/* define this as you like for normal library compilation */
+#define LibraryDefines
+#define LibraryCDebugFlags	-O
+
+/* define this as you like for server compilation */
+#define ServerDefines		-DSUN_WINDOWS -DCOMPRESSED_FONTS
+#define	ServerCDebugFlags	-O
+
+/* -DTCPCONN allows TCP connections */
+/* -DUNIXCONN allows Unix domain connections */
+/* -DDNETCONN allows DECnet connections */
+
+#define ConnectionFlags		-DTCPCONN -DUNIXCONN
+
+/* define this if you want sunwindows linked in */
+#define UseSunWindowsInServer
+
+/* This defines the extensions you want */
+/* #define ExtensionDefines	-DZOID -DBEZIER */
+#define ExtensionDefines
+
+#define InstallLintLibs		YES	/* install .ln libraries */
+#define InstallManPages		YES	/* install man pages */
+#define InstallAppDefFiles	YES	/* install application defaults */
+#define DebugLibX		NO	/* debugged X library */
+#define DebugLibXArchive	NO	/* archive file of above */
+#define ProfileLibX		NO	/* profiled X library */
+#define ProfileLibXArchive	NO	/* archive file of above */
+#define DebugOldLibX		NO	/* debugged old X library */
+#define ProfileOldLibX		NO	/* profiled old X library */
+#define DebugLibXt		NO	/* debugged toolkit library */
+#define ProfileLibXt		NO	/* profiled toolkit library */
+#define DebugLibXaw		NO	/* debugged widget library */
+#define ProfileLibXaw		NO	/* profiled widget library */
+#define DebugLibXext		NO	/* debugged Xext library */
+#define ProfileLibXext		NO	/* profiled Xext library */
+
+/*
+ * Uncomment this if you have cpp sources.
+ */
+/* #define CppSourcesPresent /usr/src/lib/cpp */
+
+/*
+ * use only one tab here.
+ */
+#define ManSuffix	n	/* for /usr/man/man?/manpage.? */
+
+/* uncomment this if your make program has MAKEFLAGS but not MFLAGS */
+/* #define ConstructMFLAGS */

@@ -1,0 +1,6 @@
+.\" $Header: value_mask1.a,v 1.1 87/09/28 13:17:21 mento Exp $
+.IP \fIvalue_mask\fP 1i
+Specifies one value for each one bit in the mask (least to most
+significant bit). 
+The values are associated with the set of keys for the previously specified
+keyboard.

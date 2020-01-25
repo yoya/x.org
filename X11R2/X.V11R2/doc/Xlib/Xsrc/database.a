@@ -1,0 +1,4 @@
+.IP \fIdatabase\fP 1i
+Specifies a pointer to the resource database.
+If database contains NULL,
+a new resource database is created and a pointer to it is returned in database.

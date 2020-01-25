@@ -1,0 +1,41 @@
+.LP
+\ 
+.sp 12
+.PP
+.TL
+\fB\s+9PEX Protocol Specification\s-9\fP
+.sp 2
+.AU
+Version 3.00
+14-Dec-1987
+.sp 0.5i
+.nf
+.ce
+\fBX3D Chairman\fP
+.sp 0.05i
+.ta 2.1i 3.3i
+	Bertram Herzog	\fIUniversity of Michigan\fP
+.sp 0.3i
+.ce
+\fBPEX Architecture Team\fP
+.sp 0.05i
+	Jeffrey Friedberg	\fIDigital Equipment Corp.\fP
+	Dave Gorgen	\fIApollo Computer Inc.\fP
+	Tom Gross	\fIApollo Computer Inc.\fP
+	Marty Hess	\fISun Microsystems\fP
+	Randi J. Rost	\fIDigital Equipment Corp.\fP
+	Jeffrey S. Saltz	\fIDigital Equipment Corp.\fP
+	Jeff Stevenson	\fIHewlett-Packard\fP
+	Jim Van Loo	\fISun Microsystems\fP
+.sp 0.3i
+.ce
+\fBPEX Architecture Team Secretary\fP
+.sp 0.05i
+	John McConnell	\fIDigital Equipment Corp.\fP
+	Pete Nishimoto	\fIDigital Equipment Corp.\fP
+.sp 0.3i
+.ce
+\fBPEX Document Editor\fP
+.sp 0.05i
+	Randi J. Rost	\fIDigital Equipment Corp.\fP
+.bp

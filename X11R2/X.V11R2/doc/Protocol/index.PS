@@ -1,0 +1,3986 @@
+%!PS-Adobe-1.0
+%%Creator: orpheus:swick (Ralph R. Swick,,E40-327,3-1506,)
+%%Title: stdin (ditroff)
+%%CreationDate: Sat Feb 27 19:40:40 1988
+%%EndComments
+% lib/psdit.pro -- prolog for psdit (ditroff) files
+% Copyright (c) 1984, 1985 Adobe Systems Incorporated. All Rights Reserved.
+% last edit: shore Sat Nov 23 20:28:03 1985
+% RCSID: $Header: psdit.pro,v 2.1 85/11/24 12:19:43 shore Rel $
+
+/$DITroff 140 dict def $DITroff begin
+/fontnum 1 def /fontsize 10 def /fontheight 10 def /fontslant 0 def
+/xi {0 72 11 mul translate 72 resolution div dup neg scale 0 0 moveto
+  /fontnum 1 def /fontsize 10 def /fontheight 10 def /fontslant 0 def F
+  /pagesave save def}def
+/PB{save /psv exch def currentpoint translate 
+  resolution 72 div dup neg scale 0 0 moveto}def
+/PE{psv restore}def
+/arctoobig 90 def /arctoosmall .05 def
+/m1 matrix def /m2 matrix def /m3 matrix def /oldmat matrix def
+/tan{dup sin exch cos div}def
+/point{resolution 72 div mul}def
+/dround	{transform round exch round exch itransform}def
+/xT{/devname exch def}def
+/xr{/mh exch def /my exch def /resolution exch def}def
+/xp{}def
+/xs{docsave restore end}def
+/xt{}def
+/xf{/fontname exch def /slotno exch def fontnames slotno get fontname eq not
+ {fonts slotno fontname findfont put fontnames slotno fontname put}if}def
+/xH{/fontheight exch def F}def
+/xS{/fontslant exch def F}def
+/s{/fontsize exch def /fontheight fontsize def F}def
+/f{/fontnum exch def F}def
+/F{fontheight 0 le {/fontheight fontsize def}if
+   fonts fontnum get fontsize point 0 0 fontheight point neg 0 0 m1 astore
+   fontslant 0 ne{1 0 fontslant tan 1 0 0 m2 astore m3 concatmatrix}if
+   makefont setfont .04 fontsize point mul 0 dround pop setlinewidth}def
+/X{exch currentpoint exch pop moveto show}def
+/N{3 1 roll moveto show}def
+/Y{exch currentpoint pop exch moveto show}def
+/S{show}def
+/ditpush{}def/ditpop{}def
+/AX{3 -1 roll currentpoint exch pop moveto 0 exch ashow}def
+/AN{4 2 roll moveto 0 exch ashow}def
+/AY{3 -1 roll currentpoint pop exch moveto 0 exch ashow}def
+/AS{0 exch ashow}def
+/MX{currentpoint exch pop moveto}def
+/MY{currentpoint pop exch moveto}def
+/MXY{moveto}def
+/cb{pop}def	% action on unknown char -- nothing for now
+/n{}def/w{}def
+/p{pop showpage pagesave restore /pagesave save def}def
+/abspoint{currentpoint exch pop add exch currentpoint pop add exch}def
+/distance{dup mul exch dup mul add sqrt}def
+/dstroke{currentpoint stroke moveto}def
+/Dl{2 copy gsave rlineto stroke grestore rmoveto}def
+/arcellipse{/diamv exch def /diamh exch def oldmat currentmatrix pop
+ currentpoint translate 1 diamv diamh div scale /rad diamh 2 div def
+ currentpoint exch rad add exch rad -180 180 arc oldmat setmatrix}def
+/Dc{dup arcellipse dstroke}def
+/De{arcellipse dstroke}def
+/Da{/endv exch def /endh exch def /centerv exch def /centerh exch def
+ /cradius centerv centerv mul centerh centerh mul add sqrt def
+ /eradius endv endv mul endh endh mul add sqrt def
+ /endang endv endh atan def
+ /startang centerv neg centerh neg atan def
+ /sweep startang endang sub dup 0 lt{360 add}if def
+ sweep arctoobig gt
+ {/midang startang sweep 2 div sub def /midrad cradius eradius add 2 div def
+  /midh midang cos midrad mul def /midv midang sin midrad mul def
+  midh neg midv neg endh endv centerh centerv midh midv Da
+  currentpoint moveto Da}
+ {sweep arctoosmall ge
+  {/controldelt 1 sweep 2 div cos sub 3 sweep 2 div sin mul div 4 mul def
+  centerv neg controldelt mul centerh controldelt mul
+  endv neg controldelt mul centerh add endh add
+  endh controldelt mul centerv add endv add
+  centerh endh add centerv endv add rcurveto dstroke}
+ {centerh endh add centerv endv add rlineto dstroke}ifelse}ifelse}def
+
+/Barray 200 array def % 200 values in a wiggle
+/D~{mark}def
+/D~~{counttomark Barray exch 0 exch getinterval astore /Bcontrol exch def pop
+ /Blen Bcontrol length def Blen 4 ge Blen 2 mod 0 eq and
+ {Bcontrol 0 get Bcontrol 1 get abspoint /Ycont exch def /Xcont exch def
+  Bcontrol 0 2 copy get 2 mul put Bcontrol 1 2 copy get 2 mul put
+  Bcontrol Blen 2 sub 2 copy get 2 mul put
+  Bcontrol Blen 1 sub 2 copy get 2 mul put
+  /Ybi /Xbi currentpoint 3 1 roll def def 0 2 Blen 4 sub
+  {/i exch def
+   Bcontrol i get 3 div Bcontrol i 1 add get 3 div
+   Bcontrol i get 3 mul Bcontrol i 2 add get add 6 div
+   Bcontrol i 1 add get 3 mul Bcontrol i 3 add get add 6 div
+   /Xbi Xcont Bcontrol i 2 add get 2 div add def
+   /Ybi Ycont Bcontrol i 3 add get 2 div add def
+   /Xcont Xcont Bcontrol i 2 add get add def
+   /Ycont Ycont Bcontrol i 3 add get add def
+   Xbi currentpoint pop sub Ybi currentpoint exch pop sub rcurveto
+  }for dstroke}if}def
+end
+/ditstart{$DITroff begin
+ /nfonts 60 def			% NFONTS makedev/ditroff dependent!
+ /fonts[nfonts{0}repeat]def
+ /fontnames[nfonts{()}repeat]def
+/docsave save def
+}def
+
+% character outcalls
+/oc {/pswid exch def /cc exch def /name exch def
+   /ditwid pswid fontsize mul resolution mul 72000 div def
+   /ditsiz fontsize resolution mul 72 div def
+   ocprocs name known{ocprocs name get exec}{name cb}
+   ifelse}def
+/fractm [.65 0 0 .6 0 0] def
+/fraction
+ {/fden exch def /fnum exch def gsave /cf currentfont def
+  cf fractm makefont setfont 0 .3 dm 2 copy neg rmoveto
+  fnum show rmoveto currentfont cf setfont(\244)show setfont fden show 
+  grestore ditwid 0 rmoveto} def
+/oce {grestore ditwid 0 rmoveto}def
+/dm {ditsiz mul}def
+/ocprocs 50 dict def ocprocs begin
+(14){(1)(4)fraction}def
+(12){(1)(2)fraction}def
+(34){(3)(4)fraction}def
+(13){(1)(3)fraction}def
+(23){(2)(3)fraction}def
+(18){(1)(8)fraction}def
+(38){(3)(8)fraction}def
+(58){(5)(8)fraction}def
+(78){(7)(8)fraction}def
+(sr){gsave 0 .06 dm rmoveto(\326)show oce}def
+(is){gsave 0 .15 dm rmoveto(\362)show oce}def
+(->){gsave 0 .02 dm rmoveto(\256)show oce}def
+(<-){gsave 0 .02 dm rmoveto(\254)show oce}def
+(==){gsave 0 .05 dm rmoveto(\272)show oce}def
+end
+
+% an attempt at a PostScript FONT to implement ditroff special chars
+% this will enable us to 
+%	cache the little buggers
+%	generate faster, more compact PS out of psdit
+%	confuse everyone (including myself)!
+50 dict dup begin
+/FontType 3 def
+/FontName /DIThacks def
+/FontMatrix [.001 0 0 .001 0 0] def
+/FontBBox [-260 -260 900 900] def% a lie but ...
+/Encoding 256 array def
+0 1 255{Encoding exch /.notdef put}for
+Encoding
+ dup 8#040/space put %space
+ dup 8#110/rc put %right ceil
+ dup 8#111/lt put %left  top curl
+ dup 8#112/bv put %bold vert
+ dup 8#113/lk put %left  mid curl
+ dup 8#114/lb put %left  bot curl
+ dup 8#115/rt put %right top curl
+ dup 8#116/rk put %right mid curl
+ dup 8#117/rb put %right bot curl
+ dup 8#120/rf put %right floor
+ dup 8#121/lf put %left  floor
+ dup 8#122/lc put %left  ceil
+ dup 8#140/sq put %square
+ dup 8#141/bx put %box
+ dup 8#142/ci put %circle
+ dup 8#143/br put %box rule
+ dup 8#144/rn put %root extender
+ dup 8#145/vr put %vertical rule
+ dup 8#146/ob put %outline bullet
+ dup 8#147/bu put %bullet
+ dup 8#150/ru put %rule
+ dup 8#151/ul put %underline
+ pop
+/DITfd 100 dict def
+/BuildChar{0 begin
+ /cc exch def /fd exch def
+ /charname fd /Encoding get cc get def
+ /charwid fd /Metrics get charname get def
+ /charproc fd /CharProcs get charname get def
+ charwid 0 fd /FontBBox get aload pop setcachedevice
+ 2 setlinejoin 40 setlinewidth
+ newpath 0 0 moveto gsave charproc grestore
+ end}def
+/BuildChar load 0 DITfd put
+%/UniqueID 5 def
+/CharProcs 50 dict def
+CharProcs begin
+/space{}def
+/.notdef{}def
+/ru{500 0 rls}def
+/rn{0 840 moveto 500 0 rls}def
+/vr{0 800 moveto 0 -770 rls}def
+/bv{0 800 moveto 0 -1000 rls}def
+/br{0 750 moveto 0 -1000 rls}def
+/ul{0 -140 moveto 500 0 rls}def
+/ob{200 250 rmoveto currentpoint newpath 200 0 360 arc closepath stroke}def
+/bu{200 250 rmoveto currentpoint newpath 200 0 360 arc closepath fill}def
+/sq{80 0 rmoveto currentpoint dround newpath moveto
+    640 0 rlineto 0 640 rlineto -640 0 rlineto closepath stroke}def
+/bx{80 0 rmoveto currentpoint dround newpath moveto
+    640 0 rlineto 0 640 rlineto -640 0 rlineto closepath fill}def
+/ci{500 360 rmoveto currentpoint newpath 333 0 360 arc
+    50 setlinewidth stroke}def
+
+/lt{0 -200 moveto 0 550 rlineto currx 800 2cx s4 add exch s4 a4p stroke}def
+/lb{0 800 moveto 0 -550 rlineto currx -200 2cx s4 add exch s4 a4p stroke}def
+/rt{0 -200 moveto 0 550 rlineto currx 800 2cx s4 sub exch s4 a4p stroke}def
+/rb{0 800 moveto 0 -500 rlineto currx -200 2cx s4 sub exch s4 a4p stroke}def
+/lk{0 800 moveto 0 300 -300 300 s4 arcto pop pop 1000 sub
+    0 300 4 2 roll s4 a4p 0 -200 lineto stroke}def
+/rk{0 800 moveto 0 300 s2 300 s4 arcto pop pop 1000 sub
+    0 300 4 2 roll s4 a4p 0 -200 lineto stroke}def
+/lf{0 800 moveto 0 -1000 rlineto s4 0 rls}def
+/rf{0 800 moveto 0 -1000 rlineto s4 neg 0 rls}def
+/lc{0 -200 moveto 0 1000 rlineto s4 0 rls}def
+/rc{0 -200 moveto 0 1000 rlineto s4 neg 0 rls}def
+end
+
+/Metrics 50 dict def Metrics begin
+/.notdef 0 def
+/space 500 def
+/ru 500 def
+/br 0 def
+/lt 416 def
+/lb 416 def
+/rt 416 def
+/rb 416 def
+/lk 416 def
+/rk 416 def
+/rc 416 def
+/lc 416 def
+/rf 416 def
+/lf 416 def
+/bv 416 def
+/ob 350 def
+/bu 350 def
+/ci 750 def
+/bx 750 def
+/sq 750 def
+/rn 500 def
+/ul 500 def
+/vr 0 def
+end
+
+DITfd begin
+/s2 500 def /s4 250 def /s3 333 def
+/a4p{arcto pop pop pop pop}def
+/2cx{2 copy exch}def
+/rls{rlineto stroke}def
+/currx{currentpoint pop}def
+/dround{transform round exch round exch itransform} def
+end
+end
+/DIThacks exch definefont pop
+ditstart
+(psc)xT
+576 1 1 xr
+1(Times-Roman)xf 1 f
+2(Times-Italic)xf 2 f
+3(Times-Bold)xf 3 f
+4(Times-BoldItalic)xf 4 f
+5(Helvetica)xf 5 f
+6(Helvetica-Bold)xf 6 f
+7(Courier)xf 7 f
+8(Courier-Bold)xf 8 f
+9(Symbol)xf 9 f
+10(DIThacks)xf 10 f
+10 s
+1 f
+xi
+%%EndProlog
+
+%%Page: 144 1
+10 s 0 xH 0 xS 1 f
+3 f
+11 s
+576 474(X)N
+661(Protocol)X
+3488(X11,)X
+3683(Release)X
+3988(2)X
+1 f
+18 s
+2140 834(Index)N
+3 f
+12 s
+576 1086(A)N
+1 f
+10 s
+576 1266(Above,)N
+830(25,)X
+950(27,)X
+1070(79)X
+576 1356(Access)N
+824(control)X
+1071(list,)X
+3 f
+11 s
+1210(1)X
+1 f
+10 s
+576 1446(Access,)N
+3 f
+11 s
+846(12)X
+1 f
+10 s
+(,)S
+974(22,)X
+1094(23,)X
+1214(33,)X
+1334(35,)X
+1454(61,)X
+1574(62,)X
+1694(69,)X
+1814(70,)X
+1934(104)X
+636 1536(control,)N
+903(1)X
+576 1626(Activate,)N
+888(69)X
+576 1716(Active)N
+810(grab,)X
+3 f
+11 s
+995(1)X
+1 f
+10 s
+576 1806(Active:)N
+636 1896(grab,)N
+819(1)X
+576 1986(All,)N
+718(58,)X
+838(59)X
+576 2076(Alloc,)N
+3 f
+11 s
+796(12)X
+1 f
+10 s
+(,)S
+924(19,)X
+1044(28,)X
+1164(39,)X
+1284(44,)X
+1404(49,)X
+1524(50,)X
+1644(58,)X
+1764(59,)X
+1884(60,)X
+2004(61,)X
+2124(62,)X
+576 2166(63,)N
+696(64,)X
+816(65,)X
+936(104)X
+576 2256(AllocColor,)N
+976(58,)X
+1096(59,)X
+3 f
+11 s
+1218(60)X
+1 f
+10 s
+(,)S
+1346(61,)X
+1466(127)X
+576 2346(AllocColorCells,)N
+1140(59,)X
+3 f
+11 s
+1262(60)X
+1 f
+10 s
+(,)S
+1390(61,)X
+1510(128)X
+576 2436(AllocColorPlanes,)N
+1185(58,)X
+1305(59,)X
+3 f
+11 s
+1427(61)X
+1 f
+10 s
+(,)S
+1555(128)X
+576 2526(AllocNamedColor,)N
+1208(59,)X
+3 f
+11 s
+1330(60)X
+1 f
+10 s
+(,)S
+1458(61,)X
+1578(128)X
+576 2616(AllowEvents,)N
+1034(32,)X
+1154(34,)X
+3 f
+11 s
+1276(35)X
+1 f
+10 s
+(,)S
+1404(36,)X
+1524(116)X
+576 2706(AllTemporary,)N
+1075(70)X
+576 2796(AlreadyGrabbed,)N
+1152(31,)X
+1272(32,)X
+1392(34)X
+576 2886(Alternative1,)N
+1017(99)X
+576 2976(AlternativeN,)N
+1035(99)X
+576 3066(AlternativeValues,)N
+1200(9)X
+576 3156(Always,)N
+861(16,)X
+981(20,)X
+1101(21,)X
+1221(23,)X
+1341(76)X
+576 3246(Ancestor,)N
+906(72,)X
+1026(73,)X
+1146(74)X
+576 3336(Ancestors,)N
+3 f
+11 s
+939(1)X
+1 f
+10 s
+576 3426(And)N
+3336(,)X
+576 3516(45)N
+576 3606(And,)N
+754(44)X
+576 3696(AndInverted,)N
+1022(44,)X
+1142(45)X
+576 3786(AndReverse,)N
+1013(44,)X
+1133(45)X
+576 3876(AnyButton,)N
+971(33)X
+576 3966(AnyKey,)N
+888(34,)X
+1008(35)X
+576 4056(AnyModi\256er,)N
+1034(33,)X
+1154(34,)X
+1274(35)X
+576 4146(AnyPropertyType,)N
+1195(29)X
+576 4236(Append,)N
+870(28,)X
+990(29)X
+576 4326(AsyncBoth,)N
+976(35,)X
+1096(36)X
+576 4416(Asynchronous,)N
+1079(31,)X
+1199(32,)X
+1319(33,)X
+1439(34,)X
+1559(35,)X
+1679(71)X
+576 4506(AsyncKeyboard,)N
+1138(35,)X
+1258(36)X
+576 4596(AsyncPointer,)N
+1052(35,)X
+1172(36)X
+576 4686(Atom,)N
+3 f
+11 s
+800(1)X
+1 f
+10 s
+(,)S
+884(9,)X
+3 f
+11 s
+966(13)X
+1 f
+10 s
+(,)S
+1094(14,)X
+1214(28,)X
+1334(29,)X
+1454(30,)X
+1574(31,)X
+1694(103)X
+3 f
+12 s
+576 4866(B)N
+1 f
+10 s
+576 5046(Background,)N
+3 f
+11 s
+1010(1)X
+1 f
+10 s
+576 5136(Backing)N
+863(store,)X
+3 f
+11 s
+1061(1)X
+1 f
+10 s
+576 5226(Backing:)N
+636 5316(store,)N
+832(1)X
+576 5406(Bell,)N
+3 f
+11 s
+751(67)X
+1 f
+10 s
+(,)S
+879(133)X
+576 5496(Below,)N
+825(25,)X
+945(27,)X
+1065(79)X
+576 5586(Bevel,)N
+803(44,)X
+923(46)X
+576 5676(Bit)N
+693(gravity,)X
+3 f
+11 s
+962(1)X
+1 f
+10 s
+576 5766(Bit)N
+693(plane,)X
+3 f
+11 s
+909(1)X
+1 f
+10 s
+2384 1086(Bit:)N
+2444 1176(gravity,)N
+2711(1)X
+2444 1266(plane,)N
+2658(1)X
+2384 1356(Bitmap,)N
+3 f
+11 s
+2661(1)X
+1 f
+10 s
+(,)S
+2745(55,)X
+2865(56)X
+2384 1446(Border,)N
+3 f
+11 s
+2649(1)X
+1 f
+10 s
+2384 1536(Bottom,)N
+2663(79)X
+2384 1626(BottomIf,)N
+2717(25,)X
+2837(27,)X
+2957(79)X
+2384 1716(Busy,)N
+2588(64,)X
+2708(65,)X
+2828(67)X
+2384 1806(Butt,)N
+2561(44,)X
+2681(46,)X
+2801(47,)X
+2921(48)X
+2384 1896(Button)N
+2621(grabbing,)X
+3 f
+11 s
+2948(1)X
+1 f
+10 s
+2384 1986(Button1,)N
+2681(12)X
+2384 2076(Button1Motion,)N
+2916(11)X
+2384 2166(Button2,)N
+2681(12)X
+2384 2256(Button2Motion,)N
+2916(11)X
+2384 2346(Button3,)N
+2681(12)X
+2384 2436(Button3Motion,)N
+2916(11)X
+2384 2526(Button4,)N
+2681(12)X
+2384 2616(Button4Motion,)N
+2916(11)X
+2384 2706(Button5,)N
+2681(12)X
+2384 2796(Button5Motion,)N
+2916(11)X
+2384 2886(Button:)N
+2444 2976(grabbing,)N
+2769(1)X
+2384 3066(ButtonMotion,)N
+2876(11,)X
+2996(72)X
+2384 3156(ButtonPress,)N
+2810(11,)X
+2930(23,)X
+3050(33,)X
+3170(35,)X
+3290(36,)X
+3 f
+11 s
+3412(71)X
+1 f
+10 s
+(,)S
+3540(72,)X
+3660(73,)X
+3780(136)X
+2384 3246(ButtonRelease,)N
+2891(11,)X
+3011(35,)X
+3131(36,)X
+3 f
+11 s
+3253(71)X
+1 f
+10 s
+(,)S
+3381(72,)X
+3501(73,)X
+3621(136)X
+2384 3336(Button[1-5]Motion,)N
+3037(72)X
+2384 3426(Byte)N
+2555(order,)X
+3 f
+11 s
+2767(1)X
+1 f
+10 s
+2384 3516(Byte:)N
+2444 3606(order,)N
+2654(1)X
+3 f
+12 s
+2384 3786(C)N
+1 f
+10 s
+2384 3966(Center,)N
+2638(11,)X
+2758(26)X
+2384 4056(ChangeActiveGrab,)N
+3044(71)X
+2384 4146(ChangeActivePointerGrab,)N
+3 f
+11 s
+3277(33)X
+1 f
+10 s
+(,)S
+3405(115)X
+2384 4236(ChangeGC,)N
+2780(12,)X
+3 f
+11 s
+2902(49)X
+1 f
+10 s
+(,)S
+3030(50,)X
+3150(122)X
+2384 4326(ChangeHosts,)N
+2851(12,)X
+3 f
+11 s
+2973(69)X
+1 f
+10 s
+(,)S
+3101(134)X
+2384 4416(ChangeKeyboardControl,)N
+3230(12,)X
+3 f
+11 s
+3352(66)X
+1 f
+10 s
+(,)S
+3480(132)X
+2384 4506(ChangeKeyboardMapping,)N
+3 f
+11 s
+3277(65)X
+1 f
+10 s
+(,)S
+3405(81,)X
+3525(132)X
+2384 4596(ChangePointerControl,)N
+3 f
+11 s
+3146(68)X
+1 f
+10 s
+(,)S
+3274(133)X
+2384 4686(ChangeProperty,)N
+3 f
+11 s
+2947(28)X
+1 f
+10 s
+(,)S
+3075(79,)X
+3195(112)X
+2384 4776(ChangeSaveSet,)N
+3 f
+11 s
+2929(24)X
+1 f
+10 s
+(,)S
+3057(110)X
+2384 4866(ChangeWindowAttributes,)N
+3265(12,)X
+3385(19,)X
+3 f
+11 s
+3507(22)X
+1 f
+10 s
+(,)S
+3635(58,)X
+3755(109)X
+2384 4956(Chaos,)N
+2624(12)X
+2384 5046(Children,)N
+3 f
+11 s
+2706(1)X
+1 f
+10 s
+2384 5136(Chord,)N
+2624(44,)X
+2744(55)X
+2384 5226(CirculateNotify,)N
+2927(27,)X
+3047(73,)X
+3167(76,)X
+3287(77,)X
+3 f
+11 s
+3409(79)X
+1 f
+10 s
+(,)S
+3537(141)X
+2384 5316(CirculateRequest,)N
+2976(27,)X
+3 f
+11 s
+3098(79)X
+1 f
+10 s
+(,)S
+3226(141)X
+2384 5406(CirculateWindow,)N
+3 f
+11 s
+2996(27)X
+1 f
+10 s
+(,)S
+3124(79,)X
+3244(111)X
+2384 5496(Clear,)N
+2598(44,)X
+2718(45)X
+2384 5586(ClearArea,)N
+3 f
+11 s
+2757(50)X
+1 f
+10 s
+(,)S
+2885(123)X
+2384 5676(Client,)N
+3 f
+11 s
+2621(2)X
+1 f
+10 s
+2384 5766(ClientMessage,)N
+3 f
+11 s
+2902(81)X
+1 f
+10 s
+(,)S
+3030(142)X
+3 f
+11 s
+2238 6048(144)N
+
+145 p
+%%Page: 145 2
+11 s 0 xH 0 xS 3 f
+576 474(X)N
+661(Protocol)X
+3488(X11,)X
+3683(Release)X
+3988(2)X
+1 f
+10 s
+576 762(ClipByChildren,)N
+1126(44,)X
+1246(48)X
+576 852(Clipping)N
+875(region,)X
+3 f
+11 s
+1122(2)X
+1 f
+10 s
+576 942(Clipping:)N
+636 1032(region,)N
+881(2)X
+576 1122(CloseFont,)N
+3 f
+11 s
+946(39)X
+1 f
+10 s
+(,)S
+1074(118)X
+576 1212(Colormap,)N
+3 f
+11 s
+943(2)X
+1 f
+10 s
+(,)S
+1032(9,)X
+3 f
+11 s
+1119(13)X
+1 f
+10 s
+(,)S
+1252(14,)X
+1377(19,)X
+1502(22,)X
+1627(58,)X
+1752(59,)X
+1876(60,)X
+2000(61,)X
+2124(62,)X
+576 1302(104)N
+576 1392(ColormapChange,)N
+1181(11,)X
+1301(80)X
+576 1482(ColormapNotify,)N
+1145(23,)X
+1265(59,)X
+3 f
+11 s
+1387(80)X
+1 f
+10 s
+(,)S
+1515(142)X
+576 1572(Complex,)N
+909(54)X
+576 1662(Con\256gureNotify,)N
+1145(26,)X
+1265(27,)X
+1385(73,)X
+1505(76,)X
+1625(77,)X
+3 f
+11 s
+1747(78)X
+1 f
+10 s
+(,)S
+1875(140)X
+576 1752(Con\256gureRequest,)N
+1194(25,)X
+3 f
+11 s
+1316(79)X
+1 f
+10 s
+(,)S
+1444(140)X
+576 1842(Con\256gureWindow,)N
+1212(21,)X
+3 f
+11 s
+1334(25)X
+1 f
+10 s
+(,)S
+1462(78,)X
+1582(79,)X
+1702(110)X
+576 1932(Connection,)N
+3 f
+11 s
+987(2)X
+1 f
+10 s
+576 2022(Containment,)N
+3 f
+11 s
+1031(2)X
+1 f
+10 s
+576 2112(Control,)N
+860(11,)X
+980(64,)X
+1100(65)X
+576 2202(ConvertSelection,)N
+3 f
+11 s
+1174(31)X
+1 f
+10 s
+(,)S
+1302(80,)X
+1422(113)X
+576 2292(Convex,)N
+865(54)X
+576 2382(Coordinate)N
+952(system,)X
+3 f
+11 s
+1216(2)X
+1 f
+10 s
+576 2472(Coordinate:)N
+636 2562(system,)N
+898(2)X
+576 2652(Copy,)N
+789(44,)X
+909(45,)X
+1029(48,)X
+1149(51,)X
+1269(58)X
+576 2742(CopyArea,)N
+946(48,)X
+3 f
+11 s
+1068(51)X
+1 f
+10 s
+(,)S
+1196(76,)X
+1316(77,)X
+1436(123)X
+576 2832(CopyColormapAndFree,)N
+3 f
+11 s
+1392(59)X
+1 f
+10 s
+(,)S
+1520(127)X
+576 2922(CopyFromParent,)N
+1167(19,)X
+1287(20,)X
+1407(21,)X
+1527(22,)X
+1647(23,)X
+1767(99)X
+576 3012(CopyGC,)N
+3 f
+11 s
+902(49)X
+1 f
+10 s
+(,)S
+1030(123)X
+576 3102(CopyInverted,)N
+1057(44,)X
+1177(45)X
+576 3192(CopyPlane,)N
+967(48,)X
+3 f
+11 s
+1089(51)X
+1 f
+10 s
+(,)S
+1217(76,)X
+1337(77,)X
+1457(123)X
+576 3282(CreateColormap,)N
+3 f
+11 s
+1148(58)X
+1 f
+10 s
+(,)S
+1276(59,)X
+1396(127)X
+576 3372(CreateCursor,)N
+3 f
+11 s
+1046(62)X
+1 f
+10 s
+(,)S
+1174(63,)X
+1294(130)X
+576 3462(CreateGC,)N
+3 f
+11 s
+939(44)X
+1 f
+10 s
+(,)S
+1067(49,)X
+1187(50,)X
+1307(121)X
+576 3552(CreateGlyphCursor,)N
+3 f
+11 s
+1246(63)X
+1 f
+10 s
+(,)S
+1374(130)X
+576 3642(CreateNotify,)N
+1035(22,)X
+3 f
+11 s
+1157(77)X
+1 f
+10 s
+(,)S
+1285(139)X
+576 3732(CreatePixmap,)N
+3 f
+11 s
+1072(44)X
+1 f
+10 s
+(,)S
+1200(121)X
+576 3822(CreateWindow,)N
+3 f
+11 s
+1104(19)X
+1 f
+10 s
+(,)S
+1232(22,)X
+1352(58,)X
+1472(77,)X
+1592(108)X
+576 3912(CurrentTime,)N
+1030(8,)X
+1110(30,)X
+1230(31,)X
+1350(32,)X
+1470(33,)X
+1590(34,)X
+1710(35,)X
+1830(37,)X
+1950(38,)X
+2070(80)X
+576 4002(Cursor,)N
+3 f
+11 s
+836(2)X
+1 f
+10 s
+(,)S
+920(9,)X
+3 f
+11 s
+1002(13)X
+1 f
+10 s
+(,)S
+1130(14,)X
+1250(19,)X
+1370(22,)X
+1490(32,)X
+1610(33,)X
+1730(63,)X
+1850(64,)X
+1970(104)X
+3 f
+12 s
+576 4182(D)N
+1 f
+10 s
+576 4362(DECnet,)N
+874(12)X
+576 4452(Default,)N
+857(66,)X
+977(68)X
+576 4542(Delete,)N
+826(24,)X
+946(69)X
+576 4632(Deleted,)N
+866(79)X
+576 4722(DeleteProperty,)N
+3 f
+11 s
+1104(29)X
+1 f
+10 s
+(,)S
+1232(79,)X
+1352(112)X
+576 4812(Depth,)N
+3 f
+11 s
+814(2)X
+1 f
+10 s
+576 4902(Destroy,)N
+870(70)X
+576 4992(DestroyNotify,)N
+1079(23,)X
+3 f
+11 s
+1201(77)X
+1 f
+10 s
+(,)S
+1329(139)X
+576 5082(DestroySubwindows,)N
+3 f
+11 s
+1285(24)X
+1 f
+10 s
+(,)S
+1413(110)X
+576 5172(DestroyWindow,)N
+3 f
+11 s
+1148(23)X
+1 f
+10 s
+(,)S
+1276(24,)X
+1396(109)X
+576 5262(Device,)N
+3 f
+11 s
+846(2)X
+1 f
+10 s
+576 5352(DirectColor,)N
+3 f
+11 s
+1001(2)X
+1 f
+10 s
+(,)S
+1085(8,)X
+1165(16,)X
+1285(19,)X
+1405(58,)X
+1525(60,)X
+1645(61)X
+576 5442(Disable,)N
+861(69)X
+576 5532(Disabled,)N
+901(69)X
+576 5622(Display,)N
+3 f
+11 s
+867(3)X
+1 f
+10 s
+576 5712(DoubleDash,)N
+1017(44,)X
+1137(46,)X
+1257(47)X
+576 5802(Drawable,)N
+3 f
+11 s
+937(3)X
+1 f
+10 s
+(,)S
+1027(9,)X
+3 f
+11 s
+1115(13)X
+1 f
+10 s
+(,)S
+1249(14,)X
+1374(28,)X
+1499(44,)X
+1624(51,)X
+1749(52,)X
+1874(53,)X
+1999(54,)X
+2124(55,)X
+2384 762(56,)N
+2504(57,)X
+2624(58,)X
+2744(64,)X
+2864(104)X
+3 f
+12 s
+2384 942(E)N
+1 f
+10 s
+2384 1122(East,)N
+2562(11,)X
+2682(26)X
+2384 1212(Enable,)N
+2647(69)X
+2384 1302(Enabled,)N
+2687(69)X
+2384 1392(EnterNotify,)N
+2807(32,)X
+3 f
+11 s
+2929(72)X
+1 f
+10 s
+(,)S
+3057(73,)X
+3177(74,)X
+3297(76,)X
+3417(77,)X
+3537(137)X
+2384 1482(EnterWindow,)N
+2874(11,)X
+2994(72)X
+2384 1572(Equiv,)N
+2615(44,)X
+2735(45)X
+2384 1662(EvenOdd,)N
+2727(44,)X
+2847(48)X
+2384 1752(Event)N
+2591(mask,)X
+3 f
+11 s
+2802(3)X
+1 f
+10 s
+2384 1842(Event)N
+2591(propagation,)X
+3 f
+11 s
+3016(3)X
+1 f
+10 s
+2384 1932(Event)N
+2591(source,)X
+3 f
+11 s
+2843(3)X
+1 f
+10 s
+2384 2022(Event)N
+2591(sychronization,)X
+3 f
+11 s
+3105(3)X
+1 f
+10 s
+2384 2112(Event")N
+2624(,)X
+3 f
+11 s
+2666(3)X
+1 f
+10 s
+(")S
+2384 2202(Event,)N
+2611(3)X
+2444 2292(mask,)N
+2653(3)X
+2444 2382(propagation,)N
+2867(3)X
+2444 2472(source,)N
+2694(3)X
+2444 2562(sychronization,)N
+2956(3)X
+2384 2652(EventName,)N
+2803(10)X
+2384 2742(Expose,)N
+2660(73,)X
+2780(74,)X
+3 f
+11 s
+2902(76)X
+1 f
+10 s
+(,)S
+3030(77,)X
+3150(139)X
+2384 2832(Exposure)N
+2707(event,)X
+3 f
+11 s
+2923(3)X
+1 f
+10 s
+2384 2922(Exposure,)N
+2727(11,)X
+2847(76)X
+2444 3012(event,)N
+2658(3)X
+2384 3102(Extension,)N
+3 f
+11 s
+2746(3)X
+12 s
+2384 3282(F)N
+1 f
+10 s
+2384 3462(Failed,)N
+2624(64)X
+2384 3552(False,)N
+2595(11,)X
+2717(20,)X
+2839(24,)X
+2961(25,)X
+3083(28,)X
+3205(31,)X
+3327(32,)X
+3448(34,)X
+3569(37,)X
+3690(71,)X
+3811(73,)X
+3932(78,)X
+2384 3642(80)N
+2384 3732(FillPoly,)N
+2680(47,)X
+2800(48,)X
+3 f
+11 s
+2922(54)X
+1 f
+10 s
+(,)S
+3050(55,)X
+3170(124)X
+2384 3822(Focus)N
+2595(window,)X
+2893(3)X
+2384 3912(Focus:)N
+2444 4002(window,)N
+2742(3)X
+2384 4092(FocusChange,)N
+2860(11,)X
+2980(74)X
+2384 4182(FocusIn,)N
+2682(34,)X
+2802(38,)X
+3 f
+11 s
+2924(74)X
+1 f
+10 s
+(,)S
+3052(75,)X
+3172(76,)X
+3292(138)X
+2384 4272(FocusOut,)N
+2735(34,)X
+2855(38,)X
+2975(73,)X
+3 f
+11 s
+3097(74)X
+1 f
+10 s
+(,)S
+3225(75,)X
+3345(76,)X
+3465(77,)X
+3585(138)X
+2384 4362(Font,)N
+3 f
+11 s
+2572(3)X
+1 f
+10 s
+(,)S
+2656(9,)X
+3 f
+11 s
+2738(13)X
+1 f
+10 s
+(,)S
+2866(14,)X
+2986(39,)X
+3106(42,)X
+3226(44,)X
+3346(49,)X
+3466(57,)X
+3586(63,)X
+3706(104)X
+2384 4452 0.1953(ForceScreenSaver,)AN
+3009(68,)X
+3 f
+11 s
+3131(69)X
+1 f
+10 s
+(,)S
+3259(135)X
+2384 4542(Forget,)N
+2633(11,)X
+2753(20,)X
+2873(26)X
+2384 4632(Free,)N
+2567(70)X
+2384 4722(FreeColormap,)N
+3 f
+11 s
+2889(58)X
+1 f
+10 s
+(,)S
+3017(127)X
+2384 4812(FreeColors,)N
+2780(12,)X
+2900(58,)X
+3 f
+11 s
+3022(61)X
+1 f
+10 s
+(,)S
+3150(129)X
+2384 4902(FreeCursor,)N
+3 f
+11 s
+2787(63)X
+1 f
+10 s
+(,)S
+2915(130)X
+2384 4992(FreeGC,)N
+3 f
+11 s
+2680(50)X
+1 f
+10 s
+(,)S
+2808(123)X
+2384 5082(FreePixmap,)N
+3 f
+11 s
+2813(44)X
+1 f
+10 s
+(,)S
+2941(121)X
+2384 5172(Frozen,)N
+2647(31,)X
+2767(32,)X
+2887(34)X
+2384 5262(FullyObscured,)N
+2900(77)X
+3 f
+12 s
+2384 5442(G)N
+1 f
+10 s
+2384 5622(GC,)N
+3 f
+11 s
+2537(4)X
+1 f
+10 s
+2384 5712(GContext,)N
+3 f
+11 s
+2743(4)X
+1 f
+10 s
+(,)S
+2833(9,)X
+3 f
+11 s
+2921(13)X
+1 f
+10 s
+(,)S
+3055(14,)X
+3181(49,)X
+3307(50,)X
+3432(51,)X
+3557(52,)X
+3682(53,)X
+3807(54,)X
+3932(55,)X
+2384 5802(57,)N
+2504(58,)X
+2624(105)X
+3 f
+11 s
+2238 6048(145)N
+
+146 p
+%%Page: 146 3
+11 s 0 xH 0 xS 3 f
+576 474(X)N
+661(Protocol)X
+3488(X11,)X
+3683(Release)X
+3988(2)X
+1 f
+10 s
+576 762(GetAtomName,)N
+3 f
+11 s
+1108(28)X
+1 f
+10 s
+(,)S
+1236(112)X
+576 852(GetFontPath,)N
+3 f
+11 s
+1022(43)X
+1 f
+10 s
+(,)S
+1150(120)X
+576 942(GetGeometry,)N
+3 f
+11 s
+1055(27)X
+1 f
+10 s
+(,)S
+1183(111)X
+576 1032(GetImage,)N
+3 f
+11 s
+935(56)X
+1 f
+10 s
+(,)S
+1063(125)X
+576 1122(GetInputFocus,)N
+3 f
+11 s
+1094(38)X
+1 f
+10 s
+(,)S
+1222(118)X
+576 1212(GetKeyboardControl,)N
+3 f
+11 s
+1295(67)X
+1 f
+10 s
+(,)S
+1423(132)X
+576 1302(GetKeyboardMapping,)N
+3 f
+11 s
+1340(65)X
+1 f
+10 s
+(,)S
+1468(132)X
+576 1392(GetModi\256erMapping,)N
+3 f
+11 s
+1303(65)X
+1 f
+10 s
+(,)S
+1431(135)X
+576 1482(GetMotionEvents,)N
+1185(18,)X
+3 f
+11 s
+1307(37)X
+1 f
+10 s
+(,)S
+1435(72,)X
+1555(117)X
+576 1572(GetPointerControl,)N
+3 f
+11 s
+1209(68)X
+1 f
+10 s
+(,)S
+1337(133)X
+576 1662(GetPointerMapping,)N
+1252(67,)X
+3 f
+11 s
+1374(68)X
+1 f
+10 s
+(,)S
+1502(135)X
+576 1752(GetProperty,)N
+3 f
+11 s
+1010(29)X
+1 f
+10 s
+(,)S
+1138(79,)X
+1258(112)X
+576 1842(GetScreenSaver,)N
+3 f
+11 s
+1136(68)X
+1 f
+10 s
+(,)S
+1264(133)X
+576 1932(GetSelectionOwner,)N
+3 f
+11 s
+1251(30)X
+1 f
+10 s
+(,)S
+1379(113)X
+576 2022(GetWindowAttributes,)N
+1328(19,)X
+3 f
+11 s
+1450(23)X
+1 f
+10 s
+(,)S
+1578(109)X
+576 2112(Glyph,)N
+3 f
+11 s
+818(3)X
+1 f
+10 s
+576 2202(Grab,)N
+3 f
+11 s
+779(3)X
+1 f
+10 s
+(,)S
+863(72,)X
+983(73,)X
+1103(74,)X
+1223(75)X
+576 2292(GrabButton,)N
+994(32,)X
+3 f
+11 s
+1116(33)X
+1 f
+10 s
+(,)S
+1244(36,)X
+1364(71,)X
+1484(114)X
+576 2382(GrabKey,)N
+3 f
+11 s
+913(34)X
+1 f
+10 s
+(,)S
+1041(35,)X
+1161(36,)X
+1281(115)X
+576 2472(GrabKeyboard,)N
+3 f
+11 s
+1096(34)X
+1 f
+10 s
+(,)S
+1224(35,)X
+1344(36,)X
+1464(115)X
+576 2562(GrabPointer,)N
+3 f
+11 s
+1010(31)X
+1 f
+10 s
+(,)S
+1138(32,)X
+1258(33,)X
+1378(36,)X
+1498(114)X
+576 2652(GrabServer,)N
+3 f
+11 s
+989(36)X
+1 f
+10 s
+(,)S
+1117(116)X
+576 2742(Graphics)N
+886(context,)X
+3 f
+11 s
+1164(4)X
+1 f
+10 s
+576 2832(Graphics:)N
+636 2922(context,)N
+912(4)X
+576 3012(GraphicsExposure,)N
+1209(48,)X
+1329(51,)X
+3 f
+11 s
+1451(76)X
+1 f
+10 s
+(,)S
+1579(77,)X
+1699(139)X
+576 3102(Gravity,)N
+3 f
+11 s
+863(4)X
+1 f
+10 s
+576 3192(GravityNotify,)N
+1070(26,)X
+1190(73,)X
+1310(76,)X
+1430(77,)X
+3 f
+11 s
+1552(78)X
+1 f
+10 s
+(,)S
+1680(141)X
+576 3282(GrayScale,)N
+3 f
+11 s
+953(4)X
+1 f
+10 s
+(,)S
+1037(8,)X
+1117(16,)X
+1237(19,)X
+1357(58,)X
+1477(60,)X
+1597(62)X
+3 f
+12 s
+576 3462(H)N
+1 f
+10 s
+576 3642(Hint,)N
+758(72)X
+576 3732(Hotspot,)N
+3 f
+11 s
+871(4)X
+12 s
+576 3912(I)N
+1 f
+10 s
+576 4092(IDChoice,)N
+928(9,)X
+3 f
+11 s
+1010(13)X
+1 f
+10 s
+(,)S
+1138(19,)X
+1258(39,)X
+1378(44,)X
+1498(58,)X
+1618(59,)X
+1738(62,)X
+1858(63,)X
+1978(105)X
+576 4182(Identi\256er,)N
+3 f
+11 s
+912(4)X
+1 f
+10 s
+576 4272(ImageText16,)N
+3 f
+11 s
+1046(58)X
+1 f
+10 s
+(,)S
+1174(126)X
+576 4362(ImageText8,)N
+3 f
+11 s
+1006(57)X
+1 f
+10 s
+(,)S
+1134(58,)X
+1254(126)X
+576 4452(Implementation,)N
+3 f
+11 s
+1125(13)X
+1 f
+10 s
+(,)S
+1253(105)X
+576 4542(IncludeInferiors,)N
+1134(44,)X
+1254(48)X
+576 4632(Inferior,)N
+862(72,)X
+982(73,)X
+1102(74)X
+576 4722(Inferiors,)N
+3 f
+11 s
+895(4)X
+1 f
+10 s
+576 4812(Input)N
+765(focus,)X
+3 f
+11 s
+981(4)X
+1 f
+10 s
+576 4902(Input)N
+765(manager,)X
+3 f
+11 s
+1084(4)X
+1 f
+10 s
+576 4992(Input:)N
+636 5082(focus,)N
+850(4)X
+636 5172(manager,)N
+953(4)X
+576 5262(InputFocus,)N
+976(31,)X
+1096(100)X
+576 5352(InputOnly)N
+925(window,)X
+3 f
+11 s
+1225(4)X
+1 f
+10 s
+576 5442(InputOnly,)N
+951(3,)X
+1037(4,)X
+1123(13,)X
+1249(18,)X
+1374(19,)X
+1499(20,)X
+1624(21,)X
+1749(23,)X
+1874(25,)X
+1999(28,)X
+2124(44,)X
+576 5532(51,)N
+696(64,)X
+816(76,)X
+936(77,)X
+1056(99)X
+636 5622(window,)N
+934(4)X
+576 5712(InputOutput)N
+987(window,)X
+3 f
+11 s
+1287(4)X
+1 f
+10 s
+576 5802(InputOutput,)N
+1007(1,)X
+1087(4,)X
+1167(5,)X
+1247(18,)X
+1367(19,)X
+1487(20,)X
+1607(23,)X
+1727(48,)X
+1847(99)X
+2444 762(window,)N
+2742(4)X
+2384 852(Insert,)N
+2607(24,)X
+2727(69)X
+2384 942(InstallColormap,)N
+2944(18,)X
+3064(22,)X
+3184(23,)X
+3 f
+11 s
+3306(59)X
+1 f
+10 s
+(,)S
+3434(60,)X
+3554(127)X
+2384 1032(Installed,)N
+2700(80)X
+2384 1122(InternAtom,)N
+3 f
+11 s
+2800(28)X
+1 f
+10 s
+(,)S
+2928(111)X
+2384 1212(Internet,)N
+2674(12)X
+2384 1302(InvalidTime,)N
+2820(31,)X
+2940(32,)X
+3060(34)X
+2384 1392(Invert,)N
+2616(44,)X
+2736(45)X
+3 f
+12 s
+2384 1572(K)N
+1 f
+10 s
+2384 1752(Key)N
+2538(grabbing,)X
+3 f
+11 s
+2865(4)X
+1 f
+10 s
+2384 1842(Key:)N
+2444 1932(grabbing,)N
+2769(4)X
+2384 2022(Keyboard)N
+2721(grabbing,)X
+3 f
+11 s
+3048(4)X
+1 f
+10 s
+2384 2112(Keyboard,)N
+2741(80,)X
+2861(81)X
+2444 2202(grabbing,)N
+2769(4)X
+2384 2292(KeymapNotify,)N
+2905(9,)X
+3 f
+11 s
+2987(76)X
+1 f
+10 s
+(,)S
+3115(139)X
+2384 2382(KeymapState,)N
+2856(11,)X
+2976(76)X
+2384 2472(KeyPress,)N
+2727(11,)X
+2847(34,)X
+2967(35,)X
+3087(36,)X
+3 f
+11 s
+3209(71)X
+1 f
+10 s
+(,)S
+3337(72,)X
+3457(75,)X
+3577(136)X
+2384 2562(KeyRelease,)N
+2808(11,)X
+2928(34,)X
+3048(36,)X
+3 f
+11 s
+3170(71)X
+1 f
+10 s
+(,)S
+3298(72,)X
+3418(75,)X
+3538(136)X
+2384 2652(Keysym,)N
+3 f
+11 s
+2693(4)X
+1 f
+10 s
+2384 2742(KillClient,)N
+3 f
+11 s
+2745(70)X
+1 f
+10 s
+(,)S
+2873(134)X
+3 f
+12 s
+2384 2922(L)N
+1 f
+10 s
+2384 3102(LeastSigni\256cant,)N
+2944(16)X
+2384 3192(LeaveNotify,)N
+2830(32,)X
+3 f
+11 s
+2952(72)X
+1 f
+10 s
+(,)S
+3080(73,)X
+3200(74,)X
+3320(76,)X
+3440(77,)X
+3560(137)X
+2384 3282(LeaveWindow,)N
+2897(11)X
+2384 3372(LeftToRight,)N
+2824(39,)X
+2944(40,)X
+3064(42)X
+2384 3462(Length,)N
+3 f
+11 s
+2653(13)X
+1 f
+10 s
+(,)S
+2781(18,)X
+2901(64,)X
+3021(65,)X
+3141(105)X
+2384 3552(ListExtensions,)N
+3 f
+11 s
+2901(64)X
+1 f
+10 s
+(,)S
+3029(131)X
+2384 3642(ListFonts,,)N
+2745(43)X
+2384 3732(ListFonts,)N
+3 f
+11 s
+2727(43)X
+1 f
+10 s
+(,)S
+2855(119)X
+2384 3822(ListFontsWithInfo,)N
+3 f
+11 s
+3021(43)X
+1 f
+10 s
+(,)S
+3149(120)X
+2384 3912(ListHosts,)N
+3 f
+11 s
+2732(69)X
+1 f
+10 s
+(,)S
+2860(134)X
+2384 4002(ListInstalledColormaps,)N
+3 f
+11 s
+3177(60)X
+1 f
+10 s
+(,)S
+3305(127)X
+2384 4092(ListProperties,)N
+3 f
+11 s
+2875(30)X
+1 f
+10 s
+(,)S
+3003(113)X
+2384 4182(Lock,)N
+2589(11,)X
+2709(64,)X
+2829(65)X
+2384 4272(LookupColor,)N
+3 f
+11 s
+2857(62)X
+1 f
+10 s
+(,)S
+2985(130)X
+2384 4362(LowerHighest,)N
+2883(27)X
+2384 4452(LSBFirst,)N
+2716(16)X
+3 f
+12 s
+2384 4632(M)N
+1 f
+10 s
+2384 4812(MapNotify,)N
+2780(24,)X
+2900(73,)X
+3020(76,)X
+3140(77,)X
+3 f
+11 s
+3262(78)X
+1 f
+10 s
+(,)S
+3390(140)X
+2384 4902(Mapped,)N
+3 f
+11 s
+2689(5)X
+1 f
+10 s
+2384 4992(MappingNotify,)N
+2922(65,)X
+3042(67,)X
+3 f
+11 s
+3164(80)X
+1 f
+10 s
+(,)S
+3292(143)X
+2384 5082(MapRequest,)N
+2829(24,)X
+3 f
+11 s
+2951(78)X
+1 f
+10 s
+(,)S
+3079(140)X
+2384 5172(MapSubwindows,)N
+3 f
+11 s
+2986(25)X
+1 f
+10 s
+(,)S
+3114(110)X
+2384 5262(MapWindow,)N
+3 f
+11 s
+2849(24)X
+1 f
+10 s
+(,)S
+2977(25,)X
+3097(70,)X
+3217(78,)X
+3337(110)X
+2384 5352(Match,)N
+3 f
+11 s
+2640(13)X
+1 f
+10 s
+(,)S
+2777(19,)X
+2906(20,)X
+3035(21,)X
+3164(22,)X
+3292(24,)X
+3420(25,)X
+3548(27,)X
+3676(28,)X
+3804(29,)X
+3932(30,)X
+2384 5442(38,)N
+2513(44,)X
+2642(47,)X
+2771(48,)X
+2900(49,)X
+3029(50,)X
+3158(51,)X
+3287(52,)X
+3416(53,)X
+3545(54,)X
+3674(55,)X
+3803(56,)X
+3932(57,)X
+2384 5532(58,)N
+2504(62,)X
+2624(63,)X
+2744(64,)X
+2864(66,)X
+2984(67,)X
+3104(104)X
+2384 5622(Miter,)N
+2602(44,)X
+2722(46,)X
+2842(48)X
+2384 5712(Mod1,)N
+2615(11,)X
+2735(64,)X
+2855(65)X
+2384 5802(Mod2,)N
+2615(11,)X
+2735(64,)X
+2855(65)X
+3 f
+11 s
+2238 6048(146)N
+
+147 p
+%%Page: 147 4
+11 s 0 xH 0 xS 3 f
+576 474(X)N
+661(Protocol)X
+3488(X11,)X
+3683(Release)X
+3988(2)X
+1 f
+10 s
+576 762(Mod3,)N
+807(11,)X
+927(64,)X
+1047(65)X
+576 852(Mod4,)N
+807(11,)X
+927(64,)X
+1047(65)X
+576 942(Mod5,)N
+807(11,)X
+927(64,)X
+1047(65)X
+576 1032(Modi\256er)N
+876(keys,)X
+3 f
+11 s
+1065(5)X
+1 f
+10 s
+576 1122(Modi\256er,)N
+896(80)X
+636 1212(keys,)N
+823(5)X
+576 1302(Modi\256ers,)N
+927(80)X
+576 1392(Monochrome,)N
+3 f
+11 s
+1050(5)X
+1 f
+10 s
+576 1482(MostSigni\256cant,)N
+1126(16)X
+576 1572(MotionNotify,)N
+1060(18,)X
+3 f
+11 s
+1182(71)X
+1 f
+10 s
+(,)S
+1310(72,)X
+1430(137)X
+576 1662(MSBFirst,)N
+930(16)X
+3 f
+12 s
+576 1842(N)N
+1 f
+10 s
+576 2022(Name1,)N
+848(99)X
+576 2112(Name,)N
+3 f
+11 s
+810(13)X
+1 f
+10 s
+(,)S
+938(39,)X
+1058(60,)X
+1178(62,)X
+1298(105)X
+576 2202(NameN,)N
+866(99)X
+576 2292(NameofThing,)N
+1066(99)X
+576 2382(Nand,)N
+790(44)X
+576 2472(NAnd,)N
+812(45)X
+576 2562(Never,)N
+813(16)X
+576 2652(NewValue,)N
+960(79)X
+576 2742(No,)N
+714(68)X
+576 2832(NoExposure,)N
+1017(51,)X
+3 f
+11 s
+1139(76)X
+1 f
+10 s
+(,)S
+1267(139)X
+576 2922(Nonconvex,)N
+986(54)X
+576 3012(None,)N
+792(14,)X
+914(20,)X
+1035(21,)X
+1156(22,)X
+1277(23,)X
+1398(28,)X
+1519(29,)X
+1640(30,)X
+1761(31,)X
+1882(33,)X
+2003(37,)X
+2124(38,)X
+576 3102(44,)N
+705(48,)X
+834(50,)X
+963(51,)X
+1092(56,)X
+1221(58,)X
+1350(59,)X
+1479(62,)X
+1608(63,)X
+1737(71,)X
+1866(72,)X
+1995(74,)X
+2124(75,)X
+576 3192(78,)N
+696(79,)X
+816(80)X
+576 3282(Nonlinear,)N
+937(72,)X
+1057(73,)X
+1177(74,)X
+1297(75)X
+576 3372(NonlinearVirtual,)N
+1164(72,)X
+1284(73,)X
+1404(74,)X
+1524(75)X
+576 3462(Noop,)N
+794(44)X
+576 3552(NoOp,)N
+812(45)X
+576 3642(NoOperation,)N
+3 f
+11 s
+1037(70)X
+1 f
+10 s
+(,)S
+1165(136)X
+576 3732(Nor,)N
+741(44,)X
+861(45)X
+576 3822(Normal,)N
+861(72,)X
+981(73,)X
+1101(74,)X
+1221(75,)X
+1341(76)X
+576 3912(North,)N
+803(11,)X
+923(26)X
+576 4002(NorthEast,)N
+941(11,)X
+1061(26)X
+576 4092(NorthWest,)N
+968(11,)X
+1088(20,)X
+1208(26)X
+576 4182(NoSymbol,)N
+962(65,)X
+1082(66)X
+576 4272(NotLast,)N
+874(44,)X
+994(46,)X
+1114(47)X
+576 4362(NotUseful,)N
+950(20,)X
+1070(21,)X
+1190(23)X
+576 4452(NotViewable,)N
+1044(31,)X
+1164(32,)X
+1284(34)X
+3 f
+12 s
+576 4632(O)N
+1 f
+10 s
+576 4812(Obscure,)N
+3 f
+11 s
+886(5)X
+1 f
+10 s
+576 4902(Occlude,)N
+3 f
+11 s
+886(5)X
+1 f
+10 s
+576 4992(Off,)N
+728(66,)X
+848(67)X
+576 5082(On,)N
+714(66,)X
+834(67)X
+576 5172(OnOffDash,)N
+991(44,)X
+1111(46,)X
+1231(47)X
+576 5262(OpaqueStippled,)N
+1132(44,)X
+1252(47,)X
+1372(51)X
+576 5352(OpenFont,)N
+3 f
+11 s
+938(39)X
+1 f
+10 s
+(,)S
+1066(118)X
+576 5442(Opposite,)N
+905(25,)X
+1025(27,)X
+1145(79)X
+576 5532(Or,)N
+701(44,)X
+821(45)X
+576 5622(Origin,)N
+825(52,)X
+945(54)X
+576 5712(OrInverted,)N
+969(44,)X
+1089(45)X
+576 5802(OrReverse,)N
+960(44,)X
+1080(45)X
+2384 762(OwnerGrabButton,)N
+3021(11,)X
+3141(71)X
+3 f
+12 s
+2384 942(P)N
+1 f
+10 s
+2384 1122(Padding,)N
+3 f
+11 s
+2688(5)X
+1 f
+10 s
+2384 1212(Parent)N
+2609(window,)X
+3 f
+11 s
+2909(5)X
+1 f
+10 s
+2384 1302(Parent,)N
+2629(38)X
+2444 1392(window,)N
+2742(5)X
+2384 1482(ParentRelative,)N
+2896(20,)X
+3016(21,)X
+3136(23,)X
+3256(24)X
+2384 1572(PartiallyObscured,)N
+3003(77)X
+2384 1662(Passive)N
+2644(grab,)X
+3 f
+11 s
+2829(5)X
+1 f
+10 s
+2384 1752(Passive:)N
+2444 1842(grab,)N
+2627(5)X
+2384 1932(PieSlice,)N
+2686(44,)X
+2806(48,)X
+2926(55)X
+2384 2022(Pixel)N
+2568(value,)X
+3 f
+11 s
+2784(5)X
+1 f
+10 s
+2384 2112(Pixel:)N
+2444 2202(value,)N
+2658(5)X
+2384 2292(Pixmap,)N
+3 f
+11 s
+2670(5)X
+1 f
+10 s
+(,)S
+2754(9,)X
+3 f
+11 s
+2836(13)X
+1 f
+10 s
+(,)S
+2964(14,)X
+3084(19,)X
+3204(22,)X
+3324(44,)X
+3444(49,)X
+3564(62,)X
+3684(103)X
+2384 2382(Plane)N
+2582(mask,)X
+3 f
+11 s
+2793(5)X
+1 f
+10 s
+2384 2472(Plane,)N
+3 f
+11 s
+2604(5)X
+1 f
+10 s
+2444 2562(mask,)N
+2653(5)X
+2384 2652(Pointer)N
+2635(grabbing,)X
+3 f
+11 s
+2962(6)X
+1 f
+10 s
+2384 2742(Pointer,)N
+3 f
+11 s
+2657(6)X
+1 f
+10 s
+(,)S
+2741(74,)X
+2861(75,)X
+2981(80,)X
+3101(81)X
+2444 2832(grabbing,)N
+2769(6)X
+2384 2922(PointerMotion,)N
+2890(11,)X
+3010(72)X
+2384 3012(PointerMotionHint,)N
+3032(11,)X
+3152(72)X
+2384 3102(PointerRoot,,)N
+2830(75)X
+2384 3192(PointerRoot,)N
+2810(14,)X
+2930(38,)X
+3050(71,)X
+3170(74,)X
+3290(75)X
+2384 3282(PointerWindow,)N
+2931(31,)X
+3051(100)X
+2384 3372(Pointing)N
+2674(device,)X
+3 f
+11 s
+2926(6)X
+1 f
+10 s
+2384 3462(Pointing:)N
+2444 3552(device,)N
+2694(6)X
+2384 3642(PolyArc,)N
+2691(47,)X
+3 f
+11 s
+2813(53)X
+1 f
+10 s
+(,)S
+2941(55,)X
+3061(124)X
+2384 3732(PolyFillArc,)N
+2801(47,)X
+2921(48,)X
+3 f
+11 s
+3043(55)X
+1 f
+10 s
+(,)S
+3171(125)X
+2384 3822(PolyFillRectangle,)N
+3001(47,)X
+3 f
+11 s
+3123(54)X
+1 f
+10 s
+(,)S
+3251(125)X
+2384 3912(PolyLine,)N
+2717(47,)X
+3 f
+11 s
+2839(52)X
+1 f
+10 s
+(,)S
+2967(53,)X
+3087(124)X
+2384 4002(PolyPoint,)N
+3 f
+11 s
+2740(52)X
+1 f
+10 s
+(,)S
+2868(124)X
+2384 4092(PolyRectangle,)N
+2891(47,)X
+3 f
+11 s
+3013(53)X
+1 f
+10 s
+(,)S
+3141(124)X
+2384 4182(PolySegment,)N
+2850(47,)X
+3 f
+11 s
+2972(52)X
+1 f
+10 s
+(,)S
+3100(124)X
+2384 4272(PolyText16,)N
+2797(12,)X
+2917(47,)X
+3 f
+11 s
+3039(57)X
+1 f
+10 s
+(,)S
+3167(126)X
+2384 4362(PolyText8,)N
+2757(12,)X
+2877(47,)X
+3 f
+11 s
+2999(56)X
+1 f
+10 s
+(,)S
+3127(57,)X
+3247(126)X
+2384 4452(Prepend,)N
+2687(28,)X
+2807(29)X
+2384 4542(Previous,)N
+2704(52,)X
+2824(54)X
+2384 4632(Projecting,)N
+2753(44,)X
+2873(46,)X
+2993(47)X
+2384 4722(Property)N
+2680(list,)X
+3 f
+11 s
+2819(6)X
+1 f
+10 s
+2384 4812(Property,)N
+3 f
+11 s
+2702(6)X
+1 f
+10 s
+2444 4902(list,)N
+2581(6)X
+2384 4992(PropertyChange,)N
+2945(11,)X
+3065(79)X
+2384 5082(PropertyNotify,)N
+2909(29,)X
+3029(30,)X
+3 f
+11 s
+3151(79)X
+1 f
+10 s
+(,)S
+3279(142)X
+2384 5172(PseudoColor,)N
+2837(4,)X
+3 f
+11 s
+2919(6)X
+1 f
+10 s
+(,)S
+3003(7,)X
+3083(16,)X
+3203(19,)X
+3323(58,)X
+3443(60,)X
+3563(61)X
+2384 5262(PutImage,)N
+3 f
+11 s
+2733(55)X
+1 f
+10 s
+(,)S
+2861(125)X
+3 f
+12 s
+2384 5442(Q)N
+1 f
+10 s
+2384 5622(QueryBestSize,)N
+3 f
+11 s
+2907(63)X
+1 f
+10 s
+(,)S
+3035(131)X
+2384 5712(QueryColors,)N
+3 f
+11 s
+2840(62)X
+1 f
+10 s
+(,)S
+2968(129)X
+2384 5802(QueryExtension,)N
+3 f
+11 s
+2947(64)X
+1 f
+10 s
+(,)S
+3075(131)X
+3 f
+11 s
+2238 6048(147)N
+
+148 p
+%%Page: 148 5
+11 s 0 xH 0 xS 3 f
+576 474(X)N
+661(Protocol)X
+3488(X11,)X
+3683(Release)X
+3988(2)X
+1 f
+10 s
+576 762(QueryFont,)N
+963(15,)X
+3 f
+11 s
+1085(39)X
+1 f
+10 s
+(,)S
+1213(42,)X
+1333(43,)X
+1453(118)X
+576 852(QueryKeymap,)N
+3 f
+11 s
+1091(39)X
+1 f
+10 s
+(,)S
+1219(76,)X
+1339(118)X
+576 942(QueryPointer,)N
+3 f
+11 s
+1050(37)X
+1 f
+10 s
+(,)S
+1178(72,)X
+1298(116)X
+576 1032(QueryTextExtents,)N
+3 f
+11 s
+1206(42)X
+1 f
+10 s
+(,)S
+1334(58,)X
+1454(119)X
+576 1122(QueryTree,)N
+3 f
+11 s
+967(28)X
+1 f
+10 s
+(,)S
+1095(111)X
+3 f
+12 s
+576 1302(R)N
+1 f
+10 s
+576 1482(RaiseLowest,)N
+1030(27)X
+576 1572(RecolorCursor,)N
+3 f
+11 s
+1090(63)X
+1 f
+10 s
+(,)S
+1218(131)X
+576 1662(Redirecting)N
+970(control,)X
+3 f
+11 s
+1239(6)X
+1 f
+10 s
+576 1752(Redirecting:)N
+636 1842(control,)N
+903(6)X
+576 1932(ReparentNotify,)N
+1115(24,)X
+3 f
+11 s
+1237(78)X
+1 f
+10 s
+(,)S
+1365(140)X
+576 2022(ReparentWindow,)N
+3 f
+11 s
+1184(24)X
+1 f
+10 s
+(,)S
+1312(110)X
+576 2112(Replace,)N
+875(28,)X
+995(29)X
+576 2202(ReplayKeyboard,)N
+1160(35,)X
+1280(36)X
+576 2292(ReplayPointer,)N
+1074(35,)X
+1194(36)X
+576 2382(Reply,)N
+3 f
+11 s
+809(6)X
+1 f
+10 s
+576 2472(Request)N
+3336(,)X
+576 2562(13)N
+576 2652(Request,)N
+3 f
+11 s
+876(6)X
+1 f
+10 s
+(,)S
+3 f
+11 s
+962(13)X
+1 f
+10 s
+(,)S
+1090(103)X
+576 2742(RequestName,)N
+1066(9)X
+576 2832(Reset,)N
+794(68,)X
+914(69)X
+576 2922(ResizeRedirect,)N
+1102(11,)X
+1222(23,)X
+1342(26,)X
+1462(79)X
+576 3012(ResizeRequest,)N
+1088(26,)X
+3 f
+11 s
+1210(79)X
+1 f
+10 s
+(,)S
+1338(141)X
+576 3102(Resource,)N
+3 f
+11 s
+917(6)X
+1 f
+10 s
+576 3192(RetainPermanent,)N
+1168(70,)X
+1288(71)X
+576 3282(RetainTemporary,)N
+1182(70,)X
+1302(71)X
+576 3372(RGB)N
+760(values,)X
+3 f
+11 s
+1007(6)X
+1 f
+10 s
+576 3462(RGB:)N
+636 3552(values,)N
+881(6)X
+576 3642(RightToLeft,)N
+1016(39,)X
+1136(40,)X
+1256(42)X
+576 3732(Root)N
+751(window,)X
+3 f
+11 s
+1051(7)X
+1 f
+10 s
+576 3822(Root,)N
+3 f
+11 s
+773(6)X
+1 f
+10 s
+636 3912(window,)N
+934(7)X
+576 4002(RotateProperties,)N
+3 f
+11 s
+1152(30)X
+1 f
+10 s
+(,)S
+1280(79,)X
+1400(134)X
+576 4092(Round,)N
+829(44,)X
+949(46,)X
+1069(47)X
+3 f
+12 s
+576 4272(S)N
+1 f
+10 s
+576 4452(Save)N
+752(set,)X
+3 f
+11 s
+883(7)X
+1 f
+10 s
+576 4542(Save:)N
+636 4632(set,)N
+765(7)X
+576 4722(Scanline)N
+872(order,)X
+3 f
+11 s
+1084(7)X
+1 f
+10 s
+576 4812(Scanline,)N
+3 f
+11 s
+894(7)X
+1 f
+10 s
+636 4902(order,)N
+846(7)X
+576 4992(Screen,)N
+3 f
+11 s
+837(7)X
+1 f
+10 s
+576 5082(Selection,)N
+3 f
+11 s
+916(7)X
+1 f
+10 s
+576 5172(SelectionClear,)N
+1088(30,)X
+3 f
+11 s
+1210(79)X
+1 f
+10 s
+(,)S
+1338(142)X
+576 5262(SelectionNotify,)N
+1123(31,)X
+3 f
+11 s
+1245(80)X
+1 f
+10 s
+(,)S
+1373(142)X
+576 5352(SelectionRequest,)N
+1172(30,)X
+1292(31,)X
+3 f
+11 s
+1414(80)X
+1 f
+10 s
+(,)S
+1542(142)X
+576 5442(SendEvent,)N
+963(9,)X
+3 f
+11 s
+1045(31)X
+1 f
+10 s
+(,)S
+1173(80,)X
+1293(81,)X
+1413(114)X
+576 5532(Server)N
+806(grabbing,)X
+3 f
+11 s
+1133(7)X
+1 f
+10 s
+576 5622(Server,)N
+3 f
+11 s
+828(7)X
+1 f
+10 s
+636 5712(grabbing,)N
+961(7)X
+576 5802(Set)N
+3336(,)X
+2384 762(45)N
+2384 852(Set,)N
+2526(44)X
+2384 942(SetAccessControl,)N
+3 f
+11 s
+3000(69)X
+1 f
+10 s
+(,)S
+3128(134)X
+2384 1032(SetClipRectangles,)N
+3015(48,)X
+3135(49,)X
+3 f
+11 s
+3257(50)X
+1 f
+10 s
+(,)S
+3385(123)X
+2384 1122(SetCloseDownMode,)N
+3 f
+11 s
+3093(70)X
+1 f
+10 s
+(,)S
+3221(134)X
+2384 1212(SetDashes,)N
+2758(48,)X
+3 f
+11 s
+2880(49)X
+1 f
+10 s
+(,)S
+3008(123)X
+2384 1302(SetFontPath,)N
+3 f
+11 s
+2816(43)X
+1 f
+10 s
+(,)S
+2944(120)X
+2384 1392(SetInputFocus,)N
+3 f
+11 s
+2888(38)X
+1 f
+10 s
+(,)S
+3016(74,)X
+3136(117)X
+2384 1482(SetModi\256erMapping,)N
+3 f
+11 s
+3097(64)X
+1 f
+10 s
+(,)S
+3225(80,)X
+3345(135)X
+2384 1572(SetPointerMapping,)N
+3 f
+11 s
+3048(67)X
+1 f
+10 s
+(,)S
+3176(81,)X
+3296(135)X
+2384 1662(SetScreenSaver,)N
+3 f
+11 s
+2930(68)X
+1 f
+10 s
+(,)S
+3058(133)X
+2384 1752(SetSelectionOwner,)N
+3 f
+11 s
+3045(30)X
+1 f
+10 s
+(,)S
+3173(70,)X
+3293(80,)X
+3413(113)X
+2384 1842(Shift,)N
+2579(11,)X
+2699(64,)X
+2819(65)X
+2384 1932(Sibling,)N
+3 f
+11 s
+2656(7)X
+1 f
+10 s
+2384 2022(Solid,)N
+2592(44,)X
+2712(46,)X
+2832(47,)X
+2952(48,)X
+3072(58)X
+2384 2112(South,)N
+2610(11,)X
+2730(26)X
+2384 2202(SouthEast,)N
+2748(11,)X
+2868(26)X
+2384 2292(SouthWest,)N
+2775(11,)X
+2895(26)X
+2384 2382(Stacking)N
+2684(order,)X
+3 f
+11 s
+2896(8)X
+1 f
+10 s
+2384 2472(Stacking:)N
+2444 2562(order,)N
+2654(8)X
+2384 2652(Static,)N
+2606(11,)X
+2726(26)X
+2384 2742(StaticColor,)N
+3 f
+11 s
+2790(7)X
+1 f
+10 s
+(,)S
+2874(16,)X
+2994(19,)X
+3114(58)X
+2384 2832(StaticGray,)N
+2767(5,)X
+3 f
+11 s
+2849(7)X
+1 f
+10 s
+(,)S
+2933(8,)X
+3013(16,)X
+3133(19,)X
+3253(58,)X
+3373(62)X
+2384 2922(Stipple,)N
+3 f
+11 s
+2652(8)X
+1 f
+10 s
+(,)S
+2736(63,)X
+2856(64)X
+2384 3012(Stippled,)N
+2690(44,)X
+2810(47)X
+2384 3102(StoreColors,)N
+2806(12,)X
+3 f
+11 s
+2928(61)X
+1 f
+10 s
+(,)S
+3056(62,)X
+3176(129)X
+2384 3192(StoreNamedColor,)N
+3007(61,)X
+3 f
+11 s
+3129(62)X
+1 f
+10 s
+(,)S
+3257(129)X
+2384 3282(StructureNotify,)N
+2927(11,)X
+3047(77,)X
+3167(78,)X
+3287(79)X
+2384 3372(SubstructureNotify,)N
+3038(11,)X
+3158(77,)X
+3278(78,)X
+3398(79)X
+2384 3462(SubstructureRedirect,)N
+3117(11,)X
+3253(22,)X
+3389(23,)X
+3525(24,)X
+3661(25,)X
+3797(26,)X
+3932(27,)X
+2384 3552(78,)N
+2504(79)X
+2384 3642(Success,)N
+2678(31,)X
+2798(34,)X
+2918(64,)X
+3038(65,)X
+3158(67)X
+2384 3732(SyncBoth,)N
+2739(35,)X
+2859(36)X
+2384 3822(Synchronous,)N
+2842(31,)X
+2962(32,)X
+3082(33,)X
+3202(34,)X
+3322(35)X
+2384 3912(SyncKeyboard,,)N
+2921(36)X
+2384 4002(SyncKeyboard,)N
+2901(35,)X
+3021(36)X
+2384 4092(SyncPointer,)N
+2815(35,)X
+2935(36)X
+3 f
+12 s
+2384 4272(T)N
+1 f
+10 s
+2384 4452(Tile,)N
+3 f
+11 s
+2555(8)X
+1 f
+10 s
+(,)S
+2639(63,)X
+2759(64)X
+2384 4542(Tiled,)N
+2593(44,)X
+2713(47)X
+2384 4632(Timestamp,)N
+3 f
+11 s
+2786(8)X
+1 f
+10 s
+2384 4722(Top,)N
+2553(79)X
+2384 4812(TopIf,)N
+2607(25,)X
+2727(27,)X
+2847(79)X
+2384 4902(TranslateCoordinates,)N
+3 f
+11 s
+3112(37)X
+1 f
+10 s
+(,)S
+3240(117)X
+2384 4992(True,)N
+2579(11,)X
+2702(18,)X
+2825(22,)X
+2948(24,)X
+3071(29,)X
+3194(31,)X
+3317(32,)X
+3440(34,)X
+3563(37,)X
+3686(40,)X
+3809(48,)X
+3932(51,)X
+2384 5082(60,)N
+2504(61,)X
+2624(71,)X
+2744(72,)X
+2864(78,)X
+2984(80)X
+2384 5172(TrueColor,)N
+3 f
+11 s
+2760(8)X
+1 f
+10 s
+(,)S
+2844(16,)X
+2964(19,)X
+3084(58)X
+2384 5262(Type,)N
+3 f
+11 s
+2591(8)X
+1 f
+10 s
+2384 5352(Types:)N
+2444 5442(ARC,)N
+3 f
+11 s
+2650(12)X
+1 f
+10 s
+2444 5532(ATOM,)N
+3 f
+11 s
+2722(11)X
+1 f
+10 s
+2444 5622(BITGRAVITY,)N
+3 f
+11 s
+2976(11)X
+1 f
+10 s
+2444 5712(BITMASK,)N
+3 f
+11 s
+2846(10)X
+1 f
+10 s
+2444 5802(BOOL,)N
+3 f
+11 s
+2704(11)X
+2238 6048(148)N
+
+149 p
+%%Page: 149 6
+11 s 0 xH 0 xS 3 f
+576 474(X)N
+661(Protocol)X
+3488(X11,)X
+3683(Release)X
+3988(2)X
+1 f
+10 s
+636 762(BUTMASK,)N
+3 f
+11 s
+1069(12)X
+1 f
+10 s
+636 852(BUTTON,)N
+3 f
+11 s
+1003(11)X
+1 f
+10 s
+636 942(BYTE,)N
+3 f
+11 s
+887(11)X
+1 f
+10 s
+636 1032(CARD16,)N
+3 f
+11 s
+980(11)X
+1 f
+10 s
+636 1122(CARD32,)N
+3 f
+11 s
+980(11)X
+1 f
+10 s
+636 1212(CARD8,)N
+3 f
+11 s
+940(11)X
+1 f
+10 s
+636 1302(CHAR2B,)N
+3 f
+11 s
+993(12)X
+1 f
+10 s
+636 1392(COLORMAP,)N
+3 f
+11 s
+1122(11)X
+1 f
+10 s
+636 1482(CURSOR,)N
+3 f
+11 s
+997(11)X
+1 f
+10 s
+636 1572(DEVICEEVENT,)N
+3 f
+11 s
+1235(11)X
+1 f
+10 s
+636 1662(DRAWABLE,)N
+3 f
+11 s
+1132(11)X
+1 f
+10 s
+636 1752(EVENT,)N
+3 f
+11 s
+941(11)X
+1 f
+10 s
+636 1842(FONT,)N
+3 f
+11 s
+887(11)X
+1 f
+10 s
+636 1932(FONTABLE,)N
+3 f
+11 s
+1096(11)X
+1 f
+10 s
+636 2022(GCONTEXT,)N
+3 f
+11 s
+1110(11)X
+1 f
+10 s
+636 2112(HOST,)N
+3 f
+11 s
+887(12)X
+1 f
+10 s
+636 2202(INT16,)N
+3 f
+11 s
+892(11)X
+1 f
+10 s
+636 2292(INT32,)N
+3 f
+11 s
+892(11)X
+1 f
+10 s
+636 2382(INT8,)N
+3 f
+11 s
+852(11)X
+1 f
+10 s
+636 2472(KEYBUTMASK,)N
+3 f
+11 s
+1234(12)X
+1 f
+10 s
+636 2562(KEYCODE,)N
+3 f
+11 s
+1061(11)X
+1 f
+10 s
+636 2652(KEYMASK,)N
+3 f
+11 s
+1074(11)X
+1 f
+10 s
+636 2742(KEYSYM,)N
+3 f
+11 s
+1016(11)X
+1 f
+10 s
+636 2832(LISTofFOO,)N
+3 f
+11 s
+1074(10)X
+1 f
+10 s
+636 2922(LISTofVALUE,)N
+3 f
+11 s
+1186(10)X
+1 f
+10 s
+636 3012(OR,)N
+3 f
+11 s
+789(10)X
+1 f
+10 s
+636 3102(PIXMAP,)N
+3 f
+11 s
+980(11)X
+1 f
+10 s
+636 3192(POINT,)N
+3 f
+11 s
+914(12)X
+1 f
+10 s
+636 3282(POINTEREVENT,)N
+3 f
+11 s
+1279(11)X
+1 f
+10 s
+636 3372(RECTANGLE,)N
+3 f
+11 s
+1154(12)X
+1 f
+10 s
+636 3462(STRING16,)N
+3 f
+11 s
+1047(12)X
+1 f
+10 s
+636 3552(STRING8,)N
+3 f
+11 s
+1007(12)X
+1 f
+10 s
+636 3642(TIMESTAMP,)N
+3 f
+11 s
+1140(11)X
+1 f
+10 s
+636 3732(VALUE,)N
+3 f
+11 s
+950(11)X
+1 f
+10 s
+636 3822(VISUALID,)N
+3 f
+11 s
+1057(11)X
+1 f
+10 s
+636 3912(WINDOW,)N
+3 f
+11 s
+1031(10)X
+1 f
+10 s
+636 4002(WINGRAVITY,)N
+3 f
+11 s
+1200(11)X
+12 s
+576 4182(U)N
+1 f
+10 s
+576 4362(Ungrab,)N
+857(72,)X
+977(73,)X
+1097(74,)X
+1217(76)X
+576 4452(UngrabButton,)N
+3 f
+11 s
+1076(33)X
+1 f
+10 s
+(,)S
+1204(115)X
+576 4542(UngrabKey,)N
+3 f
+11 s
+993(35)X
+1 f
+10 s
+(,)S
+1121(116)X
+576 4632(UngrabKeyboard,)N
+3 f
+11 s
+1176(34)X
+1 f
+10 s
+(,)S
+1304(70,)X
+1424(115)X
+576 4722(UngrabPointer,)N
+3 f
+11 s
+1090(32)X
+1 f
+10 s
+(,)S
+1218(70,)X
+1338(71,)X
+1458(114)X
+576 4812(UngrabServer,)N
+3 f
+11 s
+1069(37)X
+1 f
+10 s
+(,)S
+1197(70,)X
+1317(116)X
+576 4902(UninstallColormap,)N
+1229(58,)X
+3 f
+11 s
+1351(59)X
+1 f
+10 s
+(,)S
+1479(127)X
+576 4992(Uninstalled,)N
+985(80)X
+576 5082(Unmap,)N
+852(11,)X
+972(26,)X
+1092(78)X
+576 5172(UnmapNotify,)N
+1061(25,)X
+1181(26,)X
+1301(73,)X
+1421(74,)X
+1541(76,)X
+3 f
+11 s
+1663(77)X
+1 f
+10 s
+(,)S
+1791(140)X
+576 5262(Unmapped,)N
+968(23)X
+576 5352(UnmapSubwindows,)N
+3 f
+11 s
+1267(25)X
+1 f
+10 s
+(,)S
+1395(110)X
+576 5442(UnmapWindow,)N
+1128(23,)X
+1248(24,)X
+3 f
+11 s
+1370(25)X
+1 f
+10 s
+(,)S
+1498(110)X
+576 5532(Unobscured,)N
+1004(77)X
+576 5622(UnSorted,)N
+923(50)X
+2384 762(Unviewable,)N
+2812(23)X
+3 f
+12 s
+2384 942(V)N
+1 f
+10 s
+2384 1122(Value,)N
+2619(9,)X
+2702(10,)X
+3 f
+11 s
+2826(13)X
+1 f
+10 s
+(,)S
+2956(19,)X
+3078(20,)X
+3200(22,)X
+3322(24,)X
+3444(25,)X
+3566(27,)X
+3688(28,)X
+3810(29,)X
+3932(31,)X
+2384 1212(32,)N
+2513(33,)X
+2642(34,)X
+2771(35,)X
+2900(38,)X
+3029(43,)X
+3158(44,)X
+3287(48,)X
+3416(49,)X
+3545(50,)X
+3674(51,)X
+3803(52,)X
+3932(54,)X
+2384 1302(55,)N
+2513(56,)X
+2642(58,)X
+2771(60,)X
+2900(61,)X
+3029(62,)X
+3158(63,)X
+3287(64,)X
+3416(65,)X
+3545(66,)X
+3674(67,)X
+3803(68,)X
+3932(69,)X
+2384 1392(70,)N
+2504(103)X
+2384 1482(Viewable,)N
+3 f
+11 s
+2734(8)X
+1 f
+10 s
+(,)S
+2818(23)X
+2384 1572(Virtual,)N
+2651(72,)X
+2771(73,)X
+2891(74)X
+2384 1662(Visibilitity,)N
+2769(76)X
+2384 1752(VisibilityChange,)N
+2970(11,)X
+3090(77)X
+2384 1842(VisibilityNotify,)N
+2934(20,)X
+3054(73,)X
+3174(74,)X
+3294(76,)X
+3 f
+11 s
+3416(77)X
+1 f
+10 s
+(,)S
+3544(139)X
+2384 1932(Visible,)N
+3 f
+11 s
+2657(8)X
+12 s
+2384 2112(W)N
+1 f
+10 s
+2384 2292(WarpPointer,)N
+3 f
+11 s
+2836(38)X
+1 f
+10 s
+(,)S
+2964(117)X
+2384 2382(West,)N
+2589(11,)X
+2709(26)X
+2384 2472(WhenMapped,)N
+2879(16,)X
+2999(20,)X
+3119(21,)X
+3239(23,)X
+3359(76)X
+2384 2562(WhileGrabbed,)N
+2897(74)X
+2384 2652(Winding,)N
+2704(44,)X
+2824(48)X
+2384 2742(Window)N
+2680(gravity,)X
+3 f
+11 s
+2949(8)X
+1 f
+10 s
+2384 2832(Window)N
+2680(manager,)X
+3 f
+11 s
+2999(8)X
+1 f
+10 s
+2384 2922(Window,)N
+2706(9,)X
+3 f
+11 s
+2794(13)X
+1 f
+10 s
+(,)S
+2928(14,)X
+3054(19,)X
+3180(22,)X
+3306(23,)X
+3432(24,)X
+3557(25,)X
+3682(27,)X
+3807(28,)X
+3932(29,)X
+2384 3012(30,)N
+2504(31,)X
+2624(32,)X
+2744(33,)X
+2864(34,)X
+2984(35,)X
+3104(37,)X
+3224(38,)X
+3344(50,)X
+3464(58,)X
+3584(60,)X
+3704(103)X
+2444 3102(gravity,)N
+2711(8)X
+2444 3192(manager,)N
+2761(8)X
+3 f
+12 s
+2384 3372(X)N
+1 f
+10 s
+2384 3552(Xor,)N
+2549(44,)X
+2669(45)X
+2384 3642(XYFormat,)N
+3 f
+11 s
+2773(8)X
+1 f
+10 s
+2384 3732(XYPixmap,)N
+2784(55,)X
+2904(56)X
+3 f
+12 s
+2384 3912(Y)N
+1 f
+10 s
+2384 4092(Yes,)N
+2549(68)X
+2384 4182(YSorted,)N
+2691(50)X
+2384 4272(YXBanded,)N
+2785(50)X
+2384 4362(YXSorted,)N
+2749(50)X
+3 f
+12 s
+2384 4542(Z)N
+1 f
+10 s
+2384 4722(ZFormat,)N
+3 f
+11 s
+2706(8)X
+1 f
+10 s
+2384 4812(ZPixmap,)N
+2717(55,)X
+2837(56)X
+3 f
+11 s
+2238 6048(149)N
+
+6 p
+%%Trailer
+xt
+
+xs

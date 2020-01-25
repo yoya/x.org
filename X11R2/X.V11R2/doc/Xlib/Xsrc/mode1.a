@@ -1,0 +1,25 @@
+.\" $Header: mode1.a,v 1.1 87/09/28 13:07:10 mento Exp $
+.IP \fImode\fP 1i
+Specifies the mode of the operation.
+.IP
+If the value of this argument is 
+.PN Replace , 
+then the previous 
+property value is discarded.
+.IP
+If the value is 
+.PN Prepend 
+or 
+.PN Append ,
+then the
+type and format must match the existing property value.
+For 
+.PN Prepend , 
+the data is inserted before the beginning of the 
+existing data. 
+For 
+.PN Append , 
+the data is appended to the existing data.
+.IP
+If the value is undefined, it is treated as defined with the correct type
+and format with zero-length data.

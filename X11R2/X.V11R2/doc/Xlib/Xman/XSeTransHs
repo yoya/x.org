@@ -1,0 +1,44 @@
+.TH XSetTransientForHint 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XSetTransientForHint, XGetTransientForHint \- set or get transient for hint
+.SH SYNTAX
+.so ../Xsrc/XSetTransHs.f
+.LP
+.so ../Xsrc/XGetTransHs.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/w.a
+.so ../Xsrc/w_prop.a
+.so ../Xsrc/w_prop_ret.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSetTransHs.d
+.ds fd .PN XSetTransientForHint
+.so ../Xsrc/errsent.com
+.PN BadAlloc
+and
+.PN BadWindow 
+errors.
+.LP
+.so ../Xdescrip/XGetTransHs.d
+.ds fd .PN XGetTransientForHint
+.so ../Xsrc/errsent4.com
+.PN BadWindow 
+error.
+.SH PROPERTY
+WM_TRANSIENT_FOR
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XSetClassHint(3X),
+XSetCommand(3X),
+XSetIconName(3X),
+XSetIconSizeHints(3X),
+XSetNormalHints(3X),
+XSetSizeHints(3X),
+XSetStandardProperties(3X),
+XSetWMHints(3X),
+XSetZoomHints(3X),
+XStoreName(3X)
+.br
+\fIXlib \- C Language X Interface\fP

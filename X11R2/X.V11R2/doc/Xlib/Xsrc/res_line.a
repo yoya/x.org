@@ -1,0 +1,3 @@
+.IP \fIline\fP 1i
+Specifies the resource value pair as a single string.
+A single colon (``:'') separates the name from the value.

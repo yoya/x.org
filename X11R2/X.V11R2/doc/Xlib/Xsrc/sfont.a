@@ -1,0 +1,3 @@
+.\" $Header: sfont.a,v 1.1 87/09/28 13:13:19 mento Exp $
+.IP \fIsource_font\fP 1i
+Specifies the font for the source glyph.

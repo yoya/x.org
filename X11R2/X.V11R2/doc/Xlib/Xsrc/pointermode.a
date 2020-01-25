@@ -1,0 +1,7 @@
+.\" $Header: pointermode.a,v 1.1 87/09/28 13:10:50 mento Exp $
+.IP \fIpointer_mode\fP 1i
+Controls further processing of pointer events.
+You can pass one of these constants:
+.PN GrabModeSync 
+or
+.PN GrabModeAsync .

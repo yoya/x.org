@@ -1,0 +1,35 @@
+.TH XrmUniqueQuark 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XrmUniqueQuark, XrmStringToQuark, XrmQuarkToString, XrmStringToQuarkList, XrmStringToBindingQuarkList \- manipulate resource quarks
+.SH SYNTAX
+.so ../Xsrc/XrmUQuark.f
+.LP
+.so ../Xsrc/XrmSTQuark.f
+.LP
+.so ../Xsrc/XrmQTStr.f
+.LP
+.so ../Xsrc/XrmSTQList.f
+.LP
+.so ../Xsrc/XrmSTBQLst.f
+.SH ARGUMENTS
+.so ../Xsrc/bind_ret.a
+.so ../Xsrc/quark_str.a
+.so ../Xsrc/quark_ret.a
+.so ../Xsrc/str_quark.a
+.SH DESCRIPTION
+.so ../Xdescrip/XrmUQuark.d
+.LP
+.so ../Xdescrip/XrmSTQuark.d
+.LP
+.so ../Xdescrip/XrmQTStr.d
+.LP
+.so ../Xdescrip/XrmSTQList.d
+.LP
+.so ../Xdescrip/XrmSTBQLst.d
+.SH "SEE ALSO"
+XrmGetResource(3X),
+XrmInitialize(3X),
+XrmMergeDatabases(3X),
+XrmPutResource(3X)
+.br
+\fIXlib \- C Language X Interface\fP

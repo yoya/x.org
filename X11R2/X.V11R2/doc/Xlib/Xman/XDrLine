@@ -1,0 +1,48 @@
+.TH XDrawLine 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XDrawLine, XDrawLines, XDrawSegments \- draw lines and polygons
+.SH SYNTAX
+.so ../Xsrc/XLine.f
+.LP
+.so ../Xsrc/XLines.f
+.LP
+.so ../Xsrc/XSegments.f
+.SH ARGUMENTS
+.so ../Xsrc/d.a
+.so ../Xsrc/display.a
+.so ../Xsrc/gc.a
+.so ../Xsrc/mode.a
+.so ../Xsrc/npoints.a
+.so ../Xsrc/nsegments.a
+.so ../Xsrc/points.a
+.so ../Xsrc/segments.a
+.so ../Xsrc/x1y1x2y2.a
+.SH DESCRIPTION
+.so ../Xdescrip/XLine.d
+.LP
+.ds fd .PN XDrawLine
+.ds fe .PN XDrawLines
+.ds ff .PN XDrawSegments
+.so ../Xsrc/errsent5.com
+.PN BadDrawable ,
+.PN BadGC ,
+and
+.PN BadMatch 
+errors.
+.LP
+.PN XDrawLines
+can also generate a
+.PN BadValue 
+error.
+.SH DIAGNOSTICS
+.so ../Xerrors/baddrawable.e
+.so ../Xerrors/badgc.e
+.so ../Xerrors/badmatch1.e
+.so ../Xerrors/badmatch2.e
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+XDrawArc(3X),
+XDrawPoint(3X),
+XDrawRectangle(3X)
+.br
+\fIXlib \- C Language X Interface\fP

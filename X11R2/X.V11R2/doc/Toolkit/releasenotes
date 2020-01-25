@@ -1,0 +1,218 @@
+.LP
+Changes to the X Toolkit:
+.LP
+Many enhancements and bugfixes were made to the X Toolkit Intrinsics
+and to the sample widget set.  The Intrinsics and sample widgets are
+now in separate libraries; libXt.a and libXaw.a ("Athena Widgets").
+The changes to the Intrinsics will require some source modification to
+widgets and, in limited cases, to applications.  The Intrinsics
+documentation has been extensively re-organized and expanded.
+Documentation for the sample widgets is now provided.
+.LP
+A non-comprehensive list of changes follows:
+.IP \(bu
+XtInitialize now gets user preferences from the server and only
+reads the local \.Xdefaults file if the user has not set the server
+property (typically using \fIxrdb\fP(1)).  A site-wide, application-specific
+defaults file may also be read before the user's preferences.  An
+environment variable may specify additional defaults.
+.IP \(bu
+Callback lists were formerly specified with an opaque value and are now
+specified by the resource name of the list within the widget.  You can
+now pass callback lists as arguments to XtCreateWidget, XtSetValues
+and XtGetValues.  Arguments to XtAddCallback, XtCallCallback, etc.
+have changed accordingly.
+.IP \(bu
+All Callback lists in widget resource lists must be identified with
+representation type XtRCallback.
+.IP \(bu
+The XtNfunction and XtNparameter callback resources for widgets with
+callbacks have been merged into the single XtNcallback (or other
+widget-specific) resource.
+.IP \(bu
+Functions for determining whether or not a named callback list exists
+or is empty have been added.
+.IP \(bu
+Alternate input sources and timeouts now cause callbacks to occur rather than
+events.  The arguments to XtAddTimeOut and XtAddInput have changed
+accordingly.
+.IP \(bu
+An application can now replace the default error handling routines
+used by the Toolkit.
+.IP \(bu
+The special TopLevel widget has been generalized into ShellWidgetClass.
+Applications will typically use one of the standard sub-classes of
+ShellWidgetClass; usually TopLevelShell.  The ShellWidget has additional
+support for pop-ups, including pop-up and pop-down callbacks.
+Communication with window managers has been improved.
+.IP \(bu
+The un-documented interface for applications to create multiple top-level
+windows has been modified and documented.
+.IP \(bu
+XtAddGrab has an additional parameter for ``spring-loaded'' widgets.
+.IP \(bu
+Support for pop-up widgets has been added.
+.IP \(bu
+Several new fields were added to CoreClassPart.  These will require
+adjustments to all class initializers.  Some of the fields split
+apart functions that were previously assigned to a single procedure
+and some are entirely new.
+.IP \(bu
+A class_part_initialize procedure was added for one-time initialization
+of subclass class records by the superclass.  The inheritance mechanism
+has been simplified using this new field.
+.IP \(bu
+The class initialize procedure has been split into two separate procedures
+and the arguments modified slightly.  Most widgets will need to provide only
+an initialize procedure (if any).
+.IP \(bu
+The last-in-chain argument to the set_values procedure has been removed.
+Set_values procedures no longer need to make geometry requests; XtSetValues
+will do so automatically.  A new procedure, set_values_almost, is defined
+in case a widget class wants to handle a reply of XtGeometryAlmost.
+.IP \(bu
+XtSetValuesGeometryRequest has been removed.
+.IP \(bu
+The ConstraintClassPart record changed substantially in order to better
+support constraint-based composite widgets.
+.IP \(bu
+Extra arguments to the composite class insert_child procedure have been
+removed.  ConstraintWidgetClass gives equivalent functionality.
+.IP \(bu
+Several procedures that took arguments by value have been changed to
+take them by reference to allow writing widgets in languages other
+than C.
+.IP \(bu
+The class realize procedure took the value_mask parameter by value and
+now takes it by reference.
+.IP \(bu
+XtArgsProc 
+took the num_args parameter by value and now takes it by reference.  This
+affects only two new procedures; insert_child no longer is of type XtArgsProc.
+.IP \(bu
+Action procedures (that is,
+XtActionProc)
+took the num_params parameter by value and now take it by reference.
+.IP \(bu
+The semantics of exposure compression have changed slightly.  If a widget
+class asks for exposure compression, an Xlib region object will be
+constructed for all the exposure events in a sequence and the expose
+procedure will be called with the bounding box for the region and
+the region itself.  Naive widgets will continue to ignore this information.
+.IP \(bu
+The ``.h'' files have been reorganized.  
+Intrinsic.h 
+is for applications, and
+IntrinsicP.h 
+is for widget writers.
+The standard widgets, Core, Composite, Constraint, and Shell provide
+corresponding public and private header files which were formerly
+a part of Intrinsic.h.
+.IP \(bu
+The header file Atoms.h has been renamed to StringDefs.h and
+obsolete entries have been removed.
+.IP \(bu
+XtMakeGeometryRequest
+has changed its behavior when it receives a reply of
+XtGeometryYes
+from the geometry manager. Previously, it would only set the
+window's size in this case. It now sets whatever pieces of the
+window's configuration that have changed, that is, it will also
+set the window's position and stacking order, if appropriate.
+.IP \(bu
+Translation management has been substantially changed.
+States have been removed.
+Leaving modifiers off of the left hand side of a translation
+production now means the production applies regardless of the state of those
+modifiers.
+The uncompiled form of a translation table is now of type String.
+It is an ASCII string consisting of productions separated
+by newlines (ASCII LF). 
+XtNtranslations 
+is now a resource in the core resource list.
+It should not in general be included in the widget resource lists. 
+Translation tables are now shared, by default, between widgets of the same
+class.
+Users can now specify widget translations as a single line in
+their defaults file.
+.IP \(bu
+Support has been added for requesting pointer motion events only when a
+button is down.
+.IP \(bu
+The default translations for a widget are no longer specified in the
+widget's resource list, but instead in the tm_table field in CoreClassPart.
+.IP \(bu
+To support the window manager, 
+a new type of event handler has been added that does not cause a select
+on the handled event. 
+.IP \(bu
+XtNameToClass
+has been removed.
+.IP \(bu 
+XtTranslateCoords 
+has been added.
+It translates an x-y pair from widget coordinates to root coordinates.
+.IP \(bu
+The Intrinsics now have a version number that is checked against a version
+number in the widget at run-time.
+If a mismatch occurs, a warning is produced.
+CoreClassPart contains a new field, named version, 
+that widget writers must set to the constant
+XtVersion.
+.IP \(bu
+The semantics of 
+XtManageChild[ren] 
+and 
+XtUnmanageChild[ren] 
+have been changed so that calling the parent's change_managed procedure 
+is delayed until realization time if the parent is not yet realized.
+Similarly, geometry requests always return 
+XtGeometryYes
+when the parent is unrealized.
+.IP \(bu
+A convenience routine, 
+XtCreateManagedWidget, 
+which calls
+XtCreateWidget 
+and 
+XtManageChild 
+on the result, now exists.
+.IP \(bu
+A new interface for parents to query the preferred size of a child
+has been added.  Composite widgets that do a layout in change_managed
+will need to use this interface, as there is no longer an opportunity
+for the child to make a geometry request before the child is
+realized.
+.IP \(bu 
+XtWindowToWidget 
+has been added.
+It translates a display/window pair to the corresponding widget.
+.IP \(bu
+Fields have been added to the widget core record to provide hook 
+procedures for special argument processing on the chained operations 
+initialize, set values, and get values. The procedures XtSetSubvalues
+and XtGetSubvalues are now available for subclasses with non-widget resources.
+.IP \(bu
+A field, compress_enterleave, has been added to the widget core class record 
+to indicate whether
+or not enter/leave events with no intervening events should be compressed. 
+.IP \(bu
+The interface for representation conversions
+has been changed.  In particular, representation
+conversions have been moved from Xlib into the toolkit, and the parameter list
+of a conversion procedure is different.  Only conversion procedures in
+widgets that register their
+own representation conversion procedures will be affected by this change.
+.IP \(bu
+The notation for resource specifications in .Xdefaults files has
+changed substantially to provide better support for deep hierarchies
+of widgets.  In general, to get the old behavior, users can globally
+substitute ``*'' for ``.'' in all resource specifications.  The new
+behavior gives users more control over the scope of a specification and
+removes several bugs that caused Toolkit-based applications to
+use default specifications in ways the user had not intended.
+.IP \(bu
+The standard command-line parsing has been cleaned up.  Some ambiguities
+in command line option names have been removed.  Command line option
+parsing now allows the option names to be abbreviated to any length
+that is unique.

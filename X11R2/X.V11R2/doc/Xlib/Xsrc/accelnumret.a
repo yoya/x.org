@@ -1,0 +1,3 @@
+.\" $Header: accelnumret.a,v 1.1 87/09/28 11:00:23 mento Exp $
+.IP \fIaccel_numerator_return\fP 1i
+Returns the numerator for the acceleration multiplier.

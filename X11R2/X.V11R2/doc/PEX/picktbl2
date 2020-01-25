@@ -1,0 +1,45 @@
+A \fIpick measure\fP resource must be created to actually perform
+a pick operation.  A pick device type is specified at the time
+a pick measure resource is created in order to provide the parameters
+for the picking operation.  The pick measure resource accepts input
+in the form of input records which are defined for each type of pick
+device.  When a pick measure resource is passed a valid input record,
+its attributes will be updated.
+Pick measures
+are lightweight resources, although the operations on a pick measure
+resource are potentially lengthy since a great number of structure
+elements may have to be processed in order to produce the pick results.
+.LP
+The pick measure resource components, in order,
+are listed in the following table.
+The abbreviation "from wks" indicates that the default
+value is inherited from the pick device descriptor stored
+in the PHIGS workstation resource when the pick measure is created.
+.LP
+.ID
+.ta 0.1i 1.6i 2.8i
+	\fBAttribute Name	Data Type	Default Value\fP
+.ta
+.ta 0.2i 1.5i 3.0i
+	pick_status	{\fIOk, NoPick\fP}	from wks
+	picked_prim	PICK_PATH	from wks
+.ta
+.DE
+.LP
+The attributes of the pick measure resource are defined as follows:
+
+.Bl "pick_status"
+This attribute contains the result of the last update operation that
+was performed.  It is set to \fIOk\fP if a primitive was successfully
+picked, and \fINoPick\fP if the pick operation was unsuccessful.
+
+.Bl "picked_prim"
+This attribute contains the path of the structure element that was
+picked as a result of the last update operation.
+
+.LP
+The pick measure is an X11 resource and carries all of the 
+responsibilities and
+access rights of X11 resources.  The requests in this section
+manage the creation and
+freeing of pick measures.

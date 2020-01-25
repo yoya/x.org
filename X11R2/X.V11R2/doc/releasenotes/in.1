@@ -1,0 +1,128 @@
+.nr PD 1.25v
+.EF '\fBX Window System Release Notes\fP''\fBX Version 11\fP'
+.OF '\fBX Window System Release Notes\fP''\fBX Version 11\fP'
+.EH ''\fB- % -\fP''
+.OH ''\fB- % -\fP''
+.DA "September 15, 1987"
+.TL
+X Window System, Version 11
+.br
+Release 2
+.br
+Installation Guide and Release Notes
+.AU
+Jim Fulton
+.AI
+X Consortium
+MIT Laboratory for Computer Science
+.AB
+The X Window System is a portable, network transparent window system 
+originally developed at MIT.  It is supported on a wide range of raster 
+display devices,
+from simple monochrome frame buffers to deep, true color graphics processors.
+This document describes the contents of this distribution, how it has changed
+since the previous release, and how to configure, build, and install the
+X Window System.
+.AE
+.NH 1
+Overview
+.LP
+This is the second release of Version 11 of the X Window System from MIT.
+It is substantially more robust than the previous version and should provide a
+solid foundation upon which applications may be developed.  
+No changes have been made to
+the X Protocol; the Resource Manager and the extension mechanism were the
+only parts of Xlib that were changed in incompatible ways.
+However, the
+command line arguments for specifying the server to contact and the default
+geometry for an application's main window have been changed in all supported 
+clients.  Also, the format for specifying default resources has been changed.
+.FS
+\fIX Window System\fP is a trademark of MIT.
+.sp
+Copyright \(co\ 1988, Massachusetts Institute of Technology.
+.sp
+Permission to use, copy, modify, and distribute this
+software and its documentation for any purpose and without
+fee is hereby granted, provided that the above copyright
+notice appear in all copies and that both that copyright
+notice and this permission notice appear in supporting
+documentation, and that the name of M.I.T. not be used in
+advertising or publicity pertaining to distribution of the
+software without specific, written prior permission.
+M.I.T. makes no representations about the suitability of
+this software for any purpose.  It is provided "as is"
+without express or implied warranty.  
+.sp
+This software is not
+subject to any license of the American Telephone and Telegraph
+Company or of the Regents of the University of California.
+.FE
+.LP
+This release contains two separate distributions:  one for software that
+is supported by the staff of the X Consortium, and one for user-contributed
+software that is provided ``as is'' as public service.  Furthermore, 
+printable versions of many documents are provided separately from the source
+code to make loading subsets of the release easier.  Over time, we expect 
+there to be migration in both directions between the two distributions.
+.LP
+The document \fIX Window System Protocol, Version 11\fP is the final
+authority on what is and is not part of the core X Window System protocol.
+The server provided in this distribution is a sample implementation, not
+a specification of how servers must be written.
+.bp
+.LP
+This release contains four higher level toolkits to make designing and
+implementing applications easier:
+.IP "\fIX Toolkit Intrinsics\fP"
+.br
+Currently under review by the X Consortium for possible 
+inclusion in the X standard, this package provides a collection of resource, 
+event, and object managers that may be used to build user interface objects
+called \fIwidgets\fP.  A sample set of widgets is provided. 
+Sources are located in \fIlib/Xt/\fP and \fIlib/Xaw/\fP.
+.IP "\fIXrlib\fP"
+.br
+This is a collection of User Interface utilities and higher-level objects
+written by Hewlett-Packard.  Future releases will use the X Toolkit Intrinsics.
+Sources are located in \fIcontrib/Xr11/\fP.
+.IP "\fIAndrew Toolkit\fP."
+.br
+Developed by IBM and Carnegie-Mellon University for the CMU Andrew System, 
+this package provides a collection of integrated, high-level objects and 
+applications.  Sources are located in \fIcontrib/andrew/\fP.
+.IP "\fIInterViews\fP"
+Developed at Stanford University, this package 
+provides tools for building user interface objects in the C++ programming
+language.  Source are located in \fIcontrib/InterViews/\fP.
+.LP
+The X Toolkit has changed substantially since the last release (note
+that it is now called ``Xt'' instead of ``Xtk'').  Although 
+additional functionality will probably be added in future releases,
+the interfaces documented in the \fIX Toolkit Intrinsics - C Language X
+Interface\fP are expected to remain fairly stable.
+.LP
+For wider portability, applications should include the new header file
+\fI<X11/Xos.h>\fP instead of \fI<strings.h>\fP,
+\fI<string.h>\fP, \fI<time.h>\fP, \fI<sys/time.h>\fP, \fI<fcntl.h>\fP, 
+or \fI<sys/file.h>\fP.
+.LP
+To make transition from X10 to X11 easier, a protocol converter that 
+allows binary X10 programs to be run on X11 displays has been provided.
+In addition, this release uses ``X11'' instead of ``X'' wherever there is
+a conflict with X10 files of the same name (e.g.
+\fI/usr/include/X11/\fP, \fI/usr/lib/X11/\fP, \fP/usr/bin/X11/\fP, 
+and \fI-lX11\fP).  All programs should now #include X header files using
+``<X11/\fIfile\fP>''. 
+.LP
+This release should build and install without modification on machines running
+the following operating systems:  4.3bsd, Ultrix 2.0, SunOS 3.4, HP-UX 6.01, 
+and Apollo Domain/IX 9.7.
+.FS
+\(dd Ultrix and Ultrix-32 are trademarks of Digital Equipment Corporation,
+SunOS is a trademark of Sun Microsystems Inc., HP-UX is a trademark of
+Hewlett-Packard, Domain is a trademark of Apollo Computer, PostScript is a
+trademark of Adobe Systems Inc., and Unix is a trademark of AT&T Bell 
+Laboratories.
+.FE
+

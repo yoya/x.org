@@ -1,0 +1,4 @@
+.\" $Header: back_pix.a,v 1.2 88/02/18 13:03:14 mento Exp $
+.IP \fIbackground_pixel\fP 1i
+Specifies the pixel of the background.
+This pixel value determines which entry in the color map is used.

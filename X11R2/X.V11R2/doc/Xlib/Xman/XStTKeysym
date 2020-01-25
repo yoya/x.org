@@ -1,0 +1,30 @@
+.TH XStringToKeysym 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XStringToKeysym, XKeysymToString, XKeycodeToKeysym, XKeysymToKeycode \- convert keysyms
+.SH SYNTAX
+.so ../Xsrc/XSTKeysym.f
+.LP
+.so ../Xsrc/XKTString.f
+.LP
+.so ../Xsrc/XKTKeysym.f
+.LP
+.so ../Xsrc/XKTKeycode.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/col.a
+.so ../Xsrc/keycode.a
+.so ../Xsrc/keysym_kcode.a
+.so ../Xsrc/keysym_str.a
+.so ../Xsrc/string_ksym.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSTKeysym.d
+.LP
+.so ../Xdescrip/XKTString.d
+.LP
+.so ../Xdescrip/XKTKeysym.d
+.LP
+.so ../Xdescrip/XKTKeycode.d
+.SH "SEE ALSO"
+XLookupKeysym(3X)
+.br
+\fIXlib \- C Language X Interface\fP

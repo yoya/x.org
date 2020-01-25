@@ -1,0 +1,1019 @@
+.\".U7
+.\".UT "Window Information Functions" 4
+\&
+.sp 1
+.ce 3
+\s+1\fBChapter 4\fP\s-1
+
+\s+1\fBWindow Information Functions\fP\s-1
+.sp 2
+.nr H1 4
+.nr H2 0
+.nr H3 0
+.nr H4 0
+.nr H5 0
+.na
+.LP
+.XS
+Chapter 4: Window Information Functions 
+.XE
+After you connect the display to the X server and create a window,
+you can use the Xlib window information functions to:
+.IP \(bu 5
+Obtain information about a window
+.IP \(bu 5
+Manipulate property lists
+.IP \(bu 5
+Obtain and change window properties
+.IP \(bu 5
+Manipulate window selection
+.NH 2
+Obtaining Window Information
+.XS
+\*(SN Obtaining Window Information 
+.XE
+.LP
+Xlib provides functions with which you can obtain information about the window
+tree, the current attributes of a window, 
+its current geometry, or the current pointer
+coordinates.
+Because they are most frequently used by window managers,
+these functions all return a status to indicate whether the window still
+exists.
+.LP
+.sp
+To obtain a list of children, the parent, and number of children for 
+a specified window, use 
+.PN XQueryTree .
+.IN "Child Window"
+.IN "Parent Window"
+.IN "XQueryTree" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XQueryTree.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+For this window, you obtain the list of its children, its root, its parent, 
+and the number of children.
+.so ./Xsrc/root.a
+.so ./Xsrc/parentret.a
+.so ./Xsrc/children.a
+.so ./Xsrc/nchildren.a
+.LP
+.so ./Xdescrip/XQueryTree.d
+To free this list when it is no longer needed, use 
+.PN XFree .
+(See Section 2.4 for further information.)
+The children are listed in current stacking order, from bottom-most 
+(first) to top-most (last).
+.PN XQueryTree
+returns zero if it fails and nonzero if it succeeds.
+.LP
+.ds fd .PN XQueryTree
+.so ./Xsrc/errsent4.com
+.PN BadWindow 
+error.
+.LP
+.sp
+To obtain the current attributes of a specified window, use 
+.PN XGetWindowAttributes .
+.IN "XGetWindowAttributes" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XGetAttr.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+This is the window whose current attributes you want to obtain.
+.so ./Xsrc/windatt.a
+.LP
+.so ./Xdescrip/XGetAttr.d
+This structure is defined as follows:
+.Ds 0
+.TA .5i 3i
+.ta .5i 3i
+
+typedef struct {
+	int x, y;	/* location of window */
+	int width, height;	/* width and height of window */
+	int border_width;	/* border width of window */
+	int depth;	/* depth of window */
+	Visual *visual;	/* the associated visual structure */
+	Window root;	/* root of screen containing window */
+	int class;	/* InputOutput, InputOnly*/
+	int bit_gravity;	/* one of bit gravity values */
+	int win_gravity;	/* one of the window gravity values */
+	int backing_store;	/* NotUseful, WhenMapped, Always */
+	unsigned long backing_planes;	/* planes to be preserved if possible */
+	unsigned long backing_pixel;	/* value to be used when restoring planes */
+	Bool save_under;	/* boolean, should bits under be saved? */
+	Colormap colormap;	/* color map to be associated with window */
+	Bool map_installed;	/* boolean, is color map currently installed*/
+	int map_state;	/* IsUnmapped, IsUnviewable, IsViewable */
+	long all_event_masks;	/* set of events all people have interest in*/
+	long your_event_mask;	/* my event mask */
+	long do_not_propagate_mask;	/* set of events that should not propagate */
+	Bool override_redirect;	/* boolean value for override-redirect */
+	Screen *screen;	/* back pointer to correct screen */
+} XWindowAttributes;
+.De
+.IN "XWindowAttributes" "" @DEF@"
+.LP
+.\" Need to rewrite the following.
+.\" *** GET THE EXPLANATION FROM THAT SECTION AND MOVE IT HERE.
+The x and y members are set to the coordinates that define the location of the
+drawable.
+If the drawable is a window, these coordinates specify the upper left outer
+corner relative to the parent window's origin.
+If the drawable is a pixmap, these members are set to zero.
+The width and height members are set to the drawable's dimensions.
+For a window, these dimensions specify the inside size of the window, not
+including the border.
+.LP
+The border_width member is set to the window's border width in pixels.
+If the drawable is a pixmap, this member is set to zero.
+The depth member is set to the depth of the pixmap 
+(that is, bits per pixel for the object).
+The depth must be supported by the root of the specified drawable.
+.LP
+The visual member is a pointer to the screen's associated
+.PN Visual
+structure.
+The root member is set to the root ID of the screen containing the window.
+The class member is set to the window's class and can be either
+.PN InputOutput
+or
+.PN InputOnly .
+.LP
+The bit_gravity member is set to the window's bit gravity
+and can be one of these constants:
+.LP
+.TS
+lw(1.5i) lw(1.5i).
+T{
+.PN ForgetGravity
+T}	T{
+.PN EastGravity
+T}
+T{
+.PN NorthWestGravity
+T}	T{
+.PN SouthWestGravity
+T}
+T{
+.PN NorthGravity
+T}	T{
+.PN SouthGravity
+T}
+T{
+.PN NorthEastGravity
+T}	T{
+.PN SouthEastGravity
+T}
+T{
+.PN WestGravity
+T}	T{
+.PN StaticGravity
+T}
+.PN CenterGravity
+.TE
+.LP
+See the Configuring Windows section in Chapter 3 for additional information on
+bit gravity.
+.LP
+The win_gravity member is set to the window's window gravity
+and can be one of these constants:
+.LP
+.TS
+lw(1.5i) lw(1.5i).
+T{
+.PN UnmapGravity
+T}	T{
+.PN EastGravity
+T}
+T{
+.PN NorthWestGravity
+T}	T{
+.PN SouthWestGravity
+T}
+T{
+.PN NorthGravity
+T}	T{
+.PN SouthGravity
+T}
+T{
+.PN NorthEastGravity
+T}	T{
+.PN SouthEastGravity
+T}
+T{
+.PN WestGravity
+T}	T{
+.PN StaticGravity
+T}
+.PN CenterGravity
+.TE
+.LP
+The backing_store member is set to indicate how the X server should maintain
+the contents of a window.
+It can be set to one of the constants
+.PN WhenMapped ,
+.PN Always ,
+or
+.PN NotUseful .
+The backing_planes member is set to indicate (with one bits) which bit planes
+of the window hold dynamic data that must be preserved in backing_stores and
+during save_unders.
+The backing_pixel member is set to indicate what values to use when restoring planes
+from a partial backing store.
+.LP
+The save_under member is set to either
+.PN True
+or
+.PN False .
+The colormap member is set to the color map for the specified window and can be
+a color map ID or 
+.PN None .
+The map_installed member is set to indicate whether the color map is currently installed.
+It can be either
+.PN True
+or
+.PN False .
+The map_state member is set to indicate the state of the window and can be one
+of the constants
+.PN IsUnmapped ,
+.PN IsUnviewable ,
+or
+.PN IsViewable .
+This member gets set to
+.PN IsUnviewable
+if the window is mapped but some ancestor is unmapped.
+.LP
+The all_event_masks member is set to the bitwise inclusive OR of all event 
+masks selected on the window by interested clients.
+The your_event_mask member is set to the bitwise inclusive OR of all event 
+masks selected by the querying client.
+The do_not_propagate_mask member is set to the bitwise inclusive OR of the 
+set of events that should not propagate.
+See Section 8.3 for a discussion of events and the event mask.
+.LP
+The override_redirect member is set to indicate whether this window overrides
+structure control facilities.
+It can be either
+.PN True
+or
+.PN False .
+Window manager clients usually should ignore the window if this member is
+.PN True .
+Transient windows should mark which windows they are associated with.
+See Section 9.1.9 for further information.
+.LP
+The screen member is set to a screen pointer that gives you a back pointer to the
+correct screen.
+This makes it easier to obtain the screen information without
+having to loop over the root window fields to see which matches.
+.LP
+.sp
+To obtain the current geometry of the specified drawable, use 
+.PN XGetGeometry .
+.IN "XGetGeometry" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XGetGeometry.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+The drawable can be either a window or a pixmap.
+.so ./Xsrc/root.a
+.so ./Xsrc/getxy.a
+.so ./Xsrc/width_ret.a
+For a window, 
+these dimensions specify the inside size, not including the border.
+.so ./Xsrc/bordwid_ret.a
+The function returns the border width only if the drawable is a window.
+It returns zero if the drawable is a pixmap.
+.so ./Xsrc/depth_ret.a
+.LP
+.so ./Xdescrip/XGetGeometry.d
+The geometry of the drawable includes the x and y coordinates, width and height,
+border width, and depth.
+These are described in the argument list.
+It is legal to pass to this function a window whose class is
+.PN InputOnly .
+.LP
+.ds fd .PN XGetGeometry
+.so ./Xsrc/errsent4.com
+.PN BadDrawable 
+error.
+.LP
+.sp
+To obtain the root window the pointer is currently on and 
+the pointer coordinates relative to the root's origin, use 
+.PN XQueryPointer .
+.IN "XQueryPointer" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XQueryPntr.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/root.a
+This root ID identifies the root window the pointer is currently on.
+.so ./Xsrc/child_ret.a
+.so ./Xsrc/rootxy.a
+.so ./Xsrc/winxy.a
+.so ./Xsrc/mask1.a
+.LP
+.so ./Xdescrip/XQueryPntr.d
+If
+.PN XQueryPointer
+returns 
+.PN False , 
+the pointer is not on the same screen as the
+window associated with the window you passed to the w argument.
+In this case, the function returns 
+.PN None
+to child_return and zero to win_x_return and win_y_return.
+If 
+.PN XQueryPointer
+returns 
+.PN True , 
+the pointer coordinates returned to win_x_return and win_y_return
+are relative to the origin of the window identified by the w argument.
+In this case, 
+the function returns the ID of the child containing the pointer, if any.
+.LP
+The current logical state of the keyboard buttons and the modifier keys 
+are returned in the mask_return argument.
+Depending on the current state of the mouse buttons and the modifier keys,
+.PN XQueryPointer
+can set this argument to the bitwise inclusive OR of one or more
+of the button or modifier key bitmasks.
+.LP
+Note that the logical state of a device (as seen by means of the X protocol)
+may lag the physical state if device event processing is frozen.
+See Section 7.4 for further information.
+.LP
+.ds fd .PN XQueryPointer
+.so ./Xsrc/errsent4.com
+.PN BadWindow 
+error.
+.NH 2
+Properties and Atoms
+.XS
+\*(SN Properties and Atoms 
+.XE
+.LP
+A property is a collection of named typed data.
+Data of only one type may be associated with a single
+property.  
+Clients can store and retrieve properties associated with windows.
+For efficiency reasons,
+an atoms is used rather than a whole name string.
+.PN XInternAtom
+can be used either to define new properties or to obtain the atom 
+for new properties.
+.IN "Atom" 
+.LP
+The window system has a set of predefined properties
+.IN "Atom" "Predefined properties"
+(for example, the name of a window, size hints, and so on), and users can
+define any other arbitrary information
+and can associate them with windows.
+Each property has a name,
+which is an ISO Latin-1 string.
+For each named property
+there is a unique identifier (atom) associated
+with it. 
+A property also has a type, for example, string or integer.
+These types are also indicated using atoms, so arbitrary new
+types can be defined.
+.LP
+A property is also stored in one of several possible formats.
+The X server can store the information as 8-bit quantities, 16-bit
+quantities, or 32-bit quantities.
+This permits the X server to present the data in the byte order that the
+client expects.
+.NT
+If you define further properties of complex type, 
+you must encode and decode them yourself.
+These functions must be carefully written if they are to be portable.
+See Appendix D for further information about how to write a library function.
+.NE
+The type of a property is defined by other properties, which allows for
+arbitrary extension in this type scheme.
+.IN "Atom" "" "@DEF@"
+.LP
+Certain properties are
+predefined in the server for commonly used functions.
+The atoms for these properties are defined in 
+.Pn < X11/Xatom.h >.
+To avoid name clashes with user symbols, the 
+.PN #define 
+name for each atom has the ``XA_'' prefix added.
+See Section 4.3 for definitions of these properties.
+See Chapter 9 for an explanation of the functions that let
+you get and set
+much of the information 
+stored in these predefined properties.
+.LP
+You can use this mechanism to communicate other information between
+applications.
+The functions described in this section let you define new properties and get the
+unique Atom IDs in your applications.
+.LP
+Atoms occur in five distinct name spaces within the protocol. 
+.IP \(bu 5
+Selections
+.IP \(bu 5
+Property names
+.IP \(bu 5
+Property types
+.IP \(bu 5
+Font properties 
+.IP \(bu 5
+Type of a 
+.PN ClientMessage 
+event (none are built into the X server)
+.LP
+Any particular atom can have some client interpretation within each of the name
+spaces. 
+.LP
+The built-in selection properties, which name properties, are: 
+.LP
+.Ds 0
+.TA .5i 1.5i 3i
+.ta .5i 1.5i 3i
+.R
+PRIMARY
+SECONDARY
+.De
+.LP
+The built-in property names are: 
+.TS
+lw(2i) lw(2i).
+.sp 6p
+CUT_BUFFER0	RGB_GREEN_MAP
+CUT_BUFFER1	RGB_RED_MAP
+CUT_BUFFER2	RESOURCE_MANAGER
+CUT_BUFFER3	WM_CLASS
+CUT_BUFFER4	WM_CLIENT_MACHINE
+CUT_BUFFER5	WM_COMMAND
+CUT_BUFFER6	WM_HINTS
+CUT_BUFFER7	WM_ICON_NAME
+RGB_BEST_MAP	WM_ICON_SIZE
+RGB_BLUE_MAP	WM_NAME
+RGB_DEFAULT_MAP	WM_NORMAL_HINTS
+RGB_GRAY_MAP	WM_ZOOM_HINTS
+	WM_TRANSIENT_FOR
+.sp 6p
+.TE
+.LP
+The built-in property types are: 
+.LP
+.TS
+lw(2i) lw(2i).
+.sp 6p
+ARC	POINT
+ATOM	RGB_COLOR_MAP
+BITMAP	RECTANGLE
+CARDINAL	STRING
+COLORMAP	VISUALID
+CURSOR	WINDOW
+DRAWABLE	WM_HINTS
+FONT	WM_SIZE_HINTS
+INTEGER	
+PIXMAP
+.sp 6p
+.TE
+.LP
+The built-in font property types are: 
+.TS
+lw(2i) lw(2i).
+.sp 6p
+MIN_SPACE	STRIKEOUT_DESCENT
+NORM_SPACE	STRIKEOUT_ASCENT
+MAX_SPACE	ITALIC_ANGLE
+END_SPACE	X_HEIGHT
+SUPERSCRIPT_X	QUAD_WIDTH
+SUPERSCRIPT_Y	WEIGHT
+SUBSCRIPT_X	POINT_SIZE
+SUBSCRIPT_Y	RESOLUTION
+UNDERLINE_POSITION	COPYRIGHT
+UNDERLINE_THICKNESS	NOTICE
+FONT_NAME	FAMILY_NAME
+FULL_NAME	CAP_HEIGHT
+.sp 6p
+.TE
+.NT
+See Chapter 6 for further information about font property atoms. 
+.NE
+.LP
+.sp
+To return an atom for a specified name, use 
+.PN XInternAtom .
+.IN "Atom" "Interning"
+.IN "XInternAtom" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XInternAtom.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/atom_name.a
+.so ./Xsrc/onlyifexist.a
+.LP
+.so ./Xdescrip/XInternAtom.d
+.PN XInternAtom
+returns the atom for the specified atom_name
+if only_if_exists is 
+.PN True .
+If only_if_exists is 
+.PN False ,
+the atom is created if it does not exist.
+Therefore,
+.PN XInternAtom
+can return
+.PN None .
+You should use a null-terminated ISO Latin-1 string for atom_name.
+Case
+matters: the strings "thing", "Thing", and "thinG" all designate
+different atoms.  
+The atom will remain defined even after the client who defined it has
+gone away.  
+It will become undefined only when the last connection to
+the X server closes.
+.LP
+.ds fd .PN XInternAtom
+.so ./Xsrc/errsent.com
+.PN BadAlloc
+and
+.PN BadValue 
+errors.
+.LP
+.sp
+To return a name for the specified atom identifier, use 
+.PN XGetAtomName .
+.IN "Atom" "Getting name"
+The definition for this function is:
+.IN "XGetAtomName" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XGetAtomName.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/atom.a
+.LP
+.so ./Xdescrip/XGetAtomName.d
+.LP
+.ds fd .PN XGetAtomName
+.so ./Xsrc/errsent4.com
+.PN BadAtom 
+error.
+.NH 2
+Obtaining and Changing Window Properties
+.XS
+\*(SN Obtaining and Changing Window Properties 
+.XE
+.LP
+You can attach a property list to every window.
+Each property has a name, a type, and a value.
+(See Section 4.2 for further information.)
+The value is an array of 8-bit, 16-bit, or 32-bit quantities,
+whose interpretation is left to the clients. 
+.LP
+Xlib provides functions with which you can obtain, 
+change, update, or interchange a window property.
+In addition, Xlib provides other utility functions for predefined property
+operations.
+See Chapter 9
+for further information about predefined property functions.
+.LP
+.sp
+To obtain the atom type and property format of a specified window, use 
+.PN XGetWindowProperty .
+.IN "Property" "Getting"
+.LP
+.IN "XGetWindowProperty" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XGetProperty.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+This is the window whose atom type and property format you want to obtain.
+.so ./Xsrc/property.a
+.so ./Xsrc/long_offset.a
+.so ./Xsrc/long_length.a
+.so ./Xsrc/delete.a
+.so ./Xsrc/reqtype.a
+.so ./Xsrc/actual_type.a
+.so ./Xsrc/act_format.a
+.so ./Xsrc/nitems1.a
+.so ./Xsrc/bytes_after.a
+.so ./Xsrc/prop.a
+.LP
+.so ./Xdescrip/XGetProperty.d
+This function sets the return arguments according to the following:
+.IP \(bu 5
+If the specified property does not exist for the specified window,
+.PN XGetWindowProperty 
+returns 
+.PN None
+to the actual_type_return argument and the value zero to 
+the actual_format_return 
+and bytes_after_return arguments.
+The nitems_return argument is empty.
+In this case, the delete argument is ignored.
+.IP \(bu 5
+If the specified property exists, 
+but its type does not match the specified type,
+.PN XGetWindowProperty 
+returns the actual property type to the actual_type_return argument; 
+the actual property format (never zero) to the actual_format_return argument; 
+and the property length in bytes (even if the actual_format_return is 16 or 32) 
+to the bytes_after_return argument.
+It also ignores the delete argument.
+The nitems_return argument is empty.
+.IP \(bu 5
+If the specified property exists, and either you assign 
+.PN AnyPropertyType 
+to the req_type argument or the specified type matches the actual property type,
+.PN XGetWindowProperty 
+returns the the actual property type to the actual_type_return argument and the actual
+property format (never zero) to the actual_format_return argument. 
+It also returns a value to the bytes_after_return and nitems_return arguments, by 
+defining the following
+values:
+.IP
+.nf
+	N = actual length of the stored property in bytes
+	     (even if the format is 16 or 32)
+	I = 4 * long_offset
+	T = N - I
+	L = MINIMUM(T, 4 * long_length)
+	A = N - (I + L)
+.fi
+.IP
+The returned value starts at byte index I in the property (indexing
+from zero), and its length in bytes is L.
+A
+.PN BadValue
+error is returned if the value for long_offset causes L to be negative.  
+The value of bytes_after_return is A, 
+giving the number of trailing unread bytes in the stored property.
+.IP
+If delete is 
+.PN True 
+and bytes_after_return is zero 
+the function deletes the property 
+from the window and generates a 
+.PN PropertyNotify 
+event on the window.
+.LP
+.PN XGetWindowProperty
+allocates one extra byte and sets it to ASCII null,
+so that simple properties consisting of characters
+do not have to be copied into yet another string
+before use.
+The function returns
+.PN Success
+if it executes successfully.
+.LP
+.ds fd .PN XGetWindowProperty
+.so ./Xsrc/errsent.com
+.PN BadAtom ,
+.PN BadValue ,
+and
+.PN BadWindow 
+errors.
+.LP
+.sp
+To obtain the specified window's property list, use 
+.PN XListProperties .
+.IN "Property" "Listing"
+.IN "XListProperties" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XListProps.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+This is the window whose property list you want to obtain.
+.so ./Xsrc/n_prop1.a
+.LP
+.so ./Xdescrip/XListProps.d
+To free the memory allocated by this function, use 
+.PN XFree .
+(See Section 2.4 for further information.)
+.LP
+.ds fd .PN XListProperties
+.so ./Xsrc/errsent4.com
+.PN BadWindow 
+error.
+.LP
+.sp
+To change the property of a specified window, use
+.PN XChangeProperty .
+.IN "Property" "Changing"
+.IN "Property" "Appending"
+.IN "Property" "Prepending"
+.IN "Property" "Replacing"
+.IN "Property" "Format"
+.IN "Property" "Type"
+.IN "XChangeProperty" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XChProperty.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+This is the window whose property you want to change.
+.so ./Xsrc/property.a
+The property remains defined even after the client who defined
+it closes its connection.
+.so ./Xsrc/type.a
+.so ./Xsrc/format.a
+.so ./Xsrc/prop_mode.a
+.so ./Xsrc/data1.a
+.so ./Xsrc/nelements.a
+.LP
+.so ./Xdescrip/XChProperty.d
+.PN XChangeProperty
+does the following according to the value you assign to the mode
+argument:
+.IP \(bu 5
+If the mode argument is
+.PN PropModeReplace ,
+.PN XChangeProperty
+discards the previous property value.
+.IP \(bu 5
+If the mode argument is
+.PN PropModePrepend
+or
+.PN PropModeAppend ,
+the type and format must match the existing property value. 
+Otherwise,
+.PN XChangeProperty
+generates a
+.PN BadMatch
+error.
+If the property is undefined, 
+it is treated as defined with the correct type and
+format with zero-length data.
+.IP
+For
+.PN PropModePrepend ,
+the function
+inserts the data before the beginning of the existing data.
+For
+.PN PropModeAppend ,
+the function
+appends the data onto the end of the existing data. 
+.LP
+The lifetime of a property is not tied to the storing client.
+Properties remain until explicitly deleted, or the window is destroyed,
+or until the server resets.
+See Section 2.5 for a discussion of what happens when the connection to the X server
+is closed.
+The maximum size of a property is server dependent and,
+depending on the amount of memory the server has available,
+can vary dynamically.
+(If there is insufficient space, a
+.PN BadAlloc
+error is generated.)
+.LP
+.ds fd .PN XChangeProperty
+.so ./Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadAtom ,
+.PN BadMatch ,
+.PN BadValue ,
+and
+.PN BadWindow 
+errors.
+.LP
+.sp
+To rotate properties in the properties array, use
+.PN XRotateWindowProperties .
+.LP
+.IN "XRotateWindowProperties" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XRotProp.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/properties.a
+.so ./Xsrc/n_prop.a
+.so ./Xsrc/num_pos.a
+.LP
+.so ./Xdescrip/XRotProp.d
+If the property names in the properties array are viewed as being numbered 
+starting from zero and if there are num_prop property names in the list,
+then the value associated with property name I becomes the value associated 
+with property name (I + npositions) mod N, for all I from zero to N - 1.
+The effect is to rotate the states by npositions places around the virtual ring
+of property names (right for positive npositions, 
+left for negative npositions).
+If npositions mod N is nonzero,
+the X server generates a
+.PN PropertyNotify
+event for each property in the order that they are listed in the array.
+If an atom occurs more than once in the list or no property with that 
+name is defined for the window,
+a 
+.PN BadMatch 
+error is generated.
+If a 
+.PN BadAtom 
+or 
+.PN BadMatch 
+error is generated,
+no properties are changed.
+.LP
+.ds fd .PN XRotateWindowProperties
+.so ./Xsrc/errsent.com
+.PN BadAtom ,
+.PN BadMatch ,
+and
+.PN BadWindow 
+errors.
+.LP
+.sp
+To delete a property for the specified window, use 
+.PN XDeleteProperty .
+.IN "Property" "Deleting"
+.IN "XDeleteProperty" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XDeleteProp.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+This is the window whose property you want to delete.
+.so ./Xsrc/property.a
+.LP
+.so ./Xdescrip/XDeleteProp.d
+.LP
+.ds fd .PN XDeleteProperty
+.so ./Xsrc/errsent.com
+.PN BadAtom
+and
+.PN BadWindow 
+errors.
+.NH 2
+Window Selections
+.XS
+\*(SN Window Selections
+.XE
+.LP
+.IN "Selection" "" "@DEF@"
+Selections are one method for applications to exchange data.
+By using the property mechanism,
+applications can exchange data of arbitrary types and can negotiate
+the type of the data.
+A selection can be thought of as an indirect property with a dynamic type.
+That is, rather than having the property stored in the X server,
+the property is maintained by some client (the owner).
+A selection is global
+in nature, being thought of as belonging to the user but maintained by
+clients, rather than being private to a particular window subhierarchy
+or a particular set of clients.
+.LP
+Xlib provides functions with which you can set, get, or request conversion
+of window selections.
+This allows applications to implement the notion of current selection,
+which requires notification be sent to applications when they no longer
+own the selection.
+Applications that support selection often highlight the current selection
+and need to be able to be informed when some other application has
+acquired the selection in order to be able to unhighlight the
+selection.
+.LP
+When a client asks for the contents of
+a selection, it specifies a selection target type.
+This target type
+can be used to control the transmitted representation of the contents.
+For example, if the selection is ``the last thing the user clicked on,''
+and that is currently an image, then the target type might specify
+whether the contents of the image should be sent in XYFormat or
+ZFormat.
+.LP
+The target type can also be used to control the class of
+contents transmitted, for example, 
+asking for the ``looks'' (fonts, line
+spacing, indentation, and so forth) of a paragraph selection, not the
+text of the paragraph.
+The target type can also be used for other
+purposes.
+The semantics are not constrained by the protocol.
+.LP
+.sp
+To set the selection owner, use 
+.PN XSetSelectionOwner .
+.IN "Selection" "Setting the owner"
+.IN "XSetSelectionOwner" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XSetSelOwner.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/selection.a
+.so ./Xsrc/owner.a
+.so ./Xsrc/time.a
+.LP
+.so ./Xdescrip/XSetSelOwner.d
+The function has no effect if
+the value you pass to the time argument is earlier than the current 
+last-change time
+of the specified selection or is later than the current X server time.
+Otherwise, the last-change time is set to the specified time,
+with
+.PN CurrentTime
+replaced by the current server time.
+If the owner window is specified as
+.PN None ,
+then the owner of the selection becomes None (that is, no owner).
+Otherwise, the owner of the selection becomes the client executing
+the request.
+.LP 
+If the new owner (whether a client or
+.PN None )
+is not
+the same as the current owner of the selection, and the current
+owner is not
+.PN None ,
+the current owner is sent a 
+.PN SelectionClear 
+event.
+If the client that is the owner of a selection is later
+terminated (that is, its connection is closed)
+or if the owner window it has specified in the request is later
+destroyed,
+the owner of the selection automatically
+reverts to
+.PN None ,
+but the last-change time is not affected.
+The selection atom is uninterpreted by the X server.
+The owner window is returned by the 
+.IN XGetSelectionOwner
+.PN XGetSelectionOwner
+function and is reported
+in 
+.PN SelectionRequest
+and
+.PN SelectionClear
+events.
+Selections are global to the X server.
+.LP
+.ds fd .PN XSetSelectionOwner
+.so ./Xsrc/errsent.com
+.PN BadAtom
+and
+.PN BadWindow 
+errors.
+.LP
+.sp
+To return selection owner, use 
+.PN XGetSelectionOwner .
+.IN "Selection" "Getting the owner"
+.IN "XGetSelectionOwner" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XGetSelOwner.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/selection.a
+This is the atom whose owner you want returned.
+.LP
+.so ./Xdescrip/XGetSelOwner.d
+If
+.PN None
+is returned,
+there is no owner for the selection.
+.LP
+.ds fd .PN XGetSelectionOwner
+.so ./Xsrc/errsent4.com
+.PN BadAtom 
+error.
+.LP
+.sp
+To request conversion of a selection, use 
+.PN XConvertSelection .
+.IN "Selection" "Converting"
+.IN "XConvertSelection" "" "@DEF@"
+.FD 0
+.so ./Xsrc/XConvertSel.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/selection.a
+.so ./Xsrc/target.a
+.so ./Xsrc/property.a
+You also can pass 
+.PN None .
+.so ./Xsrc/requestor.a
+.so ./Xsrc/time.a
+.LP
+.so ./Xdescrip/XConvertSel.d
+.LP
+There are two predefined selection atoms: ``PRIMARY'' and ``SECONDARY''.
+See Chapter 8
+for more information on events, and in particular the
+.PN SelectionNotify
+event. 
+.LP
+.ds fd .PN XConvertSelection
+.so ./Xsrc/errsent.com
+.PN BadAtom
+and
+.PN BadWindow 
+errors.
+.bp

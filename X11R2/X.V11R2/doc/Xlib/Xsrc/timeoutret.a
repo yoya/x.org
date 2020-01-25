@@ -1,0 +1,3 @@
+.\" $Header: timeoutret.a,v 1.1 87/09/28 13:15:17 mento Exp $
+.IP \fItimeout_return\fP 1i
+Returns the timeout, in minutes, until the screen saver turns on.

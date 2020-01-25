@@ -1,0 +1,59 @@
+.AC "Acknowledgements" 1
+.LP
+.RU
+.LP
+This document is presented to the members of the X3D ad hoc committee
+and the general public.  It embodies the specification of a protocol
+now ready for implementation.  An important first step has been accomplished.
+.LP
+This work began when, at the first X3D meeting at MIT in June, 1987,
+Digital Equipment Corporation and Sun Microsystems, Inc. jointly proposed
+that a protocol be defined based upon an initial working draft developed
+by Digital.  This draft was influenced by comments from professional
+colleagues.  We recognize especially the authors of that first document:
+Randi J. Rost, Jeffrey Friedberg, Jeffrey S. Saltz, Pete Nishimoto, and
+William H. Clifford, Jr., all of Digital Equipment Corporation.  They
+provided a head start for this major undertaking.
+.LP
+We owe a major debt to the PEX architecture team which met frequently
+from June, 1987 till November, 1987 to argue and debate.  In addition,
+daily interchange was carried out via electronic mail.  They studied
+and resolved all the issues and have published this document.  We thank
+the PEX architecture team:
+.DS
+	Jeffrey Friedberg		\fIDigital Equipment Corp.\fP
+	Dave Gorgen		\fIApollo Computer Inc.\fP
+	Tom Gross			\fIApollo Computer Inc.\fP
+	Marty Hess			\fISun Microsystems\fP
+	John McConnell		\fIDigital Equipment Corp.\fP (AT Secretary)
+	Pete Nishimoto		\fIDigital Equipment Corp.\fP (AT Secretary)
+	Randi J. Rost		\fIDigital Equipment Corp.\fP
+	Jeffrey S. Saltz		\fIDigital Equipment Corp.\fP
+	Jeff Stevenson		\fIHewlett-Packard\fP
+	Jim Van Loo		\fISun Microsystems\fP
+.DE
+Several members of the X3D group provided useful comments to the 
+PEX architecture team.  We note especially the contributions of
+Jim Michener of Apollo Computer Inc., and Branko Gerovac, Todd
+Newman, and Raymond Drewry of Digital Equipment Corporation who attended
+several architecture team meetings and provided counsel.
+.LP
+Robert Scheifler, Director of the X Consortium at M.I.T., provided
+invaluable critique and advice that ensured that our efforts conformed
+to the spirit and definition of the X Window System.
+.LP
+To Randi Rost, the PEX Document Editor, go the thanks of all, for
+translating all the decisions into the written word.
+Thanks also to the individuals that worked on the X11, PHIGS, and PHIGS+
+specification documents, from which some PEX descriptions were obtained.
+.LP
+As your chairman, and therefore on your behalf, I thank all who
+contributed to this document.  A job well done!  The next step:  We
+await the implementation of the PEX protocol.  Some work has already begun.
+
+.ID 4.0i
+Bertram Herzog
+X3D Chairman
+14-Dec-1987
+.DE
+.bp

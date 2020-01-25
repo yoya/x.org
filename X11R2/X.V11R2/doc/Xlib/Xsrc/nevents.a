@@ -1,0 +1,3 @@
+.\" $Header: nevents.a,v 1.1 87/09/28 13:08:21 mento Exp $
+.IP \fInevents_return\fP 1i
+Returns the number of events from the motion history buffer.

@@ -1,0 +1,61 @@
+.TH XCreateWindow 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XCreateWindow, XCreateSimpleWindow \- create windows
+.SH SYNTAX
+.so ../Xsrc/XWindow.f
+.LP
+.so ../Xsrc/XCreWin.f
+.SH ARGUMENTS
+.so ../Xsrc/attributes.a
+.so ../Xsrc/backpixel.a
+.so ../Xsrc/border.a
+.so ../Xsrc/borderwidth.a
+.so ../Xsrc/class.a
+.so ../Xsrc/depth.a
+.so ../Xsrc/display.a
+.so ../Xsrc/parent.a
+.so ../Xsrc/valuemask.a
+.so ../Xsrc/visual.a
+.so ../Xsrc/widtheight.a
+.so ../Xsrc/xy.a
+.SH DESCRIPTION
+.so ../Xdescrip/XWindow.d
+.ds fd .PN XCreateWindow
+.so ../Xsrc/errsent.com
+.PN BadAlloc
+.PN BadColor ,
+.PN BadCursor ,
+.PN BadMatch ,
+.PN BadPixmap ,
+.PN BadValue ,
+and
+.PN BadWindow 
+errors.
+.LP
+.so ../Xdescrip/XCreWin.d
+.ds fd .PN XCreateSimpleWindow
+.so ../Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadMatch ,
+.PN BadValue ,
+and
+.PN BadWindow 
+errors.
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badcolor.e
+.so ../Xerrors/badcursor.e
+.so ../Xerrors/badmatch4.e
+.so ../Xerrors/badmatch2.e
+.so ../Xerrors/badpixmap.e
+.so ../Xerrors/badvalue.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XChangeWindowAttributes(3X),
+XConfigureWindow(3X), 
+XDestroyWindow(3X), 
+XMapWindow(3X), 
+XRaiseWindow(3X),
+XUnmapWindow(3X)
+.br
+\fIXlib \- C Language X Interface\fP

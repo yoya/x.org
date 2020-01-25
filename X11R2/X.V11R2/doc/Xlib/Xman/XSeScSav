@@ -1,0 +1,47 @@
+.TH XSetScreenSaver 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XSetScreenSaver, XForceScreenSaver, XActivateScreenSaver, XResetScreenSaver, 
+XGetScreenSaver \- manipulate the screen saver
+.SH SYNTAX
+.so ../Xsrc/XSetScrnSvr.f
+.LP
+.so ../Xsrc/XForScrnSvr.f
+.LP
+.so ../Xsrc/XActScrnSvr.f
+.LP
+.so ../Xsrc/XRstScrnSvr.f
+.LP
+.so ../Xsrc/XGetScrnSvr.f
+.SH ARGUMENTS
+.so ../Xsrc/allowexp.a
+.so ../Xsrc/allowexpret.a
+.so ../Xsrc/display.a
+.so ../Xsrc/interval.a
+.so ../Xsrc/intervalret.a
+.so ../Xsrc/mode_svr.a
+.so ../Xsrc/preferblank.a
+.so ../Xsrc/prefrblnkret.a
+.so ../Xsrc/timeout.a
+.so ../Xsrc/timeoutret.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSetScrnSvr.d
+.ds fd .PN XSetScreenSaver
+.so ../Xsrc/errsent4.com
+.PN BadValue 
+error.
+.LP
+.so ../Xdescrip/XForScrnSvr.d
+.ds fd .PN XForceScreenSaver
+.so ../Xsrc/errsent4.com
+.PN BadValue 
+error.
+.LP
+.so ../Xdescrip/XActScrnSvr.d
+.LP
+.so ../Xdescrip/XRstScrnSvr.d
+.LP
+.so ../Xdescrip/XGetScrnSvr.d
+.SH DIAGNOSTICS
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface\fP

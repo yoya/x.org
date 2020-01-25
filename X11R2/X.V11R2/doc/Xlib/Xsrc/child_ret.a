@@ -1,0 +1,2 @@
+.IP \fIchild_return\fP 1i
+Returns the child window ID that the pointer is located in, if any.

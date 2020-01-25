@@ -1,0 +1,124 @@
+.AC "PEX Protocol Specification" 1
+.LP
+.RU
+.LP
+.AC "Protocol Format" 2
+.LP
+All PEX protocol formats are based on the formats specified by the 
+\fIX Window System Protocol, Version 11\fP\(dg,
+which is referred to as X11 throughout the remainder of this
+document.
+The PEX protocol will adhere to the philosophy and requirements of X11.
+.FS
+.br
+.sp
+\(dg"X Window System" is a trademark of the 
+Massachussetts Institute of Technology
+.FE
+
+.AC "Request Format" 3
+.LP
+Every X11 request consists of a 4-byte header which contains an 8-bit
+"major" opcode, a 16-bit length field and an 8-bit "data" field.  This
+is followed by zero or more additional bytes of data, the length of
+which is specified by the length field.  Since PEX is a proper extension
+of X11, the 8-bit "major" opcode contains the opcode assigned for
+this extension by X11.  The length field contains the length of the
+request in units of four bytes,
+including the header.  The "data" field will contain the
+PEX opcode for this request.
+
+.AC "Reply Format" 3
+.LP
+Every reply consists of at least 32 bytes.  A header is contained in
+these 32 bytes.
+The header of a reply
+consists of
+a 32-bit length field, a 16-bit sequence number field, and an 8-bit
+type field.  Zero or
+more additional bytes follow the header as specified in the length field.  The 
+length specifies the length of the reply and is in units of four bytes.
+Unused bytes within a reply
+are not guaranteed to be zero.
+The sequence number field 
+contains the least significant 16 bits of the sequence number of
+the corresponding request.
+The type field defines the type of reply generated.
+
+.AC "Error Format" 3
+.LP
+Error reports are 32 bytes long.  Every error includes an 8-bit 
+error code.
+This error code is used to signify the specific PEX error that occurred.
+Every error code also includes the major opcode
+(the extension reporting the error is identified by the major opcode),
+the minor opcode
+(the extension opcode which caused the error),
+and the least significant 16 bits
+of the sequence number of the request which had failed.  Also included
+is an 8-bit type field which designates the packet as being an
+error packet.  Unused bytes
+within an error are not guaranteed to be zero.
+               
+.AC "Event Format" 3
+.LP
+Events are 32 bytes long.  Every event contains an 8-bit type code.
+The most significant bit in this field is set if the event was generated
+from a \fBSendEvent\fP request.  Event codes 64-127 are reserved for extensions,
+so only eight events can be defined for interest selection.
+
+.bp
+.Fs
+.AC "Syntax" 2
+.LP
+Curly braces {...} enclose a set of alternatives.
+When embedded in descriptions, request names are printed in boldface
+(e.g., \fBPEXCreateStructure\fP).
+Request parameters are lower case, use the underscore (_) for separation,
+and are printed in italics (e.g., \fIitem_mask\fP).
+Defined constants or registered enumerated type mnemonics
+have an initial capital letter, may use capital letters
+for separation, and are printed in italics (e.g., \fIRGBFloat\fP).
+Defined types are printed in all caps, use the underscore
+for separation, and are printed in the standard font (e.g.,
+COORD_3D).
+.sp
+.LP
+Requests are describes as follows:
+.Fs
+.Na PEXSampleRequest
+.Rq
+.Pa arg1 type1
+.Pa argN typeN
+.Re
+.Pa result1 type1
+.Pa resultM typeM
+.Se                    
+kind1,..., kindK
+.Ds 
+Functional description goes here
+.Fe
+.LP
+If no reply description is given,
+then the request has no 
+reply (it is asynchronous), but errors may still be reported.
+
+.AC "Naming Conventions" 2
+.LP
+PEX requests use a consistent naming convention.  The verbs that are
+commonly used in request names are described here.
+.DS
+.ta 1.2i
+\fICreate\fP	Create an instance of a resource
+\fIFree\fP	Remove an instance of a resource
+\fICopy\fP	Copy attributes from one resource to another of the same type
+\fIGet\fP	Return resource attributes from the server to the client
+\fIChange\fP	Modify attributes of a resource
+\fISet\fP	Modify a selected attribute of a resource
+\fIDelete\fP	Remove an instance of a resource, with additional side effects
+\fIFetch\fP	Return structure elements from the server to the client
+\fIStore\fP	Send structure elements from the client to a structure resource in the server
+\fIBegin\fP	Perform an initialization step of some kind
+\fIEnd\fP	Perform a termination step of some kind
+.DE
+.bp

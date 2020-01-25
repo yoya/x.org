@@ -1,0 +1,4 @@
+.\" $Header: nplanes.a,v 1.1 87/09/28 13:08:36 mento Exp $
+.IP \fInplanes\fP 1i
+Specifies the number of plane masks that are to be returned in the plane masks 
+array. 

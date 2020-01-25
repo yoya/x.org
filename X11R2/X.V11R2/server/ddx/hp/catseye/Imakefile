@@ -1,0 +1,23 @@
+SRCS =	\
+	catseye.c	\
+	catseyegc.c
+
+OBJS = \
+	catseye.o	\
+	catseyegc.o
+
+STD_DEFINES = ServerDefines
+CDEBUGFLAGS = ServerCDebugFlags
+   INCLUDES = -I. -I../hp -I../../../include -I../mfb -I../../../dix \
+              -I$(INCLUDESRC)
+   LINTLIBS = ../../../dix/llib-ldix.ln ../../../os/4.2bsd/llib-los.ln \
+	      ../mfb/llib-lmfb.ln ../cfb/llib-lcfb.ln ../../mi/llib-lmi.ln \
+	      ../hp/llib-lhp.ln		
+
+NormalLibraryObjectRule()
+NormalLibraryTarget(catseye,$(OBJS))
+NormalLintTarget($(SRCS))
+
+lintlib:
+
+DependTarget()

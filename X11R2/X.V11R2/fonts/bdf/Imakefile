@@ -1,0 +1,21 @@
+all: vtsingle.bdf vtbold.bdf 6x13.bdf
+
+vtsingle.bdf: 8x13.bdf
+	$(RM) vtsingle.bdf
+	$(LN) 8x13.bdf vtsingle.bdf
+
+vtbold.bdf: 8x13bold.bdf
+	$(RM) vtbold.bdf
+	$(LN) 8x13bold.bdf vtbold.bdf
+
+6x13.bdf: fixed.bdf
+	$(RM) 6x13.bdf
+	$(LN) fixed.bdf 6x13.bdf
+
+clean::
+	$(RM) vtsingle.bdf vtbold.bdf 6x13.bdf
+
+install::
+
+depend::
+	@echo "depend: skipping bdf"

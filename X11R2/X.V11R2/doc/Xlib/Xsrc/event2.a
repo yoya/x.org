@@ -1,0 +1,6 @@
+.\" $Header: event2.a,v 1.1 87/09/28 12:58:34 mento Exp $
+.IP \fIevent_return\fP 1i
+The 
+\*(fd
+function copies the event's associated structure into this client-supplied 
+structure. 

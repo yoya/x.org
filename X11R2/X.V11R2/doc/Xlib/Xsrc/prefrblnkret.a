@@ -1,0 +1,7 @@
+.\" $Header: prefrblnkret.a,v 1.1 87/09/28 13:11:01 mento Exp $
+.IP \fIprefer_blanking_return\fP 1i
+Returns the current screen blanking preference:
+.PN DontPreferBlanking ,
+.PN PreferBlanking ,
+or
+.PN DefaultBlanking .

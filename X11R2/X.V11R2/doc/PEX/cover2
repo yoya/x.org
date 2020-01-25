@@ -1,0 +1,271 @@
+.sp 1.0
+.TL
+X3D-PEX: V2.00 \(-> V3.00 Changes
+.AU
+14-Dec-1987
+.LP
+This document describes the changes that were made to the PEX
+protocol specification since version 2.00.  There were several
+nagging architectural issues that did not seem to go away.  At
+the last Architecture Team meeting, we investigated the possibility
+of a reorganization in order to solve some of the outstanding problems.
+When we found that such a reorganization would solve some of the problems
+and allow us to be more compatibel with X and with PHIGS, we decided
+to bite the bullet and perform the reorganization for V3.00.
+.LP
+It is important to
+note that the functionality contained in PEX has not changed radically
+since version 2.00.
+However, with the reorganization of attributes and functionality into
+new resources, it is not always easy to deduce the mapping from version
+2.00 to version 3.00.
+This document is a brief attempt to map the
+functionality found in PEX V2.00 to that found in PEX V3.00.
+.LP
+
+.NH 1
+PHIGS Changes
+.LP
+We have included support for the following changes that were made
+to the PHIGS specification during the meetings in October:
+.DS
+\(bu  NPC unit cube changed
+\(bu  model clipping simplified
+\(bu  annotation text fixed removed
+\(bu  incremental spatial search changed
+\(bu  "set model clip 2D" added
+.DE
+In addition, additional functionality has been added in an effort
+to support more of the PHIGS specification more efficiently.  This
+includes much of the functionality in the PHIGS workstation resource
+(described below and in Section 11 of the \fIPEX Protocol Specification\fP
+document).  Furthermore, some attributes and requests have been added to
+allow the support of additional PHIGS functionality that is not strictly
+required by the PHIGS specification.  The list below includes some of
+the PHIGS functionality added to PEX in V3.00:
+.DS
+\(bu  interior style index attribute
+\(bu  pattern size attribute
+\(bu  pattern reference point attribute
+\(bu  pattern reference vectors
+\(bu  HLHSR identifier attribute (allowed, but may be no-op)
+\(bu  GSE's (allowed, but may be no-op)
+\(bu  GDP's (allowed, but may be no-op)
+\(bu  cell array primitive
+.DE
+In addition, all attributes and primitives underwent a general cleanup
+in an effort to make them more closely match the PHIGS specification.
+
+.NH 1
+PHIGS+ Changes
+.LP
+We have attempted to include support for the following changes
+that occurred at the October PHIGS+ meeting:
+.DS
+\(bu  Color source selection changed, CSF's went away
+\(bu  geometric normal calculation mode went away
+\(bu  per facet color added
+\(bu  "with data" attribute specifiers changed to allow bitmask implementation
+\(bu  extended cell array primitive
+.DE
+In addition, we have succeeded in including support for the following
+PHIGS+ functionality not found in earlier versions of PEX:
+.DS
+\(bu  polyline interpolation (shading) method attribute
+\(bu  curve display method attribute
+\(bu  surface display method attribute
+\(bu  parametric curve primitive
+\(bu  parametric surface primitive
+\(bu  non-uniform B-spline curve primitive
+\(bu  non-uniform B-spline surface primitive
+\(bu  triangle strip primitive
+\(bu  quadrilateral mesh primitive
+.DE
+Although this version of the PEX specification incorporates much more
+of the functionality contained in PHIGS+, the PEX Architecture Team
+has chosen to explicitly defer:
+.DS
+\(bu  Support for conditional traversal
+\(bu  Support for interior style "general"
+\(bu  Full support for internal rendering color model
+\(bu  Full support for pseudo-color approximation mode
+.DE
+
+.NH 1
+Resources
+.LP
+Several changes have been made to PEX resources, especially to the
+drawable.  In V1.00-2.00, many of the attributes and
+rendering capabilities
+were placed in the drawable.  This ran counter to the X philosophy
+of making windows and pixmaps lightweight resources.
+In the V3.00 we've attempted to return windows and pixmaps
+to their lightweight status by
+moving attributes and functionality
+from the drawable into new resources.
+.LP
+The result is that the drawable is a lightweight "canvas" into which
+bits can be scribbled, as it is in X.  Also, each of the new resources
+is fairly lightweight, and has a specific purpose.
+Resources now contain only those properties
+which logically belong together.
+The smaller resources can be created and freed more
+readily, and it is possible to share them between drawables.
+.LP
+We've also attempted to separate functionality that is needed only
+for server-side
+traversal from that needed for both client- and server-side traversal.
+Hopefully, this will enable servers which support only client-side traversal
+to be smaller.
+
+.NH 2
+Lookup Tables
+.LP
+Attribute dictionaries, which allowed individual
+attributes to be indirectly referenced, have been
+dropped in favor of PHIGS style bundles.  A new resource,
+called a \fIlookup table\fP has been created to provide the
+functionality previously found in attribute dictionaries.
+A lookup table resource provides a general lookup table mechanism.
+Various types of tables have been defined in PEX in order
+to support view tables, color tables, light tables, depth-cue tables,
+and the various bundle tables.
+In this way, PEX provides one interface for dealing
+with modifying/quering table entries.
+.LP
+The reasons for this modification to PEX include:
+.DS
+\(bu  Removing lookup tables (attribute dictionaries) from the drawable
+    makes drawables lightweight again.
+\(bu  Tables can be shared - a single table can be used by multiple renderers
+    and PHIGS workstation resources
+\(bu  As a resource, lookup tables can be created and freed as needed.
+\(bu  Lookup tables provide more support for PHIGS functionality, through the
+    use of predefined, defined, and undefined entries.
+.DE
+A more detailed discussion of lookup table resources can be
+found in Section 4 of the \fIPEX Protocol Specification\fP document.
+
+.NH 2
+Pipeline Context
+.LP
+A new resource has been defined
+that incorporates the attributes found in the V1.00-V2.00 extended GC.
+This resource is called 
+a \fIpipeline context\fP.
+There were several reasons for creating a new resource to maintain
+the attributes that had been maintained in the extension to the X GC:
+.DS
+\(bu  More efficent if PEX has its own resource, rather than on relying on an
+    existing X resource.
+\(bu  The client clip list was the only overlap between attributes maintained
+    in the X GC and those needed for PEX.  (In V3.00, inclusion of the 
+    client clip list functionality has been deferred so there is no
+    overlap.)
+\(bu  It is easier to implement PEX with one less dependency on X.
+\(bu  Creating a separate resource removes any burden on the X GC resource.
+\(bu  Pipeline contexts can be shared without the overhead of the unrelated
+    X drawing attributes that are stored in an X GC.
+.DE
+A more detailed discussion of pipeline context resources can be
+found in Section 5 of the \fIPEX Protocol Specification\fP document.
+
+.NH 2
+Renderer
+.LP
+The attributes and the functionality that make up the PEX
+"renderer" have been removed from the drawable and placed into a
+new resource, called a \fIrenderer\fP.
+We have exposed these
+resources so that they can be explicitly controlled.
+Renderers are used to support convenient and efficient
+client-side traversal of structure
+networks.  Renderers include only the support needed to perform
+rendering of output primitives.
+The reasons for this change include:
+.DS
+\(bu  Removing the renderer from the drawable makes drawables lightweight again.
+\(bu  As a resource, renderers can be created and freed as needed.  Previously,
+    there was no way to strip the rendering functionality from a drawable
+    once it was no longer needed.
+\(bu  A single renderer can now be used on different drawables, or different
+    renderers can be used on the same drawable.
+.DE
+A more detailed discussion of renderer resources can be
+found in Section 6 of the \fIPEX Protocol Specification\fP document.
+
+.NH 2
+Structures
+.LP
+The support for structure resources is essentially the same
+in V3.00 as it was in V1.00-V2.00, with the exception that
+the element pointer functionality has been removed to its own resource.
+Thus, structures are kept clean and side-effect free, since they
+are simply receptacles for storing output commands (structure elements).
+The support for the PHIGS Get Ancestors/Get Descendants functionality,
+support for deleting a structure network, and the support for
+creating/retrieving structure elements
+have been reworked.  Some additional functionality was added to support
+PHIGS functionality not addressed in V1.00-V2.00.
+A more detailed discussion of structure resources can be
+found in Section 7 of the \fIPEX Protocol Specification\fP document.
+
+.NH 2
+Editing Context
+.LP
+The support for structure editing is essentially the same
+in V3.00 as it was in V1.00-V2.00, with the exception that
+the element pointer functionality has been moved from structure
+resources into a resource called the \fIediting context\fP.
+The editing attributes
+have been moved into their own resource to avoid unnecessarily burdening
+structure resources.  All of the element pointer manipulation functionality
+and the editing operations that support PHIGS structure editing
+functionality are still available.
+A more detailed discussion of editing context resources can be
+found in Section 8 of the \fIPEX Protocol Specification\fP document.
+
+.NH 2
+Name Set
+.LP
+The name set functionality is the same in V3.00 as it was in V1.00-V2.00.
+It has been made into its own resource to remove it from the drawable,
+to allow sharing, and to keep from burdening any other resource with
+unrelated attributes.
+A more detailed discussion of name sets resources can be
+found in Section 9 of the \fIPEX Protocol Specification\fP document.
+
+.NH 2
+Search Context
+.LP
+The support for incremental spatial search is essentially the same
+in V3.00 as it was in V1.00-V2.00, with the modifications that
+occurred in the October PHIGS meetings.  The attributes and functionality
+to support incremental spatial search has been moved into its own resource
+to remove it from the drawable and to keep from burdening any other resource
+with unrelated attributes.
+A more detailed discussion of search context resources can be
+found in Section 10 of the \fIPEX Protocol Specification\fP document.
+
+.NH 2
+PHIGS Workstation
+.LP
+A new resource has been created that incorporates
+PHIGS workstation semantics (e.g., posting structures, deferral modes, etc.).
+A PHIGS workstation resource in PEX effectively implements the
+PHIGS "workstation" abstraction in the X environment.
+With its attributes, the PHIGS workstation effectively has a built-in
+renderer that functions exactly as the PEX renderer resource just described.
+In addition, the PHIGS workstation provides functionality for
+supporting PHIGS Stroke and Locator input more conveniently.
+A more detailed discussion of PHIGS workstation resources can be
+found in Section 11 of the \fIPEX Protocol Specification\fP document.
+
+.NH 2
+Picking
+.LP
+The PEX picking functionality has once again been redesigned to map
+more closely to the PHIGS picking model.  A new resource, called a 
+\fIpick measure\fP, has been created to support picking operations.
+A more detailed discussion of PEX picking functionality can be
+found in Section 12 of the \fIPEX Protocol Specification\fP document.

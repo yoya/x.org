@@ -1,0 +1,6 @@
+.\" $Header: reqtype.a,v 1.2 88/02/25 22:30:53 jg Exp $
+.IP \fIreq_type\fP 1i
+.IN "Property" "Type"
+Specifies the atom identifier associated with the property type.
+You can also pass
+.PN AnyPropertyType .

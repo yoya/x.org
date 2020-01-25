@@ -1,0 +1,33 @@
+.TH XrmMergeDatabases 3X "" "1 March 1988" "X Version 11" 
+.SH NAME
+XrmMergeDatabases, XrmGetFileDatabase, XrmPutFileDatabase, XrmGetStringDatabase \- manipulate resource databases
+.SH SYNTAX
+.so ../Xsrc/XrmMDBase.f
+.LP
+.so ../Xsrc/XrmGFDBase.f
+.LP
+.so ../Xsrc/XrmPFDBase.f
+.LP
+.so ../Xsrc/XrmGSDbase.f
+.SH ARGUMENTS
+.so ../Xsrc/rm_data.a
+.so ../Xsrc/database1.a
+.so ../Xsrc/rm_file.a
+.so ../Xsrc/database2.a
+.so ../Xsrc/rm_file1.a
+.so ../Xsrc/rm_target.a
+.SH DESCRIPTION
+.so ../Xdescrip/XrmMDBase.d
+.LP
+.so ../Xdescrip/XrmGFDBase.d
+.LP
+.so ../Xdescrip/XrmPFDBase.d
+.LP
+.so ../Xdescrip/XrmGSDbase.d
+.SH "SEE ALSO"
+XrmGetResource(3X),
+XrmInitialize(3X),
+XrmPutResource(3X),
+XrmUniqueQuark(3X)
+.br
+\fIXlib \- C Language X Interface\fP
