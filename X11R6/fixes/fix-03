@@ -1,0 +1,52 @@
+                      Release 6 Public Patch #03
+                             X Consortium
+
+This patch comes in two parts: this file and the file "fix3docs.tar".
+(The file fix3docs.tar is 1.7Mb, and so is not available via the
+xstuff mail daemon.  However, even if you cannot get fix3docs.tar, you
+should still apply this part so later patches won't fail for you.)
+
+To apply this patch:
+
+cd to the top of the source tree (to the directory containing the "xc"
+and "contrib" subdirectories) and do:
+        patch -p -s < ThisFile
+Patch will work silently unless an error occurs.  If you want to
+watch patch do its thing, leave out the "-s" argument to patch.
+
+Next, from the same top-level directory do:
+	tar xpf fix3docs.tar
+
+No rebuild is necessary after applying this patch.
+
+The file fix3docs.tar contains new versions of the following files:
+
+xc/RELNOTES.PS
+xc/RELNOTES.TXT
+xc/doc/hardcopy/X11/xlib.PS.Z
+xc/doc/hardcopy/X11/xlib.idx.PS.Z
+xc/doc/hardcopy/FSProtocol/fsproto.PS.Z
+xc/doc/hardcopy/man/man.PS.Z
+
+Prereq: public-patch-2
+
+*** /tmp/da04605	Thu Jun 30 15:03:16 1994
+--- xc/bug-report	Thu Jun 30 15:03:15 1994
+***************
+*** 3,9
+  
+       VERSION:
+  
+! R6, public-patch-2
+  [X Consortium public patches edit this line to indicate the patch level]
+  
+       CLIENT MACHINE and OPERATING SYSTEM:
+
+--- 3,9 -----
+  
+       VERSION:
+  
+! R6, public-patch-3
+  [X Consortium public patches edit this line to indicate the patch level]
+  
+       CLIENT MACHINE and OPERATING SYSTEM:

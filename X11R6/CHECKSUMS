@@ -1,0 +1,34 @@
+SYSV checksums:
+
+37290 19 Contrib.howto
+35729 46 Manifest.PS
+12256 20 Manifest.ms
+63255 5 README
+71 372 RELNOTES.PS
+24139 178 RELNOTES.TXT
+54266 181 RELNOTES.ms
+8514 21447 contrib-1.tar.gz
+46948 16702 contrib-2.tar.gz
+50108 19464 contrib-3.tar.gz
+45756 15239 contrib-4.tar.gz
+58701 20105 xc-1.tar.gz
+22965 17407 xc-2.tar.gz
+21981 20992 xc-3.tar.gz
+
+
+BSD checksums:
+
+54075    10 Contrib.howto
+61182    23 Manifest.PS
+09436    10 Manifest.ms
+41987     3 README
+09524   186 RELNOTES.PS
+39245    89 RELNOTES.TXT
+12765    91 RELNOTES.ms
+22777 10724 contrib-1.tar.gz
+31841  8351 contrib-2.tar.gz
+49350  9732 contrib-3.tar.gz
+62777  7620 contrib-4.tar.gz
+48685 10053 xc-1.tar.gz
+11173  8704 xc-2.tar.gz
+39630 10496 xc-3.tar.gz

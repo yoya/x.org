@@ -1,0 +1,4451 @@
+                      Release 6 Public Patch #05
+                             X Consortium
+
+To apply this patch:
+
+cd to the top of the source tree (to the directory containing the "xc"
+and "contrib" subdirectories) and do:
+        patch -p -s < ThisFile
+Patch will work silently unless an error occurs.  If you want to
+watch patch do its thing, leave out the "-s" argument to patch.
+
+Finally, to rebuild after applying this patch, cd to the "xc" subdirectory
+and do:
+        make Everything >& every.log
+
+Brief notes on what this patch fixes:
+
+config: no support for Purify/TestCenter/Sentinel on C++ programs
+config: Imake.rules use of RemoveFile() instead of RemoveFiles()
+config: unnec PureFilesToClean/SentinelFilesToClean rules
+config: SentinelProgramTarget cleans nonexistent file
+config: use ranlib -t under OSF/1
+config: Do not build fresco shared libs under OSF/1
+config: sun.cf, fujitsu.cf typo in XawI18nDefines
+include: add 3270 terminal keysyms
+Xt: wait for window manager waits forever if server dies
+Xlib: implementation of PreeditStateNotifyCallback
+Xlib: XIM_REGISTER_TRIGGERKEYS protcol is not received
+Xlib: incorrect check of locale
+Xlib: can't be connected to an IM server on multi screen environment
+Xlib: Two symbols not unique in 32 characters
+ICElib: I/O errors
+ICElib: sequence number incremented in wrong place
+SMlib: error message is not byte swapped
+nls: additional locale aliases
+servers: fix for -kb command line option
+Fresco: don't use __DECCXX to prevent include sysent.h
+Fresco: Use of select (versus poll) to implement delay
+Fresco: header file <sysent.h> missing in SunOS 4.1.3
+Fresco: syntax error in compilation by gcc-2.6.0
+Fresco: 64-bit cleanup
+Fresco: ifdef sgi should be ifdef __sgi
+Fresco: don't use poll for timeouts under OSF/1
+Fresco: typo in TransformImpl::init() leaves array element uninitialize
+Fresco: GlyphImpl::need_redraw can reference uninitialized region
+Fresco: needs to prototype poll() for SunOS 4.1.3
+Fresco: FigureStyle::brush_attr can deference a null pointer
+Fresco: uninitialized data members in ctors
+
+Prereq: public-patch-4
+
+*** -   Fri Sep  9 15:53:06 1994
+--- xc/bug-report       Fri Sep  9 15:53:06 1994
+***************
+*** 3,9 ****
+  
+       VERSION:
+  
+! R6, public-patch-4
+  [X Consortium public patches edit this line to indicate the patch level]
+  
+       CLIENT MACHINE and OPERATING SYSTEM:
+--- 3,9 ----
+  
+       VERSION:
+  
+! R6, public-patch-5
+  [X Consortium public patches edit this line to indicate the patch level]
+  
+       CLIENT MACHINE and OPERATING SYSTEM:
+*** -	Fri Sep  9 15:21:59 1994
+--- xc/config/cf/sun.cf	Fri Sep  9 15:21:58 1994
+***************
+*** 1,4 ****
+! XCOMM platform:  $XConsortium: sun.cf,v 1.133 94/07/08 12:23:12 gildea Exp $
+  
+  #ifdef SVR4
+  #ifdef i386Architecture
+--- 1,4 ----
+! XCOMM platform:  $XConsortium: sun.cf,v 1.134 94/08/17 18:56:43 matt Exp $
+  
+  #ifdef SVR4
+  #ifdef i386Architecture
+***************
+*** 49,54 ****
+--- 49,55 ----
+   *
+   * For SunPro C++, define HasSunCplusplus to YES in site.def
+   * For CenterLine C++, define HasCenterLineCplusplus to YES in site.def
++  * For Gnu g++ 2.6.x, define HasGcc2ForCplusplus to YES in site.def
+   * For other compilers, define HasCplusplus to YES in site.def, and 
+   *    check to see if you need to provide values for CplusplusOptions
+   *    and/or DefaultCplusplusOptions.
+***************
+*** 102,113 ****
+  #endif
+  #endif
+  
+  
+  #if OSMajorVersion < 4 || (OSMajorVersion == 4 && OSMinorVersion < 1)
+  /* We do not guarantee this will work */
+  #define BootstrapCFlags   -DNOSTDHDRS
+  #define StandardDefines   -DNOSTDHDRS
+! #define XawI18nDefines     -DUSE_X_WCHAR_STRING -DUSE_XMBTOWC
+  #endif
+  
+  #if OSMajorVersion == 4 
+--- 103,125 ----
+  #endif
+  #endif
+  
++ /*
++  * Gnu g++ 2.6.0 cannot build working C++ shared libraries under Solaris 2
++  */
++ #if HasGcc2ForCplusplus && OSMajorVersion > 4
++ #ifndef SharedLibFresco
++ #define SharedLibFresco NO
++ #endif
++ #ifndef SharedLibXtf
++ #define SharedLibXtf NO
++ #endif
++ #endif
+  
+  #if OSMajorVersion < 4 || (OSMajorVersion == 4 && OSMinorVersion < 1)
+  /* We do not guarantee this will work */
+  #define BootstrapCFlags   -DNOSTDHDRS
+  #define StandardDefines   -DNOSTDHDRS
+! #define XawI18nDefines     -DUSE_XWCHAR_STRING -DUSE_XMBTOWC
+  #endif
+  
+  #if OSMajorVersion == 4 
+*** -	Fri Sep  9 15:21:59 1994
+--- xc/config/cf/fujitsu.cf	Fri Sep  9 15:21:59 1994
+***************
+*** 1,4 ****
+! XCOMM platform:  $XConsortium: fujitsu.cf,v 1.3 94/07/05 11:10:18 kaleb Exp $
+  
+  #ifdef SparcArchitecture
+  
+--- 1,4 ----
+! XCOMM platform:  $XConsortium: fujitsu.cf,v 1.4 94/09/01 21:05:53 kaleb Exp $
+  
+  #ifdef SparcArchitecture
+  
+***************
+*** 40,45 ****
+  #define BuildServer        NO
+  #define HasSymLinks        NO
+  #define HasVFork           NO
+! #define XawI18nDefines     -DUSE_X_WCHAR_STRING -DUSE_XMBTOWC
+  
+  #endif
+--- 40,45 ----
+  #define BuildServer        NO
+  #define HasSymLinks        NO
+  #define HasVFork           NO
+! #define XawI18nDefines     -DUSE_XWCHAR_STRING -DUSE_XMBTOWC
+  
+  #endif
+*** -	Fri Sep  9 15:22:00 1994
+--- xc/config/cf/Project.tmpl	Fri Sep  9 15:22:00 1994
+***************
+*** 1,6 ****
+  XCOMM -----------------------------------------------------------------------
+  XCOMM X Window System Build Parameters and Rules
+! XCOMM $XConsortium: Project.tmpl,v 1.242 94/04/13 14:58:40 rws Exp $
+  
+  /****************************************************************************
+   *                                                                          *
+--- 1,6 ----
+  XCOMM -----------------------------------------------------------------------
+  XCOMM X Window System Build Parameters and Rules
+! XCOMM $XConsortium: Project.tmpl,v 1.244 94/08/17 18:57:34 matt Exp $
+  
+  /****************************************************************************
+   *                                                                          *
+***************
+*** 71,77 ****
+  #define BuildXKBlib		NO	/* not yet a standard part of Xlib */
+  #endif
+  #ifndef BuildFresco
+! #if HasCplusplus && !HasGcc2ForCplusplus
+  #define BuildFresco		YES
+  #else
+  #define BuildFresco		NO
+--- 71,77 ----
+  #define BuildXKBlib		NO	/* not yet a standard part of Xlib */
+  #endif
+  #ifndef BuildFresco
+! #if HasCplusplus 
+  #define BuildFresco		YES
+  #else
+  #define BuildFresco		NO
+***************
+*** 324,329 ****
+--- 324,332 ----
+  #ifndef TwmDir
+  #define TwmDir $(LIBDIR)/twm
+  #endif
++ #ifndef XsmDir
++ #define XsmDir $(LIBDIR)/xsm
++ #endif
+  #ifndef NlsDir
+  #define NlsDir $(LIBDIR)/nls
+  #endif
+***************
+*** 404,409 ****
+--- 407,413 ----
+           XINITDIR = XinitDir		/* xinit config files */
+             XDMDIR = XdmDir		/* xdm config files */
+             TWMDIR = TwmDir		/* twm config files */
++            XSMDIR = XsmDir		/* xsm config files */
+             NLSDIR = NlsDir		/* nls files */
+         XLOCALEDIR = XLocaleDir		/* locale files */
+          PEXAPIDIR = PexApiDir		/* PEX support files */
+*** -	Fri Sep  9 15:22:01 1994
+--- xc/config/cf/Imake.rules	Fri Sep  9 15:22:00 1994
+***************
+*** 1,6 ****
+  XCOMM -----------------------------------------------------------------------
+  XCOMM Imake rules for building libraries, programs, scripts, and data files
+! XCOMM rules:  $XConsortium: Imake.rules,v 1.193 94/04/10 17:39:55 rws Exp $
+  
+  /*
+   *		   MACHINE-INDEPENDENT RULES; DO NOT MODIFY
+--- 1,6 ----
+  XCOMM -----------------------------------------------------------------------
+  XCOMM Imake rules for building libraries, programs, scripts, and data files
+! XCOMM rules:  $XConsortium: Imake.rules,v 1.194 94/08/30 17:25:36 matt Exp $
+  
+  /*
+   *		   MACHINE-INDEPENDENT RULES; DO NOT MODIFY
+***************
+*** 25,34 ****
+--- 25,37 ----
+   * CenterProgramTarget		(program,srclist,objlist,locallibs,syslibs)
+   * SentinelLinkTarget		(step,program,linklist)
+   * SentinelProgramTarget	(program,deplist,linklist)
++  * SentinelCplusplusProgramTarget	(program,deplist,linklist)
+   * PurifyLinkTarget		(step,program,linklist)
+   * PurifyProgramTarget		(program,deplist,linklist)
++  * PurifyCplusplusProgramTarget	(program,deplist,linklist)
+   * ProofLinkTarget		(step,program,linklist)
+   * ProofProgramTarget		(program,deplist,linklist)
++  * ProofCplusplusProgramTarget	(program,deplist,linklist)
+   * ProofCleanTarget		()
+   * RemoveTargetProgram		(program)
+   * MakeDir			(dir)
+***************
+*** 287,300 ****
+  ProgramTargetName(program.sentinel): deplist				@@\
+  	RemoveTargetProgram($@)						@@\
+  	$(CCENVSETUP) $(SENTINEL) $(SENTINELOPTIONS) $(CC) -o $@ $(LDOPTIONS) linklist $(EXTRA_LOAD_FLAGS) @@\
+! 									@@\
+  clean clean.sentinel::							@@\
+! 	RemoveFile(program.sentinel program.sentinel.*)
+  #else
+  #define	SentinelProgramTarget(program,deplist,linklist) /**/
+  #endif
+  #endif /* SentinelProgramTarget */
+  
+  #ifndef PurifyLinkTarget
+  #if HasPurify
+  #define PurifyLinkTarget(step,program,linklist)				@@\
+--- 290,320 ----
+  ProgramTargetName(program.sentinel): deplist				@@\
+  	RemoveTargetProgram($@)						@@\
+  	$(CCENVSETUP) $(SENTINEL) $(SENTINELOPTIONS) $(CC) -o $@ $(LDOPTIONS) linklist $(EXTRA_LOAD_FLAGS) @@\
+! 
+  clean clean.sentinel::							@@\
+! 	RemoveFile(program.sentinel)
+  #else
+  #define	SentinelProgramTarget(program,deplist,linklist) /**/
+  #endif
+  #endif /* SentinelProgramTarget */
+  
++ /*
++  * SentinelCplusplusProgramTarget - generate rules to make Sentinel image 
++  */
++ #ifndef SentinelCplusplusProgramTarget
++ #if HasSentinel
++ #define	SentinelCplusplusProgramTarget(program,deplist,linklist)	@@\
++ ProgramTargetName(program.sentinel): deplist				@@\
++ 	RemoveTargetProgram($@)						@@\
++ 	$(CXXENVSETUP) $(SENTINEL) $(SENTINELOPTIONS) $(CXX) -o $@ $(CXXLDOPTIONS) linklist $(EXTRA_LOAD_FLAGS) @@\
++ 									@@\
++ clean clean.sentinel::							@@\
++ 	RemoveFile(program.sentinel)
++ #else
++ #define	SentinelCplusplusProgramTarget(program,deplist,linklist) /**/
++ #endif
++ #endif /* SentinelCplusplusProgramTarget */
++ 
+  #ifndef PurifyLinkTarget
+  #if HasPurify
+  #define PurifyLinkTarget(step,program,linklist)				@@\
+***************
+*** 317,328 ****
+  	$(CCENVSETUP) $(PURIFY) $(PURIFYOPTIONS) $(CC) -o $@ $(LDOPTIONS) linklist $(EXTRA_LOAD_FLAGS) @@\
+  									@@\
+  clean clean.pure::							@@\
+! 	RemoveFile(program.pure program.pure.*)
+  #else
+  #define	PurifyProgramTarget(program,deplist,linklist) /**/
+  #endif
+  #endif /* PurifyProgramTarget */
+  
+  #ifndef ProofLinkTarget
+  #if HasTestCenter
+  #define ProofLinkTarget(step,program,linklist)				@@\
+--- 337,365 ----
+  	$(CCENVSETUP) $(PURIFY) $(PURIFYOPTIONS) $(CC) -o $@ $(LDOPTIONS) linklist $(EXTRA_LOAD_FLAGS) @@\
+  									@@\
+  clean clean.pure::							@@\
+! 	RemoveFile(program.pure)
+  #else
+  #define	PurifyProgramTarget(program,deplist,linklist) /**/
+  #endif
+  #endif /* PurifyProgramTarget */
+  
++ /*
++  * PurifyCplusplusProgramTarget - generate rules to make Purify'ed image
++  */
++ #ifndef PurifyCplusplusProgramTarget
++ #if HasPurify
++ #define	PurifyCplusplusProgramTarget(program,deplist,linklist)		@@\
++ ProgramTargetName(program.pure): deplist				@@\
++ 	RemoveTargetProgram($@)						@@\
++ 	$(CXXENVSETUP) $(PURIFY) $(PURIFYOPTIONS) $(CXX) -o $@ $(CXXLDOPTIONS) linklist $(EXTRA_LOAD_FLAGS) @@\
++ 									@@\
++ clean clean.pure::							@@\
++ 	RemoveFile(program.pure)
++ #else
++ #define	PurifyCplusplusProgramTarget(program,deplist,linklist) /**/
++ #endif
++ #endif /* PurifyCplusplusProgramTarget */
++ 
+  #ifndef ProofLinkTarget
+  #if HasTestCenter
+  #define ProofLinkTarget(step,program,linklist)				@@\
+***************
+*** 340,346 ****
+  #ifndef ProofProgramTarget
+  #if HasTestCenter
+  #define	ProofProgramTarget(program,deplist,linklist)			@@\
+! ProgramTargetName(program.tc): deplist				@@\
+  	RemoveTargetProgram($@)						@@\
+  	$(CCENVSETUP) $(PROOF) $(PROOFOPTIONS) $(CC) -o $@ $(LDOPTIONS) linklist $(EXTRA_LOAD_FLAGS) @@\
+  									@@\
+--- 377,383 ----
+  #ifndef ProofProgramTarget
+  #if HasTestCenter
+  #define	ProofProgramTarget(program,deplist,linklist)			@@\
+! ProgramTargetName(program.tc): deplist					@@\
+  	RemoveTargetProgram($@)						@@\
+  	$(CCENVSETUP) $(PROOF) $(PROOFOPTIONS) $(CC) -o $@ $(LDOPTIONS) linklist $(EXTRA_LOAD_FLAGS) @@\
+  									@@\
+***************
+*** 351,356 ****
+--- 388,410 ----
+  #endif
+  #endif /* ProofProgramTarget */
+  
++ /*
++  * ProofCplusplusProgramTarget - generate rules to make Proof'ed image
++  */
++ #ifndef ProofCplusplusProgramTarget
++ #if HasTestCenter
++ #define	ProofCplusplusProgramTarget(program,deplist,linklist)		@@\
++ ProgramTargetName(program.tc): deplist					@@\
++ 	RemoveTargetProgram($@)						@@\
++ 	$(CXXENVSETUP) $(PROOF) $(PROOFOPTIONS) $(CXX) -o $@ $(CXXLDOPTIONS) linklist $(EXTRA_LOAD_FLAGS) @@\
++ 									@@\
++ clean clean.tc::							@@\
++ 	RemoveFiles(program.tc program.tc.*.*)
++ #else
++ #define	ProofCplusplusProgramTarget(program,deplist,linklist) /**/
++ #endif
++ #endif /* ProofCplusplusProgramTarget */
++ 
+  #ifndef ProofCleanTarget
+  #if HasTestCenter
+  #define ProofCleanTarget()						@@\
+***************
+*** 456,464 ****
+  	RemoveTargetProgram($@)						@@\
+  	CplusplusLinkRule($@,$(CXXLDOPTIONS),objects,locallibs $(LDLIBS) syslibs) @@\
+  									@@\
+! SentinelProgramTarget(program,objects deplibs,objects locallibs $(LDLIBS) syslibs) @@\
+! PurifyProgramTarget(program,objects deplibs,objects locallibs $(LDLIBS) syslibs) @@\
+! ProofProgramTarget(program,objects deplibs,objects locallibs $(LDLIBS) syslibs) @@\
+  									@@\
+  clean::									@@\
+  	RemoveFile(ProgramTargetName(program))
+--- 510,518 ----
+  	RemoveTargetProgram($@)						@@\
+  	CplusplusLinkRule($@,$(CXXLDOPTIONS),objects,locallibs $(LDLIBS) syslibs) @@\
+  									@@\
+! SentinelCplusplusProgramTarget(program,objects deplibs,objects locallibs $(LDLIBS) syslibs) @@\
+! PurifyCplusplusProgramTarget(program,objects deplibs,objects locallibs $(LDLIBS) syslibs) @@\
+! ProofCplusplusProgramTarget(program,objects deplibs,objects locallibs $(LDLIBS) syslibs) @@\
+  									@@\
+  clean::									@@\
+  	RemoveFile(ProgramTargetName(program))
+***************
+*** 522,530 ****
+  	CplusplusLinkRule($@,$(CXXLDOPTIONS),$(objs),locallib $(LDLIBS) syslib) @@\
+  									@@\
+  CenterProgramTarget(program,$(srcs),$(objs),locallib,syslib)		@@\
+! SentinelProgramTarget(program,$(objs) $(deplib),$(objs) locallib $(LDLIBS) syslib) @@\
+! PurifyProgramTarget(program,$(objs) $(deplib),$(objs) locallib $(LDLIBS) syslib) @@\
+! ProofProgramTarget(program,$(objs) $(deplib),$(objs) locallib $(LDLIBS) syslib) @@\
+  									@@\
+  InstallProgram(program,$(BINDIR))					@@\
+  InstallManPage(program,$(MANDIR))
+--- 576,584 ----
+  	CplusplusLinkRule($@,$(CXXLDOPTIONS),$(objs),locallib $(LDLIBS) syslib) @@\
+  									@@\
+  CenterProgramTarget(program,$(srcs),$(objs),locallib,syslib)		@@\
+! SentinelCplusplusProgramTarget(program,$(objs) $(deplib),$(objs) locallib $(LDLIBS) syslib) @@\
+! PurifyCplusplusProgramTarget(program,$(objs) $(deplib),$(objs) locallib $(LDLIBS) syslib) @@\
+! ProofCplusplusProgramTarget(program,$(objs) $(deplib),$(objs) locallib $(LDLIBS) syslib) @@\
+  									@@\
+  InstallProgram(program,$(BINDIR))					@@\
+  InstallManPage(program,$(MANDIR))
+*** -	Fri Sep  9 15:22:01 1994
+--- xc/config/cf/Imake.tmpl	Fri Sep  9 15:22:01 1994
+***************
+*** 1,6 ****
+  XCOMM -----------------------------------------------------------------------
+  XCOMM Makefile generated from IMAKE_TEMPLATE and INCLUDE_IMAKEFILE
+! XCOMM $XConsortium: Imake.tmpl,v 1.219 94/05/13 15:58:31 matt Exp $
+  XCOMM
+  
+  /*
+--- 1,6 ----
+  XCOMM -----------------------------------------------------------------------
+  XCOMM Makefile generated from IMAKE_TEMPLATE and INCLUDE_IMAKEFILE
+! XCOMM $XConsortium: Imake.tmpl,v 1.220 94/08/30 17:25:36 matt Exp $
+  XCOMM
+  
+  /*
+***************
+*** 753,774 ****
+  #ifndef ExtraFilesToClean
+  #define ExtraFilesToClean /**/
+  #endif
+- #ifndef SentinelFilesToClean
+- #if HasSentinel
+- #define SentinelFilesToClean .sentinel
+- #else
+- #define SentinelFilesToClean /**/
+- #endif
+- #endif
+- #ifndef PureFilesToClean
+- #if HasPurify
+- #define PureFilesToClean .pure
+- #else
+- #define PureFilesToClean /**/
+- #endif
+- #endif
+  #ifndef FilesToClean
+! #define FilesToClean *.CKP *.ln *.BAK *.bak *.Osuf core errs ,* *~ *.a .emacs_* tags TAGS make.log MakeOut PureFilesToClean
+  #endif
+  
+            PATHSEP = PathSeparator
+--- 753,760 ----
+  #ifndef ExtraFilesToClean
+  #define ExtraFilesToClean /**/
+  #endif
+  #ifndef FilesToClean
+! #define FilesToClean *.CKP *.ln *.BAK *.bak *.Osuf core errs ,* *~ *.a .emacs_* tags TAGS make.log MakeOut 
+  #endif
+  
+            PATHSEP = PathSeparator
+*** -	Thu Sep 15 16:43:37 1994
+--- xc/config/cf/osf1.cf	Thu Sep 15 16:43:36 1994
+***************
+*** 1,4 ****
+! XCOMM platform:  $XConsortium: osf1.cf,v 1.38 94/06/03 21:38:48 matt Exp $
+  /* only tested with Digital OSF/1 */
+  
+  #ifdef AlphaArchitecture
+--- 1,4 ----
+! XCOMM platform:  $XConsortium: osf1.cf,v 1.42.1.1 94/09/15 20:41:35 kaleb Exp $
+  /* only tested with Digital OSF/1 */
+  
+  #ifdef AlphaArchitecture
+***************
+*** 23,29 ****
+  #define HasPoll			YES
+  #define HasVFork                NO
+  #define InstallCmd installbsd
+! #if OSMinorVersion > 0
+  #define ModernOSF1		YES
+  #else
+  #define ModernOSF1		NO
+--- 23,30 ----
+  #define HasPoll			YES
+  #define HasVFork                NO
+  #define InstallCmd installbsd
+! #define RanlibCmd ranlib -t
+! #if OSMajorVersion > 1 || OSMinorVersion > 0
+  #define ModernOSF1		YES
+  #else
+  #define ModernOSF1		NO
+***************
+*** 37,57 ****
+  #endif
+  
+  /*
+!  * For OSF/1 platforms, we must define both the location of the compiler
+!  * and the location of its standard C++ library.  The library location
+!  * is needed to resolve dependent library symbols when we build our own
+!  * C++ shared libraries like libFresco
+   */
+  
+  #ifndef CplusplusCmd
+  #define CplusplusCmd /usr/bin/cxx
+  #endif
+  #ifndef CplusplusDependIncludes 
+! #define CplusplusDependIncludes -D__DECCXX -I/usr/include
+  #endif
+  #ifndef CplusplusLibC
+  #define CplusplusLibC -L/usr/lib/cmplrs/cxx -lcxx
+  #endif
+  
+  #include <osfLib.rules>
+  #define NoRConst		YES
+--- 38,82 ----
+  #endif
+  
+  /*
+!  * C++ compiler setup.  This file knows what options to use with the
+!  * DEC C++ compiler, and may learn about other compilers in the future.
+!  * 
+!  * For DEC C++, define HasDECCplusplus to YES in site.def.  
+!  * For other compilers, define HasCplusplus to YES in site.def, and 
+!  *    check to see if you need to provide values for CplusplusOptions
+!  *    and/or DefaultCplusplusOptions.
+!  *
+!  * In any case, you may also need to set CplusplusDependIncludes.
+!  *
+!  * NOTE:  For DEC C++ version 1.3, we want to set ForceNormalLib 
+!  * 	  to YES because no one has managed to get the C++ compiler 
+!  *	  to either build or link with shared libraries, and DEC has
+!  *        not been able to tell us how to do it.
+   */
+  
++ #if HasDECCplusplus
++ #ifndef HasCplusplus 
++ #define HasCplusplus YES
++ #endif
++ #ifndef SharedLibFresco
++ #define SharedLibFresco NO
++ #endif
++ #ifndef SharedLibXtf
++ #define SharedLibXtf NO
++ #endif
+  #ifndef CplusplusCmd
+  #define CplusplusCmd /usr/bin/cxx
+  #endif
+  #ifndef CplusplusDependIncludes 
+! #define CplusplusDependIncludes -D__DECCXX -I/usr/include/cxx
+  #endif
+  #ifndef CplusplusLibC
+  #define CplusplusLibC -L/usr/lib/cmplrs/cxx -lcxx
+  #endif
++ #ifndef ForceNormalLib
++ #define ForceNormalLib YES
++ #endif
++ #endif /* HasDECCplusplus */
+  
+  #include <osfLib.rules>
+  #define NoRConst		YES
+*** -	Fri Sep  9 15:25:50 1994
+--- xc/lib/Xt/Shell.c	Fri Sep  9 15:25:50 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: Shell.c,v 1.166 94/06/01 15:33:25 converse Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts
+--- 1,4 ----
+! /* $XConsortium: Shell.c,v 1.167 94/09/02 16:16:48 kaleb Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts
+***************
+*** 1912,1939 ****
+  	q.w = (Widget) w;
+  	q.request_num = request_num;
+  	q.done = FALSE;
+- 	
+- 	for(;;) {
+-  	    /*
+-  	     * look for match event and discard all prior configures
+-  	     */
+- 	    if (XCheckIfEvent( XtDisplay(w), event, isMine, (char*)&q)) {
+- 		if (q.done)
+- 		    return TRUE;
+- 		else
+- 		    continue;	/* flush old events */
+- 	    }
+  
+  	    if (_XtWaitForSomething (app, 
+  				     FALSE, TRUE, TRUE, TRUE, 
+  				     TRUE, 
+  #ifdef XTHREADS
+  				     FALSE, 
+  #endif
+! 				     &timeout) != -1) continue;
+! 	    if (timeout == 0)
+! 		return FALSE;
+  	}
+  }
+  
+  /*ARGSUSED*/
+--- 1912,1939 ----
+  	q.w = (Widget) w;
+  	q.request_num = request_num;
+  	q.done = FALSE;
+  
++ 	/*
++ 	 * look for match event and discard all prior configures
++ 	 */
++ 	while (XCheckIfEvent(XtDisplay(w),event,isMine,(char*)&q)) {
++ 	    if (q.done) return TRUE;
++ 	}
++ 	
++ 	while (timeout > 0) {
+  	    if (_XtWaitForSomething (app, 
+  				     FALSE, TRUE, TRUE, TRUE, 
+  				     TRUE, 
+  #ifdef XTHREADS
+  				     FALSE, 
+  #endif
+! 				     &timeout) != -1) {
+! 		while (XCheckIfEvent(XtDisplay(w),event,isMine,(char*)&q)) {
+! 		    if (q.done) return TRUE;
+! 		}
+! 	    }
+  	}
++ 	return FALSE;
+  }
+  
+  /*ARGSUSED*/
+*** -	Fri Sep  9 15:26:46 1994
+--- xc/lib/X11/IMWrap.c	Fri Sep  9 15:26:45 1994
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: IMWrap.c,v 11.10 94/04/17 20:19:55 rws Exp $
+   */
+  
+  /*
+--- 1,5 ----
+  /*
+!  * $XConsortium: IMWrap.c,v 11.11 94/09/01 18:40:04 kaleb Exp $
+   */
+  
+  /*
+***************
+*** 86,91 ****
+--- 86,94 ----
+      if (!*dst) {
+  	union {
+  	    long	longval;
++ #ifdef LONG64
++ 	    int		intval;
++ #endif
+  	    short	shortval;
+  	    char	charval;
+  	    char*	charptr;
+***************
+*** 94,99 ****
+--- 97,105 ----
+  	if (size <= sizeof(XPointer)) {
+  	    memcpy((char *)&u, (char *)src, (int)size);
+  	    if (size == sizeof(long))	       *dst = (XPointer)u.longval;
++ #ifdef LONG64
++ 	    else if (size == sizeof(int))      *dst = (XPointer)u.intval;
++ #endif
+  	    else if (size == sizeof(short))    *dst = (XPointer)u.shortval;
+  	    else if (size == sizeof(char))     *dst = (XPointer)u.charval;
+  	    else if (size == sizeof(char*))    *dst = (XPointer)u.charptr;
+*** -	Fri Sep  9 15:26:46 1994
+--- xc/lib/X11/lcWrap.c	Fri Sep  9 15:26:46 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: lcWrap.c,v 11.20 94/04/17 20:22:12 rws Exp $ */
+  /*
+  
+  Copyright (c) 1991  X Consortium
+--- 1,4 ----
+! /* $XConsortium: lcWrap.c,v 11.21 94/09/01 18:40:04 kaleb Exp $ */
+  /*
+  
+  Copyright (c) 1991  X Consortium
+***************
+*** 462,467 ****
+--- 462,471 ----
+  {
+      if (size == sizeof(long))
+  	*((long *) dst) = (long) src;
++ #ifdef LONG64
++     else if (size == sizeof(int))
++ 	*((int *) dst) = (int) src;
++ #endif
+      else if (size == sizeof(short))
+  	*((short *) dst) = (short) src;
+      else if (size == sizeof(char))
+*** -	Fri Sep  9 15:26:47 1994
+--- xc/lib/X11/XimProto.h	Fri Sep  9 15:26:47 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: XimProto.h,v 1.3 94/04/15 15:33:21 rws Exp $ */
+  /******************************************************************
+  
+             Copyright 1992, 1993 by FUJITSU LIMITED
+--- 1,4 ----
+! /* $XConsortium: XimProto.h,v 1.4 94/09/01 18:44:49 kaleb Exp $ */
+  /******************************************************************
+  
+             Copyright 1992, 1993 by FUJITSU LIMITED
+***************
+*** 112,117 ****
+--- 112,118 ----
+  #define	XIM_STATUS_START		 79
+  #define	XIM_STATUS_DRAW			 80
+  #define	XIM_STATUS_DONE			 81
++ #define	XIM_PREEDITSTATE		 82
+  
+  /*
+   * values for the flag of XIM_ERROR
+*** -	Fri Sep  9 15:26:47 1994
+--- xc/lib/X11/Xlib.h	Fri Sep  9 15:26:47 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: Xlib.h,v 11.236 94/05/14 15:38:16 rws Exp $ */
+  /* 
+  
+  Copyright (c) 1985, 1986, 1987, 1991  X Consortium
+--- 1,4 ----
+! /* $XConsortium: Xlib.h,v 11.237 94/09/01 18:44:49 kaleb Exp $ */
+  /* 
+  
+  Copyright (c) 1985, 1986, 1987, 1991  X Consortium
+***************
+*** 1128,1133 ****
+--- 1128,1134 ----
+  #define XNPreeditDoneCallback "preeditDoneCallback"
+  #define XNPreeditDrawCallback "preeditDrawCallback"
+  #define XNPreeditCaretCallback "preeditCaretCallback"
++ #define XNPreeditStateNotifyCallback "preeditStateNotifyCallback"
+  #define XNPreeditAttributes "preeditAttributes"
+  #define XNStatusStartCallback "statusStartCallback"
+  #define XNStatusDoneCallback "statusDoneCallback"
+*** -	Fri Sep  9 15:26:48 1994
+--- xc/lib/X11/Xlcint.h	Fri Sep  9 15:26:48 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: Xlcint.h,v 11.21 94/07/06 14:46:16 kaleb Exp $ */
+  /*
+  
+  Copyright (c) 1991  X Consortium
+--- 1,4 ----
+! /* $XConsortium: Xlcint.h,v 11.23 94/09/02 18:55:25 kaleb Exp $ */
+  /*
+  
+  Copyright (c) 1991  X Consortium
+***************
+*** 34,40 ****
+   *                      and Nippon Telegraph and Telephone Corporation
+   * Copyright 1991 by the Open Software Foundation
+   * Copyright 1993 by the TOSHIBA Corp.
+!  * Copyright 1993, 1994 by the Sony Corporation
+   * Copyright 1993, 1994 by the FUJITSU LIMITED
+   *
+   * Permission to use, copy, modify, distribute, and sell this software and its
+--- 34,40 ----
+   *                      and Nippon Telegraph and Telephone Corporation
+   * Copyright 1991 by the Open Software Foundation
+   * Copyright 1993 by the TOSHIBA Corp.
+!  * Copyright 1993, 1994 by Sony Corporation
+   * Copyright 1993, 1994 by the FUJITSU LIMITED
+   *
+   * Permission to use, copy, modify, distribute, and sell this software and its
+***************
+*** 142,147 ****
+--- 142,148 ----
+      XIMCallback		draw_callback;
+      XIMCallback		caret_callback;
+      XIMPreeditState	preedit_state;
++     XIMCallback		state_notify_callback;
+  } ICPreeditAttributes, *ICPreeditAttributesPtr;
+  
+  typedef struct {
+***************
+*** 244,250 ****
+  #endif
+  );
+  
+! typedef Bool (*XRegisterIMInstantiateCallbackProc)(
+  #if NeedFunctionPrototypes
+      XLCd		/* lcd */,
+      Display*		/* display */,
+--- 245,251 ----
+  #endif
+  );
+  
+! typedef Bool (*XRegisterIMInstantiateCBProc)(
+  #if NeedFunctionPrototypes
+      XLCd		/* lcd */,
+      Display*		/* display */,
+***************
+*** 256,262 ****
+  #endif
+  );
+  
+! typedef Bool (*XUnregisterIMInstantiateCallbackProc)(
+  #if NeedFunctionPrototypes
+      XLCd		/* lcd */,
+      Display*		/* display */,
+--- 257,263 ----
+  #endif
+  );
+  
+! typedef Bool (*XUnregisterIMInstantiateCBProc)(
+  #if NeedFunctionPrototypes
+      XLCd		/* lcd */,
+      Display*		/* display */,
+***************
+*** 342,349 ****
+      XwcTextListToTextPropertyProc	wc_text_list_to_prop;
+      XwcFreeStringListProc		wc_free_string_list;
+      XDefaultStringProc			default_string;
+!     XRegisterIMInstantiateCallbackProc	register_callback;
+!     XUnregisterIMInstantiateCallbackProc unregister_callback;
+  } XLCdMethodsRec, *XLCdMethods;
+  
+  
+--- 343,350 ----
+      XwcTextListToTextPropertyProc	wc_text_list_to_prop;
+      XwcFreeStringListProc		wc_free_string_list;
+      XDefaultStringProc			default_string;
+!     XRegisterIMInstantiateCBProc	register_callback;
+!     XUnregisterIMInstantiateCBProc	unregister_callback;
+  } XLCdMethodsRec, *XLCdMethods;
+  
+  
+***************
+*** 797,803 ****
+      char *		res_class;
+  
+      XIMCallback		destroy_callback;
+-     XIMCallback		preedit_state_notify_callback;
+      XIMCallback		string_conversion_callback;
+      XIMStringConversionText	 string_conversion;
+      XIMResetState	reset_state;
+--- 798,803 ----
+*** -	Fri Sep  9 15:26:49 1994
+--- xc/lib/X11/imCallbk.c	Fri Sep  9 15:26:49 1994
+***************
+*** 1,7 ****
+! /* $XConsortium: imCallbk.c,v 1.7 94/07/06 14:47:01 kaleb Exp $ */
+  /***********************************************************************
+  Copyright 1993 by Digital Equipment Corporation, Maynard, Massachusetts,
+  Copyright 1994 by FUJITSU LIMITED
+  
+                          All Rights Reserved
+  
+--- 1,8 ----
+! /* $XConsortium: imCallbk.c,v 1.8 94/09/01 18:44:49 kaleb Exp $ */
+  /***********************************************************************
+  Copyright 1993 by Digital Equipment Corporation, Maynard, Massachusetts,
+  Copyright 1994 by FUJITSU LIMITED
++ Copyright 1994 by Sony Corporation
+  
+                          All Rights Reserved
+  
+***************
+*** 9,30 ****
+  documentation for any purpose and without fee is hereby granted, 
+  provided that the above copyright notice appear in all copies and that
+  both that copyright notice and this permission notice appear in 
+! supporting documentation, and that the names of Digital or FUJITSU
+! LIMITED not be used in advertising or publicity pertaining to distribution
+! of the software without specific, written prior permission.  
+! 
+! DIGITAL AND FUJITSU LIMITED DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS
+! SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS,
+! IN NO EVENT SHALL DIGITAL BE LIABLE FOR ANY SPECIAL, INDIRECT OR
+! CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
+! DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+! TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
+! OF THIS SOFTWARE.
+  
+    Author: Hiroyuki Miyamoto  Digital Equipment Corporation
+                               miyamoto@jrd.dec.com
+    Modifier: Takashi Fujiwara FUJITSU LIMITED
+  			     fujiwara@a80.tech.yk.fujitsu.co.jp
+  				
+  ***********************************************************************/
+  
+--- 10,35 ----
+  documentation for any purpose and without fee is hereby granted, 
+  provided that the above copyright notice appear in all copies and that
+  both that copyright notice and this permission notice appear in 
+! supporting documentation, and that the names of Digital, FUJITSU
+! LIMITED and Sony Corporation not be used in advertising or publicity
+! pertaining to distribution of the software without specific, written
+! prior permission.  
+! 
+! DIGITAL, FUJITSU LIMITED AND SONY CORPORATION DISCLAIMS ALL WARRANTIES
+! WITH REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
+! MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL DIGITAL, FUJITSU LIMITED
+! AND SONY CORPORATION BE LIABLE FOR ANY SPECIAL, INDIRECT OR
+! CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF
+! USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+! OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+! PERFORMANCE OF THIS SOFTWARE.
+  
+    Author: Hiroyuki Miyamoto  Digital Equipment Corporation
+                               miyamoto@jrd.dec.com
+    Modifier: Takashi Fujiwara FUJITSU LIMITED
+  			     fujiwara@a80.tech.yk.fujitsu.co.jp
++ 	    Makoto Wakamatsu Sony Corporation
++ 		 	     makoto@sm.sony.co.jp
+  				
+  ***********************************************************************/
+  
+***************
+*** 96,101 ****
+--- 101,107 ----
+  Private XimCbStatus _XimStatusStartCallback(Xim, Xic, char*, int);
+  Private XimCbStatus _XimStatusDoneCallback(Xim, Xic, char*, int);
+  Private XimCbStatus _XimStatusDrawCallback(Xim, Xic, char*, int);
++ Private XimCbStatus _XimPreeditStateNotifyCallback(Xim, Xic, char *, int);
+  #else
+  Public Bool _XimCbDispatch();
+  Private XimCbStatus _XimGeometryCallback();
+***************
+*** 109,114 ****
+--- 115,121 ----
+  Private XimCbStatus _XimStatusStartCallback();
+  Private XimCbStatus _XimStatusDoneCallback();
+  Private XimCbStatus _XimStatusDrawCallback();
++ Private XimCbStatus _XimPreeditStateNotifyCallback();
+  #endif /* NeedFunctionPrototypes */
+  
+  #if __STDC__
+***************
+*** 145,151 ****
+      _XimPreeditDoneCallback,	/* #078 */
+      _XimStatusStartCallback,	/* #079 */
+      _XimStatusDrawCallback,	/* #080 */
+!     _XimStatusDoneCallback	/* #081 */
+      };
+  
+  
+--- 152,159 ----
+      _XimPreeditDoneCallback,	/* #078 */
+      _XimStatusStartCallback,	/* #079 */
+      _XimStatusDrawCallback,	/* #080 */
+!     _XimStatusDoneCallback,	/* #081 */
+!     _XimPreeditStateNotifyCallback	/* #082 */
+      };
+  
+  
+***************
+*** 248,254 ****
+  
+      /* check if the protocol should be processed here
+       */
+!     if (major_opcode >= 128) {
+  	status = XimCbBadOpcode;
+  	goto quit;
+      }
+--- 256,262 ----
+  
+      /* check if the protocol should be processed here
+       */
+!     if (major_opcode > 82) {
+  	status = XimCbBadOpcode;
+  	goto quit;
+      }
+***************
+*** 498,515 ****
+  	_XimFlushData(im);
+      }
+  
+-     /* invoke PreeditStateNotify callback ? HM
+-      */
+-     {
+- 	cb = &ic->core.preedit_state_notify_callback;
+- 	if (cb->callback) {
+- 	    XIMPreeditStateNotifyCallbackStruct cbrec;
+- 
+- 	    cbrec.state = XIMPreeditEnable;
+- 	    (*cb->callback)((XIC)ic, cb->client_data, &cbrec);
+- 	}
+-     }
+- 
+      return(XimCbSuccess);
+  }
+  
+--- 506,511 ----
+***************
+*** 542,559 ****
+  	return(XimCbNoCallback);
+      }
+  
+-     /* invoke PreeditStateNotify callback ? HM
+-      */
+-     {
+- 	cb = &ic->core.preedit_state_notify_callback;
+- 	if (cb->callback) {
+- 	    XIMPreeditStateNotifyCallbackStruct cbrec;
+- 
+- 	    cbrec.state = XIMPreeditDisable;
+- 	    (*cb->callback)((XIC)ic, cb->client_data, &cbrec);
+- 	}
+-     }
+- 
+      return(XimCbSuccess);
+  }
+  
+--- 538,543 ----
+***************
+*** 869,871 ****
+--- 853,886 ----
+  
+      return(XimCbSuccess);
+  }
++ 
++ Private XimCbStatus
++ #if NeedFunctionPrototypes
++ _XimPreeditStateNotifyCallback( Xim im, Xic ic, char* proto, int len )
++ #else
++ _XimPreeditStateNotifyCallback( im, ic, proto, len )
++     Xim		 im;
++     Xic		 ic;
++     char	*proto;
++     int		 len;
++ #endif
++ {
++     XIMCallback	*cb = &ic->core.preedit_attr.state_notify_callback;
++ 
++     /* invoke the callack
++      */
++     if( cb  &&  cb->callback ) {    
++ 	XIMPreeditStateNotifyCallbackStruct cbrec;
++ 
++ 	cbrec.state = *(BITMASK32 *)proto;
++ 	(*cb->callback)( (XIC)ic, cb->client_data, &cbrec );
++     }
++     else {
++ 	/* no callback registered
++ 	 */
++ 	return( XimCbNoCallback );
++     }
++ 
++     return( XimCbSuccess );
++ }
++ 
+*** -	Fri Sep  9 15:26:50 1994
+--- xc/lib/X11/imRm.c	Fri Sep  9 15:26:50 1994
+***************
+*** 1,29 ****
+! /* $XConsortium: imRm.c,v 1.8 94/05/14 15:39:47 rws Exp $ */
+  /******************************************************************
+  
+  	  Copyright 1990, 1991, 1992,1993, 1994 by FUJITSU LIMITED
+  
+  Permission to use, copy, modify, distribute, and sell this software
+  and its documentation for any purpose is hereby granted without fee,
+  provided that the above copyright notice appear in all copies and
+  that both that copyright notice and this permission notice appear
+  in supporting documentation, and that the name of FUJITSU LIMITED
+! not be used in advertising or publicity pertaining to distribution
+! of the software without specific, written prior permission.
+! FUJITSU LIMITED makes no representations about the suitability of
+! this software for any purpose. 
+! It is provided "as is" without express or implied warranty.
+! 
+! FUJITSU LIMITED DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+! INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
+! EVENT SHALL FUJITSU LIMITED BE LIABLE FOR ANY SPECIAL, INDIRECT OR
+! CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF
+! USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+! OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+  PERFORMANCE OF THIS SOFTWARE.
+  
+    Author: Takashi Fujiwara     FUJITSU LIMITED 
+  			       fujiwara@a80.tech.yk.fujitsu.co.jp
+  
+  ******************************************************************/
+  
+--- 1,33 ----
+! /* $XConsortium: imRm.c,v 1.9 94/09/01 18:44:49 kaleb Exp $ */
+  /******************************************************************
+  
+  	  Copyright 1990, 1991, 1992,1993, 1994 by FUJITSU LIMITED
++ 	  Copyright 1994                        by Sony Corporation
+  
+  Permission to use, copy, modify, distribute, and sell this software
+  and its documentation for any purpose is hereby granted without fee,
+  provided that the above copyright notice appear in all copies and
+  that both that copyright notice and this permission notice appear
+  in supporting documentation, and that the name of FUJITSU LIMITED
+! and Sony Corporation not be used in advertising or publicity
+! pertaining to distribution of the software without specific,
+! written prior permission. FUJITSU LIMITED and Sony Corporation make
+! no representations about the suitability of this software for any
+! purpose. It is provided "as is" without express or implied warranty.
+! 
+! FUJITSU LIMITED AND SONY CORPORATION DISCLAIM ALL WARRANTIES WITH
+! REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
+! MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL FUJITSU LIMITED AND
+! SONY CORPORATION BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
+! DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+! PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+! TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+  PERFORMANCE OF THIS SOFTWARE.
+  
+    Author: Takashi Fujiwara     FUJITSU LIMITED 
+  			       fujiwara@a80.tech.yk.fujitsu.co.jp
++   Modifier: Makoto Wakamatsu   Sony Corporation
++ 			       makoto@sm.sony.co.jp
+  
+  ******************************************************************/
+  
+***************
+*** 233,238 ****
+--- 237,243 ----
+      XNStatusDoneCallback,
+      XNStatusDrawCallback,
+      XNPreeditState,
++     XNPreeditStateNotifyCallback,
+      (char *)NULL
+  };
+  
+***************
+*** 1417,1423 ****
+      {XNStatusStartCallback,	   0, 0,			0, 0, 0},
+      {XNStatusDoneCallback,	   0, 0,			0, 0, 0},
+      {XNStatusDrawCallback,	   0, 0,			0, 0, 0},
+!     {XNPreeditState,		   0, 0,			0, 0, 0}
+  };
+  
+  static	XIMResource	ic_inner_resources[] = {
+--- 1422,1429 ----
+      {XNStatusStartCallback,	   0, 0,			0, 0, 0},
+      {XNStatusDoneCallback,	   0, 0,			0, 0, 0},
+      {XNStatusDrawCallback,	   0, 0,			0, 0, 0},
+!     {XNPreeditState,		   0, 0,			0, 0, 0},
+!     {XNPreeditStateNotifyCallback, 0, 0,			0, 0, 0},
+  };
+  
+  static	XIMResource	ic_inner_resources[] = {
+***************
+*** 1433,1438 ****
+--- 1439,1445 ----
+      {XNStatusStartCallback,	   0, 0,			0, 0, 0},
+      {XNStatusDoneCallback,	   0, 0,			0, 0, 0},
+      {XNStatusDrawCallback,	   0, 0,			0, 0, 0},
++     {XNPreeditStateNotifyCallback, 0, 0,			0, 0, 0},
+  };
+  
+  static XimValueOffsetInfoRec im_attr_info[] = {
+***************
+*** 1590,1596 ****
+  
+      {XNPreeditState,		 0,
+  	XOffsetOf(ICPreeditAttributes, preedit_state),
+! 	_XimDefaultPreeditState, _XimEncodePreeditState,_XimDecodePreeditState}
+  };
+  
+  static XimValueOffsetInfoRec ic_sts_attr_info[] = {
+--- 1597,1607 ----
+  
+      {XNPreeditState,		 0,
+  	XOffsetOf(ICPreeditAttributes, preedit_state),
+! 	_XimDefaultPreeditState, _XimEncodePreeditState,_XimDecodePreeditState},
+! 
+!     {XNPreeditStateNotifyCallback, 0,
+! 	XOffsetOf(ICPreeditAttributes, state_notify_callback),
+! 	NULL,			 _XimEncodeCallback,	_XimDecodeCallback},
+  };
+  
+  static XimValueOffsetInfoRec ic_sts_attr_info[] = {
+***************
+*** 1995,2000 ****
+--- 2006,2021 ----
+  		0,
+  		0,
+  		0},
++     {XNPreeditStateNotifyCallback, 0,
++ 		(XIM_MODE_PRE_SET | XIM_MODE_PRE_GET),
++ 		(XIM_MODE_PRE_SET | XIM_MODE_PRE_GET),
++ 		(XIM_MODE_PRE_SET | XIM_MODE_PRE_GET),
++ 		(XIM_MODE_PRE_SET | XIM_MODE_PRE_GET),
++ 		0,
++ 		0,
++ 		0,
++ 		0,
++ 		0},
+      {XNStatusStartCallback, 0,
+  		0,
+  		0,
+***************
+*** 3015,3022 ****
+      ic_values->res_name		 = ic->core.res_name;
+      ic_values->res_class	 = ic->core.res_class;
+      ic_values->destroy_callback	 = ic->core.destroy_callback;
+-     ic_values->preedit_state_notify_callback
+- 				 = ic->core.preedit_state_notify_callback;
+      ic_values->string_conversion_callback
+  				 = ic->core.string_conversion_callback;
+      ic_values->string_conversion = ic->core.string_conversion;
+--- 3036,3041 ----
+*** -	Fri Sep  9 15:26:51 1994
+--- xc/lib/X11/imDefLkup.c	Fri Sep  9 15:26:51 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: imDefLkup.c,v 1.11 94/07/06 14:46:54 kaleb Exp $ */
+  /******************************************************************
+  
+             Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+--- 1,4 ----
+! /* $XConsortium: imDefLkup.c,v 1.12 94/09/01 18:41:58 kaleb Exp $ */
+  /******************************************************************
+  
+             Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+***************
+*** 492,505 ****
+  #endif /* NeedFunctionPrototypes */
+  {
+      CARD16	*buf_s = (CARD16 *)((CARD8 *)data + XIM_HEADER_SIZE);
+-     XIMID        imid = buf_s[0];
+      Xim		 im = (Xim)call_data;
+  
+!     if (imid == im->private.proto.imid) {
+! 	(void )_XimRegisterTriggerkey(im, (XPointer)&buf_s[2]);
+! 	return True;
+!     }
+!     return False;
+  }
+  
+  Public EVENTMASK
+--- 492,501 ----
+  #endif /* NeedFunctionPrototypes */
+  {
+      CARD16	*buf_s = (CARD16 *)((CARD8 *)data + XIM_HEADER_SIZE);
+      Xim		 im = (Xim)call_data;
+  
+!     (void )_XimRegisterTriggerkey(im, (XPointer)&buf_s[2]);
+!     return True;
+  }
+  
+  Public EVENTMASK
+*** -	Fri Sep  9 15:26:52 1994
+--- xc/lib/X11/imDefIm.c	Fri Sep  9 15:26:52 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: imDefIm.c,v 1.13 94/07/08 14:45:26 kaleb Exp $ */
+  /******************************************************************
+           Copyright 1990, 1991, 1992 by Sun Microsystems, Inc.
+           Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+--- 1,4 ----
+! /* $XConsortium: imDefIm.c,v 1.15 94/09/01 12:57:15 kaleb Exp $ */
+  /******************************************************************
+           Copyright 1990, 1991, 1992 by Sun Microsystems, Inc.
+           Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+***************
+*** 139,144 ****
+--- 139,145 ----
+      char	  *pp;
+      register char *p;
+      register int   n;
++     Bool           finish = False;
+  
+      category_len = strlen(XIM_LOCAL_CATEGORY);
+      if(address_len < category_len)
+***************
+*** 150,164 ****
+      pp = &address[category_len];
+  
+      for(;;) {
+! 	Bool finish = False;
+! 
+! 	for (p = pp; (*p != ',') && (*p); p++);
+  	if (!*p)
+  	    finish = True;
+  	address_len = (int)(p - pp);
+  
+  	for( n = 0; n < len; n++ )
+! 	    if( locale_name[n]  &&  !strncmp( pp, locale_name[n], address_len ) )
+  		return locale_name[n];
+  	if (finish)
+  	    break;
+--- 151,164 ----
+      pp = &address[category_len];
+  
+      for(;;) {
+! 	for( p = pp; *p && *p != ','; p++);
+  	if (!*p)
+  	    finish = True;
+  	address_len = (int)(p - pp);
++ 	*p = '\0';
+  
+  	for( n = 0; n < len; n++ )
+! 	    if( locale_name[n] && !strcmp( pp, locale_name[n] ) )
+  		return locale_name[n];
+  	if (finish)
+  	    break;
+***************
+*** 390,396 ****
+      if((imserver = XInternAtom(display, XIM_SERVERS, True)) == (Atom)None)
+  	return False;
+  
+!     if(XGetWindowProperty(display, RootWindow(display, DefaultScreen(display)),
+  			imserver, 0L, 1000000L, False, XA_ATOM, &actual_type, 
+  			&actual_format, &nitems, &bytes_after,
+  			&prop_return) != Success)
+--- 390,396 ----
+      if((imserver = XInternAtom(display, XIM_SERVERS, True)) == (Atom)None)
+  	return False;
+  
+!     if(XGetWindowProperty(display, RootWindow(display, 0),
+  			imserver, 0L, 1000000L, False, XA_ATOM, &actual_type, 
+  			&actual_format, &nitems, &bytes_after,
+  			&prop_return) != Success)
+*** -	Fri Sep  9 15:28:03 1994
+--- xc/lib/ICE/process.c	Fri Sep  9 15:28:02 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: process.c,v 1.41 94/05/11 17:35:38 mor Exp $ */
+  /******************************************************************************
+  
+  
+--- 1,4 ----
+! /* $XConsortium: process.c,v 1.43 94/08/25 15:44:43 mor Exp $ */
+  /******************************************************************************
+  
+  
+***************
+*** 149,154 ****
+--- 149,155 ----
+  	 * If we previously sent a WantToClose and now we detected
+  	 * that the connection was closed, _IceRead returns status 0.
+  	 * Since the connection was closed, we just want to return here.
++ 	 */
+  
+  	return (IceProcessMessagesConnectionClosed);
+      }
+***************
+*** 169,174 ****
+--- 170,177 ----
+      header = (iceMsg *) iceConn->inbuf;
+      iceConn->inbufptr = iceConn->inbuf + SIZEOF (iceMsg);
+  
++     iceConn->receive_sequence++;
++ 
+      if (iceConn->waiting_for_byteorder)
+      {
+  	if (header->majorOpcode == 0 &&
+***************
+*** 215,221 ****
+--- 218,228 ----
+  
+  	iceConn->dispatch_level--;
+  	if (!iceConn->io_ok)
++ 	{
++ 	    iceConn->connection_status = IceConnectIOError;
+  	    retStatus = IceProcessMessagesIOError;
++ 	}
++ 
+  	return (retStatus);
+      }
+  
+***************
+*** 226,233 ****
+  	header->length = lswapl (header->length);
+      }
+  
+-     iceConn->receive_sequence++;
+- 
+      if (replyWait)
+      {
+  	/*
+--- 233,238 ----
+***************
+*** 349,355 ****
+--- 354,363 ----
+  	retStatus = IceProcessMessagesConnectionClosed;
+      }
+      else if (!iceConn->io_ok)
++     {
++ 	iceConn->connection_status = IceConnectIOError;
+  	retStatus = IceProcessMessagesIOError;
++     }
+  
+      return (retStatus);
+  }
+*** -	Fri Sep  9 15:28:03 1994
+--- xc/lib/ICE/shutdown.c	Fri Sep  9 15:28:03 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: shutdown.c,v 1.15 94/04/17 20:15:40 mor Exp $ */
+  /******************************************************************************
+  
+  
+--- 1,4 ----
+! /* $XConsortium: shutdown.c,v 1.16 94/08/19 15:49:57 mor Exp $ */
+  /******************************************************************************
+  
+  
+***************
+*** 282,288 ****
+  	}
+      }
+  
+!     if (iceConn->trans_conn)
+  	_IceTransClose (iceConn->trans_conn);
+  
+      if (iceConn->connection_string)
+--- 282,288 ----
+  	}
+      }
+  
+!     if (iceConn->trans_conn && iceConn->io_ok)
+  	_IceTransClose (iceConn->trans_conn);
+  
+      if (iceConn->connection_string)
+*** -	Fri Sep  9 15:28:04 1994
+--- xc/lib/ICE/misc.c	Fri Sep  9 15:28:04 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: misc.c,v 1.25 94/05/02 11:17:27 mor Exp $ */
+  /******************************************************************************
+  
+  
+--- 1,4 ----
+! /* $XConsortium: misc.c,v 1.27 94/08/19 15:49:08 mor Exp $ */
+  /******************************************************************************
+  
+  
+***************
+*** 289,294 ****
+--- 289,304 ----
+  
+  		iceConn->io_ok = False;
+  
++ 		if (iceConn->connection_status == IceConnectPending)
++ 		{
++ 		    /*
++ 		     * Don't invoke IO error handler if we are in the
++ 		     * middle of a connection setup.
++ 		     */
++ 
++ 		    return (1);
++ 		}
++ 
+  		if (iceConn->process_msg_info)
+  		{
+  		    int i;
+***************
+*** 388,393 ****
+--- 398,413 ----
+  	     */
+  
+  	    iceConn->io_ok = False;
++ 
++ 	    if (iceConn->connection_status == IceConnectPending)
++ 	    {
++ 		/*
++ 		 * Don't invoke IO error handler if we are in the
++ 		 * middle of a connection setup.
++ 		 */
++ 
++ 		return;
++ 	    }
+  
+  	    if (iceConn->process_msg_info)
+  	    {
+*** -	Fri Sep  9 15:28:28 1994
+--- xc/lib/SM/sm_process.c	Fri Sep  9 15:28:27 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: sm_process.c,v 1.28 94/04/17 20:16:57 mor Exp $ */
+  
+  /*
+  
+--- 1,4 ----
+! /* $XConsortium: sm_process.c,v 1.29 94/08/25 15:46:03 mor Exp $ */
+  
+  /*
+  
+***************
+*** 110,115 ****
+--- 110,121 ----
+  	    return;
+  	}
+  
++ 	if (swap)
++ 	{
++ 	    pMsg->errorClass = lswaps (pMsg->errorClass);
++ 	    pMsg->offendingSequenceNum = lswapl (pMsg->offendingSequenceNum);
++ 	}
++ 
+  	if (replyWait &&
+  	    replyWait->minor_opcode_of_request == SM_RegisterClient &&
+              pMsg->errorClass == IceBadValue &&
+***************
+*** 448,453 ****
+--- 454,465 ----
+  	{
+  	    IceDisposeCompleteMessage (iceConn, pData);
+  	    return;
++ 	}
++ 
++ 	if (swap)
++ 	{
++ 	    pMsg->errorClass = lswaps (pMsg->errorClass);
++ 	    pMsg->offendingSequenceNum = lswapl (pMsg->offendingSequenceNum);
+  	}
+  
+  	(*_SmsErrorHandler) (smsConn, swap,
+*** -	Fri Sep  9 15:22:53 1994
+--- xc/nls/X11/locale/locale.alias	Fri Sep  9 15:22:53 1994
+***************
+*** 1,4 ****
+! #	$XConsortium: locale.alias,v 1.7 94/05/05 14:32:17 kaleb Exp $
+  #
+  #	This file contains alias name of locale.
+  #	Each alias name is described within one line.
+--- 1,4 ----
+! #	$XConsortium: locale.alias,v 1.9 94/08/23 18:12:18 kaleb Exp $
+  #
+  #	This file contains alias name of locale.
+  #	Each alias name is described within one line.
+***************
+*** 30,35 ****
+--- 30,37 ----
+  De_DE.IBM-850	de_DE.ISO8859-1
+  de_DE.88591	de_DE.ISO8859-1
+  de_DE.88591.en	de_DE.ISO8859-1
++ GER_DE.8859	de_DE.ISO8859-1
++ GER_DE.8859.in	de_DE.ISO8859-1
+  de_AT		de_AT.ISO8859-1
+  de_CH		de_CH.ISO8859-1
+  Du_BE		du_BE.ISO8859-1
+***************
+*** 40,45 ****
+--- 42,49 ----
+  en_GB		en_GB.ISO8859-1
+  en_GB.88591	en_GB.ISO8859-1
+  en_GB.88591.en	en_GB.ISO8859-1
++ ENG_GB.8859	en_GB.ISO8859-1
++ ENG_GB.8859.in	en_GB.ISO8859-1
+  en_AU		en_AU.ISO8859-1
+  en_CA		en_CA.ISO8859-1
+  en_US		en_US.ISO8859-1
+***************
+*** 76,81 ****
+--- 80,87 ----
+  fr_FR		fr_FR.ISO8859-1
+  fr_FR.88591	fr_FR.ISO8859-1
+  fr_FR.88591.en	fr_FR.ISO8859-1
++ FRE_FR.8859	fr_FR.ISO8859-1
++ FRE_FR.8859.in	fr_FR.ISO8859-1
+  Gr_GR		el_GR.ISO8859-7
+  hr		hr_HR.ISO8859-2
+  hr_HR		hr_HR.ISO8859-2
+***************
+*** 92,97 ****
+--- 98,105 ----
+  iw_IL		iw_IL.ISO8859-8
+  ja		ja_JP.eucJP
+  ja_JP		ja_JP.eucJP
++ ja_JP.ujis	ja_JP.eucJP
++ ja_JP.eucJP	ja_JP.eucJP
+  Ja_JP		ja_JP.eucJP
+  Jp_JP		ja_JP.eucJP
+  Jp_JP.IBM-932	ja_JP.eucJP
+***************
+*** 100,105 ****
+--- 108,114 ----
+  ja_JP.ISO-2022-JP	ja_JP.JIS7
+  ja_JP.JIS	ja_JP.JIS7
+  ja_JP.jis7	ja_JP.JIS7
++ ja_JP.mscode	ja_JP.SJIS
+  ja_JP.SJIS	ja_JP.SJIS
+  ko		ko_KR.eucKR
+  ko_KR		ko_KR.eucKR
+*** -	Mon Sep 12 15:32:57 1994
+--- xc/include/keysymdef.h	Mon Sep 12 15:32:57 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: keysymdef.h,v 1.20 94/04/17 18:57:37 rws Exp $ */
+  
+  /***********************************************************
+  Copyright (c) 1987, 1994  X Consortium
+--- 1,4 ----
+! /* $XConsortium: keysymdef.h,v 1.21 94/08/28 16:17:06 rws Exp $ */
+  
+  /***********************************************************
+  Copyright (c) 1987, 1994  X Consortium
+***************
+*** 358,363 ****
+--- 358,401 ----
+  #define	XK_Pointer_Accelerate				0xFEFA
+  #define	XK_Pointer_DfltBtnNext				0xFEFB
+  #define	XK_Pointer_DfltBtnPrev				0xFEFC
++ #endif
++ 
++ /*
++  * 3270 Terminal Keys
++  * Byte 3 = 0xFD
++  */
++ 
++ #ifdef XK_3270
++ #define XK_3270_Duplicate      0xFD01
++ #define XK_3270_FieldMark      0xFD02
++ #define XK_3270_Right2         0xFD03
++ #define XK_3270_Left2          0xFD04
++ #define XK_3270_BackTab        0xFD05
++ #define XK_3270_EraseEOF       0xFD06
++ #define XK_3270_EraseInput     0xFD07
++ #define XK_3270_Reset          0xFD08
++ #define XK_3270_Quit           0xFD09
++ #define XK_3270_PA1            0xFD0A
++ #define XK_3270_PA2            0xFD0B
++ #define XK_3270_PA3            0xFD0C
++ #define XK_3270_Test           0xFD0D
++ #define XK_3270_Attn           0xFD0E
++ #define XK_3270_CursorBlink    0xFD0F
++ #define XK_3270_AltCursor      0xFD10
++ #define XK_3270_KeyClick       0xFD11
++ #define XK_3270_Jump           0xFD12
++ #define XK_3270_Ident          0xFD13
++ #define XK_3270_Rule           0xFD14
++ #define XK_3270_Copy           0xFD15
++ #define XK_3270_Play           0xFD16
++ #define XK_3270_Setup          0xFD17
++ #define XK_3270_Record         0xFD18
++ #define XK_3270_ChangeScreen   0xFD19
++ #define XK_3270_DeleteWord     0xFD1A
++ #define XK_3270_ExSelect       0xFD1B
++ #define XK_3270_CursorSelect   0xFD1C
++ #define XK_3270_PrintScreen    0xFD1D
++ #define XK_3270_Enter          0xFD1E
+  #endif
+  
+  /*
+*** -	Fri Sep  9 15:23:29 1994
+--- xc/include/extensions/XKBsrv.h	Fri Sep  9 15:23:29 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: XKBsrv.h,v 1.11 94/04/08 15:07:52 erik Exp $ */
+  /************************************************************
+  Copyright (c) 1993 by Silicon Graphics Computer Systems, Inc.
+  
+--- 1,4 ----
+! /* $XConsortium: XKBsrv.h,v 1.12 94/08/16 13:43:17 dpw Exp $ */
+  /************************************************************
+  Copyright (c) 1993 by Silicon Graphics Computer Systems, Inc.
+  
+***************
+*** 189,194 ****
+--- 189,195 ----
+  extern int	XkbEventBase;
+  extern int	XkbComputeAutoRepeat;
+  extern int	XkbDisableLockActions;
++ extern Bool	noXkbExtension;
+  
+  #ifdef DEBUG
+  extern CARD16	xkbDebugFlags;
+*** -	Fri Sep  9 15:24:10 1994
+--- xc/programs/Xserver/include/input.h	Fri Sep  9 15:24:09 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: input.h,v 1.17 94/04/17 20:25:46 dpw Exp $ */
+  /************************************************************
+  
+  Copyright (c) 1987  X Consortium
+--- 1,4 ----
+! /* $XConsortium: input.h,v 1.18 94/08/16 13:44:42 dpw Exp $ */
+  /************************************************************
+  
+  Copyright (c) 1987  X Consortium
+***************
+*** 447,452 ****
+--- 447,470 ----
+      int /*count*/
+  #endif
+  );
++ 
++ #ifdef XKB
++ extern void CoreProcessPointerEvent(
++ #if NeedFunctionPrototypes
++     xEventPtr /*xE*/,
++     DeviceIntPtr /*mouse*/,
++     int /*count*/
++ #endif
++ );
++ 
++ extern void CoreProcessKeyboardEvent(
++ #if NeedFunctionPrototypes
++     xEventPtr /*xE*/,
++     DeviceIntPtr /*keybd*/,
++     int /*count*/
++ #endif
++ );
++ #endif
+  
+  extern Bool LegalModifier(
+  #if NeedFunctionPrototypes
+*** -	Fri Sep  9 15:24:22 1994
+--- xc/programs/Xserver/os/utils.c	Fri Sep  9 15:24:22 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: utils.c,v 1.146 94/04/17 20:27:07 erik Exp $ */
+  /*
+  
+  Copyright (c) 1987  X Consortium
+--- 1,4 ----
+! /* $XConsortium: utils.c,v 1.147 94/08/16 14:03:23 dpw Exp $ */
+  /*
+  
+  Copyright (c) 1987  X Consortium
+***************
+*** 109,117 ****
+  
+  Bool CoreDump;
+  Bool noTestExtensions;
+  #ifdef XKB
+! Bool noXkbExtension;
+  #endif
+  int auditTrailLevel = 1;
+  
+  void ddxUseMsg();
+--- 109,122 ----
+  
+  Bool CoreDump;
+  Bool noTestExtensions;
++ 
++ Bool noXkbExtension = 
+  #ifdef XKB
+!     FALSE;
+! #else
+!     TRUE;
+  #endif
++ 
+  int auditTrailLevel = 1;
+  
+  void ddxUseMsg();
+*** -	Fri Sep  9 15:24:40 1994
+--- xc/programs/Xserver/dix/events.c	Fri Sep  9 15:24:40 1994
+***************
+*** 47,53 ****
+  ********************************************************/
+  
+  
+! /* $XConsortium: events.c,v 5.75 94/04/17 20:26:33 dpw Exp $ */
+  
+  #include "X.h"
+  #include "misc.h"
+--- 47,53 ----
+  ********************************************************/
+  
+  
+! /* $XConsortium: events.c,v 5.76 94/08/16 13:45:06 dpw Exp $ */
+  
+  #include "X.h"
+  #include "misc.h"
+***************
+*** 1681,1687 ****
+  	else
+  	    tempGrab.modifiersDetail.exact =
+  #ifdef XKB
+! 		grab->modifierDevice->key->xkbInfo->grabState;
+  #else
+  		grab->modifierDevice->key->state;
+  #endif
+--- 1681,1689 ----
+  	else
+  	    tempGrab.modifiersDetail.exact =
+  #ifdef XKB
+! 		noXkbExtension ?
+! 		    grab->modifierDevice->key->state :
+! 		    grab->modifierDevice->key->xkbInfo->grabState;
+  #else
+  		grab->modifierDevice->key->state;
+  #endif
+***************
+*** 1692,1700 ****
+  		&grab->confineTo->borderSize))))
+  	{
+  #ifdef XKB
+! 	    xE->u.keyButtonPointer.state &= 0x1f00;
+! 	    xE->u.keyButtonPointer.state |=
+! 		grab->modifierDevice->key->xkbInfo->grabState & 0xe0ff;
+  #endif
+  	    (*device->ActivateGrab)(device, grab, currentTime, TRUE);
+   
+--- 1694,1705 ----
+  		&grab->confineTo->borderSize))))
+  	{
+  #ifdef XKB
+! 	    if (!noXkbExtension)
+! 	    {
+! 		xE->u.keyButtonPointer.state &= 0x1f00;
+! 		xE->u.keyButtonPointer.state |=
+! 		    grab->modifierDevice->key->xkbInfo->grabState & 0xe0ff;
+! 	    }
+  #endif
+  	    (*device->ActivateGrab)(device, grab, currentTime, TRUE);
+   
+***************
+*** 1939,1948 ****
+  		if (!modifiers)
+  		{
+  		    xE->u.u.type = KeyRelease;
+! 		    ProcessKeyboardEvent(xE, keybd, count);
+  		    xE->u.u.type = KeyPress;
+  		    /* release can have side effects, don't fall through */
+! 		    ProcessKeyboardEvent(xE, keybd, count);
+  		}
+  		return;
+  	    }
+--- 1944,1953 ----
+  		if (!modifiers)
+  		{
+  		    xE->u.u.type = KeyRelease;
+! 		    (*keybd->public.processInputProc)(xE, keybd, count);
+  		    xE->u.u.type = KeyPress;
+  		    /* release can have side effects, don't fall through */
+! 		    (*keybd->public.processInputProc)(xE, keybd, count);
+  		}
+  		return;
+  	    }
+***************
+*** 2014,2020 ****
+  	NoticeTime(xE)
+      xE->u.keyButtonPointer.state = (butc->state |
+  #ifdef XKB
+! 				    inputInfo.keyboard->key->xkbInfo->grabState
+  #else
+  				    inputInfo.keyboard->key->state
+  #endif
+--- 2019,2027 ----
+  	NoticeTime(xE)
+      xE->u.keyButtonPointer.state = (butc->state |
+  #ifdef XKB
+! 				(noXkbExtension ?
+! 				   inputInfo.keyboard->key->state :
+! 				   inputInfo.keyboard->key->xkbInfo->grabState)
+  #else
+  				    inputInfo.keyboard->key->state
+  #endif
+***************
+*** 2331,2341 ****
+  	event.u.enterLeave.flags = event.u.keyButtonPointer.sameScreen ?
+  					    ELFlagSameScreen : 0;
+  #ifdef XKB
+! 	event.u.enterLeave.state = mouse->button->state & 0x1f00;
+! 	event.u.enterLeave.state |= (keybd->key->xkbInfo->grabState & 0xe0ff);
+! #else
+! 	event.u.enterLeave.state = keybd->key->state | mouse->button->state;
+  #endif
+  	event.u.enterLeave.mode = mode;
+  	focus = keybd->focus->win;
+  	if ((focus != NoneWin) &&
+--- 2338,2351 ----
+  	event.u.enterLeave.flags = event.u.keyButtonPointer.sameScreen ?
+  					    ELFlagSameScreen : 0;
+  #ifdef XKB
+! 	if (!noXkbExtension)
+! 	{
+! 	    event.u.enterLeave.state = mouse->button->state & 0x1f00;
+! 	    event.u.enterLeave.state |= (keybd->key->xkbInfo->grabState & 0xe0ff);
+! 	}
+! 	else
+  #endif
++ 	event.u.enterLeave.state = keybd->key->state | mouse->button->state;
+  	event.u.enterLeave.mode = mode;
+  	focus = keybd->focus->win;
+  	if ((focus != NoneWin) &&
+***************
+*** 3116,3122 ****
+      if ( ! ((stuff->event.u.u.type > X_Reply &&
+  	     stuff->event.u.u.type < LASTEvent) || 
+  	    (stuff->event.u.u.type >= EXTENSION_EVENT_BASE &&
+! 	     stuff->event.u.u.type < lastEvent)))
+      {
+  	client->errorValue = stuff->event.u.u.type;
+  	return BadValue;
+--- 3126,3132 ----
+      if ( ! ((stuff->event.u.u.type > X_Reply &&
+  	     stuff->event.u.u.type < LASTEvent) || 
+  	    (stuff->event.u.u.type >= EXTENSION_EVENT_BASE &&
+! 	     stuff->event.u.u.type < (unsigned)lastEvent)))
+      {
+  	client->errorValue = stuff->event.u.u.type;
+  	return BadValue;
+***************
+*** 3579,3596 ****
+  	    (*EventSwapVector[eventFrom->u.u.type & 0177])
+  		(eventFrom, &eventTo);
+  #ifdef XKB
+! 	    (void)XkbFilterWriteEvents(pClient, 1, (char *)&eventTo);
+! #else
+! 	    (void)WriteToClient(pClient, sizeof(xEvent), (char *)&eventTo);
+  #endif
+  	}
+      }
+      else
+      {
+  #ifdef XKB
+! 	(void)XkbFilterWriteEvents(pClient, count, events);
+! #else
+! 	(void)WriteToClient(pClient, count * sizeof(xEvent), (char *) events);
+  #endif
+      }
+  }
+--- 3589,3608 ----
+  	    (*EventSwapVector[eventFrom->u.u.type & 0177])
+  		(eventFrom, &eventTo);
+  #ifdef XKB
+! 	    if (!noXkbExtension)
+! 		(void)XkbFilterWriteEvents(pClient, 1, (char *)&eventTo);
+! 	    else
+  #endif
++ 	    (void)WriteToClient(pClient, sizeof(xEvent), (char *)&eventTo);
+  	}
+      }
+      else
+      {
+  #ifdef XKB
+! 	if (!noXkbExtension)
+! 	    (void)XkbFilterWriteEvents(pClient, count, events);
+! 	else
+  #endif
++ 	(void)WriteToClient(pClient, count * sizeof(xEvent), (char *) events);
+      }
+  }
+*** -	Fri Sep  9 15:24:41 1994
+--- xc/programs/Xserver/dix/devices.c	Fri Sep  9 15:24:40 1994
+***************
+*** 47,53 ****
+  ********************************************************/
+  
+  
+! /* $XConsortium: devices.c,v 5.45 94/04/17 20:26:22 erik Exp $ */
+  
+  #include "X.h"
+  #include "misc.h"
+--- 47,53 ----
+  ********************************************************/
+  
+  
+! /* $XConsortium: devices.c,v 5.46 94/08/16 13:45:06 dpw Exp $ */
+  
+  #include "X.h"
+  #include "misc.h"
+***************
+*** 62,68 ****
+  #include "dixstruct.h"
+  #include "site.h"
+  #ifdef XKB
+! #include "extensions/XKB.h"
+  #endif
+  
+  extern InputInfo inputInfo;
+--- 62,68 ----
+  #include "dixstruct.h"
+  #include "site.h"
+  #ifdef XKB
+! #include "XKBsrv.h"
+  #endif
+  
+  extern InputInfo inputInfo;
+***************
+*** 202,208 ****
+      if (dev->key)
+      {
+  #ifdef XKB
+! 	if (dev->key->xkbInfo)
+  	    XkbFreeInfo(dev->key->xkbInfo);
+  #endif
+  	xfree(dev->key->curKeySyms.map);
+--- 202,208 ----
+      if (dev->key)
+      {
+  #ifdef XKB
+! 	if (!noXkbExtension && dev->key->xkbInfo)
+  	    XkbFreeInfo(dev->key->xkbInfo);
+  #endif
+  	xfree(dev->key->curKeySyms.map);
+***************
+*** 281,288 ****
+--- 281,298 ----
+      DevicePtr device;
+  {
+      inputInfo.pointer = (DeviceIntPtr)device;
++ #ifdef XKB
++     if (noXkbExtension) {
++ 	device->processInputProc = CoreProcessPointerEvent;
++ 	device->realInputProc = CoreProcessPointerEvent;
++     } else {
++ 	device->processInputProc = ProcessPointerEvent;
++ 	device->realInputProc = ProcessPointerEvent;
++     }
++ #else
+      device->processInputProc = ProcessPointerEvent;
+      device->realInputProc = ProcessPointerEvent;
++ #endif
+      ((DeviceIntPtr)device)->ActivateGrab = ActivatePointerGrab;
+      ((DeviceIntPtr)device)->DeactivateGrab = DeactivatePointerGrab;
+  }
+***************
+*** 292,299 ****
+--- 302,319 ----
+      DevicePtr device;
+  {
+      inputInfo.keyboard = (DeviceIntPtr)device;
++ #ifdef XKB
++     if (noXkbExtension) {
++ 	device->processInputProc = CoreProcessKeyboardEvent;
++ 	device->realInputProc = CoreProcessKeyboardEvent;
++     } else {
++ 	device->processInputProc = ProcessKeyboardEvent;
++ 	device->realInputProc = ProcessKeyboardEvent;
++     }
++ #else
+      device->processInputProc = ProcessKeyboardEvent;
+      device->realInputProc = ProcessKeyboardEvent;
++ #endif
+      ((DeviceIntPtr)device)->ActivateGrab = ActivateKeyboardGrab;
+      ((DeviceIntPtr)device)->DeactivateGrab = DeactivateKeyboardGrab;
+  }
+***************
+*** 322,328 ****
+  SetKeySymsMap(dst, src)
+      register KeySymsPtr dst, src;
+  {
+!     int i, j;
+      int rowDif = src->minKeyCode - dst->minKeyCode;
+             /* if keysym map size changes, grow map first */
+  
+--- 342,349 ----
+  SetKeySymsMap(dst, src)
+      register KeySymsPtr dst, src;
+  {
+!     unsigned int i;
+!     int j;
+      int rowDif = src->minKeyCode - dst->minKeyCode;
+             /* if keysym map size changes, grow map first */
+  
+***************
+*** 446,452 ****
+      }
+      dev->key = keyc;
+  #ifdef XKB
+!     XkbInitDevice(dev);
+  #endif
+      return TRUE;
+  }
+--- 467,473 ----
+      }
+      dev->key = keyc;
+  #ifdef XKB
+!     if (!noXkbExtension) XkbInitDevice(dev);
+  #endif
+      return TRUE;
+  }
+***************
+*** 537,550 ****
+      feedc->CtrlProc = controlProc;
+      feedc->ctrl = defaultKeyboardControl;
+      feedc->ctrl.id = 0;
+!     if (feedc->next = dev->kbdfeed)
+  	feedc->ctrl.id = dev->kbdfeed->ctrl.id + 1;
+      dev->kbdfeed = feedc;
+  #ifdef XKB
+      /* If XKB (AccessX) will handle the autorepeat in software we tell 
+       * the hardware to not autorepeat.
+       */
+!     if (XkbUpdateAutorepeat(dev))
+      {
+          feedc->ctrl.autoRepeat = FALSE;
+          (*controlProc)(dev, &feedc->ctrl);
+--- 558,571 ----
+      feedc->CtrlProc = controlProc;
+      feedc->ctrl = defaultKeyboardControl;
+      feedc->ctrl.id = 0;
+!     if ( (feedc->next = dev->kbdfeed) )
+  	feedc->ctrl.id = dev->kbdfeed->ctrl.id + 1;
+      dev->kbdfeed = feedc;
+  #ifdef XKB
+      /* If XKB (AccessX) will handle the autorepeat in software we tell 
+       * the hardware to not autorepeat.
+       */
+!     if (!noXkbExtension && XkbUpdateAutorepeat(dev))
+      {
+          feedc->ctrl.autoRepeat = FALSE;
+          (*controlProc)(dev, &feedc->ctrl);
+***************
+*** 569,575 ****
+      feedc->CtrlProc = controlProc;
+      feedc->ctrl = defaultPointerControl;
+      feedc->ctrl.id = 0;
+!     if (feedc->next = dev->ptrfeed)
+          feedc->ctrl.id = dev->ptrfeed->ctrl.id + 1;
+      dev->ptrfeed = feedc;
+      (*controlProc)(dev, &feedc->ctrl);
+--- 590,596 ----
+      feedc->CtrlProc = controlProc;
+      feedc->ctrl = defaultPointerControl;
+      feedc->ctrl.id = 0;
+!     if ( (feedc->next = dev->ptrfeed) )
+          feedc->ctrl.id = dev->ptrfeed->ctrl.id + 1;
+      dev->ptrfeed = feedc;
+      (*controlProc)(dev, &feedc->ctrl);
+***************
+*** 628,634 ****
+      for (i=0; i<max_symbols; i++)
+  	*(feedc->ctrl.symbols_displayed+i) = (KeySym) NULL;
+      feedc->ctrl.id = 0;
+!     if (feedc->next = dev->stringfeed)
+  	feedc->ctrl.id = dev->stringfeed->ctrl.id + 1;
+      dev->stringfeed = feedc;
+      (*controlProc)(dev, &feedc->ctrl);
+--- 649,655 ----
+      for (i=0; i<max_symbols; i++)
+  	*(feedc->ctrl.symbols_displayed+i) = (KeySym) NULL;
+      feedc->ctrl.id = 0;
+!     if ( (feedc->next = dev->stringfeed) )
+  	feedc->ctrl.id = dev->stringfeed->ctrl.id + 1;
+      dev->stringfeed = feedc;
+      (*controlProc)(dev, &feedc->ctrl);
+***************
+*** 650,656 ****
+      feedc->BellProc = bellProc;
+      feedc->ctrl = defaultBellControl;
+      feedc->ctrl.id = 0;
+!     if (feedc->next = dev->bell)
+  	feedc->ctrl.id = dev->bell->ctrl.id + 1;
+      dev->bell = feedc;
+      (*controlProc)(dev, &feedc->ctrl);
+--- 671,677 ----
+      feedc->BellProc = bellProc;
+      feedc->ctrl = defaultBellControl;
+      feedc->ctrl.id = 0;
+!     if ( (feedc->next = dev->bell) )
+  	feedc->ctrl.id = dev->bell->ctrl.id + 1;
+      dev->bell = feedc;
+      (*controlProc)(dev, &feedc->ctrl);
+***************
+*** 670,676 ****
+      feedc->CtrlProc = controlProc;
+      feedc->ctrl = defaultLedControl;
+      feedc->ctrl.id = 0;
+!     if (feedc->next = dev->leds)
+  	feedc->ctrl.id = dev->leds->ctrl.id + 1;
+      dev->leds = feedc;
+      (*controlProc)(dev, &feedc->ctrl);
+--- 691,697 ----
+      feedc->CtrlProc = controlProc;
+      feedc->ctrl = defaultLedControl;
+      feedc->ctrl.id = 0;
+!     if ( (feedc->next = dev->leds) )
+  	feedc->ctrl.id = dev->leds->ctrl.id + 1;
+      dev->leds = feedc;
+      (*controlProc)(dev, &feedc->ctrl);
+***************
+*** 690,696 ****
+      feedc->CtrlProc = controlProc;
+      feedc->ctrl = defaultIntegerControl;
+      feedc->ctrl.id = 0;
+!     if (feedc->next = dev->intfeed)
+  	feedc->ctrl.id = dev->intfeed->ctrl.id + 1;
+      dev->intfeed = feedc;
+      (*controlProc)(dev, &feedc->ctrl);
+--- 711,717 ----
+      feedc->CtrlProc = controlProc;
+      feedc->ctrl = defaultIntegerControl;
+      feedc->ctrl.id = 0;
+!     if ( (feedc->next = dev->intfeed) )
+  	feedc->ctrl.id = dev->intfeed->ctrl.id + 1;
+      dev->intfeed = feedc;
+      (*controlProc)(dev, &feedc->ctrl);
+***************
+*** 746,773 ****
+          event.u.mappingNotify.count = count;
+      }
+  #ifdef XKB
+!     if ((request == MappingKeyboard) || (request == MappingModifier))
+! 	XkbApplyMappingChange(inputInfo.keyboard, request, firstKeyCode,
+! 			      count);
+! #endif
+!     /* 0 is the server client */
+!     for (i=1; i<currentMaxClients; i++)
+      {
+!         if (clients[i] && clients[i]->clientState == ClientStateRunning
+! #ifdef XKB
+! 	    && (clients[i]->xkbClientFlags == 0)
+! #endif
+! 	    )
+  	{
+! #ifdef XKB
+! 	    if ((request==MappingKeyboard)&&
+! 			(clients[i]->mapNotifyMask&XkbKeySymsMask))
+! 		continue;
+! #endif
+! 	    event.u.u.sequenceNumber = clients[i]->sequence;
+!             WriteEventsToClient(clients[i], 1, &event);
+  	}
+      }
+  }
+  
+  /*
+--- 767,806 ----
+          event.u.mappingNotify.count = count;
+      }
+  #ifdef XKB
+!     if (!noXkbExtension)
+      {
+! 	if (request == MappingKeyboard || request == MappingModifier)
+! 	    XkbApplyMappingChange(inputInfo.keyboard, request, firstKeyCode,
+! 				  count);
+! 
+! 	/* 0 is the server client */
+! 	for (i=1; i<currentMaxClients; i++)
+  	{
+!             if (clients[i] && clients[i]->clientState == ClientStateRunning && 
+! 		clients[i]->xkbClientFlags == 0)
+! 	    {
+! 		if (request == MappingKeyboard && 
+! 		    (clients[i]->mapNotifyMask & XkbKeySymsMask))
+! 		    continue;
+! 
+! 		event.u.u.sequenceNumber = clients[i]->sequence;
+! 		WriteEventsToClient(clients[i], 1, &event);
+! 	    }
+  	}
+      }
++     else
++ #endif
++     {
++ 	/* 0 is the server client */
++ 	for (i = 1; i < currentMaxClients; i++)
++ 	{
++             if (clients[i] && clients[i]->clientState == ClientStateRunning)
++ 	    {
++ 		event.u.u.sequenceNumber = clients[i]->sequence;
++ 		WriteEventsToClient(clients[i], 1, &event);
++ 	    }
++   	}
++     }
+  }
+  
+  /*
+***************
+*** 920,930 ****
+  	{
+  	    if (inputMap[i])
+  		keyc->modifierMap[inputMap[i]] |=
+! 		    (1<<(i/keyc->maxKeysPerModifier));
+  	}
+      }
+  #ifdef XKB
+!     keyc->keymapSerial++;
+  #endif
+  
+      if (rep.success == MappingSuccess)
+--- 953,963 ----
+  	{
+  	    if (inputMap[i])
+  		keyc->modifierMap[inputMap[i]] |=
+! 		    (1 << ( ((unsigned int)i)/keyc->maxKeysPerModifier));
+  	}
+      }
+  #ifdef XKB
+!     if (!noXkbExtension) keyc->keymapSerial++;
+  #endif
+  
+      if (rep.success == MappingSuccess)
+***************
+*** 977,983 ****
+  	    client->errorValue = stuff->firstKeyCode;
+  	    return BadValue;
+      }
+!     if ((stuff->firstKeyCode + stuff->keyCodes - 1 > curKeySyms->maxKeyCode) ||
+  	(stuff->keySymsPerKeyCode == 0))
+      {
+  	    client->errorValue = stuff->keySymsPerKeyCode;
+--- 1010,1017 ----
+  	    client->errorValue = stuff->firstKeyCode;
+  	    return BadValue;
+      }
+!     if ( ((unsigned)(stuff->firstKeyCode + stuff->keyCodes - 1) >
+! 	  curKeySyms->maxKeyCode) ||
+  	(stuff->keySymsPerKeyCode == 0))
+      {
+  	    client->errorValue = stuff->keySymsPerKeyCode;
+***************
+*** 990,996 ****
+      if (!SetKeySymsMap(curKeySyms, &keysyms))
+  	return BadAlloc;
+  #ifdef XKB
+!     inputInfo.keyboard->key->keymapSerial++;
+  #endif
+  #ifdef LBX
+      LbxFlushKeyboardMapTag();
+--- 1024,1030 ----
+      if (!SetKeySymsMap(curKeySyms, &keysyms))
+  	return BadAlloc;
+  #ifdef XKB
+!     if (!noXkbExtension) inputInfo.keyboard->key->keymapSerial++;
+  #endif
+  #ifdef LBX
+      LbxFlushKeyboardMapTag();
+***************
+*** 1007,1013 ****
+      REQUEST(xSetPointerMappingReq);
+      BYTE *map;
+      xSetPointerMappingReply rep;
+!     register int i;
+      DeviceIntPtr mouse = inputInfo.pointer;
+  
+      REQUEST_AT_LEAST_SIZE(xSetPointerMappingReq);
+--- 1041,1047 ----
+      REQUEST(xSetPointerMappingReq);
+      BYTE *map;
+      xSetPointerMappingReply rep;
+!     register unsigned int i;
+      DeviceIntPtr mouse = inputInfo.pointer;
+  
+      REQUEST_AT_LEAST_SIZE(xSetPointerMappingReq);
+***************
+*** 1056,1062 ****
+  	client->errorValue = stuff->firstKeyCode;
+  	return BadValue;
+      }
+!     if (stuff->firstKeyCode + stuff->count > curKeySyms->maxKeyCode + 1)
+      {
+  	client->errorValue = stuff->count;
+          return BadValue;
+--- 1090,1097 ----
+  	client->errorValue = stuff->firstKeyCode;
+  	return BadValue;
+      }
+!     if (stuff->firstKeyCode + stuff->count >
+! 	(unsigned)(curKeySyms->maxKeyCode + 1))
+      {
+  	client->errorValue = stuff->count;
+          return BadValue;
+***************
+*** 1090,1096 ****
+      rep.type = X_Reply;
+      rep.sequenceNumber = client->sequence;
+      rep.nElts = butc->numButtons;
+!     rep.length = (rep.nElts + (4-1))/4;
+      WriteReplyToClient(client, sizeof(xGetPointerMappingReply), &rep);
+      (void)WriteToClient(client, (int)rep.nElts, (char *)&butc->map[1]);
+      return Success;    
+--- 1125,1131 ----
+      rep.type = X_Reply;
+      rep.sequenceNumber = client->sequence;
+      rep.nElts = butc->numButtons;
+!     rep.length = ((unsigned)rep.nElts + (4-1))/4;
+      WriteReplyToClient(client, sizeof(xGetPointerMappingReply), &rep);
+      (void)WriteToClient(client, (int)rep.nElts, (char *)&butc->map[1]);
+      return Success;    
+***************
+*** 1229,1244 ****
+  		return BadValue;
+  	    }
+  #ifdef XKB
+! 	    keybd->kbdfeed->ctrl.leds= ctrl.leds;
+! 	    XkbSetIndicators(keybd,((led==DO_ALL)?~0L:(1L<<(led-1))),ctrl.leds,
+! 									NULL);
+  #endif
+  	    break;
+  	case KBKey:
+  	    key = (KeyCode)*vlist;
+  	    vlist++;
+! 	    if (key < inputInfo.keyboard->key->curKeySyms.minKeyCode ||
+! 		key > inputInfo.keyboard->key->curKeySyms.maxKeyCode)
+  	    {
+  		client->errorValue = key;
+  		return BadValue;
+--- 1264,1282 ----
+  		return BadValue;
+  	    }
+  #ifdef XKB
+! 	    if (!noXkbExtension)
+! 	    {
+! 		keybd->kbdfeed->ctrl.leds = ctrl.leds;
+! 		XkbSetIndicators(keybd,((led == DO_ALL) ? ~0L : (1L<<(led-1))),
+! 				 ctrl.leds, NULL);
+! 	    }
+  #endif
+  	    break;
+  	case KBKey:
+  	    key = (KeyCode)*vlist;
+  	    vlist++;
+! 	    if ((KeyCode)key < inputInfo.keyboard->key->curKeySyms.minKeyCode ||
+! 		(KeyCode)key > inputInfo.keyboard->key->curKeySyms.maxKeyCode)
+  	    {
+  		client->errorValue = key;
+  		return BadValue;
+***************
+*** 1252,1258 ****
+  	    t = (CARD8)*vlist;
+  	    vlist++;
+  #ifdef XKB
+! 	    if (key != DO_ALL)
+  		XkbDisableComputedAutoRepeats();
+  #endif
+  	    if (t == AutoRepeatModeOff)
+--- 1290,1296 ----
+  	    t = (CARD8)*vlist;
+  	    vlist++;
+  #ifdef XKB
+! 	    if (!noXkbExtension && key != DO_ALL)
+  		XkbDisableComputedAutoRepeats();
+  #endif
+  	    if (t == AutoRepeatModeOff)
+***************
+*** 1293,1303 ****
+  #ifdef XKB
+      /* The XKB RepeatKeys control and core protocol global autorepeat */
+      /* value are linked	*/
+!     XkbSetRepeatKeys(keybd,keybd->kbdfeed->ctrl.autoRepeat);
+      /* If XKB (AccessX) will handle the autorepeat in software we tell 
+       * the hardware to not autorepeat.
+       */
+!     if (XkbUsesSoftRepeat(keybd))
+      {
+          keybd->kbdfeed->ctrl.autoRepeat = FALSE;
+          (*keybd->kbdfeed->CtrlProc)(keybd, &keybd->kbdfeed->ctrl);
+--- 1331,1344 ----
+  #ifdef XKB
+      /* The XKB RepeatKeys control and core protocol global autorepeat */
+      /* value are linked	*/
+!     if (!noXkbExtension)
+!     {
+! 	XkbSetRepeatKeys(keybd,keybd->kbdfeed->ctrl.autoRepeat);
+!     }
+      /* If XKB (AccessX) will handle the autorepeat in software we tell 
+       * the hardware to not autorepeat.
+       */
+!     if (!noXkbExtension && XkbUsesSoftRepeat(keybd))
+      {
+          keybd->kbdfeed->ctrl.autoRepeat = FALSE;
+          (*keybd->kbdfeed->CtrlProc)(keybd, &keybd->kbdfeed->ctrl);
+***************
+*** 1355,1366 ****
+      else
+      	newpercent = base - newpercent + stuff->percent;
+  #ifdef XKB
+!     XkbHandleBell(FALSE, keybd, newpercent, &keybd->kbdfeed->ctrl, 0, None,
+! 								NULL, client);
+! #else
+      (*keybd->kbdfeed->BellProc)(newpercent, keybd,
+  				(pointer) &keybd->kbdfeed->ctrl, 0);
+- #endif
+      return Success;
+  } 
+  
+--- 1396,1410 ----
+      else
+      	newpercent = base - newpercent + stuff->percent;
+  #ifdef XKB
+!     if (!noXkbExtension)
+!     {
+! 	XkbHandleBell(FALSE, keybd, newpercent, &keybd->kbdfeed->ctrl, 0, 
+! 		      None, NULL, client);
+!     }
+!     else
+! #endif
+      (*keybd->kbdfeed->BellProc)(newpercent, keybd,
+  				(pointer) &keybd->kbdfeed->ctrl, 0);
+      return Success;
+  } 
+  
+***************
+*** 1542,1545 ****
+      WriteReplyToClient(client, sizeof(xQueryKeymapReply), &rep);
+      return Success;
+  }
+- 
+--- 1586,1588 ----
+*** -	Fri Sep  9 15:25:03 1994
+--- xc/programs/Xserver/hw/sun/sun.h	Fri Sep  9 15:25:03 1994
+***************
+*** 1,5 ****
+  
+! /* $XConsortium: sun.h,v 5.38 94/03/28 14:35:05 kaleb Exp $ */
+  
+  /*-
+   * Copyright (c) 1987 by the Regents of the University of California
+--- 1,5 ----
+  
+! /* $XConsortium: sun.h,v 5.39 94/08/16 13:45:30 dpw Exp $ */
+  
+  /*-
+   * Copyright (c) 1987 by the Regents of the University of California
+***************
+*** 237,247 ****
+      char*		name;	/* /usr/include/fbio names */
+  } sunFbDataRec;
+  
+! #ifndef XKB
+  extern Bool		sunAutoRepeatHandlersInstalled;
+  extern long		sunAutoRepeatInitiate;
+  extern long		sunAutoRepeatDelay;
+- #endif
+  extern sunFbDataRec	sunFbData[];
+  extern fbFd		sunFbs[];
+  extern Bool		sunSwapLkeys;
+--- 237,249 ----
+      char*		name;	/* /usr/include/fbio names */
+  } sunFbDataRec;
+  
+! #ifdef XKB
+! extern Bool		noXkbExtension;
+! #endif
+! 
+  extern Bool		sunAutoRepeatHandlersInstalled;
+  extern long		sunAutoRepeatInitiate;
+  extern long		sunAutoRepeatDelay;
+  extern sunFbDataRec	sunFbData[];
+  extern fbFd		sunFbs[];
+  extern Bool		sunSwapLkeys;
+*** -	Fri Sep  9 15:25:04 1994
+--- xc/programs/Xserver/hw/sun/sunKbd.c	Fri Sep  9 15:25:03 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: sunKbd.c,v 5.46 94/08/05 19:07:08 kaleb Exp $ */
+  /*-
+   * Copyright (c) 1987 by the Regents of the University of California
+   *
+--- 1,4 ----
+! /* $XConsortium: sunKbd.c,v 5.47 94/08/16 13:45:30 dpw Exp $ */
+  /*-
+   * Copyright (c) 1987 by the Regents of the University of California
+   *
+***************
+*** 52,61 ****
+  #define KB_SUN4		4
+  #endif
+  
+- #ifndef XKB
+  #define AUTOREPEAT_INITIATE	200
+  #define AUTOREPEAT_DELAY	50
+- #endif
+  
+  #define tvminus(tv, tv1, tv2)   /* tv = tv1 - tv2 */ \
+  		if ((tv1).tv_usec < (tv2).tv_usec) { \
+--- 52,59 ----
+***************
+*** 76,93 ****
+  extern KeySymsRec sunKeySyms[];
+  extern SunModmapRec* sunModMaps[];
+  
+- #ifndef XKB
+  long	  	  sunAutoRepeatInitiate = 1000 * AUTOREPEAT_INITIATE;
+  long	  	  sunAutoRepeatDelay = 1000 * AUTOREPEAT_DELAY;
+- #endif
+  
+- #ifndef XKB
+  static int		autoRepeatKeyDown = 0;
+  static int		autoRepeatReady;
+  static int		autoRepeatFirst;
+  static struct timeval	autoRepeatLastKeyDownTv;
+  static struct timeval	autoRepeatDeltaTv;
+- #endif
+  
+  void sunKbdWait()
+  {
+--- 74,87 ----
+***************
+*** 254,260 ****
+  #endif
+  }
+  
+- #ifndef XKB
+  
+  #define XLED_NUM_LOCK    0x1
+  #define XLED_COMPOSE     0x4
+--- 248,253 ----
+***************
+*** 315,328 ****
+  	}
+      }
+  }
+- #endif
+  
+  static void DoLEDs(device, ctrl, pPriv)
+      DeviceIntPtr    device;	    /* Keyboard to alter */
+      KeybdCtrl* ctrl;
+      sunKbdPrivPtr pPriv; 
+  {
+! #ifndef XKB
+      if ((ctrl->leds & XLED_CAPS_LOCK) && !(pPriv->leds & XLED_CAPS_LOCK))
+  	    pseudoKey(device, TRUE,
+  		LookupKeyCode(XK_Caps_Lock, &device->key->curKeySyms));
+--- 308,322 ----
+  	}
+      }
+  }
+  
+  static void DoLEDs(device, ctrl, pPriv)
+      DeviceIntPtr    device;	    /* Keyboard to alter */
+      KeybdCtrl* ctrl;
+      sunKbdPrivPtr pPriv; 
+  {
+! #ifdef XKB
+!     if (noXkbExtension) {
+! #endif
+      if ((ctrl->leds & XLED_CAPS_LOCK) && !(pPriv->leds & XLED_CAPS_LOCK))
+  	    pseudoKey(device, TRUE,
+  		LookupKeyCode(XK_Caps_Lock, &device->key->curKeySyms));
+***************
+*** 354,359 ****
+--- 348,355 ----
+      if (!(ctrl->leds & XLED_COMPOSE) && (pPriv->leds & XLED_COMPOSE))
+  	    pseudoKey(device, FALSE,
+  		LookupKeyCode(SunXK_Compose, &device->key->curKeySyms));
++ #ifdef XKB
++     }
+  #endif
+      pPriv->leds = ctrl->leds & 0x0f;
+      SetLights (ctrl, pPriv->fd);
+***************
+*** 424,429 ****
+--- 420,426 ----
+      DevicePtr pKeyboard = (DevicePtr) device;
+      sunKbdPrivPtr pPriv;
+      KeybdCtrl*	ctrl = &device->kbdfeed->ctrl;
++     extern int XkbDfltRepeatDelay, XkbDfltRepeatInterval;
+  
+      static CARD8 *workingModMap = NULL;
+      static KeySymsRec *workingKeySyms;
+***************
+*** 460,469 ****
+  	(void) memset ((void *) defaultKeyboardControl.autoRepeats,
+  			~0, sizeof defaultKeyboardControl.autoRepeats);
+  
+! #ifndef XKB
+  	autoRepeatKeyDown = 0;
+  #endif
+- 
+  	pKeyboard->devicePrivate = (pointer)&sunKbdPriv;
+  	pKeyboard->on = FALSE;
+  
+--- 457,471 ----
+  	(void) memset ((void *) defaultKeyboardControl.autoRepeats,
+  			~0, sizeof defaultKeyboardControl.autoRepeats);
+  
+! #ifdef XKB
+! 	if (noXkbExtension) {
+! 	    sunAutoRepeatInitiate = XkbDfltRepeatDelay * 1000;
+! 	    sunAutoRepeatDelay = XkbDfltRepeatInterval * 1000;
+! #endif
+  	autoRepeatKeyDown = 0;
++ #ifdef XKB
++ 	}
+  #endif
+  	pKeyboard->devicePrivate = (pointer)&sunKbdPriv;
+  	pKeyboard->on = FALSE;
+  
+***************
+*** 558,564 ****
+   *
+   *-----------------------------------------------------------------------
+   */
+- #ifndef XKB
+  static xEvent	autoRepeatEvent;
+  static int	composeCount;
+  
+--- 560,565 ----
+***************
+*** 635,642 ****
+      return FALSE;
+  }
+  
+- #endif
+- 
+  #if NeedFunctionPrototypes
+  void sunKbdEnqueueEvent (
+      DeviceIntPtr  device,
+--- 636,641 ----
+***************
+*** 654,660 ****
+      keycode = (fe->id & 0x7f) + MIN_KEYCODE;
+  
+      keyModifiers = device->key->modifierMap[keycode];
+! #ifndef XKB
+      if (autoRepeatKeyDown && (keyModifiers == 0) &&
+  	((fe->value == VKEY_DOWN) || (keycode == autoRepeatEvent.u.u.detail))) {
+  	/*
+--- 653,661 ----
+      keycode = (fe->id & 0x7f) + MIN_KEYCODE;
+  
+      keyModifiers = device->key->modifierMap[keycode];
+! #ifdef XKB
+!     if (noXkbExtension) {
+! #endif
+      if (autoRepeatKeyDown && (keyModifiers == 0) &&
+  	((fe->value == VKEY_DOWN) || (keycode == autoRepeatEvent.u.u.detail))) {
+  	/*
+***************
+*** 662,679 ****
+  	 */
+  	autoRepeatKeyDown = 0;
+      }
+  #endif
+      xE.u.keyButtonPointer.time = TVTOMILLI(fe->time);
+      xE.u.u.type = ((fe->value == VKEY_UP) ? KeyRelease : KeyPress);
+      xE.u.u.detail = keycode;
+! #ifndef XKB
+      if (DoSpecialKeys(device, &xE, fe))
+  	return;
+  #endif /* ! XKB */
+      mieqEnqueue (&xE);
+  }
+  
+- #ifndef XKB
+  void sunEnqueueAutoRepeat ()
+  {
+      int	delta;
+--- 663,685 ----
+  	 */
+  	autoRepeatKeyDown = 0;
+      }
++ #ifdef XKB
++     }
+  #endif
+      xE.u.keyButtonPointer.time = TVTOMILLI(fe->time);
+      xE.u.u.type = ((fe->value == VKEY_UP) ? KeyRelease : KeyPress);
+      xE.u.u.detail = keycode;
+! #ifdef XKB
+!     if (noXkbExtension) {
+! #endif
+      if (DoSpecialKeys(device, &xE, fe))
+  	return;
++ #ifdef XKB
++     }
+  #endif /* ! XKB */
+      mieqEnqueue (&xE);
+  }
+  
+  void sunEnqueueAutoRepeat ()
+  {
+      int	delta;
+***************
+*** 718,724 ****
+      tvplus(autoRepeatLastKeyDownTv, autoRepeatLastKeyDownTv, 
+  		    autoRepeatDeltaTv);
+  }
+- #endif /* ! XKB */
+  
+  /*-
+   *-----------------------------------------------------------------------
+--- 724,729 ----
+***************
+*** 813,819 ****
+      return TRUE;
+  }
+  
+- #ifndef XKB
+  /*ARGSUSED*/
+  void sunBlockHandler(nscreen, pbdata, pptv, pReadmask)
+      int nscreen;
+--- 818,823 ----
+***************
+*** 868,872 ****
+  	autoRepeatReady = 0;
+      }
+  }
+- #endif /* ! XKB */
+- 
+--- 872,874 ----
+*** -	Fri Sep  9 15:25:04 1994
+--- xc/programs/Xserver/hw/sun/sunInit.c	Fri Sep  9 15:25:04 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: sunInit.c,v 5.52 94/04/17 20:29:40 kaleb Exp $ */
+  /*
+   * sunInit.c --
+   *	Initialization functions for screen/keyboard/mouse, etc.
+--- 1,4 ----
+! /* $XConsortium: sunInit.c,v 5.53 94/08/16 13:45:30 dpw Exp $ */
+  /*
+   * sunInit.c --
+   *	Initialization functions for screen/keyboard/mouse, etc.
+***************
+*** 47,53 ****
+--- 47,55 ----
+  
+  #include    "sun.h"
+  #include    "gcstruct.h"
++ #include    "mi.h"
+  #include    "mibstore.h"
++ #include    "cfb.h"
+  
+  /* maximum pixmap depth */
+  #ifndef SUNMAXDEPTH
+***************
+*** 142,150 ****
+  
+  static Bool	sunDevsInited = FALSE;
+  
+- #ifndef XKB
+  Bool sunAutoRepeatHandlersInstalled;	/* FALSE each time InitOutput called */
+- #endif
+  Bool sunSwapLkeys = FALSE;
+  Bool sunFlipPixels = FALSE;
+  Bool sunFbInfo = FALSE;
+--- 144,150 ----
+***************
+*** 587,595 ****
+      pScreenInfo->numPixmapFormats = NUMFORMATS;
+      for (i=0; i< NUMFORMATS; i++)
+          pScreenInfo->formats[i] = formats[i];
+! #ifndef XKB
+!     sunAutoRepeatHandlersInstalled = FALSE;
+  #endif
+      if (!sunDevsInited) {
+  	/* first time ever */
+  	for (scr = 0; scr < MAXSCREENS; scr++)
+--- 587,596 ----
+      pScreenInfo->numPixmapFormats = NUMFORMATS;
+      for (i=0; i< NUMFORMATS; i++)
+          pScreenInfo->formats[i] = formats[i];
+! #ifdef XKB
+!     if (noXkbExtension)
+  #endif
++     sunAutoRepeatHandlersInstalled = FALSE;
+      if (!sunDevsInited) {
+  	/* first time ever */
+  	for (scr = 0; scr < MAXSCREENS; scr++)
+***************
+*** 627,633 ****
+      int     	  argc;
+      char    	  **argv;
+  {
+-     int		i;
+      DevicePtr	p, k;
+      extern Bool mieqInit();
+  
+--- 628,633 ----
+***************
+*** 791,798 ****
+      int width;			/* pixel width of frame buffer */
+      int	bpp;			/* bits per pixel of root */
+  {
+-     extern int		cfbWindowPrivateIndex;
+-     extern int		cfbGCPrivateIndex;
+      int ret;
+  
+      switch (bpp) {
+--- 791,796 ----
+***************
+*** 827,833 ****
+      int width;			/* pixel width of frame buffer */
+      int bpp;
+  {
+-     int		i;
+      pointer	oldDevPrivate;
+      VisualPtr	visuals;
+      int		nvisuals;
+--- 825,830 ----
+*** -	Fri Sep  9 15:25:05 1994
+--- xc/programs/Xserver/hw/sun/sunFbs.c	Fri Sep  9 15:25:05 1994
+***************
+*** 1,5 ****
+  
+! /* $XConsortium: sunFbs.c,v 1.7 94/04/17 20:29:37 dpw Exp $ */
+  
+  /*
+  Copyright (c) 1990, 1993  X Consortium
+--- 1,5 ----
+  
+! /* $XConsortium: sunFbs.c,v 1.8 94/08/16 13:45:30 dpw Exp $ */
+  
+  /*
+  Copyright (c) 1990, 1993  X Consortium
+***************
+*** 206,223 ****
+  #endif
+  {
+      SetupScreen(pScreen);
+- #ifndef XKB
+      extern void   sunBlockHandler();
+      extern void   sunWakeupHandler();
+      static ScreenPtr autoRepeatScreen;
+- #endif
+      extern miPointerScreenFuncRec   sunPointerScreenFuncs;
+  
+      pPrivate->installedMap = 0;
+      pPrivate->CloseScreen = pScreen->CloseScreen;
+      pScreen->CloseScreen = closeScreen;
+      pScreen->SaveScreen = sunSaveScreen;
+! #ifndef XKB
+      /*
+       *	Block/Unblock handlers
+       */
+--- 206,223 ----
+  #endif
+  {
+      SetupScreen(pScreen);
+      extern void   sunBlockHandler();
+      extern void   sunWakeupHandler();
+      static ScreenPtr autoRepeatScreen;
+      extern miPointerScreenFuncRec   sunPointerScreenFuncs;
+  
+      pPrivate->installedMap = 0;
+      pPrivate->CloseScreen = pScreen->CloseScreen;
+      pScreen->CloseScreen = closeScreen;
+      pScreen->SaveScreen = sunSaveScreen;
+! #ifdef XKB
+!     if (noXkbExtension) {
+! #endif
+      /*
+       *	Block/Unblock handlers
+       */
+***************
+*** 229,234 ****
+--- 229,236 ----
+      if (pScreen == autoRepeatScreen) {
+          pScreen->BlockHandler = sunBlockHandler;
+          pScreen->WakeupHandler = sunWakeupHandler;
++     }
++ #ifdef XKB
+      }
+  #endif
+      if (!sunCursorInitialize (pScreen))
+*** -	Fri Sep  9 15:25:34 1994
+--- xc/programs/Xserver/hw/omron/omronKbd.c	Fri Sep  9 15:25:34 1994
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: omronKbd.c,v 1.4 94/04/01 18:49:22 erik Exp $
+   *
+   * Copyright 1991 by OMRON Corporation
+   * 
+--- 1,5 ----
+  /*
+!  * $XConsortium: omronKbd.c,v 1.5 94/08/16 13:49:40 dpw Exp $
+   *
+   * Copyright 1991 by OMRON Corporation
+   * 
+***************
+*** 47,52 ****
+--- 47,53 ----
+  extern CARD8 *omronKeyModMap[];
+  extern KeySymsRec omronKeySyms[];
+  extern unsigned char *omronAutoRepeats[];
++ extern Bool noXkbExtension;
+  
+  static Bool omronKbdInit();
+  static void omronBell();
+***************
+*** 103,110 ****
+  			omronSetDriverTimeMode(NULL, pKeyboard);
+  #endif
+  #ifdef XKB
+! 			XkbSetPhysicalLockingKey(pKeyboard,CAPSLOCK_KEY+
+! 								prv->offset);
+  #endif
+  			break;
+  		case DEVICE_ON:
+--- 104,112 ----
+  			omronSetDriverTimeMode(NULL, pKeyboard);
+  #endif
+  #ifdef XKB
+! 			if (!noXkbExtension)
+! 			    XkbSetPhysicalLockingKey(pKeyboard,
+! 						  CAPSLOCK_KEY + prv->offset);
+  #endif
+  			break;
+  		case DEVICE_ON:
+***************
+*** 656,673 ****
+  		}
+  		xE.u.u.type = KeyRelease;
+  	}
+! #ifndef XKB
+! 	if (key == CAPSLOCK_KEY) {
+  		lock_key = 1;
+  	}
+- #endif
+  	key += prv->offset;
+  	keyModifiers = ((DeviceIntPtr)pKeyboard)->key->modifierMap[key];
+  	if ((omron_key_state & KS_KANA) && (!modstate) && (keyModifiers == 0)) {
+  		key += prv->kana_offset;
+  	}
+! #ifndef XKB
+! 	if (keyModifiers != 0) {
+  		pKeys = &((DeviceIntPtr)pKeyboard)->key->curKeySyms;
+  		if (!(lock_key ) && ((keyModifiers & LockMask) ||
+  			((keyModifiers & (Mod1Mask| Mod2Mask | Mod3Mask | Mod4Mask | Mod5Mask))
+--- 658,672 ----
+  		}
+  		xE.u.u.type = KeyRelease;
+  	}
+! 	if (noXkbExtension && (key == CAPSLOCK_KEY)) {
+  		lock_key = 1;
+  	}
+  	key += prv->offset;
+  	keyModifiers = ((DeviceIntPtr)pKeyboard)->key->modifierMap[key];
+  	if ((omron_key_state & KS_KANA) && (!modstate) && (keyModifiers == 0)) {
+  		key += prv->kana_offset;
+  	}
+! 	if (noXkbExtension && (keyModifiers != 0)) {
+  		pKeys = &((DeviceIntPtr)pKeyboard)->key->curKeySyms;
+  		if (!(lock_key ) && ((keyModifiers & LockMask) ||
+  			((keyModifiers & (Mod1Mask| Mod2Mask | Mod3Mask | Mod4Mask | Mod5Mask))
+***************
+*** 681,703 ****
+  			keysym = pKeys->map[(key - pKeys->minKeyCode) * pKeys->mapWidth];
+  			omronKbdModCheck(keysym, xE.u.u.type, &modstate);
+  		}
+! 	}
+! #endif /* ndef XKB */
+! #else
+  	if (!(key & 0x80)) {
+  		xE.u.u.type = KeyPress;
+  	} else {
+  		xE.u.u.type = KeyRelease;
+  	}
+  	key &= 0x7f;
+! #ifndef XKB
+! 	if ((key == CAPSLOCK_KEY) || (key == KANA_KEY)) {
+  		lock_key = 1;
+  	}
+! #endif
+  	key += prv->offset;
+! #ifndef XKB
+! 	if (!lock_key) {
+  		keyModifiers = ((DeviceIntPtr)pKeyboard)->key->modifierMap[key];
+  		pKeys = &((DeviceIntPtr)pKeyboard)->key->curKeySyms;
+  		if ((keyModifiers & LockMask) ||
+--- 680,702 ----
+  			keysym = pKeys->map[(key - pKeys->minKeyCode) * pKeys->mapWidth];
+  			omronKbdModCheck(keysym, xE.u.u.type, &modstate);
+  		}
+! 	    }
+! 
+! #else /* USE_KANA_SWITCH */
+  	if (!(key & 0x80)) {
+  		xE.u.u.type = KeyPress;
+  	} else {
+  		xE.u.u.type = KeyRelease;
+  	}
+  	key &= 0x7f;
+! 
+! 	if (noXkbExtension && ((key == CAPSLOCK_KEY) || (key == KANA_KEY))) {
+  		lock_key = 1;
+  	}
+! 
+  	key += prv->offset;
+! 
+! 	if (noXkbExtension && !lock_key) {
+  		keyModifiers = ((DeviceIntPtr)pKeyboard)->key->modifierMap[key];
+  		pKeys = &((DeviceIntPtr)pKeyboard)->key->curKeySyms;
+  		if ((keyModifiers & LockMask) ||
+***************
+*** 709,716 ****
+  				xE.u.u.type = KeyRelease;
+  		}
+  	}
+! #endif /* ndef XKB */
+! #endif
+  	xE.u.u.detail = key;
+  #ifndef USE_KANA_SWITCH
+  	prv->key_state = omron_key_state;
+--- 708,715 ----
+  				xE.u.u.type = KeyRelease;
+  		}
+  	}
+! 
+! #endif /* USE_KANA_SWITCH */
+  	xE.u.u.detail = key;
+  #ifndef USE_KANA_SWITCH
+  	prv->key_state = omron_key_state;
+***************
+*** 772,789 ****
+  		}
+  		xE.u.u.type = KeyRelease;
+  	}
+! #ifndef XKB
+! 	if (key == CAPSLOCK_KEY) {
+  		lock_key = 1;
+  	}
+! #endif
+  	key += prv->offset;
+  	keyModifiers = ((DeviceIntPtr)pKeyboard)->key->modifierMap[key];
+  	if ((omron_key_state & KS_KANA) && (!modstate) && (keyModifiers == 0)) {
+  		key += prv->kana_offset;
+  	}
+! #ifndef XKB
+! 	if (keyModifiers != 0) {
+  		pKeys = &((DeviceIntPtr)pKeyboard)->key->curKeySyms;
+  		if (!(lock_key ) && ((keyModifiers & LockMask) ||
+  			((keyModifiers & (Mod1Mask| Mod2Mask | Mod3Mask | Mod4Mask | Mod5Mask))
+--- 771,788 ----
+  		}
+  		xE.u.u.type = KeyRelease;
+  	}
+! 
+! 	if (noXkbExtension && (key == CAPSLOCK_KEY)) {
+  		lock_key = 1;
+  	}
+! 
+  	key += prv->offset;
+  	keyModifiers = ((DeviceIntPtr)pKeyboard)->key->modifierMap[key];
+  	if ((omron_key_state & KS_KANA) && (!modstate) && (keyModifiers == 0)) {
+  		key += prv->kana_offset;
+  	}
+! 
+! 	if (noXkbExtension && (keyModifiers != 0)) {
+  		pKeys = &((DeviceIntPtr)pKeyboard)->key->curKeySyms;
+  		if (!(lock_key ) && ((keyModifiers & LockMask) ||
+  			((keyModifiers & (Mod1Mask| Mod2Mask | Mod3Mask | Mod4Mask | Mod5Mask))
+***************
+*** 798,819 ****
+  			omronKbdModCheck(keysym, xE.u.u.type, &modstate);
+  		}
+  	}
+! #endif /* ndef XKB */
+! #else
+  	if (!(key & 0x80)) {
+  		xE.u.u.type = KeyPress;
+  	} else {
+  		xE.u.u.type = KeyRelease;
+  	}
+  	key &= 0x7f;
+! #ifndef XKB
+! 	if ((key == CAPSLOCK_KEY) || (key == KANA_KEY)) {
+  		lock_key = 1;
+  	}
+! #endif
+  	key += prv->offset;
+! #ifndef XKB
+! 	if (!lock_key) {
+  		keyModifiers = ((DeviceIntPtr)pKeyboard)->key->modifierMap[key];
+  		pKeys = &((DeviceIntPtr)pKeyboard)->key->curKeySyms;
+  		if ((keyModifiers & LockMask) ||
+--- 797,818 ----
+  			omronKbdModCheck(keysym, xE.u.u.type, &modstate);
+  		}
+  	}
+! 
+! #else /* USE_KANA_SWITCH */
+  	if (!(key & 0x80)) {
+  		xE.u.u.type = KeyPress;
+  	} else {
+  		xE.u.u.type = KeyRelease;
+  	}
+  	key &= 0x7f;
+! 
+! 	if (noXkbExtension && (key == CAPSLOCK_KEY) || (key == KANA_KEY)) {
+  		lock_key = 1;
+  	}
+! 
+  	key += prv->offset;
+! 
+! 	if (noXkbExtension && !lock_key) {
+  		keyModifiers = ((DeviceIntPtr)pKeyboard)->key->modifierMap[key];
+  		pKeys = &((DeviceIntPtr)pKeyboard)->key->curKeySyms;
+  		if ((keyModifiers & LockMask) ||
+***************
+*** 825,831 ****
+  				xE.u.u.type = KeyRelease;
+  		}
+  	}
+- #endif /* ndef XKB */
+  #endif
+  	xE.u.u.detail = key;
+  #ifndef USE_KANA_SWITCH
+--- 824,829 ----
+***************
+*** 835,841 ****
+  }
+  #endif
+  
+! #if !defined(USE_KANA_SWITCH) && !defined(XKB)
+  static void
+  omronKbdModCheck(keysym, type, modstate)
+  unsigned long keysym;
+--- 833,839 ----
+  }
+  #endif
+  
+! #if !defined(USE_KANA_SWITCH)
+  static void
+  omronKbdModCheck(keysym, type, modstate)
+  unsigned long keysym;
+*** -	Thu Sep 15 11:43:36 1994
+--- xc/workInProgress/Fresco/include/Impls/Xscreen.h	Thu Sep 15 11:43:35 1994
+***************
+*** 1,3 ****
+--- 1,4 ----
++ /* $XConsortium: Xscreen.h,v 1.5 94/09/01 18:47:45 matt Exp $ */
+  /*
+   * Copyright (c) 1987-91 Stanford University
+   * Copyright (c) 1991-93 Silicon Graphics, Inc.
+***************
+*** 119,125 ****
+  
+      void set_dpi();
+      ScreenImpl::VisualInfo* lookup_overlay(StyleRef);
+!     Boolean find_layer(StyleValueRef, long& layer);
+      Boolean find_overlay(long layer, XVisualInfo&, ScreenImpl::OverlayInfo&);
+      Boolean lookup_visual_id(StyleRef, XVisualInfo&);
+      Boolean lookup_visual(StyleRef, XVisualInfo&);
+--- 120,126 ----
+  
+      void set_dpi();
+      ScreenImpl::VisualInfo* lookup_overlay(StyleRef);
+!     Boolean find_layer(StyleValueRef, Long& layer);
+      Boolean find_overlay(long layer, XVisualInfo&, ScreenImpl::OverlayInfo&);
+      Boolean lookup_visual_id(StyleRef, XVisualInfo&);
+      Boolean lookup_visual(StyleRef, XVisualInfo&);
+*** -	Thu Sep 15 11:43:46 1994
+--- xc/workInProgress/Fresco/include/Impls/figures.h	Thu Sep 15 11:43:46 1994
+***************
+*** 1,3 ****
+--- 1,4 ----
++ /* $XConsortium: figures.h,v 1.4 94/09/01 18:47:45 matt Exp $ */
+  /*
+   * Copyright (c) 1987-91 Stanford University
+   * Copyright (c) 1991-94 Silicon Graphics, Inc.
+***************
+*** 81,88 ****
+      void traverse(GlyphTraversal_in t); //+ Glyph::traverse
+      Transform_return transformation(); //+ Glyph::transformation
+      void need_resize(); //+ Glyph::need_resize
+!     void visit_trail(long, GlyphTraversalRef t);
+!     void child_allocate(long, Glyph::AllocationInfo& a);
+   
+      static void corners(
+  	TransformRef t, Coord& left, Coord& bottom, Coord& right, Coord& top
+--- 82,89 ----
+      void traverse(GlyphTraversal_in t); //+ Glyph::traverse
+      Transform_return transformation(); //+ Glyph::transformation
+      void need_resize(); //+ Glyph::need_resize
+!     void visit_trail(Long, GlyphTraversalRef t);
+!     void child_allocate(Long, Glyph::AllocationInfo& a);
+   
+      static void corners(
+  	TransformRef t, Coord& left, Coord& bottom, Coord& right, Coord& top
+*** -	Thu Sep 15 11:43:57 1994
+--- xc/workInProgress/Fresco/include/Impls/widgetkit.h	Thu Sep 15 11:43:56 1994
+***************
+*** 1,3 ****
+--- 1,4 ----
++ /* $XConsortium: widgetkit.h,v 1.5 94/09/01 18:47:45 matt Exp $ */
+  /*
+   * Copyright (c) 1987-91 Stanford University
+   * Copyright (c) 1991-93 Silicon Graphics, Inc.
+***************
+*** 334,345 ****
+      /* PolyGlyph */
+      void request(Glyph::Requisition& r); //+ Glyph::request
+      void draw(GlyphTraversal_in t); //+ Glyph::draw
+!     void child_allocation(long, Glyph::AllocationInfo&);
+      void update(); //+ FrescoObject::update
+  
+      /* For SliderViewer */
+      void move_thumb(GlyphTraversalRef t, EventRef);
+!     long hit_thumb(GlyphTraversalRef t, EventRef);
+      void show_old_thumb();
+      void release_thumb();
+      void redraw_thumb();
+--- 335,346 ----
+      /* PolyGlyph */
+      void request(Glyph::Requisition& r); //+ Glyph::request
+      void draw(GlyphTraversal_in t); //+ Glyph::draw
+!     void child_allocation(Long, Glyph::AllocationInfo&);
+      void update(); //+ FrescoObject::update
+  
+      /* For SliderViewer */
+      void move_thumb(GlyphTraversalRef t, EventRef);
+!     Long hit_thumb(GlyphTraversalRef t, EventRef);
+      void show_old_thumb();
+      void release_thumb();
+      void redraw_thumb();
+*** -	Thu Sep 15 11:46:24 1994
+--- xc/workInProgress/Fresco/include/Ox/base.h	Thu Sep 15 11:46:24 1994
+***************
+*** 1,3 ****
+--- 1,4 ----
++ /* $XConsortium: base.h,v 1.8 94/09/01 18:45:46 matt Exp $ */
+  /*
+   * Copyright (c) 1993 Silicon Graphics, Inc.
+   * Copyright (c) 1993 Fujitsu, Ltd.
+***************
+*** 41,58 ****
+  
+  typedef unsigned char Boolean;
+  
+! static const unsigned char false = 0;
+! static const unsigned char true = 1;
+  
+  #ifndef TRUE
+  #define TRUE true
+  #endif
+  
+  #ifndef FALSE
+  #define FALSE false
+  #endif
+  
+! #endif
+  
+  #ifndef ox_octet
+  #define ox_octet
+--- 42,66 ----
+  
+  typedef unsigned char Boolean;
+  
+! #if !defined(__GNUC__) && !defined(HAS_BOOL)
+  
++ #ifndef true
++ #define true 1
++ #endif
+  #ifndef TRUE
+  #define TRUE true
+  #endif
+  
++ #ifndef false
++ #define false 0
++ #endif
+  #ifndef FALSE
+  #define FALSE false
+  #endif
+  
+! #endif	
+! 
+! #endif	
+  
+  #ifndef ox_octet
+  #define ox_octet
+***************
+*** 78,100 ****
+   * with respect to 32/64-bit machine ambiguities.
+   */
+  #if (_MIPS_SZLONG == 64)
+  typedef __int32_t Long;
+  typedef __uint32_t ULong;
+  typedef long LongLong;
+  typedef unsigned long ULongLong;
+  #else
+  typedef long Long;
+  typedef unsigned long ULong;
+- #if defined(sgi)
+- /* compiler supports long long */
+  typedef long long LongLong;
+  typedef unsigned long long ULongLong;
+  #else
+  /* compiler does not support long long */
+  typedef long LongLong;
+  typedef unsigned long ULongLong;
+! #endif
+! #endif
+  
+  typedef float Float;
+  typedef double Double;
+--- 86,119 ----
+   * with respect to 32/64-bit machine ambiguities.
+   */
+  #if (_MIPS_SZLONG == 64)
++ /* 64 bit MIPS machine from SGI? */
+  typedef __int32_t Long;
+  typedef __uint32_t ULong;
+  typedef long LongLong;
+  typedef unsigned long ULongLong;
+  #else
++ #if defined(__alpha)
++ /* 64 bit defs for DEC alpha */
++ typedef int Long;
++ typedef unsigned int ULong;
++ typedef long LongLong;
++ typedef unsigned long ULongLong;
++ #else
++ #if defined(__sgi)
++ /* compiler supports long long */
+  typedef long Long;
+  typedef unsigned long ULong;
+  typedef long long LongLong;
+  typedef unsigned long long ULongLong;
+  #else
+  /* compiler does not support long long */
++ typedef long Long;
++ typedef unsigned long ULong;
+  typedef long LongLong;
+  typedef unsigned long ULongLong;
+! #endif  /* __sgi */
+! #endif  /* __alpha */
+! #endif  /* _MIPS_SZLONG */
+  
+  typedef float Float;
+  typedef double Double;
+*** -	Mon Sep 12 15:14:16 1994
+--- xc/workInProgress/Fresco/src/Imakefile	Mon Sep 12 15:14:15 1994
+***************
+*** 1,4 ****
+! XCOMM $XConsortium: Imakefile,v 1.10 94/06/03 22:46:06 matt Exp $
+  #define DoNormalLib NormalLibFresco
+  #define DoSharedLib SharedLibFresco
+  #define DoDebugLib DebugLibFresco
+--- 1,4 ----
+! XCOMM $XConsortium: Imakefile,v 1.11 94/08/17 21:56:42 matt Exp $
+  #define DoNormalLib NormalLibFresco
+  #define DoSharedLib SharedLibFresco
+  #define DoDebugLib DebugLibFresco
+***************
+*** 11,16 ****
+--- 11,20 ----
+  REQUIREDLIBS = SharedFrescoReqs
+  #endif
+  
++ #ifdef HasPoll
++ POLL_DEFINES = -DUSE_POLL
++ #endif
++ 
+  
+        LINTLIBS = $(LINTXLIB)
+  DEPEND_DEFINES = CplusplusDependIncludes
+***************
+*** 77,82 ****
+--- 81,87 ----
+  #include <Library.tmpl>
+  
+  SpecialCplusplusLibObjectRule(Xdisplay,$(ICONFIGFILES),$(FRESCO_DEFINES))
++ SpecialCplusplusLibObjectRule(fresco,$(ICONFIGFILES),$(POLL_DEFINES))
+  
+  ALLDEFINES = $(CXXDEFINES)
+  
+*** -	Thu Sep 15 11:43:31 1994
+--- xc/workInProgress/Fresco/include/Impls/Xdrawing.h	Thu Sep 15 11:43:31 1994
+***************
+*** 1,3 ****
+--- 1,4 ----
++ /* $XConsortium: Xdrawing.h,v 1.5 94/09/01 18:47:45 matt Exp $ */
+  /*
+   * Copyright (c) 1987-91 Stanford University
+   * Copyright (c) 1991-93 Silicon Graphics, Inc.
+***************
+*** 97,104 ****
+  //+
+  public:
+      BrushImpl(Coord width);
+!     BrushImpl(const long* p, long c, Coord w);
+!     BrushImpl(long pat, Coord w);
+  
+      //+ Brush::*
+      /* FrescoObject */
+--- 98,105 ----
+  //+
+  public:
+      BrushImpl(Coord width);
+!     BrushImpl(const Long* p, Long c, Coord w);
+!     BrushImpl(Long pat, Coord w);
+  
+      //+ Brush::*
+      /* FrescoObject */
+***************
+*** 114,128 ****
+      ULong hash();
+      //+
+  
+!     void info(Coord& width, char*& dash_list, long& dash_count);
+  protected:
+      SharedFrescoObjectImpl object_;
+      Coord width_;
+      char* dash_list_;
+      long dash_count_;
+  
+!     void init(const long* p, long c, Coord w);
+!     void calc_dashes(long pat, long* dash, long& count);
+  };
+  
+  //+ ColorImpl : Color
+--- 115,129 ----
+      ULong hash();
+      //+
+  
+!     void info(Coord& width, char*& dash_list, Long& dash_count);
+  protected:
+      SharedFrescoObjectImpl object_;
+      Coord width_;
+      char* dash_list_;
+      long dash_count_;
+  
+!     void init(const Long* p, Long c, Coord w);
+!     void calc_dashes(Long pat, Long* dash, Long& count);
+  };
+  
+  //+ ColorImpl : Color
+*** -	Thu Sep 15 11:47:14 1994
+--- xc/workInProgress/Fresco/src/Xdisplay.cxx	Thu Sep 15 11:47:14 1994
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: Xdisplay.cxx,v 1.6 94/05/09 17:42:26 matt Exp $
+   */
+  
+  /*
+--- 1,5 ----
+  /*
+!  * $XConsortium: Xdisplay.cxx,v 1.7 94/09/01 18:45:46 matt Exp $
+   */
+  
+  /*
+***************
+*** 99,108 ****
+  
+  class CursorImpl : public Cursor {
+  public:
+!     CursorImpl(short x, short y, long pattern[16], long mask[16]);
+      CursorImpl(RasterRef bitmap, RasterRef mask);
+!     CursorImpl(FontRef f, long pattern, long mask);
+!     CursorImpl(long index);
+      ~CursorImpl();
+  
+      //+ Cursor::*
+--- 99,108 ----
+  
+  class CursorImpl : public Cursor {
+  public:
+!     CursorImpl(Short x, Short y, Long pattern[16], Long mask[16]);
+      CursorImpl(RasterRef bitmap, RasterRef mask);
+!     CursorImpl(FontRef f, Long pattern, Long mask);
+!     CursorImpl(Long index);
+      ~CursorImpl();
+  
+      //+ Cursor::*
+***************
+*** 120,126 ****
+  };
+  
+  CursorImpl::CursorImpl(
+!     short /* x */, short /* y */, long /* pattern */ [16], long /* mask */ [16]
+  ) {
+      /* not implemented */
+  }
+--- 120,126 ----
+  };
+  
+  CursorImpl::CursorImpl(
+!     Short /* x */, Short /* y */, Long /* pattern */ [16], Long /* mask */ [16]
+  ) {
+      /* not implemented */
+  }
+***************
+*** 129,139 ****
+      /* not implemented */
+  }
+  
+! CursorImpl::CursorImpl(FontRef /* f */, long /* pattern */, long /* mask */) {
+      /* not implemented */
+  }
+  
+! CursorImpl::CursorImpl(long /* index */) {
+      /* not implemented */
+  }
+  
+--- 129,139 ----
+      /* not implemented */
+  }
+  
+! CursorImpl::CursorImpl(FontRef /* f */, Long /* pattern */, Long /* mask */) {
+      /* not implemented */
+  }
+  
+! CursorImpl::CursorImpl(Long /* index */) {
+      /* not implemented */
+  }
+  
+***************
+*** 1378,1384 ****
+      ScreenImpl::VisualInfo* info = nil;
+      StyleValue_var a = s->resolve(Fresco::tmp_string_ref("overlay"));
+      if (is_not_nil(a)) {
+! 	long layer;
+  	if (find_layer(a, layer)) {
+  	    for (ListItr(ScreenVisualList) i(*visuals_); i.more(); i.next()) {
+  		ScreenImpl::OverlayInfo& ov = i.cur()->overlay;
+--- 1378,1384 ----
+      ScreenImpl::VisualInfo* info = nil;
+      StyleValue_var a = s->resolve(Fresco::tmp_string_ref("overlay"));
+      if (is_not_nil(a)) {
+! 	Long layer;
+  	if (find_layer(a, layer)) {
+  	    for (ListItr(ScreenVisualList) i(*visuals_); i.more(); i.next()) {
+  		ScreenImpl::OverlayInfo& ov = i.cur()->overlay;
+***************
+*** 1411,1417 ****
+   * the layer to zero.  Otherwise, return false.
+   */
+  
+! Boolean ScreenImpl::find_layer(StyleValueRef a, long& layer) {
+      Boolean b = false;
+      if (a->read_integer(layer)) {
+  	b = true;
+--- 1411,1417 ----
+   * the layer to zero.  Otherwise, return false.
+   */
+  
+! Boolean ScreenImpl::find_layer(StyleValueRef a, Long& layer) {
+      Boolean b = false;
+      if (a->read_integer(layer)) {
+  	b = true;
+***************
+*** 1488,1494 ****
+      Boolean b = false;
+      StyleValue_var a = s->resolve(Fresco::tmp_string_ref("visual_id"));
+      if (a != nil) {
+! 	long id;
+  	if (a->read_integer(id)) {
+  	    xinfo.visualid = id;
+  	    b = find_visual_by_info(xinfo, VisualIDMask);
+--- 1488,1494 ----
+      Boolean b = false;
+      StyleValue_var a = s->resolve(Fresco::tmp_string_ref("visual_id"));
+      if (a != nil) {
+! 	Long id;
+  	if (a->read_integer(id)) {
+  	    xinfo.visualid = id;
+  	    b = find_visual_by_info(xinfo, VisualIDMask);
+***************
+*** 1646,1652 ****
+      unsigned long p;
+      StyleValue_var a = s->resolve(Fresco::tmp_string_ref("xor_pixel"));
+      if (is_not_nil(a)) {
+! 	long n;
+  	p = a->read_integer(n) ? n : 1;
+      } else if (info.visual->c_class == DirectColor) {
+  	Visual* v = info.visual;
+--- 1646,1652 ----
+      unsigned long p;
+      StyleValue_var a = s->resolve(Fresco::tmp_string_ref("xor_pixel"));
+      if (is_not_nil(a)) {
+! 	Long n;
+  	p = a->read_integer(n) ? n : 1;
+      } else if (info.visual->c_class == DirectColor) {
+  	Visual* v = info.visual;
+*** -	Thu Sep 15 11:47:16 1994
+--- xc/workInProgress/Fresco/src/Xdrawing.cxx	Thu Sep 15 11:47:15 1994
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: Xdrawing.cxx,v 1.4 94/04/07 11:29:29 matt Exp $
+   */
+  
+  /*
+--- 1,5 ----
+  /*
+!  * $XConsortium: Xdrawing.cxx,v 1.5 94/09/01 18:45:46 matt Exp $
+   */
+  
+  /*
+***************
+*** 502,508 ****
+  	/* raise exception? */
+  	return;
+      }
+!     ULong value;
+      if (XGetFontProperty(xfont_, XA_POINT_SIZE, &value)) {
+  	point_size_ = Coord(value) / 10.0;
+      }
+--- 502,508 ----
+  	/* raise exception? */
+  	return;
+      }
+!     unsigned long value;
+      if (XGetFontProperty(xfont_, XA_POINT_SIZE, &value)) {
+  	point_size_ = Coord(value) / 10.0;
+      }
+***************
+*** 2043,2049 ****
+      if (!zero) {
+  	XCoord xvalue = atoi(spec.field(field));
+  	if (xvalue != 0) {
+! 	    pvalue = xvalue * scale;
+  	    zero = true;
+  	}
+      }
+--- 2043,2049 ----
+      if (!zero) {
+  	XCoord xvalue = atoi(spec.field(field));
+  	if (xvalue != 0) {
+! 	    pvalue = PixelCoord(xvalue * scale);
+  	    zero = true;
+  	}
+      }
+*** -	Thu Sep 15 11:47:18 1994
+--- xc/workInProgress/Fresco/src/Xwindow.cxx	Thu Sep 15 11:47:18 1994
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: Xwindow.cxx,v 1.4 94/04/07 11:29:30 matt Exp $
+   */
+  
+  /*
+--- 1,5 ----
+  /*
+!  * $XConsortium: Xwindow.cxx,v 1.5 94/09/01 18:45:46 matt Exp $
+   */
+  
+  /*
+***************
+*** 306,312 ****
+  
+  //+ WindowImpl(Window::xor_pixel?)
+  Long WindowImpl::xor_pixel() {
+!     long p = 0;
+      StyleValue_var a = style_->resolve(Fresco::tmp_string_ref("xor_pixel"));
+      if (is_not_nil(a)) {
+  	a->read_integer(p);
+--- 306,312 ----
+  
+  //+ WindowImpl(Window::xor_pixel?)
+  Long WindowImpl::xor_pixel() {
+!     Long p = 0;
+      StyleValue_var a = style_->resolve(Fresco::tmp_string_ref("xor_pixel"));
+      if (is_not_nil(a)) {
+  	a->read_integer(p);
+***************
+*** 709,715 ****
+      }
+  
+      xattrmask_ |= CWEventMask;
+!     long events = (
+  	KeyPressMask | KeyReleaseMask |
+  	ButtonPressMask | ButtonReleaseMask | PointerMotionMask |
+  	EnterWindowMask | LeaveWindowMask |
+--- 709,715 ----
+      }
+  
+      xattrmask_ |= CWEventMask;
+!     Long events = (
+  	KeyPressMask | KeyReleaseMask |
+  	ButtonPressMask | ButtonReleaseMask | PointerMotionMask |
+  	EnterWindowMask | LeaveWindowMask |
+*** -	Thu Sep 15 11:47:19 1994
+--- xc/workInProgress/Fresco/src/figures.cxx	Thu Sep 15 11:47:19 1994
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: figures.cxx,v 1.4 94/04/07 11:29:32 matt Exp $
+   */
+  
+  /*
+--- 1,5 ----
+  /*
+!  * $XConsortium: figures.cxx,v 1.5 94/09/01 18:40:21 matt Exp $
+   */
+  
+  /*
+***************
+*** 883,888 ****
+--- 883,890 ----
+  
+  //+ FigureStyleImpl(FigureStyle::brush_attr?)
+  BrushRef FigureStyleImpl::brush_attr() {
++     if (is_nil(brush_))
++ 	brush_ = _tmp(drawing_kit())->simple_brush(0.0);
+      return Brush::_duplicate(brush_->_obj());
+  }
+  
+*** -	Thu Sep 15 11:47:21 1994
+--- xc/workInProgress/Fresco/src/fresco.cxx	Thu Sep 15 11:47:20 1994
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: fresco.cxx,v 1.6 94/06/03 21:38:54 matt Exp $
+   */
+  
+  /*
+--- 1,5 ----
+  /*
+!  * $XConsortium: fresco.cxx,v 1.12 94/09/14 20:17:37 matt Exp $
+   */
+  
+  /*
+***************
+*** 45,51 ****
+  #include <stdlib.h>
+  #include <string.h>
+  
+! #if defined(sgi)
+  #include <malloc.h>
+  #endif
+  
+--- 45,51 ----
+  #include <stdlib.h>
+  #include <string.h>
+  
+! #if defined(__sgi)
+  #include <malloc.h>
+  #endif
+  
+***************
+*** 79,85 ****
+      { "-visual", "*visual", Option::value },
+      { "-visual_id", "*visual_id", Option::value },
+      { "-xrm", nil, Option::path_value },
+! #ifdef sgi
+      { "-malloc", "*malloc_debug", Option::implicit, "on" },
+  #endif
+      { nil }
+--- 79,85 ----
+      { "-visual", "*visual", Option::value },
+      { "-visual_id", "*visual_id", Option::value },
+      { "-xrm", nil, Option::path_value },
+! #ifdef __sgi
+      { "-malloc", "*malloc_debug", Option::implicit, "on" },
+  #endif
+      { nil }
+***************
+*** 277,307 ****
+      }
+  }
+  
+! #if defined(sgi)
+  
+! extern "C" int sginap(long);
+  
+  Boolean Fresco::delay(Float seconds) {
+!     long n = long(100.0 * seconds + 0.5);
+!     if (n <= 2) {
+! 	n = 3;
+!     }
+!     return sginap(n) == 0;
+  }
+  
+  #else
+  
+! #include <X11/Fresco/OS/types.h>
+! #include <sys/time.h>
+  
+! #if defined(AIXV3) || defined(sony)
+! #include <sys/select.h>
+  #endif
+  
+! #if defined(sony) || defined(__DECCXX)
+! /* Sony and DEC OSF/1 have select, but no prototype in /usr/include */
+! extern "C" int select(int, fd_set*, fd_set*, fd_set*, struct timeval*);
+! #endif
+  
+  Boolean Fresco::delay(Float seconds) {
+      struct timeval tv;
+--- 277,329 ----
+      }
+  }
+  
+! /*
+!  * We can't use either poll or select under OSF/1 because they're both
+!  * broken, though in different ways.  When called with no struct pollfd's
+!  * and an nfds argument of zero to do a timeout, poll returns immediately
+!  * instead of waiting until the timeout period has expired.  It also sets
+!  * errno to EAGAIN sometimes, but not always.  Select seems to work for
+!  * timeouts in simple cases, and even in some complex cases, but in some
+!  * multithreaded programs Fresco::delay calls select and select never
+!  * returns.
+!  *
+!  * The most reliable way to do a sleep in a multithreaded program under
+!  * OSF/1 seems to be using the pthread_delay_np routine, which puts the
+!  * current thread to sleep.  The following code assumes that you always
+!  * build multithreaded Fresco libraries on the alpha, which matches the
+!  * assumption in threads.cxx; if we switch to using the X11R6 threads
+!  * macros, the use of pthread_delay_np should be conditionalized on 
+!  * the XTHREADS symbol being defined.
+!  */
+!  
+! #if defined(__alpha)
+  
+! #include <pthread.h>
+  
+  Boolean Fresco::delay(Float seconds) {
+!     struct timespec ts;
+!     ts.tv_sec = time_t(seconds);
+!     ts.tv_nsec = long(1000000000.0 * (seconds - float(ts.tv_sec)) + 0.5);
+!     return pthread_delay_np(&ts) == 0;
+  }
+  
+  #else
++ #if defined(USE_POLL)
+  
+! #include <sys/poll.h>
+  
+! #if defined(sun) && !defined(SVR4)
+! extern "C" int poll(struct pollfds *, unsigned long, int);
+  #endif
+  
+! Boolean Fresco::delay(Float seconds) {
+!     return poll(NULL, 0, int(1000.0 * seconds + 0.5)) == 0;
+! }
+! 
+! #else
+! 
+! #include <X11/Fresco/OS/types.h>
+! #include <sys/time.h>
+  
+  Boolean Fresco::delay(Float seconds) {
+      struct timeval tv;
+***************
+*** 310,316 ****
+      return select(0, nil, nil, nil, &tv) == 0;
+  }
+  
+! #endif
+  
+  /* class FrescoImpl */
+  
+--- 332,339 ----
+      return select(0, nil, nil, nil, &tv) == 0;
+  }
+  
+! #endif	/* defined(USE_POLL) */
+! #endif	/* defined(__osf__) */
+  
+  /* class FrescoImpl */
+  
+***************
+*** 336,342 ****
+      create_root_style(name, argc, argv, options);
+  
+      init_types();
+! #if defined(sgi)
+      if (style_->is_on(Fresco::tmp_string_ref("malloc_debug"))) {
+  	mallopt(M_DEBUG, 1);
+      }
+--- 359,365 ----
+      create_root_style(name, argc, argv, options);
+  
+      init_types();
+! #if defined(__sgi)
+      if (style_->is_on(Fresco::tmp_string_ref("malloc_debug"))) {
+  	mallopt(M_DEBUG, 1);
+      }
+*** -	Thu Sep 15 11:47:22 1994
+--- xc/workInProgress/Fresco/src/glyphs.cxx	Thu Sep 15 11:47:22 1994
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: glyphs.cxx,v 1.4 94/04/07 11:29:34 matt Exp $
+   */
+  
+  /*
+--- 1,5 ----
+  /*
+!  * $XConsortium: glyphs.cxx,v 1.5 94/09/01 18:57:28 matt Exp $
+   */
+  
+  /*
+***************
+*** 196,202 ****
+  	if (is_not_nil(a.damaged)) {
+  	    RegionImpl r;
+  	    extension(a, &r);
+! 	    a.damaged->extend(&r);
+  	}
+  	release_allocation_info(a);
+      }
+--- 196,204 ----
+  	if (is_not_nil(a.damaged)) {
+  	    RegionImpl r;
+  	    extension(a, &r);
+! 	    if (r.defined_) {
+! 	        a.damaged->extend(&r);
+! 	    }
+  	}
+  	release_allocation_info(a);
+      }
+***************
+*** 1008,1013 ****
+--- 1010,1016 ----
+      window_ = w;
+      damage_ = damage;
+      picked_ = nil;
++     hit_info_ = 0;
+  }
+  
+  GlyphTraversalImpl::GlyphTraversalImpl(const GlyphTraversalImpl& t) {
+*** -	Thu Sep 15 11:47:24 1994
+--- xc/workInProgress/Fresco/src/layouts.cxx	Thu Sep 15 11:47:24 1994
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: layouts.cxx,v 1.4 94/04/07 11:29:35 matt Exp $
+   */
+  
+  /*
+--- 1,5 ----
+  /*
+!  * $XConsortium: layouts.cxx,v 1.5 94/09/01 18:45:46 matt Exp $
+   */
+  
+  /*
+***************
+*** 573,579 ****
+      RegionImpl** children_allocations(Region_in a);
+      void traverse_with_allocation(GlyphTraversal_in t, Region_in a);
+      void traverse_without_allocation(GlyphTraversal_in t);
+!     void child_allocate(long index, Glyph::AllocationInfo& a);
+      void modified();
+  private:
+      static const int static_size_;
+--- 573,579 ----
+      RegionImpl** children_allocations(Region_in a);
+      void traverse_with_allocation(GlyphTraversal_in t, Region_in a);
+      void traverse_without_allocation(GlyphTraversal_in t);
+!     void child_allocate(Long index, Glyph::AllocationInfo& a);
+      void modified();
+  private:
+      static const int static_size_;
+*** -	Thu Sep 15 11:47:25 1994
+--- xc/workInProgress/Fresco/src/objects.cxx	Thu Sep 15 11:47:25 1994
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: objects.cxx,v 1.3 94/04/01 16:48:01 matt Exp $
+   */
+  
+  /*
+--- 1,5 ----
+  /*
+!  * $XConsortium: objects.cxx,v 1.4 94/09/01 18:45:46 matt Exp $
+   */
+  
+  /*
+***************
+*** 1017,1030 ****
+      cur_ = &data_[0];
+  }
+  
+! void MarshalBuffer::put32(long n) {
+      if (cur_ >= end_) {
+  	overflow();
+      }
+      *cur_++ = n;
+  }
+  
+! long MarshalBuffer::get32() {
+      if (cur_ >= end_) {
+  	underflow();
+      }
+--- 1017,1030 ----
+      cur_ = &data_[0];
+  }
+  
+! void MarshalBuffer::put32(Long n) {
+      if (cur_ >= end_) {
+  	overflow();
+      }
+      *cur_++ = n;
+  }
+  
+! Long MarshalBuffer::get32() {
+      if (cur_ >= end_) {
+  	underflow();
+      }
+***************
+*** 1089,1095 ****
+      move(w);
+  }
+  
+! void MarshalBuffer::put_string(const char* s, long length) {
+      char* p = (char*)cur_;
+      long n = (length == -1) ? strlen(s) : length;
+      long n1 = n + 1;
+--- 1089,1095 ----
+      move(w);
+  }
+  
+! void MarshalBuffer::put_string(const char* s, Long length) {
+      char* p = (char*)cur_;
+      long n = (length == -1) ? strlen(s) : length;
+      long n1 = n + 1;
+*** -	Thu Sep 15 11:47:26 1994
+--- xc/workInProgress/Fresco/src/os.cxx	Thu Sep 15 11:47:26 1994
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: os.cxx,v 1.10 94/06/03 21:38:55 matt Exp $
+   */
+  
+  /*
+--- 1,5 ----
+  /*
+!  * $XConsortium: os.cxx,v 1.12 94/08/17 21:48:05 matt Exp $
+   */
+  
+  /*
+***************
+*** 57,64 ****
+  #include <stdlib.h>
+  #include <string.h>
+  #include <sys/stat.h>
+! #if !defined(__DECCXX) && !defined(__hpux)
+! #include <sysent.h>		/* DEC and HP don't ahve sysent.h */
+  #endif
+  #include <unistd.h>
+  
+--- 57,64 ----
+  #include <stdlib.h>
+  #include <string.h>
+  #include <sys/stat.h>
+! #if !defined(__osf__) && !defined(__hpux) && !defined(__GNUC__)
+! #include <sysent.h>		/* DEC, HP and g++ don't have sysent.h */
+  #endif
+  #include <unistd.h>
+  
+***************
+*** 82,92 ****
+  #include <sys/utsname.h>
+  #endif
+  
+! #if !defined(NEED_UTSNAME) && (defined(AIXV3) || defined(__alpha))
+  extern "C" {
+      int gethostname(char *, int);
+  }
+  #endif
+  
+  /*
+   * Buffer size for internal path name computation.
+--- 82,94 ----
+  #include <sys/utsname.h>
+  #endif
+  
+! #if !defined(NEED_UTSNAME) 
+! #if defined(AIXV3) || defined(__osf__) || defined(__GNUC__)
+  extern "C" {
+      int gethostname(char *, int);
+  }
+  #endif
++ #endif
+  
+  /*
+   * Buffer size for internal path name computation.
+***************
+*** 470,476 ****
+  
+  /* class File */
+  
+! #ifdef sgi
+  #include <sys/mman.h>
+  #endif
+  
+--- 472,478 ----
+  
+  /* class File */
+  
+! #ifdef __sgi
+  #include <sys/mman.h>
+  #endif
+  
+***************
+*** 527,533 ****
+      FileInfo* i = rep_;
+      if (i->fd_ >= 0) {
+  	if (i->map_ != nil) {
+! #ifdef sgi
+  	    munmap(i->map_, int(i->info_.st_size));
+  #endif
+  	}
+--- 529,535 ----
+      FileInfo* i = rep_;
+      if (i->fd_ >= 0) {
+  	if (i->map_ != nil) {
+! #ifdef __sgi
+  	    munmap(i->map_, int(i->info_.st_size));
+  #endif
+  	}
+***************
+*** 573,579 ****
+      if (i->limit_ != 0 && len > i->limit_) {
+  	len = i->limit_;
+      }
+! #ifdef sgi
+      i->map_ = (char*)mmap(
+  	0, (int)len, PROT_READ, MAP_PRIVATE, i->fd_, i->pos_
+      );
+--- 575,581 ----
+      if (i->limit_ != 0 && len > i->limit_) {
+  	len = i->limit_;
+      }
+! #ifdef __sgi
+      i->map_ = (char*)mmap(
+  	0, (int)len, PROT_READ, MAP_PRIVATE, i->fd_, i->pos_
+      );
+*** -	Thu Sep 15 11:47:29 1994
+--- xc/workInProgress/Fresco/src/threads.cxx	Thu Sep 15 11:47:28 1994
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: threads.cxx,v 1.4 94/04/07 11:29:36 matt Exp $
+   */
+  
+  /*
+--- 1,5 ----
+  /*
+!  * $XConsortium: threads.cxx,v 1.5 94/09/01 18:45:46 matt Exp $
+   */
+  
+  /*
+***************
+*** 864,870 ****
+      status_ = thread_canceled;
+      pthread_cancel(thread_);
+      lock_->release();
+!     long status, exitcode;
+      wait(status, exitcode);
+  }
+  
+--- 864,870 ----
+      status_ = thread_canceled;
+      pthread_cancel(thread_);
+      lock_->release();
+!     Long status, exitcode;
+      wait(status, exitcode);
+  }
+  
+*** -	Thu Sep 15 11:47:30 1994
+--- xc/workInProgress/Fresco/src/transport.cxx	Thu Sep 15 11:47:30 1994
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: transport.cxx,v 1.4 94/04/01 16:52:46 matt Exp $
+   */
+   
+  /*
+--- 1,5 ----
+  /*
+!  * $XConsortium: transport.cxx,v 1.5 94/08/17 21:48:05 matt Exp $
+   */
+   
+  /*
+***************
+*** 28,34 ****
+  
+  #include <X11/Fresco/Ox/marshal.h>
+  #include <X11/Fresco/Ox/transport.h>
+! #if defined(sgi)
+  #include <rpc/rpc.h>
+  #endif
+  #if defined(sun) && defined(SVR4)
+--- 28,34 ----
+  
+  #include <X11/Fresco/Ox/marshal.h>
+  #include <X11/Fresco/Ox/transport.h>
+! #if defined(__sgi)
+  #include <rpc/rpc.h>
+  #endif
+  #if defined(sun) && defined(SVR4)
+***************
+*** 48,54 ****
+  	xdrproc_t(&oxMarshal), (char*)b, xdrproc_t(&oxUnmarshal), (char*)b
+      );
+  #else
+! #if defined(sgi)
+      return callrpc(
+  	hostname, port, 0, 1,
+  	xdrproc_t(&oxMarshal), b, xdrproc_t(&oxUnmarshal), b
+--- 48,54 ----
+  	xdrproc_t(&oxMarshal), (char*)b, xdrproc_t(&oxUnmarshal), (char*)b
+      );
+  #else
+! #if defined(__sgi)
+      return callrpc(
+  	hostname, port, 0, 1,
+  	xdrproc_t(&oxMarshal), b, xdrproc_t(&oxUnmarshal), b
+***************
+*** 61,67 ****
+  }
+  
+  int oxMarshal(XDR* xdrsp, MarshalBuffer* b) {
+! #if defined(sgi) || defined(sun)
+      b->make_out_in();
+      long* p = b->cur();
+      long n = b->end() - p;
+--- 61,67 ----
+  }
+  
+  int oxMarshal(XDR* xdrsp, MarshalBuffer* b) {
+! #if defined(__sgi) || defined(sun)
+      b->make_out_in();
+      long* p = b->cur();
+      long n = b->end() - p;
+***************
+*** 77,83 ****
+  }
+  
+  int oxUnmarshal(XDR* xdrsp, MarshalBuffer* b) {
+! #if defined(sgi) || defined(sun)
+      if (xdrsp->x_op == XDR_DECODE) {
+  	b->reset();
+  	long n, v;
+--- 77,83 ----
+  }
+  
+  int oxUnmarshal(XDR* xdrsp, MarshalBuffer* b) {
+! #if defined(__sgi) || defined(sun)
+      if (xdrsp->x_op == XDR_DECODE) {
+  	b->reset();
+  	long n, v;
+*** -	Thu Sep 15 11:47:31 1994
+--- xc/workInProgress/Fresco/src/types.cxx	Thu Sep 15 11:47:31 1994
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: types.cxx,v 1.7 94/04/07 11:29:38 matt Exp $
+   */
+  
+  /*
+--- 1,5 ----
+  /*
+!  * $XConsortium: types.cxx,v 1.9 94/09/14 20:31:38 matt Exp $
+   */
+  
+  /*
+***************
+*** 515,520 ****
+--- 515,524 ----
+  	lower = lower_;
+  	upper = upper_;
+      }
++     else {
++ 	lower.x = lower.y = lower.z = 0;
++ 	upper.x = upper.y = upper.z = 0;
++     }
+  }
+  
+  //+ RegionImpl(Region::origin)
+***************
+*** 524,531 ****
+--- 528,539 ----
+  	v.y = span_origin(lower_.y, upper_.y, yalign_);
+  	v.z = span_origin(lower_.z, upper_.z, zalign_);
+      }
++     else {
++ 	v.x = v.y = v.z = 0;
++     }
+  }
+  
++ 
+  Coord RegionImpl::span_origin(Coord lower, Coord upper, Coord align) {
+      Coord orig;
+      if (Math::equal(lower, upper, float(1e-4))) {
+***************
+*** 559,564 ****
+--- 567,577 ----
+  	s.length = s.end - s.begin;
+  	s.origin = s.begin + s.align * s.length;
+      }
++     else {
++ 	s.begin = s.end = s.length = 0;
++ 	s.align = 0;
++ 	s.origin = 0;
++     }
+  }
+  
+  void RegionImpl::notify() { }
+***************
+*** 1226,1232 ****
+      return true;
+  }
+  
+! void SharedStyleImpl::load_file(const char* filename, long priority) {
+      InputFile* f = InputFile::open(filename);
+      if (f == nil) {
+  	return;
+--- 1239,1245 ----
+      return true;
+  }
+  
+! void SharedStyleImpl::load_file(const char* filename, Long priority) {
+      InputFile* f = InputFile::open(filename);
+      if (f == nil) {
+  	return;
+***************
+*** 1795,1801 ****
+      mat_[0][2] = mat_[1][2] = 0;
+      mat_[0][3] = mat_[1][3] = 0;
+      mat_[2][0] = mat_[2][1] = 0;
+!     mat_[2][2] = mat_[3][2] = 0;
+      mat_[3][0] = mat_[3][1] = 0;
+      mat_[3][2] = mat_[3][3] = 0;
+      identity_ = true;
+--- 1808,1814 ----
+      mat_[0][2] = mat_[1][2] = 0;
+      mat_[0][3] = mat_[1][3] = 0;
+      mat_[2][0] = mat_[2][1] = 0;
+!     mat_[2][2] = mat_[2][3] = 0;
+      mat_[3][0] = mat_[3][1] = 0;
+      mat_[3][2] = mat_[3][3] = 0;
+      identity_ = true;
+*** -	Thu Sep 15 11:47:33 1994
+--- xc/workInProgress/Fresco/src/widgets.cxx	Thu Sep 15 11:47:33 1994
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: widgets.cxx,v 1.3 94/04/01 16:48:21 matt Exp $
+   */
+  
+  /*
+--- 1,5 ----
+  /*
+!  * $XConsortium: widgets.cxx,v 1.4 94/09/01 18:45:46 matt Exp $
+   */
+  
+  /*
+***************
+*** 1040,1046 ****
+      long r;
+      StyleValue_var v = style_->resolve(Fresco::tmp_string_ref("thumbRidges"));
+      if (is_not_nil(v)) {
+! 	long l;
+  	if (v->read_integer(l)) {
+  	    r = l;
+  	}
+--- 1040,1046 ----
+      long r;
+      StyleValue_var v = style_->resolve(Fresco::tmp_string_ref("thumbRidges"));
+      if (is_not_nil(v)) {
+! 	Long l;
+  	if (v->read_integer(l)) {
+  	    r = l;
+  	}
+***************
+*** 2290,2295 ****
+--- 2290,2296 ----
+      old_thumb_index(0), normal_thumb_index(1), visible_thumb_index(2)
+  {
+      layouts_ = f->layout_kit();
++     old_thumb_ = nil;
+      normal_thumb_ = nil;
+      visible_thumb_ = nil;
+      min_thumb_size_ = default_minimum_thumb_size;

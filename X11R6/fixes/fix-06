@@ -1,0 +1,1939 @@
+                      Release 6 Public Patch #06
+                             X Consortium
+
+To apply this patch:
+
+cd to the top of the source tree (to the directory containing the "xc"
+and "contrib" subdirectories) and do:
+        patch -p -s < ThisFile
+Patch will work silently unless an error occurs.  If you want to
+watch patch do its thing, leave out the "-s" argument to patch.
+
+Finally, to rebuild after applying this patch, cd to the "xc" subdirectory
+and do:
+        make Everything >& every.log
+
+Brief notes on what this patch fixes:
+
+xtrans: always recreates Unix socket on some machines
+xtrans: miscellaneous WIN32 fixes
+xtrans: fails to compile when I_BIGPIPE defined
+xtrans: Uses o_mode_t instead of mode_t, strchr can return nil
+Xlib: Clients hang in CPU-bound poll-loop when server quits
+Xlib: XOpenIM leaks a file descriptor
+Xlib: Ximint.h has wrong prototype for _XimEncodeSavedIMATTRIBUTE
+Xlib: bug fixes of on_the_spot's callbacks
+Xlib: I18N converters: support Roman8 locale, optimize lookup order
+Xlib: XPolygonRegion can produce non-YXBanded region
+Xt: sensitive blocking more than it should
+Xt: Events not checked for if select/poll interrupted by a signal
+Xt: bad function signature for _XBCOPYFUNC
+XIElib: missing "outcome" field in XiePhotofloDoneEvent
+xdpyinfo: add -ext option
+xdpyinfo: wrong max request size on servers without BIG-REQUESTS
+Xserver: server can reset unexpectedly
+xdm: Xauthority can fail on HP-UX
+xdm: Session may be incorrectly accepted due to lost/corrupted packet
+
+
+Prereq: public-patch-5
+
+*** -	Mon Jan  9 17:00:54 1995
+--- xc/bug-report	Mon Jan  9 17:00:54 1995
+***************
+*** 3,9 ****
+  
+       VERSION:
+  
+! R6, public-patch-5
+  [X Consortium public patches edit this line to indicate the patch level]
+  
+       CLIENT MACHINE and OPERATING SYSTEM:
+--- 3,9 ----
+  
+       VERSION:
+  
+! R6, public-patch-6
+  [X Consortium public patches edit this line to indicate the patch level]
+  
+       CLIENT MACHINE and OPERATING SYSTEM:
+*** -	Fri Jan  6 17:33:28 1995
+--- xc/lib/Xau/AuGetBest.c	Fri Jan  6 17:33:27 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: AuGetBest.c,v 1.6 94/04/17 20:15:43 rws Exp $ */
+  
+  /*
+  
+--- 1,4 ----
+! /* $XConsortium: AuGetBest.c,v 1.8 94/10/04 14:19:00 mor Exp $ */
+  
+  /*
+  
+***************
+*** 29,34 ****
+--- 29,37 ----
+  
+  #include <X11/Xauth.h>
+  #include <X11/Xos.h>
++ #ifdef hpux
++ #include <netdb.h>
++ #endif
+  
+  static
+  binaryEqual (a, b, len)
+***************
+*** 82,87 ****
+--- 85,94 ----
+      Xauth   *best;
+      int	    best_type;
+      int	    type;
++ #ifdef hpux
++     char		*fully_qual_address;
++     unsigned short	fully_qual_address_length;
++ #endif
+  
+      auth_name = XauFileName ();
+      if (!auth_name)
+***************
+*** 91,96 ****
+--- 98,122 ----
+      auth_file = fopen (auth_name, "rb");
+      if (!auth_file)
+  	return 0;
++ 
++ #ifdef hpux
++     if (family == FamilyLocal) {
++ 	struct hostent *host;
++ 
++ 	/* make sure we try fully-qualified hostname */
++ 	host = gethostbyname(address);
++ 	if (host) {
++ 	    fully_qual_address = host->h_name;
++ 	    fully_qual_address_length = strlen(fully_qual_address);
++ 	}
++ 	else
++ 	{
++ 	    fully_qual_address = NULL;
++ 	    fully_qual_address_length = 0;
++ 	}
++     }
++ #endif /* hpux */
++ 
+      best = 0;
+      best_type = types_length;
+      for (;;) {
+***************
+*** 114,121 ****
+  
+  	if ((family == FamilyWild || entry->family == FamilyWild ||
+  	     (entry->family == family &&
+! 	      address_length == entry->address_length &&
+! 	      binaryEqual (entry->address, address, (int)address_length))) &&
+  	    (number_length == 0 || entry->number_length == 0 ||
+  	     (number_length == entry->number_length &&
+  	      binaryEqual (entry->number, number, (int)number_length))))
+--- 140,154 ----
+  
+  	if ((family == FamilyWild || entry->family == FamilyWild ||
+  	     (entry->family == family &&
+! 	     ((address_length == entry->address_length &&
+! 	      binaryEqual (entry->address, address, (int)address_length))
+! #ifdef hpux
+! 	     || (family == FamilyLocal &&
+! 		fully_qual_address_length == entry->address_length &&
+! 	     	binaryEqual (entry->address, fully_qual_address,
+! 		    (int) fully_qual_address_length))
+! #endif
+! 	    ))) &&
+  	    (number_length == 0 || entry->number_length == 0 ||
+  	     (number_length == entry->number_length &&
+  	      binaryEqual (entry->number, number, (int)number_length))))
+*** -	Fri Jan  6 17:33:30 1995
+--- xc/lib/xtrans/Xtrans.h	Fri Jan  6 17:33:29 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: Xtrans.h,v 1.27 94/06/02 10:49:08 mor Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+--- 1,4 ----
+! /* $XConsortium: Xtrans.h,v 1.28 94/10/18 15:57:42 mor Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+***************
+*** 474,478 ****
+--- 474,482 ----
+  );
+  
+  #endif /* ICE_t */
++ 
++ #if defined(WIN32) && (defined(TCPCONN) || defined(DNETCONN))
++ int TRANS(WSAStartup)();
++ #endif
+  
+  #endif /* _XTRANS_H_ */
+*** -	Fri Jan  6 17:33:31 1995
+--- xc/lib/xtrans/Xtrans.c	Fri Jan  6 17:33:31 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: Xtrans.c,v 1.25 94/06/02 10:59:43 mor Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+--- 1,4 ----
+! /* $XConsortium: Xtrans.c,v 1.28 94/12/01 16:30:09 kaleb Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+***************
+*** 373,378 ****
+--- 373,386 ----
+  
+      PRMSG (2,"TRANS(Open) (%d,%s)\n", type, address, 0);
+  
++ #if defined(WIN32) && (defined(TCPCONN) || defined(DNETCONN))
++     if (TRANS(WSAStartup)())
++     {
++ 	PRMSG (1,"TRANS(Open): WSAStartup failed\n", 0, 0, 0);
++ 	return NULL;
++     }
++ #endif
++ 
+      /* Parse the Address */
+  
+      if (TRANS(ParseAddress) (address, &protocol, &host, &port) == 0)
+***************
+*** 1275,1281 ****
+  
+  #endif /* CRAY */
+  
+! #if (defined(SYSV) && defined(SYSV386)) || defined(WIN32) || defined(__sxg__) || defined(SCO)
+  
+  /*
+   * emulate readv
+--- 1283,1289 ----
+  
+  #endif /* CRAY */
+  
+! #if (defined(SYSV) && defined(i386)) || defined(WIN32) || defined(__sxg__) || defined(SCO)
+  
+  /*
+   * emulate readv
+*** -	Fri Jan  6 17:33:33 1995
+--- xc/lib/xtrans/Xtransutil.c	Fri Jan  6 17:33:32 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: Xtransutil.c,v 1.17 94/05/19 11:00:07 mor Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+--- 1,4 ----
+! /* $XConsortium: Xtransutil.c,v 1.18 94/10/18 15:57:42 mor Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+***************
+*** 425,430 ****
+--- 425,445 ----
+  }
+  
+  #endif /* ICE_t */
++ 
++ 
++ #if defined(WIN32) && (defined(TCPCONN) || defined(DNETCONN))
++ int
++ TRANS(WSAStartup) ()
++ {
++     static WSADATA wsadata;
++ 
++     PRMSG (2,"TRANS(WSAStartup)()\n", 0, 0, 0);
++ 
++     if (!wsadata.wVersion && WSAStartup(MAKEWORD(1,1), &wsadata))
++         return 1;
++     return 0;
++ }
++ #endif
+  
+  
+  static int
+*** -	Fri Jan  6 17:33:34 1995
+--- xc/lib/xtrans/Xtransdnet.c	Fri Jan  6 17:33:34 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: Xtransdnet.c,v 1.14 94/04/17 20:23:02 mor Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+--- 1,4 ----
+! /* $XConsortium: Xtransdnet.c,v 1.15 94/10/18 15:53:05 mor Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+***************
+*** 52,60 ****
+--- 52,79 ----
+   * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   */
+  
++ #ifndef WIN32
+  #include <netdnet/dn.h>
+  #include <netdnet/dnetdb.h>
+  #include <sys/ioctl.h>
++ #endif /* !WIN32 */
++ 
++ #include <stdio.h>
++ 
++ #ifdef WIN32
++ #define _WILLWINSOCK_
++ #define BOOL wBOOL
++ #undef Status
++ #define Status wStatus
++ #include <prgpre.h> /* PATHWORKS header normally in %MSTOOLS%\h\pathwork */
++ #undef Status
++ #define Status int
++ #undef BOOL
++ #include <X11/Xw32defs.h>
++ #undef close
++ #define close closesocket
++ #endif /* WIN32 */
++ 
+  
+  #if defined(X11_t)
+  #define DNETOBJ "X$X"
+***************
+*** 551,557 ****
+--- 570,580 ----
+  {
+      PRMSG (2,"TRANS(DNETBytesReadable) (%x,%d,%x)\n", ciptr, ciptr->fd, pend);
+  
++ #ifdef WIN32
++     return ioctlsocket ((SOCKET) ciptr->fd, FIONREAD, (u_long *) pend);
++ #else
+      return ioctl(ciptr->fd, FIONREAD, (char *)pend);
++ #endif /* WIN32 */
+  }
+  
+  
+***************
+*** 565,571 ****
+--- 588,598 ----
+  {
+      PRMSG (2,"TRANS(DNETRead) (%d,%x,%d)\n", ciptr->fd, buf, size);
+  
++ #ifdef WIN32
++     return recv ((SOCKET)ciptr->fd, buf, size, 0);
++ #else
+      return read (ciptr->fd, buf, size);
++ #endif /* WIN32 */
+  }
+  
+  
+***************
+*** 579,585 ****
+--- 606,616 ----
+  {
+      PRMSG (2,"TRANS(DNETWrite) (%d,%x,%d)\n", ciptr->fd, buf, size);
+  
++ #ifdef WIN32
++     return send ((SOCKET)ciptr->fd, buf, size, 0);
++ #else
+      return write (ciptr->fd, buf, size);
++ #endif /* WIN32 */
+  }
+  
+  
+*** -	Fri Jan  6 17:33:35 1995
+--- xc/lib/xtrans/Xtranslcl.c	Fri Jan  6 17:33:35 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: Xtranslcl.c,v 1.18 94/04/17 20:23:03 mor Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+--- 1,4 ----
+! /* $XConsortium: Xtranslcl.c,v 1.20 94/12/12 20:14:30 mor Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+***************
+*** 76,81 ****
+--- 76,82 ----
+   */
+  
+  #include <errno.h>
++ #include <ctype.h>
+  #include <sys/signal.h>
+  #include <sys/ioctl.h>
+  #include <sys/stat.h>
+***************
+*** 192,198 ****
+  
+  /* PTS */
+  
+! #ifdef SYSV
+  #define SIGNAL_T int
+  #else
+  #define SIGNAL_T void
+--- 193,199 ----
+  
+  /* PTS */
+  
+! #if defined(SYSV) && !defined(SCO)
+  #define SIGNAL_T int
+  #else
+  #define SIGNAL_T void
+***************
+*** 636,645 ****
+  	return -1;
+      }
+  
+- #if defined(I_BIGPIPE)
+-     ioctl( fd, I_BIGPIPE, &str );
+- #endif /* I_BIGPIPE */
+- 
+      if (isastream(fd) <= 0) {
+  	PRMSG(1,"%s is not a streams device\n", server_path, 0,0 );
+  	(void) close(fd);
+--- 637,642 ----
+***************
+*** 884,890 ****
+      char	server_dev_path[64];
+      struct 	strfdinsert buf;
+      long	temp;
+!     o_mode_t 	spmode;
+      struct stat 	filestat;
+      
+      PRMSG(2,"TRANS(ISCOpenClient)(%s)\n", port, 0,0 );
+--- 881,887 ----
+      char	server_dev_path[64];
+      struct 	strfdinsert buf;
+      long	temp;
+!     mode_t 	spmode;
+      struct stat 	filestat;
+      
+      PRMSG(2,"TRANS(ISCOpenClient)(%s)\n", port, 0,0 );
+***************
+*** 1260,1265 ****
+--- 1257,1264 ----
+  	named_spipe(fds, serverS_path) != -1 &&
+  	named_spipe(fdr, serverR_path) != -1) {
+  	PRMSG(2,"TRANS(SCOOpenServer) connect pipes\n", 0,0,0 );
++ 	} else {
++ 	PRMSG(2,"TRANS(SCOOpenServer) failed to connect pipes\n", 0,0,0 );
+  	close(fds);
+  	close(fdr);
+  	return -1;
+***************
+*** 1772,1777 ****
+--- 1771,1778 ----
+  	
+  	typetocheck=workingXLOCAL;
+  	workingXLOCAL=strchr(workingXLOCAL,':');
++ 	if (!workingXLOCAL)
++ 	    return NULL;
+  	if(*workingXLOCAL)
+  	    *workingXLOCAL++='\0';
+  	
+***************
+*** 2240,2246 ****
+--- 2241,2251 ----
+  {
+      PRMSG(2,"TRANS(LocalBytesReadable)(%x->%d,%x)\n", ciptr, ciptr->fd, pend);
+      
++ #ifdef SCO
++     return ioctl(ciptr->fd, I_NREAD, (char *)pend);
++ #else
+      return ioctl(ciptr->fd, FIONREAD, (char *)pend);
++ #endif
+  }
+  
+  static int
+*** -	Fri Jan  6 17:33:38 1995
+--- xc/lib/xtrans/Xtranssock.c	Fri Jan  6 17:33:37 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: Xtranssock.c,v 1.29 94/06/02 10:51:53 mor Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+--- 1,4 ----
+! /* $XConsortium: Xtranssock.c,v 1.33 94/12/01 16:33:12 kaleb Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+***************
+*** 92,98 ****
+  #ifdef SVR4
+  #include <sys/filio.h>
+  #endif
+! #if (defined(SYSV386) && defined(SYSV) && !defined(SCO)) || defined(_SEQUENT_)
+  #if !defined(_SEQUENT_) && !defined(ESIX)
+  #include <net/errno.h>
+  #endif /* _SEQUENT_  || ESIX */
+--- 92,98 ----
+  #ifdef SVR4
+  #include <sys/filio.h>
+  #endif
+! #if (defined(i386) && defined(SYSV) && !defined(SCO)) || defined(_SEQUENT_)
+  #if !defined(_SEQUENT_) && !defined(ESIX)
+  #include <net/errno.h>
+  #endif /* _SEQUENT_  || ESIX */
+***************
+*** 330,347 ****
+  
+  {
+      XtransConnInfo	ciptr;
+- #ifdef WIN32
+-     static WSADATA wsadata;
+- #endif /* WIN32 */
+  
+      PRMSG (3,"TRANS(SocketOpen) (%d,%d)\n", i, type, 0);
+  
+- #ifdef WIN32
+-     if (Sockettrans2devtab[i].family == AF_INET &&
+- 	!wsadata.wVersion && WSAStartup(MAKEWORD(1,1), &wsadata))
+- 	return NULL;
+- #endif /* WIN32 */
+- 
+      if ((ciptr = (XtransConnInfo) calloc (
+  	1, sizeof(struct _XtransConnInfo))) == NULL)
+      {
+--- 330,338 ----
+***************
+*** 959,965 ****
+      PRMSG (3, "TRANS(SocketUNIXResetListener) (%x,%d)\n", ciptr, ciptr->fd, 0);
+  
+      if (stat (unsock->sun_path, &statb) == -1 ||
+!         (statb.st_mode & S_IFMT) != S_IFSOCK)
+      {
+  	int oldUmask = umask (0);
+  
+--- 950,961 ----
+      PRMSG (3, "TRANS(SocketUNIXResetListener) (%x,%d)\n", ciptr, ciptr->fd, 0);
+  
+      if (stat (unsock->sun_path, &statb) == -1 ||
+!         ((statb.st_mode & S_IFMT) !=
+! #if (defined (sun) && defined(SVR4)) || defined(NCR)
+! 	  		S_IFIFO))
+! #else
+! 			S_IFSOCK))
+! #endif
+      {
+  	int oldUmask = umask (0);
+  
+*** -	Fri Jan  6 17:33:40 1995
+--- xc/lib/X11/XlibInt.c	Fri Jan  6 17:33:40 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: XlibInt.c,v 11.228 94/04/17 20:21:48 rws Exp $ */
+  /*
+  
+  Copyright (c) 1985, 1986, 1987  X Consortium
+--- 1,4 ----
+! /* $XConsortium: XlibInt.c,v 11.230 94/11/29 00:06:42 gildea Exp $ */
+  /*
+  
+  Copyright (c) 1985, 1986, 1987  X Consortium
+***************
+*** 314,320 ****
+  #endif
+  	}
+  #ifdef USE_POLL
+! 	if (filedes.revents & (POLLOUT|POLLHUP))
+  #else
+  	if (GETBIT(w_mask, dpy->fd))
+  #endif
+--- 314,320 ----
+  #endif
+  	}
+  #ifdef USE_POLL
+! 	if (filedes.revents & (POLLOUT|POLLHUP|POLLERR))
+  #else
+  	if (GETBIT(w_mask, dpy->fd))
+  #endif
+***************
+*** 470,476 ****
+  	if (result <= 0)
+  	    continue;
+  #ifdef USE_POLL
+! 	if (filedes[0].revents & (POLLIN|POLLHUP))
+  #else
+  	if (GETBIT(r_mask, fd))
+  #endif
+--- 470,476 ----
+  	if (result <= 0)
+  	    continue;
+  #ifdef USE_POLL
+! 	if (filedes[0].revents & (POLLIN|POLLHUP|POLLERR))
+  #else
+  	if (GETBIT(r_mask, fd))
+  #endif
+***************
+*** 2659,2669 ****
+  static char *_SysErrorMsg (n)
+      int n;
+  {
+! #ifndef WIN32
+!     extern char *sys_errlist[];
+!     extern int sys_nerr;
+! #endif
+!     char *s = ((n >= 0 && n < sys_nerr) ? sys_errlist[n] : "unknown error");
+  
+      return (s ? s : "no such error");
+  }
+--- 2659,2665 ----
+  static char *_SysErrorMsg (n)
+      int n;
+  {
+!     char *s = strerror(n);
+  
+      return (s ? s : "no such error");
+  }
+*** -	Fri Jan  6 17:33:43 1995
+--- xc/lib/X11/PolyReg.c	Fri Jan  6 17:33:42 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: PolyReg.c,v 11.22 94/04/17 20:20:27 rws Exp $ */
+  /************************************************************************
+  
+  Copyright (c) 1987  X Consortium
+--- 1,4 ----
+! /* $XConsortium: PolyReg.c,v 11.23 94/11/17 21:59:37 converse Exp $ */
+  /************************************************************************
+  
+  Copyright (c) 1987  X Consortium
+***************
+*** 426,432 ****
+  	    if (numRects && pts->x == rects->x1 && pts->y == rects->y2 &&
+  		pts[1].x == rects->x2 &&
+  		(numRects == 1 || rects[-1].y1 != rects->y1) &&
+! 		(!i || pts[2].y > pts[1].y)) {
+  		rects->y2 = pts[1].y + 1;
+  		continue;
+  	    }
+--- 426,432 ----
+  	    if (numRects && pts->x == rects->x1 && pts->y == rects->y2 &&
+  		pts[1].x == rects->x2 &&
+  		(numRects == 1 || rects[-1].y1 != rects->y1) &&
+! 		(i && pts[2].y > pts[1].y)) {
+  		rects->y2 = pts[1].y + 1;
+  		continue;
+  	    }
+*** -	Fri Jan  6 17:33:44 1995
+--- xc/lib/X11/Ximint.h	Fri Jan  6 17:33:44 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: Ximint.h,v 1.8 94/07/06 14:46:42 kaleb Exp $ */
+  /******************************************************************
+  
+                  Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+--- 1,4 ----
+! /* $XConsortium: Ximint.h,v 1.9 94/10/10 18:33:16 kaleb Exp $ */
+  /******************************************************************
+  
+                  Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+***************
+*** 1120,1126 ****
+      int			*idx,
+      char		*buf,
+      int			 size,
+!     int			 ret_len,
+      XPointer		 top,
+      unsigned long	 mode
+  #endif
+--- 1120,1126 ----
+      int			*idx,
+      char		*buf,
+      int			 size,
+!     int			*ret_len,
+      XPointer		 top,
+      unsigned long	 mode
+  #endif
+*** -	Fri Jan  6 17:33:46 1995
+--- xc/lib/X11/XlcPublic.h	Fri Jan  6 17:33:45 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: XlcPublic.h,v 1.2 94/01/20 18:03:16 rws Exp $ */
+  /*
+   * Copyright 1992, 1993 by TOSHIBA Corp.
+   *
+--- 1,4 ----
+! /* $XConsortium: XlcPublic.h,v 1.3 94/12/12 20:34:32 kaleb Exp $ */
+  /*
+   * Copyright 1992, 1993 by TOSHIBA Corp.
+   *
+***************
+*** 122,127 ****
+--- 122,128 ----
+  #define XlcNCompoundText "compoundText"
+  #define XlcNString "string"
+  #define XlcNCharSet "charSet"
++ #define XlcNCTCharSet "CTcharSet"
+  #define XlcNChar "char"
+  
+  typedef struct _XlcConvRec {
+*** -	Fri Jan  6 17:33:47 1995
+--- xc/lib/X11/imCallbk.c	Fri Jan  6 17:33:46 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: imCallbk.c,v 1.8 94/09/01 18:44:49 kaleb Exp $ */
+  /***********************************************************************
+  Copyright 1993 by Digital Equipment Corporation, Maynard, Massachusetts,
+  Copyright 1994 by FUJITSU LIMITED
+--- 1,4 ----
+! /* $XConsortium: imCallbk.c,v 1.9 94/10/10 18:31:09 kaleb Exp $ */
+  /***********************************************************************
+  Copyright 1993 by Digital Equipment Corporation, Maynard, Massachusetts,
+  Copyright 1994 by FUJITSU LIMITED
+***************
+*** 468,474 ****
+       */
+      if (cb && cb->callback){
+  	ret = (*(int (*)(
+! #if NeedFunctionPrototypes
+  			XIC, XPointer, XPointer
+  #endif
+  			))(cb->callback))((XIC)ic, 
+--- 468,474 ----
+       */
+      if (cb && cb->callback){
+  	ret = (*(int (*)(
+! #if NeedNestedPrototypes
+  			XIC, XPointer, XPointer
+  #endif
+  			))(cb->callback))((XIC)ic, 
+***************
+*** 577,599 ****
+  	    tmp_buf[tmp_len] = '\0';
+  
+  	    text->encoding_is_wchar = False;
+! 	    text->length = im->methods->ctstowcs((XIM)im, 
+  					tmp_buf, tmp_len, 
+! 					(wchar_t*)NULL, 0, 
+! 					&s); /* CT? HM */
+  	    if (s != XLookupNone) {
+! 		if (text->string.multi_byte
+! 		    = (char*)Xmalloc(text->length * XLC_PUBLIC(im->core.lcd,mb_cur_max))) {
+  			int tmp;
+  			tmp = im->methods->ctstombs((XIM)im,
+  					   tmp_buf, tmp_len, 
+  					   text->string.multi_byte, text->length, 
+  					   &s);
+- 			text->string.multi_byte
+- 			  = (char*)Xrealloc(text->string.multi_byte, tmp+1);
+  			text->string.multi_byte[tmp] = '\0';
+  		}
+  	    }
+  
+  	    Xfree(tmp_buf);
+  	}
+--- 577,599 ----
+  	    tmp_buf[tmp_len] = '\0';
+  
+  	    text->encoding_is_wchar = False;
+! 	    text->length = im->methods->ctstombs((XIM)im, 
+  					tmp_buf, tmp_len, 
+! 					NULL, 0, &s); /* CT? HM */
+  	    if (s != XLookupNone) {
+! 		if (text->string.multi_byte = (char*)Xmalloc(text->length+1)) {
+  			int tmp;
+  			tmp = im->methods->ctstombs((XIM)im,
+  					   tmp_buf, tmp_len, 
+  					   text->string.multi_byte, text->length, 
+  					   &s);
+  			text->string.multi_byte[tmp] = '\0';
+  		}
+  	    }
++ 	    else {
++ 		text->length = 0;
++ 		text->string.multi_byte = NULL;
++ 	    }
+  
+  	    Xfree(tmp_buf);
+  	}
+***************
+*** 699,713 ****
+  {
+      XIMCallback* cb = &ic->core.preedit_attr.caret_callback;
+      XIMPreeditCaretCallbackStruct cbs;
+-     int p;
+  
+      /* invoke the callback
+       */
+      if (cb && cb->callback) {
+! 	p = XIM_HEADER_SIZE;
+! 	cbs.position  = (int)*(INT32*)&proto[p]; p += sz_INT32;
+! 	cbs.direction = (int)*(CARD32*)&proto[p]; p += sz_CARD32;
+! 	cbs.style     = (int)*(CARD32*)&proto[p]; p += sz_CARD32;
+  
+  	(*cb->callback)((XIC)ic, cb->client_data, &cbs);
+      }
+--- 699,711 ----
+  {
+      XIMCallback* cb = &ic->core.preedit_attr.caret_callback;
+      XIMPreeditCaretCallbackStruct cbs;
+  
+      /* invoke the callback
+       */
+      if (cb && cb->callback) {
+! 	cbs.position  = (int)*(INT32*)proto; proto += sz_INT32;
+! 	cbs.direction = (int)*(CARD32*)proto; proto += sz_CARD32;
+! 	cbs.style     = (int)*(CARD32*)proto; proto += sz_CARD32;
+  
+  	(*cb->callback)((XIC)ic, cb->client_data, &cbs);
+      }
+***************
+*** 827,848 ****
+      /* invoke the callback
+       */
+      if (cb && cb->callback) {
+! 	int p;
+! 
+! 	p = XIM_HEADER_SIZE;
+! 	cbs.type = (XIMStatusDataType)*(CARD32*)&proto[p]; p += sz_CARD32;
+  	if (cbs.type == XIMTextType) {
+  	    if (cbs.data.text = (XIMText*)Xmalloc(sizeof(XIMText))) {
+  		_read_text_from_packet(im, proto, cbs.data.text);
+  	    }
+  	}
+  	else if (cbs.type == XIMBitmapType) {
+! 	    cbs.data.bitmap = (Pixmap)*(CARD32*)&proto[p];
+  	}
+  
+! 	(*cb->callback)((XIC)ic, cb->client_data, (XPointer)NULL);
+  
+! 	_free_memory_for_text((XIMText *)&cbs.data.text);
+      }
+      else {
+  
+--- 825,843 ----
+      /* invoke the callback
+       */
+      if (cb && cb->callback) {
+! 	cbs.type = (XIMStatusDataType)*(CARD32*)proto; proto += sz_CARD32;
+  	if (cbs.type == XIMTextType) {
+  	    if (cbs.data.text = (XIMText*)Xmalloc(sizeof(XIMText))) {
+  		_read_text_from_packet(im, proto, cbs.data.text);
+  	    }
+  	}
+  	else if (cbs.type == XIMBitmapType) {
+! 	    cbs.data.bitmap = (Pixmap)*(CARD32*)proto;
+  	}
+  
+! 	(*cb->callback)((XIC)ic, cb->client_data, (XPointer)&cbs);
+  
+! 	_free_memory_for_text((XIMText *)cbs.data.text);
+      }
+      else {
+  
+*** -	Fri Jan  6 17:33:48 1995
+--- xc/lib/X11/imLcIm.c	Fri Jan  6 17:33:48 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: imLcIm.c,v 1.8 94/07/06 14:46:57 kaleb Exp $ */
+  /******************************************************************
+  
+            Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+--- 1,4 ----
+! /* $XConsortium: imLcIm.c,v 1.9 94/09/27 13:11:25 kaleb Exp $ */
+  /******************************************************************
+  
+            Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+***************
+*** 58,65 ****
+  	if (name != (char *)NULL) {
+  	    fp = fopen(name, "r");
+  	    Xfree(name);
+! 	    if (fp != (FILE *)NULL)
+  		return(True);
+  	}
+  	return(False);
+      } else if(strcmp(im->core.im_name, "local") == 0 ||
+--- 58,67 ----
+  	if (name != (char *)NULL) {
+  	    fp = fopen(name, "r");
+  	    Xfree(name);
+! 	    if (fp != (FILE *)NULL) {
+! 		fclose(fp);
+  		return(True);
++ 	    }
+  	}
+  	return(False);
+      } else if(strcmp(im->core.im_name, "local") == 0 ||
+*** -	Fri Jan  6 17:33:49 1995
+--- xc/lib/X11/lcConv.c	Fri Jan  6 17:33:49 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: lcConv.c,v 1.5 94/03/29 22:51:51 rws Exp $ */
+  /*
+   * Copyright 1992, 1993 by TOSHIBA Corp.
+   *
+--- 1,4 ----
+! /* $XConsortium: lcConv.c,v 1.6 94/12/12 22:18:21 kaleb Exp $ */
+  /*
+   * Copyright 1992, 1993 by TOSHIBA Corp.
+   *
+***************
+*** 229,237 ****
+      XlcConv lc_conv, from_conv, to_conv;
+      Conv conv;
+      XrmQuark from_type, to_type;
+!     static XrmQuark QChar, QCharSet = (XrmQuark) 0;
+  
+!     if (QCharSet == (XrmQuark) 0) {
+  	QCharSet = XrmStringToQuark(XlcNCharSet);
+  	QChar = XrmStringToQuark(XlcNChar);
+      }
+--- 229,238 ----
+      XlcConv lc_conv, from_conv, to_conv;
+      Conv conv;
+      XrmQuark from_type, to_type;
+!     static XrmQuark QChar, QCharSet, QCTCharSet = (XrmQuark) 0;
+  
+!     if (QCTCharSet == (XrmQuark) 0) {
+! 	QCTCharSet = XrmStringToQuark(XlcNCTCharSet);
+  	QCharSet = XrmStringToQuark(XlcNCharSet);
+  	QChar = XrmStringToQuark(XlcNChar);
+      }
+***************
+*** 255,270 ****
+      
+      conv = (Conv) lc_conv->state;
+  
+!     from_conv = get_converter(from_lcd, from_type, from_lcd, QChar);
+      if (from_conv == NULL)
+  	from_conv = get_converter(from_lcd, from_type, from_lcd, QCharSet);
+      if (from_conv == NULL)
+  	from_conv = get_converter((XLCd)NULL, from_type, (XLCd)NULL, QCharSet);
+      if (from_conv == NULL)
+  	goto err;
+      conv->from_conv = from_conv;
+  
+!     to_conv = get_converter(to_lcd, QCharSet, to_lcd, to_type);
+      if (to_conv == NULL)
+  	to_conv = get_converter((XLCd) NULL, QCharSet, (XLCd) NULL, to_type);
+      if (to_conv == NULL)
+--- 256,275 ----
+      
+      conv = (Conv) lc_conv->state;
+  
+!     from_conv = get_converter(from_lcd, from_type, from_lcd, QCTCharSet);
+      if (from_conv == NULL)
+  	from_conv = get_converter(from_lcd, from_type, from_lcd, QCharSet);
+      if (from_conv == NULL)
+  	from_conv = get_converter((XLCd)NULL, from_type, (XLCd)NULL, QCharSet);
+      if (from_conv == NULL)
++ 	from_conv = get_converter(from_lcd, from_type, from_lcd, QChar);
++     if (from_conv == NULL)
+  	goto err;
+      conv->from_conv = from_conv;
+  
+!     to_conv = get_converter(to_lcd, QCTCharSet, to_lcd, to_type);
+!     if (to_conv == NULL)
+! 	to_conv = get_converter(to_lcd, QCharSet, to_lcd, to_type);
+      if (to_conv == NULL)
+  	to_conv = get_converter((XLCd) NULL, QCharSet, (XLCd) NULL, to_type);
+      if (to_conv == NULL)
+*** -	Fri Jan  6 17:33:51 1995
+--- xc/lib/Xt/IntrinsicI.h	Fri Jan  6 17:33:51 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: IntrinsicI.h,v 1.58 94/04/17 20:14:24 converse Exp $ */
+  
+  /***********************************************************
+  
+--- 1,4 ----
+! /* $XConsortium: IntrinsicI.h,v 1.59 94/10/10 18:57:48 kaleb Exp $ */
+  
+  /***********************************************************
+  
+***************
+*** 116,122 ****
+   *
+   ****************************************************************/
+  
+! #define _XBCOPYFUNC _XtMemmove
+  #include <X11/Xfuncs.h>
+  
+  /* If the alignment characteristics of your machine are right, these may be
+--- 116,122 ----
+   *
+   ****************************************************************/
+  
+! #define _XBCOPYFUNC _XtBcopy
+  #include <X11/Xfuncs.h>
+  
+  /* If the alignment characteristics of your machine are right, these may be
+*** -	Fri Jan  6 17:33:53 1995
+--- xc/lib/Xt/Alloc.c	Fri Jan  6 17:33:52 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: Alloc.c,v 1.54 94/04/17 20:13:36 kaleb Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+--- 1,4 ----
+! /* $XConsortium: Alloc.c,v 1.55 94/10/10 18:57:48 kaleb Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+***************
+*** 87,94 ****
+  #define Xfree(ptr) free(ptr)
+  
+  #ifdef _XNEEDBCOPYFUNC
+! void _XtMemmove(dst, src, length)
+!     char *dst, *src;
+      int length;
+  {
+      if (src < dst) {
+--- 87,94 ----
+  #define Xfree(ptr) free(ptr)
+  
+  #ifdef _XNEEDBCOPYFUNC
+! void _XtBcopy(src, dst, length)
+!     char *src, *dst;
+      int length;
+  {
+      if (src < dst) {
+*** -	Fri Jan  6 17:33:55 1995
+--- xc/lib/Xt/Event.c	Fri Jan  6 17:33:54 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: Event.c,v 1.168 94/04/17 20:14:01 converse Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+--- 1,4 ----
+! /* $XConsortium: Event.c,v 1.169 94/09/15 19:42:47 kaleb Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+***************
+*** 1409,1416 ****
+  	else was_dispatched = XFilterEvent(event, None);
+      }
+      else if (grabType == pass) {
+! 	was_dispatched = (XFilterEvent(event, XtWindow(widget))
+! 			  || XtDispatchEventToWidget(widget, event));
+      } 
+      else if (grabType == ignore) {
+  	if ((grabList == NULL || _XtOnGrabList(widget, grabList))
+--- 1409,1422 ----
+  	else was_dispatched = XFilterEvent(event, None);
+      }
+      else if (grabType == pass) {
+! 	if (event->type == LeaveNotify || 
+! 	    event->type == FocusIn ||
+! 	    event->type == FocusOut) {
+! 		if (XtIsSensitive (widget))
+! 		    was_dispatched = (XFilterEvent(event, XtWindow(widget)) || 
+! 				      XtDispatchEventToWidget(widget, event));
+! 	    } else was_dispatched = (XFilterEvent(event, XtWindow(widget)) || 
+! 				     XtDispatchEventToWidget(widget, event));
+      } 
+      else if (grabType == ignore) {
+  	if ((grabList == NULL || _XtOnGrabList(widget, grabList))
+*** -	Fri Jan  6 17:33:57 1995
+--- xc/lib/Xt/NextEvent.c	Fri Jan  6 17:33:56 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: NextEvent.c,v 1.144 94/06/14 10:11:06 kaleb Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+--- 1,4 ----
+! /* $XConsortium: NextEvent.c,v 1.145 94/10/10 18:59:29 kaleb Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+***************
+*** 613,618 ****
+--- 613,628 ----
+  		    }
+  		}
+  
++ 		if (!ignoreEvents)
++ 		    /* get Xlib to detect a bad connection */
++ 		    for (dd = 0; dd < app->count; dd++)
++ 			if (XEventsQueued(app->list[dd], QueuedAfterReading)) {
++ #if USE_POLL
++ 			    XtStackFree ((XtPointer) wf.fdlist, fdlist);
++ #endif
++ 			    return dd;
++ 			}
++ 
+  		if (block) {
+  #ifndef USE_POLL
+  		    if (wt.wait_time_ptr == NULL)
+***************
+*** 642,657 ****
+  		char Errno[12];
+  		String param = Errno;
+  		Cardinal param_count = 1;
+- 
+- 		if (!ignoreEvents)
+- 		    /* get Xlib to detect a bad connection */
+- 		    for (dd = 0; dd < app->count; dd++)
+- 			if (XEventsQueued(app->list[dd], QueuedAfterReading)) {
+- #if USE_POLL
+- 			    XtStackFree ((XtPointer) wf.fdlist, fdlist);
+- #endif
+- 			    return dd;
+- 			}
+  
+  		sprintf( Errno, "%d", errno);
+  		XtAppWarningMsg(app, "communicationError","select",
+--- 652,657 ----
+*** -	Fri Jan  6 17:33:58 1995
+--- xc/lib/Xt/TMstate.c	Fri Jan  6 17:33:58 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: TMstate.c,v 1.173 94/04/17 20:14:56 kaleb Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+--- 1,4 ----
+! /* $XConsortium: TMstate.c,v 1.175 94/09/16 19:17:43 kaleb Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+***************
+*** 589,596 ****
+      Widget		bindWidget;
+  
+      bindWidget = accelWidget ? accelWidget : w;
+!     if (!XtIsSensitive(bindWidget))
+!       return;
+  
+      actionHookList = XtWidgetToApplicationContext(w)->action_hook_list;
+  
+--- 589,601 ----
+      Widget		bindWidget;
+  
+      bindWidget = accelWidget ? accelWidget : w;
+!     if (accelWidget && !XtIsSensitive(accelWidget) &&
+! 	(event->type == KeyPress || event->type == KeyRelease ||
+! 	event->type == ButtonPress || event->type == ButtonRelease ||
+! 	event->type == MotionNotify || event->type == EnterNotify ||
+! 	event->type == LeaveNotify || event->type == FocusIn ||
+! 	event->type == FocusOut))
+! 	return;
+  
+      actionHookList = XtWidgetToApplicationContext(w)->action_hook_list;
+  
+*** -	Fri Jan  6 17:34:01 1995
+--- xc/lib/XIE/XIElib.h	Fri Jan  6 17:34:00 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: XIElib.h,v 1.10 94/05/02 14:15:57 mor Exp $ */
+  
+  /*
+  
+--- 1,4 ----
+! /* $XConsortium: XIElib.h,v 1.11 94/12/19 16:57:13 mor Exp $ */
+  
+  /*
+  
+***************
+*** 802,807 ****
+--- 802,808 ----
+      unsigned long		name_space;
+      Time			time;
+      unsigned long		flo_id;
++     XiePhotofloOutcome		outcome;
+  } XiePhotofloDoneEvent;
+  
+  
+*** -	Fri Jan  6 17:34:02 1995
+--- xc/lib/XIE/events.c	Fri Jan  6 17:34:02 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: events.c,v 1.5 94/04/18 00:09:24 rws Exp $ */
+  
+  /*
+  
+--- 1,4 ----
+! /* $XConsortium: events.c,v 1.6 94/12/19 16:57:13 mor Exp $ */
+  
+  /*
+  
+***************
+*** 169,174 ****
+--- 169,175 ----
+      host_event->name_space = wire_event->instanceNameSpace;
+      host_event->time       = wire_event->time;
+      host_event->flo_id     = wire_event->instanceFloID;
++     host_event->outcome    = wire_event->outcome;
+  
+      return (True);
+  }
+*** -	Fri Jan  6 17:34:04 1995
+--- xc/programs/xdpyinfo/xdpyinfo.man	Fri Jan  6 17:34:03 1995
+***************
+*** 1,4 ****
+! .\" $XConsortium: xdpyinfo.man,v 1.17 94/06/06 11:45:00 rws Exp $
+  .\" Copyright (c) 1988, 1989, 1994  X Consortium
+  .\" 
+  .\" Permission is hereby granted, free of charge, to any person obtaining
+--- 1,4 ----
+! .\" $XConsortium: xdpyinfo.man,v 1.18 94/07/15 14:49:25 dpw Exp $
+  .\" Copyright (c) 1988, 1989, 1994  X Consortium
+  .\" 
+  .\" Permission is hereby granted, free of charge, to any person obtaining
+***************
+*** 31,36 ****
+--- 31,37 ----
+  .B "xdpyinfo"
+  [\-display \fIdisplayname\fP]
+  [\-queryExtensions]
++ [\-ext \fIextension-name\fP]
+  .SH DESCRIPTION
+  .PP
+  .I Xdpyinfo
+***************
+*** 45,50 ****
+--- 46,56 ----
+  with the \fB\-queryExtensions\fP option.  Use of this option on servers
+  that dynamically load extensions will likely cause all possible extensions
+  to be loaded, which can be slow and can consume significant server resources.
++ .PP
++ Detailed information about a particular extension is displayed with the
++ \fB\-ext\fP \fIextensionName\fP option.  If \fIextensionName\fP is
++ \fBall\fP, information about all extensions supported by both \fIxdpyinfo\fP
++ and the server is displayed.
+  .SH ENVIRONMENT
+  .PP
+  .TP 8
+*** -	Fri Jan  6 17:34:05 1995
+--- xc/programs/xdpyinfo/xdpyinfo.c	Fri Jan  6 17:34:05 1995
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: xdpyinfo.c,v 1.29 94/06/06 11:39:16 rws Exp $
+   * 
+   * xdpyinfo - print information about X display connecton
+   *
+--- 1,5 ----
+  /*
+!  * $XConsortium: xdpyinfo.c,v 1.32 94/09/24 20:15:12 rws Exp $
+   * 
+   * xdpyinfo - print information about X display connecton
+   *
+***************
+*** 33,38 ****
+--- 33,44 ----
+  #include <X11/Xlib.h>
+  #include <X11/Xutil.h>
+  #include <X11/extensions/multibuf.h>
++ #include <X11/extensions/XIElib.h>
++ #include <X11/extensions/XTest.h>
++ #include <X11/extensions/sync.h>
++ #ifdef MITSHM
++ #include <X11/extensions/XShm.h>
++ #endif
+  #include <X11/Xos.h>
+  #include <stdio.h>
+  
+***************
+*** 41,48 ****
+  
+  static void usage ()
+  {
+!     fprintf (stderr, "usage:  %s [-display displayname] [-queryExtensions]\n",
+! 	     ProgramName);
+      exit (1);
+  }
+  
+--- 47,59 ----
+  
+  static void usage ()
+  {
+!     fprintf (stderr, "usage:  %s [options]\n", ProgramName);
+!     fprintf (stderr, "-display displayname\tserver to query\n");
+!     fprintf (stderr, "-queryExtensions\tprint info returned by XQueryExtension\n");
+!     fprintf (stderr, "-ext all\t\tprint detailed info for all supported extensions\n");
+!     fprintf (stderr, "-ext extension-name\tprint detailed info for extension-name if one of:\n     ");
+!     print_known_extensions(stderr);
+!     fprintf (stderr, "\n");
+      exit (1);
+  }
+  
+***************
+*** 67,72 ****
+--- 78,86 ----
+  	    displayname = argv[i];
+  	} else if (!strncmp("-queryExtensions", arg, len)) {
+  	    queryExtensions = True;
++ 	} else if (!strncmp("-ext", arg, len)) {
++ 	    if (++i >= argc) usage ();
++ 	    mark_extension_for_printing(argv[i]);
+  	} else
+  	    usage ();
+      }
+***************
+*** 78,93 ****
+  	exit (1);
+      }
+  
+-     if (XmbufQueryExtension (dpy, &mbuf_event_base, &mbuf_error_base))
+-       multibuf = True;
+- 
+      print_display_info (dpy);
+      for (i = 0; i < ScreenCount (dpy); i++) {
+  	print_screen_info (dpy, i);
+- 	if (multibuf)
+- 	    print_multibuf_info (dpy, i);
+      }
+  
+      XCloseDisplay (dpy);
+      exit (0);
+  }
+--- 92,104 ----
+  	exit (1);
+      }
+  
+      print_display_info (dpy);
+      for (i = 0; i < ScreenCount (dpy); i++) {
+  	print_screen_info (dpy, i);
+      }
+  
++     print_marked_extensions(dpy);
++ 
+      XCloseDisplay (dpy);
+      exit (0);
+  }
+***************
+*** 99,104 ****
+--- 110,116 ----
+      char *cp;
+      int minkeycode, maxkeycode;
+      int i, n;
++     long req_size;
+      XPixmapFormatValues *pmf;
+      Window focuswin;
+      int focusrevert;
+***************
+*** 108,114 ****
+  	    ProtocolVersion (dpy), ProtocolRevision (dpy));
+      printf ("vendor string:    %s\n", ServerVendor (dpy));
+      printf ("vendor release number:    %d\n", VendorRelease (dpy));
+!     printf ("maximum request size:  %ld bytes\n", XExtendedMaxRequestSize (dpy) * 4);
+      printf ("motion buffer size:  %d\n", XDisplayMotionBufferSize (dpy));
+  
+      switch (BitmapBitOrder (dpy)) {
+--- 120,128 ----
+  	    ProtocolVersion (dpy), ProtocolRevision (dpy));
+      printf ("vendor string:    %s\n", ServerVendor (dpy));
+      printf ("vendor release number:    %d\n", VendorRelease (dpy));
+!     req_size = XExtendedMaxRequestSize (dpy);
+!     if (!req_size) req_size = XMaxRequestSize (dpy);
+!     printf ("maximum request size:  %ld bytes\n", req_size * 4);
+      printf ("motion buffer size:  %d\n", XDisplayMotionBufferSize (dpy));
+  
+      switch (BitmapBitOrder (dpy)) {
+***************
+*** 314,351 ****
+  }
+  
+  
+- print_multibuf_info(dpy, scr)
+-     Display *dpy;
+-     int scr;
+- {
+-     int j;			/* temp variable: iterator */
+-     int nmono, nstereo;		/* count */
+-     XmbufBufferInfo *mono_info = NULL, *stereo_info = NULL; /* arrays */
+-     static char *fmt = 
+- 	"    visual id, max buffers, depth:    0x%lx, %d, %d\n";
+- 
+-     if (!XmbufGetScreenInfo (dpy, RootWindow(dpy, scr), &nmono, &mono_info,
+- 			     &nstereo, &stereo_info)) {
+- 	fprintf (stderr,
+- 		 "%s:  unable to get multibuffer info for screen %d\n",
+- 		 ProgramName, scr);
+-     } else {
+- 	printf ("  number of mono multibuffer types:    %d\n", nmono);
+- 	for (j = 0; j < nmono; j++) {
+- 	    printf (fmt, mono_info[j].visualid, mono_info[j].max_buffers,
+- 		    mono_info[j].depth);
+- 	}
+- 	printf ("  number of stereo multibuffer types:    %d\n", nstereo);
+- 	for (j = 0; j < nstereo; j++) {
+- 	    printf (fmt, stereo_info[j].visualid,
+- 		    stereo_info[j].max_buffers, stereo_info[j].depth);
+- 	}
+- 	if (mono_info) XFree ((char *) mono_info);
+- 	if (stereo_info) XFree ((char *) stereo_info);
+-     }
+- }
+- 
+- 
+  print_visual_info (vip)
+      XVisualInfo *vip;
+  {
+--- 328,333 ----
+***************
+*** 457,459 ****
+--- 439,726 ----
+  
+      return (bitsfound);
+  }
++ 
++ print_standard_extension_info(dpy, extname, majorrev, minorrev)
++     Display *dpy;
++     char *extname;
++     int majorrev, minorrev;
++ {
++     int opcode, event, error;
++ 
++     printf("%s %d.%d ", extname, majorrev, minorrev);
++ 
++     XQueryExtension(dpy, extname, &opcode, &event, &error);
++     printf ("opcode: %d", opcode);
++     if (event)
++ 	printf (", base event: %d", event);
++     if (error)
++ 	printf (", base error: %d", error);
++     printf("\n");
++ }
++ 
++ print_multibuf_info(dpy, extname)
++     Display *dpy;
++     char *extname;
++ {
++     int i, j;			/* temp variable: iterator */
++     int nmono, nstereo;		/* count */
++     XmbufBufferInfo *mono_info = NULL, *stereo_info = NULL; /* arrays */
++     static char *fmt = 
++ 	"    visual id, max buffers, depth:    0x%lx, %d, %d\n";
++     int scr = 0;
++     int majorrev, minorrev;
++ 
++     if (!XmbufGetVersion(dpy, &majorrev, &minorrev))
++ 	return 0;
++ 
++     print_standard_extension_info(dpy, extname, majorrev, minorrev);
++ 
++     for (i = 0; i < ScreenCount (dpy); i++)
++     {
++ 	if (!XmbufGetScreenInfo (dpy, RootWindow(dpy, scr), &nmono, &mono_info,
++ 				 &nstereo, &stereo_info)) {
++ 	    fprintf (stderr,
++ 		     "%s:  unable to get multibuffer info for screen %d\n",
++ 		     ProgramName, scr);
++ 	} else {
++ 	    printf ("  screen %d number of mono multibuffer types:    %d\n", i, nmono);
++ 	    for (j = 0; j < nmono; j++) {
++ 		printf (fmt, mono_info[j].visualid, mono_info[j].max_buffers,
++ 			mono_info[j].depth);
++ 	    }
++ 	    printf ("  number of stereo multibuffer types:    %d\n", nstereo);
++ 	    for (j = 0; j < nstereo; j++) {
++ 		printf (fmt, stereo_info[j].visualid,
++ 			stereo_info[j].max_buffers, stereo_info[j].depth);
++ 	    }
++ 	    if (mono_info) XFree ((char *) mono_info);
++ 	    if (stereo_info) XFree ((char *) stereo_info);
++ 	}
++     }
++     return 1;
++ } /* end print_multibuf_info */
++ 
++ 
++ /* XIE stuff */
++ 
++ char *subset_names[] = { NULL, "FULL", "DIS" };
++ char *align_names[] = { NULL, "Alignable", "Arbitrary" };
++ char *group_names[] = { /* 0  */ "Default",
++ 			    /* 2  */ "ColorAlloc",
++ 			    /* 4  */ "Constrain",
++ 			    /* 6  */ "ConvertFromRGB",
++ 			    /* 8  */ "ConvertToRGB",
++ 			    /* 10 */ "Convolve",
++ 			    /* 12 */ "Decode",
++ 			    /* 14 */ "Dither",
++ 			    /* 16 */ "Encode",
++ 			    /* 18 */ "Gamut",
++ 			    /* 20 */ "Geometry",
++ 			    /* 22 */ "Histogram",
++ 			    /* 24 */ "WhiteAdjust"
++ 			    };
++ 
++ print_xie_info(dpy, extname)
++     Display *dpy;
++     char *extname;
++ {
++     XieExtensionInfo *xieInfo;
++     int i;
++     int ntechs;
++     XieTechnique *techs;
++     XieTechniqueGroup prevGroup;
++ 
++     if (!XieInitialize(dpy, &xieInfo ))
++ 	return 0;
++ 
++     print_standard_extension_info(dpy, extname,
++ 	xieInfo->server_major_rev, xieInfo->server_minor_rev);
++ 
++     printf("  service class: %s\n", subset_names[xieInfo->service_class]);
++     printf("  alignment: %s\n", align_names[xieInfo->alignment]);
++     printf("  uncnst_mantissa: %d\n", xieInfo->uncnst_mantissa);
++     printf("  uncnst_min_exp: %d\n", xieInfo->uncnst_min_exp);
++     printf("  uncnst_max_exp: %d\n", xieInfo->uncnst_max_exp);
++     printf("  cnst_levels:"); 
++     for (i = 0; i < xieInfo->n_cnst_levels; i++)
++ 	printf(" %d", xieInfo->cnst_levels[i]);
++     printf("\n");
++ 
++     if (!XieQueryTechniques(dpy, xieValAll, &ntechs, &techs))
++ 	return 1;
++ 
++     prevGroup = -1;
++ 
++     for (i = 0; i < ntechs; i++)
++     {
++ 	if (techs[i].group != prevGroup)
++ 	{
++ 	    printf("  technique group: %s\n", group_names[techs[i].group >> 1]);
++ 	    prevGroup = techs[i].group;
++ 	}
++ 	printf("    %s\tspeed: %d  needs_param: %s  number: %d\n",
++ 	       techs[i].name,
++ 	       techs[i].speed, (techs[i].needs_param ? "True " : "False"),
++ 	       techs[i].number);
++     }
++     return 1;
++ } /* end print_xie_info */
++ 
++ print_xtest_info(dpy, extname)
++     Display *dpy;
++     char *extname;
++ {
++     int majorrev, minorrev, foo;
++ 
++     if (!XTestQueryExtension(dpy, &foo, &foo, &majorrev, &minorrev))
++ 	return 0;
++     print_standard_extension_info(dpy, extname, majorrev, minorrev);
++     return 1;
++ }
++ 
++ print_sync_info(dpy, extname)
++     Display *dpy;
++     char *extname;
++ {
++     int majorrev, minorrev;
++     XSyncSystemCounter *syscounters;
++     int ncounters, i;
++ 
++     if (!XSyncInitialize(dpy, &majorrev, &minorrev))
++ 	return 0;
++     print_standard_extension_info(dpy, extname, majorrev, minorrev);
++ 
++     syscounters = XSyncListSystemCounters(dpy, &ncounters);
++     printf("  system counters: %d\n", ncounters);
++     for (i = 0; i < ncounters; i++)
++     {
++ 	printf("    %s  id: 0x%08x  resolution_lo: %d  resolution_hi: %d\n",
++ 	       syscounters[i].name, syscounters[i].counter,
++ 	       XSyncValueLow32(syscounters[i].resolution),
++ 	       XSyncValueHigh32(syscounters[i].resolution));
++     }
++     XSyncFreeSystemCounterList(syscounters);
++     return 1;
++ }
++ 
++ print_shape_info(dpy, extname)
++     Display *dpy;
++     char *extname;
++ {
++     int majorrev, minorrev;
++ 
++     if (!XShapeQueryVersion(dpy, &majorrev, &minorrev))
++ 	return 0;
++     print_standard_extension_info(dpy, extname, majorrev, minorrev);
++     return 1;
++ }
++ 
++ #ifdef MITSHM
++ print_mitshm_info(dpy, extname)
++     Display *dpy;
++     char *extname;
++ {
++     int majorrev, minorrev;
++     Bool sharedPixmaps;
++ 
++     if (!XShmQueryVersion(dpy, &majorrev, &minorrev, &sharedPixmaps))
++ 	return 0;
++     print_standard_extension_info(dpy, extname, majorrev, minorrev);
++     printf("  shared pixmaps: ");
++     if (sharedPixmaps)
++     {
++ 	int format = XShmPixmapFormat(dpy);
++ 	printf("yes, format: %d\n", format);
++     }
++     else
++     {
++ 	printf("no\n");
++     }
++     return 1;
++ }
++ #endif /* MITSHM */
++ 
++ /* utilities to manage the list of recognized extensions */
++ 
++ 
++ typedef int (*ExtensionPrintFunc)(
++ #if NeedFunctionPrototypes
++     Display *, char *
++ #endif
++ );
++ 
++ typedef struct {
++     char *extname;
++     ExtensionPrintFunc printfunc;
++     Bool printit;
++ } ExtensionPrintInfo;
++ 
++ ExtensionPrintInfo known_extensions[] =
++ {
++ #ifdef MITSHM
++     {"MIT-SHM",	print_mitshm_info, False},
++ #endif /* MITSHM */
++     {MULTIBUFFER_PROTOCOL_NAME,	print_multibuf_info, False},
++     {"SHAPE", print_shape_info, False},
++     {SYNC_NAME, print_sync_info, False},
++     {xieExtName, print_xie_info, False},
++     {XTestExtensionName, print_xtest_info, False}
++     /* add new extensions here */
++     /* wish list: PEX RECORD XKB LBX? */
++ };
++ 
++ int num_known_extensions = sizeof known_extensions / sizeof known_extensions[0];
++ 
++ print_known_extensions(f)
++     FILE *f;
++ {
++     int i;
++     for (i = 0; i < num_known_extensions; i++)
++     {
++ 	fprintf(f, "%s ", known_extensions[i].extname);
++     }
++ }
++ 
++ mark_extension_for_printing(extname)
++     char *extname;
++ {
++     int i;
++ 
++     if (strcmp(extname, "all") == 0)
++     {
++ 	for (i = 0; i < num_known_extensions; i++)
++ 	    known_extensions[i].printit = True;
++     }
++     else
++     {
++ 	for (i = 0; i < num_known_extensions; i++)
++ 	{
++ 	    if (strcmp(extname, known_extensions[i].extname) == 0)
++ 	    {
++ 		known_extensions[i].printit = True;
++ 		return;
++ 	    }
++ 	}
++ 	printf("%s extension not supported by %s\n", extname, ProgramName);
++     }
++ }
++ 
++ print_marked_extensions(dpy)
++     Display *dpy;
++ {
++     int i;
++     for (i = 0; i < num_known_extensions; i++)
++     {
++ 	if (known_extensions[i].printit)
++ 	{
++ 	    printf("\n");
++ 	    if (! (*known_extensions[i].printfunc)(dpy,
++ 					known_extensions[i].extname))
++ 	    {
++ 		printf("%s extension not supported by server\n",
++ 		       known_extensions[i].extname);
++ 	    }
++ 	}
++     }
++ }
++ 
+*** -	Fri Jan  6 17:34:06 1995
+--- xc/programs/xdpyinfo/Imakefile	Fri Jan  6 17:34:06 1995
+***************
+*** 1,5 ****
+! XCOMM $XConsortium: Imakefile,v 1.5 91/07/17 16:07:10 gildea Exp $
+!         DEPLIBS = $(DEPXLIB)
+! LOCAL_LIBRARIES = $(XLIB)
+  
+  SimpleProgramTarget(xdpyinfo)
+--- 1,10 ----
+! XCOMM $XConsortium: Imakefile,v 1.6 94/07/12 18:15:34 dpw Exp $
+!         DEPLIBS = $(DEPXTESTLIB) $(DEPXIELIB) $(DEPXMULIB) $(DEPXLIB)
+! LOCAL_LIBRARIES = $(XTESTLIB) $(XIELIB) $(XMULIB) $(XLIB)
+!   SYS_LIBRARIES = MathLibrary
+! 
+! #if HasShm
+!         DEFINES = -DMITSHM
+! #endif
+  
+  SimpleProgramTarget(xdpyinfo)
+*** -	Fri Jan  6 17:34:09 1995
+--- xc/programs/Xserver/dix/dispatch.c	Fri Jan  6 17:34:08 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: dispatch.c,v 5.65 94/04/17 20:26:25 dpw Exp $ */
+  /************************************************************
+  
+  Copyright (c) 1987, 1989  X Consortium
+--- 1,4 ----
+! /* $XConsortium: dispatch.c,v 5.66 94/10/19 21:59:25 dpw Exp $ */
+  /************************************************************
+  
+  Copyright (c) 1987, 1989  X Consortium
+***************
+*** 129,135 ****
+  
+  static int nextFreeClientID; /* always MIN free client ID */
+  
+! static int	nClients;	/* number active clients */
+  
+  CallbackListPtr ClientStateCallback;
+  char dispatchException = 0;
+--- 129,135 ----
+  
+  static int nextFreeClientID; /* always MIN free client ID */
+  
+! static int	nClients;	/* number of authorized clients */
+  
+  CallbackListPtr ClientStateCallback;
+  char dispatchException = 0;
+***************
+*** 3349,3355 ****
+  	}
+  	client->clientGone = TRUE;  /* so events aren't sent to client */
+  	CloseDownConnection(client);
+! 	--nClients;
+      }
+  
+      if (really_close_down)
+--- 3349,3365 ----
+  	}
+  	client->clientGone = TRUE;  /* so events aren't sent to client */
+  	CloseDownConnection(client);
+! 
+! 	/* If the client made it to the Running stage, nClients has
+! 	 * been incremented on its behalf, so we need to decrement it
+! 	 * now.  If it hasn't gotten to Running, nClients has *not*
+! 	 * been incremented, so *don't* decrement it.
+! 	 */
+! 	if (client->clientState != ClientStateInitial &&
+! 	    client->clientState != ClientStateAuthenticating )
+! 	{
+! 	    --nClients;
+! 	}
+      }
+  
+      if (really_close_down)
+***************
+*** 3605,3611 ****
+--- 3615,3627 ----
+  	return (client->noClientException = -1);
+      }
+  
++     /* We're about to start speaking X protocol back to the client by
++      * sending the connection setup info.  This means the authorization
++      * step is complete, and we can count the client as an
++      * authorized one.
++      */
+      nClients++;
++ 
+      client->requestVector = client->swapped ? SwappedProcVector : ProcVector;
+      client->sequence = 0;
+      ((xConnSetup *)ConnectionInfo)->ridBase = client->clientAsMask;
+***************
+*** 3669,3678 ****
+  				  (unsigned short)prefix->nbytesAuthString,
+  				  auth_string);
+      /*
+!      * if auth protocol does some magic, fall back through to the
+!      * dispatcher.
+       */
+!     if (client->clientState == ClientStateInitial)
+  	return(SendConnSetup(client, reason));
+      return(client->noClientException);
+  }
+--- 3685,3698 ----
+  				  (unsigned short)prefix->nbytesAuthString,
+  				  auth_string);
+      /*
+!      * If Kerberos is being used for this client, the clientState
+!      * will be set to ClientStateAuthenticating at this point.
+!      * More messages need to be exchanged among the X server, Kerberos
+!      * server, and client to figure out if everyone is authorized.
+!      * So we don't want to send the connection setup info yet, since
+!      * the auth step isn't really done.
+       */
+!     if (client->clientState != ClientStateAuthenticating)
+  	return(SendConnSetup(client, reason));
+      return(client->noClientException);
+  }
+*** -	Fri Jan  6 17:34:12 1995
+--- xc/programs/xdm/xdmcp.c	Fri Jan  6 17:34:11 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: xdmcp.c,v 1.14 94/04/17 20:03:50 gildea Exp $ */
+  /*
+  
+  Copyright (c) 1988  X Consortium
+--- 1,4 ----
+! /* $XConsortium: xdmcp.c,v 1.15 94/09/19 20:16:38 converse Exp $ */
+  /*
+  
+  Copyright (c) 1988  X Consortium
+***************
+*** 705,721 ****
+  	    pdpy = 0;
+  	    goto decline;
+  	}
+! 	if (pdpy = FindProtoDisplay (from, fromlen, displayNumber))
+! 	    goto accept;
+! 	reason = Accept (from, fromlen, displayNumber);
+! 	if (reason)
+! 	    goto decline;
+! 	i = SelectConnectionTypeIndex (&connectionTypes,
+! 				       &connectionAddresses);
+! 	if (i < 0)
+! 	{
+! 	    reason = &noValidAddr;
+! 	    goto decline;
+  	}
+  	if (authorizationNames.length == 0)
+  	    j = 0;
+--- 705,736 ----
+  	    pdpy = 0;
+  	    goto decline;
+  	}
+! 	pdpy = FindProtoDisplay (from, fromlen, displayNumber);
+! 	if (!pdpy) {
+! 
+! 	    /* Check this Display against the Manager's policy */
+! 	    reason = Accept (from, fromlen, displayNumber);
+! 	    if (reason)
+! 		goto decline;
+! 
+! 	    /* Check the Display's stream services against Manager's policy */
+! 	    i = SelectConnectionTypeIndex (&connectionTypes,
+! 					   &connectionAddresses);
+! 	    if (i < 0) {
+! 		reason = &noValidAddr;
+! 		goto decline;
+! 	    }
+! 	
+! 	    /* The Manager considers this a new session */
+! 	    connectionAddress = &connectionAddresses.data[i];
+! 	    pdpy = NewProtoDisplay (from, fromlen, displayNumber,
+! 				    connectionTypes.data[i], connectionAddress,
+! 				    NextSessionID());
+! 	    Debug ("NewProtoDisplay 0x%x\n", pdpy);
+! 	    if (!pdpy) {
+! 		reason = &outOfMemory;
+! 		goto decline;
+! 	    }
+  	}
+  	if (authorizationNames.length == 0)
+  	    j = 0;
+***************
+*** 727,744 ****
+  	    reason = &noValidAuth;
+  	    goto decline;
+  	}
+- 	connectionAddress = &connectionAddresses.data[i];
+- 	pdpy = NewProtoDisplay (from, fromlen,
+- 				displayNumber,
+- 				connectionTypes.data[i],
+- 				connectionAddress,
+- 				NextSessionID());
+- 	Debug ("NewProtoDisplay 0x%x\n", pdpy);
+- 	if (!pdpy)
+- 	{
+- 	    reason = &outOfMemory;
+- 	    goto decline;
+- 	}
+  	if (!CheckAuthentication (pdpy,
+  				  &manufacturerDisplayID,
+  				  &authenticationName,
+--- 742,747 ----
+***************
+*** 766,772 ****
+  	}
+  	if (pdpy)
+  	{
+- accept:	    ;
+  	    send_accept (from, fromlen, pdpy->sessionID,
+  				        &authenticationName,
+  					&authenticationData,
+--- 769,774 ----
+*** -	Mon Jan  9 16:39:10 1995
+--- xc/programs/xdm/auth.c	Mon Jan  9 16:39:09 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: auth.c,v 1.55 94/06/03 16:34:12 mor Exp $ */
+  /*
+  
+  Copyright (c) 1988  X Consortium
+--- 1,4 ----
+! /* $XConsortium: auth.c,v 1.56 94/10/03 21:01:57 mor Exp $ */
+  /*
+  
+  Copyright (c) 1988  X Consortium
+***************
+*** 655,669 ****
+  	uname(&name);
+  	strcpy(displayname, name.nodename);
+  	}
+! #else
+          /* AIXV3:
+  	 * In AIXV3, _POSIX_SOURCE is defined, but uname gives only first
+  	 * field of hostname. Thus, we use gethostname instead.
+  	 */
+  
+  	gethostname(displayname, sizeof(displayname));
+- #endif
+  	writeAddr (FamilyLocal, strlen (displayname), displayname, file, auth);
+  }
+  
+  
+--- 655,678 ----
+  	uname(&name);
+  	strcpy(displayname, name.nodename);
+  	}
+! 	writeAddr (FamilyLocal, strlen (displayname), displayname, file, auth);
+! #endif
+! 
+! #if (!defined(NEED_UTSNAME) || defined (hpux))
+          /* AIXV3:
+  	 * In AIXV3, _POSIX_SOURCE is defined, but uname gives only first
+  	 * field of hostname. Thus, we use gethostname instead.
+  	 */
+  
++ 	/*
++ 	 * For HP-UX, HP's Xlib expects a fully-qualified domain name, which
++ 	 * is achieved by using gethostname().  For compatability, we must
++ 	 * also still create the entry using uname() above.
++ 	 */
++ 
+  	gethostname(displayname, sizeof(displayname));
+  	writeAddr (FamilyLocal, strlen (displayname), displayname, file, auth);
++ #endif
+  }
+  
+  

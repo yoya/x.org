@@ -1,0 +1,54 @@
+Here is a road map to the R6 sources:
+
+	README		this file
+	RELNOTES.PS	Release Notes in PostScript
+	RELNOTES.TXT	Release Notes in plain text
+	RELNOTES.ms	Release Notes, troff -ms source
+	Manifest.PS	Contrib Manifest in PostScript
+	Manifest.ms	Contrib Manifest, troff -ms source
+	xc-1.tar.*	core software, public patches 1-11, part 1
+	xc-2.tar.*	core software, public patches 1-11, part 2
+	xc-3.tar.*	core software, public patches 1-11, part 3
+	contrib-1.tar.* contrib software, part 1
+	contrib-2.tar.* contrib software, part 2
+	contrib-3.tar.* contrib software, part 3
+	contrib-4.tar.* contrib software, part 4
+	fixes/		public patches to core software
+	contrib-fixes/	patches to contrib software
+	xdm-auth/	Info about HasXdmAuth config option
+
+The tar files are stored in "gzip" format on our FTP server, and thus
+have a ".gz" suffix.  If you cannot handle gzip compression, you can
+have our FTP server convert them to "compress" (.Z) or uncompressed
+format.  Changing the suffix of the filename you ask for will change
+its format on the fly.  Change ".gz" to ".Z" to get compress format.
+Remove the ".gz" suffix entirely to get the file uncompressed.
+
+You may examine the file xc/bug-report to see what public patches have
+been applied to your X11R6 source tree.
+
+Note that all of the xc-?.tar.* files have changed since the initial
+release versions.  You cannot mix older versions of these tar files
+with the current versions.
+
+After transferring the files, please read the Release Notes for
+information on how to extract and build the software.
+
+
+The core distribution is broken up into tar files as follows:
+
+xc-1.tar	contains everything in xc/ that isn't in the other tar files
+xc-2.tar	contains xc/fonts, xc/test, xc/util, xc/workInProgress
+xc-3.tar	contains xc/doc/specs, xc/doc/hardcopy
+
+The contrib software is broken up into the following files under
+contrib/ in the tar files:
+
+contrib-1.tar	LABEL, Manifest.*, Imakefile, programs A-J
+contrib-2.tar	programs K-Z, Motif-based software
+contrib-3.tar	Andrew
+contrib-4.tar	other lib, doc, examples, extensions, fonts, test, util
+
+
+See the file /GettingR6 for information on buying printed
+documentation, tapes, and CD-ROMs from the X Consortium.

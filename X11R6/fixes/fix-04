@@ -1,0 +1,2735 @@
+                      Release 6 Public Patch #04
+                             X Consortium
+
+To apply this patch:
+
+cd to the top of the source tree (to the directory containing the "xc"
+and "contrib" subdirectories) and do:
+        patch -p -s < ThisFile
+Patch will work silently unless an error occurs.  If you want to
+watch patch do its thing, leave out the "-s" argument to patch.
+
+Finally, to rebuild after applying this patch, cd to the "xc" subdirectory
+and, if you use XsunMono, do:
+        make Everything >& every.log
+otherwise, do:
+        make -k >& make.log
+
+Brief notes on what this patch fixes:
+
+config: SunOS .c.o rule only needed with gcc 1
+imake: rejects zero-length Imakefiles
+imake: st_size may not be an int
+Xaw: Pasting selections within or between international Text widgets fails
+Xlib: X[mb,wc]LookupString doesn't return composed keysym
+Xlib: X[mb,wc]LookupString don't lookup non-ASCII ISO8859-1 chars.
+Xlib: invalid length passed to memcpy.
+Xlib: imDefIm.c:_XimCheckLocaleName incorrect check of locale
+Xlib: imExten.c:_XimIsSupportExt typo in programming
+Xlib: widechar to string conversion drops LATIN1 characters
+Xt: orphaned clients when server is killed
+Xt: va_start on wrong parameter in XtVaOpenApplication
+servers: hypot() declaration may require _XOPEN_SOURCE
+sunddx: XsunMono built without EXT_DEFINES
+sunddx: sunKbdWait can wait a long time
+xterm: 0-sized fonts cause crash
+xterm: selection ownership fails when sizeof int != sizeof long
+
+Prereq: public-patch-3
+
+*** -	Fri Aug 12 14:33:38 1994
+--- xc/bug-report	Fri Aug 12 14:33:06 1994
+***************
+*** 3,9 ****
+  
+       VERSION:
+  
+! R6, public-patch-3
+  [X Consortium public patches edit this line to indicate the patch level]
+  
+       CLIENT MACHINE and OPERATING SYSTEM:
+--- 3,9 ----
+  
+       VERSION:
+  
+! R6, public-patch-4
+  [X Consortium public patches edit this line to indicate the patch level]
+  
+       CLIENT MACHINE and OPERATING SYSTEM:
+*** -	Fri Aug 12 11:36:38 1994
+--- xc/config/cf/fujitsu.cf	Fri Aug 12 11:36:38 1994
+***************
+*** 1,4 ****
+! XCOMM platform:  $XConsortium: fujitsu.cf,v 1.2 94/04/02 17:10:36 rws Exp $
+  
+  #ifdef SparcArchitecture
+  
+--- 1,4 ----
+! XCOMM platform:  $XConsortium: fujitsu.cf,v 1.3 94/07/05 11:10:18 kaleb Exp $
+  
+  #ifdef SparcArchitecture
+  
+***************
+*** 40,45 ****
+  #define BuildServer        NO
+  #define HasSymLinks        NO
+  #define HasVFork           NO
+! #define XawI18nDefines     -DUSE_X_WCHAR_STRING
+  
+  #endif
+--- 40,45 ----
+  #define BuildServer        NO
+  #define HasSymLinks        NO
+  #define HasVFork           NO
+! #define XawI18nDefines     -DUSE_X_WCHAR_STRING -DUSE_XMBTOWC
+  
+  #endif
+*** -	Fri Aug 12 11:36:39 1994
+--- xc/config/cf/macII.cf	Fri Aug 12 11:36:39 1994
+***************
+*** 1,4 ****
+! XCOMM platform:  $XConsortium: macII.cf,v 1.46 94/04/02 16:27:41 kaleb Exp $
+  
+  #define OSName            A/UX 3.0.1
+  #define OSMajorVersion    3
+--- 1,4 ----
+! XCOMM platform:  $XConsortium: macII.cf,v 1.47 94/07/05 11:09:07 kaleb Exp $
+  
+  #define OSName            A/UX 3.0.1
+  #define OSMajorVersion    3
+***************
+*** 20,26 ****
+  #define ExpandManNames      YES
+  #define PexShmIPC           NO
+  #define XmacIIServer        YES
+! #define XawI18nDefines      -DUSE_XWCHAR_STRING
+  #if MacHasc89
+  #define CcCmd c89 -D_POSIX_SOURCE
+  #else
+--- 20,26 ----
+  #define ExpandManNames      YES
+  #define PexShmIPC           NO
+  #define XmacIIServer        YES
+! #define XawI18nDefines      -DUSE_XWCHAR_STRING -DUSE_XMBTOWC
+  #if MacHasc89
+  #define CcCmd c89 -D_POSIX_SOURCE
+  #else
+*** -	Fri Aug 12 11:36:40 1994
+--- xc/config/cf/sun.cf	Fri Aug 12 11:36:40 1994
+***************
+*** 1,4 ****
+! XCOMM platform:  $XConsortium: sun.cf,v 1.131 94/06/03 21:38:47 matt Exp $
+  
+  #ifdef SVR4
+  #ifdef i386Architecture
+--- 1,4 ----
+! XCOMM platform:  $XConsortium: sun.cf,v 1.133 94/07/08 12:23:12 gildea Exp $
+  
+  #ifdef SVR4
+  #ifdef i386Architecture
+***************
+*** 107,112 ****
+--- 107,113 ----
+  /* We do not guarantee this will work */
+  #define BootstrapCFlags   -DNOSTDHDRS
+  #define StandardDefines   -DNOSTDHDRS
++ #define XawI18nDefines     -DUSE_X_WCHAR_STRING -DUSE_XMBTOWC
+  #endif
+  
+  #if OSMajorVersion == 4 
+***************
+*** 197,207 ****
+  #define SharedLibraryCcCmd cc
+  #define ExtraLoadFlags -B/usr/bin/
+  #define AllocateLocalDefines /**/
+- #endif
+  
+  .c.o:
+  	$(CC) -c $(CFLAGS) $*.c
+  
+  #else
+  
+  #define AllocateLocalDefines -DINCLUDE_ALLOCA_H
+--- 198,208 ----
+  #define SharedLibraryCcCmd cc
+  #define ExtraLoadFlags -B/usr/bin/
+  #define AllocateLocalDefines /**/
+  
+  .c.o:
+  	$(CC) -c $(CFLAGS) $*.c
+  
++ #endif /* HasGcc2 (else) */
+  #else
+  
+  #define AllocateLocalDefines -DINCLUDE_ALLOCA_H
+*** -	Fri Aug 12 11:36:42 1994
+--- xc/config/imake/imake.c	Fri Aug 12 11:36:42 1994
+***************
+*** 1,13 ****
+! /* $XConsortium: imake.c,v 1.87 94/04/17 20:10:28 rws Exp $ */
+  
+! /*****************************************************************************
+!  *                                                                           *
+!  *                                Porting Note                               *
+!  *                                                                           *
+!  * Add the value of BOOTSTRAPCFLAGS to the cpp_argv table so that it will be *
+!  * passed to the template file.                                              *
+!  *                                                                           *
+!  *****************************************************************************/
+  
+  /*
+   * 
+--- 1,13 ----
+! /* $XConsortium: imake.c,v 1.89 94/08/12 00:45:51 gildea Exp $ */
+  
+! /***************************************************************************
+!  *                                                                         *
+!  *                                Porting Note                             *
+!  *                                                                         *
+!  * Add the value of BOOTSTRAPCFLAGS to the cpp_argv table so that it will  *
+!  * be passed to the template file.                                         *
+!  *                                                                         *
+!  ***************************************************************************/
+  
+  /*
+   * 
+***************
+*** 674,682 ****
+  		LogFatal("Cannot open %s for input.", imakefile);
+  	if (fstat(fileno(inFile), &st) < 0)
+  		LogFatal("Cannot stat %s for size.", imakefile);
+! 	buf = Emalloc(st.st_size+3);
+  	count = fread(buf + 2, 1, st.st_size, inFile);
+! 	if (count <= 0)
+  		LogFatal("Cannot read %s:", imakefile);
+  	fclose(inFile);
+  	buf[0] = '\n';
+--- 674,682 ----
+  		LogFatal("Cannot open %s for input.", imakefile);
+  	if (fstat(fileno(inFile), &st) < 0)
+  		LogFatal("Cannot stat %s for size.", imakefile);
+! 	buf = Emalloc((int)st.st_size+3);
+  	count = fread(buf + 2, 1, st.st_size, inFile);
+! 	if (count == 0  &&  st.st_size != 0)
+  		LogFatal("Cannot read %s:", imakefile);
+  	fclose(inFile);
+  	buf[0] = '\n';
+***************
+*** 861,870 ****
+  		 */
+  		fseek(tmpfd, 0, 0);
+  		if (fstat(fileno(tmpfd), &st) < 0)
+! 			LogFatal("cannot state %s for size\n", tmpMakefile);
+! 		pline = buf = Emalloc(st.st_size+1);
+  		total_red = fread(buf, 1, st.st_size, tmpfd);
+! 		if (total_red <= 0)
+  			LogFatal("cannot read %s\n", tmpMakefile);
+  		end = buf + total_red;
+  		*end = '\0';
+--- 861,870 ----
+  		 */
+  		fseek(tmpfd, 0, 0);
+  		if (fstat(fileno(tmpfd), &st) < 0)
+! 			LogFatal("cannot stat %s for size\n", tmpMakefile);
+! 		pline = buf = Emalloc((int)st.st_size+1);
+  		total_red = fread(buf, 1, st.st_size, tmpfd);
+! 		if (total_red == 0  &&  st.st_size != 0)
+  			LogFatal("cannot read %s\n", tmpMakefile);
+  		end = buf + total_red;
+  		*end = '\0';
+***************
+*** 877,883 ****
+  		initialized = TRUE;
+  	    fprintf (tmpfd, "# Makefile generated by imake - do not edit!\n");
+  	    fprintf (tmpfd, "# %s\n",
+! 		"$XConsortium: imake.c,v 1.87 94/04/17 20:10:28 rws Exp $");
+  	}
+  
+  	for (p1 = pline; p1 < end; p1++) {
+--- 877,883 ----
+  		initialized = TRUE;
+  	    fprintf (tmpfd, "# Makefile generated by imake - do not edit!\n");
+  	    fprintf (tmpfd, "# %s\n",
+! 		"$XConsortium: imake.c,v 1.89 94/08/12 00:45:51 gildea Exp $");
+  	}
+  
+  	for (p1 = pline; p1 < end; p1++) {
+*** -	Fri Aug 12 11:36:44 1994
+--- xc/nls/X11/locale/Compose/iso8859-1	Fri Aug 12 11:36:43 1994
+***************
+*** 1,4 ****
+! # $XConsortium: iso8859-1,v 1.3 94/06/04 17:14:22 rws Exp $
+  #
+  # ISO 8859-1 (Latin1) Compose Sequence
+  #
+--- 1,4 ----
+! # $XConsortium: iso8859-1,v 1.4 94/07/06 15:17:11 kaleb Exp $
+  #
+  # ISO 8859-1 (Latin1) Compose Sequence
+  #
+***************
+*** 6,354 ****
+  #
+  # <Multi_key> Means <Compose>
+  # Special Character
+! <Multi_key> <plus> <plus>		: "#"		# Number Sign
+! <Multi_key> <apostrophe> <space>	: "'"		# Apostrophe
+! <Multi_key> <A> <A>			: "@"		# Commercial At
+! <Multi_key> <parenleft> <parenleft>	: "["		# Opening Bracket
+! <Multi_key> <slash> <slash>		: "\\"		# Backslash
+! <Multi_key> <slash> <less>		: "\\"		# Backslash
+! <Multi_key> <parenright> <parenright>	: "]"		# Closing Bracket
+! <Multi_key> <asciicircum> <space>	: "^"		# Circumflex Accent
+! <Multi_key> <greater> <space>		: "^"		# Circumflex Accent
+! <Multi_key> <grave> <space>		: "`"		# Grave Accent
+! <Multi_key> <parenleft> <minus>		: "{"		# Opening Brace
+! <Multi_key> <slash> <asciicircum>	: "|"		# Vertical Line
+! <Multi_key> <V> <L>			: "|"		# Vertical Line
+! <Multi_key> <v> <l>			: "|"		# Vertical Line
+! <Multi_key> <parenright> <minus>	: "}"		# Closing Brace
+! <Multi_key> <asciitilde> <space>	: "~"		# Tilde
+! <Multi_key> <minus> <space>		: "~"		# Tilde
+! <Multi_key> <exclam> <exclam>		: "\241"	# Inverted !
+! <Multi_key> <c> <slash>			: "\242"	# Cent Sign
+! <Multi_key> <C> <slash>			: "\242"	# Cent Sign
+! <Multi_key> <C> <bar>			: "\242"	# Cent Sign
+! <Multi_key> <c> <bar>			: "\242"	# Cent Sign
+! <Multi_key> <l> <minus>			: "\243"	# Pound Sign
+! <Multi_key> <L> <minus>			: "\243"	# Pound Sign
+! <Multi_key> <l> <equal>			: "\243"	# Pound Sign
+! <Multi_key> <L> <equal>			: "\243"	# Pound Sign
+! <Multi_key> <y> <minus>			: "\245"	# Yen Sign
+! <Multi_key> <Y> <minus>			: "\245"	# Yen Sign
+! <Multi_key> <y> <equal>			: "\245"	# Yen Sign
+! <Multi_key> <Y> <equal>			: "\245"	# Yen Sign
+! <Multi_key> <s> <o>			: "\247"	# Section Sign
+! <Multi_key> <S> <O>			: "\247"	# Section Sign
+! <Multi_key> <S> <exclam>		: "\247"	# Section Sign
+! <Multi_key> <s> <exclam>		: "\247"	# Section Sign
+! <Multi_key> <S> <0>			: "\247"	# Section Sign
+! <Multi_key> <s> <0>			: "\247"	# Section Sign
+! <Multi_key> <x> <o>			: "\244"	# Currency Sign
+! <Multi_key> <X> <O>			: "\244"	# Currency Sign
+! <Multi_key> <x> <O>			: "\244"	# Currency Sign
+! <Multi_key> <X> <o>			: "\244"	# Currency Sign
+! <Multi_key> <x> <0>			: "\244"	# Currency Sign
+! <Multi_key> <X> <0>			: "\244"	# Currency Sign
+! <Multi_key> <c> <o>			: "\251"	# Copyright
+! <Multi_key> <C> <O>			: "\251"	# Copyright
+! <Multi_key> <c> <O>			: "\251"	# Copyright
+! <Multi_key> <C> <o>			: "\251"	# Copyright
+! <Multi_key> <c> <0>			: "\251"	# Copyright
+! <Multi_key> <C> <0>			: "\251"	# Copyright
+! <Multi_key> <a> <underscore>		: "\252"	# Feminine Ordinal Indicator
+! <Multi_key> <A> <underscore>		: "\252"	# Feminine Ordinal Indicator
+! <Multi_key> <o> <underscore>		: "\272"	# Masculine Ordinal Indicator
+! <Multi_key> <O> <underscore>		: "\272"	# Masculine Ordinal Indicator
+! <Multi_key> <less> <less>		: "\253"	# Angle Quotation Mark Left
+! <Multi_key> <greater> <greater>		: "\273"	# Angle Quotation Mark Right
+! <Multi_key> <0> <asciicircum>		: "\260"	# Degree Sign
+! <Multi_key> <0> <asterisk>		: "\260"	# Degree Sign
+! <Multi_key> <plus> <minus>		: "\261"	# Plus/Minus Sign
+! <Multi_key> <slash> <u>			: "\265"	# Micro Sign
+! <Multi_key> <slash> <U>			: "\265"	# Micro Sign
+! <Multi_key> <1> <asciicircum>		: "\271"	# Superscript 1
+! <Multi_key> <S> <1>			: "\271"	# Superscript 1
+! <Multi_key> <s> <1>			: "\271"	# Superscript 1
+! <Multi_key> <2> <asciicircum>		: "\262"	# Superscript 2
+! <Multi_key> <S> <2>			: "\262"	# Superscript 2
+! <Multi_key> <s> <2>			: "\262"	# Superscript 2
+! <Multi_key> <3> <asciicircum>		: "\263"	# Superscript 3
+! <Multi_key> <S> <3>			: "\263"	# Superscript 3
+! <Multi_key> <s> <3>			: "\263"	# Superscript 3
+! <Multi_key> <p> <exclam>		: "\266"	# Paragraph Sign
+! <Multi_key> <P> <exclam>		: "\266"	# Paragraph Sign
+! <Multi_key> <period> <asciicircum>	: "\267"	# Middle Dot
+! <Multi_key> <period> <period>		: "\267"	# Middle Dot
+! <Multi_key> <1> <4>			: "\274"	# Fraction One Quarter
+! <Multi_key> <1> <2>			: "\275"	# Fraction One Half
+! <Multi_key> <3> <4>			: "\276"	# Fraction Three Quarter
+! <Multi_key> <question> <question>	: "\277"	# Inverted ?
+! <Multi_key> <space> <space>		: "\240"	# No Break Space
+! <Multi_key> <bar> <bar>			: "\246"	# Broken Bar Vertical
+! <Multi_key> <exclam> <asciicircum>	: "\246"	# Broken Bar Vertical
+! <Multi_key> <V> <B>			: "\246"	# Broken Bar Vertical
+! <Multi_key> <v> <b>			: "\246"	# Broken Bar Vertical
+! <Multi_key> <minus> <comma>		: "\254"	# Logocal Not
+! <Multi_key> <minus> <minus>		: "\255"	# Soft Syllable Hyphen
+! <Multi_key> <R> <O>			: "\256"	# Registered Trademark
+! <Multi_key> <minus> <asciicircum>	: "\257"	# Macron
+! <Multi_key> <underscore> <asciicircum>	: "\257"	# Macron
+! <Multi_key> <underscore> <underscore>	: "\257"	# Macron
+! <Multi_key> <minus> <colon>		: "\367"	# Division Sign
+! <Multi_key> <x> <x>			: "\327"	# Multiplication Sign
+! <Multi_key> <quoteright> <quoteright>	: "\264"	# Acute Accent
+! <Multi_key> <comma> <comma>		: "\270"	# Cedilla
+! <Multi_key> <quotedbl> <quotedbl>	: "\250"	# Diaeresis
+  # Accented Alphabet
+! <Multi_key> <A> <grave>			: "\300"	# A Grave
+! <Multi_key> <A> <acute>			: "\301"	# A Acute
+! <Multi_key> <A> <asciicircum>		: "\302"	# A Circumflex
+! <Multi_key> <A> <greater>		: "\302"	# A Circumflex
+! <Multi_key> <A> <asciitilde>		: "\303"	# A Tilde
+! <Multi_key> <A> <minus>			: "\303"	# A Tilde
+! <Multi_key> <A> <quotedbl>		: "\304"	# A Umlaut
+! <Multi_key> <A> <asterisk>		: "\305"	# A Ring
+! <Multi_key> <A> <E>			: "\306"	# A E Diphthong
+! <Multi_key> <a> <grave>			: "\340"	# a Grave
+! <Multi_key> <a> <acute>			: "\341"	# a Acute
+! <Multi_key> <a> <asciicircum>		: "\342"	# a Circumflex
+! <Multi_key> <a> <greater>		: "\342"	# a Circumflex
+! <Multi_key> <a> <asciitilde>		: "\343"	# a Tilde
+! <Multi_key> <a> <minus>			: "\343"	# a Tilde
+! <Multi_key> <a> <quotedbl>		: "\344"	# a Umlaut
+! <Multi_key> <a> <asterisk>		: "\345"	# a Ring
+! <Multi_key> <a> <e>			: "\346"	# a e Diphthong
+! <Multi_key> <C> <comma>			: "\307"	# C Cedilla
+! <Multi_key> <c> <comma>			: "\347"	# c Cedilla
+! <Multi_key> <minus> <D>			: "\320"	# Capital Icelandic Eth
+! <Multi_key> <minus> <d>			: "\360"	# Small Icelandic Eth
+! <Multi_key> <E> <grave>			: "\310"	# E Grave
+! <Multi_key> <E> <acute>			: "\311"	# E Acute
+! <Multi_key> <E> <asciicircum>		: "\312"	# E Circumflex
+! <Multi_key> <E> <greater>		: "\312"	# E Circumflex
+! <Multi_key> <E> <quotedbl>		: "\313"	# E Umlaut
+! <Multi_key> <e> <grave>			: "\350"	# e Grave
+! <Multi_key> <e> <acute>			: "\351"	# e Acute
+! <Multi_key> <e> <asciicircum>		: "\352"	# e Circumflex
+! <Multi_key> <e> <greater>		: "\352"	# e Circumflex
+! <Multi_key> <e> <quotedbl>		: "\353"	# e Umlaut
+! <Multi_key> <I> <grave>			: "\314"	# I Grave
+! <Multi_key> <I> <acute>			: "\315"	# I Acute
+! <Multi_key> <I> <asciicircum>		: "\316"	# I Circumflex
+! <Multi_key> <I> <greater>		: "\316"	# I Circumflex
+! <Multi_key> <I> <quotedbl>		: "\317"	# I Umlaut
+! <Multi_key> <i> <grave>			: "\354"	# i Grave
+! <Multi_key> <i> <acute>			: "\355"	# i Acute
+! <Multi_key> <i> <asciicircum>		: "\356"	# i Circumflex
+! <Multi_key> <i> <greater>		: "\356"	# i Circumflex
+! <Multi_key> <i> <quotedbl>		: "\357"	# i Umlaut
+! <Multi_key> <N> <asciitilde>		: "\321"	# N Tilde
+! <Multi_key> <N> <minus>			: "\321"	# N Tilde
+! <Multi_key> <n> <asciitilde>		: "\361"	# n Tilde
+! <Multi_key> <n> <minus>			: "\361"	# n Tilde
+! <Multi_key> <O> <grave>			: "\322"	# O Grave
+! <Multi_key> <O> <acute>			: "\323"	# O Acute
+! <Multi_key> <O> <asciicircum>		: "\324"	# O Circumflex
+! <Multi_key> <O> <greater>		: "\324"	# O Circumflex
+! <Multi_key> <O> <asciitilde>		: "\325"	# O Tilde
+! <Multi_key> <O> <minus>			: "\325"	# O Tilde
+! <Multi_key> <O> <quotedbl>		: "\326"	# O Umlaut
+! <Multi_key> <O> <slash>			: "\330"	# O Slash
+! <Multi_key> <o> <grave>			: "\362"	# o Grave
+! <Multi_key> <o> <acute>			: "\363"	# o Acute
+! <Multi_key> <o> <asciicircum>		: "\364"	# o Circumflex
+! <Multi_key> <o> <greater>		: "\364"	# o Circumflex
+! <Multi_key> <o> <asciitilde>		: "\365"	# o Tilde
+! <Multi_key> <o> <minus>			: "\365"	# o Tilde
+! <Multi_key> <o> <quotedbl>		: "\366"	# o Umlaut
+! <Multi_key> <o> <slash>			: "\370"	# o Slash
+! <Multi_key> <U> <grave>			: "\331"	# U Grave
+! <Multi_key> <U> <acute>			: "\332"	# U Acute
+! <Multi_key> <U> <asciicircum>		: "\333"	# U Circumflex
+! <Multi_key> <U> <greater>		: "\333"	# U Circumflex
+! <Multi_key> <U> <quotedbl>		: "\334"	# U Umlaut
+! <Multi_key> <u> <grave>			: "\371"	# u Grave
+! <Multi_key> <u> <acute>			: "\372"	# u Acute
+! <Multi_key> <u> <asciicircum>		: "\373"	# u Circumflex
+! <Multi_key> <u> <greater>		: "\373"	# u Circumflex
+! <Multi_key> <u> <quotedbl>		: "\374"	# u Umlaut
+! <Multi_key> <s> <s>			: "\337"	# German Small Sharp s
+! <Multi_key> <T> <H>			: "\336"	# Capital Icelandic Thor
+! <Multi_key> <t> <h>			: "\376"	# Small Icelandic Thor
+! <Multi_key> <Y> <acute>			: "\335"	# Y Acute
+! <Multi_key> <y> <acute>			: "\375"	# y Acute
+! <Multi_key> <y> <quotedbl>		: "\377"	# y Umlaut
+  #
+  # Ctrl<T> Means <Compose>
+  # Special Character
+! Ctrl<T> <plus> <plus>			: "#"		# Number Sign
+! Ctrl<T> <apostrophe> <space>		: "'"		# Apostrophe
+! Ctrl<T> <A> <A>				: "@"		# Commercial At
+! Ctrl<T> <parenleft> <parenleft>		: "["		# Opening Bracket
+! Ctrl<T> <slash> <slash>			: "\\"		# Backslash
+! Ctrl<T> <slash> <less>			: "\\"		# Backslash
+! Ctrl<T> <parenright> <parenright>	: "]"		# Closing Bracket
+! Ctrl<T> <asciicircum> <space>		: "^"		# Circumflex Accent
+! Ctrl<T> <greater> <space>		: "^"		# Circumflex Accent
+! Ctrl<T> <grave> <space>			: "`"		# Grave Accent
+! Ctrl<T> <parenleft> <minus>		: "{"		# Opening Brace
+! Ctrl<T> <slash> <asciicircum>		: "|"		# Vertical Line
+! Ctrl<T> <V> <L>				: "|"		# Vertical Line
+! Ctrl<T> <v> <l>				: "|"		# Vertical Line
+! Ctrl<T> <parenright> <minus>		: "}"		# Closing Brace
+! Ctrl<T> <asciitilde> <space>		: "~"		# Tilde
+! Ctrl<T> <minus> <space>			: "~"		# Tilde
+! Ctrl<T> <exclam> <exclam>		: "\241"	# Inverted !
+! Ctrl<T> <c> <slash>			: "\242"	# Cent Sign
+! Ctrl<T> <C> <slash>			: "\242"	# Cent Sign
+! Ctrl<T> <C> <bar>			: "\242"	# Cent Sign
+! Ctrl<T> <c> <bar>			: "\242"	# Cent Sign
+! Ctrl<T> <l> <minus>			: "\243"	# Pound Sign
+! Ctrl<T> <L> <minus>			: "\243"	# Pound Sign
+! Ctrl<T> <l> <equal>			: "\243"	# Pound Sign
+! Ctrl<T> <L> <equal>			: "\243"	# Pound Sign
+! Ctrl<T> <y> <minus>			: "\245"	# Yen Sign
+! Ctrl<T> <Y> <minus>			: "\245"	# Yen Sign
+! Ctrl<T> <y> <equal>			: "\245"	# Yen Sign
+! Ctrl<T> <Y> <equal>			: "\245"	# Yen Sign
+! Ctrl<T> <s> <o>				: "\247"	# Section Sign
+! Ctrl<T> <S> <O>				: "\247"	# Section Sign
+! Ctrl<T> <S> <exclam>			: "\247"	# Section Sign
+! Ctrl<T> <s> <exclam>			: "\247"	# Section Sign
+! Ctrl<T> <S> <0>				: "\247"	# Section Sign
+! Ctrl<T> <s> <0>				: "\247"	# Section Sign
+! Ctrl<T> <x> <o>				: "\244"	# Currency Sign
+! Ctrl<T> <X> <O>				: "\244"	# Currency Sign
+! Ctrl<T> <x> <O>				: "\244"	# Currency Sign
+! Ctrl<T> <X> <o>				: "\244"	# Currency Sign
+! Ctrl<T> <x> <0>				: "\244"	# Currency Sign
+! Ctrl<T> <X> <0>				: "\244"	# Currency Sign
+! Ctrl<T> <c> <o>				: "\251"	# Copyright
+! Ctrl<T> <C> <O>				: "\251"	# Copyright
+! Ctrl<T> <c> <O>				: "\251"	# Copyright
+! Ctrl<T> <C> <o>				: "\251"	# Copyright
+! Ctrl<T> <c> <0>				: "\251"	# Copyright
+! Ctrl<T> <C> <0>				: "\251"	# Copyright
+! Ctrl<T> <a> <underscore>		: "\252"	# Feminine Ordinal Indicator
+! Ctrl<T> <A> <underscore>		: "\252"	# Feminine Ordinal Indicator
+! Ctrl<T> <o> <underscore>		: "\272"	# Masculine Ordinal Indicator
+! Ctrl<T> <O> <underscore>		: "\272"	# Masculine Ordinal Indicator
+! Ctrl<T> <less> <less>			: "\253"	# Angle Quotation Mark Left
+! Ctrl<T> <greater> <greater>		: "\273"	# Angle Quotation Mark Right
+! Ctrl<T> <0> <asciicircum>		: "\260"	# Degree Sign
+! Ctrl<T> <0> <asterisk>			: "\260"	# Degree Sign
+! Ctrl<T> <plus> <minus>			: "\261"	# Plus/Minus Sign
+! Ctrl<T> <slash> <u>			: "\265"	# Micro Sign
+! Ctrl<T> <slash> <U>			: "\265"	# Micro Sign
+! Ctrl<T> <1> <asciicircum>		: "\271"	# Superscript 1
+! Ctrl<T> <S> <1>				: "\271"	# Superscript 1
+! Ctrl<T> <s> <1>				: "\271"	# Superscript 1
+! Ctrl<T> <2> <asciicircum>		: "\262"	# Superscript 2
+! Ctrl<T> <S> <2>				: "\262"	# Superscript 2
+! Ctrl<T> <s> <2>				: "\262"	# Superscript 2
+! Ctrl<T> <3> <asciicircum>		: "\263"	# Superscript 3
+! Ctrl<T> <S> <3>				: "\263"	# Superscript 3
+! Ctrl<T> <s> <3>				: "\263"	# Superscript 3
+! Ctrl<T> <p> <exclam>			: "\266"	# Paragraph Sign
+! Ctrl<T> <P> <exclam>			: "\266"	# Paragraph Sign
+! Ctrl<T> <period> <asciicircum>		: "\267"	# Middle Dot
+! Ctrl<T> <period> <period>		: "\267"	# Middle Dot
+! Ctrl<T> <1> <4>				: "\274"	# Fraction One Quarter
+! Ctrl<T> <1> <2>				: "\275"	# Fraction One Half
+! Ctrl<T> <3> <4>				: "\276"	# Fraction Three Quarter
+! Ctrl<T> <question> <question>		: "\277"	# Inverted ?
+! Ctrl<T> <space> <space>			: "\240"	# No Break Space
+! Ctrl<T> <bar> <bar>			: "\246"	# Broken Bar Vertical
+! Ctrl<T> <exclam> <asciicircum>		: "\246"	# Broken Bar Vertical
+! Ctrl<T> <V> <B>				: "\246"	# Broken Bar Vertical
+! Ctrl<T> <v> <b>				: "\246"	# Broken Bar Vertical
+! Ctrl<T> <minus> <comma>			: "\254"	# Logocal Not
+! Ctrl<T> <minus> <minus>			: "\255"	# Soft Syllable Hyphen
+! Ctrl<T> <R> <O>				: "\256"	# Registered Trademark
+! Ctrl<T> <minus> <asciicircum>		: "\257"	# Macron
+! Ctrl<T> <underscore> <asciicircum>	: "\257"	# Macron
+! Ctrl<T> <underscore> <underscore>	: "\257"	# Macron
+! Ctrl<T> <minus> <colon>			: "\367"	# Division Sign
+! Ctrl<T> <x> <x>				: "\327"	# Multiplication Sign
+! Ctrl<T> <quoteright> <quoteright>	: "\264"	# Acute Accent
+! Ctrl<T> <comma> <comma>			: "\270"	# Cedilla
+! Ctrl<T> <quotedbl> <quotedbl>		: "\250"	# Diaeresis
+! 
+! Ctrl<T> <A> <grave>			: "\300"	# A Grave
+! Ctrl<T> <A> <acute>			: "\301"	# A Acute
+! Ctrl<T> <A> <asciicircum>		: "\302"	# A Circumflex
+! Ctrl<T> <A> <greater>			: "\302"	# A Circumflex
+! Ctrl<T> <A> <asciitilde>		: "\303"	# A Tilde
+! Ctrl<T> <A> <minus>			: "\303"	# A Tilde
+! Ctrl<T> <A> <quotedbl>			: "\304"	# A Umlaut
+! Ctrl<T> <A> <asterisk>			: "\305"	# A Ring
+! Ctrl<T> <A> <E>				: "\306"	# A E Diphthong
+! Ctrl<T> <a> <grave>			: "\340"	# a Grave
+! Ctrl<T> <a> <acute>			: "\341"	# a Acute
+! Ctrl<T> <a> <asciicircum>		: "\342"	# a Circumflex
+! Ctrl<T> <a> <greater>			: "\342"	# a Circumflex
+! Ctrl<T> <a> <asciitilde>		: "\343"	# a Tilde
+! Ctrl<T> <a> <minus>			: "\343"	# a Tilde
+! Ctrl<T> <a> <quotedbl>			: "\344"	# a Umlaut
+! Ctrl<T> <a> <asterisk>			: "\345"	# a Ring
+! Ctrl<T> <a> <e>				: "\346"	# a e Diphthong
+! Ctrl<T> <C> <comma>			: "\307"	# C Cedilla
+! Ctrl<T> <c> <comma>			: "\347"	# c Cedilla
+! Ctrl<T> <minus> <D>			: "\320"	# Capital Icelandic Eth
+! Ctrl<T> <minus> <d>			: "\360"	# Small Icelandic Eth
+! Ctrl<T> <E> <grave>			: "\310"	# E Grave
+! Ctrl<T> <E> <acute>			: "\311"	# E Acute
+! Ctrl<T> <E> <asciicircum>		: "\312"	# E Circumflex
+! Ctrl<T> <E> <greater>			: "\312"	# E Circumflex
+! Ctrl<T> <E> <quotedbl>			: "\313"	# E Umlaut
+! Ctrl<T> <e> <grave>			: "\350"	# e Grave
+! Ctrl<T> <e> <acute>			: "\351"	# e Acute
+! Ctrl<T> <e> <asciicircum>		: "\352"	# e Circumflex
+! Ctrl<T> <e> <greater>			: "\352"	# e Circumflex
+! Ctrl<T> <e> <quotedbl>			: "\353"	# e Umlaut
+! Ctrl<T> <I> <grave>			: "\314"	# I Grave
+! Ctrl<T> <I> <acute>			: "\315"	# I Acute
+! Ctrl<T> <I> <asciicircum>		: "\316"	# I Circumflex
+! Ctrl<T> <I> <greater>			: "\316"	# I Circumflex
+! Ctrl<T> <I> <quotedbl>			: "\317"	# I Umlaut
+! Ctrl<T> <i> <grave>			: "\354"	# i Grave
+! Ctrl<T> <i> <acute>			: "\355"	# i Acute
+! Ctrl<T> <i> <asciicircum>		: "\356"	# i Circumflex
+! Ctrl<T> <i> <greater>			: "\356"	# i Circumflex
+! Ctrl<T> <i> <quotedbl>			: "\357"	# i Umlaut
+! Ctrl<T> <N> <asciitilde>		: "\321"	# N Tilde
+! Ctrl<T> <N> <minus>			: "\321"	# N Tilde
+! Ctrl<T> <n> <asciitilde>		: "\361"	# n Tilde
+! Ctrl<T> <n> <minus>			: "\361"	# n Tilde
+! Ctrl<T> <O> <grave>			: "\322"	# O Grave
+! Ctrl<T> <O> <acute>			: "\323"	# O Acute
+! Ctrl<T> <O> <asciicircum>		: "\324"	# O Circumflex
+! Ctrl<T> <O> <greater>			: "\324"	# O Circumflex
+! Ctrl<T> <O> <asciitilde>		: "\325"	# O Tilde
+! Ctrl<T> <O> <minus>			: "\325"	# O Tilde
+! Ctrl<T> <O> <quotedbl>			: "\326"	# O Umlaut
+! Ctrl<T> <O> <slash>			: "\330"	# O Slash
+! Ctrl<T> <o> <grave>			: "\362"	# o Grave
+! Ctrl<T> <o> <acute>			: "\363"	# o Acute
+! Ctrl<T> <o> <asciicircum>		: "\364"	# o Circumflex
+! Ctrl<T> <o> <greater>			: "\364"	# o Circumflex
+! Ctrl<T> <o> <asciitilde>		: "\365"	# o Tilde
+! Ctrl<T> <o> <minus>			: "\365"	# o Tilde
+! Ctrl<T> <o> <quotedbl>			: "\366"	# o Umlaut
+! Ctrl<T> <o> <slash>			: "\370"	# o Slash
+! Ctrl<T> <U> <grave>			: "\331"	# U Grave
+! Ctrl<T> <U> <acute>			: "\332"	# U Acute
+! Ctrl<T> <U> <asciicircum>		: "\333"	# U Circumflex
+! Ctrl<T> <U> <greater>			: "\333"	# U Circumflex
+! Ctrl<T> <U> <quotedbl>			: "\334"	# U Umlaut
+! Ctrl<T> <u> <grave>			: "\371"	# u Grave
+! Ctrl<T> <u> <acute>			: "\372"	# u Acute
+! Ctrl<T> <u> <asciicircum>		: "\373"	# u Circumflex
+! Ctrl<T> <u> <greater>			: "\373"	# u Circumflex
+! Ctrl<T> <u> <quotedbl>			: "\374"	# u Umlaut
+! Ctrl<T> <s> <s>				: "\337"	# German Small Sharp s
+! Ctrl<T> <T> <H>				: "\336"	# Capital Icelandic Thor
+! Ctrl<T> <t> <h>				: "\376"	# Small Icelandic Thor
+! Ctrl<T> <Y> <acute>			: "\335"	# Y Acute
+! Ctrl<T> <y> <acute>			: "\375"	# y Acute
+! Ctrl<T> <y> <quotedbl>			: "\377"	# y Umlaut
+  # End of Sequence Definition
+--- 6,378 ----
+  #
+  # <Multi_key> Means <Compose>
+  # Special Character
+! <Multi_key> <plus> <plus>		: "#"	numbersign
+! <Multi_key> <apostrophe> <space>	: "'"	apostrophe
+! <Multi_key> <A> <A>			: "@"	at
+! <Multi_key> <parenleft> <parenleft>	: "["	bracketleft
+! <Multi_key> <slash> <slash>		: "\\"	backslash
+! <Multi_key> <slash> <less>		: "\\"	backslash
+! <Multi_key> <parenright> <parenright>	: "]"	bracketright
+! <Multi_key> <asciicircum> <space>	: "^"	asciicircum
+! <Multi_key> <greater> <space>		: "^"	asciicirum
+! <Multi_key> <grave> <space>		: "`"	grave
+! <Multi_key> <parenleft> <minus>		: "{"	braceleft
+! <Multi_key> <slash> <asciicircum>	: "|"	bar
+! <Multi_key> <V> <L>			: "|"	bar
+! <Multi_key> <v> <l>			: "|"	bar
+! <Multi_key> <parenright> <minus>	: "}"	braceright
+! <Multi_key> <asciitilde> <space>	: "~"	asciitilde
+! <Multi_key> <minus> <space>		: "~"	asciitilde
+! <Multi_key> <exclam> <exclam>		: "\241"	exclaimdown
+! <Multi_key> <c> <slash>			: "\242"	cent
+! <Multi_key> <C> <slash>			: "\242"	cent
+! <Multi_key> <C> <bar>			: "\242"	cent
+! <Multi_key> <c> <bar>			: "\242"	cent
+! <Multi_key> <l> <minus>			: "\243"	sterling
+! <Multi_key> <L> <minus>			: "\243"	sterling
+! <Multi_key> <l> <equal>			: "\243"	sterling
+! <Multi_key> <L> <equal>			: "\243"	sterling
+! <Multi_key> <y> <minus>			: "\245"	yen
+! <Multi_key> <Y> <minus>			: "\245"	yen
+! <Multi_key> <y> <equal>			: "\245"	yen
+! <Multi_key> <Y> <equal>			: "\245"	yen
+! <Multi_key> <s> <o>			: "\247"	section
+! <Multi_key> <S> <O>			: "\247"	section
+! <Multi_key> <S> <exclam>		: "\247"	section
+! <Multi_key> <s> <exclam>		: "\247"	section
+! <Multi_key> <S> <0>			: "\247"	section
+! <Multi_key> <s> <0>			: "\247"	section
+! <Multi_key> <x> <o>			: "\244"	currency
+! <Multi_key> <X> <O>			: "\244"	currency
+! <Multi_key> <x> <O>			: "\244"	currency
+! <Multi_key> <X> <o>			: "\244"	currency
+! <Multi_key> <x> <0>			: "\244"	currency
+! <Multi_key> <X> <0>			: "\244"	currency
+! <Multi_key> <c> <o>			: "\251"	copyright
+! <Multi_key> <C> <O>			: "\251"	copyright
+! <Multi_key> <c> <O>			: "\251"	copyright
+! <Multi_key> <C> <o>			: "\251"	copyright
+! <Multi_key> <c> <0>			: "\251"	copyright
+! <Multi_key> <C> <0>			: "\251"	copyright
+! <Multi_key> <a> <underscore>		: "\252"	ordfeminine
+! <Multi_key> <A> <underscore>		: "\252"	ordfeminine
+! <Multi_key> <o> <underscore>		: "\272"	masculine
+! <Multi_key> <O> <underscore>		: "\272"	masculine
+! <Multi_key> <less> <less>		: "\253"	guillemotleft
+! <Multi_key> <greater> <greater>		: "\273"	guillemotright
+! <Multi_key> <0> <asciicircum>		: "\260"	degree
+! <Multi_key> <0> <asterisk>		: "\260"	degree
+! <Multi_key> <plus> <minus>		: "\261"	plusminus
+! <Multi_key> <slash> <u>			: "\265"	mu
+! <Multi_key> <slash> <U>			: "\265"	mu
+! <Multi_key> <1> <asciicircum>		: "\271"	onesuperior
+! <Multi_key> <S> <1>			: "\271"	onesuperior
+! <Multi_key> <s> <1>			: "\271"	onesuperior
+! <Multi_key> <2> <asciicircum>		: "\262"	twosuperior
+! <Multi_key> <S> <2>			: "\262"	twosuperior
+! <Multi_key> <s> <2>			: "\262"	twosuperior
+! <Multi_key> <3> <asciicircum>		: "\263"	threesuperior
+! <Multi_key> <S> <3>			: "\263"	threesuperior
+! <Multi_key> <s> <3>			: "\263"	threesuperior
+! <Multi_key> <p> <exclam>		: "\266"	paragraph
+! <Multi_key> <P> <exclam>		: "\266"	paragraph
+! <Multi_key> <period> <asciicircum>	: "\267"	periodcentered
+! <Multi_key> <period> <period>		: "\267"	periodcentered
+! <Multi_key> <1> <4>			: "\274"	onequarter
+! <Multi_key> <1> <2>			: "\275"	onehalf
+! <Multi_key> <3> <4>			: "\276"	threequarters
+! <Multi_key> <question> <question>	: "\277"	questiondown
+! <Multi_key> <space> <space>		: "\240"	nobreakspace
+! <Multi_key> <bar> <bar>			: "\246"	brokenbar
+! <Multi_key> <exclam> <asciicircum>	: "\246"	brokenbar
+! <Multi_key> <V> <B>			: "\246"	brokenbar
+! <Multi_key> <v> <b>			: "\246"	brokenbar
+! <Multi_key> <minus> <comma>		: "\254"	notsign
+! <Multi_key> <minus> <minus>		: "\255"	hyphen
+! <Multi_key> <R> <O>			: "\256"	registered
+! <Multi_key> <minus> <asciicircum>	: "\257"	macron
+! <Multi_key> <underscore> <asciicircum>	: "\257"	macron
+! <Multi_key> <underscore> <underscore>	: "\257"	macron
+! <Multi_key> <minus> <colon>		: "\367"	division
+! <Multi_key> <x> <x>			: "\327"	multiply
+! <Multi_key> <apostrophe> <apostrophe>	: "\264"	acute
+! <Multi_key> <comma> <comma>		: "\270"	cedilla
+! <Multi_key> <quotedbl> <quotedbl>	: "\250"	diaeresis
+  # Accented Alphabet
+! <Multi_key> <A> <grave>			: "\300"	Agrave
+! <Multi_key> <A> <acute>			: "\301"	Aacute
+! <Multi_key> <A> <apostrophe>		: "\301"	Aacute
+! <Multi_key> <A> <asciicircum>	: "\302"	Acircumflex
+! <Multi_key> <A> <greater>		: "\302"	Acircumflex
+! <Multi_key> <A> <asciitilde>		: "\303"	Atilde
+! <Multi_key> <A> <minus>			: "\303"	Atilde
+! <Multi_key> <A> <quotedbl>		: "\304"	Adiaeresis
+! <Multi_key> <A> <asterisk>		: "\305"	Aring
+! <Multi_key> <A> <E>			: "\306"	AE
+! <Multi_key> <a> <grave>			: "\340"	agrave
+! <Multi_key> <a> <acute>			: "\341"	aacute
+! <Multi_key> <a> <apostrophe>		: "\341"	aacute
+! <Multi_key> <a> <asciicircum>	: "\342"	acircumflex
+! <Multi_key> <a> <greater>		: "\342"	acircumflex
+! <Multi_key> <a> <asciitilde>		: "\343"	atilde
+! <Multi_key> <a> <minus>			: "\343"	atilde
+! <Multi_key> <a> <quotedbl>		: "\344"	adiaeresis
+! <Multi_key> <a> <asterisk>		: "\345"	aring
+! <Multi_key> <a> <e>			: "\346"	ae
+! <Multi_key> <C> <comma>			: "\307"	Ccedilla
+! <Multi_key> <c> <comma>			: "\347"	ccedilla
+! <Multi_key> <minus> <D>			: "\320"	ETH
+! <Multi_key> <minus> <d>			: "\360"	eth
+! <Multi_key> <E> <grave>			: "\310"	Egrave
+! <Multi_key> <E> <acute>			: "\311"	Eacute
+! <Multi_key> <E> <apostrophe>		: "\311"	Eacute
+! <Multi_key> <E> <asciicircum>	: "\312"	Ecircumflex
+! <Multi_key> <E> <greater>		: "\312"	Ecircumflex
+! <Multi_key> <E> <quotedbl>		: "\313"	Ediaeresis
+! <Multi_key> <e> <grave>			: "\350"	egrave
+! <Multi_key> <e> <acute>			: "\351"	eacute
+! <Multi_key> <e> <apostrophe>		: "\351"	eacute
+! <Multi_key> <e> <asciicircum>	: "\352"	ecircumflex
+! <Multi_key> <e> <greater>		: "\352"	ecircumflex
+! <Multi_key> <e> <quotedbl>		: "\353"	ediaeresis
+! <Multi_key> <I> <grave>			: "\314"	Igrave
+! <Multi_key> <I> <acute>			: "\315"	Iacute
+! <Multi_key> <I> <apostrophe>		: "\315"	Iacute
+! <Multi_key> <I> <asciicircum>	: "\316"	Icircumflex
+! <Multi_key> <I> <greater>		: "\316"	Icircumflex
+! <Multi_key> <I> <quotedbl>		: "\317"	Idiaeresis
+! <Multi_key> <i> <grave>			: "\354"	igrave
+! <Multi_key> <i> <acute>			: "\355"	iacute
+! <Multi_key> <i> <apostrophe>		: "\355"	iacute
+! <Multi_key> <i> <asciicircum>	: "\356"	icircumflex
+! <Multi_key> <i> <greater>		: "\356"	icircumflex
+! <Multi_key> <i> <quotedbl>		: "\357"	idiaeresis
+! <Multi_key> <N> <asciitilde>		: "\321"	Ntilde
+! <Multi_key> <N> <minus>			: "\321"	Ntilde
+! <Multi_key> <n> <asciitilde>		: "\361"	ntilde
+! <Multi_key> <n> <minus>			: "\361"	ntilde
+! <Multi_key> <O> <grave>			: "\322"	Ograve
+! <Multi_key> <O> <acute>			: "\323"	Oacute
+! <Multi_key> <O> <apostrophe>		: "\323"	Oacute
+! <Multi_key> <O> <asciicircum>	: "\324"	Ocircumflex
+! <Multi_key> <O> <greater>		: "\324"	Ocircumflex
+! <Multi_key> <O> <asciitilde>		: "\325"	Otilde
+! <Multi_key> <O> <minus>			: "\325"	Otilde
+! <Multi_key> <O> <quotedbl>		: "\326"	Odiaeresis
+! <Multi_key> <O> <slash>			: "\330"	Ooblique
+! <Multi_key> <o> <grave>			: "\362"	ograve
+! <Multi_key> <o> <acute>			: "\363"	oacute
+! <Multi_key> <o> <apostrophe>		: "\363"	oacute
+! <Multi_key> <o> <asciicircum>	: "\364"	ocircumflex
+! <Multi_key> <o> <greater>		: "\364"	ocircumflex
+! <Multi_key> <o> <asciitilde>		: "\365"	otilde
+! <Multi_key> <o> <minus>			: "\365"	otilde
+! <Multi_key> <o> <quotedbl>		: "\366"	odiaeresis
+! <Multi_key> <o> <slash>			: "\370"	ooblique
+! <Multi_key> <U> <grave>			: "\331"	Ugrave
+! <Multi_key> <U> <acute>			: "\332"	Uacute
+! <Multi_key> <U> <apostrophe>		: "\332"	Uacute
+! <Multi_key> <U> <asciicircum>	: "\333"	Ucircumflex
+! <Multi_key> <U> <greater>		: "\333"	Ucircumflex
+! <Multi_key> <U> <quotedbl>		: "\334"	Udiaeresis
+! <Multi_key> <u> <grave>			: "\371"	ugrave
+! <Multi_key> <u> <acute>			: "\372"	uacute
+! <Multi_key> <u> <apostrophe>		: "\372"	uacute
+! <Multi_key> <u> <asciicircum>	: "\373"	ucircumflex
+! <Multi_key> <u> <greater>		: "\373"	ucircumflex
+! <Multi_key> <u> <quotedbl>		: "\374"	udiaeresis
+! <Multi_key> <s> <s>			: "\337"	ssharp
+! <Multi_key> <T> <H>			: "\336"	THORN
+! <Multi_key> <t> <h>			: "\376"	thorn
+! <Multi_key> <Y> <acute>			: "\335"	Yacute
+! <Multi_key> <Y> <apostrophe>		: "\335"	Yacute
+! <Multi_key> <y> <acute>			: "\375"	yacute
+! <Multi_key> <y> <apostrophe>		: "\375"	yacute
+! <Multi_key> <y> <quotedbl>		: "\377"	ydiaeresis
+  #
+  # Ctrl<T> Means <Compose>
+  # Special Character
+! Ctrl<T> <plus> <plus>			: "#"	numbersign
+! Ctrl<T> <apostrophe> <space>		: "'"	apostrophe
+! Ctrl<T> <A> <A>				: "@"	at
+! Ctrl<T> <parenleft> <parenleft>		: "["	bracketleft
+! Ctrl<T> <slash> <slash>			: "\\"	backslash
+! Ctrl<T> <slash> <less>			: "\\"	backslash
+! Ctrl<T> <parenright> <parenright>	: "]"	bracketright
+! Ctrl<T> <asciicircum> <space>		: "^"	asciicircum
+! Ctrl<T> <greater> <space>		: "^"	asciicirum
+! Ctrl<T> <grave> <space>			: "`"	grave
+! Ctrl<T> <parenleft> <minus>		: "{"	braceleft
+! Ctrl<T> <slash> <asciicircum>		: "|"	bar
+! Ctrl<T> <V> <L>				: "|"	bar
+! Ctrl<T> <v> <l>				: "|"	bar
+! Ctrl<T> <parenright> <minus>		: "}"	braceright
+! Ctrl<T> <asciitilde> <space>		: "~"	asciitilde
+! Ctrl<T> <minus> <space>			: "~"	asciitilde
+! Ctrl<T> <exclam> <exclam>		: "\241"	exclaimdown
+! Ctrl<T> <c> <slash>			: "\242"	cent
+! Ctrl<T> <C> <slash>			: "\242"	cent
+! Ctrl<T> <C> <bar>			: "\242"	cent
+! Ctrl<T> <c> <bar>			: "\242"	cent
+! Ctrl<T> <l> <minus>			: "\243"	sterling
+! Ctrl<T> <L> <minus>			: "\243"	sterling
+! Ctrl<T> <l> <equal>			: "\243"	sterling
+! Ctrl<T> <L> <equal>			: "\243"	sterling
+! Ctrl<T> <y> <minus>			: "\245"	yen
+! Ctrl<T> <Y> <minus>			: "\245"	yen
+! Ctrl<T> <y> <equal>			: "\245"	yen
+! Ctrl<T> <Y> <equal>			: "\245"	yen
+! Ctrl<T> <s> <o>				: "\247"	section
+! Ctrl<T> <S> <O>				: "\247"	section
+! Ctrl<T> <S> <exclam>			: "\247"	section
+! Ctrl<T> <s> <exclam>			: "\247"	section
+! Ctrl<T> <S> <0>				: "\247"	section
+! Ctrl<T> <s> <0>				: "\247"	section
+! Ctrl<T> <x> <o>				: "\244"	currency
+! Ctrl<T> <X> <O>				: "\244"	currency
+! Ctrl<T> <x> <O>				: "\244"	currency
+! Ctrl<T> <X> <o>				: "\244"	currency
+! Ctrl<T> <x> <0>				: "\244"	currency
+! Ctrl<T> <X> <0>				: "\244"	currency
+! Ctrl<T> <c> <o>				: "\251"	copyright
+! Ctrl<T> <C> <O>				: "\251"	copyright
+! Ctrl<T> <c> <O>				: "\251"	copyright
+! Ctrl<T> <C> <o>				: "\251"	copyright
+! Ctrl<T> <c> <0>				: "\251"	copyright
+! Ctrl<T> <C> <0>				: "\251"	copyright
+! Ctrl<T> <a> <underscore>		: "\252"	ordfeminine
+! Ctrl<T> <A> <underscore>		: "\252"	ordfeminine
+! Ctrl<T> <o> <underscore>		: "\272"	masculine
+! Ctrl<T> <O> <underscore>		: "\272"	masculine
+! Ctrl<T> <less> <less>			: "\253"	guillemotleft
+! Ctrl<T> <greater> <greater>		: "\273"	guillemotright
+! Ctrl<T> <0> <asciicircum>		: "\260"	degree
+! Ctrl<T> <0> <asterisk>			: "\260"	degree
+! Ctrl<T> <plus> <minus>			: "\261"	plusminus
+! Ctrl<T> <slash> <u>			: "\265"	mu
+! Ctrl<T> <slash> <U>			: "\265"	mu
+! Ctrl<T> <1> <asciicircum>		: "\271"	onesuperior
+! Ctrl<T> <S> <1>				: "\271"	onesuperior
+! Ctrl<T> <s> <1>				: "\271"	onesuperior
+! Ctrl<T> <2> <asciicircum>		: "\262"	twosuperior
+! Ctrl<T> <S> <2>				: "\262"	twosuperior
+! Ctrl<T> <s> <2>				: "\262"	twosuperior
+! Ctrl<T> <3> <asciicircum>		: "\263"	threesuperior
+! Ctrl<T> <S> <3>				: "\263"	threesuperior
+! Ctrl<T> <s> <3>				: "\263"	threesuperior
+! Ctrl<T> <p> <exclam>			: "\266"	paragraph
+! Ctrl<T> <P> <exclam>			: "\266"	paragraph
+! Ctrl<T> <period> <asciicircum>		: "\267"	periodcentered
+! Ctrl<T> <period> <period>		: "\267"	periodcentered
+! Ctrl<T> <1> <4>				: "\274"	onequarter
+! Ctrl<T> <1> <2>				: "\275"	onehalf
+! Ctrl<T> <3> <4>				: "\276"	threequarters
+! Ctrl<T> <question> <question>		: "\277"	questiondown
+! Ctrl<T> <space> <space>			: "\240"	nobreakspace
+! Ctrl<T> <bar> <bar>			: "\246"	brokenbar
+! Ctrl<T> <exclam> <asciicircum>		: "\246"	brokenbar
+! Ctrl<T> <V> <B>				: "\246"	brokenbar
+! Ctrl<T> <v> <b>				: "\246"	brokenbar
+! Ctrl<T> <minus> <comma>			: "\254"	notsign
+! Ctrl<T> <minus> <minus>			: "\255"	hyphen
+! Ctrl<T> <R> <O>				: "\256"	registered
+! Ctrl<T> <minus> <asciicircum>		: "\257"	macron
+! Ctrl<T> <underscore> <asciicircum>	: "\257"	macron
+! Ctrl<T> <underscore> <underscore>	: "\257"	macron
+! Ctrl<T> <minus> <colon>			: "\367"	division
+! Ctrl<T> <x> <x>				: "\327"	multiply
+! Ctrl<T> <apostrophe> <apostrophe>	: "\264"	acute
+! Ctrl<T> <comma> <comma>			: "\270"	cedilla
+! Ctrl<T> <quotedbl> <quotedbl>		: "\250"	diaeresis
+! # Accented Alphabet
+! Ctrl<T> <A> <grave>			: "\300"	Agrave
+! Ctrl<T> <A> <acute>			: "\301"	Aacute
+! Ctrl<T> <A> <apostrophe>		: "\301"	Aacute
+! Ctrl<T> <A> <asciicircum>		: "\302"	Acircumflex
+! Ctrl<T> <A> <greater>			: "\302"	Acircumflex
+! Ctrl<T> <A> <asciitilde>		: "\303"	Atilde
+! Ctrl<T> <A> <minus>			: "\303"	Atilde
+! Ctrl<T> <A> <quotedbl>			: "\304"	Adiaeresis
+! Ctrl<T> <A> <asterisk>			: "\305"	Aring
+! Ctrl<T> <A> <E>				: "\306"	AE
+! Ctrl<T> <a> <grave>			: "\340"	agrave
+! Ctrl<T> <a> <acute>			: "\341"	aacute
+! Ctrl<T> <a> <apostrophe>		: "\341"	aacute
+! Ctrl<T> <a> <asciicircum>		: "\342"	acircumflex
+! Ctrl<T> <a> <greater>			: "\342"	acircumflex
+! Ctrl<T> <a> <asciitilde>		: "\343"	atilde
+! Ctrl<T> <a> <minus>			: "\343"	atilde
+! Ctrl<T> <a> <quotedbl>			: "\344"	adiaeresis
+! Ctrl<T> <a> <asterisk>			: "\345"	aring
+! Ctrl<T> <a> <e>				: "\346"	ae
+! Ctrl<T> <C> <comma>			: "\307"	Ccedilla
+! Ctrl<T> <c> <comma>			: "\347"	ccedilla
+! Ctrl<T> <minus> <D>			: "\320"	ETH
+! Ctrl<T> <minus> <d>			: "\360"	eth
+! Ctrl<T> <E> <grave>			: "\310"	Egrave
+! Ctrl<T> <E> <acute>			: "\311"	Eacute
+! Ctrl<T> <E> <apostrophe>		: "\311"	Eacute
+! Ctrl<T> <E> <asciicircum>		: "\312"	Ecircumflex
+! Ctrl<T> <E> <greater>			: "\312"	Ecircumflex
+! Ctrl<T> <E> <quotedbl>			: "\313"	Ediaeresis
+! Ctrl<T> <e> <grave>			: "\350"	egrave
+! Ctrl<T> <e> <acute>			: "\351"	eacute
+! Ctrl<T> <e> <apostrophe>		: "\351"	eacute
+! Ctrl<T> <e> <asciicircum>		: "\352"	ecircumflex
+! Ctrl<T> <e> <greater>			: "\352"	ecircumflex
+! Ctrl<T> <e> <quotedbl>			: "\353"	ediaeresis
+! Ctrl<T> <I> <grave>			: "\314"	Igrave
+! Ctrl<T> <I> <acute>			: "\315"	Iacute
+! Ctrl<T> <I> <apostrophe>		: "\315"	Iacute
+! Ctrl<T> <I> <asciicircum>		: "\316"	Icircumflex
+! Ctrl<T> <I> <greater>			: "\316"	Icircumflex
+! Ctrl<T> <I> <quotedbl>			: "\317"	Idiaeresis
+! Ctrl<T> <i> <grave>			: "\354"	igrave
+! Ctrl<T> <i> <acute>			: "\355"	iacute
+! Ctrl<T> <i> <apostrophe>		: "\355"	iacute
+! Ctrl<T> <i> <asciicircum>		: "\356"	icircumflex
+! Ctrl<T> <i> <greater>			: "\356"	icircumflex
+! Ctrl<T> <i> <quotedbl>			: "\357"	idiaeresis
+! Ctrl<T> <N> <asciitilde>		: "\321"	Ntilde
+! Ctrl<T> <N> <minus>			: "\321"	Ntilde
+! Ctrl<T> <n> <asciitilde>		: "\361"	ntilde
+! Ctrl<T> <n> <minus>			: "\361"	ntilde
+! Ctrl<T> <O> <grave>			: "\322"	Ograve
+! Ctrl<T> <O> <acute>			: "\323"	Oacute
+! Ctrl<T> <O> <apostrophe>		: "\323"	Oacute
+! Ctrl<T> <O> <asciicircum>		: "\324"	Ocircumflex
+! Ctrl<T> <O> <greater>			: "\324"	Ocircumflex
+! Ctrl<T> <O> <asciitilde>		: "\325"	Otilde
+! Ctrl<T> <O> <minus>			: "\325"	Otilde
+! Ctrl<T> <O> <quotedbl>			: "\326"	Odiaeresis
+! Ctrl<T> <O> <slash>			: "\330"	Ooblique
+! Ctrl<T> <o> <grave>			: "\362"	ograve
+! Ctrl<T> <o> <acute>			: "\363"	oacute
+! Ctrl<T> <o> <apostrophe>		: "\363"	oacute
+! Ctrl<T> <o> <asciicircum>		: "\364"	ocircumflex
+! Ctrl<T> <o> <greater>			: "\364"	ocircumflex
+! Ctrl<T> <o> <asciitilde>		: "\365"	otilde
+! Ctrl<T> <o> <minus>			: "\365"	otilde
+! Ctrl<T> <o> <quotedbl>			: "\366"	odiaeresis
+! Ctrl<T> <o> <slash>			: "\370"	ooblique
+! Ctrl<T> <U> <grave>			: "\331"	Ugrave
+! Ctrl<T> <U> <acute>			: "\332"	Uacute
+! Ctrl<T> <U> <apostrophe>		: "\332"	Uacute
+! Ctrl<T> <U> <asciicircum>		: "\333"	Ucircumflex
+! Ctrl<T> <U> <greater>			: "\333"	Ucircumflex
+! Ctrl<T> <U> <quotedbl>			: "\334"	Udiaeresis
+! Ctrl<T> <u> <grave>			: "\371"	ugrave
+! Ctrl<T> <u> <acute>			: "\372"	uacute
+! Ctrl<T> <u> <apostrophe>		: "\372"	uacute
+! Ctrl<T> <u> <asciicircum>		: "\373"	ucircumflex
+! Ctrl<T> <u> <greater>			: "\373"	ucircumflex
+! Ctrl<T> <u> <quotedbl>			: "\374"	udiaeresis
+! Ctrl<T> <s> <s>				: "\337"	ssharp
+! Ctrl<T> <T> <H>				: "\336"	THORN
+! Ctrl<T> <t> <h>				: "\376"	thorn
+! Ctrl<T> <Y> <acute>			: "\335"	Yacute
+! Ctrl<T> <Y> <apostrophe>		: "\335"	Yacute
+! Ctrl<T> <y> <acute>			: "\375"	yacute
+! Ctrl<T> <y> <apostrophe>		: "\375"	yacute
+! Ctrl<T> <y> <quotedbl>			: "\377"	ydiaeresis
+  # End of Sequence Definition
+*** -	Fri Aug 12 11:36:46 1994
+--- xc/lib/Xaw/XawI18n.h	Fri Aug 12 11:36:45 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: XawI18n.h,v 1.10 94/04/17 20:13:30 rws Exp $ */
+  
+  /************************************************************
+  
+--- 1,4 ----
+! /* $XConsortium: XawI18n.h,v 1.11 94/07/05 11:13:10 kaleb Exp $ */
+  
+  /************************************************************
+  
+***************
+*** 59,65 ****
+  #define wcslen(c) _Xwcslen(c)
+  #define wcscpy(d,s) _Xwcscpy(d,s)
+  #define wcsncpy(d,s,l) _Xwcsncpy(d,s,l)
+! #if defined(macII) || defined(__sxg__)
+  #define mbtowc(wc,s,l) _Xmbtowc(wc,s,l)
+  #endif
+  #endif
+--- 59,65 ----
+  #define wcslen(c) _Xwcslen(c)
+  #define wcscpy(d,s) _Xwcscpy(d,s)
+  #define wcsncpy(d,s,l) _Xwcsncpy(d,s,l)
+! #ifdef USE_XMBTOWC
+  #define mbtowc(wc,s,l) _Xmbtowc(wc,s,l)
+  #endif
+  #endif
+*** -	Fri Aug 12 11:36:48 1994
+--- xc/lib/Xaw/Text.c	Fri Aug 12 11:36:47 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: Text.c,v 1.193 94/04/17 20:13:03 kaleb Exp $ */
+  
+  /***********************************************************
+  
+--- 1,4 ----
+! /* $XConsortium: Text.c,v 1.194 94/07/08 09:45:41 kaleb Exp $ */
+  
+  /***********************************************************
+  
+***************
+*** 729,735 ****
+      left = SrcRead(ctx->text.source, left, &text, (int)(right - left));
+      if (!text.length)
+  	break;
+!     (void) strncpy(tempResult, text.ptr, text.length * bytes);
+      tempResult += text.length * bytes;
+    }
+  
+--- 729,735 ----
+      left = SrcRead(ctx->text.source, left, &text, (int)(right - left));
+      if (!text.length)
+  	break;
+!     memmove(tempResult, text.ptr, text.length * bytes);
+      tempResult += text.length * bytes;
+    }
+  
+*** -	Fri Aug 12 11:36:49 1994
+--- xc/lib/X11/Xlcint.h	Fri Aug 12 11:36:49 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: Xlcint.h,v 11.20 94/05/14 15:39:25 rws Exp $ */
+  /*
+  
+  Copyright (c) 1991  X Consortium
+--- 1,4 ----
+! /* $XConsortium: Xlcint.h,v 11.21 94/07/06 14:46:16 kaleb Exp $ */
+  /*
+  
+  Copyright (c) 1991  X Consortium
+***************
+*** 674,682 ****
+  	XIM, XIMArg*
+  #endif
+  	);
+!     int (*lookup_string)(
+  #if NeedFunctionPrototypes
+! 	XKeyEvent*, char*, int, KeySym*, XComposeStatus*
+  #endif
+  	);
+  } XIMMethodsRec, *XIMMethods;
+--- 674,687 ----
+  	XIM, XIMArg*
+  #endif
+  	);
+!     int (*ctstombs)(
+  #if NeedFunctionPrototypes
+! 	XIM, char*, int, char*, int, Status *
+! #endif
+! 	);
+!     int (*ctstowcs)(
+! #if NeedFunctionPrototypes
+! 	XIM, char*, int, wchar_t*, int, Status *
+  #endif
+  	);
+  } XIMMethodsRec, *XIMMethods;
+*** -	Fri Aug 12 11:36:51 1994
+--- xc/lib/X11/Ximint.h	Fri Aug 12 11:36:50 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: Ximint.h,v 1.7 94/05/14 15:38:50 rws Exp $ */
+  /******************************************************************
+  
+                  Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+--- 1,4 ----
+! /* $XConsortium: Ximint.h,v 1.8 94/07/06 14:46:42 kaleb Exp $ */
+  /******************************************************************
+  
+                  Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+***************
+*** 46,53 ****
+  /*
+   * Input Method data
+   */
+- #include "XimintL.h"
+  #include "XimintP.h"
+  
+  /*
+   * XIM dependent data
+--- 46,53 ----
+  /*
+   * Input Method data
+   */
+  #include "XimintP.h"
++ #include "XimintL.h"
+  
+  /*
+   * XIM dependent data
+***************
+*** 713,719 ****
+  
+  extern int	_Ximctstombs(
+  #if NeedFunctionPrototypes
+!     Xim		 im,
+      char	*from,
+      int		from_len,
+      char	*to,
+--- 713,719 ----
+  
+  extern int	_Ximctstombs(
+  #if NeedFunctionPrototypes
+!     XIM		 im,
+      char	*from,
+      int		from_len,
+      char	*to,
+***************
+*** 724,730 ****
+  
+  extern int	_Ximctstowcs(
+  #if NeedFunctionPrototypes
+!     Xim		 im,
+      char	*from,
+      int		 from_len,
+      wchar_t	*to,
+--- 724,752 ----
+  
+  extern int	_Ximctstowcs(
+  #if NeedFunctionPrototypes
+!     XIM		 im,
+!     char	*from,
+!     int		 from_len,
+!     wchar_t	*to,
+!     int		 to_len,
+!     Status	*state
+! #endif
+! );
+! 
+! extern int	_XimLcctstombs(
+! #if NeedFunctionPrototypes
+!     XIM		 im,
+!     char	*from,
+!     int		from_len,
+!     char	*to,
+!     int		to_len,
+!     Status	*state
+! #endif
+! );
+! 
+! extern int	_XimLcctstowcs(
+! #if NeedFunctionPrototypes
+!     XIM		 im,
+      char	*from,
+      int		 from_len,
+      wchar_t	*to,
+*** -	Fri Aug 12 11:36:52 1994
+--- xc/lib/X11/XimintL.h	Fri Aug 12 11:36:51 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: XimintL.h,v 1.5 94/03/29 22:51:11 rws Exp $ */
+  /******************************************************************
+  
+            Copyright 1991, 1992, 1993, 1994 by FUJITSU LIMITED
+--- 1,4 ----
+! /* $XConsortium: XimintL.h,v 1.6 94/07/06 14:46:45 kaleb Exp $ */
+  /******************************************************************
+  
+            Copyright 1991, 1992, 1993, 1994 by FUJITSU LIMITED
+***************
+*** 56,61 ****
+--- 56,63 ----
+  typedef struct _XimLocalPrivateRec {
+  	XIC			 current_ic;
+  	DefTree			*top;
++ 	XlcConv			 ctom_conv;
++ 	XlcConv			 ctow_conv;
+  } XimLocalPrivateRec;
+  
+  typedef struct _XicThaiPart {
+*** -	Fri Aug 12 11:36:53 1994
+--- xc/lib/X11/imConv.c	Fri Aug 12 11:36:53 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: imConv.c,v 1.5 94/03/26 16:57:36 rws Exp $ */
+  /******************************************************************
+  
+                Copyright 1991, 1992 by Fuji Xerox Co.,Ltd.
+--- 1,4 ----
+! /* $XConsortium: imConv.c,v 1.6 94/07/06 14:46:46 kaleb Exp $ */
+  /******************************************************************
+  
+                Copyright 1991, 1992 by Fuji Xerox Co.,Ltd.
+***************
+*** 143,150 ****
+      Status	dummy;
+      Xim	im = (Xim)ic->core.im;
+  
+!     count = im->methods->lookup_string(event, (char *)buffer,
+! 						nbytes, &symbol, status);
+      if (keysym) *keysym = symbol;
+      if ((nbytes == 0) || (symbol == NoSymbol)) {
+  	return(count);
+--- 143,149 ----
+      Status	dummy;
+      Xim	im = (Xim)ic->core.im;
+  
+!     count = XLookupString(event, (char *)buffer, nbytes, &symbol, status);
+      if (keysym) *keysym = symbol;
+      if ((nbytes == 0) || (symbol == NoSymbol)) {
+  	return(count);
+***************
+*** 163,169 ****
+  	    local_buf[local_count] = c;
+  	    local_count++;
+  	    local_buf[local_count] = '\0';
+! 	    if ((count = _Ximctstombs((Xim)ic->core.im,
+  				local_buf, local_count,
+  				(char *)buffer, nbytes, &dummy)) < 0) {
+  		count = 0;
+--- 162,168 ----
+  	    local_buf[local_count] = c;
+  	    local_count++;
+  	    local_buf[local_count] = '\0';
+! 	    if ((count = im->methods->ctstombs(ic->core.im,
+  				local_buf, local_count,
+  				(char *)buffer, nbytes, &dummy)) < 0) {
+  		count = 0;
+***************
+*** 172,178 ****
+      } else if ((count != 1) || (buffer[0] >= 0x80)) { /* not ASCII Encoding */
+  	memcpy((char *)look, (char *)buffer,count);
+  	look[count] = '\0';
+! 	if ((count = _Ximctstombs((Xim)ic->core.im,
+  				(char *)look, count,
+  				(char *)buffer, nbytes, &dummy)) < 0) {
+  	    count = 0;
+--- 171,177 ----
+      } else if ((count != 1) || (buffer[0] >= 0x80)) { /* not ASCII Encoding */
+  	memcpy((char *)look, (char *)buffer,count);
+  	look[count] = '\0';
+! 	if ((count = im->methods->ctstombs(ic->core.im,
+  				(char *)look, count,
+  				(char *)buffer, nbytes, &dummy)) < 0) {
+  	    count = 0;
+***************
+*** 199,206 ****
+      Status	dummy;
+      Xim	im = (Xim)ic->core.im;
+  
+!     count = im->methods->lookup_string(event, (char *)look,
+! 						nbytes, &symbol, status);
+      if (keysym) *keysym = symbol;
+      if ((nbytes == 0) || (symbol == NoSymbol)) {
+  	return(count);
+--- 198,204 ----
+      Status	dummy;
+      Xim	im = (Xim)ic->core.im;
+  
+!     count = XLookupString(event, (char *)look, nbytes, &symbol, status);
+      if (keysym) *keysym = symbol;
+      if ((nbytes == 0) || (symbol == NoSymbol)) {
+  	return(count);
+***************
+*** 219,225 ****
+  	    local_buf[local_count] = c;
+  	    local_count++;
+  	    local_buf[local_count] = '\0';
+! 	    if ((count = _Ximctstowcs((Xim)ic->core.im,
+  				local_buf, local_count,
+  				buffer, nbytes, &dummy)) < 0) {
+  		count = 0;
+--- 217,223 ----
+  	    local_buf[local_count] = c;
+  	    local_count++;
+  	    local_buf[local_count] = '\0';
+! 	    if ((count = im->methods->ctstowcs(ic->core.im,
+  				local_buf, local_count,
+  				buffer, nbytes, &dummy)) < 0) {
+  		count = 0;
+***************
+*** 228,234 ****
+      } else if ((count == 1) && (look[0] < 0x80)) { /* ASCII Encoding */
+  	buffer[0] = look[0];
+      } else {
+! 	if ((count = _Ximctstowcs((Xim)ic->core.im,
+  				(char *)look, count,
+  				buffer, nbytes, &dummy)) < 0) {
+  	    count = 0;
+--- 226,232 ----
+      } else if ((count == 1) && (look[0] < 0x80)) { /* ASCII Encoding */
+  	buffer[0] = look[0];
+      } else {
+! 	if ((count = im->methods->ctstowcs(ic->core.im,
+  				(char *)look, count,
+  				buffer, nbytes, &dummy)) < 0) {
+  	    count = 0;
+*** -	Fri Aug 12 11:36:54 1994
+--- xc/lib/X11/imDefFlt.c	Fri Aug 12 11:36:54 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: imDefFlt.c,v 1.5 94/05/14 15:27:52 rws Exp $ */
+  /******************************************************************
+  
+             Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+--- 1,4 ----
+! /* $XConsortium: imDefFlt.c,v 1.6 94/07/06 14:46:48 kaleb Exp $ */
+  /******************************************************************
+  
+             Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+***************
+*** 50,56 ****
+  				 + sizeof(CARD32)   /* sizeof modifier */
+  				 + sizeof(CARD32);  /* sizeof modifier mask */
+  
+!     im->methods->lookup_string(ev, buf, BUFSIZE, &keysym, NULL);
+      if (!keysym)
+  	return -1;
+  
+--- 50,56 ----
+  				 + sizeof(CARD32)   /* sizeof modifier */
+  				 + sizeof(CARD32);  /* sizeof modifier mask */
+  
+!     XLookupString(ev, buf, BUFSIZE, &keysym, NULL);
+      if (!keysym)
+  	return -1;
+  
+*** -	Fri Aug 12 11:36:56 1994
+--- xc/lib/X11/imDefIc.c	Fri Aug 12 11:36:55 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: imDefIc.c,v 1.9 94/05/14 15:40:04 rws Exp $ */
+  /******************************************************************
+  
+             Copyright 1991, 1992 by Sun Microsystems, Inc.
+--- 1,4 ----
+! /* $XConsortium: imDefIc.c,v 1.11 94/08/02 12:44:21 kaleb Exp $ */
+  /******************************************************************
+  
+             Copyright 1991, 1992 by Sun Microsystems, Inc.
+***************
+*** 1074,1089 ****
+  	(void)memcpy(str, info->string, info->string_len);
+  	str += info->string_len;
+      }
+!     (void)memcpy(str, (char *)&buf_s[1], (int)&buf_s[0]);
+      commit[len] = '\0';
+  
+!     new_len = _Ximctstombs(im, commit, len, NULL, 0, &status);
+      if (status != XLookupNone) {
+  	if (!(new_commit = Xmalloc(new_len + 1))) {
+  	    Xfree(commit);
+  	    goto Error_On_Reset;
+  	}
+! 	(void)_Ximctstombs(im, commit, len, new_commit, new_len, NULL);
+  	new_commit[new_len] = '\0';
+      }
+      Xfree(commit);
+--- 1074,1090 ----
+  	(void)memcpy(str, info->string, info->string_len);
+  	str += info->string_len;
+      }
+!     (void)memcpy(str, (char *)&buf_s[1], buf_s[0]);
+      commit[len] = '\0';
+  
+!     new_len = im->methods->ctstombs((XIM)im, commit, len, NULL, 0, &status);
+      if (status != XLookupNone) {
+  	if (!(new_commit = Xmalloc(new_len + 1))) {
+  	    Xfree(commit);
+  	    goto Error_On_Reset;
+  	}
+! 	(void)im->methods->ctstombs((XIM)im, commit, len,
+! 						new_commit, new_len, NULL);
+  	new_commit[new_len] = '\0';
+      }
+      Xfree(commit);
+***************
+*** 1191,1207 ****
+  	(void)memcpy(str, info->string, info->string_len);
+  	str += info->string_len;
+      }
+!     (void)memcpy(str, (char *)&buf_s[1], (int)&buf_s[0]);
+      commit[len] = '\0';
+  
+!     new_len = _Ximctstowcs(im, commit, len, NULL, 0, &status);
+      if (status != XLookupNone) {
+  	if (!(new_commit =
+  		     (wchar_t *)Xmalloc(sizeof(wchar_t) * (new_len + 1)))) {
+  	    Xfree(commit);
+  	    goto Error_On_Reset;
+  	}
+! 	(void)_Ximctstowcs(im, commit, len, new_commit, new_len, NULL);
+  	new_commit[new_len] = (wchar_t)'\0';
+      }
+      Xfree(commit);
+--- 1192,1209 ----
+  	(void)memcpy(str, info->string, info->string_len);
+  	str += info->string_len;
+      }
+!     (void)memcpy(str, (char *)&buf_s[1], buf_s[0]);
+      commit[len] = '\0';
+  
+!     new_len = im->methods->ctstowcs((XIM)im, commit, len, NULL, 0, &status);
+      if (status != XLookupNone) {
+  	if (!(new_commit =
+  		     (wchar_t *)Xmalloc(sizeof(wchar_t) * (new_len + 1)))) {
+  	    Xfree(commit);
+  	    goto Error_On_Reset;
+  	}
+! 	(void)im->methods->ctstowcs((XIM)im, commit, len,
+! 						new_commit, new_len, NULL);
+  	new_commit[new_len] = (wchar_t)'\0';
+      }
+      Xfree(commit);
+*** -	Fri Aug 12 11:36:57 1994
+--- xc/lib/X11/imDefIm.c	Fri Aug 12 11:36:56 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: imDefIm.c,v 1.11 94/06/03 18:35:30 rws Exp $ */
+  /******************************************************************
+           Copyright 1990, 1991, 1992 by Sun Microsystems, Inc.
+           Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+--- 1,4 ----
+! /* $XConsortium: imDefIm.c,v 1.13 94/07/08 14:45:26 kaleb Exp $ */
+  /******************************************************************
+           Copyright 1990, 1991, 1992 by Sun Microsystems, Inc.
+           Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+***************
+*** 142,151 ****
+  
+      category_len = strlen(XIM_LOCAL_CATEGORY);
+      if(address_len < category_len)
+! 	return False;
+  
+      if(strncmp(address, XIM_LOCAL_CATEGORY, category_len))
+! 	return False;
+   
+      pp = &address[category_len];
+  
+--- 142,151 ----
+  
+      category_len = strlen(XIM_LOCAL_CATEGORY);
+      if(address_len < category_len)
+! 	return (char*)NULL;
+  
+      if(strncmp(address, XIM_LOCAL_CATEGORY, category_len))
+! 	return (char*)NULL;
+   
+      pp = &address[category_len];
+  
+***************
+*** 155,165 ****
+  	for (p = pp; (*p != ',') && (*p); p++);
+  	if (!*p)
+  	    finish = True;
+- 	*p = '\0';
+  	address_len = (int)(p - pp);
+  
+  	for( n = 0; n < len; n++ )
+! 	    if( locale_name[n]  &&  !strcmp( pp, locale_name[n] ) )
+  		return locale_name[n];
+  	if (finish)
+  	    break;
+--- 155,164 ----
+  	for (p = pp; (*p != ',') && (*p); p++);
+  	if (!*p)
+  	    finish = True;
+  	address_len = (int)(p - pp);
+  
+  	for( n = 0; n < len; n++ )
+! 	    if( locale_name[n]  &&  !strncmp( pp, locale_name[n], address_len ) )
+  		return locale_name[n];
+  	if (finish)
+  	    break;
+***************
+*** 1524,1530 ****
+      _XimProtoSetIMValues,       /* set_values */
+      _XimProtoGetIMValues,       /* get_values */
+      _XimProtoCreateIC,          /* create_ic */
+!     XLookupString		/* lookup_string */
+  };
+  
+  Private Bool
+--- 1523,1530 ----
+      _XimProtoSetIMValues,       /* set_values */
+      _XimProtoGetIMValues,       /* get_values */
+      _XimProtoCreateIC,          /* create_ic */
+!     _Ximctstombs,		/* ctstombs */
+!     _Ximctstowcs		/* ctstowcs */
+  };
+  
+  Private Bool
+*** -	Fri Aug 12 11:36:58 1994
+--- xc/lib/X11/imDefLkup.c	Fri Aug 12 11:36:58 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: imDefLkup.c,v 1.10 94/05/14 16:20:45 rws Exp $ */
+  /******************************************************************
+  
+             Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+--- 1,4 ----
+! /* $XConsortium: imDefLkup.c,v 1.11 94/07/06 14:46:54 kaleb Exp $ */
+  /******************************************************************
+  
+             Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+***************
+*** 891,904 ****
+  #endif /* !MAXINT */
+  
+  Public int
+! _Ximctstombs(im, from, from_len, to, to_len, state)
+!     Xim		 im;
+      char	*from;
+      int		 from_len;
+      char	*to;
+      int		 to_len;
+      Status	*state;
+  {
+      XlcConv	 conv = im->private.proto.ctom_conv;
+      int		 from_left;
+      int		 to_left;
+--- 891,905 ----
+  #endif /* !MAXINT */
+  
+  Public int
+! _Ximctstombs(xim, from, from_len, to, to_len, state)
+!     XIM		 xim;
+      char	*from;
+      int		 from_len;
+      char	*to;
+      int		 to_len;
+      Status	*state;
+  {
++     Xim		 im = (Xim)xim;
+      XlcConv	 conv = im->private.proto.ctom_conv;
+      int		 from_left;
+      int		 to_left;
+***************
+*** 976,989 ****
+  }
+  
+  Public int
+! _Ximctstowcs(im, from, from_len, to, to_len, state)
+!     Xim		 im;
+      char	*from;
+      int		 from_len;
+      wchar_t	*to;
+      int		 to_len;
+      Status	*state;
+  {
+      XlcConv	 conv = im->private.proto.ctow_conv;
+      int		 from_left;
+      int		 to_left;
+--- 977,991 ----
+  }
+  
+  Public int
+! _Ximctstowcs(xim, from, from_len, to, to_len, state)
+!     XIM		 xim;
+      char	*from;
+      int		 from_len;
+      wchar_t	*to;
+      int		 to_len;
+      Status	*state;
+  {
++     Xim		 im = (Xim)xim;
+      XlcConv	 conv = im->private.proto.ctow_conv;
+      int		 from_left;
+      int		 to_left;
+***************
+*** 1088,1094 ****
+  	    return 0;
+  	}
+  
+! 	ret = _Ximctstombs(im, info->string,
+  			 	info->string_len, buffer, bytes, state);
+  	if (*state == XBufferOverflow)
+  	    return 0;
+--- 1090,1096 ----
+  	    return 0;
+  	}
+  
+! 	ret = im->methods->ctstombs((XIM)im, info->string,
+  			 	info->string_len, buffer, bytes, state);
+  	if (*state == XBufferOverflow)
+  	    return 0;
+***************
+*** 1151,1157 ****
+  	    return 0;
+  	}
+  
+! 	ret = _Ximctstowcs(im, info->string,
+  			 	info->string_len, buffer, bytes, state);
+  	if (*state == XBufferOverflow)
+  	    return 0;
+--- 1153,1159 ----
+  	    return 0;
+  	}
+  
+! 	ret = im->methods->ctstowcs((XIM)im, info->string,
+  			 	info->string_len, buffer, bytes, state);
+  	if (*state == XBufferOverflow)
+  	    return 0;
+*** -	Fri Aug 12 11:37:00 1994
+--- xc/lib/X11/imLcFlt.c	Fri Aug 12 11:36:59 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: imLcFlt.c,v 1.3 94/03/26 17:00:28 rws Exp $ */
+  /******************************************************************
+  
+                Copyright 1992 by Fuji Xerox Co., Ltd.
+--- 1,4 ----
+! /* $XConsortium: imLcFlt.c,v 1.4 94/07/06 14:46:56 kaleb Exp $ */
+  /******************************************************************
+  
+                Copyright 1992 by Fuji Xerox Co., Ltd.
+***************
+*** 54,61 ****
+         || (((Xim)ic->core.im)->private.local.top == (DefTree *)NULL) )
+  	return(False);
+  
+!     im->methods->lookup_string((XKeyEvent *)ev, buf,
+! 						sizeof(buf), &keysym, NULL);
+  
+      if(IsModifierKey(keysym))
+  	return (False);
+--- 54,60 ----
+         || (((Xim)ic->core.im)->private.local.top == (DefTree *)NULL) )
+  	return(False);
+  
+!     XLookupString((XKeyEvent *)ev, buf, sizeof(buf), &keysym, NULL);
+  
+      if(IsModifierKey(keysym))
+  	return (False);
+*** -	Fri Aug 12 11:37:01 1994
+--- xc/lib/X11/imLcIm.c	Fri Aug 12 11:37:01 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: imLcIm.c,v 1.7 94/03/30 09:09:55 rws Exp $ */
+  /******************************************************************
+  
+            Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+--- 1,4 ----
+! /* $XConsortium: imLcIm.c,v 1.8 94/07/06 14:46:57 kaleb Exp $ */
+  /******************************************************************
+  
+            Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+***************
+*** 177,189 ****
+      _XimLocalSetIMValues,       /* set_values */
+      _XimLocalGetIMValues,       /* get_values */
+      _XimLocalCreateIC,          /* create_ic */
+!     XLookupString		/* lookup_string */
+  };
+  
+  Public Bool
+  _XimLocalOpenIM(im)
+      Xim			 im;
+  {
+      XimDefIMValues	 im_values;
+  
+      _XimInitialResourceInfo();
+--- 177,193 ----
+      _XimLocalSetIMValues,       /* set_values */
+      _XimLocalGetIMValues,       /* get_values */
+      _XimLocalCreateIC,          /* create_ic */
+!     _XimLcctstombs,		/* ctstombs */
+!     _XimLcctstowcs		/* ctstowcs */
+  };
+  
+  Public Bool
+  _XimLocalOpenIM(im)
+      Xim			 im;
+  {
++     XLCd		 lcd = im->core.lcd;
++     XlcConv		 ctom_conv;
++     XlcConv		 ctow_conv;
+      XimDefIMValues	 im_values;
+  
+      _XimInitialResourceInfo();
+***************
+*** 207,214 ****
+--- 211,228 ----
+  
+      _XimCreateDefaultTree(im);
+  
++     if (!(ctom_conv = _XlcOpenConverter(lcd,
++ 					XlcNCompoundText, lcd, XlcNMultiByte)))
++ 	goto Open_Error;
++     if (!(ctow_conv = _XlcOpenConverter(lcd,
++ 					XlcNCompoundText, lcd, XlcNWideChar)))
++ 	goto Open_Error;
++ 
+      im->methods = &Xim_im_local_methods;
+      im->private.local.current_ic = (XIC)NULL;
++     im->private.local.ctom_conv = ctom_conv;
++     im->private.local.ctow_conv = ctow_conv;
++ 
+      return(True);
+  
+  Open_Error :
+***************
+*** 226,231 ****
+--- 240,251 ----
+      }
+      if (im->core.styles) {
+  	Xfree(im->core.styles);
++     }
++     if (im->private.local.ctom_conv) {
++ 	_XlcCloseConverter(im->private.local.ctom_conv);
++     }
++     if (im->private.local.ctow_conv) {
++ 	_XlcCloseConverter(im->private.local.ctow_conv);
+      }
+      return(False);
+  }
+*** -	Fri Aug 12 11:37:02 1994
+--- xc/lib/X11/imLcLkup.c	Fri Aug 12 11:37:02 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: imLcLkup.c,v 1.5 94/03/26 17:00:36 rws Exp $ */
+  /******************************************************************
+  
+                Copyright 1992 by Fuji Xerox Co., Ltd.
+--- 1,4 ----
+! /* $XConsortium: imLcLkup.c,v 1.6 94/07/06 14:46:59 kaleb Exp $ */
+  /******************************************************************
+  
+                Copyright 1992 by Fuji Xerox Co., Ltd.
+***************
+*** 154,157 ****
+--- 154,333 ----
+  	}
+      }
+      return (ret);
++ }
++ 
++ #ifndef MAXINT
++ #define MAXINT		(~((unsigned int)1 << (8 * sizeof(int)) - 1))
++ #endif /* !MAXINT */
++ 
++ Public int
++ _XimLcctstombs(xim, from, from_len, to, to_len, state)
++     XIM		 xim;
++     char	*from;
++     int		 from_len;
++     char	*to;
++     int		 to_len;
++     Status	*state;
++ {
++     Xim		 im = (Xim)xim;
++     XlcConv	 conv = im->private.local.ctom_conv;
++     int		 from_left;
++     int		 to_left;
++     int		 from_savelen;
++     int		 to_savelen;
++     int		 from_cnvlen;
++     int		 to_cnvlen;
++     char	*from_buf;
++     char	*to_buf;
++     Status	 tmp_state;
++ 
++     if (!state)
++ 	state = &tmp_state;
++ 
++     if (!conv || !from || !from_len) {
++ 	*state = XLookupNone;
++ 	return 0;
++     }
++ 
++     if (to && to_len) {
++ 	from_left = from_len;
++ 	to_left = to_len - 1;
++ 	from_cnvlen = 0;
++ 	to_cnvlen = 0;
++ 	for (;;) {
++ 	    from_savelen = from_left;
++ 	    to_savelen = to_left;
++ 	    from_buf = &from[from_cnvlen];
++ 	    to_buf = &to[to_cnvlen];
++ 	    if (_XlcConvert(conv, (XPointer *)&from_buf, &from_left,
++ 				 (XPointer *)&to_buf, &to_left, NULL, 0) < 0) {
++ 		*state = XLookupNone;
++ 		return 0;
++ 	    }
++ 	    from_cnvlen += (from_savelen - from_left);
++ 	    to_cnvlen += (to_savelen - to_left);
++ 	    if (from_left == 0) {
++ 		if (to_cnvlen > 0) {
++ 		    to[to_cnvlen] = '\0';
++ 		    *state = XLookupChars;
++ 		} else {
++ 		    *state = XLookupNone;
++ 		}
++ 		return to_cnvlen;
++ 	    }
++ 	    if (to_left == 0)
++ 		break;
++ 	}
++     }
++ 
++     from_left = from_len;
++     from_cnvlen = 0;
++     to_cnvlen = 0;
++     to_buf = NULL;
++     for (;;) {
++ 	from_savelen = from_left;
++ 	to_left = MAXINT;
++ 	from_buf = &from[from_cnvlen];
++ 	if (_XlcConvert(conv, (XPointer *)&from_buf, &from_left,
++ 				 (XPointer *)&to_buf, &to_left, NULL, 0) < 0) {
++ 	    *state = XLookupNone;
++ 	    return 0;
++ 	}
++ 	from_cnvlen += (from_savelen - from_left);
++ 	to_cnvlen += (MAXINT - to_left);
++ 	if (from_left == 0) {
++ 	    if (to_cnvlen > 0)
++ 		*state = XBufferOverflow;
++ 	    else
++ 		*state = XLookupNone;
++ 	    break;
++ 	}
++     }
++     return to_cnvlen;
++ }
++ 
++ Public int
++ _XimLcctstowcs(xim, from, from_len, to, to_len, state)
++     XIM		 xim;
++     char	*from;
++     int		 from_len;
++     wchar_t	*to;
++     int		 to_len;
++     Status	*state;
++ {
++     Xim		 im = (Xim)xim;
++     XlcConv	 conv = im->private.local.ctow_conv;
++     int		 from_left;
++     int		 to_left;
++     int		 from_savelen;
++     int		 to_savelen;
++     int		 from_cnvlen;
++     int		 to_cnvlen;
++     char	*from_buf;
++     wchar_t	*to_buf;
++     Status	 tmp_state;
++ 
++     if (!state)
++ 	state = &tmp_state;
++ 
++     if (!conv || !from || !from_len) {
++ 	*state = XLookupNone;
++ 	return 0;
++     }
++ 
++     if (to && to_len) {
++ 	from_left = from_len;
++ 	to_left = to_len - 1;
++ 	from_cnvlen = 0;
++ 	to_cnvlen = 0;
++ 	for (;;) {
++ 	    from_savelen = from_left;
++ 	    to_savelen = to_left;
++ 	    from_buf = &from[from_cnvlen];
++ 	    to_buf = &to[to_cnvlen];
++ 	    if (_XlcConvert(conv, (XPointer *)&from_buf, &from_left,
++ 				 (XPointer *)&to_buf, &to_left, NULL, 0) < 0) {
++ 		*state = XLookupNone;
++ 		return 0;
++ 	    }
++ 	    from_cnvlen += (from_savelen - from_left);
++ 	    to_cnvlen += (to_savelen - to_left);
++ 	    if (from_left == 0) {
++ 		if (to_cnvlen > 0) {
++ 		    to[to_cnvlen] = (wchar_t)'\0';
++ 		    *state = XLookupChars;
++ 		} else {
++ 		    *state = XLookupNone;
++ 		}
++ 		return to_cnvlen;
++ 	    }
++ 	    if (to_left == 0)
++ 		break;
++ 	}
++     }
++ 		
++     from_left = from_len;
++     from_cnvlen = 0;
++     to_cnvlen = 0;
++     to_buf = (wchar_t *)NULL;
++     for (;;) {
++ 	from_savelen = from_left;
++ 	to_left = MAXINT;
++ 	from_buf = &from[from_cnvlen];
++ 	if (_XlcConvert(conv, (XPointer *)&from_buf, &from_left,
++ 				 (XPointer *)&to_buf, &to_left, NULL, 0) < 0) {
++ 	    *state = XLookupNone;
++ 	    return 0;
++ 	}
++ 	from_cnvlen += (from_savelen - from_left);
++ 	to_cnvlen += (MAXINT - to_left);
++ 	if (from_left == 0) {
++ 	    if (to_cnvlen > 0)
++ 		*state = XBufferOverflow;
++ 	    else
++ 		*state = XLookupNone;
++ 	    break;
++ 	}
++     }
++     return to_cnvlen;
+  }
+*** -	Fri Aug 12 11:37:04 1994
+--- xc/lib/X11/imThaiIm.c	Fri Aug 12 11:37:03 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: imThaiIm.c,v 1.3 94/03/26 17:00:57 rws Exp $ */
+  /******************************************************************
+  
+            Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+--- 1,4 ----
+! /* $XConsortium: imThaiIm.c,v 1.4 94/07/06 14:47:00 kaleb Exp $ */
+  /******************************************************************
+  
+            Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+***************
+*** 48,54 ****
+      _XimLocalSetIMValues,      /* set_values */
+      _XimLocalGetIMValues,      /* get_values */
+      _XimThaiCreateIC,          /* create_ic */
+!     XLookupString		/* lookup_string */
+  };
+  
+  #define THAI_LANGUAGE_NAME 	"th"
+--- 48,55 ----
+      _XimLocalSetIMValues,      /* set_values */
+      _XimLocalGetIMValues,      /* get_values */
+      _XimThaiCreateIC,          /* create_ic */
+!     _XimLcctstombs,            /* ctstombs */
+!     _XimLcctstowcs             /* ctstowcs */
+  };
+  
+  #define THAI_LANGUAGE_NAME 	"th"
+***************
+*** 70,75 ****
+--- 71,79 ----
+  _XimThaiOpenIM(im)
+      Xim		 im;
+  {
++     XLCd		 lcd = im->core.lcd;
++     XlcConv		 ctom_conv;
++     XlcConv		 ctow_conv;
+      XimDefIMValues	 im_values;
+  
+      _XimInitialResourceInfo();
+***************
+*** 91,98 ****
+--- 95,112 ----
+      }
+      _XimSetCurrentIMValues(im, &im_values);
+  
++     if (!(ctom_conv = _XlcOpenConverter(lcd,
++ 					XlcNCompoundText, lcd, XlcNMultiByte)))
++ 	goto Open_Error;
++     if (!(ctow_conv = _XlcOpenConverter(lcd,
++ 					XlcNCompoundText, lcd, XlcNWideChar)))
++ 	goto Open_Error;
++ 
+      im->methods = &Xim_im_thai_methods;
+      im->private.local.current_ic = (XIC)NULL;
++     im->private.local.ctom_conv = ctom_conv;
++     im->private.local.ctow_conv = ctow_conv;
++ 
+      return(True);
+  
+  Open_Error :
+***************
+*** 110,115 ****
+--- 124,135 ----
+      }
+      if (im->core.styles) {
+  	Xfree(im->core.styles);
++     }
++     if (im->private.local.ctom_conv) {
++ 	_XlcCloseConverter(im->private.local.ctom_conv);
++     }
++     if (im->private.local.ctow_conv) {
++ 	_XlcCloseConverter(im->private.local.ctow_conv);
+      }
+      return(False);
+  }
+*** -	Fri Aug 12 11:37:05 1994
+--- xc/lib/X11/imCallbk.c	Fri Aug 12 11:37:04 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: imCallbk.c,v 1.6 94/04/17 20:22:02 rws Exp $ */
+  /***********************************************************************
+  Copyright 1993 by Digital Equipment Corporation, Maynard, Massachusetts,
+  Copyright 1994 by FUJITSU LIMITED
+--- 1,4 ----
+! /* $XConsortium: imCallbk.c,v 1.7 94/07/06 14:47:01 kaleb Exp $ */
+  /***********************************************************************
+  Copyright 1993 by Digital Equipment Corporation, Maynard, Massachusetts,
+  Copyright 1994 by FUJITSU LIMITED
+***************
+*** 593,599 ****
+  	    tmp_buf[tmp_len] = '\0';
+  
+  	    text->encoding_is_wchar = False;
+! 	    text->length = _Ximctstowcs(im, 
+  					tmp_buf, tmp_len, 
+  					(wchar_t*)NULL, 0, 
+  					&s); /* CT? HM */
+--- 593,599 ----
+  	    tmp_buf[tmp_len] = '\0';
+  
+  	    text->encoding_is_wchar = False;
+! 	    text->length = im->methods->ctstowcs((XIM)im, 
+  					tmp_buf, tmp_len, 
+  					(wchar_t*)NULL, 0, 
+  					&s); /* CT? HM */
+***************
+*** 601,607 ****
+  		if (text->string.multi_byte
+  		    = (char*)Xmalloc(text->length * XLC_PUBLIC(im->core.lcd,mb_cur_max))) {
+  			int tmp;
+! 			tmp = _Ximctstombs(im,
+  					   tmp_buf, tmp_len, 
+  					   text->string.multi_byte, text->length, 
+  					   &s);
+--- 601,607 ----
+  		if (text->string.multi_byte
+  		    = (char*)Xmalloc(text->length * XLC_PUBLIC(im->core.lcd,mb_cur_max))) {
+  			int tmp;
+! 			tmp = im->methods->ctstombs((XIM)im,
+  					   tmp_buf, tmp_len, 
+  					   text->string.multi_byte, text->length, 
+  					   &s);
+*** -	Fri Aug 12 11:37:06 1994
+--- xc/lib/X11/imExten.c	Fri Aug 12 11:37:06 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: imExten.c,v 1.4 94/03/26 16:57:55 rws Exp $ */
+  /******************************************************************
+  
+             Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+--- 1,4 ----
+! /* $XConsortium: imExten.c,v 1.5 94/07/08 10:38:20 kaleb Exp $ */
+  /******************************************************************
+  
+             Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+***************
+*** 76,82 ****
+  
+      for (i = 0; i < n; i++) {
+  	if (extensions[i].idx == idx)
+! 	    if (extensions[idx].is_support)
+  		return i;
+  	    else
+  		break;
+--- 76,82 ----
+  
+      for (i = 0; i < n; i++) {
+  	if (extensions[i].idx == idx)
+! 	    if (extensions[i].is_support)
+  		return i;
+  	    else
+  		break;
+*** -	Fri Aug 12 11:37:07 1994
+--- xc/lib/X11/lcCT.c	Fri Aug 12 11:37:07 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: lcCT.c,v 1.3 94/01/20 18:06:14 rws Exp $ */
+  /*
+   * Copyright 1992, 1993 by TOSHIBA Corp.
+   *
+--- 1,4 ----
+! /* $XConsortium: lcCT.c,v 1.4 94/07/18 10:17:11 kaleb Exp $ */
+  /*
+   * Copyright 1992, 1993 by TOSHIBA Corp.
+   *
+***************
+*** 634,652 ****
+      int num_args;
+  {
+      State state = (State) conv->state;
+      register length;
+  
+!     length = min(*from_left, *to_left);
+!     memcpy(*to, *from, length);
+  
+!     *((char **) from) += length;
+!     *from_left -= length;
+  
+!     *((char **) to) += length;
+!     *to_left -= length;
+  
+      if (num_args > 0)
+! 	*((XlcCharSet *) args[0]) = state->charset;
+  
+      return 0;
+  }
+--- 634,659 ----
+      int num_args;
+  {
+      State state = (State) conv->state;
++     register char *src, *dst;
++     unsigned char side;
+      register length;
+  
+!     src = (char *) *from;
+!     dst = (char *) *to;
+  
+!     length = min(*from_left, *to_left);
+!     side = *((unsigned char *) src) & 0x80;
+  
+!     while (side == (*((unsigned char *) src) & 0x80) && length-- > 0)
+! 	*dst++ = *src++;
+!     
+!     *from_left -= src - (char *) *from;
+!     *from = (XPointer) src;
+!     *to_left -= dst - (char *) *to;
+!     *to = (XPointer) dst;
+  
+      if (num_args > 0)
+! 	*((XlcCharSet *)args[0]) = side ? state->GR_charset : state->GL_charset;
+  
+      return 0;
+  }
+***************
+*** 665,674 ****
+      char *csptr, *string_ptr;
+      int csstr_len, str_len;
+      unsigned char ch;
+!     int cvt_length;
+  
+!     /* XXX */
+!     if (num_args < 1 || state->charset != (XlcCharSet) args[0])
+  	return -1;
+      
+      csptr = *((char **) from);
+--- 672,681 ----
+      char *csptr, *string_ptr;
+      int csstr_len, str_len;
+      unsigned char ch;
+!     int cvt_length, unconv_num = 0;
+  
+!     if (num_args < 1 || (state->GL_charset != (XlcCharSet) args[0] &&
+! 	state->GR_charset != (XlcCharSet) args[0]))
+  	return -1;
+      
+      csptr = *((char **) from);
+***************
+*** 677,691 ****
+      str_len = *to_left;
+  
+      cvt_length = 0;
+!     while (csstr_len > 0 && str_len > 0) {
+! 	ch = *((unsigned char *) csptr++) & 0x7f;
+! 	if (ch < 0x20 || ch > 0x7e)
+! 	    if (ch != 0x00 && ch != 0x09 && ch != 0x0a && ch != 0x1b)
+! 		continue;	/* XXX */
+  	cvt_length++;
+  	if (string_ptr) 
+! 	    *string_ptr++ = ch;
+! 	csstr_len--;
+  	str_len--;
+      }
+  
+--- 684,699 ----
+      str_len = *to_left;
+  
+      cvt_length = 0;
+!     while (csstr_len-- > 0 && str_len > 0) {
+! 	ch = *((unsigned char *) csptr++);
+! 	if ((ch < 0x20 && ch != 0x00 && ch != 0x09 && ch != 0x0a) ||
+! 	    ch == 0x7f || ((ch & 0x80) && ch < 0xa0)) {
+! 	    unconv_num++;
+! 	    continue;
+! 	}
+  	cvt_length++;
+  	if (string_ptr) 
+! 	    *((unsigned char *) string_ptr++) = ch;
+  	str_len--;
+      }
+  
+***************
+*** 696,702 ****
+  	*to = (XPointer) string_ptr;
+      *to_left -= cvt_length;
+  
+!     return 0;
+  }
+  
+  
+--- 704,710 ----
+  	*to = (XPointer) string_ptr;
+      *to_left -= cvt_length;
+  
+!     return unconv_num;
+  }
+  
+  
+*** -	Fri Aug 12 11:37:09 1994
+--- xc/lib/Xt/NextEvent.c	Fri Aug 12 11:37:08 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: NextEvent.c,v 1.143 94/05/11 16:01:26 kaleb Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+--- 1,4 ----
+! /* $XConsortium: NextEvent.c,v 1.144 94/06/14 10:11:06 kaleb Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+***************
+*** 396,402 ****
+      if (!ignoreEvents) {
+  	fdlp = wf->fdlist;
+  	for (ii = 0; ii < wf->num_dpys; ii++, fdlp++) {
+! 	    if (*dpy_no == -1 && fdlp->revents & (POLLIN|POLLHUP) &&
+  #ifdef XTHREADS
+  		!(fdlp->revents & POLLNVAL) &&
+  #endif
+--- 396,402 ----
+      if (!ignoreEvents) {
+  	fdlp = wf->fdlist;
+  	for (ii = 0; ii < wf->num_dpys; ii++, fdlp++) {
+! 	    if (*dpy_no == -1 && fdlp->revents & (POLLIN|POLLHUP|POLLERR) &&
+  #ifdef XTHREADS
+  		!(fdlp->revents & POLLNVAL) &&
+  #endif
+*** -	Fri Aug 12 11:37:10 1994
+--- xc/lib/Xt/VarCreate.c	Fri Aug 12 11:37:10 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: VarCreate.c,v 1.30 94/04/17 20:15:01 converse Exp $ */
+  
+  /*
+  
+--- 1,4 ----
+! /* $XConsortium: VarCreate.c,v 1.31 94/06/07 11:17:18 kaleb Exp $ */
+  
+  /*
+  
+***************
+*** 467,473 ****
+  {
+      va_list	var;
+  
+!     Va_start(var, fallback_resources);    
+      return _XtVaOpenApplication(app_context_return, (String)application_class,
+  				options, num_options, argc_in_out, argv_in_out,
+  				fallback_resources, widget_class, var);
+--- 467,473 ----
+  {
+      va_list	var;
+  
+!     Va_start(var, widget_class);    
+      return _XtVaOpenApplication(app_context_return, (String)application_class,
+  				options, num_options, argc_in_out, argv_in_out,
+  				fallback_resources, widget_class, var);
+*** -	Fri Aug 12 11:37:12 1994
+--- xc/lib/font/Speedo/spfont.c	Fri Aug 12 11:37:11 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: spfont.c,v 1.22 94/04/17 20:17:48 gildea Exp $ */
+  /*
+   * Copyright 1990, 1991 Network Computing Devices;
+   * Portions Copyright 1987 by Digital Equipment Corporation
+--- 1,4 ----
+! /* $XConsortium: spfont.c,v 1.23 94/07/25 13:48:35 kaleb Exp $ */
+  /*
+   * Copyright 1990, 1991 Network Computing Devices;
+   * Portions Copyright 1987 by Digital Equipment Corporation
+***************
+*** 59,65 ****
+  #include	"FSproto.h"
+  #include	"spint.h"
+  #include	<servermd.h>
+! #include	<math.h>
+  
+  #ifndef M_PI
+  #define M_PI 3.14159
+--- 59,71 ----
+  #include	"FSproto.h"
+  #include	"spint.h"
+  #include	<servermd.h>
+! #ifdef _XOPEN_SOURCE
+! #include <math.h>
+! #else
+! #define _XOPEN_SOURCE	/* to get prototype for hypot on some systems */
+! #include <math.h>
+! #undef _XOPEN_SOURCE
+! #endif
+  
+  #ifndef M_PI
+  #define M_PI 3.14159
+*** -	Fri Aug 12 11:37:14 1994
+--- xc/lib/font/Type1/t1funcs.c	Fri Aug 12 11:37:13 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: t1funcs.c,v 1.19 94/04/17 20:17:22 dpw Exp $ */
+  /* Copyright International Business Machines,Corp. 1991
+   * All Rights Reserved
+   *
+--- 1,4 ----
+! /* $XConsortium: t1funcs.c,v 1.20 94/07/25 13:50:03 kaleb Exp $ */
+  /* Copyright International Business Machines,Corp. 1991
+   * All Rights Reserved
+   *
+***************
+*** 86,92 ****
+--- 86,98 ----
+  */
+   
+  #include <string.h>
++ #ifdef _XOPEN_SOURCE
+  #include <math.h>
++ #else
++ #define _XOPEN_SOURCE	/* to get prototype for hypot on some systems */
++ #include <math.h>
++ #undef _X_OPEN_SOURCE
++ #endif
+  #include "X11/Xfuncs.h"
+  #include "fntfilst.h"
+  #include "FSproto.h"
+*** -	Fri Aug 12 11:37:15 1994
+--- xc/lib/font/bitmap/bitscale.c	Fri Aug 12 11:37:15 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: bitscale.c,v 1.27 94/04/17 20:17:13 gildea Exp $ */
+  
+  /*
+  
+--- 1,4 ----
+! /* $XConsortium: bitscale.c,v 1.28 94/07/25 13:50:59 kaleb Exp $ */
+  
+  /*
+  
+***************
+*** 36,42 ****
+--- 36,48 ----
+  
+  #include "fntfilst.h"
+  #include "bitmap.h"
++ #ifdef _XOPEN_SOURCE
+  #include <math.h>
++ #else
++ #define _XOPEN_SOURCE	/* to get prototype for hypot on some systems */
++ #include <math.h>
++ #undef _XOPEN_SOURCE
++ #endif
+  
+  extern Atom MakeAtom();
+  
+*** -	Fri Aug 12 11:37:17 1994
+--- xc/lib/font/fontfile/fontscale.c	Fri Aug 12 11:37:16 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: fontscale.c,v 1.13 94/04/17 20:17:07 gildea Exp $ */
+  
+  /*
+  
+--- 1,4 ----
+! /* $XConsortium: fontscale.c,v 1.14 94/07/25 13:52:04 kaleb Exp $ */
+  
+  /*
+  
+***************
+*** 32,38 ****
+   */
+  
+  #include    "fntfilst.h"
+! #include    "math.h"
+  
+  Bool
+  FontFileAddScaledInstance (entry, vals, pFont, bitmapName)
+--- 32,44 ----
+   */
+  
+  #include    "fntfilst.h"
+! #ifdef _XOPEN_SOURCE
+! #include <math.h>
+! #else
+! #define _XOPEN_SOURCE	/* to get prototype for hypot on some systems */
+! #include <math.h>
+! #undef _XOPEN_SOURCE
+! #endif
+  
+  Bool
+  FontFileAddScaledInstance (entry, vals, pFont, bitmapName)
+*** -	Fri Aug 12 11:37:19 1994
+--- xc/programs/Xserver/mi/miarc.c	Fri Aug 12 11:37:18 1994
+***************
+*** 45,55 ****
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: miarc.c,v 5.50 94/04/17 20:27:12 dpw Exp $ */
+  /* Author: Keith Packard and Bob Scheifler */
+  /* Warning: this code is toxic, do not dally very long here. */
+  
+  #include <math.h>
+  #include "X.h"
+  #include "Xprotostr.h"
+  #include "misc.h"
+--- 45,61 ----
+  SOFTWARE.
+  
+  ******************************************************************/
+! /* $XConsortium: miarc.c,v 5.51 94/07/25 13:47:32 kaleb Exp $ */
+  /* Author: Keith Packard and Bob Scheifler */
+  /* Warning: this code is toxic, do not dally very long here. */
+  
++ #ifdef _XOPEN_SOURCE
+  #include <math.h>
++ #else
++ #define _XOPEN_SOURCE	/* to get prototype for hypot on some systems */
++ #include <math.h>
++ #undef _XOPEN_SOURCE
++ #endif
+  #include "X.h"
+  #include "Xprotostr.h"
+  #include "misc.h"
+***************
+*** 62,70 ****
+  #include "mifillarc.h"
+  #include "Xfuncproto.h"
+  
+- #if defined(SVR4) && __STDC__
+- extern double hypot(double, double);
+- #endif
+  static double miDsin(), miDcos(), miDasin(), miDatan2();
+  double	cbrt(
+  #if NeedFunctionPrototypes
+--- 68,73 ----
+*** -	Fri Aug 12 11:37:20 1994
+--- xc/programs/Xserver/mi/miwideline.c	Fri Aug 12 11:37:20 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: miwideline.c,v 1.56 94/04/17 20:27:59 dpw Exp $ */
+  /*
+  
+  Copyright (c) 1988  X Consortium
+--- 1,4 ----
+! /* $XConsortium: miwideline.c,v 1.57 94/07/25 13:45:31 kaleb Exp $ */
+  /*
+  
+  Copyright (c) 1988  X Consortium
+***************
+*** 37,53 ****
+   */
+  
+  #include <stdio.h>
+  #include <math.h>
+  #include "X.h"
+  #include "windowstr.h"
+  #include "gcstruct.h"
+  #include "miscstruct.h"
+  #include "miwideline.h"
+  #include "mi.h"
+- 
+- #if (defined(SVR4) || defined(SYSV) && defined(i386)) && __STDC__
+- extern double hypot(double, double);
+- #endif
+  
+  #ifdef ICEILTEMPDECL
+  ICEILTEMPDECL
+--- 37,55 ----
+   */
+  
+  #include <stdio.h>
++ #ifdef _XOPEN_SOURCE
+  #include <math.h>
++ #else
++ #define _XOPEN_SOURCE	/* to get prototype for hypot on some systems */
++ #include <math.h>
++ #undef _XOPEN_SOURCE
++ #endif
+  #include "X.h"
+  #include "windowstr.h"
+  #include "gcstruct.h"
+  #include "miscstruct.h"
+  #include "miwideline.h"
+  #include "mi.h"
+  
+  #ifdef ICEILTEMPDECL
+  ICEILTEMPDECL
+*** -	Fri Aug 12 11:37:22 1994
+--- xc/programs/Xserver/hw/sun/Imakefile	Fri Aug 12 11:37:22 1994
+***************
+*** 1,4 ****
+! XCOMM $XConsortium: Imakefile,v 5.26 94/06/06 14:12:06 kaleb Exp $
+  #include <Server.tmpl>
+  
+  SRCS1 =	sunInit.c \
+--- 1,4 ----
+! XCOMM $XConsortium: Imakefile,v 5.27 94/07/28 16:44:16 dpw Exp $
+  #include <Server.tmpl>
+  
+  SRCS1 =	sunInit.c \
+***************
+*** 48,54 ****
+  
+  #ifndef i386Architecture
+  sunInExMono.o: $(ICONFIGFILES)
+! ObjectFromSpecialSource(sunInExMono,../../mi/miinitext,-UPEXEXT)
+  ObjectFromSpecialSource(sunInitMono,sunInit,-DSUNMAXDEPTH=1)
+  ObjectFromSpecialSource(sunInitMulti,sunInit,-DSUNMAXDEPTH=32)
+  #endif
+--- 48,54 ----
+  
+  #ifndef i386Architecture
+  sunInExMono.o: $(ICONFIGFILES)
+! ObjectFromSpecialSource(sunInExMono,../../mi/miinitext,$(EXT_DEFINES) -UPEXEXT)
+  ObjectFromSpecialSource(sunInitMono,sunInit,-DSUNMAXDEPTH=1)
+  ObjectFromSpecialSource(sunInitMulti,sunInit,-DSUNMAXDEPTH=32)
+  #endif
+*** -	Fri Aug 12 11:37:23 1994
+--- xc/programs/Xserver/hw/sun/sunKbd.c	Fri Aug 12 11:37:23 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: sunKbd.c,v 5.45 94/05/11 17:09:00 kaleb Exp $ */
+  /*-
+   * Copyright (c) 1987 by the Regents of the University of California
+   *
+--- 1,4 ----
+! /* $XConsortium: sunKbd.c,v 5.46 94/08/05 19:07:08 kaleb Exp $ */
+  /*-
+   * Copyright (c) 1987 by the Regents of the University of California
+   *
+***************
+*** 94,100 ****
+      static struct timeval lastChngKbdTransTv;
+      struct timeval tv;
+      struct timeval lastChngKbdDeltaTv;
+!     int lastChngKbdDelta;
+  
+      X_GETTIMEOFDAY(&tv);
+      if (!lastChngKbdTransTv.tv_sec)
+--- 94,100 ----
+      static struct timeval lastChngKbdTransTv;
+      struct timeval tv;
+      struct timeval lastChngKbdDeltaTv;
+!     unsigned int lastChngKbdDelta;
+  
+      X_GETTIMEOFDAY(&tv);
+      if (!lastChngKbdTransTv.tv_sec)
+*** -	Fri Aug 12 11:37:25 1994
+--- xc/programs/xterm/charproc.c	Fri Aug 12 11:37:25 1994
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: charproc.c,v 1.180 94/04/17 20:23:25 hersh Exp $
+   */
+  
+  /*
+--- 1,5 ----
+  /*
+!  * $XConsortium: charproc.c,v 1.182 94/08/10 21:53:24 gildea Exp $
+   */
+  
+  /*
+***************
+*** 98,103 ****
+--- 98,106 ----
+  static int finput();
+  static void dotext();
+  static void WriteText();
++ static void ToAlternate();
++ static void FromAlternate();
++ static void update_font_info();
+  
+  static void bitset(), bitclr();
+      
+***************
+*** 1542,1548 ****
+   */
+  ansi_modes(termw, func)
+      XtermWidget	termw;
+!     int		(*func)();
+  {
+  	register int	i;
+  
+--- 1545,1551 ----
+   */
+  ansi_modes(termw, func)
+      XtermWidget	termw;
+!     void (*func)();
+  {
+  	register int	i;
+  
+***************
+*** 2011,2018 ****
+  
+  static void SwitchBufs();
+  
+  ToAlternate(screen)
+! register TScreen *screen;
+  {
+  	extern ScrnBuf Allocate();
+  
+--- 2014,2022 ----
+  
+  static void SwitchBufs();
+  
++ static void
+  ToAlternate(screen)
+!     register TScreen *screen;
+  {
+  	extern ScrnBuf Allocate();
+  
+***************
+*** 2026,2033 ****
+  	update_altscreen();
+  }
+  
+  FromAlternate(screen)
+! register TScreen *screen;
+  {
+  	if(!screen->alternate)
+  		return;
+--- 2030,2038 ----
+  	update_altscreen();
+  }
+  
++ static void
+  FromAlternate(screen)
+!     register TScreen *screen;
+  {
+  	if(!screen->alternate)
+  		return;
+***************
+*** 3107,3116 ****
+--- 3112,3126 ----
+      }
+  
+      if (!(nfs = XLoadQueryFont (screen->display, nfontname))) goto bad;
++     if (nfs->ascent + nfs->descent == 0  ||  nfs->max_bounds.width == 0)
++ 	goto bad;		/* can't use a 0-sized font */
+  
+      if (!(bfontname && 
+  	  (bfs = XLoadQueryFont (screen->display, bfontname))))
+        bfs = nfs;
++     else
++ 	if (bfs->ascent + bfs->descent == 0  ||  bfs->max_bounds.width == 0)
++ 	    goto bad;		/* can't use a 0-sized font */
+  
+      mask = (GCFont | GCForeground | GCBackground | GCGraphicsExposures |
+  	    GCFunction);
+***************
+*** 3187,3197 ****
+      if (new_reverseGC && new_reverseGC != new_reverseboldGC)
+        XtReleaseGC ((Widget) term, new_reverseboldGC);
+      if (nfs) XFreeFont (screen->display, nfs);
+!     if (nfs && nfs != bfs) XFreeFont (screen->display, bfs);
+      return 0;
+  }
+  
+  
+  update_font_info (screen, doresize)
+      TScreen *screen;
+      Bool doresize;
+--- 3197,3208 ----
+      if (new_reverseGC && new_reverseGC != new_reverseboldGC)
+        XtReleaseGC ((Widget) term, new_reverseboldGC);
+      if (nfs) XFreeFont (screen->display, nfs);
+!     if (bfs && nfs != bfs) XFreeFont (screen->display, bfs);
+      return 0;
+  }
+  
+  
++ static void
+  update_font_info (screen, doresize)
+      TScreen *screen;
+      Bool doresize;
+*** -	Fri Aug 12 14:36:44 1994
+--- xc/programs/xterm/ptyx.h	Fri Aug 12 14:36:43 1994
+***************
+*** 1,5 ****
+  /*
+!  *	$XConsortium: ptyx.h,v 1.62 93/02/25 17:21:26 gildea Exp $
+   */
+  
+  /*
+--- 1,5 ----
+  /*
+!  *	$XConsortium: ptyx.h,v 1.63 94/08/02 19:24:44 converse Exp $
+   */
+  
+  /*
+***************
+*** 343,349 ****
+  	char		*selection;	/* the current selection */
+  	int		selection_size; /* size of allocated buffer */
+  	int		selection_length; /* number of significant bytes */
+! 	int		selection_time;	/* latest event timestamp */
+  	int		startHRow, startHCol, /* highlighted text */
+  			endHRow, endHCol,
+  			startHCoord, endHCoord;
+--- 343,349 ----
+  	char		*selection;	/* the current selection */
+  	int		selection_size; /* size of allocated buffer */
+  	int		selection_length; /* number of significant bytes */
+! 	Time		selection_time;	/* latest event timestamp */
+  	int		startHRow, startHCol, /* highlighted text */
+  			endHRow, endHCol,
+  			startHCoord, endHCoord;

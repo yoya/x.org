@@ -1,0 +1,4401 @@
+                      Release 6 Public Patch #01
+                             X Consortium
+
+To apply this patch:
+
+cd to the top of the source tree (to the directory containing the "xc"
+and "contrib" subdirectories) and do:
+        patch -p -s < ThisFile
+Patch will work silently unless an error occurs.
+If you want to watch patch do its thing, leave out the "-s" argument to patch.
+
+Finally, to rebuild after applying this patch, cd to the "xc" subdirectory
+and do:
+        make Everything >& every.log
+
+Brief notes on what this patch fixes:
+
+config: CXXEXTRA_DEFINES missing
+config: CXXLDOPTIONS doesn't use CXXDEBUGFLAGS
+config: LibraryCplusplusOptions definition incorrectly protected
+config: document use of -D__ANSI_CPP__ for Fresco
+config: libX11kb.a fails to build
+config: unconditional setting of BuildXKB in sun.cf
+doc: typos in release notes
+doc: XtGetSelectionValuesIncremental.3 not installed
+doc: typos in FS protocol spec
+Fresco: fails to compile on SunOS
+ICElib: various problems with TLI transport
+ICElib: work around SVR4 optimizer bug
+nls: typos in locale.alias, various aliases missing
+rgb: missing macro argument in Imakefile
+twm: <defunct> processes on Solaris
+XIElib: correct type of "lut" argument to XieFloPoint function
+XIElib: problem reading XieQueryPhotoflo and XieQueryColorList replies
+Xlib: XNResetReturn should not be in spec or implementation
+Xlib: incorrect implementation of XIM_COMMIT message
+Xlib: problem with default IM keyboard filter registration
+Xlib: string constant freed in XOpenDisplay for LOCALCONN on local host
+xmh: dumps core on Alpha AXP
+Xserver: Imakefile uses SITEDIRS instead of SITEEXTDIRS
+Xserver: XIE ConvertToIndex technique corrupts memory
+Xserver: XIE QueryPhotoflo can crash server
+Xserver: XIE QueryPhotoflo reply generated incorrectly
+Xserver: XIE minus zero decoded off of wire incorrectly
+Xserver: XKB breaks NumLock LED
+Xserver: XKB breaks autorepeat arguments
+Xserver: XKB can't generate keysyms in columns 3 or 4
+Xserver: Xdec miscompiles with gcc on Ultrix
+Xserver: Xsun Norwegian keyboards don't work
+Xserver: Xsun keycodes not compatible with R5
+Xserver: Xsun mapping for Control and CapsLock reversed
+Xserver: Xsun modifiers don't work on old keyboards
+Xserver: XsunMono won't build on its own
+Xserver: man page description of -ar1/-ar2 incomplete
+xsm: bad pointer access when restarting a remote client
+Xt: XtAddInput on stdin fails
+Xt: XtSetValues on hook object fails
+xterm: doesn't recognize keypad keysyms
+xtrans: provide writev emulation for SCO
+xtrans: various problems with TLI transport
+
+Prereq: initial-release
+
+*** /tmp/,RCSt1a08181	Mon May 16 17:37:17 1994
+--- xc/bug-report	Mon May 16 17:34:03 1994
+***************
+*** 3,9
+  
+       VERSION:
+  
+! R6, initial-release
+  [X Consortium public patches edit this line to indicate the patch level]
+  
+       CLIENT MACHINE and OPERATING SYSTEM:
+
+--- 3,9 -----
+  
+       VERSION:
+  
+! R6, public-patch-1
+  [X Consortium public patches edit this line to indicate the patch level]
+  
+       CLIENT MACHINE and OPERATING SYSTEM:
+*** /tmp/da06922	Mon May 16 16:40:30 1994
+--- xc/RELNOTES.ms	Mon May 16 16:40:29 1994
+***************
+*** 1,4 ****
+! .\" $XConsortium: RELNOTES.ms,v 1.4 94/04/21 18:00:41 rws Exp $
+  .\" X11R6 Release Notes.  Use troff -ms macros
+  .\"
+  .ie t \{
+--- 1,4 ----
+! .\" $XConsortium: RELNOTES.ms,v 1.6 94/05/16 14:35:14 gildea Exp $
+  .\" X11R6 Release Notes.  Use troff -ms macros
+  .\"
+  .ie t \{
+***************
+*** 37,43 ****
+  
+  X Consortium
+  .sp 6
+! April 21, 1994
+  .LP
+  .bp
+  .sp 8
+--- 37,43 ----
+  
+  X Consortium
+  .sp 6
+! May 16, 1994
+  .LP
+  .bp
+  .sp 8
+***************
+*** 85,91 ****
+  This quick summary is no substitute for reading the full build
+  instructions later in this document.
+  .LP
+! Edit \fBxc/config/site.def\fP for local preferences.
+  If you want to build with \fIgcc\fP
+  uncomment the \fBHasGcc2\fP line.
+  If you want to install somewhere other than \fB/usr/X11R6\fP,
+--- 85,91 ----
+  This quick summary is no substitute for reading the full build
+  instructions later in this document.
+  .LP
+! Edit \fBxc/config/cf/site.def\fP for local preferences.
+  If you want to build with \fIgcc\fP
+  uncomment the \fBHasGcc2\fP line.
+  If you want to install somewhere other than \fB/usr/X11R6\fP,
+***************
+*** 97,103 ****
+  but don't do any of the \fImake\fP
+  commands suggested in the patches.  Then continue here.
+  .LP
+! Check the appropriate \fBxc/config/\fP\fIvendor\fP\fB.cf\fP file to
+  make sure that \fBOSMajorVersion\fP and \fBOSMinorVersion\fP are
+  set correctly for your system (change them if necessary).
+  .LP
+--- 97,103 ----
+  but don't do any of the \fImake\fP
+  commands suggested in the patches.  Then continue here.
+  .LP
+! Check the appropriate \fBxc/config/cf/\fP\fIvendor\fP\fB.cf\fP file to
+  make sure that \fBOSMajorVersion\fP and \fBOSMinorVersion\fP are
+  set correctly for your system (change them if necessary).
+  .LP
+***************
+*** 131,136 ****
+--- 131,138 ----
+  .nH 1 "What Is Release 6"
+  
+  This is the 6th release of X Window System software from the X Consortium.
++ X is a network-transparent window system which runs
++ on a wide range of computing and graphics machines.
+  .LP
+  The X Consortium is an independent, not-for-profit corporation,
+  the successor to the MIT X Consortium, which was part of the MIT
+***************
+*** 363,368 ****
+--- 365,377 ----
+  getting it off the
+  distribution medium, configuring,
+  compiling, installing, running, and updating.
++ .LP
++ More recent information about newly-discovered problems may be found
++ in the \fIFrequently Asked Questions\fP posting appearing monthly on
++ the comp.windows.x newsgroup and xpert mailing list.  It is also
++ available via anonymous FTP
++ on \fBftp.x.org\fP in the file \fBcontrib/faqs/FAQ.Z\fP,
++ or on your local X mirror site.
+  
+  .nH 2 "Unpacking the Distribution"
+  
+***************
+*** 2142,2148 ****
+  
+  We occasionally put out patches to X Consortium software, to fix any
+  serious problems that are discovered.  Such fixes (if any) can be found
+! on \fBftp.x.org\fP, in the directory \fBpub/R6/fixes\fP,
+  using anonymous FTP.
+  .LP
+  For those without FTP access, individual fixes can be obtained by
+--- 2151,2158 ----
+  
+  We occasionally put out patches to X Consortium software, to fix any
+  serious problems that are discovered.  Such fixes (if any) can be found
+! on \fBftp.x.org\fP in the directory \fBpub/R6/fixes\fP,
+! or on your local X mirror site,
+  using anonymous FTP.
+  .LP
+  For those without FTP access, individual fixes can be obtained by
+*** /tmp/da05835	Mon May 16 16:28:09 1994
+--- xc/config/cf/Imake.tmpl	Mon May 16 16:28:08 1994
+***************
+*** 1,6 ****
+  XCOMM -----------------------------------------------------------------------
+  XCOMM Makefile generated from IMAKE_TEMPLATE and INCLUDE_IMAKEFILE
+! XCOMM $XConsortium: Imake.tmpl,v 1.218 94/03/31 20:11:26 matt Exp $
+  XCOMM
+  
+  /*
+--- 1,6 ----
+  XCOMM -----------------------------------------------------------------------
+  XCOMM Makefile generated from IMAKE_TEMPLATE and INCLUDE_IMAKEFILE
+! XCOMM $XConsortium: Imake.tmpl,v 1.219 94/05/13 15:58:31 matt Exp $
+  XCOMM
+  
+  /*
+***************
+*** 813,818 ****
+--- 813,819 ----
+  
+                CXX = CplusplusCmd
+      CXXDEBUGFLAGS = DefaultCplusplusDebugFlags
++  CXXEXTRA_DEFINES = CplusplusExtraDefines
+  CXXEXTRA_INCLUDES = CplusplusExtraIncludes
+    CXXIDL_INCLUDES = -I$(TOP)/include
+     CXXSTD_DEFINES = CplusplusStandardDefines
+***************
+*** 979,985 ****
+           LDPRELIB = LdPreLib
+          LDPOSTLIB = LdPostLib
+          LDOPTIONS = $(CDEBUGFLAGS) $(CCOPTIONS)  $(EXTRA_LDOPTIONS) $(THREADS_LDFLAGS) $(LOCAL_LDFLAGS) $(LDPRELIB)
+!      CXXLDOPTIONS = $(CDEBUGFLAGS) $(CXXOPTIONS) $(EXTRA_LDOPTIONS) $(THREADS_CXXLDFLAGS) $(LOCAL_LDFLAGS) $(LDPRELIB)
+  
+             LDLIBS = $(LDPOSTLIB) $(THREADS_LIBS) $(SYS_LIBRARIES) $(EXTRA_LIBRARIES)
+  #if AlternateUsrLibDir && HasLdRunPath
+--- 980,986 ----
+           LDPRELIB = LdPreLib
+          LDPOSTLIB = LdPostLib
+          LDOPTIONS = $(CDEBUGFLAGS) $(CCOPTIONS)  $(EXTRA_LDOPTIONS) $(THREADS_LDFLAGS) $(LOCAL_LDFLAGS) $(LDPRELIB)
+!      CXXLDOPTIONS = $(CXXDEBUGFLAGS) $(CXXOPTIONS) $(EXTRA_LDOPTIONS) $(THREADS_CXXLDFLAGS) $(LOCAL_LDFLAGS) $(LDPRELIB)
+  
+             LDLIBS = $(LDPOSTLIB) $(THREADS_LIBS) $(SYS_LIBRARIES) $(EXTRA_LIBRARIES)
+  #if AlternateUsrLibDir && HasLdRunPath
+*** /tmp/da05851	Mon May 16 16:28:12 1994
+--- xc/config/cf/Library.tmpl	Mon May 16 16:28:11 1994
+***************
+*** 9,15 ****
+   * LibName, SoRev, HasSharedData, and optionally HugeLibrary and IncSubdir
+   */
+  
+! XCOMM $XConsortium: Library.tmpl,v 1.30 94/03/29 15:42:14 gildea Exp $
+  
+  #ifndef LibraryCplusplusOptions
+  #if DoSharedLib && defined(SharedLibraryCplusplusOptions)
+--- 9,15 ----
+   * LibName, SoRev, HasSharedData, and optionally HugeLibrary and IncSubdir
+   */
+  
+! XCOMM $XConsortium: Library.tmpl,v 1.32 94/05/14 15:10:41 rws Exp $
+  
+  #ifndef LibraryCplusplusOptions
+  #if DoSharedLib && defined(SharedLibraryCplusplusOptions)
+***************
+*** 59,65 ****
+  #define LibraryCplusplusCmd CplusplusCmd
+  #endif
+  #endif
+! #ifndef LibraryCCOptions
+  #if DoSharedLib && defined(SharedLibraryCplusplusOptions)
+  #define LibraryCplusplusOptions SharedLibraryCplusplusOptions
+  #else
+--- 59,65 ----
+  #define LibraryCplusplusCmd CplusplusCmd
+  #endif
+  #endif
+! #ifndef LibraryCplusplusOptions
+  #if DoSharedLib && defined(SharedLibraryCplusplusOptions)
+  #define LibraryCplusplusOptions SharedLibraryCplusplusOptions
+  #else
+***************
+*** 224,232 ****
+  #if DoNormalLib
+  #if HugeLibrary
+  #if DoSharedLib && SeparateSharedCompile
+! UnsharedLibraryTarget3(X11,$(OBJS1),$(OBJS2),$(OBJS3),unshared,..)
+  #else
+! NormalLibraryTarget3(X11,$(OBJS1),$(OBJS2),$(OBJS3))
+  #endif
+  #else
+  #if DoSharedLib && SeparateSharedCompile
+--- 224,232 ----
+  #if DoNormalLib
+  #if HugeLibrary
+  #if DoSharedLib && SeparateSharedCompile
+! UnsharedLibraryTarget3($(LIBNAME),$(OBJS1),$(OBJS2),$(OBJS3),unshared,..)
+  #else
+! NormalLibraryTarget3($(LIBNAME),$(OBJS1),$(OBJS2),$(OBJS3))
+  #endif
+  #else
+  #if DoSharedLib && SeparateSharedCompile
+*** /tmp/da05867	Mon May 16 16:28:14 1994
+--- xc/config/cf/site.sample	Mon May 16 16:28:13 1994
+***************
+*** 1,4 ****
+! XCOMM site:  $XConsortium: site.sample,v 1.9 94/04/08 17:02:06 rws Exp $
+  
+  /*****************************************************************************
+   *                                                                           *
+--- 1,4 ----
+! XCOMM site:  $XConsortium: site.sample,v 1.10 94/05/13 16:43:11 matt Exp $
+  
+  /*****************************************************************************
+   *                                                                           *
+***************
+*** 11,17 ****
+   *                                                                           *
+   * The before-half should only set things that the .cf file depends on.      *
+   * For the .cf files shipped in this release, the main variables in this     *
+!  * category are HasGcc and HasGcc2.                                          *
+   *                                                                           *
+   * The after-half should contain all other definitions.  For example,        *
+   * place your ProjectRoot definition here.                                   *
+--- 11,17 ----
+   *                                                                           *
+   * The before-half should only set things that the .cf file depends on.      *
+   * For the .cf files shipped in this release, the main variables in this     *
+!  * category are HasGcc, HasGcc2, and HasCplusplus 			     *
+   *                                                                           *
+   * The after-half should contain all other definitions.  For example,        *
+   * place your ProjectRoot definition here.                                   *
+***************
+*** 43,48 ****
+--- 43,54 ----
+  #endif
+  */
+  
++ /*
++ #ifndef HasCplusplus
++ #define HasCplusplus YES
++ #endif 
++ */
++  
+  #endif /* BeforeVendorCF */
+  
+  #ifdef AfterVendorCF
+***************
+*** 54,59 ****
+--- 60,90 ----
+  /* #define BuildXKB YES */
+  
+  /* #define PreIncDir /usr/local/lib/gcc-lib/sparc-sun-sunos4.1.3/2.5.8/include */
++ 
++ /*
++  * If your C++ compiler has ANSI preprocessor features like token-pasting, 
++  * you may want to turn them on when building Fresco.  If you get compile
++  * time errors about "_" not being a type name or Xf not being a type name,
++  * it means your standard preprocessor converts empty comments to spaces 
++  * instead of doing token pasting.  Use an ANSI preprocessor if you can.
++  *
++  * If your compiler does ANSI token-pasting but does NOT set __STDC__ to 1
++  * you should add -D__ANSI_CPP__ to the command line so Fresco sources 
++  * know they can use ANSI token pasting.  Here's a sample set of values
++  * for HP's C++ compiler, which requires special flags for ANSI features
++  * and which does not assert __STDC__ == 1:
++  */
++ 
++ /*
++ #ifdef HPArchitecture
++ #ifndef DefaultCplusplusOptions
++ #define DefaultCplusplusOptions -Aa
++ #endif
++ #ifndef CplusplusExtraDefines
++ #define CplusplusExtraDefines -D__ANSI_CPP__
++ #endif
++ #endif 
++ */
+  
+  /*
+  #if defined(SunArchitecture) && defined(SparcArchitecture)
+*** /tmp/da05883	Mon May 16 16:28:16 1994
+--- xc/config/cf/sun.cf	Mon May 16 16:28:15 1994
+***************
+*** 1,4 ****
+! XCOMM platform:  $XConsortium: sun.cf,v 1.129 94/04/09 16:06:28 rws Exp $
+  
+  #ifdef SVR4
+  #ifdef i386Architecture
+--- 1,4 ----
+! XCOMM platform:  $XConsortium: sun.cf,v 1.130 94/05/13 16:03:10 matt Exp $
+  
+  #ifdef SVR4
+  #ifdef i386Architecture
+***************
+*** 175,181 ****
+--- 175,183 ----
+  #ifndef BuildPexExt
+  #define BuildPexExt	  (XsunServer || Xsun24Server)
+  #endif
++ #ifndef BuildXKB
+  #define	BuildXKB	  YES
++ #endif
+  
+  #if HasGcc
+  #if HasGcc2
+*** /tmp/da06010	Mon May 16 16:28:29 1994
+--- xc/lib/ICE/listen.c	Mon May 16 16:28:28 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: listen.c,v 1.14 94/04/17 20:15:34 mor Exp $ */
+  /******************************************************************************
+  
+  
+--- 1,4 ----
+! /* $XConsortium: listen.c,v 1.15 94/05/02 11:22:36 mor Exp $ */
+  /******************************************************************************
+  
+  
+***************
+*** 46,53 ****
+      struct _IceListenObj	*listenObjs;
+      char			*networkId;
+      int				fd, transCount, partial, i, j;
+-     int				family, addrlen;
+-     Xtransaddr			*addr;
+      Status			status = 1;
+      XtransConnInfo		*transConns = NULL;
+  
+--- 46,51 ----
+***************
+*** 77,88 ****
+  
+      for (i = 0; i < transCount; i++)
+      {
+! 	_IceTransGetMyAddr (transConns[i], &family, &addrlen, &addr);
+  
+- 	networkId = _IceTransGetMyNetworkId (family, addrlen, addr);
+- 
+- 	free (addr);
+- 
+  	if (networkId)
+  	{
+  	    listenObjs[*countRet].trans_conn = transConns[i];
+--- 75,82 ----
+  
+      for (i = 0; i < transCount; i++)
+      {
+! 	networkId = _IceTransGetMyNetworkId (transConns[i]);
+  
+  	if (networkId)
+  	{
+  	    listenObjs[*countRet].trans_conn = transConns[i];
+***************
+*** 214,228 ****
+  	return (NULL);
+      else
+      {
+  	list[0] = '\0';
+! 	for (i = 0; i < count - 1; i++)
+  	{
+! 	    strcat (list, listenObjs[i]->network_id);
+! 	    strcat (list, ",");
+  	}
+  
+! 	strcat (list, listenObjs[count - 1]->network_id);
+! 	list[strlen (list)] = '\0';
+  
+  	return (list);
+      }
+--- 208,241 ----
+  	return (NULL);
+      else
+      {
++ 	int doneCount = 0;
++ 
+  	list[0] = '\0';
+! 
+! 	for (i = 0; i < count; i++)
+  	{
+! 	    if (_IceTransIsLocal (listenObjs[i]->trans_conn))
+! 	    {
+! 		strcat (list, listenObjs[i]->network_id);
+! 		doneCount++;
+! 		if (doneCount < count)
+! 		    strcat (list, ",");
+! 	    }
+  	}
+  
+! 	if (doneCount < count)
+! 	{
+! 	    for (i = 0; i < count; i++)
+! 	    {
+! 		if (!_IceTransIsLocal (listenObjs[i]->trans_conn))
+! 		{
+! 		    strcat (list, listenObjs[i]->network_id);
+! 		    doneCount++;
+! 		    if (doneCount < count)
+! 			strcat (list, ",");
+! 		}
+! 	    }
+! 	}
+  
+  	return (list);
+      }
+*** /tmp/da06026	Mon May 16 16:28:31 1994
+--- xc/lib/ICE/misc.c	Mon May 16 16:28:30 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: misc.c,v 1.24 94/04/17 20:15:35 mor Exp $ */
+  /******************************************************************************
+  
+  
+--- 1,4 ----
+! /* $XConsortium: misc.c,v 1.25 94/05/02 11:17:27 mor Exp $ */
+  /******************************************************************************
+  
+  
+***************
+*** 603,625 ****
+  IceConn iceConn;
+  
+  {
+!     int		family, peer_addrlen;
+!     Xtransaddr	*peer_addr;
+!     char 	*networkId;
+! 
+! 
+!     if (_IceTransGetPeerAddr (iceConn->trans_conn,
+! 	&family, &peer_addrlen, &peer_addr) < 0)
+!     {
+! 	return (NULL);
+!     }
+!     else
+!     {
+! 	networkId = _IceTransGetPeerNetworkId (
+! 	    family, peer_addrlen, peer_addr);
+! 
+! 	free (peer_addr);
+! 
+! 	return (networkId);
+!     }
+  }
+--- 603,607 ----
+  IceConn iceConn;
+  
+  {
+!     return (_IceTransGetPeerNetworkId (iceConn->trans_conn));
+  }
+*** /tmp/da06042	Mon May 16 16:28:33 1994
+--- xc/lib/ICE/process.c	Mon May 16 16:28:32 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: process.c,v 1.39 94/04/17 20:15:37 mor Exp $ */
+  /******************************************************************************
+  
+  
+--- 1,4 ----
+! /* $XConsortium: process.c,v 1.41 94/05/11 17:35:38 mor Exp $ */
+  /******************************************************************************
+  
+  
+***************
+*** 336,347 ****
+  
+  
+      /*
+!      * Decrement the dispatch level and check for bad IO status.
+       */
+  
+      iceConn->dispatch_level--;
+!     if (!iceConn->io_ok)
+  	retStatus = IceProcessMessagesIOError;
+      return (retStatus);
+  }
+  
+--- 336,356 ----
+  
+  
+      /*
+!      * Decrement the dispatch level.  If we reach level 0, and the
+!      * free_asap bit is set, free the connection now.  Also check for
+!      * possible bad IO status.
+       */
+  
+      iceConn->dispatch_level--;
+! 
+!     if (iceConn->dispatch_level == 0 && iceConn->free_asap)
+!     {
+! 	_IceFreeConnection (iceConn);
+! 	retStatus = IceProcessMessagesConnectionClosed;
+!     }
+!     else if (!iceConn->io_ok)
+  	retStatus = IceProcessMessagesIOError;
++ 
+      return (retStatus);
+  }
+  
+***************
+*** 2189,2195 ****
+  	    IcePoAuthProc authProc = myProtocol->auth_procs[
+  		iceConn->protosetup_to_you->my_auth_index];
+  
+! 	    (*authProc) (iceConn, &iceConn->protosetup_to_you->my_auth_state,
+  		True /* clean up */, False /* swap */,
+  	        0, NULL, NULL, NULL, NULL);
+  	}
+--- 2198,2215 ----
+  	    IcePoAuthProc authProc = myProtocol->auth_procs[
+  		iceConn->protosetup_to_you->my_auth_index];
+  
+! #ifdef SVR4
+! 
+! /*
+!  * authProc is never NULL, but the cc compiler on UNIX System V/386
+!  * Release 4.2 Version 1 screws up an optimization.  Unless there is
+!  * some sort of reference to authProc before the function call, the
+!  * function call will seg fault.
+!  */
+! 	    if (authProc)
+! #endif
+! 		(*authProc) (iceConn,
+! 		&iceConn->protosetup_to_you->my_auth_state,
+  		True /* clean up */, False /* swap */,
+  	        0, NULL, NULL, NULL, NULL);
+  	}
+*** /tmp/da06063	Mon May 16 16:28:37 1994
+--- xc/lib/SM/sm_genid.c	Mon May 16 16:28:37 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: sm_genid.c,v 1.6 94/04/17 20:16:56 gildea Exp $ */
+  
+  /*
+  
+--- 1,4 ----
+! /* $XConsortium: sm_genid.c,v 1.7 94/05/02 11:14:45 mor Exp $ */
+  
+  /*
+  
+***************
+*** 49,55 ****
+  
+  #ifndef WIN32
+  
+! #ifdef TCPCONN
+  #include <sys/socket.h>
+  #include <netinet/in.h>
+  #include <netdb.h>
+--- 49,55 ----
+  
+  #ifndef WIN32
+  
+! #if defined(TCPCONN) || defined(STREAMSCONN)
+  #include <sys/socket.h>
+  #include <netinet/in.h>
+  #include <netdb.h>
+***************
+*** 123,129 ****
+      if (gethostname (hostname, sizeof (hostname)))
+  	return (NULL);
+  
+! #ifdef TCPCONN
+      {
+      struct hostent *tcp_hostent = gethostbyname (hostname);
+      char *inet_addr = (char *) inet_ntoa (
+--- 123,129 ----
+      if (gethostname (hostname, sizeof (hostname)))
+  	return (NULL);
+  
+! #if defined(TCPCONN) || defined(STREAMSCONN)
+      {
+      struct hostent *tcp_hostent = gethostbyname (hostname);
+      char *inet_addr = (char *) inet_ntoa (
+*** /tmp/da06079	Mon May 16 16:28:39 1994
+--- xc/lib/SM/sm_manager.c	Mon May 16 16:28:38 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: sm_manager.c,v 1.22 94/04/17 20:16:56 mor Exp $ */
+  
+  /*
+  
+--- 1,4 ----
+! /* $XConsortium: sm_manager.c,v 1.24 94/05/11 17:33:44 mor Exp $ */
+  
+  /*
+  
+***************
+*** 109,114 ****
+--- 109,128 ----
+      unsigned long 	mask;
+      Status		status;
+  
++     /*
++      * vendor/release are undefined for ProtocolSetup in XSMP.
++      */
++ 
++     if (vendor)
++ 	free (vendor);
++     if (release)
++ 	free (release);
++ 
++ 
++     /*
++      * Allocate new SmsConn.
++      */
++ 
+      if ((smsConn = (SmsConn) malloc (sizeof (struct _SmsConn))) == NULL)
+      {
+  	char *str = "Memory allocation failed";
+***************
+*** 156,181 ****
+  SmsConn smsConn;
+  
+  {
+!     int		family, peer_addrlen;
+!     Xtransaddr	*peer_addr;
+!     char 	*networkId;
+! 
+!     char	*hostname;
+! 
+! 
+!     if (_IceTransGetPeerAddr (smsConn->iceConn->trans_conn,
+! 	&family, &peer_addrlen, &peer_addr) < 0)
+!     {
+! 	return (NULL);
+!     }
+!     else
+!     {
+! 	hostname = _IceTransGetPeerNetworkId (family, peer_addrlen, peer_addr);
+! 
+! 	free ((char *) peer_addr);
+! 
+! 	return (hostname);
+!     }
+  }
+  
+  
+--- 170,176 ----
+  SmsConn smsConn;
+  
+  {
+!     return (_IceTransGetPeerNetworkId (smsConn->iceConn->trans_conn));
+  }
+  
+  
+*** /tmp/da06100	Mon May 16 16:28:42 1994
+--- xc/lib/X11/ConnDis.c	Mon May 16 16:28:41 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: ConnDis.c,v 11.121 94/04/17 20:18:53 mor Exp $ */
+  /*
+   
+  Copyright (c) 1989  X Consortium
+--- 1,4 ----
+! /* $XConsortium: ConnDis.c,v 11.122 94/05/05 13:13:24 mor Exp $ */
+  /*
+   
+  Copyright (c) 1989  X Consortium
+***************
+*** 159,165 ****
+      /* check if phostname == localnodename */
+      if (phostname && uname(&sys) >= 0 &&
+  	!strncmp(phostname, sys.nodename, strlen(sys.nodename)))
+! 	phostname = "unix";
+  #endif
+  
+  
+--- 159,168 ----
+      /* check if phostname == localnodename */
+      if (phostname && uname(&sys) >= 0 &&
+  	!strncmp(phostname, sys.nodename, strlen(sys.nodename)))
+!     {
+! 	Xfree (phostname);
+! 	phostname = copystring ("unix", 4);
+!     }
+  #endif
+  
+  
+*** /tmp/da06116	Mon May 16 16:28:44 1994
+--- xc/lib/X11/Ximint.h	Mon May 16 16:28:43 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: Ximint.h,v 1.6 94/03/29 22:51:06 rws Exp $ */
+  /******************************************************************
+  
+                  Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+--- 1,4 ----
+! /* $XConsortium: Ximint.h,v 1.7 94/05/14 15:38:50 rws Exp $ */
+  /******************************************************************
+  
+                  Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+***************
+*** 106,112 ****
+      XIMCallback			 string_conversion_callback;
+      XIMStringConversionText	 string_conversion;
+      XIMResetState		 reset_state;
+-     XIMResetReturn		 reset_return;
+      XIMHotKeyTriggers		*hotkey;
+      XIMHotKeyState		 hotkey_state;
+      ICPreeditAttributes		 preedit_attr;
+--- 106,111 ----
+*** /tmp/da06132	Mon May 16 16:28:46 1994
+--- xc/lib/X11/Xlcint.h	Mon May 16 16:28:46 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: Xlcint.h,v 11.19 94/04/17 20:21:41 rws Exp $ */
+  /*
+  
+  Copyright (c) 1991  X Consortium
+--- 1,4 ----
+! /* $XConsortium: Xlcint.h,v 11.20 94/05/14 15:39:25 rws Exp $ */
+  /*
+  
+  Copyright (c) 1991  X Consortium
+***************
+*** 796,802 ****
+      XIMCallback		string_conversion_callback;
+      XIMStringConversionText	 string_conversion;
+      XIMResetState	reset_state;
+-     XIMResetReturn	reset_return;
+      XIMHotKeyTriggers  *hotkey;
+      XIMHotKeyState	hotkey_state;
+  
+--- 796,801 ----
+*** /tmp/da06148	Mon May 16 16:28:50 1994
+--- xc/lib/X11/Xlib.h	Mon May 16 16:28:48 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: Xlib.h,v 11.235 94/04/17 20:21:43 rws Exp $ */
+  /* 
+  
+  Copyright (c) 1985, 1986, 1987, 1991  X Consortium
+--- 1,4 ----
+! /* $XConsortium: Xlib.h,v 11.236 94/05/14 15:38:16 rws Exp $ */
+  /* 
+  
+  Copyright (c) 1985, 1986, 1987, 1991  X Consortium
+***************
+*** 1152,1158 ****
+  #define XNStringConversionCallback "stringConversionCallback"
+  #define XNStringConversion "stringConversion"
+  #define XNResetState "resetState"
+- #define XNResetReturn "resetReturn"
+  #define XNHotKey "hotKey"
+  #define XNHotKeyState "hotKeyState"
+  #define XNPreeditState "preeditState"
+--- 1152,1157 ----
+***************
+*** 1211,1221 ****
+  
+  #define	XIMInitialState		1L
+  #define	XIMPreserveState	(1L<<1)
+- 
+- typedef	unsigned short	 XIMResetReturn;
+- 
+- #define	XIMReturnPreedit	1
+- #define	XIMReturnNULL		0
+  
+  typedef unsigned long XIMStringConversionFeedback;
+  
+--- 1210,1215 ----
+*** /tmp/da06164	Mon May 16 16:28:52 1994
+--- xc/lib/X11/imDefFlt.c	Mon May 16 16:28:52 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: imDefFlt.c,v 1.4 94/03/26 16:57:39 rws Exp $ */
+  /******************************************************************
+  
+             Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+--- 1,4 ----
+! /* $XConsortium: imDefFlt.c,v 1.5 94/05/14 15:27:52 rws Exp $ */
+  /******************************************************************
+  
+             Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+***************
+*** 326,332 ****
+      Xic		 ic;
+  {
+      _XimRegisterKeyPressFilter(ic);
+!     if (IS_FORWARD_EVENT(ic, KeyRelease))
+  	_XimRegisterKeyReleaseFilter(ic);
+      return;
+  }
+--- 326,332 ----
+      Xic		 ic;
+  {
+      _XimRegisterKeyPressFilter(ic);
+!     if (IS_FORWARD_EVENT(ic, KeyReleaseMask))
+  	_XimRegisterKeyReleaseFilter(ic);
+      return;
+  }
+***************
+*** 346,352 ****
+  _XimReregisterFilter(ic)
+      Xic		 ic;
+  {
+!     if (IS_FORWARD_EVENT(ic, KeyRelease))
+  	_XimRegisterKeyReleaseFilter(ic);
+      else
+  	_XimUnregisterKeyReleaseFilter(ic);
+--- 346,352 ----
+  _XimReregisterFilter(ic)
+      Xic		 ic;
+  {
+!     if (IS_FORWARD_EVENT(ic, KeyReleaseMask))
+  	_XimRegisterKeyReleaseFilter(ic);
+      else
+  	_XimUnregisterKeyReleaseFilter(ic);
+*** /tmp/da06180	Mon May 16 16:28:54 1994
+--- xc/lib/X11/imDefIc.c	Mon May 16 16:28:54 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: imDefIc.c,v 1.8 94/03/29 22:51:19 rws Exp $ */
+  /******************************************************************
+  
+             Copyright 1991, 1992 by Sun Microsystems, Inc.
+--- 1,4 ----
+! /* $XConsortium: imDefIc.c,v 1.9 94/05/14 15:40:04 rws Exp $ */
+  /******************************************************************
+  
+             Copyright 1991, 1992 by Sun Microsystems, Inc.
+***************
+*** 1052,1058 ****
+  {
+      CARD16		*buf_s = (CARD16 *)buf;
+      XimCommitInfo	 info;
+-     XimCommitInfo	 next;
+      int			 len;
+      int			 new_len;
+      char		*commit;
+--- 1052,1057 ----
+***************
+*** 1060,1101 ****
+      char		*str;
+      Status		 status;
+  
+!     if (ic->core.reset_return != XIMReturnNULL) {
+! 	len = 0;
+! 	for (info = ic->private.proto.commit_info; info; info = info->next) {
+! 	    len += info->string_len;
+! 	}
+! 	len += buf_s[0];
+  
+! 	if (!(commit = (char *)Xmalloc(len + 1)))
+! 	    goto Error_On_Reset;
+  
+! 	str = commit;
+! 	for (info = ic->private.proto.commit_info; info; info = info->next) {
+! 	    (void)memcpy(str, info->string, info->string_len);
+! 	    str += info->string_len;
+! 	}
+! 	(void)memcpy(str, (char *)&buf_s[1], (int)&buf_s[0]);
+! 	commit[len] = '\0';
+  
+! 	new_len = _Ximctstombs(im, commit, len, NULL, 0, &status);
+! 	if (status != XLookupNone) {
+! 	    if (!(new_commit = Xmalloc(new_len + 1))) {
+! 		Xfree(commit);
+! 		goto Error_On_Reset;
+! 	    }
+! 	    (void)_Ximctstombs(im, commit, len, new_commit, new_len, NULL);
+! 	    new_commit[new_len] = '\0';
+  	}
+! 	Xfree(commit);
+      }
+  
+  Error_On_Reset:
+!     for (info = ic->private.proto.commit_info; info;) {
+! 	next = info->next;
+! 	Xfree(info);
+! 	info = next;
+!     }
+      return new_commit;
+  }
+  
+--- 1059,1095 ----
+      char		*str;
+      Status		 status;
+  
+!     len = 0;
+!     for (info = ic->private.proto.commit_info; info; info = info->next)
+! 	len += info->string_len;
+!     len += buf_s[0];
+!     if( len == 0 )
+! 	return( NULL );
+  
+!     if (!(commit = (char *)Xmalloc(len + 1)))
+! 	goto Error_On_Reset;
+  
+!     str = commit;
+!     for (info = ic->private.proto.commit_info; info; info = info->next) {
+! 	(void)memcpy(str, info->string, info->string_len);
+! 	str += info->string_len;
+!     }
+!     (void)memcpy(str, (char *)&buf_s[1], (int)&buf_s[0]);
+!     commit[len] = '\0';
+  
+!     new_len = _Ximctstombs(im, commit, len, NULL, 0, &status);
+!     if (status != XLookupNone) {
+! 	if (!(new_commit = Xmalloc(new_len + 1))) {
+! 	    Xfree(commit);
+! 	    goto Error_On_Reset;
+  	}
+! 	(void)_Ximctstombs(im, commit, len, new_commit, new_len, NULL);
+! 	new_commit[new_len] = '\0';
+      }
++     Xfree(commit);
+  
+  Error_On_Reset:
+!     _XimFreeCommitInfo( ic );
+      return new_commit;
+  }
+  
+***************
+*** 1175,1181 ****
+  {
+      CARD16		*buf_s = (CARD16 *)buf;
+      XimCommitInfo	 info;
+-     XimCommitInfo	 next;
+      int			 len;
+      int			 new_len;
+      char		*commit;
+--- 1169,1174 ----
+***************
+*** 1183,1225 ****
+      char		*str;
+      Status		 status;
+  
+!     if (ic->core.reset_return != XIMReturnNULL) {
+! 	len = 0;
+! 	for (info = ic->private.proto.commit_info; info; info = info->next) {
+! 	    len += info->string_len;
+! 	}
+! 	len += buf_s[0];
+  
+! 	if (!(commit = (char *)Xmalloc(len + 1)))
+! 	    goto Error_On_Reset;
+  
+! 	str = commit;
+! 	for (info = ic->private.proto.commit_info; info; info = info->next) {
+! 	    (void)memcpy(str, info->string, info->string_len);
+! 	    str += info->string_len;
+! 	}
+! 	(void)memcpy(str, (char *)&buf_s[1], (int)&buf_s[0]);
+! 	commit[len] = '\0';
+  
+! 	new_len = _Ximctstowcs(im, commit, len, NULL, 0, &status);
+! 	if (status != XLookupNone) {
+! 	    if (!(new_commit =
+! 			 (wchar_t *)Xmalloc(sizeof(wchar_t) * (new_len + 1)))) {
+! 		Xfree(commit);
+! 		goto Error_On_Reset;
+! 	    }
+! 	    (void)_Ximctstowcs(im, commit, len, new_commit, new_len, NULL);
+! 	    new_commit[new_len] = (wchar_t)'\0';
+  	}
+! 	Xfree(commit);
+      }
+  
+  Error_On_Reset:
+!     for (info = ic->private.proto.commit_info; info;) {
+! 	next = info->next;
+! 	Xfree(info);
+! 	info = next;
+!     }
+      return new_commit;
+  }
+  
+--- 1176,1213 ----
+      char		*str;
+      Status		 status;
+  
+!     len = 0;
+!     for (info = ic->private.proto.commit_info; info; info = info->next)
+! 	len += info->string_len;
+!     len += buf_s[0];
+!     if( len == 0 )
+! 	return( (wchar_t *)NULL );
+  
+!     if (!(commit = (char *)Xmalloc(len + 1)))
+! 	goto Error_On_Reset;
+  
+!     str = commit;
+!     for (info = ic->private.proto.commit_info; info; info = info->next) {
+! 	(void)memcpy(str, info->string, info->string_len);
+! 	str += info->string_len;
+!     }
+!     (void)memcpy(str, (char *)&buf_s[1], (int)&buf_s[0]);
+!     commit[len] = '\0';
+  
+!     new_len = _Ximctstowcs(im, commit, len, NULL, 0, &status);
+!     if (status != XLookupNone) {
+! 	if (!(new_commit =
+! 		     (wchar_t *)Xmalloc(sizeof(wchar_t) * (new_len + 1)))) {
+! 	    Xfree(commit);
+! 	    goto Error_On_Reset;
+  	}
+! 	(void)_Ximctstowcs(im, commit, len, new_commit, new_len, NULL);
+! 	new_commit[new_len] = (wchar_t)'\0';
+      }
++     Xfree(commit);
+  
+  Error_On_Reset:
+!     _XimFreeCommitInfo( ic );
+      return new_commit;
+  }
+  
+*** /tmp/da06196	Mon May 16 16:28:57 1994
+--- xc/lib/X11/imDefLkup.c	Mon May 16 16:28:56 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: imDefLkup.c,v 1.9 94/03/29 22:51:29 rws Exp $ */
+  /******************************************************************
+  
+             Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+--- 1,4 ----
+! /* $XConsortium: imDefLkup.c,v 1.10 94/05/14 16:20:45 rws Exp $ */
+  /******************************************************************
+  
+             Copyright 1992, 1993, 1994 by FUJITSU LIMITED
+***************
+*** 633,639 ****
+      info->string	= string;
+      info->string_len	= string_len;
+      info->keysym	= keysym;
+!     info->keysym_len	= string_len;
+      info->next = ic->private.proto.commit_info;
+      ic->private.proto.commit_info = info;
+  }
+--- 633,639 ----
+      info->string	= string;
+      info->string_len	= string_len;
+      info->keysym	= keysym;
+!     info->keysym_len	= keysym_len;
+      info->next = ic->private.proto.commit_info;
+      ic->private.proto.commit_info = info;
+  }
+***************
+*** 669,699 ****
+  }
+  
+  Private Bool
+! _XimProcKeySym(ic, buf, len, xim_keysym, xim_keysym_len)
+      Xic			  ic;
+!     CARD32		 *buf;
+!     int			  len;
+      KeySym		**xim_keysym;
+      int			 *xim_keysym_len;
+  {
+      Xim			 im = (Xim)ic->core.im;
+-     int			 num = len / sizeof(CARD32);
+-     int			 alloc_len;
+-     KeySym		*keysym;
+-     register int	 i;
+  
+!     alloc_len = sizeof(KeySym) * num;
+!     if (!(keysym = (KeySym *)Xmalloc(alloc_len))) {
+  	_XimError(im, ic, XIM_BadAlloc, (INT16)0, (CARD16)0, (char *)NULL);
+  	return False;
+      }
+  
+!     for (i = 0; i < num; i++) {
+! 	keysym[i] = (KeySym)buf[i];
+!     }
+  
+-     *xim_keysym = keysym;
+-     *xim_keysym_len = alloc_len;
+      return True;
+  }
+  
+--- 669,690 ----
+  }
+  
+  Private Bool
+! _XimProcKeySym(ic, sym, xim_keysym, xim_keysym_len)
+      Xic			  ic;
+!     CARD32		  sym;
+      KeySym		**xim_keysym;
+      int			 *xim_keysym_len;
+  {
+      Xim			 im = (Xim)ic->core.im;
+  
+!     if (!(*xim_keysym = (KeySym *)Xmalloc(sizeof(KeySym)))) {
+  	_XimError(im, ic, XIM_BadAlloc, (INT16)0, (CARD16)0, (char *)NULL);
+  	return False;
+      }
+  
+!     **xim_keysym = (KeySym)sym;
+!     *xim_keysym_len = 1;
+  
+      return True;
+  }
+  
+***************
+*** 729,760 ****
+  {
+      CARD16	*buf_s = (CARD16 *)buf;
+      BITMASK16	 flag = buf_s[0];
+-     int		 len;
+      XKeyEvent	 ev;
+!     char	*string;
+!     int		 string_len;
+!     KeySym	*keysym;
+!     int		 keysym_len;
+  
+!     if (flag & XimLookupChars) {
+  	if (!(_XimProcCommit(ic, (BYTE *)&buf_s[2],
+  			 		(int)buf_s[1], &string, &string_len)))
+  	    return False;
+  
+!     } else if (flag & XimLookupKeySym) {
+! 	if (!(_XimProcKeySym(ic, (CARD32 *)&buf_s[2],
+! 			 		(int)buf_s[1], &keysym, &keysym_len)))
+  	    return False;
+  
+!     } else if (flag & XimLookupBoth) {
+! 	len = (int)buf_s[1];
+! 	if (!(_XimProcKeySym(ic, (CARD32 *)&buf_s[2],
+! 			 		len, &keysym, &keysym_len)))
+  	    return False;
+  
+! 	buf_s = (CARD16 *)((char *)&buf_s[2] + len);
+! 	if (!(_XimProcCommit(ic, (BYTE *)&buf_s[1],
+! 			 		(int)buf_s[0], &string, &string_len)))
+  	    return False;
+      }
+  
+--- 720,746 ----
+  {
+      CARD16	*buf_s = (CARD16 *)buf;
+      BITMASK16	 flag = buf_s[0];
+      XKeyEvent	 ev;
+!     char	*string = NULL;
+!     int		 string_len = 0;
+!     KeySym	*keysym = NULL;
+!     int		 keysym_len = 0;
+  
+!     if ((flag & XimLookupBoth) == XimLookupChars) {
+  	if (!(_XimProcCommit(ic, (BYTE *)&buf_s[2],
+  			 		(int)buf_s[1], &string, &string_len)))
+  	    return False;
+  
+!     } else if ((flag & XimLookupBoth) == XimLookupKeySym) {
+! 	if (!(_XimProcKeySym(ic, *(CARD32 *)&buf_s[2], &keysym, &keysym_len)))
+  	    return False;
+  
+!     } else if ((flag & XimLookupBoth) == XimLookupBoth) {
+! 	if (!(_XimProcKeySym(ic, *(CARD32 *)&buf_s[2], &keysym, &keysym_len)))
+  	    return False;
+  
+! 	if (!(_XimProcCommit(ic, (BYTE *)&buf_s[5],
+! 			 		(int)buf_s[4], &string, &string_len)))
+  	    return False;
+      }
+  
+*** /tmp/da06212	Mon May 16 16:29:00 1994
+--- xc/lib/X11/imRm.c	Mon May 16 16:28:59 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: imRm.c,v 1.7 94/03/31 22:02:36 rws Exp $ */
+  /******************************************************************
+  
+  	  Copyright 1990, 1991, 1992,1993, 1994 by FUJITSU LIMITED
+--- 1,4 ----
+! /* $XConsortium: imRm.c,v 1.8 94/05/14 15:39:47 rws Exp $ */
+  /******************************************************************
+  
+  	  Copyright 1990, 1991, 1992,1993, 1994 by FUJITSU LIMITED
+***************
+*** 210,216 ****
+      XNStringConversionCallback,
+      XNStringConversion,
+      XNResetState,
+-     XNResetReturn,
+      XNHotKey,
+      XNHotKeyState,
+      XNPreeditAttributes,
+--- 210,215 ----
+***************
+*** 473,492 ****
+  }
+  
+  Private  Bool
+- _XimDefaultResetReturn(info, top, parm, mode)
+-     XimValueOffsetInfo	  info;
+-     XPointer	 	  top;
+-     XPointer	 	  parm;
+-     unsigned long	  mode;
+- {
+-     XIMResetReturn	*out;
+- 
+-     out = (XIMResetReturn *)((char *)top + info->offset);
+-     *out = XIMInitialState;
+-     return(True);
+- }
+- 
+- Private  Bool
+  _XimDefaultHotKeyState(info, top, parm, mode)
+      XimValueOffsetInfo	  info;
+      XPointer	 	  top;
+--- 472,477 ----
+***************
+*** 802,820 ****
+  }
+  
+  Private  Bool
+- _XimEncodeResetReturn(info, top, val)
+-     XimValueOffsetInfo	 info;
+-     XPointer	 	 top;
+-     XPointer	 	 val;
+- {
+-     XIMResetReturn	*out;
+- 
+-     out = (XIMResetReturn *)((char *)top + info->offset);
+-     *out = (XIMResetReturn)val;
+-     return(True);
+- }
+- 
+- Private  Bool
+  _XimEncodeHotKey(info, top, val)
+      XimValueOffsetInfo	  info;
+      XPointer	 	  top;
+--- 787,792 ----
+***************
+*** 1197,1215 ****
+  }
+  
+  Private  Bool
+- _XimDecodeResetReturn(info, top, val)
+-     XimValueOffsetInfo	 info;
+-     XPointer	 	 top;
+-     XPointer	 	 val;
+- {
+-     XIMResetReturn	*in;
+- 
+-     in = (XIMResetReturn *)((char *)top + info->offset);
+-     *((XIMResetReturn *)val) = *in;
+-     return(True);
+- }
+- 
+- Private  Bool
+  _XimDecodeHotKey(info, top, val)
+      XimValueOffsetInfo	 info;
+      XPointer	 	 top;
+--- 1169,1174 ----
+***************
+*** 1436,1442 ****
+      {XNStringConversionCallback,   0, 0,			0, 0, 0},
+      {XNStringConversion,	   0, XimType_XIMStringConversion,0, 0, 0},
+      {XNResetState,		   0, 0,			0, 0, 0},
+-     {XNResetReturn,		   0, 0,			0, 0, 0},
+      {XNHotKey,			   0, XimType_XIMHotKeyTriggers,0, 0, 0},
+      {XNHotKeyState,		   0, XimType_XIMHotKeyState, 	0, 0, 0},
+      {XNPreeditAttributes,	   0, XimType_NEST,		0, 0, 0},
+--- 1395,1400 ----
+***************
+*** 1468,1474 ****
+      {XNGeometryCallback,	   0, 0,			0, 0, 0},
+      {XNDestroyCallback,		   0, 0,			0, 0, 0},
+      {XNStringConversionCallback,   0, 0,			0, 0, 0},
+-     {XNResetReturn,		   0, 0,			0, 0, 0},
+      {XNPreeditStartCallback,	   0, 0,			0, 0, 0},
+      {XNPreeditDoneCallback,	   0, 0,			0, 0, 0},
+      {XNPreeditDrawCallback,	   0, 0,			0, 0, 0},
+--- 1426,1431 ----
+***************
+*** 1553,1562 ****
+  	XOffsetOf(XimDefICValues, reset_state),
+  	_XimDefaultResetState,	 _XimEncodeResetState,	_XimDecodeResetState},
+  
+-     {XNResetReturn,		 0,
+- 	XOffsetOf(XimDefICValues, reset_return),
+- 	_XimDefaultResetReturn,	 _XimEncodeResetReturn,	_XimDecodeResetReturn},
+- 
+      {XNHotKey,			 0,
+  	XOffsetOf(XimDefICValues, hotkey),
+  	NULL,			 _XimEncodeHotKey,	_XimDecodeHotKey},
+--- 1510,1515 ----
+***************
+*** 1842,1857 ****
+  		0,
+  		0,
+  		0},
+-     {XNResetReturn, 0,
+- 		(XIM_MODE_PRE_DEFAULT | XIM_MODE_PRE_SET | XIM_MODE_PRE_GET),
+- 		(XIM_MODE_PRE_DEFAULT | XIM_MODE_PRE_SET | XIM_MODE_PRE_GET),
+- 		(XIM_MODE_PRE_DEFAULT | XIM_MODE_PRE_SET | XIM_MODE_PRE_GET),
+- 		(XIM_MODE_PRE_DEFAULT | XIM_MODE_PRE_SET | XIM_MODE_PRE_GET),
+- 		0,
+- 		0,
+- 		0,
+- 		0,
+- 		0},
+      {XNHotKey, 0,
+  		(XIM_MODE_PRE_SET | XIM_MODE_PRE_GET),
+  		(XIM_MODE_PRE_SET | XIM_MODE_PRE_GET),
+--- 1795,1800 ----
+***************
+*** 3078,3084 ****
+  				 = ic->core.string_conversion_callback;
+      ic_values->string_conversion = ic->core.string_conversion;
+      ic_values->reset_state	 = ic->core.reset_state;
+-     ic_values->reset_return	 = ic->core.reset_return;
+      ic_values->hotkey		 = ic->core.hotkey;
+      ic_values->hotkey_state	 = ic->core.hotkey_state;
+      ic_values->preedit_attr	 = ic->core.preedit_attr;
+--- 3021,3026 ----
+***************
+*** 3104,3110 ****
+  				= ic_values->string_conversion_callback;
+      ic->core.string_conversion	= ic_values->string_conversion;
+      ic->core.reset_state	= ic_values->reset_state;
+-     ic->core.reset_return	= ic_values->reset_return;
+      ic->core.hotkey		= ic_values->hotkey;
+      ic->core.hotkey_state	= ic_values->hotkey_state;
+      ic->core.preedit_attr	= ic_values->preedit_attr;
+--- 3046,3051 ----
+*** /tmp/da06233	Mon May 16 16:29:04 1994
+--- xc/lib/XIE/XIElib.h	Mon May 16 16:29:04 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: XIElib.h,v 1.9 94/04/17 20:18:16 mor Exp $ */
+  
+  /*
+  
+--- 1,4 ----
+! /* $XConsortium: XIElib.h,v 1.10 94/05/02 14:15:57 mor Exp $ */
+  
+  /*
+  
+***************
+*** 392,398 ****
+  	struct {
+  	    XiePhototag		src;
+  	    XieProcessDomain	domain;
+! 	    XieLut		lut;
+  	    unsigned int	band_mask;
+  	} Point;
+  	
+--- 392,398 ----
+  	struct {
+  	    XiePhototag		src;
+  	    XieProcessDomain	domain;
+! 	    XiePhototag		lut;
+  	    unsigned int	band_mask;
+  	} Point;
+  	
+***************
+*** 1456,1462 ****
+      XiePhotoElement *	/* element */,
+      XiePhototag		/* src */,
+      XieProcessDomain *	/* domain */,
+!     XieLut		/* lut */,
+      unsigned int	/* band_mask */
+  #endif
+  );
+--- 1456,1462 ----
+      XiePhotoElement *	/* element */,
+      XiePhototag		/* src */,
+      XieProcessDomain *	/* domain */,
+!     XiePhototag		/* lut */,
+      unsigned int	/* band_mask */
+  #endif
+  );
+*** /tmp/da06249	Mon May 16 16:29:06 1994
+--- xc/lib/XIE/colorlist.c	Mon May 16 16:29:06 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: colorlist.c,v 1.5 94/04/17 20:18:19 rws Exp $ */
+  
+  /*
+  
+--- 1,4 ----
+! /* $XConsortium: colorlist.c,v 1.6 94/05/06 15:10:34 mor Exp $ */
+  
+  /*
+  
+***************
+*** 160,166 ****
+        *colors_ret = (unsigned long *) Xmalloc (
+  	rep.length * sizeof (unsigned long));
+  
+!       _XRead32 (display, colors_ret, rep.length << 2);
+      }
+      else 
+  	*colors_ret = NULL;
+--- 160,166 ----
+        *colors_ret = (unsigned long *) Xmalloc (
+  	rep.length * sizeof (unsigned long));
+  
+!       _XRead32 (display, *colors_ret, rep.length << 2);
+      }
+      else 
+  	*colors_ret = NULL;
+*** /tmp/da06265	Mon May 16 16:29:09 1994
+--- xc/lib/XIE/conven.c	Mon May 16 16:29:08 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: conven.c,v 1.8 94/04/17 20:18:20 mor Exp $ */
+  
+  /*
+  
+--- 1,4 ----
+! /* $XConsortium: conven.c,v 1.9 94/05/02 14:16:30 mor Exp $ */
+  
+  /*
+  
+***************
+*** 605,611 ****
+  XiePhotoElement		*element;
+  XiePhototag		src;
+  XieProcessDomain	*domain;
+! XieLut			lut;
+  unsigned int		band_mask;
+  
+  {
+--- 605,611 ----
+  XiePhotoElement		*element;
+  XiePhototag		src;
+  XieProcessDomain	*domain;
+! XiePhototag		lut;
+  unsigned int		band_mask;
+  
+  {
+*** /tmp/da06281	Mon May 16 16:29:11 1994
+--- xc/lib/XIE/photoflo.c	Mon May 16 16:29:10 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: photoflo.c,v 1.4 94/04/17 20:18:26 rws Exp $ */
+  
+  /*
+  
+--- 1,4 ----
+! /* $XConsortium: photoflo.c,v 1.6 94/05/13 10:30:17 mor Exp $ */
+  
+  /*
+  
+***************
+*** 248,253 ****
+--- 248,254 ----
+      xieQueryPhotofloReq		*req;
+      xieQueryPhotofloReply	rep;
+      char			*pBuf;
++     int				i;
+  
+      LockDisplay (display);
+  
+***************
+*** 261,295 ****
+  
+      END_REQUEST_HEADER (QueryPhotoflo, pBuf, req);
+  
+      if (_XReply (display, (xReply *)&rep, 0, xFalse) == 0)
+      {
+          UnlockDisplay (display);
+  	SYNC_HANDLE (display);
+  
+- 	*state_ret = 0;
+- 	*nexpected_ret = 0;
+- 	*data_expected_ret = NULL;
+- 	*navailable_ret = 0;
+- 	*data_available_ret = NULL;
+- 	
+  	return (0);
+      }
+  
+      *state_ret = rep.state;
+-     *nexpected_ret = rep.expectedCount;
+-     *navailable_ret = rep.availableCount;
+  
+!     *data_expected_ret = (XiePhototag *) Xmalloc (
+! 	sizeof (XiePhototag) * rep.expectedCount);
+  
+!     *data_available_ret = (XiePhototag *) Xmalloc (
+! 	sizeof (XiePhototag) * rep.availableCount);
+  
+!     _XRead16Pad (display, data_expected_ret,
+! 	rep.expectedCount * SIZEOF (xieTypPhototag));
+  
+!     _XRead16Pad (display, data_available_ret,
+! 	rep.availableCount * SIZEOF (xieTypPhototag));
+  
+      UnlockDisplay (display);
+      SYNC_HANDLE (display);
+--- 262,320 ----
+  
+      END_REQUEST_HEADER (QueryPhotoflo, pBuf, req);
+  
++     *state_ret = 0;
++     *nexpected_ret = 0;
++     *data_expected_ret = NULL;
++     *navailable_ret = 0;
++     *data_available_ret = NULL;
++ 	
+      if (_XReply (display, (xReply *)&rep, 0, xFalse) == 0)
+      {
+          UnlockDisplay (display);
+  	SYNC_HANDLE (display);
+  
+  	return (0);
+      }
+  
+      *state_ret = rep.state;
+  
+!     if (rep.expectedCount > 0)
+!     {
+! 	short *temp = (short *) _XAllocTemp (display,
+! 	    sizeof (short) * rep.expectedCount);
+  
+! 	*nexpected_ret = rep.expectedCount;
+! 	*data_expected_ret = (XiePhototag *) Xmalloc (
+! 	    sizeof (XiePhototag) * rep.expectedCount);
+! 			
+! 	_XRead16Pad (display, temp,
+! 	    rep.expectedCount * SIZEOF (xieTypPhototag));
+  
+! 	for (i = 0; i < rep.expectedCount; i++)
+! 	    (*data_expected_ret)[i] = (XiePhototag) temp[i];
+  
+! 	_XFreeTemp (display, (char *) temp,
+! 	    sizeof (short) * rep.expectedCount);
+!     }
+! 
+!     if (rep.availableCount > 0)
+!     {
+! 	short *temp = (short *) _XAllocTemp (display,
+! 	    sizeof (short) * rep.availableCount);
+! 
+! 	*navailable_ret = rep.availableCount;
+! 	*data_available_ret = (XiePhototag *) Xmalloc (
+! 	    sizeof (XiePhototag) * rep.availableCount);
+! 			
+! 	_XRead16Pad (display, temp,
+! 	    rep.availableCount * SIZEOF (xieTypPhototag));
+! 
+! 	for (i = 0; i < rep.availableCount; i++)
+! 	    (*data_available_ret)[i] = (XiePhototag) temp[i];
+! 
+! 	_XFreeTemp (display, (char *) temp,
+! 	    sizeof (short) * rep.availableCount);
+!     }
+  
+      UnlockDisplay (display);
+      SYNC_HANDLE (display);
+*** /tmp/da06302	Mon May 16 16:29:13 1994
+--- xc/lib/Xt/Destroy.c	Mon May 16 16:29:12 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: Destroy.c,v 1.50 94/04/17 20:13:57 kaleb Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts
+--- 1,4 ----
+! /* $XConsortium: Destroy.c,v 1.51 94/05/11 16:02:58 kaleb Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts
+***************
+*** 127,135 ****
+      ObjectClassExtension	    ext;
+  
+      /* Call constraint destroy procedures */
+!     /* assert: !XtIsShell(w) => (XtParent(w) != NULL) */
+!     if ((!XtIsShell(widget) && !_XtIsHookObject(widget)) && 
+! 	XtIsConstraint(XtParent(widget))) {
+  	LOCK_PROCESS;
+  	cwClass = (ConstraintWidgetClass)XtParent(widget)->core.widget_class;
+  	UNLOCK_PROCESS;
+--- 127,133 ----
+      ObjectClassExtension	    ext;
+  
+      /* Call constraint destroy procedures */
+!     if (XtParent(widget) != NULL && !XtIsShell(widget) && XtIsConstraint(XtParent(widget))) {
+  	LOCK_PROCESS;
+  	cwClass = (ConstraintWidgetClass)XtParent(widget)->core.widget_class;
+  	UNLOCK_PROCESS;
+*** /tmp/da06318	Mon May 16 16:29:15 1994
+--- xc/lib/Xt/GetValues.c	Mon May 16 16:29:14 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: GetValues.c,v 1.13 94/04/17 20:14:09 kaleb Exp $ */
+  /*LINTLIBRARY*/
+  
+  /***********************************************************
+--- 1,4 ----
+! /* $XConsortium: GetValues.c,v 1.14 94/05/11 16:03:26 kaleb Exp $ */
+  /*LINTLIBRARY*/
+  
+  /***********************************************************
+***************
+*** 217,225 ****
+      }
+  
+      /* Get constraint values if necessary */
+-     /* assert: !XtIsShell(w) => (XtParent(w) != NULL) */
+      /* constraints may be NULL if constraint_size==0 */
+!     if (!XtIsShell(w) && XtIsConstraint(XtParent(w)) && w->core.constraints) {
+  	ConstraintWidgetClass cwc
+  	    = (ConstraintWidgetClass) XtClass(XtParent(w));
+  	LOCK_PROCESS;
+--- 217,225 ----
+      }
+  
+      /* Get constraint values if necessary */
+      /* constraints may be NULL if constraint_size==0 */
+!     if (XtParent(w) != NULL && !XtIsShell(w) && XtIsConstraint(XtParent(w)) && 
+! 	w->core.constraints) {
+  	ConstraintWidgetClass cwc
+  	    = (ConstraintWidgetClass) XtClass(XtParent(w));
+  	LOCK_PROCESS;
+***************
+*** 232,238 ****
+      CallGetValuesHook(wc, w, args, num_args);
+  
+      /* Notify constraint get_values if necessary */
+!     if (!XtIsShell(w) && XtIsConstraint(XtParent(w)))
+  	CallConstraintGetValuesHook(XtClass(XtParent(w)), w, args,num_args);
+      UNLOCK_APP(app);
+  } /* XtGetValues */
+--- 232,238 ----
+      CallGetValuesHook(wc, w, args, num_args);
+  
+      /* Notify constraint get_values if necessary */
+!     if (XtParent(w) != NULL && !XtIsShell(w) && XtIsConstraint(XtParent(w)))
+  	CallConstraintGetValuesHook(XtClass(XtParent(w)), w, args,num_args);
+      UNLOCK_APP(app);
+  } /* XtGetValues */
+*** /tmp/da06334	Mon May 16 16:29:17 1994
+--- xc/lib/Xt/NextEvent.c	Mon May 16 16:29:16 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: NextEvent.c,v 1.142 94/04/17 20:14:29 kaleb Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+--- 1,4 ----
+! /* $XConsortium: NextEvent.c,v 1.143 94/05/11 16:01:26 kaleb Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+***************
+*** 388,399 ****
+  ENDILOOP:   ;
+      } /* endfor */
+  #else /* }{ */
+!     struct pollfd* fdlp = wf->fdlist;
+  
+      *dpy_no = -1;
+      *found_input = False;
+  
+      if (!ignoreEvents) {
+  	for (ii = 0; ii < wf->num_dpys; ii++, fdlp++) {
+  	    if (*dpy_no == -1 && fdlp->revents & (POLLIN|POLLHUP) &&
+  #ifdef XTHREADS
+--- 388,400 ----
+  ENDILOOP:   ;
+      } /* endfor */
+  #else /* }{ */
+!     struct pollfd* fdlp;
+  
+      *dpy_no = -1;
+      *found_input = False;
+  
+      if (!ignoreEvents) {
++ 	fdlp = wf->fdlist;
+  	for (ii = 0; ii < wf->num_dpys; ii++, fdlp++) {
+  	    if (*dpy_no == -1 && fdlp->revents & (POLLIN|POLLHUP) &&
+  #ifdef XTHREADS
+***************
+*** 407,412 ****
+--- 408,414 ----
+      }
+  
+      if (!ignoreInputs) {
++ 	fdlp = &wf->fdlist[wf->num_dpys];
+  	for (ii = wf->num_dpys; ii < wf->fdlistlen; ii++, fdlp++) {
+  	    condition = 0;
+  	    if (fdlp->revents) {
+*** /tmp/da06350	Mon May 16 16:29:20 1994
+--- xc/lib/Xt/SetValues.c	Mon May 16 16:29:19 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: SetValues.c,v 1.21 94/04/17 20:14:45 kaleb Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts
+--- 1,4 ----
+! /* $XConsortium: SetValues.c,v 1.22 94/05/11 16:03:28 kaleb Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts
+***************
+*** 223,230 ****
+  
+      (void) memmove ((char *) reqw, (char *) w, (int) widgetSize);
+  
+!     /* assert: !XtIsShell(w) => (XtParent(w) != NULL) */
+!     hasConstraints = (!XtIsShell(w) && XtIsConstraint(XtParent(w)));
+  
+      /* Some widget sets apparently do ugly things by freeing the
+       * constraints on some children, thus the extra test here */
+--- 223,229 ----
+  
+      (void) memmove ((char *) reqw, (char *) w, (int) widgetSize);
+  
+!     hasConstraints = (XtParent(w) != NULL && !XtIsShell(w) && XtIsConstraint(XtParent(w)));
+  
+      /* Some widget sets apparently do ugly things by freeing the
+       * constraints on some children, thus the extra test here */
+*** /tmp/da06371	Mon May 16 16:29:22 1994
+--- xc/lib/xtrans/Xtrans.c	Mon May 16 16:29:21 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: Xtrans.c,v 1.22 94/04/17 20:22:59 mor Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+--- 1,4 ----
+! /* $XConsortium: Xtrans.c,v 1.24 94/05/10 11:32:27 mor Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+***************
+*** 85,103 ****
+  static
+  Xtransport_table Xtransports[] = {
+  #if defined(STREAMSCONN)
+-     &TRANS(TLIINETFuncs),	TRANS_TLI_INET_INDEX,
+      &TRANS(TLITCPFuncs),	TRANS_TLI_TCP_INDEX,
+      &TRANS(TLITLIFuncs),	TRANS_TLI_TLI_INDEX,
+  #endif /* STREAMSCONN */
+  #if defined(UNIXCONN)
+-     &TRANS(SocketUNIXFuncs),	TRANS_SOCKET_UNIX_INDEX,
+  #if !defined(LOCALCONN)
+      &TRANS(SocketLocalFuncs),	TRANS_SOCKET_LOCAL_INDEX,
+  #endif /* !LOCALCONN */
+  #endif /* UNIXCONN */
+  #if defined(TCPCONN)
+-     &TRANS(SocketINETFuncs),	TRANS_SOCKET_INET_INDEX,
+      &TRANS(SocketTCPFuncs),	TRANS_SOCKET_TCP_INDEX,
+  #endif /* TCPCONN */
+  #if defined(DNETCONN)
+      &TRANS(DNETFuncs),		TRANS_DNET_INDEX,
+--- 85,103 ----
+  static
+  Xtransport_table Xtransports[] = {
+  #if defined(STREAMSCONN)
+      &TRANS(TLITCPFuncs),	TRANS_TLI_TCP_INDEX,
++     &TRANS(TLIINETFuncs),	TRANS_TLI_INET_INDEX,
+      &TRANS(TLITLIFuncs),	TRANS_TLI_TLI_INDEX,
+  #endif /* STREAMSCONN */
+  #if defined(UNIXCONN)
+  #if !defined(LOCALCONN)
+      &TRANS(SocketLocalFuncs),	TRANS_SOCKET_LOCAL_INDEX,
+  #endif /* !LOCALCONN */
++     &TRANS(SocketUNIXFuncs),	TRANS_SOCKET_UNIX_INDEX,
+  #endif /* UNIXCONN */
+  #if defined(TCPCONN)
+      &TRANS(SocketTCPFuncs),	TRANS_SOCKET_TCP_INDEX,
++     &TRANS(SocketINETFuncs),	TRANS_SOCKET_INET_INDEX,
+  #endif /* TCPCONN */
+  #if defined(DNETCONN)
+      &TRANS(DNETFuncs),		TRANS_DNET_INDEX,
+***************
+*** 1029,1035 ****
+      int			i;
+  
+      PRMSG (2,"TRANS(MakeAllCOTSServerListeners) (%s,%x)\n",
+! 	   port, ciptrs_ret, 0);
+  
+      *count_ret = 0;
+  
+--- 1029,1035 ----
+      int			i;
+  
+      PRMSG (2,"TRANS(MakeAllCOTSServerListeners) (%s,%x)\n",
+! 	   port ? port : "NULL", ciptrs_ret, 0);
+  
+      *count_ret = 0;
+  
+***************
+*** 1108,1114 ****
+      int			i;
+  
+      PRMSG (2,"TRANS(MakeAllCLTSServerListeners) (%s,%x)\n",
+! 	port, ciptrs_ret, 0);
+  
+      *count_ret = 0;
+  
+--- 1108,1114 ----
+      int			i;
+  
+      PRMSG (2,"TRANS(MakeAllCLTSServerListeners) (%s,%x)\n",
+! 	port ? port : "NULL", ciptrs_ret, 0);
+  
+      *count_ret = 0;
+  
+***************
+*** 1227,1236 ****
+  
+  #endif /* CRAY */
+  
+! #if (defined(SYSV) && defined(SYSV386)) || defined(WIN32) || defined(__sxg__)
+  
+  /*
+!  * SYSV/386 and WIN32 do not have readv so we emulate
+   */
+  
+  static int TRANS(ReadV) (ciptr, iov, iovcnt)
+--- 1227,1236 ----
+  
+  #endif /* CRAY */
+  
+! #if (defined(SYSV) && defined(SYSV386)) || defined(WIN32) || defined(__sxg__) || defined(SCO)
+  
+  /*
+!  * emulate readv
+   */
+  
+  static int TRANS(ReadV) (ciptr, iov, iovcnt)
+***************
+*** 1261,1272 ****
+      return total;
+  }
+  
+! #endif /* SYSV && SYSV386 || WIN32 || __sxg__ */
+  
+! #if defined(WIN32) || defined(__sxg__)
+  
+  /*
+!  * WIN32 does not have readv so we emulate
+   */
+  
+  static int TRANS(WriteV) (ciptr, iov, iovcnt)
+--- 1261,1272 ----
+      return total;
+  }
+  
+! #endif /* SYSV && SYSV386 || WIN32 || __sxg__ || SCO */
+  
+! #if defined(WIN32) || defined(__sxg__) || defined(SCO)
+  
+  /*
+!  * emulate writev
+   */
+  
+  static int TRANS(WriteV) (ciptr, iov, iovcnt)
+***************
+*** 1297,1303 ****
+      return total;
+  }
+  
+! #endif /* WIN32 || __sxg__ */
+  
+  
+  #if (defined(_POSIX_SOURCE) && !defined(AIXV3)) || defined(hpux) || defined(USG) || defined(SVR4)
+--- 1297,1303 ----
+      return total;
+  }
+  
+! #endif /* WIN32 || __sxg__ || SCO */
+  
+  
+  #if (defined(_POSIX_SOURCE) && !defined(AIXV3)) || defined(hpux) || defined(USG) || defined(SVR4)
+*** /tmp/da06387	Mon May 16 16:29:25 1994
+--- xc/lib/xtrans/Xtrans.h	Mon May 16 16:29:24 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: Xtrans.h,v 1.23 94/04/17 20:23:00 mor Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+--- 1,4 ----
+! /* $XConsortium: Xtrans.h,v 1.24 94/05/02 10:45:32 mor Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+***************
+*** 454,462 ****
+  char *
+  TRANS(GetMyNetworkId)(
+  #if NeedFunctionPrototypes
+!     int,		/* family */
+!     int,		/* addrlen */
+!     Xtransaddr *	/* addr */
+  #endif
+  );
+  
+--- 454,460 ----
+  char *
+  TRANS(GetMyNetworkId)(
+  #if NeedFunctionPrototypes
+!     XtransConnInfo	/* ciptr */
+  #endif
+  );
+  
+***************
+*** 463,471 ****
+  char *
+  TRANS(GetPeerNetworkId)(
+  #if NeedFunctionPrototypes
+!     int,		/* family */
+!     int,		/* addrlen */
+!     Xtransaddr *	/* addr */
+  #endif
+  );
+  
+--- 461,467 ----
+  char *
+  TRANS(GetPeerNetworkId)(
+  #if NeedFunctionPrototypes
+!     XtransConnInfo	/* ciptr */
+  #endif
+  );
+  
+*** /tmp/da06403	Mon May 16 16:29:27 1994
+--- xc/lib/xtrans/Xtransint.h	Mon May 16 16:29:26 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: Xtransint.h,v 1.20 94/04/17 20:23:03 rws Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+--- 1,4 ----
+! /* $XConsortium: Xtransint.h,v 1.21 94/05/10 11:08:46 mor Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+***************
+*** 365,371 ****
+   * systems, so they may be emulated.
+   */
+  
+! #if defined(CRAY) || (defined(SYSV) && defined(SYSV386)) || defined(WIN32) || defined(__sxg__)
+  
+  #define READV(ciptr, iov, iovcnt)	TRANS(ReadV)(ciptr, iov, iovcnt)
+  
+--- 365,371 ----
+   * systems, so they may be emulated.
+   */
+  
+! #if defined(CRAY) || (defined(SYSV) && defined(SYSV386)) || defined(WIN32) || defined(__sxg__) || defined(SCO)
+  
+  #define READV(ciptr, iov, iovcnt)	TRANS(ReadV)(ciptr, iov, iovcnt)
+  
+***************
+*** 377,382 ****
+--- 377,391 ----
+  #endif
+  );
+  
++ #else
++ 
++ #define READV(ciptr, iov, iovcnt)	readv(ciptr->fd, iov, iovcnt)
++ 
++ #endif /* CRAY || (SYSV && SYSV386) || WIN32 || __sxg__ || SCO */
++ 
++ 
++ #if defined(CRAY) || defined(WIN32) || defined(__sxg__) || defined(SCO)
++ 
+  #define WRITEV(ciptr, iov, iovcnt)	TRANS(WriteV)(ciptr, iov, iovcnt)
+  
+  static int TRANS(WriteV)(
+***************
+*** 389,398 ****
+  
+  #else
+  
+- #define READV(ciptr, iov, iovcnt)	readv(ciptr->fd, iov, iovcnt)
+  #define WRITEV(ciptr, iov, iovcnt)	writev(ciptr->fd, iov, iovcnt)
+  
+! #endif /* CRAY || (SYSV && SYSV386) || WIN32 */
+  
+  
+  static int is_numeric (
+--- 398,406 ----
+  
+  #else
+  
+  #define WRITEV(ciptr, iov, iovcnt)	writev(ciptr->fd, iov, iovcnt)
+  
+! #endif /* CRAY || WIN32 || __sxg__ || SCO */
+  
+  
+  static int is_numeric (
+*** /tmp/da06419	Mon May 16 16:29:30 1994
+--- xc/lib/xtrans/Xtranssock.c	Mon May 16 16:29:28 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: Xtranssock.c,v 1.25 94/04/17 20:23:05 mor Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+--- 1,4 ----
+! /* $XConsortium: Xtranssock.c,v 1.27 94/05/02 11:44:22 mor Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+***************
+*** 867,873 ****
+      int			namelen;
+      int			oldUmask;
+  
+!     PRMSG (2, "TRANS(SocketUNIXCreateListener) (%s)\n", port, 0, 0);
+  
+      /* Make sure the directory is created */
+  
+--- 867,874 ----
+      int			namelen;
+      int			oldUmask;
+  
+!     PRMSG (2, "TRANS(SocketUNIXCreateListener) (%s)\n",
+! 	port ? port : "NULL", 0, 0);
+  
+      /* Make sure the directory is created */
+  
+***************
+*** 1309,1314 ****
+--- 1310,1323 ----
+  	PRMSG (1,"TRANS(SocketINETConnect) () can't connect: errno = %d\n",
+  	  EGET(),0, 0);
+  
++ 	/*
++ 	 * If the error was ECONNREFUSED, the server may be overloaded
++ 	 * and we should try again.
++ 	 *
++ 	 * If the error was EINTR, the connect was interrupted and we
++ 	 * should try again.
++ 	 */
++ 
+  	if (olderrno == ECONNREFUSED || olderrno == EINTR)
+  	    return TRANS_TRY_CONNECT_AGAIN;
+  	else
+***************
+*** 1637,1646 ****
+  
+  
+  #ifdef TCPCONN
+! Xtransport	TRANS(SocketINETFuncs) = {
+  	/* Socket Interface */
+! 	"inet",
+! 	0,
+  #ifdef TRANS_CLIENT
+  	TRANS(SocketOpenCOTSClient),
+  #endif /* TRANS_CLIENT */
+--- 1646,1655 ----
+  
+  
+  #ifdef TCPCONN
+! Xtransport	TRANS(SocketTCPFuncs) = {
+  	/* Socket Interface */
+! 	"tcp",
+!         0,
+  #ifdef TRANS_CLIENT
+  	TRANS(SocketOpenCOTSClient),
+  #endif /* TRANS_CLIENT */
+***************
+*** 1676,1684 ****
+  	TRANS(SocketINETClose),
+  	};
+  
+! Xtransport	TRANS(SocketTCPFuncs) = {
+  	/* Socket Interface */
+! 	"tcp",
+  	TRANS_ALIAS,
+  #ifdef TRANS_CLIENT
+  	TRANS(SocketOpenCOTSClient),
+--- 1685,1693 ----
+  	TRANS(SocketINETClose),
+  	};
+  
+! Xtransport	TRANS(SocketINETFuncs) = {
+  	/* Socket Interface */
+! 	"inet",
+  	TRANS_ALIAS,
+  #ifdef TRANS_CLIENT
+  	TRANS(SocketOpenCOTSClient),
+***************
+*** 1714,1725 ****
+  	TRANS(SocketINETClose),
+  	TRANS(SocketINETClose),
+  	};
+  #endif /* TCPCONN */
+  
+  #ifdef UNIXCONN
+! Xtransport	TRANS(SocketUNIXFuncs) = {
+  	/* Socket Interface */
+! 	"unix",
+  	0,
+  #ifdef TRANS_CLIENT
+  	TRANS(SocketOpenCOTSClient),
+--- 1723,1736 ----
+  	TRANS(SocketINETClose),
+  	TRANS(SocketINETClose),
+  	};
++ 
+  #endif /* TCPCONN */
+  
+  #ifdef UNIXCONN
+! #if !defined(LOCALCONN)
+! Xtransport	TRANS(SocketLocalFuncs) = {
+  	/* Socket Interface */
+! 	"local",
+  	0,
+  #ifdef TRANS_CLIENT
+  	TRANS(SocketOpenCOTSClient),
+***************
+*** 1755,1766 ****
+  	TRANS(SocketUNIXClose),
+  	TRANS(SocketUNIXCloseForCloning),
+  	};
+  
+! #if !defined(LOCALCON)
+! Xtransport	TRANS(SocketLocalFuncs) = {
+  	/* Socket Interface */
+! 	"local",
+! 	TRANS_ALIAS,
+  #ifdef TRANS_CLIENT
+  	TRANS(SocketOpenCOTSClient),
+  #endif /* TRANS_CLIENT */
+--- 1766,1781 ----
+  	TRANS(SocketUNIXClose),
+  	TRANS(SocketUNIXCloseForCloning),
+  	};
++ #endif /* !LOCALCONN */
+  
+! Xtransport	TRANS(SocketUNIXFuncs) = {
+  	/* Socket Interface */
+! 	"unix",
+! #if !defined(LOCALCONN)
+!         TRANS_ALIAS,
+! #else
+! 	0,
+! #endif
+  #ifdef TRANS_CLIENT
+  	TRANS(SocketOpenCOTSClient),
+  #endif /* TRANS_CLIENT */
+***************
+*** 1795,1799 ****
+  	TRANS(SocketUNIXClose),
+  	TRANS(SocketUNIXCloseForCloning),
+  	};
+! #endif /* !LOCALCONN */
+  #endif /* UNIXCONN */
+--- 1810,1814 ----
+  	TRANS(SocketUNIXClose),
+  	TRANS(SocketUNIXCloseForCloning),
+  	};
+! 
+  #endif /* UNIXCONN */
+*** /tmp/da06435	Mon May 16 16:29:33 1994
+--- xc/lib/xtrans/Xtranstli.c	Mon May 16 16:29:32 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: Xtranstli.c,v 1.16 94/04/17 20:23:06 mor Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+--- 1,4 ----
+! /* $XConsortium: Xtranstli.c,v 1.19 94/05/05 11:44:11 mor Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+***************
+*** 156,161 ****
+--- 156,164 ----
+  	return -1;
+      }
+      
++     PRMSG(4,"TRANS(TLIGetAddr): got family %d len %d\n",
++ 	  ((struct sockaddr *) &sockname)->sa_family ,netbuf.len, 0 );
++     
+      /*
+       * Everything looks good: fill in the XtransConnInfo structure.
+       */
+***************
+*** 464,470 ****
+      if( TRANS(TLIGetAddr)(ciptr) < 0 )
+      {
+  	PRMSG(1,
+! 	      "TRANS(TLIOpenCOTSClient): TRANS(TLIGetPeerAddr)() failed: %d\n",
+  	      errno, 0,0 );
+  	t_close(ciptr->fd);
+  	free(ciptr);
+--- 467,473 ----
+      if( TRANS(TLIGetAddr)(ciptr) < 0 )
+      {
+  	PRMSG(1,
+! 	      "TRANS(TLIOpenCOTSClient): TRANS(TLIGetAddr)() failed: %d\n",
+  	      errno, 0,0 );
+  	t_close(ciptr->fd);
+  	free(ciptr);
+***************
+*** 738,745 ****
+      if( t_bind(ciptr->fd, req, ret) < 0 )
+      {
+  	PRMSG(1, "TRANS(TLICreateListener): t_bind failed\n", 0,0,0 );
+! 	if(req)
+! 	    t_free((char *)req,T_BIND);
+  	t_free((char *)ret,T_BIND);
+  	return -1;
+      }
+--- 741,747 ----
+      if( t_bind(ciptr->fd, req, ret) < 0 )
+      {
+  	PRMSG(1, "TRANS(TLICreateListener): t_bind failed\n", 0,0,0 );
+! 	t_free((char *)req,T_BIND);
+  	t_free((char *)ret,T_BIND);
+  	return -1;
+      }
+***************
+*** 748,755 ****
+      {
+  	PRMSG(1, "TRANS(TLICreateListener): unable to bind to %x\n",
+  	      req, 0,0 );
+! 	if(req)
+! 	    t_free((char *)req,T_BIND);
+  	t_free((char *)ret,T_BIND);
+  	return -1;
+      }
+--- 750,756 ----
+      {
+  	PRMSG(1, "TRANS(TLICreateListener): unable to bind to %x\n",
+  	      req, 0,0 );
+! 	t_free((char *)req,T_BIND);
+  	t_free((char *)ret,T_BIND);
+  	return -1;
+      }
+***************
+*** 763,770 ****
+  	PRMSG(1,
+  	      "TRANS(TLICreateListener): Unable to allocate space for the address\n",
+  	      0,0,0 );
+! 	if(req)
+! 	    t_free((char *)req,T_BIND);
+  	t_free((char *)ret, T_BIND);
+  	return -1;
+      }
+--- 764,770 ----
+  	PRMSG(1,
+  	      "TRANS(TLICreateListener): Unable to allocate space for the address\n",
+  	      0,0,0 );
+! 	t_free((char *)req,T_BIND);
+  	t_free((char *)ret, T_BIND);
+  	return -1;
+      }
+***************
+*** 772,779 ****
+      ciptr->addrlen=ret->addr.len;
+      memcpy(ciptr->addr,ret->addr.buf,ret->addr.len);
+      
+!     if(req)
+! 	t_free((char *)req,T_BIND);
+      t_free((char *)ret, T_BIND);
+      
+      return 0;
+--- 772,778 ----
+      ciptr->addrlen=ret->addr.len;
+      memcpy(ciptr->addr,ret->addr.buf,ret->addr.len);
+      
+!     t_free((char *)req,T_BIND);
+      t_free((char *)ret, T_BIND);
+      
+      return 0;
+***************
+*** 790,797 ****
+  #define PORTBUFSIZE     64      /* what is a real size for this? */
+      char    portbuf[PORTBUFSIZE];
+      struct t_bind	*req;
+      
+!     PRMSG(2,"TRANS(TLICreateListener)(%x->%d,%s)\n", ciptr, ciptr->fd, port );
+      
+  #ifdef X11_t
+      /*
+--- 789,798 ----
+  #define PORTBUFSIZE     64      /* what is a real size for this? */
+      char    portbuf[PORTBUFSIZE];
+      struct t_bind	*req;
++     struct sockaddr_in	*sinaddr;
+      
+!     PRMSG(2,"TRANS(TLIINETCreateListener)(%x->%d,%s)\n", ciptr,
+! 	ciptr->fd, port ? port : "NULL" );
+      
+  #ifdef X11_t
+      /*
+***************
+*** 814,844 ****
+      port=portbuf;
+  #endif
+      
+      if( port && *port ) {
+- 	if( (req=(struct t_bind *)t_alloc(ciptr->fd,T_BIND,T_ALL)) == NULL )
+- 	{
+- 	    PRMSG(1,
+- 		  "TRANS(TLICreateListener): failed to allocate a t_bind\n",
+- 		  0,0,0 );
+- 	    return -1;
+- 	}
+- 	
+  	if(TRANS(TLIAddrToNetbuf)(ciptr->index,HOST_SELF,port,&(req->addr)) < 0)
+  	{
+  	    PRMSG(1,
+! 		  "TRANS(TLICreateListener): can't resolve name:HOST_SELF.%s\n",
+  		  port, 0,0 );
+  	    t_free((char *)req,T_BIND);
+  	    return -1;
+  	}
+- 	
+- 	/* Set the qlen */
+- 	
+- 	req->qlen=1;
+- 	
+      } else {
+! 	req=NULL;
+      }
+      
+      return TRANS(TLICreateListener)(ciptr, req);
+  }
+--- 815,847 ----
+      port=portbuf;
+  #endif
+      
++     if( (req=(struct t_bind *)t_alloc(ciptr->fd,T_BIND,T_ALL)) == NULL )
++     {
++ 	PRMSG(1,
++ 	    "TRANS(TLIINETCreateListener): failed to allocate a t_bind\n",
++ 	    0,0,0 );
++ 	return -1;
++     }
++ 
+      if( port && *port ) {
+  	if(TRANS(TLIAddrToNetbuf)(ciptr->index,HOST_SELF,port,&(req->addr)) < 0)
+  	{
+  	    PRMSG(1,
+! 		  "TRANS(TLIINETCreateListener): can't resolve name:HOST_SELF.%s\n",
+  		  port, 0,0 );
+  	    t_free((char *)req,T_BIND);
+  	    return -1;
+  	}
+      } else {
+! 	sinaddr=(struct sockaddr_in *)req->addr.buf;
+! 	sinaddr->sin_family=AF_INET;
+! 	sinaddr->sin_port=0;
+! 	sinaddr->sin_addr.s_addr=0;
+      }
++ 
++     /* Set the qlen */
++ 
++     req->qlen=1;
+      
+      return TRANS(TLICreateListener)(ciptr, req);
+  }
+***************
+*** 854,865 ****
+      struct t_bind	*req;
+      struct sockaddr_un	*sunaddr;
+      
+!     PRMSG(2,"TRANS(TLICreateListener)(%x->%d,%s)\n", ciptr, ciptr->fd, port );
+      
+      if( (req=(struct t_bind *)t_alloc(ciptr->fd,T_BIND,T_OPT|T_UDATA)) == NULL )
+      {
+  	PRMSG(1,
+! 	      "TRANS(TLICreateListener): failed to allocate a t_bind\n",
+  	      0,0,0 );
+  	return -1;
+      }
+--- 857,869 ----
+      struct t_bind	*req;
+      struct sockaddr_un	*sunaddr;
+      
+!     PRMSG(2,"TRANS(TLITLICreateListener)(%x->%d,%s)\n", ciptr, ciptr->fd,
+! 	port ? port : "NULL");
+      
+      if( (req=(struct t_bind *)t_alloc(ciptr->fd,T_BIND,T_OPT|T_UDATA)) == NULL )
+      {
+  	PRMSG(1,
+! 	      "TRANS(TLITLICreateListener): failed to allocate a t_bind\n",
+  	      0,0,0 );
+  	return -1;
+      }
+***************
+*** 868,874 ****
+  	 malloc(sizeof(struct sockaddr_un))) == NULL )
+      {
+  	PRMSG(1,
+! 	      "TRANS(TLICreateListener): failed to allocate a sockaddr_un\n",
+  	      0,0,0 );
+  	t_free((char *)req,T_BIND);
+  	return -1;
+--- 872,878 ----
+  	 malloc(sizeof(struct sockaddr_un))) == NULL )
+      {
+  	PRMSG(1,
+! 	      "TRANS(TLITLICreateListener): failed to allocate a sockaddr_un\n",
+  	      0,0,0 );
+  	t_free((char *)req,T_BIND);
+  	return -1;
+***************
+*** 1047,1064 ****
+      
+      t_free((char *)sndcall,T_CALL);
+      
+-     if( ioctl(ciptr->fd, I_POP,"timod") < 0 )
+-     {
+- 	PRMSG(1, "TRANS(TLIConnect)() failed to pop timod\n", 0,0,0 );
+- 	return -1;
+-     }
+-     
+-     if( ioctl(ciptr->fd, I_PUSH,"tirdwr") < 0 )
+-     {
+- 	PRMSG(1, "TRANS(TLIConnect)() failed to push tirdwr\n", 0,0,0 );
+- 	return -1;
+-     }
+-     
+      /*
+       * Sync up the address fields of ciptr.
+       */
+--- 1051,1056 ----
+***************
+*** 1079,1084 ****
+--- 1071,1090 ----
+  	return -1;
+      }
+      
++     if( ioctl(ciptr->fd, I_POP,"timod") < 0 )
++     {
++ 	PRMSG(1, "TRANS(TLIConnect)() ioctl(I_POP,\"timod\") failed %d\n",
++ 	      errno,0,0 );
++ 	return -1;
++     }
++     
++     if( ioctl(ciptr->fd, I_PUSH,"tirdwr") < 0 )
++     {
++ 	PRMSG(1, "TRANS(TLIConnect)() ioctl(I_PUSH,\"tirdwr\") failed %d\n",
++ 	      errno,0,0 );
++ 	return -1;
++     }
++     
+      return 0;
+  }
+  
+***************
+*** 1165,1176 ****
+      }
+      
+      sunaddr->sun_family=AF_UNIX;
+!     if( *port == '/' ) { /* A full pathname */
+  	(void) strcpy(sunaddr->sun_path, port);
+      } else {
+  	(void) sprintf(sunaddr->sun_path,"%s%s", TLINODENAME, port );
+      }
+!     
+      sndcall->addr.buf=(char *)sunaddr;
+      sndcall->addr.len=sizeof(*sunaddr);
+      sndcall->addr.maxlen=sizeof(*sunaddr);
+--- 1171,1184 ----
+      }
+      
+      sunaddr->sun_family=AF_UNIX;
+!     if( *port == '/' ||
+! 	strncmp (port, TLINODENAME, strlen (TLINODENAME)) == 0) {
+! 	/* Use the port as is */
+  	(void) strcpy(sunaddr->sun_path, port);
+      } else {
+  	(void) sprintf(sunaddr->sun_path,"%s%s", TLINODENAME, port );
+      }
+! 
+      sndcall->addr.buf=(char *)sunaddr;
+      sndcall->addr.len=sizeof(*sunaddr);
+      sndcall->addr.maxlen=sizeof(*sunaddr);
+***************
+*** 1294,1303 ****
+  }
+  
+  
+! Xtransport	TRANS(TLIINETFuncs) = {
+  	/* TLI Interface */
+! 	"inet",
+! 	0,
+  #ifdef TRANS_CLIENT
+  	TRANS(TLIOpenCOTSClient),
+  #endif /* TRANS_CLIENT */
+--- 1302,1311 ----
+  }
+  
+  
+! Xtransport	TRANS(TLITCPFuncs) = {
+  	/* TLI Interface */
+! 	"tcp",
+!         0,
+  #ifdef TRANS_CLIENT
+  	TRANS(TLIOpenCOTSClient),
+  #endif /* TRANS_CLIENT */
+***************
+*** 1333,1341 ****
+  	TRANS(TLICloseForCloning),
+  };
+  
+! Xtransport	TRANS(TLITCPFuncs) = {
+  	/* TLI Interface */
+! 	"tcp",
+  	TRANS_ALIAS,
+  #ifdef TRANS_CLIENT
+  	TRANS(TLIOpenCOTSClient),
+--- 1341,1349 ----
+  	TRANS(TLICloseForCloning),
+  };
+  
+! Xtransport	TRANS(TLIINETFuncs) = {
+  	/* TLI Interface */
+! 	"inet",
+  	TRANS_ALIAS,
+  #ifdef TRANS_CLIENT
+  	TRANS(TLIOpenCOTSClient),
+*** /tmp/da06451	Mon May 16 16:29:35 1994
+--- xc/lib/xtrans/Xtransutil.c	Mon May 16 16:29:35 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: Xtransutil.c,v 1.15 94/04/17 20:23:07 mor Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+--- 1,4 ----
+! /* $XConsortium: Xtransutil.c,v 1.16 94/05/02 11:13:42 mor Exp $ */
+  /*
+  
+  Copyright (c) 1993, 1994  X Consortium
+***************
+*** 220,236 ****
+  #include <signal.h>
+  
+  char *
+! TRANS(GetMyNetworkId) (family, addrlen, addr)
+  
+! int		family;
+! int		addrlen;
+! Xtransaddr	*addr;
+  
+  {
+      char	hostnamebuf[256];
+      char 	*networkId = NULL;
+  
+- 
+      if (gethostname (hostnamebuf, sizeof (hostnamebuf)) < 0)
+      {
+  	return (NULL);
+--- 220,237 ----
+  #include <signal.h>
+  
+  char *
+! TRANS(GetMyNetworkId) (ciptr)
+  
+! XtransConnInfo  ciptr;
+  
+  {
++     int		family = ciptr->family;
++     int		addrlen = ciptr->addrlen;
++     char 	*addr = ciptr->addr;
+      char	hostnamebuf[256];
+      char 	*networkId = NULL;
++     char	*transName = ciptr->transptr->TransName;
+  
+      if (gethostname (hostnamebuf, sizeof (hostnamebuf)) < 0)
+      {
+  	return (NULL);
+***************
+*** 238,253 ****
+  
+      switch (family)
+      {
+! #if defined(UNIXCONN) || defined(LOCALCONN)
+      case AF_UNIX:
+      {
+  	struct sockaddr_un *saddr = (struct sockaddr_un *) addr;
+! 	networkId = (char *) malloc (
+! 	    8 + strlen (hostnamebuf) + strlen (saddr->sun_path));
+! 	sprintf (networkId, "local/%s:%s", hostnamebuf, saddr->sun_path);
+  	break;
+      }
+! #endif /* defined(UNIXCONN) || defined(LOCALCONN) */
+  
+  #if defined(TCPCONN) || defined(STREAMSCONN)
+      case AF_INET:
+--- 239,255 ----
+  
+      switch (family)
+      {
+! #if defined(UNIXCONN) || defined(STREAMSCONN) || defined(LOCALCONN)
+      case AF_UNIX:
+      {
+  	struct sockaddr_un *saddr = (struct sockaddr_un *) addr;
+! 	networkId = (char *) malloc (3 + strlen (transName) +
+! 	    strlen (hostnamebuf) + strlen (saddr->sun_path));
+! 	sprintf (networkId, "%s/%s:%s", transName,
+! 	    hostnamebuf, saddr->sun_path);
+  	break;
+      }
+! #endif /* defined(UNIXCONN) || defined(STREAMSCONN) || defined(LOCALCONN) */
+  
+  #if defined(TCPCONN) || defined(STREAMSCONN)
+      case AF_INET:
+***************
+*** 256,264 ****
+  	char portnumbuf[10];
+  
+  	sprintf (portnumbuf, "%d", ntohs (saddr->sin_port));
+! 	networkId = (char *) malloc (
+! 	    6 + strlen (hostnamebuf) + strlen (portnumbuf));
+! 	sprintf (networkId, "tcp/%s:%s", hostnamebuf, portnumbuf);
+  	break;
+      }
+  #endif /* defined(TCPCONN) || defined(STREAMSCONN) */
+--- 258,266 ----
+  	char portnumbuf[10];
+  
+  	sprintf (portnumbuf, "%d", ntohs (saddr->sin_port));
+! 	networkId = (char *) malloc (3 + strlen (transName) +
+! 	    strlen (hostnamebuf) + strlen (portnumbuf));
+! 	sprintf (networkId, "%s/%s:%s", transName, hostnamebuf, portnumbuf);
+  	break;
+      }
+  #endif /* defined(TCPCONN) || defined(STREAMSCONN) */
+***************
+*** 308,337 ****
+  
+  
+  char *
+! TRANS(GetPeerNetworkId) (family, peer_addrlen, peer_addr)
+  
+! int		family;
+! int		peer_addrlen;
+! Xtransaddr	*peer_addr;
+  
+  {
+      char	*hostname;
+      char	*networkId = NULL;
+!     char	addrbuf[256], prefix[10];
+      char	*addr = NULL;
+  
+      switch (family)
+      {
+      case AF_UNSPEC:
+! #if defined(UNIXCONN) || defined(LOCALCONN)
+      case AF_UNIX:
+      {
+- 	strcpy (prefix, "local/");
+  	if (gethostname (addrbuf, sizeof (addrbuf)) == 0)
+  	    addr = addrbuf;
+  	break;
+      }
+! #endif /* defined(UNIXCONN) || defined(LOCALCONN) */
+  
+  #if defined(TCPCONN) || defined(STREAMSCONN)
+      case AF_INET:
+--- 310,339 ----
+  
+  
+  char *
+! TRANS(GetPeerNetworkId) (ciptr)
+  
+! XtransConnInfo  ciptr;
+  
+  {
++     int		family = ciptr->family;
++     int		peer_addrlen = ciptr->peeraddrlen;
++     char	*peer_addr = ciptr->peeraddr;
+      char	*hostname;
+      char	*networkId = NULL;
+!     char	addrbuf[256];
+      char	*addr = NULL;
+  
+      switch (family)
+      {
+      case AF_UNSPEC:
+! #if defined(UNIXCONN) || defined(STREAMSCONN) || defined(LOCALCONN)
+      case AF_UNIX:
+      {
+  	if (gethostname (addrbuf, sizeof (addrbuf)) == 0)
+  	    addr = addrbuf;
+  	break;
+      }
+! #endif /* defined(UNIXCONN) || defined(STREAMSCONN) || defined(LOCALCONN) */
+  
+  #if defined(TCPCONN) || defined(STREAMSCONN)
+      case AF_INET:
+***************
+*** 342,349 ****
+   	char *inet_ntoa();
+  #endif
+  
+- 	strcpy (prefix, "tcp/");
+- 
+  #ifdef SIGALRM
+  	/*
+  	 * gethostbyaddr can take a LONG time if the host does not exist.
+--- 344,349 ----
+***************
+*** 379,386 ****
+  	struct sockaddr_dn *saddr = (struct sockaddr_dn *) peer_addr;
+  	struct nodeent *np;
+  
+- 	strcpy (prefix, "decnet/");
+- 
+  	if (np = getnodebyaddr(saddr->sdn_add.a_addr,
+  	    saddr->sdn_add.a_len, AF_DECnet)) {
+  	    sprintf(addrbuf, "%s:", np->n_name);
+--- 379,384 ----
+***************
+*** 395,401 ****
+  #if defined(AMRPCCONN)
+      case AF_AMOEBA:
+      {
+- 	strcpy (prefix, "amcon/");
+  	addr = "Amoeba"; /* not really used */
+  	break;
+      }
+--- 393,398 ----
+***************
+*** 403,409 ****
+  #if defined(AMTCPCONN) && !(defined(TCPCONN) || defined(STREAMSCONN))
+      case AF_INET:
+      {
+- 	strcpy (prefix, "tcp/");
+  	if (gethostname (addrbuf, sizeof (addrbuf)) == 0) {
+  	    addr = addrbuf;
+  	} else {
+--- 400,405 ----
+***************
+*** 418,425 ****
+      }
+  
+  
+!     hostname = (char *) malloc (strlen (prefix) + strlen (addr) + 1);
+!     strcpy (hostname, prefix);
+      if (addr)
+  	strcat (hostname, addr);
+  
+--- 414,423 ----
+      }
+  
+  
+!     hostname = (char *) malloc (
+! 	strlen (ciptr->transptr->TransName) + strlen (addr) + 2);
+!     strcpy (hostname, ciptr->transptr->TransName);
+!     strcat (hostname, "/");
+      if (addr)
+  	strcat (hostname, addr);
+  
+*** /tmp/da06472	Mon May 16 16:29:37 1994
+--- xc/nls/X11/locale/locale.alias	Mon May 16 16:29:37 1994
+***************
+*** 1,4 ****
+! #	$XConsortium: locale.alias,v 1.6 94/04/01 19:34:36 kaleb Exp $
+  #
+  #	This file contains alias name of locale.
+  #	Each alias name is described within one line.
+--- 1,4 ----
+! #	$XConsortium: locale.alias,v 1.7 94/05/05 14:32:17 kaleb Exp $
+  #
+  #	This file contains alias name of locale.
+  #	Each alias name is described within one line.
+***************
+*** 18,23 ****
+--- 18,25 ----
+  bg_BG		bg_BG.ISO8859-5
+  cs		cs_CS.ISO8859-2
+  cs_CS		cs_CS.ISO8859-2
++ cz		cz_CZ.ISO8859-2
++ cz_CZ		cz_CZ.ISO8859-2
+  da		da_DK.ISO8859-1
+  da_DK		da_DK.ISO8859-1
+  da_DK.88591	da_DK.ISO8859-1
+***************
+*** 24,33 ****
+--- 26,39 ----
+  da_DK.88591.en	da_DK.ISO8859-1
+  de		de_DE.ISO8859-1
+  de_DE		de_DE.ISO8859-1
++ De_DE		de_DE.ISO8859-1
++ De_DE.IBM-850	de_DE.ISO8859-1
+  de_DE.88591	de_DE.ISO8859-1
+  de_DE.88591.en	de_DE.ISO8859-1
+  de_AT		de_AT.ISO8859-1
+  de_CH		de_CH.ISO8859-1
++ Du_BE		du_BE.ISO8859-1
++ Du_NL		du_NL.ISO8859-1
+  el		el_GR.ISO8859-7
+  el_GR		el_GR.ISO8859-7
+  en		en_US.ISO8859-1
+***************
+*** 37,42 ****
+--- 43,49 ----
+  en_AU		en_AU.ISO8859-1
+  en_CA		en_CA.ISO8859-1
+  en_US		en_US.ISO8859-1
++ En_US		en_US.ISO8859-1
+  en_US.88591	en_US.ISO8859-1
+  en_US.88591.en	en_US.ISO8859-1
+  en_US.437	en_US.ISO8859-1
+***************
+*** 44,49 ****
+--- 51,59 ----
+  en_US.850	en_US.ISO8859-1
+  es		es_ES.ISO8859-1
+  es_ES		es_ES.ISO8859-1
++ Es_ES		es_ES.ISO8859-1
++ Sp_SP		es_ES.ISO8859-1
++ Es_ES.IBM-850	es_ES.ISO8859-1
+  es_ES.88591	es_ES.ISO8859-1
+  es_ES.88591.en	es_ES.ISO8859-1
+  fi		fi_FI.ISO8859-1
+***************
+*** 55,60 ****
+--- 65,73 ----
+  fr_BE.88591	fr_BE.ISO8859-1
+  fr_BE.88591.en	fr_BE.ISO8859-1
+  fr_CA		fr_CA.ISO8859-1
++ Fr_CA		fr_CA.ISO8859-1
++ Fr_CF		fr_CF.ISO8859-1
++ Fr_CA.IBM-850	fr_CA.ISO8859-1
+  fr_CA.88591	fr_CA.ISO8859-1
+  fr_CA.88591.en	fr_CA.ISO8859-1
+  fr_CH		fr_CH.ISO8859-1
+***************
+*** 63,68 ****
+--- 76,82 ----
+  fr_FR		fr_FR.ISO8859-1
+  fr_FR.88591	fr_FR.ISO8859-1
+  fr_FR.88591.en	fr_FR.ISO8859-1
++ Gr_GR		el_GR.ISO8859-7
+  hr		hr_HR.ISO8859-2
+  hr_HR		hr_HR.ISO8859-2
+  hu		hu_HU.ISO8859-2
+***************
+*** 78,83 ****
+--- 92,100 ----
+  iw_IL		iw_IL.ISO8859-8
+  ja		ja_JP.eucJP
+  ja_JP		ja_JP.eucJP
++ Ja_JP		ja_JP.eucJP
++ Jp_JP		ja_JP.eucJP
++ Jp_JP.IBM-932	ja_JP.eucJP
+  ja_JP.AJEC	ja_JP.eucJP
+  ja_JP.EUC	ja_JP.eucJP
+  ja_JP.ISO-2022-JP	ja_JP.JIS7
+***************
+*** 92,100 ****
+--- 109,121 ----
+  mk_MK		mk_MK.ISO8859-5
+  nl		nl_NL.ISO8859-1
+  nl_BE		nl_BE.ISO8859-1
++ Nl_BE		nl_BE.ISO8859-1
++ Nl_BE.IBM-850	nl_BE.ISO8859-1
+  nl_BE.88591	nl_BE.ISO8859-1
+  nl_BE.88591.en	nl_BE.ISO8859-1
+  nl_NL		nl_NL.ISO8859-1
++ Nl_NL		nl_NL.ISO8859-1
++ Nl_NL.IBM-850	nl_NL.ISO8859-1
+  nl_NL.88591	nl_NL.ISO8859-1
+  nl_NL.88591.en	nl_NL.ISO8859-1
+  no		no_NO.ISO8859-1
+***************
+*** 105,110 ****
+--- 126,134 ----
+  pl_PL		pl_PL.ISO8859-2
+  pt		pt_PT.ISO8859-1
+  pt_PT		pt_PT.ISO8859-1
++ Pt_PT		pt_PT.ISO8859-1
++ Po_PO		pt_PT.ISO8859-1
++ Pt_PT.IBM-850	pt_PT.ISO8859-1
+  pt_PT.88591	pt_PT.ISO8859-1
+  pt_PT.88591.en	pt_PT.ISO8859-1
+  ro		ro_RO.ISO8859-2
+***************
+*** 121,126 ****
+--- 145,153 ----
+  sp_YU		sp_YU.ISO8859-5
+  sv		sv_SE.ISO8859-1
+  sv_SE		sv_SE.ISO8859-1
++ Sv_SE		sv_SE.ISO8859-1
++ Sv_SV		sv_SE.ISO8859-1
++ Sv_SE.IBM-850	sv_SE.ISO8859-1
+  sv_SE.88591	sv_SE.ISO8859-1
+  sv_SE.88591.en	sv_SE.ISO8859-1
+  th_TH		th_TH.TACTIS
+***************
+*** 135,141 ****
+  bulgarian	bg_BG.ISO8859-5
+  chinese-s	zh_CN.eucCN
+  chinese-t	zh_TW.eucTW
+! croation	hr_HR.ISO8859-2
+  czech		cs_CS.ISO8859-2
+  danish		da_DK.ISO8859-1
+  dutch		nl_BE.ISO8859-1
+--- 162,168 ----
+  bulgarian	bg_BG.ISO8859-5
+  chinese-s	zh_CN.eucCN
+  chinese-t	zh_TW.eucTW
+! croatian	hr_HR.ISO8859-2
+  czech		cs_CS.ISO8859-2
+  danish		da_DK.ISO8859-1
+  dutch		nl_BE.ISO8859-1
+*** /tmp/da06493	Mon May 16 16:29:40 1994
+--- xc/programs/Xserver/Imakefile	Mon May 16 16:29:39 1994
+***************
+*** 1,4 ****
+! XCOMM $XConsortium: Imakefile,v 1.182 94/04/08 17:50:40 rws Exp $
+  /*
+   * Server Master Makefile
+   */
+--- 1,4 ----
+! XCOMM $XConsortium: Imakefile,v 1.184 94/05/09 13:16:03 dpw Exp $
+  /*
+   * Server Master Makefile
+   */
+***************
+*** 54,60 ****
+  #endif
+  
+        OTHEREXTS = Xext/libext.a $(XKBEXT) $(XINPUTEXT) $(XIEEXT) $(SITEEXTS)
+!         EXTDIRS = Xext $(XKBDIR) $(XIDIR) $(XIEDIR) $(PEXDIR) $(SITEDIRS)
+       EXTENSIONS = $(OTHEREXTS) $(PEXLIBS)
+           XAULIB = $(XAUTHSRC)/libXau.a
+         XDMCPLIB = $(XDMCPLIBSRC)/libXdmcp.a
+--- 54,60 ----
+  #endif
+  
+        OTHEREXTS = Xext/libext.a $(XKBEXT) $(XINPUTEXT) $(XIEEXT) $(SITEEXTS)
+!         EXTDIRS = Xext $(XKBDIR) $(XIDIR) $(XIEDIR) $(PEXDIR) $(SITEEXTDIRS)
+       EXTENSIONS = $(OTHEREXTS) $(PEXLIBS)
+           XAULIB = $(XAUTHSRC)/libXau.a
+         XDMCPLIB = $(XDMCPLIBSRC)/libXdmcp.a
+***************
+*** 201,207 ****
+  XCOMM
+  MFBDIR = mfb
+  DDXDIR1 = hw/sun
+! SUNDIRS = $(STDDIRS) $(MFBDIR) $(DDXDIR1) $(DEPDIRS)
+  SUNMOBJS = hw/sun/sunInitMono.o hw/sun/sunInExMono.o
+  SUNMLIBS = hw/sun/libsun.a MFBBareLibs $(OTHEREXTS)
+  SetUIDServerTarget(XsunMono,$(SUNMDIRS),$(SUNMOBJS),$(SUNMLIBS),$(SYSLIBS))
+--- 201,207 ----
+  XCOMM
+  MFBDIR = mfb
+  DDXDIR1 = hw/sun
+! SUNMDIRS = $(STDDIRS) $(MFBDIR) $(DDXDIR1) $(DEPDIRS)
+  SUNMOBJS = hw/sun/sunInitMono.o hw/sun/sunInExMono.o
+  SUNMLIBS = hw/sun/libsun.a MFBBareLibs $(OTHEREXTS)
+  SetUIDServerTarget(XsunMono,$(SUNMDIRS),$(SUNMOBJS),$(SUNMLIBS),$(SYSLIBS))
+***************
+*** 234,240 ****
+  XCOMM
+  MFBDIR = mfb
+  DDXDIR1 = hw/sunAmoeba
+! SUNDIRS = $(STDDIRS) $(MFBDIR) $(DDXDIR1) $(DEPDIRS)
+  SUNMOBJS = hw/sunAmoeba/sunInitMono.o hw/sun/sunInExMono.o
+  SUNMLIBS = hw/sunAmoeba/libsun.a MFBBareLibs $(OTHEREXTS)
+  ServerTarget(XsunMono,$(SUNMDIRS),$(SUNMOBJS),$(SUNMLIBS),$(SYSLIBS))
+--- 234,240 ----
+  XCOMM
+  MFBDIR = mfb
+  DDXDIR1 = hw/sunAmoeba
+! SUNMDIRS = $(STDDIRS) $(MFBDIR) $(DDXDIR1) $(DEPDIRS)
+  SUNMOBJS = hw/sunAmoeba/sunInitMono.o hw/sun/sunInExMono.o
+  SUNMLIBS = hw/sunAmoeba/libsun.a MFBBareLibs $(OTHEREXTS)
+  ServerTarget(XsunMono,$(SUNMDIRS),$(SUNMOBJS),$(SUNMLIBS),$(SYSLIBS))
+*** /tmp/da06514	Mon May 16 16:29:43 1994
+--- xc/programs/Xserver/XIE/dixie/process/pctoi.c	Mon May 16 16:29:42 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: pctoi.c,v 1.5 94/04/17 20:33:44 rws Exp $ */
+  /**** module pctoi.c ****/
+  /******************************************************************************
+  
+--- 1,4 ----
+! /* $XConsortium: pctoi.c,v 1.6 94/05/10 13:28:24 dpw Exp $ */
+  /**** module pctoi.c ****/
+  /******************************************************************************
+  
+***************
+*** 196,209 ****
+       CARD16	tsize;
+       Bool       isDefault;
+  {
+    VALIDATE_TECHNIQUE_SIZE(ped->techVec, tsize, isDefault);
+    
+    if (isDefault) 
+!     rparms->fill = 0; /* Not really a good way to pick this so . . . */
+    else if( flo->reqClient->swapped ) {
+!     cpswapl(sparms->fill, rparms->fill);
+    } else
+!     rparms->fill = sparms->fill;
+    
+    return(TRUE);
+  }
+--- 196,216 ----
+       CARD16	tsize;
+       Bool       isDefault;
+  {
++   pTecCtoIDefPtr pvt;
++ 
+    VALIDATE_TECHNIQUE_SIZE(ped->techVec, tsize, isDefault);
+    
++   if(!(ped->techPvt=(pointer)XieMalloc(sizeof(pTecCtoIDefRec))))
++     FloAllocError(flo,ped->phototag,xieElemConvertToIndex, return(TRUE));
++ 
++   pvt = (pTecCtoIDefPtr)ped->techPvt;
++ 
+    if (isDefault) 
+!     pvt->fill = 0;	/* Not really a good way to pick this so . . . */
+    else if( flo->reqClient->swapped ) {
+!     cpswapl(sparms->fill, pvt->fill);
+    } else
+!     pvt->fill = sparms->fill;
+    
+    return(TRUE);
+  }
+***************
+*** 426,429 ****
+    return(TRUE);
+  }                               /* end DebriefConvertToIndex */
+  
+! /* end module ictoi.c */
+--- 433,436 ----
+    return(TRUE);
+  }                               /* end DebriefConvertToIndex */
+  
+! /* end module pctoi.c */
+*** /tmp/da06535	Mon May 16 16:29:45 1994
+--- xc/programs/Xserver/XIE/dixie/request/difloat.c	Mon May 16 16:29:44 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: difloat.c,v 1.4 94/04/17 20:33:53 rws Exp $ */
+  /**** module difloat.c ****/
+  /******************************************************************************
+  
+--- 1,4 ----
+! /* $XConsortium: difloat.c,v 1.5 94/05/10 12:23:32 dpw Exp $ */
+  /**** module difloat.c ****/
+  /******************************************************************************
+  
+***************
+*** 103,109 ****
+    double exponent;
+    double fraction;
+    
+!   if(!ieee) return(0.0);
+    
+    sign     = (ieee & ieeeFloatSignMask) == ieeeFloatSignMask ? -1.0 : 1.0;
+    exponent = (int)((ieee & ieeeFloatExpMask) >> ieeeFloatExpShift) - 127;
+--- 103,109 ----
+    double exponent;
+    double fraction;
+    
+!   if(!(ieee & 0x7fffffff)) return(0.0);
+    
+    sign     = (ieee & ieeeFloatSignMask) == ieeeFloatSignMask ? -1.0 : 1.0;
+    exponent = (int)((ieee & ieeeFloatExpMask) >> ieeeFloatExpShift) - 127;
+*** /tmp/da06551	Mon May 16 16:29:47 1994
+--- xc/programs/Xserver/XIE/dixie/request/protoflo.c	Mon May 16 16:29:46 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: protoflo.c,v 1.8 94/04/17 20:33:57 rws Exp $ */
+  /**** module protoflo.c ****/
+  /****************************************************************************
+  
+--- 1,4 ----
+! /* $XConsortium: protoflo.c,v 1.9 94/05/10 13:11:13 dpw Exp $ */
+  /**** module protoflo.c ****/
+  /****************************************************************************
+  
+***************
+*** 552,558 ****
+    
+    /* Fill in the reply header
+     */
+!   shorts = (imCnt + 1 & ~1) + (exCnt + 1 & ~1) << 1;
+    rep.type           = X_Reply;
+    rep.sequenceNum    = client->sequence;
+    rep.length         = shorts >> 1;
+--- 552,558 ----
+    
+    /* Fill in the reply header
+     */
+!   shorts = (imCnt + 1 & ~1) + (exCnt + 1 & ~1);
+    rep.type           = X_Reply;
+    rep.sequenceNum    = client->sequence;
+    rep.length         = shorts >> 1;
+*** /tmp/da06572	Mon May 16 16:29:50 1994
+--- xc/programs/Xserver/XIE/include/element.h	Mon May 16 16:29:49 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: element.h,v 1.5 94/04/17 20:34:02 rws Exp $ */
+  /* module element.h */
+  /*****************************************************************************
+  
+--- 1,4 ----
+! /* $XConsortium: element.h,v 1.6 94/05/10 13:25:50 dpw Exp $ */
+  /* module element.h */
+  /*****************************************************************************
+  
+***************
+*** 279,284 ****
+--- 279,288 ----
+    double	matchLimit;
+    double	grayLimit;
+  } pTecConvertToIndexMatchDefRec, *pConvertToIndexMatchDefPtr;
++ 
++ typedef struct _ptecctoi {
++   CARD32	fill;
++ } pTecCtoIDefRec, *pTecCtoIDefPtr;
+  #endif /* _XIEC_PCTOI */
+  
+  #if defined(_XIEC_PCTRGB)
+*** /tmp/da06593	Mon May 16 16:29:53 1994
+--- xc/programs/Xserver/XIE/mixie/control/strip.c	Mon May 16 16:29:52 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: strip.c,v 1.7 94/04/17 20:34:13 rws Exp $ */
+  /**** module strip.c ****/
+  /*****************************************************************************
+  
+--- 1,4 ----
+! /* $XConsortium: strip.c,v 1.8 94/05/11 18:33:21 dpw Exp $ */
+  /**** module strip.c ****/
+  /*****************************************************************************
+  
+***************
+*** 368,375 ****
+  static int query_data(flo,list,pending,available)
+       floDefPtr         flo;
+       xieTypPhototag **list;
+!      CARD32       *pending;
+!      CARD32     *available;
+  {
+    peDefPtr ped;
+    pedLstPtr lst = ListEmpty(&flo->optDAG) ? &flo->defDAG : &flo->optDAG;
+--- 368,375 ----
+  static int query_data(flo,list,pending,available)
+       floDefPtr         flo;
+       xieTypPhototag **list;
+!      CARD16       *pending;
+!      CARD16     *available;
+  {
+    peDefPtr ped;
+    pedLstPtr lst = ListEmpty(&flo->optDAG) ? &flo->defDAG : &flo->optDAG;
+*** /tmp/da06614	Mon May 16 16:29:55 1994
+--- xc/programs/Xserver/XIE/mixie/process/mpctoi.c	Mon May 16 16:29:55 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: mpctoi.c,v 1.6 94/04/17 20:35:16 rws Exp $ */
+  /**** module mpctoi.c ****/
+  /******************************************************************************
+  
+--- 1,4 ----
+! /* $XConsortium: mpctoi.c,v 1.7 94/05/10 13:27:17 dpw Exp $ */
+  /**** module mpctoi.c ****/
+  /******************************************************************************
+  
+***************
+*** 304,309 ****
+--- 304,310 ----
+  {
+    xieFloConvertToIndex  *raw = (xieFloConvertToIndex *)ped->elemRaw;
+    xieTecColorAllocAll   *tec = (xieTecColorAllocAll *) &raw[1];
++   pTecCtoIDefPtr         pvt = (pTecCtoIDefPtr) ped->techPvt;
+    peTexPtr		 pet = ped->peTex;
+    formatPtr		 ift = &ped->inFloLst[SRCtag].format[0];
+    formatPtr		 oft = &ped->outFlo.format[0];
+***************
+*** 317,323 ****
+     */
+    ddx->cmap        = dix->cmap;
+    ddx->clindex     = dix->list->client->index;
+!   ddx->fill	   = tec->fill;
+    ddx->width       = oft->width;
+    ddx->cmapFull    = FALSE;
+    ddx->pixCnt      = 0;
+--- 318,324 ----
+     */
+    ddx->cmap        = dix->cmap;
+    ddx->clindex     = dix->list->client->index;
+!   ddx->fill	   = pvt->fill;
+    ddx->width       = oft->width;
+    ddx->cmapFull    = FALSE;
+    ddx->pixCnt      = 0;
+*** /tmp/da06635	Mon May 16 16:29:58 1994
+--- xc/programs/Xserver/Xserver.man	Mon May 16 16:29:57 1994
+***************
+*** 1,4 ****
+! .\" $XConsortium: Xserver.man,v 1.54 94/04/17 20:25:23 dpw Exp $
+  .\" Copyright (c) 1984 - 1991, 1993, 1994  X Consortium
+  .\" 
+  .\" Permission is hereby granted, free of charge, to any person obtaining
+--- 1,4 ----
+! .\" $XConsortium: Xserver.man,v 1.55 94/05/16 12:19:55 dpw Exp $
+  .\" Copyright (c) 1984 - 1991, 1993, 1994  X Consortium
+  .\" 
+  .\" Permission is hereby granted, free of charge, to any person obtaining
+***************
+*** 275,285 ****
+  .B [+-]accessx
+  enable(+) or disable(-) AccessX key sequences
+  .TP 8
+! .B \-ar1
+! set keyboard autorepeat delay
+  .TP 8
+! .B \-ar2
+! set keyboard autorepeat interval
+  .PP
+  Many servers also have device-specific command line options.  See the
+  manual pages for the individual servers for more details.
+--- 275,287 ----
+  .B [+-]accessx
+  enable(+) or disable(-) AccessX key sequences
+  .TP 8
+! .B \-ar1 \fImilliseconds\fP
+! sets the length of time in milliseconds that a key must be depressed before
+! autorepeat starts
+  .TP 8
+! .B \-ar2 \fImilliseconds\fP
+! sets the length of time in milliseconds that should elapse between
+! autorepeat-generated keystrokes
+  .PP
+  Many servers also have device-specific command line options.  See the
+  manual pages for the individual servers for more details.
+*** /tmp/da06656	Mon May 16 16:30:01 1994
+--- xc/programs/Xserver/hw/sun/sunKbd.c	Mon May 16 16:30:00 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: sunKbd.c,v 5.44 94/04/17 20:29:41 erik Exp $ */
+  /*-
+   * Copyright (c) 1987 by the Regents of the University of California
+   *
+--- 1,4 ----
+! /* $XConsortium: sunKbd.c,v 5.45 94/05/11 17:09:00 kaleb Exp $ */
+  /*-
+   * Copyright (c) 1987 by the Regents of the University of California
+   *
+***************
+*** 46,52 ****
+  #include "Sunkeysym.h"
+  
+  #define SUN_LED_MASK	0x0f
+! #define MIN_KEYCODE	8	/* necessary to avoid the mouse buttons */
+  #define MAX_KEYCODE	255	/* limited by the protocol */
+  #ifndef KB_SUN4 
+  #define KB_SUN4		4
+--- 46,52 ----
+  #include "Sunkeysym.h"
+  
+  #define SUN_LED_MASK	0x0f
+! #define MIN_KEYCODE	7	/* necessary to avoid the mouse buttons */
+  #define MAX_KEYCODE	255	/* limited by the protocol */
+  #ifndef KB_SUN4 
+  #define KB_SUN4		4
+*** /tmp/da08775	Mon May 16 20:47:46 1994
+--- xc/programs/Xserver/hw/sun/sunKeyMap.c	Mon May 16 20:47:44 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: sunKeyMap.c,v 4.19 94/04/17 20:29:43 kaleb Exp $ */
+  /************************************************************
+  Copyright 1987 by Sun Microsystems, Inc. Mountain View, CA.
+  
+--- 1,4 ----
+! /* $XConsortium: sunKeyMap.c,v 4.21 94/05/16 18:28:26 kaleb Exp $ */
+  /************************************************************
+  Copyright 1987 by Sun Microsystems, Inc. Mountain View, CA.
+  
+***************
+*** 239,248 ****
+  };
+  
+  static SunModmapRec US2Modmap[] = {
+! 	106,	ShiftMask,
+! 	117,	ShiftMask,
+! 	83,	ControlMask,
+! 	127,	Mod1Mask,
+  	0,	0
+  };
+  
+--- 239,249 ----
+  };
+  
+  static SunModmapRec US2Modmap[] = {
+! 	99,	ShiftMask,
+! 	110,	ShiftMask,
+! 	76,	ControlMask,
+! 	120,	Mod1Mask,
+! 	122,	Mod1Mask,
+  	0,	0
+  };
+  
+***************
+*** 386,396 ****
+  };
+  
+  static SunModmapRec US3Modmap[] = {
+! 	106,	ShiftMask,
+! 	117,	ShiftMask,
+! 	83,	ControlMask,
+! 	126,	LockMask,
+! 	127,	Mod1Mask,
+  	0,	0
+  };
+  
+--- 387,398 ----
+  };
+  
+  static SunModmapRec US3Modmap[] = {
+! 	99,	ShiftMask,
+! 	110,	ShiftMask,
+! 	76,	ControlMask,
+! 	119,	LockMask,
+! 	120,	Mod1Mask,
+! 	122,	Mod1Mask,
+  	0,	0
+  };
+  
+***************
+*** 482,488 ****
+  
+  #endif
+  
+! #if defined(ITALY4) || defined(NOR4) || defined(PORT4) || defined(SPAINLATAM4)
+  
+  static SunModmapRec ItNorPortSp4Modmap[] = {
+  	99,	ShiftMask,
+--- 484,490 ----
+  
+  #endif
+  
+! #if defined(ITALY4) || defined(NORW4) || defined(PORT4) || defined(SPAINLATAM4)
+  
+  static SunModmapRec ItNorPortSp4Modmap[] = {
+  	99,	ShiftMask,
+***************
+*** 2632,2638 ****
+  #endif /* NETHERLAND5 */
+  
+  
+! #ifdef NOR4
+  
+  static KeySym Norway4Keymap[] = {
+  	SunXK_Stop,  	NoSymbol,  	XK_L1,		NoSymbol,	/*  1*/
+--- 2634,2640 ----
+  #endif /* NETHERLAND5 */
+  
+  
+! #ifdef NORW4
+  
+  static KeySym Norway4Keymap[] = {
+  	SunXK_Stop,  	NoSymbol,  	XK_L1,		NoSymbol,	/*  1*/
+***************
+*** 2772,2778 ****
+  #endif /* NORWAY4 */
+  
+  
+! #ifdef NOR5
+  
+  static KeySym Norway5Keymap[] = {
+  	SunXK_Stop,  	NoSymbol,  	XK_L1,		NoSymbol,	/*  1*/
+--- 2774,2780 ----
+  #endif /* NORWAY4 */
+  
+  
+! #ifdef NORW5
+  
+  static KeySym Norway5Keymap[] = {
+  	SunXK_Stop,  	NoSymbol,  	XK_L1,		NoSymbol,	/*  1*/
+***************
+*** 5239,5245 ****
+  	SunXK_Paste,  	NoSymbol,  	XK_L8,		NoSymbol,	/* 73*/
+  	XK_End, 	NoSymbol,	NoSymbol,	NoSymbol,	/* 74*/
+  	NoSymbol,	NoSymbol,	NoSymbol,	NoSymbol,	/* 75*/
+! 	XK_Caps_Lock,	NoSymbol,	NoSymbol,	NoSymbol,	/* 76*/
+  	XK_A,   	NoSymbol,	NoSymbol,	NoSymbol,	/* 77*/
+  	XK_S,   	NoSymbol,	NoSymbol,	NoSymbol,	/* 78*/
+  	XK_D,   	NoSymbol,	NoSymbol,	NoSymbol,	/* 79*/
+--- 5241,5247 ----
+  	SunXK_Paste,  	NoSymbol,  	XK_L8,		NoSymbol,	/* 73*/
+  	XK_End, 	NoSymbol,	NoSymbol,	NoSymbol,	/* 74*/
+  	NoSymbol,	NoSymbol,	NoSymbol,	NoSymbol,	/* 75*/
+! 	XK_Control_L,	NoSymbol,	NoSymbol,	NoSymbol,	/* 76*/
+  	XK_A,   	NoSymbol,	NoSymbol,	NoSymbol,	/* 77*/
+  	XK_S,   	NoSymbol,	NoSymbol,	NoSymbol,	/* 78*/
+  	XK_D,   	NoSymbol,	NoSymbol,	NoSymbol,	/* 79*/
+***************
+*** 5282,5288 ****
+  	NoSymbol,	NoSymbol,	NoSymbol,	NoSymbol,	/*116*/
+  	NoSymbol,	NoSymbol,	NoSymbol,	NoSymbol,	/*117*/
+  	XK_Help,	NoSymbol,	NoSymbol,	NoSymbol,	/*118*/
+! 	XK_Control_L,	NoSymbol,	NoSymbol,	NoSymbol,	/*119*/
+  	XK_Meta_L,	NoSymbol,	NoSymbol,	NoSymbol,	/*120*/
+  	XK_space,	NoSymbol,	NoSymbol,	NoSymbol,	/*121*/
+  	XK_Meta_R,	NoSymbol,	NoSymbol,	NoSymbol,	/*122*/
+--- 5284,5290 ----
+  	NoSymbol,	NoSymbol,	NoSymbol,	NoSymbol,	/*116*/
+  	NoSymbol,	NoSymbol,	NoSymbol,	NoSymbol,	/*117*/
+  	XK_Help,	NoSymbol,	NoSymbol,	NoSymbol,	/*118*/
+! 	XK_Caps_Lock,	NoSymbol,	NoSymbol,	NoSymbol,	/*119*/
+  	XK_Meta_L,	NoSymbol,	NoSymbol,	NoSymbol,	/*120*/
+  	XK_space,	NoSymbol,	NoSymbol,	NoSymbol,	/*121*/
+  	XK_Meta_R,	NoSymbol,	NoSymbol,	NoSymbol,	/*122*/
+*** /tmp/da06690	Mon May 16 16:30:05 1994
+--- xc/programs/Xserver/include/servermd.h	Mon May 16 16:30:04 1994
+***************
+*** 47,53 ****
+  ******************************************************************/
+  #ifndef SERVERMD_H
+  #define SERVERMD_H 1
+! /* $XConsortium: servermd.h,v 1.70 94/04/17 20:26:08 dpw Exp $ */
+  
+  /*
+   * Machine dependent values:
+--- 47,53 ----
+  ******************************************************************/
+  #ifndef SERVERMD_H
+  #define SERVERMD_H 1
+! /* $XConsortium: servermd.h,v 1.71 94/05/05 16:03:22 dpw Exp $ */
+  
+  /*
+   * Machine dependent values:
+***************
+*** 237,243 ****
+  
+  #if defined(mips) && !defined(sgi)
+  
+! #ifdef MIPSEL
+  # define IMAGE_BYTE_ORDER	LSBFirst        /* Values for the PMAX only */
+  # define BITMAP_BIT_ORDER	LSBFirst
+  # define GLYPHPADBYTES		4
+--- 237,243 ----
+  
+  #if defined(mips) && !defined(sgi)
+  
+! #if defined(MIPSEL) || defined(__MIPSEL__)
+  # define IMAGE_BYTE_ORDER	LSBFirst        /* Values for the PMAX only */
+  # define BITMAP_BIT_ORDER	LSBFirst
+  # define GLYPHPADBYTES		4
+*** /tmp/da06711	Mon May 16 16:30:08 1994
+--- xc/programs/Xserver/xkb/xkbDflts.h	Mon May 16 16:30:07 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: xkbDflts.h,v 1.3 94/04/12 17:35:00 dpw Exp $ */
+  /* THIS FILE GENERATED AUTOMATICALLY BY XKBCOMP */
+  #ifndef DFLT_H
+  #define DFLT_H 1
+--- 1,4 ----
+! /* $XConsortium: xkbDflts.h,v 1.4 94/05/11 18:33:27 kaleb Exp $ */
+  /* THIS FILE GENERATED AUTOMATICALLY BY XKBCOMP */
+  #ifndef DFLT_H
+  #define DFLT_H 1
+***************
+*** 35,50 ****
+  };
+  static Atom lnames_TWO_LEVEL[2];
+  
+! static XkbKTMapEntryRec map_KEYPAD[2]= {
+      { 1,       ShiftMask,      1,       ShiftMask,               0 },
+!     { 0,       ShiftMask,      1,       ShiftMask, vmod_NumLockMask }
+  };
+  static Atom lnames_KEYPAD[2];
+  
+  static XkbKTMapEntryRec map_THREE_LEVEL[3]= {
+      { 1,       ShiftMask,      1,       ShiftMask,               0 },
+!     { 0,               0,      2,               0, vmod_LevelThreeMask },
+!     { 0,       ShiftMask,      2,       ShiftMask, vmod_LevelThreeMask }
+  };
+  static Atom lnames_THREE_LEVEL[3];
+  
+--- 35,51 ----
+  };
+  static Atom lnames_TWO_LEVEL[2];
+  
+! static XkbKTMapEntryRec map_KEYPAD[3]= {
+      { 1,       ShiftMask,      1,       ShiftMask,               0 },
+!     { 1,       ShiftMask,      1,               0, vmod_NumLockMask },
+!     { 1,       ShiftMask,      1,       ShiftMask, vmod_NumLockMask }
+  };
+  static Atom lnames_KEYPAD[2];
+  
+  static XkbKTMapEntryRec map_THREE_LEVEL[3]= {
+      { 1,       ShiftMask,      1,       ShiftMask,               0 },
+!     { 1,               0,      2,               0, vmod_LevelThreeMask },
+!     { 1,       ShiftMask,      2,       ShiftMask, vmod_LevelThreeMask }
+  };
+  static Atom lnames_THREE_LEVEL[3];
+  
+***************
+*** 82,88 ****
+  	ShiftMask,
+  	ShiftMask,	vmod_NumLockMask,
+  	2, XkbNoFreeKTStruct|XkbNoFreeKTMap|XkbNoFreeKTLevelNames,
+! 	2,	map_KEYPAD,	NULL,
+  	None,	lnames_KEYPAD
+      },
+      {
+--- 83,89 ----
+  	ShiftMask,
+  	ShiftMask,	vmod_NumLockMask,
+  	2, XkbNoFreeKTStruct|XkbNoFreeKTMap|XkbNoFreeKTLevelNames,
+! 	3,	map_KEYPAD,	NULL,
+  	None,	lnames_KEYPAD
+      },
+      {
+*** /tmp/da06727	Mon May 16 16:30:09 1994
+--- xc/programs/Xserver/xkb/xkbInit.c	Mon May 16 16:30:09 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: xkbInit.c,v 1.5 94/04/08 15:15:34 erik Exp $ */
+  /************************************************************
+  Copyright (c) 1993 by Silicon Graphics Computer Systems, Inc.
+  
+--- 1,4 ----
+! /* $XConsortium: xkbInit.c,v 1.8 94/05/16 10:49:53 dpw Exp $ */
+  /************************************************************
+  Copyright (c) 1993 by Silicon Graphics Computer Systems, Inc.
+  
+***************
+*** 49,57 ****
+  #define	NUM_PHYS	7
+  #else
+  #ifdef sun
+- #define LED_CAPS	4
+  #define LED_NUM		1
+  #define	LED_SCROLL	2
+  #define	NUM_PHYS	4
+  #else
+  #define	LED_CAPS	1
+--- 49,58 ----
+  #define	NUM_PHYS	7
+  #else
+  #ifdef sun
+  #define LED_NUM		1
+  #define	LED_SCROLL	2
++ #define LED_COMPOSE	3
++ #define LED_CAPS	4
+  #define	NUM_PHYS	4
+  #else
+  #define	LED_CAPS	1
+***************
+*** 296,301 ****
+--- 297,306 ----
+  	names->indicators[LED_CAPS-1] = CREATE_ATOM("Caps Lock");
+  	names->indicators[LED_NUM-1] = CREATE_ATOM("Num Lock");
+  	names->indicators[LED_SCROLL-1] = CREATE_ATOM("Scroll Lock");
++ #ifdef LED_COMPOSE
++ 	names->indicators[LED_COMPOSE-1] = CREATE_ATOM("Compose");
++ #endif
++ 
+      }
+  #ifdef DEBUG_RADIO_GROUPS
+      names->radio_groups= (Atom *)Xcalloc(RG_COUNT*sizeof(Atom));
+***************
+*** 392,398 ****
+      map->maps[LED_NUM-1].which_mods= XkbIM_UseLocked;
+      map->maps[LED_NUM-1].mask= 0;
+      map->maps[LED_NUM-1].real_mods= 0;
+!     map->maps[LED_NUM-1].vmods= vmod_NumLock;
+      xkb->iAccel.haveMap|= (1<<(LED_NUM-1));
+  
+      xkb->iAccel.usedComponents|= XkbModifierLockMask;
+--- 397,404 ----
+      map->maps[LED_NUM-1].which_mods= XkbIM_UseLocked;
+      map->maps[LED_NUM-1].mask= 0;
+      map->maps[LED_NUM-1].real_mods= 0;
+!     map->maps[LED_NUM-1].vmods= vmod_NumLockMask;
+!     xkb->iAccel.usesLocked|= (1<<(LED_NUM-1));
+      xkb->iAccel.haveMap|= (1<<(LED_NUM-1));
+  
+      xkb->iAccel.usedComponents|= XkbModifierLockMask;
+***************
+*** 721,736 ****
+      }
+      if (strcmp (argv[i], "-ar1") == 0) {	/* -ar1 int */
+  	if (++i >= argc) UseMsg ();
+! 	XkbDfltRepeatDelay = 1000 * (long)atoi(argv[i]);
+! 	if (XkbDfltRepeatDelay > 1000000)
+! 	    XkbDfltRepeatDelay =  999000;
+  	return 2;
+      }
+      if (strcmp (argv[i], "-ar2") == 0) {	/* -ar2 int */
+  	if (++i >= argc) UseMsg ();
+! 	XkbDfltRepeatInterval = 1000 * (long)atoi(argv[i]);
+! 	if (XkbDfltRepeatInterval > 1000000)
+! 	    XkbDfltRepeatInterval =  999000;
+  	return 2;
+      }
+      return 0;
+--- 727,738 ----
+      }
+      if (strcmp (argv[i], "-ar1") == 0) {	/* -ar1 int */
+  	if (++i >= argc) UseMsg ();
+! 	XkbDfltRepeatDelay = (long)atoi(argv[i]);
+  	return 2;
+      }
+      if (strcmp (argv[i], "-ar2") == 0) {	/* -ar2 int */
+  	if (++i >= argc) UseMsg ();
+! 	XkbDfltRepeatInterval = (long)atoi(argv[i]);
+  	return 2;
+      }
+      return 0;
+*** /tmp/da06743	Mon May 16 16:30:12 1994
+--- xc/programs/Xserver/xkb/xkbUtils.c	Mon May 16 16:30:11 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: xkbUtils.c,v 1.13 94/04/08 15:15:07 erik Exp $ */
+  /************************************************************
+  Copyright (c) 1993 by Silicon Graphics Computer Systems, Inc.
+  
+--- 1,4 ----
+! /* $XConsortium: xkbUtils.c,v 1.14 94/05/09 13:07:14 dpw Exp $ */
+  /************************************************************
+  Copyright (c) 1993 by Silicon Graphics Computer Systems, Inc.
+  
+***************
+*** 1013,1020 ****
+      state->compat_state = 0;
+      xkb->compatLookupState= 0;
+      xkb->compatGrabState= 0;
+!     map = &xkb->desc.compat->real_mod_compat[0];
+!     for (i=0,bit=1;i<8;i++,bit<<=1,map++) {
+  	if ((map->mods&state->mods)||(map->groups&(1<<state->group)))
+  	    state->compat_state|= bit;
+  
+--- 1013,1023 ----
+      state->compat_state = 0;
+      xkb->compatLookupState= 0;
+      xkb->compatGrabState= 0;
+!     for (i=0,bit=1;i<8;i++,bit<<=1) {
+! 	map= xkb->desc.compat->mod_compat[i];
+! 	if (map==NULL) {
+! 	    map= &xkb->desc.compat->real_mod_compat[i];
+! 	}
+  	if ((map->mods&state->mods)||(map->groups&(1<<state->group)))
+  	    state->compat_state|= bit;
+  
+*** /tmp/da06764	Mon May 16 16:30:14 1994
+--- xc/programs/rgb/Imakefile	Mon May 16 16:30:13 1994
+***************
+*** 1,4 ****
+! XCOMM $XConsortium: Imakefile,v 1.29 94/03/31 14:07:54 gildea Exp $
+  
+  #if UseRgbTxt
+     RGB_DEFINES = -DUSE_RGB_TXT
+--- 1,4 ----
+! XCOMM $XConsortium: Imakefile,v 1.30 94/05/14 16:36:45 rws Exp $
+  
+  #if UseRgbTxt
+     RGB_DEFINES = -DUSE_RGB_TXT
+***************
+*** 49,55 ****
+  SingleProgramTarget(showrgb,$(OBJS2),NullParameter,$(DBMLIB))
+  SpecialCObjectRule(showrgb,$(ICONFIGFILES),$(_NOOP_))
+  InstallMultiple($(DATAFILES) rgb.txt,$(LIBDIR))
+! InstallProgramWithFlags(showrgb,$(BINDIR),)
+  InstallManPage(showrgb,$(MANDIR))
+  
+  #if !UseRgbTxt
+--- 49,55 ----
+  SingleProgramTarget(showrgb,$(OBJS2),NullParameter,$(DBMLIB))
+  SpecialCObjectRule(showrgb,$(ICONFIGFILES),$(_NOOP_))
+  InstallMultiple($(DATAFILES) rgb.txt,$(LIBDIR))
+! InstallProgramWithFlags(showrgb,$(BINDIR),NullParameter)
+  InstallManPage(showrgb,$(MANDIR))
+  
+  #if !UseRgbTxt
+*** /tmp/da06785	Mon May 16 16:30:17 1994
+--- xc/programs/twm/menus.c	Mon May 16 16:30:16 1994
+***************
+*** 53,59 ****
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: menus.c,v 1.195 94/04/17 20:38:17 kaleb Exp $
+   *
+   * twm menu code
+   *
+--- 53,59 ----
+  
+  /***********************************************************************
+   *
+!  * $XConsortium: menus.c,v 1.196 94/05/12 16:55:46 kaleb Exp $
+   *
+   * twm menu code
+   *
+***************
+*** 2402,2427 ****
+   */
+  
+  #if defined(sun) && defined(SVR4)
+! static void System (s)
+      char *s;
+  {
+!     int pid;
+!     char* shell;
+!     char* shellname;
+! 
+      if ((pid = fork ()) == 0) {
+  	(void) setpgrp();
+- 	if ((shell = getenv ("SHELL")) != NULL) {
+- 	    shellname = strrchr(shell, '/');
+- 	    if (shellname == NULL)
+- 		shellname = shell;
+- 	    else
+- 		shellname++;
+- 	    execl (shell, shellname, "-c", s, 0);
+- 	}
+  	execl ("/bin/sh", "sh", "-c", s, 0);
+!     }
+  }
+  #endif
+  
+  void
+--- 2402,2419 ----
+   */
+  
+  #if defined(sun) && defined(SVR4)
+! static int System (s)
+      char *s;
+  {
+!     int pid, status;
+      if ((pid = fork ()) == 0) {
+  	(void) setpgrp();
+  	execl ("/bin/sh", "sh", "-c", s, 0);
+!     } else
+! 	waitpid (pid, &status, 0);
+!     return status;
+  }
++ #define system(s) System(s)
+  #endif
+  
+  void
+***************
+*** 2458,2468 ****
+  	restorevar = 1;
+      }
+  
+- #if defined(sun) && defined(SVR4)
+-     System (s);
+- #else
+      (void) system (s);
+- #endif
+  
+      if (restorevar) {		/* why bother? */
+  	(void) sprintf (buf, "DISPLAY=%s", oldDisplay);
+--- 2450,2456 ----
+*** /tmp/da06806	Mon May 16 16:30:20 1994
+--- xc/programs/xmh/command.c	Mon May 16 16:30:19 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: command.c,v 2.46 94/02/04 14:45:30 kaleb Exp $ */
+  
+  /*
+   *			  COPYRIGHT 1987, 1989
+--- 1,4 ----
+! /* $XConsortium: command.c,v 2.47 94/05/14 19:10:18 rws Exp $ */
+  
+  /*
+   *			  COPYRIGHT 1987, 1989
+***************
+*** 391,397 ****
+      int *lenP;
+      Bool waitEOF;
+  {
+!     long nread;
+  /*  DEBUG2( " CheckReadFromPipe #%d,len=%d,", fd, *lenP )  */
+  #ifdef FIONREAD
+      if (!ioctl( fd, FIONREAD, &nread )) {
+--- 391,397 ----
+      int *lenP;
+      Bool waitEOF;
+  {
+!     int nread;
+  /*  DEBUG2( " CheckReadFromPipe #%d,len=%d,", fd, *lenP )  */
+  #ifdef FIONREAD
+      if (!ioctl( fd, FIONREAD, &nread )) {
+*** /tmp/da08104	Mon May 16 17:35:11 1994
+--- xc/programs/xterm/input.c	Mon May 16 17:35:10 1994
+***************
+*** 1,5 ****
+  /*
+!  *	$XConsortium: input.c,v 1.17 92/03/20 17:43:06 gildea Exp $
+   */
+  
+  /*
+--- 1,5 ----
+  /*
+!  *	$XConsortium: input.c,v 1.18 94/05/14 15:53:34 gildea Exp $
+   */
+  
+  /*
+***************
+*** 89,107 ****
+  	reply.a_nparam = 0;
+  	reply.a_inters = 0;
+  
+  	if (IsPFKey(keysym)) {
+  		reply.a_type = SS3;
+  		unparseseq(&reply, pty);
+  		unparseputc((char)(keysym-XK_KP_F1+'P'), pty);
+  		key = TRUE;
+- 	} else if (IsKeypadKey(keysym)) {
+- 	  	if (keyboard->flags & KYPD_APL)	{
+- 			reply.a_type   = SS3;
+- 			unparseseq(&reply, pty);
+- 			unparseputc(kypd_apl[keysym-XK_KP_Space], pty);
+- 		} else
+- 			unparseputc(kypd_num[keysym-XK_KP_Space], pty);
+- 		key = TRUE;
+          } else if (IsCursorKey(keysym) &&
+          	keysym != XK_Prior && keysym != XK_Next) {
+         		if (keyboard->flags & CURSOR_APL) {
+--- 89,103 ----
+  	reply.a_nparam = 0;
+  	reply.a_inters = 0;
+  
++ 	if (keysym >= XK_KP_Home && keysym <= XK_KP_Begin) {
++ 	    keysym += XK_Home - XK_KP_Home;
++ 	}
++ 
+  	if (IsPFKey(keysym)) {
+  		reply.a_type = SS3;
+  		unparseseq(&reply, pty);
+  		unparseputc((char)(keysym-XK_KP_F1+'P'), pty);
+  		key = TRUE;
+          } else if (IsCursorKey(keysym) &&
+          	keysym != XK_Prior && keysym != XK_Next) {
+         		if (keyboard->flags & CURSOR_APL) {
+***************
+*** 116,122 ****
+  		key = TRUE;
+  	 } else if (IsFunctionKey(keysym) || IsMiscFunctionKey(keysym) ||
+  	 	keysym == XK_Prior || keysym == XK_Next ||
+! 	 	keysym == DXK_Remove) {
+  		reply.a_type = CSI;
+  		reply.a_nparam = 1;
+  		if (sunFunctionKeys) {
+--- 112,119 ----
+  		key = TRUE;
+  	 } else if (IsFunctionKey(keysym) || IsMiscFunctionKey(keysym) ||
+  	 	keysym == XK_Prior || keysym == XK_Next ||
+! 	 	keysym == DXK_Remove || keysym == XK_KP_Delete ||
+! 		keysym == XK_KP_Insert) {
+  		reply.a_type = CSI;
+  		reply.a_nparam = 1;
+  		if (sunFunctionKeys) {
+***************
+*** 129,134 ****
+--- 126,139 ----
+  		if (reply.a_param[0] > 0)
+  			unparseseq(&reply, pty);
+  		key = TRUE;
++ 	} else if (IsKeypadKey(keysym)) {
++ 	  	if (keyboard->flags & KYPD_APL)	{
++ 			reply.a_type   = SS3;
++ 			unparseseq(&reply, pty);
++ 			unparseputc(kypd_apl[keysym-XK_KP_Space], pty);
++ 		} else
++ 			unparseputc(kypd_num[keysym-XK_KP_Space], pty);
++ 		key = TRUE;
+  	} else if (nbytes > 0) {
+  		if(screen->TekGIN) {
+  			TekEnqMouse(*string++);
+***************
+*** 200,206 ****
+--- 205,213 ----
+  
+  		case XK_Find :	return(1);
+  		case XK_Insert:	return(2);
++ 		case XK_KP_Insert: return(2);
+  		case XK_Delete:	return(3);
++ 		case XK_KP_Delete: return(3);
+  		case DXK_Remove: return(3);
+  		case XK_Select:	return(4);
+  		case XK_Prior:	return(5);
+***************
+*** 255,261 ****
+--- 262,270 ----
+    
+  		case XK_Find :	return(1);
+  		case XK_Insert:	return(2);
++ 		case XK_KP_Insert: return(2);
+  		case XK_Delete:	return(3);
++ 		case XK_KP_Delete: return(3);
+  		case DXK_Remove: return(3);
+  		case XK_Select:	return(4);
+  		case XK_Prior:	return(5);
+*** /tmp/da06827	Mon May 16 16:30:23 1994
+--- xc/workInProgress/Fresco/src/Xdisplay.cxx	Mon May 16 16:30:22 1994
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: Xdisplay.cxx,v 1.5 94/04/07 11:29:27 matt Exp $
+   */
+  
+  /*
+--- 1,5 ----
+  /*
+!  * $XConsortium: Xdisplay.cxx,v 1.6 94/05/09 17:42:26 matt Exp $
+   */
+  
+  /*
+***************
+*** 1420,1426 ****
+  	if (a->read_string(v._out())) {
+  	    CharStringBuffer buf(v);
+  	    const char* p = buf.string();
+! 	    if (strcasecmp(p, "true") == 0 || strcasecmp(p, "yes") == 0) {
+  		layer = 0;
+  		b = true;
+  	    }
+--- 1420,1426 ----
+  	if (a->read_string(v._out())) {
+  	    CharStringBuffer buf(v);
+  	    const char* p = buf.string();
+! 	    if (strcasecmp("true", p) == 0 || strcasecmp("yes", p) == 0) {
+  		layer = 0;
+  		b = true;
+  	    }
+*** /tmp/da06848	Mon May 16 16:30:25 1994
+--- xc/workInProgress/xsm/remote.c	Mon May 16 16:30:25 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: remote.c,v 1.4 94/04/17 21:15:17 mor Exp $ */
+  /******************************************************************************
+  
+  Copyright (c) 1993  X Consortium
+--- 1,4 ----
+! /* $XConsortium: remote.c,v 1.5 94/05/02 11:30:58 mor Exp $ */
+  /******************************************************************************
+  
+  Copyright (c) 1993  X Consortium
+***************
+*** 100,119 ****
+  	    fprintf (fp, "CONTEXT X\n");
+  	    fprintf (fp, "DIR %s\n", cwd);
+  
+! 	    for (i = 0; env[i]; i++)
+! 	    {
+! 		/*
+! 		 * There may be spaces inside some of the environment
+! 		 * values, and rstartd will barf on spaces.  Need
+! 		 * to replace space characters with their equivalent
+! 		 * octal escape sequences.
+! 		 */
+  
+! 		char *temp = spaces_to_octal (env[i]);
+! 		fprintf (fp, "MISC X %s\n", temp);
+! 		if (temp != env[i])
+! 		    free (temp);
+! 	    }
+  
+  	    fprintf (fp, "MISC X %s\n", non_local_display_env);
+  	    fprintf (fp, "MISC X %s\n", non_local_session_env);
+--- 100,120 ----
+  	    fprintf (fp, "CONTEXT X\n");
+  	    fprintf (fp, "DIR %s\n", cwd);
+  
+! 	    if (env)
+! 		for (i = 0; env[i]; i++)
+! 		{
+! 		    /*
+! 		     * There may be spaces inside some of the environment
+! 		     * values, and rstartd will barf on spaces.  Need
+! 		     * to replace space characters with their equivalent
+! 		     * octal escape sequences.
+! 		     */
+  
+! 		    char *temp = spaces_to_octal (env[i]);
+! 		    fprintf (fp, "MISC X %s\n", temp);
+! 		    if (temp != env[i])
+! 			free (temp);
+! 		}
+  
+  	    fprintf (fp, "MISC X %s\n", non_local_display_env);
+  	    fprintf (fp, "MISC X %s\n", non_local_session_env);
+*** /tmp/da06864	Mon May 16 16:30:27 1994
+--- xc/workInProgress/xsm/restart.c	Mon May 16 16:30:27 1994
+***************
+*** 1,4 ****
+! /* $XConsortium: restart.c,v 1.4 94/04/17 21:15:18 mor Exp $ */
+  /******************************************************************************
+  
+  Copyright (c) 1993  X Consortium
+--- 1,4 ----
+! /* $XConsortium: restart.c,v 1.5 94/05/12 11:59:01 mor Exp $ */
+  /******************************************************************************
+  
+  Copyright (c) 1993  X Consortium
+***************
+*** 195,201 ****
+  		printf("\n");
+  	    }
+  
+! 	    if (!strncmp(c->clientHostname, "local/", 6))
+  	    {
+  		/*
+  		 * The client is being restarted on the local machine.
+--- 195,202 ----
+  		printf("\n");
+  	    }
+  
+! 	    if (strncmp(c->clientHostname, "tcp/", 4) != 0 &&
+! 		strncmp(c->clientHostname, "decnet/", 7) != 0)
+  	    {
+  		/*
+  		 * The client is being restarted on the local machine.
+*** /tmp/da05904	Mon May 16 16:28:19 1994
+--- xc/doc/man/Xt/Imakefile	Mon May 16 16:28:18 1994
+***************
+*** 1,3 ****
+--- 1,5 ----
++ XCOMM $XConsortium: Imakefile,v 1.13 94/05/11 16:20:22 kaleb Exp $
++ 
+  MANDIR = $(LIBMANDIR)
+  MANSUFFIX = $(LIBMANSUFFIX)
+  
+***************
+*** 154,160 ****
+  InstallManPageLong(XtFindF,$(MANDIR),XtFindFile)
+  InstallManPageLong(XtResPath,$(MANDIR),XtResolvePathname)
+  InstallManPageLong(XtGetSValI,$(MANDIR),XtGetSelectionValueIncremental)
+! InstallManPageAliases(XtSelectionValueIncremental,$(MANDIR),XtSelectionValuesIncremental)
+  InstallManPageLong(XtGetSTO,$(MANDIR),XtGetSelectionTimeout)
+  InstallManPageAliases(XtGetSelectionTimeout,$(MANDIR),XtSetSelectionTimeout)
+  InstallManPageLong(XtGetSR,$(MANDIR),XtGetSelectionRequest)
+--- 156,162 ----
+  InstallManPageLong(XtFindF,$(MANDIR),XtFindFile)
+  InstallManPageLong(XtResPath,$(MANDIR),XtResolvePathname)
+  InstallManPageLong(XtGetSValI,$(MANDIR),XtGetSelectionValueIncremental)
+! InstallManPageAliases(XtGetSelectionValueIncremental,$(MANDIR),XtGetSelectionValuesIncremental)
+  InstallManPageLong(XtGetSTO,$(MANDIR),XtGetSelectionTimeout)
+  InstallManPageAliases(XtGetSelectionTimeout,$(MANDIR),XtSetSelectionTimeout)
+  InstallManPageLong(XtGetSR,$(MANDIR),XtGetSelectionRequest)
+*** /tmp/da08706	Mon May 16 17:50:58 1994
+--- xc/doc/specs/FSProtocol/protocol.ms	Mon May 16 17:50:57 1994
+***************
+*** 1,4 ****
+! .\" $XConsortium: protocol.ms,v 1.14 94/04/17 23:59:31 rws Exp $
+  .\" Use tbl, -ms, and macros.t
+  .EH ''''
+  .OH ''''
+--- 1,4 ----
+! .\" $XConsortium: protocol.ms,v 1.18 94/05/16 15:04:55 gildea Exp $
+  .\" Use tbl, -ms, and macros.t
+  .EH ''''
+  .OH ''''
+***************
+*** 18,23 ****
+--- 18,25 ----
+  .sp 6
+  Jim Fulton
+  Network Computing Devices, Inc.
++ .sp 6
++ Revised May 2, 1994
+  .ce 0
+  .bp
+  .br
+***************
+*** 224,230 ****
+  transport-specific names are necessary.  Since these names do occur in the
+  protocol, clients and servers should support at least the applicable formats
+  described below.  Formats for additional transports may be registered with the
+! MIT X Consortium.
+  .NH 2
+  TCP/IP Names
+  .XS
+--- 226,232 ----
+  transport-specific names are necessary.  Since these names do occur in the
+  protocol, clients and servers should support at least the applicable formats
+  described below.  Formats for additional transports may be registered with the
+! X Consortium.
+  .NH 2
+  TCP/IP Names
+  .XS
+***************
+*** 1354,1361 ****
+    =>
+  .IP
+  \fIstatus\fP\^:  	{ Success, Continue, Denied }
+! 	authorization-index:		CARD8
+! 	authorization-data:		LISTofBYTE
+  .IP
+  Errors:
+  .PN IDChoice
+--- 1356,1365 ----
+    =>
+  .IP
+  \fIstatus\fP\^:  	{ Success, Continue, Denied }
+! .br
+! \fIauthorization-index\fP\^:		CARD8
+! .br
+! \fIauthorization-data\fP\^:		LISTofBYTE
+  .IP
+  Errors:
+  .PN IDChoice
+***************
+*** 1393,1403 ****
+  until STATUS is set to either Success or Denied.
+  .RS
+  .DS
+! 
+! 	->
+  	more-authorization-data:		STRING8
+  	=>
+! 	status:					{ Success, Continue, Denied }
+  	more-authorization-data:		LISTofBYTE
+  .DE
+  .RE
+--- 1397,1406 ----
+  until STATUS is set to either Success or Denied.
+  .RS
+  .DS
+! 	\->
+  	more-authorization-data:		STRING8
+  	=>
+! 	status:				{ Success, Continue, Denied }
+  	more-authorization-data:		LISTofBYTE
+  .DE
+  .RE
+***************
+*** 1679,1698 ****
+  If OTHERID is set to None, then OTHERID-VALID should be set
+  to False.
+  .sp
+- If the client is allowed to access the font and the server is
+- able and willing to detect that the client has already
+- successfully opened the font (possibly under a different name), 
+- OTHERID may be set to a font identifier used to previously
+- open the font.  If the font is currently open and associated
+- with one or more identifiers, one of those FONTIDs should be
+- used for OTHERID and OTHERID-VALID should be set to True.
+- If the font is not currently open
+- to another valid font identifier that the client currently has
+- associated with this font and OTHERID-VALID is set to True.  
+- If the 
+- Otherwise, OTHERID is set to
+- None.
+- .sp
+  The FORMAT-MASK indicates which fields in FORMAT-HINT
+  the client is likely to use in subsequent 
+  .PN GetXBitmaps8
+--- 1682,1687 ----
+***************
+*** 2568,2574 ****
+  OFFSET32
+  .br
+  .TA .75i .75i .75i .75i
+! 4	CARD32	position
+  .br
+  4	CARD32	length
+  .sp 18p
+--- 2557,2563 ----
+  OFFSET32
+  .br
+  .TA .75i .75i .75i .75i
+! 4	CARD32	position (or integer value)
+  .br
+  4	CARD32	length
+  .sp 18p
+***************
+*** 2583,2590 ****
+  20*n	PROPOFFSET	property offsets into data block
+  .br
+  m	LISTofBYTE	property data block
+- .br
+- p				unused, p = pad(m)
+  .sp 18p
+  .LP
+  PROPOFFSET
+--- 2572,2577 ----
+***************
+*** 3124,3129 ****
+--- 3111,3117 ----
+  2@CARD16@sequence-number
+  4@2+f/4@length
+  f@XFONTINFO@font info
++ p@@unused, p=pad(f\^)
+  .TE
+  .sp 12p
+  .TS
+***************
+*** 3511,3523 ****
+  \*(SN References
+  .XE
+  .LP
+! All of the following documents are X Consortium standards available from MIT:
+  .LP
+  [1]  Scheifler, Robert W.  ``X Window System Protocol Version 11''
+  .LP
+  [2]  Adobe Systems.  ``Bitmap Distribution Format 2.1''
+  .LP
+! [3]  MIT X Consortium.  ``X Logical Font Description Conventions, Version 1.4''
+  .bp
+  .XS
+  Appendix A \- Suggested Licensing Policies
+--- 3499,3512 ----
+  \*(SN References
+  .XE
+  .LP
+! All of the following documents are X Consortium standards available from
+! the X Consortium.
+  .LP
+  [1]  Scheifler, Robert W.  ``X Window System Protocol Version 11''
+  .LP
+  [2]  Adobe Systems.  ``Bitmap Distribution Format 2.1''
+  .LP
+! [3]  X Consortium.  ``X Logical Font Description Conventions, Version 1.5''
+  .bp
+  .XS
+  Appendix A \- Suggested Licensing Policies
+***************
+*** 3546,3552 ****
+  .IP "b."
+  Per-machine - only those clients connecting from a known set of
+  machines are permitted access.  The server could get the address 
+! of the connection and look in a list of	allowed machines. 
+  .IP "c."
+  Per-user - only a known set of users may access the fonts.  The
+  server can use the authorization data (such as a Kerberos ticket
+--- 3535,3541 ----
+  .IP "b."
+  Per-machine - only those clients connecting from a known set of
+  machines are permitted access.  The server could get the address 
+! of the connection and look in a list of allowed machines. 
+  .IP "c."
+  Per-user - only a known set of users may access the fonts.  The
+  server can use the authorization data (such as a Kerberos ticket
+*** /tmp/AppA.old	Mon Apr 18 13:29:00 1994
+--- xc/doc/specs/X11/AppA	Sat Apr 30 09:15:46 1994
+***************
+*** 48,55 ****
+  \s+1\fBXlib Functions and Protocol Requests\fP\s-1
+  .sp 2
+  .na
+- .EF ''\fB % \fP''
+- .OF ''\fB % \fP''
+  .LP
+  .XS
+  Appendix A: Xlib Functions and Protocol Requests
+--- 48,53 ----
+*** /tmp/AppB.old	Mon Apr 18 13:29:00 1994
+--- xc/doc/specs/X11/AppB	Sat Apr 30 09:15:46 1994
+***************
+*** 48,55 ****
+  \s+1\fBX Font Cursors\fP\s-1
+  .sp 2
+  .na
+- .EF ''\fB % \fP''
+- .OF ''\fB % \fP''
+  .LP
+  .XS
+  Appendix B:  X Font Cursors
+--- 48,53 ----
+*** /tmp/AppC.old	Mon Apr 18 13:29:00 1994
+--- xc/doc/specs/X11/AppC	Sat Apr 30 09:15:46 1994
+***************
+*** 48,55 ****
+  \s+1\fBExtensions\fP\s-1
+  .sp 2
+  .na
+- .EF ''\fB % \fP''
+- .OF ''\fB % \fP''
+  .LP
+  .XS
+  Appendix C: Extensions
+--- 48,53 ----
+*** /tmp/AppD.old	Mon Apr 18 13:29:00 1994
+--- xc/doc/specs/X11/AppD	Sat Apr 30 09:15:46 1994
+***************
+*** 48,55 ****
+  \s+1\fBCompatibility Functions\fP\s-1
+  .sp 2
+  .na
+- .EF ''\fB % \fP''
+- .OF ''\fB % \fP''
+  .LP
+  .XS
+  Appendix D: Compatibility Functions
+--- 48,53 ----
+*** /tmp/CH13.old	Mon Apr 18 13:28:59 1994
+--- xc/doc/specs/X11/CH13	Sat Apr 30 10:00:09 1994
+***************
+*** 7212,7224 ****
+  T{
+  #define
+  T}	T{
+- .PN XNResetReturn
+- T}	T{
+- "resetReturn"
+- T}	
+- T{
+- #define
+- T}	T{
+  .PN XNHotKey
+  T}	T{
+  "hotkey"
+--- 7212,7217 ----
+***************
+*** 7244,7250 ****
+  .IN "XNStringConversionCallback" "" "@DEF@"
+  .IN "XNStringConversion" "" "@DEF@"
+  .IN "XNResetState" "" "@DEF@"
+- .IN "XNResetReturn" "" "@DEF@"
+  .IN "XNHotKey" "" "@DEF@"
+  .IN "XNHotKeyState" "" "@DEF@"
+  .IN "XNPreeditState" "" "@DEF@"
+--- 7237,7242 ----

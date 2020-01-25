@@ -1,0 +1,1206 @@
+                      Release 6 Public Patch #13
+                             X Consortium
+
+To apply this patch:
+
+cd to the top of the source tree (to the directory containing the
+"xc" and "contrib" subdirectories) and do:
+        patch -p -s < ThisFile
+Patch will work silently unless an error occurs.  If you want to
+watch patch do its thing, leave out the "-s" argument to patch.
+
+To rebuild, do:
+	cd xc
+        make -k >& make.log
+
+This patch fixes implementation weaknesses in two X authorization
+schemes.  These weaknesses could allow unauthorized remote users to
+connect to X displays.
+
+In addition, this patch contains the following fixes:
+
+Xt: extension event selection crashes intermittently
+Xt: XtUnrealizeWidget on a popup shell can exit with an error
+
+Prereq: public-patch-12
+
+*** -   Tue Aug  1 09:51:10 1995
+--- xc/bug-report       Tue Oct 30 10:13:10 1995
+***************
+*** 3,9 ****
+  
+       VERSION:
+  
+! R6, public-patch-12
+  [X Consortium public patches edit this line to indicate the patch level]
+  
+       CLIENT MACHINE and OPERATING SYSTEM:
+--- 3,9 ----
+  
+       VERSION:
+  
+! R6, public-patch-13
+  [X Consortium public patches edit this line to indicate the patch level]
+  
+       CLIENT MACHINE and OPERATING SYSTEM:
+*** programs/xdm/dm.c@@/PUBLIC-LATEST	Sun Apr 17 20:03:36 1994
+--- xc/programs/xdm/dm.c	Mon Jul 10 21:18:07 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: dm.c,v 1.70 94/04/17 20:03:36 gildea Exp $ */
+  /*
+  
+  Copyright (c) 1988  X Consortium
+--- 1,4 ----
+! /* $XConsortium: dm.c,v 1.71 95/07/10 21:18:07 gildea Exp $ */
+  /*
+  
+  Copyright (c) 1988  X Consortium
+***************
+*** 151,159 ****
+      if (debugLevel == 0)
+  	InitErrorLog ();
+  
+!     /* Clean up any old Authorization files */
+!     sprintf(cmdbuf, "/bin/rm -f %s/A*", authDir);
+!     system(cmdbuf);
+  
+  #ifdef XDMCP
+      init_session_id ();
+--- 151,161 ----
+      if (debugLevel == 0)
+  	InitErrorLog ();
+  
+!     if (nofork_session == 0) {
+! 	/* Clean up any old Authorization files */
+! 	sprintf(cmdbuf, "/bin/rm -f %s/authdir/authfiles/A*", authDir);
+! 	system(cmdbuf);
+!     }
+  
+  #ifdef XDMCP
+      init_session_id ();
+*** programs/xdm/protodpy.c@@/PUBLIC-LATEST	Sun Apr 17 20:03:42 1994
+--- xc/programs/xdm/protodpy.c	Mon Jul 10 21:18:07 1995
+***************
+*** 1,5 ****
+  /*
+!  * $XConsortium: protodpy.c,v 1.14 94/04/17 20:03:42 rws Exp $
+   *
+  Copyright (c) 1989  X Consortium
+  
+--- 1,5 ----
+  /*
+!  * $XConsortium: protodpy.c,v 1.15 95/07/10 21:18:07 gildea Exp $
+   *
+  Copyright (c) 1989  X Consortium
+  
+***************
+*** 142,147 ****
+--- 142,148 ----
+      return pdpy;
+  }
+  
++ void
+  DisposeProtoDisplay (pdpy)
+      struct protoDisplay	*pdpy;
+  {
+***************
+*** 160,170 ****
+  	prev->next = pdpy->next;
+      else
+  	protoDisplays = pdpy->next;
+!     XdmcpDisposeARRAY8 (&pdpy->connectionAddress);
+      if (pdpy->fileAuthorization)
+  	XauDisposeAuth (pdpy->fileAuthorization);
+      if (pdpy->xdmcpAuthorization)
+  	XauDisposeAuth (pdpy->xdmcpAuthorization);
+      free ((char *) pdpy->address);
+      free ((char *) pdpy);
+  }
+--- 161,172 ----
+  	prev->next = pdpy->next;
+      else
+  	protoDisplays = pdpy->next;
+!     bzero(&pdpy->key, sizeof(pdpy->key));
+      if (pdpy->fileAuthorization)
+  	XauDisposeAuth (pdpy->fileAuthorization);
+      if (pdpy->xdmcpAuthorization)
+  	XauDisposeAuth (pdpy->xdmcpAuthorization);
++     XdmcpDisposeARRAY8 (&pdpy->connectionAddress);
+      free ((char *) pdpy->address);
+      free ((char *) pdpy);
+  }
+*** programs/xdm/auth.c@@/PUBLIC-LATEST	Fri Jan 27 14:42:23 1995
+--- xc/programs/xdm/auth.c	Thu Oct 26 17:36:01 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: auth.c,v 1.56.1.1 95/01/27 14:42:23 kaleb Exp $ */
+  /*
+  
+  Copyright (c) 1988  X Consortium
+--- 1,4 ----
+! /* $XConsortium: auth.c /main/1.56.1/2 1995/10/26 17:35:48 gildea $ */
+  /*
+  
+  Copyright (c) 1988  X Consortium
+***************
+*** 42,47 ****
+--- 42,53 ----
+  #include <X11/X.h>
+  #include <sys/types.h>
+  #include <sys/stat.h>
++ 
++ #include <errno.h>
++ #ifdef X_NOT_STDC_ENV
++ extern int errno;
++ #endif
++ 
+  #include <sys/socket.h>
+  #ifndef ESIX
+  # include <sys/ioctl.h>
+***************
+*** 87,93 ****
+  extern int	XdmInitAuth ();
+  extern Xauth	*XdmGetAuth ();
+  #ifdef XDMCP
+! extern int	XdmGetXdmcpAuth ();
+  #else
+  #define XdmGetXdmcpAuth NULL
+  #endif
+--- 93,99 ----
+  extern int	XdmInitAuth ();
+  extern Xauth	*XdmGetAuth ();
+  #ifdef XDMCP
+! extern void	XdmGetXdmcpAuth ();
+  #else
+  #define XdmGetXdmcpAuth NULL
+  #endif
+***************
+*** 108,114 ****
+      char	    *name;
+      int		    (*InitAuth)();
+      Xauth	    *(*GetAuth)();
+!     int		    (*GetXdmcpAuth)();
+      int		    inited;
+  };
+  
+--- 114,120 ----
+      char	    *name;
+      int		    (*InitAuth)();
+      Xauth	    *(*GetAuth)();
+!     void	    (*GetXdmcpAuth)();
+      int		    inited;
+  };
+  
+***************
+*** 265,270 ****
+--- 271,279 ----
+      *dst = '\0';
+  }
+  
++ static char authdir1[] = "authdir";
++ static char authdir2[] = "authfiles";
++ 
+  static
+  MakeServerAuthFile (d)
+      struct display  *d;
+***************
+*** 276,281 ****
+--- 285,292 ----
+  #define NAMELEN	255
+  #endif
+      char    cleanname[NAMELEN];
++     int r;
++     struct stat	statb;
+  
+      if (d->clientAuthFile && *d->clientAuthFile)
+  	len = strlen (d->clientAuthFile) + 1;
+***************
+*** 282,288 ****
+      else
+      {
+      	CleanUpFileName (d->name, cleanname, NAMELEN - 8);
+!     	len = strlen (authDir) + strlen (cleanname) + 12;
+      }
+      if (d->authFile)
+  	free (d->authFile);
+--- 293,300 ----
+      else
+      {
+      	CleanUpFileName (d->name, cleanname, NAMELEN - 8);
+!     	len = strlen (authDir) + strlen (authdir1) + strlen (authdir2)
+! 	    + strlen (cleanname) + 14;
+      }
+      if (d->authFile)
+  	free (d->authFile);
+***************
+*** 293,299 ****
+  	strcpy (d->authFile, d->clientAuthFile);
+      else
+      {
+!     	sprintf (d->authFile, "%s/A%s-XXXXXX", authDir, cleanname);
+      	(void) mktemp (d->authFile);
+      }
+      return TRUE;
+--- 305,335 ----
+  	strcpy (d->authFile, d->clientAuthFile);
+      else
+      {
+! 	sprintf (d->authFile, "%s/%s", authDir, authdir1);
+! 	r = stat(d->authFile, &statb);
+! 	if (r == 0) {
+! 	    if (statb.st_uid != 0)
+! 		(void) chown(d->authFile, 0, statb.st_gid);
+! 	    if ((statb.st_mode & 0077) != 0)
+! 		(void) chmod(d->authFile, statb.st_mode & 0700);
+! 	} else {
+! 	    if (errno == ENOENT)
+! 		r = mkdir(d->authFile, 0700);
+! 	    if (r < 0) {
+! 		free (d->authFile);
+! 		d->authFile = NULL;
+! 		return FALSE;
+! 	    }
+! 	}
+! 	sprintf (d->authFile, "%s/%s/%s", authDir, authdir1, authdir2);
+! 	r = mkdir(d->authFile, 0700);
+! 	if (r < 0  &&  errno != EEXIST) {
+! 	    free (d->authFile);
+! 	    d->authFile = NULL;
+! 	    return FALSE;
+! 	}
+!     	sprintf (d->authFile, "%s/%s/%s/A%s-XXXXXX",
+! 		 authDir, authdir1, authdir2, cleanname);
+      	(void) mktemp (d->authFile);
+      }
+      return TRUE;
+***************
+*** 600,609 ****
+      FILE	*file;
+      Xauth	*auth;
+  {
+! #if 0 /* too verbose */
+          Debug ("writeAuth: doWrite = %d\n", doWrite);
+  	dumpAuth (auth);	/* does Debug only */
+! #endif
+  	if (doWrite)
+  	    XauWriteAuth (file, auth);
+  }
+--- 636,645 ----
+      FILE	*file;
+      Xauth	*auth;
+  {
+!     if (debugLevel >= 15) {	/* normally too verbose */
+          Debug ("writeAuth: doWrite = %d\n", doWrite);
+  	dumpAuth (auth);	/* does Debug only */
+!     }
+  	if (doWrite)
+  	    XauWriteAuth (file, auth);
+  }
+***************
+*** 745,751 ****
+  	if (IA_SIN(&ifaddr)->sin_addr.s_addr == htonl(0x7f000001) )
+  		continue;
+  
+! 	writeAddr (FamilyInternet, 4, &(IA_SIN(&ifaddr)->sin_addr), file, auth);
+   
+      }
+      close(ipfd);
+--- 781,787 ----
+  	if (IA_SIN(&ifaddr)->sin_addr.s_addr == htonl(0x7f000001) )
+  		continue;
+  
+! 	writeAddr (FamilyInternet, 4, (char *)&(IA_SIN(&ifaddr)->sin_addr), file, auth);
+   
+      }
+      close(ipfd);
+*** programs/xdm/genauth.c@@/PUBLIC-LATEST	Mon Nov 21 19:57:04 1994
+--- xc/programs/xdm/genauth.c	Mon Jul 10 21:18:07 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: genauth.c,v 1.18.1.1 94/11/21 19:57:04 kaleb Exp $ */
+  /*
+  
+  Copyright (c) 1988  X Consortium
+--- 1,4 ----
+! /* $XConsortium: genauth.c,v 1.23 95/07/10 21:18:07 gildea Exp $ */
+  /*
+  
+  Copyright (c) 1988  X Consortium
+***************
+*** 37,45 ****
+--- 37,49 ----
+  # include   <X11/Xauth.h>
+  # include   <X11/Xos.h>
+  # include   "dm.h"
++ 
++ #include <errno.h>
++ 
+  #ifdef X_NOT_STDC_ENV
+  #define Time_t long
+  extern Time_t time ();
++ extern int errno;
+  #else
+  #include <time.h>
+  #define Time_t time_t
+***************
+*** 80,89 ****
+      int	    loops;
+      int	    reads;
+      int	    i;
+  
+      fd = open (name, 0);
+!     if (fd < 0)
+  	return 0;
+  #ifdef FRAGILE_DEV_MEM
+      if (strcmp(name, "/dev/mem") == 0) lseek (fd, (off_t) 0x100000, SEEK_SET);
+  #endif
+--- 84,96 ----
+      int	    loops;
+      int	    reads;
+      int	    i;
++     int     ret_status = 0;
+  
+      fd = open (name, 0);
+!     if (fd < 0) {
+! 	LogError("Cannot open randomFile \"%s\", errno = %d\n", name, errno);
+  	return 0;
++     }
+  #ifdef FRAGILE_DEV_MEM
+      if (strcmp(name, "/dev/mem") == 0) lseek (fd, (off_t) 0x100000, SEEK_SET);
+  #endif
+***************
+*** 95,104 ****
+  	for (i = 0; i < loops; i+= 2) {
+  	    sum[0] += buf[i];
+  	    sum[1] += buf[i+1];
+  	}
+      }
+      close (fd);
+!     return 1;
+  }
+  
+  static
+--- 102,114 ----
+  	for (i = 0; i < loops; i+= 2) {
+  	    sum[0] += buf[i];
+  	    sum[1] += buf[i+1];
++ 	    ret_status = 1;
+  	}
+      }
++     if (cnt < 0)
++ 	LogError("Cannot read randomFile \"%s\", errno = %d\n", name, errno);
+      close (fd);
+!     return ret_status;
+  }
+  
+  static
+***************
+*** 119,124 ****
+--- 129,156 ----
+  
+  #endif
+  
++ #ifndef HASXDMAUTH
++ /* A random number generator that is more unpredictable
++    than that shipped with some systems.
++    This code is taken from the C standard. */
++ 
++ static unsigned long int next = 1;
++ 
++ static int
++ xdm_rand()
++ {
++     next = next * 1103515245 + 12345;
++     return (unsigned int)(next/65536) % 32768;
++ }
++ 
++ static void
++ xdm_srand(seed)
++     unsigned int seed;
++ {
++     next = seed;
++ }
++ #endif /* no HASXDMAUTH */
++ 
+  GenerateAuthData (auth, len)
+  char	*auth;
+  int	len;
+***************
+*** 130,137 ****
+  	struct timeval  now;
+  
+  	X_GETTIMEOFDAY (&now);
+! 	ldata[0] = now.tv_sec;
+! 	ldata[1] = now.tv_usec;
+      }
+  #else
+      {
+--- 162,169 ----
+  	struct timeval  now;
+  
+  	X_GETTIMEOFDAY (&now);
+! 	ldata[0] = now.tv_usec;
+! 	ldata[1] = now.tv_sec;
+      }
+  #else
+      {
+***************
+*** 173,183 ****
+      	int	    i;
+      
+      	seed = (ldata[0]) + (ldata[1] << 16);
+!     	srand (seed);
+      	for (i = 0; i < len; i++)
+      	{
+! 	    value = rand ();
+! 	    auth[i] = value & 0xff;
+      	}
+  	value = len;
+  	if (value > sizeof (key))
+--- 205,215 ----
+      	int	    i;
+      
+      	seed = (ldata[0]) + (ldata[1] << 16);
+!     	xdm_srand (seed);
+      	for (i = 0; i < len; i++)
+      	{
+! 	    value = xdm_rand ();
+! 	    auth[i] = (value & 0xff00) >> 8;
+      	}
+  	value = len;
+  	if (value > sizeof (key))
+*** programs/xdm/xdmauth.c@@/PUBLIC-LATEST	Sun Apr 17 20:03:50 1994
+--- xc/programs/xdm/xdmauth.c	Mon Jul 10 21:18:07 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: xdmauth.c,v 1.12 94/04/17 20:03:50 gildea Exp $ */
+  /*
+  
+  Copyright (c) 1988  X Consortium
+--- 1,4 ----
+! /* $XConsortium: xdmauth.c,v 1.13 95/07/10 21:18:07 gildea Exp $ */
+  /*
+  
+  Copyright (c) 1988  X Consortium
+***************
+*** 151,156 ****
+--- 151,157 ----
+  
+  #ifdef XDMCP
+  
++ void
+  XdmGetXdmcpAuth (pdpy,authorizationNameLen, authorizationName)
+      struct protoDisplay	*pdpy;
+      unsigned short	authorizationNameLen;
+***************
+*** 251,257 ****
+      {
+  	if (line[0] == '#' || sscanf (line, "%s %s", id, key) != 2)
+  	    continue;
+! 	Debug ("Key entry \"%s\" \"%s\"\n", id, key);
+  	if (strlen (id) == displayID->length &&
+  	    !strncmp (id, (char *)displayID->data, displayID->length))
+  	{
+--- 252,259 ----
+      {
+  	if (line[0] == '#' || sscanf (line, "%s %s", id, key) != 2)
+  	    continue;
+! 	bzero(line, sizeof(line));
+! 	Debug ("Key entry for \"%s\" %d bytes\n", id, strlen(key));
+  	if (strlen (id) == displayID->length &&
+  	    !strncmp (id, (char *)displayID->data, displayID->length))
+  	{
+***************
+*** 263,272 ****
+--- 265,277 ----
+  		key[keylen++] = '\0';
+  	    pdpy->key.data[0] = '\0';
+  	    memmove( pdpy->key.data + 1, key, 7);
++ 	    bzero(key, sizeof(key));
+  	    fclose (keys);
+  	    return TRUE;
+  	}
+      }
++     bzero(line, sizeof(line));
++     bzero(key, sizeof(key));
+      fclose (keys);
+      return FALSE;
+  }
+*** programs/xdm/dm.h@@/PUBLIC-LATEST	Thu Jan 26 19:31:18 1995
+--- xc/programs/xdm/dm.h	Thu Oct 26 17:35:55 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: dm.h,v 1.63.1.1 95/01/26 19:31:18 kaleb Exp $ */
+  /*
+  
+  Copyright (c) 1988  X Consortium
+--- 1,4 ----
+! /* $XConsortium: dm.h /main/1.63.1/2 1995/10/26 17:35:43 gildea $ */
+  /*
+  
+  Copyright (c) 1988  X Consortium
+***************
+*** 332,337 ****
+--- 332,340 ----
+  extern void SetUserAuthorization();
+  extern void RemoveUserAuthorization();
+  extern void CleanUpFileName();
++ 
++ /* in protodpy.c */
++ extern void DisposeProtoDisplay();
+  
+  /*
+   * CloseOnFork flags
+*** programs/xdm/xdm.man@@/PUBLIC-LATEST	Sun Apr 17 20:03:49 1994
+--- xc/programs/xdm/xdm.man	Mon Jul 10 21:18:07 1995
+***************
+*** 1,4 ****
+! .\" $XConsortium: xdm.man,v 1.34 94/04/17 20:03:49 gildea Exp $
+  .\" Copyright (c) 1988, 1994  X Consortium
+  .\" 
+  .\" Permission is hereby granted, free of charge, to any person obtaining
+--- 1,4 ----
+! .\" $XConsortium: xdm.man,v 1.40 95/07/10 21:18:07 gildea Exp $
+  .\" Copyright (c) 1988, 1994  X Consortium
+  .\" 
+  .\" Permission is hereby granted, free of charge, to any person obtaining
+***************
+*** 290,299 ****
+  On System V, this
+  uses the \fIlockf\fP library call, while on BSD it uses \fIflock.\fP
+  .IP "\fBDisplayManager.authDir\fP"
+! This names a directory in which
+  .I xdm
+  stores authorization files while initializing the session.  The
+  default value is \fI<XRoot>/lib/X11/xdm.\fP
+  .IP \fBDisplayManager.autoRescan\fP
+  This boolean controls whether
+  .I xdm
+--- 290,301 ----
+  On System V, this
+  uses the \fIlockf\fP library call, while on BSD it uses \fIflock.\fP
+  .IP "\fBDisplayManager.authDir\fP"
+! This names a directory under which
+  .I xdm
+  stores authorization files while initializing the session.  The
+  default value is \fI<XRoot>/lib/X11/xdm.\fP
++ Can be overridden for specific displays by
++ DisplayManager.\fIDISPLAY\fP.authFile.
+  .IP \fBDisplayManager.autoRescan\fP
+  This boolean controls whether
+  .I xdm
+***************
+*** 392,398 ****
+  .B "Session Program."
+  .IP "\fBDisplayManager.\fP\fIDISPLAY\fP\fB.reset\fP"
+  This specifies a program which is run (as root) after the session terminates.
+! Again, by default no program is run.
+  The conventional name is \fIXreset\fP.
+  See the section
+  .B "Reset Program."
+--- 394,400 ----
+  .B "Session Program."
+  .IP "\fBDisplayManager.\fP\fIDISPLAY\fP\fB.reset\fP"
+  This specifies a program which is run (as root) after the session terminates.
+! By default, no program is run.
+  The conventional name is \fIXreset\fP.
+  See the section
+  .B "Reset Program."
+***************
+*** 513,518 ****
+--- 515,522 ----
+  It should be
+  kept in a directory which is not world-writable as it could easily be
+  removed, disabling the authorization mechanism in the server.
++ If not specified, a name is generated from DisplayManager.authDir and
++ the name of the display.
+  .IP "\fBDisplayManager.\fP\fIDISPLAY\fP\fB.authComplain\fP"
+  If set to ``false,'' disables the use of the \fBunsecureGreeting\fP
+  in the login window.
+***************
+*** 941,953 ****
+  before doing this.
+  .SH "STARTUP PROGRAM"
+  .PP
+! The \fIXstartup\fP file is typically a shell script.
+! It is run as root and should be
+  very careful about security.  This is the place to put commands which add
+  entries to \fI/etc/utmp\fP
+  (the \fIsessreg\fP program may be useful here),
+  mount users' home directories from file servers,
+! display the message of the day, or abort the session if logins are not
+  allowed.
+  .PP
+  In addition to any specified by \fBDisplayManager.exportList\fP,
+--- 945,959 ----
+  before doing this.
+  .SH "STARTUP PROGRAM"
+  .PP
+! The \fIXstartup\fP program is run as
+! root when the user logs in.
+! It is typically a shell script.
+! Since it is run as root, \fIXstartup\fP should be
+  very careful about security.  This is the place to put commands which add
+  entries to \fI/etc/utmp\fP
+  (the \fIsessreg\fP program may be useful here),
+  mount users' home directories from file servers,
+! or abort the session if logins are not
+  allowed.
+  .PP
+  In addition to any specified by \fBDisplayManager.exportList\fP,
+***************
+*** 989,995 ****
+  	# This program is run as root after the user is verified
+  	#
+  	if [ \-f /etc/nologin ]; then
+! 		xmessage\0\-file /etc/nologin
+  		exit 1
+  	fi
+  	sessreg\0\-a\0\-l $DISPLAY\0\-x /usr/X11R6/lib/xdm/Xservers $USER
+--- 995,1001 ----
+  	# This program is run as root after the user is verified
+  	#
+  	if [ \-f /etc/nologin ]; then
+! 		xmessage\0\-file /etc/nologin\0\-timeout 30\0\-center
+  		exit 1
+  	fi
+  	sessreg\0\-a\0\-l $DISPLAY\0\-x /usr/X11R6/lib/xdm/Xservers $USER
+***************
+*** 1013,1019 ****
+  	PATH	the value of \fBDisplayManager.\fP\fIDISPLAY\fP\fB.userPath\fP
+  	SHELL	the user's default shell (from \fIgetpwnam\fP)
+  	XAUTHORITY	may be set to a non-standard authority file
+! 	KRB5CCNAME	may be set to a Kerberos credentials cache file
+  
+  .fi
+  .PP
+--- 1019,1025 ----
+  	PATH	the value of \fBDisplayManager.\fP\fIDISPLAY\fP\fB.userPath\fP
+  	SHELL	the user's default shell (from \fIgetpwnam\fP)
+  	XAUTHORITY	may be set to a non-standard authority file
+! 	KRB5CCNAME	may be set to a Kerberos credentials cache name
+  
+  .fi
+  .PP
+***************
+*** 1207,1219 ****
+  .I <XRoot>/lib/X11/xdm/chooser
+  the default chooser
+  .TP 20
+! .I <XRoot>/bin/X11/xrdb
+  the default resource database loader
+  .TP 20
+! .I <XRoot>/bin/X11/X
+  the default server
+  .TP 20
+! .I <XRoot>/bin/X11/xterm
+  the default session program and failsafe client
+  .TP 20
+  .I <XRoot>/lib/X11/xdm/A<display>\-<suffix>
+--- 1213,1225 ----
+  .I <XRoot>/lib/X11/xdm/chooser
+  the default chooser
+  .TP 20
+! .I <XRoot>/bin/xrdb
+  the default resource database loader
+  .TP 20
+! .I <XRoot>/bin/X
+  the default server
+  .TP 20
+! .I <XRoot>/bin/xterm
+  the default session program and failsafe client
+  .TP 20
+  .I <XRoot>/lib/X11/xdm/A<display>\-<suffix>
+*** programs/Xserver/os/xdmauth.c@@/PUBLIC-LATEST	Sun Apr 17 20:27:08 1994
+--- xc/programs/Xserver/os/xdmauth.c	Mon Jul 10 21:18:07 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: xdmauth.c,v 1.13 94/04/17 20:27:08 gildea Exp $ */
+  /*
+  
+  Copyright (c) 1988  X Consortium
+--- 1,4 ----
+! /* $XConsortium: xdmauth.c,v 1.14 95/07/10 21:18:07 gildea Exp $ */
+  /*
+  
+  Copyright (c) 1988  X Consortium
+***************
+*** 37,43 ****
+--- 37,45 ----
+   */
+  
+  #include "X.h"
++ #include "Xtrans.h"
+  #include "os.h"
++ #include "osdep.h"
+  #include "dixstruct.h"
+  
+  #ifdef HASXDMAUTH
+***************
+*** 145,151 ****
+      {
+  	if (cookie_len > 2 + 2 * 8)
+  	    cookie_len = 2 + 2 * 8;
+! 	HexToBinary (cookie + 2, privateKey.data, cookie_len - 2);
+      }
+      else
+      {
+--- 147,153 ----
+      {
+  	if (cookie_len > 2 + 2 * 8)
+  	    cookie_len = 2 + 2 * 8;
+! 	HexToBinary (cookie + 2, (char *)privateKey.data, cookie_len - 2);
+      }
+      else
+      {
+***************
+*** 186,191 ****
+--- 188,194 ----
+  static Bool	    gotClock;
+  
+  #define TwentyMinutes	(20 * 60)
++ #define TwentyFiveMinutes (25 * 60)
+  
+  static Bool
+  XdmClientAuthCompare (a, b)
+***************
+*** 237,243 ****
+      for (client = xdmClients; client; client=next)
+      {
+  	next = client->next;
+! 	if (abs (now - client->time) > TwentyMinutes)
+  	{
+  	    if (prev)
+  		prev->next = next;
+--- 240,246 ----
+      for (client = xdmClients; client; client=next)
+      {
+  	next = client->next;
+! 	if (abs (now - client->time) > TwentyFiveMinutes)
+  	{
+  	    if (prev)
+  		prev->next = next;
+***************
+*** 251,264 ****
+  }
+  
+  static XdmClientAuthPtr
+! XdmAuthorizationValidate (plain, length, rho, reason)
+!     char		*plain;
+      int			length;
+      XdmAuthKeyPtr	rho;
+      char		**reason;
+  {
+      XdmClientAuthPtr	client, existing;
+      long		now;
+  
+      if (length != (192 / 8)) {
+  	if (reason)
+--- 254,269 ----
+  }
+  
+  static XdmClientAuthPtr
+! XdmAuthorizationValidate (plain, length, rho, xclient, reason)
+!     unsigned char	*plain;
+      int			length;
+      XdmAuthKeyPtr	rho;
++     ClientPtr		xclient;
+      char		**reason;
+  {
+      XdmClientAuthPtr	client, existing;
+      long		now;
++     int			i;
+  
+      if (length != (192 / 8)) {
+  	if (reason)
+***************
+*** 276,281 ****
+--- 281,314 ----
+  	    *reason = "Invalid XDM-AUTHORIZATION-1 key value";
+  	return NULL;
+      }
++     for (i = 18; i < 24; i++)
++ 	if (plain[i] != 0) {
++ 	    xfree (client);
++ 	    if (reason)
++ 		*reason = "Invalid XDM-AUTHORIZATION-1 key value";
++ 	    return NULL;
++ 	}
++     if (xclient) {
++ 	int family, addr_len;
++ 	Xtransaddr *addr;
++ 
++ 	if (_XSERVTransGetPeerAddr(((OsCommPtr)xclient->osPrivate)->trans_conn,
++ 				   &family, &addr_len, &addr) == 0
++ 	    && _XSERVTransConvertAddress(&family, &addr_len, &addr) == 0) {
++ #ifdef TCPCONN
++ 	    if (family == FamilyInternet &&
++ 		memcmp((char *)addr, client->client, 4) != 0) {
++ 		xfree (client);
++ 		xfree (addr);
++ 		if (reason)
++ 		    *reason = "Invalid XDM-AUTHORIZATION-1 key value";
++ 		return NULL;
++ 
++ 	    }
++ #endif
++ 	    xfree (addr);
++ 	}
++     }
+      now = time(0);
+      if (!gotClock)
+      {
+***************
+*** 360,376 ****
+  {
+      XdmAuthorizationPtr	auth;
+      XdmClientAuthPtr	client;
+!     char		*plain;
+  
+      /* Auth packets must be a multiple of 8 bytes long */
+      if (cookie_length & 7)
+  	return (XID) -1;
+!     plain = (char *) xalloc (cookie_length);
+      if (!plain)
+  	return (XID) -1;
+      for (auth = xdmAuth; auth; auth=auth->next) {
+  	XdmcpUnwrap (cookie, &auth->key, plain, cookie_length);
+! 	if (client = XdmAuthorizationValidate (plain, cookie_length, &auth->rho, reason))
+  	{
+  	    client->next = xdmClients;
+  	    xdmClients = client;
+--- 393,409 ----
+  {
+      XdmAuthorizationPtr	auth;
+      XdmClientAuthPtr	client;
+!     unsigned char	*plain;
+  
+      /* Auth packets must be a multiple of 8 bytes long */
+      if (cookie_length & 7)
+  	return (XID) -1;
+!     plain = (unsigned char *) xalloc (cookie_length);
+      if (!plain)
+  	return (XID) -1;
+      for (auth = xdmAuth; auth; auth=auth->next) {
+  	XdmcpUnwrap (cookie, &auth->key, plain, cookie_length);
+! 	if (client = XdmAuthorizationValidate (plain, cookie_length, &auth->rho, xclient, reason))
+  	{
+  	    client->next = xdmClients;
+  	    xdmClients = client;
+***************
+*** 410,423 ****
+  {
+      XdmAuthorizationPtr	auth;
+      XdmClientAuthPtr	client;
+!     char		*plain;
+  
+!     plain = (char *) xalloc (cookie_length);
+      if (!plain)
+  	return (XID) -1;
+      for (auth = xdmAuth; auth; auth=auth->next) {
+  	XdmcpUnwrap (cookie, &auth->key, plain, cookie_length);
+! 	if (client = XdmAuthorizationValidate (plain, cookie_length, &auth->rho, NULL))
+  	{
+  	    xfree (client);
+  	    xfree (cookie);
+--- 443,456 ----
+  {
+      XdmAuthorizationPtr	auth;
+      XdmClientAuthPtr	client;
+!     unsigned char	*plain;
+  
+!     plain = (unsigned char *) xalloc (cookie_length);
+      if (!plain)
+  	return (XID) -1;
+      for (auth = xdmAuth; auth; auth=auth->next) {
+  	XdmcpUnwrap (cookie, &auth->key, plain, cookie_length);
+! 	if (client = XdmAuthorizationValidate (plain, cookie_length, &auth->rho, NULL, NULL))
+  	{
+  	    xfree (client);
+  	    xfree (cookie);
+*** programs/Xserver/include/site.h@@/PUBLIC-LATEST	Sun Apr 17 20:26:10 1994
+--- xc/programs/Xserver/include/site.h	Mon Jul 10 21:18:07 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: site.h,v 1.24 94/04/17 20:26:10 rws Exp $ */
+  /************************************************************
+  
+  Copyright (c) 1987  X Consortium
+--- 1,4 ----
+! /* $XConsortium: site.h,v 1.25 95/07/10 21:18:07 gildea Exp $ */
+  /************************************************************
+  
+  Copyright (c) 1987  X Consortium
+***************
+*** 63,69 ****
+   * by the vendor.
+   */
+  #ifndef VENDOR_RELEASE
+! #define VENDOR_RELEASE	6000
+  #endif
+  
+  /*
+--- 63,69 ----
+   * by the vendor.
+   */
+  #ifndef VENDOR_RELEASE
+! #define VENDOR_RELEASE	6001
+  #endif
+  
+  /*
+*** lib/Xau/Xauth.h@@/PUBLIC-LATEST	Sun Apr 17 20:15:46 1994
+--- xc/lib/Xau/Xauth.h	Mon Jul 10 21:18:07 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: Xauth.h,v 1.16 94/04/17 20:15:46 gildea Exp $ */
+  
+  /*
+  
+--- 1,4 ----
+! /* $XConsortium: Xauth.h,v 1.17 95/07/10 21:18:07 gildea Exp $ */
+  
+  /*
+  
+***************
+*** 31,36 ****
+--- 31,37 ----
+  #define _Xauth_h
+  
+  # include   <X11/Xfuncproto.h>
++ # include   <X11/Xfuncs.h>
+  
+  # include   <stdio.h>
+  
+*** lib/Xau/AuFileName.c@@/PUBLIC-LATEST	Sun Apr 17 20:15:42 1994
+--- xc/lib/Xau/AuFileName.c	Mon Jul 10 21:18:07 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: AuFileName.c,v 1.4 94/04/17 20:15:42 rws Exp $ */
+  
+  /*
+  
+--- 1,4 ----
+! /* $XConsortium: AuFileName.c,v 1.5 95/07/10 21:18:07 gildea Exp $ */
+  
+  /*
+  
+***************
+*** 28,39 ****
+  */
+  
+  #include <X11/Xauth.h>
+  
+  char *
+  XauFileName ()
+  {
+      char    *name, *malloc (), *getenv ();
+-     char    *strcat (), *strcpy ();
+      static char	*buf;
+      static int	bsize;
+  #ifdef WIN32
+--- 28,39 ----
+  */
+  
+  #include <X11/Xauth.h>
++ #include <X11/Xos.h>
+  
+  char *
+  XauFileName ()
+  {
+      char    *name, *malloc (), *getenv ();
+      static char	*buf;
+      static int	bsize;
+  #ifdef WIN32
+*** lib/Xau/AuDispose.c@@/PUBLIC-LATEST	Sun Apr 17 20:15:41 1994
+--- xc/lib/Xau/AuDispose.c	Mon Jul 10 21:18:07 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: AuDispose.c,v 1.4 94/04/17 20:15:41 gildea Exp $ */
+  
+  /*
+  
+--- 1,4 ----
+! /* $XConsortium: AuDispose.c,v 1.5 95/07/10 21:18:07 gildea Exp $ */
+  
+  /*
+  
+***************
+*** 37,43 ****
+  	if (auth->address) (void) free (auth->address);
+  	if (auth->number) (void) free (auth->number);
+  	if (auth->name) (void) free (auth->name);
+! 	if (auth->data) (void) free (auth->data);
+  	free ((char *) auth);
+      }
+      return;
+--- 37,46 ----
+  	if (auth->address) (void) free (auth->address);
+  	if (auth->number) (void) free (auth->number);
+  	if (auth->name) (void) free (auth->name);
+! 	if (auth->data) {
+! 	    (void) bzero (auth->data, auth->data_length);
+! 	    (void) free (auth->data);
+! 	}
+  	free ((char *) auth);
+      }
+      return;
+*** lib/Xau/AuRead.c@@/PUBLIC-LATEST	Sun Apr 17 20:15:44 1994
+--- xc/lib/Xau/AuRead.c	Mon Jul 10 21:18:07 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: AuRead.c,v 1.6 94/04/17 20:15:44 gildea Exp $ */
+  
+  /*
+  
+--- 1,4 ----
+! /* $XConsortium: AuRead.c,v 1.7 95/07/10 21:18:07 gildea Exp $ */
+  
+  /*
+  
+***************
+*** 60,65 ****
+--- 60,66 ----
+      	if (!data)
+  	    return 0;
+      	if (fread (data, (int) sizeof (char), (int) len, file) != len) {
++ 	    bzero (data, len);
+  	    free (data);
+  	    return 0;
+      	}
+***************
+*** 101,107 ****
+  	if (local.address) free (local.address);
+  	if (local.number) free (local.number);
+  	if (local.name) free (local.name);
+! 	if (local.data) free (local.data);
+  	return 0;
+      }
+      *ret = local;
+--- 102,111 ----
+  	if (local.address) free (local.address);
+  	if (local.number) free (local.number);
+  	if (local.name) free (local.name);
+! 	if (local.data) {
+! 	    bzero (local.data, local.data_length);
+! 	    free (local.data);
+! 	}
+  	return 0;
+      }
+      *ret = local;
+*** lib/Xt/Event.c@@/PUBLIC-LATEST	Thu Jun  8 23:20:39 1995
+--- xc/lib/Xt/Event.c	Fri Sep 22 15:26:03 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: Event.c,v 1.172 95/06/08 23:20:39 gildea Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+--- 1,4 ----
+! /* $XConsortium: Event.c /main/150 1995/09/22 15:27:40 converse $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+***************
+*** 143,149 ****
+      int i, count = 0;
+  
+      for (p = widget->core.event_table; p != NULL; p = p->next)
+! 	if (EXT_TYPE(p) >= rec->min && EXT_TYPE(p) <= rec->max)
+  	    count += p->mask;
+  
+      if (count == 0 && !forceCall) return;
+--- 143,150 ----
+      int i, count = 0;
+  
+      for (p = widget->core.event_table; p != NULL; p = p->next)
+! 	if (p->has_type_specifier &&
+! 	    EXT_TYPE(p) >= rec->min && EXT_TYPE(p) <= rec->max)
+  	    count += p->mask;
+  
+      if (count == 0 && !forceCall) return;
+***************
+*** 153,159 ****
+      count = 0;
+  
+      for (p = widget->core.event_table; p != NULL; p = p->next)
+! 	if (EXT_TYPE(p) >= rec->min && EXT_TYPE(p) <= rec->max)
+  	    for (i =0; i < p->mask; i++) {
+  		types[count] = EXT_TYPE(p);
+  		data[count++] = EXT_SELECT_DATA(p, i);
+--- 154,161 ----
+      count = 0;
+  
+      for (p = widget->core.event_table; p != NULL; p = p->next)
+! 	if (p->has_type_specifier &&
+! 	    EXT_TYPE(p) >= rec->min && EXT_TYPE(p) <= rec->max)
+  	    for (i =0; i < p->mask; i++) {
+  		types[count] = EXT_TYPE(p);
+  		data[count++] = EXT_SELECT_DATA(p, i);
+*** lib/Xt/Intrinsic.c@@/PUBLIC-LATEST	Fri Apr  7 19:51:22 1995
+--- xc/lib/Xt/Intrinsic.c	Mon Oct 30 15:55:38 1995
+***************
+*** 1,4 ****
+! /* $XConsortium: Intrinsic.c,v 1.197 95/04/07 19:51:22 kaleb Exp $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+--- 1,4 ----
+! /* $XConsortium: Intrinsic.c /main/146 1995/10/30 15:56:56 converse $ */
+  
+  /***********************************************************
+  Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts,
+***************
+*** 460,466 ****
+  	UNLOCK_APP(app);
+  	return;
+      }
+!     if (widget->core.parent != NULL) XtUnmanageChild(widget);
+      UnrealizeWidget(widget);
+      if (window != None) 
+  	XDestroyWindow(XtDisplay(widget), window);
+--- 460,467 ----
+  	UNLOCK_APP(app);
+  	return;
+      }
+!     if (widget->core.managed && widget->core.parent != NULL)
+! 	XtUnmanageChild(widget);
+      UnrealizeWidget(widget);
+      if (window != None) 
+  	XDestroyWindow(XtDisplay(widget), window);
+*** test/xsuite/xtest/tetexec.cfg@@/PUBLIC-LATEST	Sun Apr 17 20:59:59 1994
+--- xc/test/xsuite/xtest/tetexec.cfg	Thu Jun  8 12:59:49 1995
+***************
+*** 34,40 ****
+  # makes no representations about the suitability of this software for any
+  # purpose.  It is provided "as is" without express or implied warranty.
+  #
+! # $XConsortium: tetexec.cfg,v 1.27 94/04/17 20:59:59 rws Exp $
+  #
+  ###########################################################################
+  # This file contains run-time parameters for the test suite.
+--- 34,40 ----
+  # makes no representations about the suitability of this software for any
+  # purpose.  It is provided "as is" without express or implied warranty.
+  #
+! # $XConsortium: tetexec.cfg,v 1.28 95/06/08 12:59:49 dpw Exp $
+  #
+  ###########################################################################
+  # This file contains run-time parameters for the test suite.
+***************
+*** 208,214 ****
+  
+  # XT_VENDOR_RELEASE - This should be set to the X server vendor's release 
+  # number as returned by XVendorRelease.
+! XT_VENDOR_RELEASE=6000
+  
+  # XT_DOES_SAVE_UNDERS - Set this to Yes if the specified screen of the display
+  # supports save unders (indicated by XDoesSaveUnders returning True)
+--- 208,214 ----
+  
+  # XT_VENDOR_RELEASE - This should be set to the X server vendor's release 
+  # number as returned by XVendorRelease.
+! XT_VENDOR_RELEASE=6001
+  
+  # XT_DOES_SAVE_UNDERS - Set this to Yes if the specified screen of the display
+  # supports save unders (indicated by XDoesSaveUnders returning True)

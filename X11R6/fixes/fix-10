@@ -1,0 +1,47 @@
+                      Release 6 Public Patch #10
+                             X Consortium
+
+This patch comes in two parts: this file and the file "fix10fonts.Z".
+(The file fix10fonts.Z is 700Kb, and so is not available via the
+xstuff mail daemon.  However, even if you cannot get fix10fonts.Z,
+you should still apply this part so later patches won't fail for you.)
+
+To apply this patch:
+
+cd to the top of the source tree (to the directory containing the "xc"
+and "contrib" subdirectories) and do:
+        patch -p -s < ThisFile
+	zcat fix10fonts.Z | patch -p -s
+Patch will work silently unless an error occurs.  If you want to
+watch patch do its thing, leave out the "-s" argument to patch.
+
+To rebuild, do:
+	cd xc/fonts/bdf
+        make >& make.log
+
+The file fix10fonts.Z contains patches for files in these directories:
+
+xc/fonts/bdf/75dpi/
+xc/fonts/bdf/100dpi/
+
+Prereq: public-patch-9
+
+*** -	Fri Jan 27 15:01:36 1995
+--- xc/bug-report	Fri Jan 27 14:55:41 1995
+***************
+*** 3,9 ****
+  
+       VERSION:
+  
+! R6, public-patch-9
+  [X Consortium public patches edit this line to indicate the patch level]
+  
+       CLIENT MACHINE and OPERATING SYSTEM:
+--- 3,9 ----
+  
+       VERSION:
+  
+! R6, public-patch-10
+  [X Consortium public patches edit this line to indicate the patch level]
+  
+       CLIENT MACHINE and OPERATING SYSTEM:
