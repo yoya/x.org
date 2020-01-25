@@ -1,0 +1,6 @@
+.\" $Header: borderwidth1.a,v 1.2 87/08/31 18:33:48 mento Exp $
+.IP \fIborder_width_simple\fP 1i
+Specifies, in pixels, the width of the created window's border.
+Otherwise, a
+.PN BadMatch
+error is returned.

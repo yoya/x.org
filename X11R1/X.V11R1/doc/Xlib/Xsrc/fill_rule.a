@@ -1,0 +1,8 @@
+.\" $Header: fill_rule.a,v 11.3 87/08/31 11:12:18 mento Exp $
+.IP \fIfill_rule\fP 1i
+Specifies the fill rule you want to set for 
+the specified graphics context.
+You can pass one of these constants:
+.PN EvenOddRule
+or
+.PN WindingRule .

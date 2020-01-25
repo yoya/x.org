@@ -1,0 +1,32 @@
+.TH XFlush 3X 
+.SH NAME
+XFlush, XSync, XPending, XNextEvent, XPeekEvent \- basic error handling
+.SH SYNTAX
+.so ../Xsrc/XFlush.f
+.LP
+.so ../Xsrc/XSync.f
+.LP
+.so ../Xsrc/XPending.f
+.LP
+.so ../Xsrc/XNextEvent.f
+.LP
+.so ../Xsrc/XPeekEvent.f
+.SH ARGUMENTS
+.so ../Xsrc/discard.a
+.so ../Xsrc/display.a
+.so ../Xsrc/event2.a
+.SH DESCRIPTION
+.so ../Xdescrip/XFlush.d
+.LP
+.so ../Xdescrip/XSync.d
+.LP
+.so ../Xdescrip/XPending.d
+.LP
+.so ../Xdescrip/XNextEvent.d
+.LP
+.so ../Xdescrip/XPeekEvent.d
+.SH "SEE ALSO"
+XIfEvent(3X),
+XPutBackEvent(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

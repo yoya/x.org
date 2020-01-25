@@ -1,0 +1,277 @@
+
+SECTION 1.  TERMINOLOGY    .   .   .   .   .   .   .   .   .   .   .   .    1
+
+SECTION 2.  PROTOCOL FORMATS   .   .   .   .   .   .   .   .   .   .   .    1
+
+SECTION 3.  SYNTAX     .   .   .   .   .   .   .   .   .   .   .   .   .    1
+
+SECTION 4.  COMMON TYPES   .   .   .   .   .   .   .   .   .   .   .   .    3
+LISTofFOO      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    3
+SETofFOO   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    3
+BITMASK    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    3
+WINDOW     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    3
+PIXMAP     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    3
+CURSOR     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    3
+FONT   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    3
+GCONTEXT   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    3
+COLORMAP   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    3
+DRAWABLE   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    3
+FONTABLE   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    3
+ATOM   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    3
+VISUALID   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    3
+BYTE   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    4
+INT8   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    4
+INT16      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    4
+INT32      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    4
+CARD8      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    4
+CARD16     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    4
+CARD32     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    4
+TIMESTAMP      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    4
+BITGRAVITY     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    4
+WINGRAVITY     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    4
+BOOL   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    4
+SETofEVENT     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    4
+SETofPOINTEREVENT      .   .   .   .   .   .   .   .   .   .   .   .   .    5
+SETofDEVICEEVENT   .   .   .   .   .   .   .   .   .   .   .   .   .   .    5
+KEYSYM     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    5
+KEYCODE    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    5
+BUTTON     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    5
+SETofKEYBUTMASK    .   .   .   .   .   .   .   .   .   .   .   .   .   .    5
+SETofKEYMASK   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    5
+STRING8    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    5
+STRING16   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    5
+CHAR2B     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    5
+POINT      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    5
+RECTANGLE      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    5
+ARC    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    6
+HOST   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    6
+STR    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    6
+
+SECTION 5.  ERRORS     .   .   .   .   .   .   .   .   .   .   .   .   .    6
+Request	   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    6
+Value      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    6
+Window     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    6
+Pixmap     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    6
+Atom   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    7
+Cursor     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    7
+Font   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    7
+Match      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    7
+Drawable   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    7
+Access     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    7
+Alloc      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    8
+Colormap   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    8
+GContext   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    8
+IDChoice   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    8
+Name   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    8
+Length     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .    8
+Implementation     .   .   .   .   .   .   .   .   .   .   .   .   .   .    8
+
+SECTION 6.  KEYBOARDS      .   .   .   .   .   .   .   .   .   .   .   .    9
+
+SECTION 7.  POINTERS   .   .   .   .   .   .   .   .   .   .   .   .   .    9
+
+SECTION 8.  PREDEFINED ATOMS   .   .   .   .   .   .   .   .   .   .   .    9
+
+SECTION 9.  CONNECTION SETUP   .   .   .   .   .   .   .   .   .   .   .   10
+
+SECTION 10.  REQUESTS      .   .   .   .   .   .   .   .   .   .   .   .   12
+CreateWindow   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   12
+ChangeWindowAttributes     .   .   .   .   .   .   .   .   .   .   .   .   13
+GetWindowAttributes    .   .   .   .   .   .   .   .   .   .   .   .   .   13
+GetWindowAttributes reply      .   .   .   .   .   .   .   .   .   .   .   14
+DestroyWindow      .   .   .   .   .   .   .   .   .   .   .   .   .   .   14
+DestroySubwindows      .   .   .   .   .   .   .   .   .   .   .   .   .   14
+ChangeSaveSet      .   .   .   .   .   .   .   .   .   .   .   .   .   .   14
+ReparentWindow     .   .   .   .   .   .   .   .   .   .   .   .   .   .   14
+MapWindow      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   15
+MapSubwindows      .   .   .   .   .   .   .   .   .   .   .   .   .   .   15
+UnmapWindow    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   15
+UnmapSubwindows    .   .   .   .   .   .   .   .   .   .   .   .   .   .   15
+ConfigureWindow    .   .   .   .   .   .   .   .   .   .   .   .   .   .   15
+CirculateWindow    .   .   .   .   .   .   .   .   .   .   .   .   .   .   16
+GetGeometry    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   16
+GetGeometry reply      .   .   .   .   .   .   .   .   .   .   .   .   .   16
+QueryTree      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   16
+QueryTree reply    .   .   .   .   .   .   .   .   .   .   .   .   .   .   16
+InternAtom     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   16
+InternAtom reply   .   .   .   .   .   .   .   .   .   .   .   .   .   .   16
+GetAtomName    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   17
+GetAtomName reply      .   .   .   .   .   .   .   .   .   .   .   .   .   17
+ChangeProperty     .   .   .   .   .   .   .   .   .   .   .   .   .   .   17
+DeleteProperty     .   .   .   .   .   .   .   .   .   .   .   .   .   .   17
+GetProperty    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   17
+GetProperty reply      .   .   .   .   .   .   .   .   .   .   .   .   .   18
+ListProperties     .   .   .   .   .   .   .   .   .   .   .   .   .   .   18
+ListProperties reply   .   .   .   .   .   .   .   .   .   .   .   .   .   18
+SetSelectionOwner      .   .   .   .   .   .   .   .   .   .   .   .   .   18
+GetSelectionOwner      .   .   .   .   .   .   .   .   .   .   .   .   .   18
+GetSelectionOwner reply    .   .   .   .   .   .   .   .   .   .   .   .   18
+ConvertSelection   .   .   .   .   .   .   .   .   .   .   .   .   .   .   19
+SendEvent      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   19
+GrabPointer    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   19
+GrabPointer reply      .   .   .   .   .   .   .   .   .   .   .   .   .   19
+UngrabPointer      .   .   .   .   .   .   .   .   .   .   .   .   .   .   20
+GrabButton     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   20
+UngrabButton   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   20
+ChangeActivePointerGrab    .   .   .   .   .   .   .   .   .   .   .   .   20
+GrabKeyboard   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   20
+GrabKeyboard reply     .   .   .   .   .   .   .   .   .   .   .   .   .   21
+UngrabKeyboard     .   .   .   .   .   .   .   .   .   .   .   .   .   .   21
+GrabKey    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   21
+UngrabKey      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   21
+AllowEvents    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   21
+GrabServer     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   22
+UngrabServer   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   22
+QueryPointer   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   22
+QueryPointer reply     .   .   .   .   .   .   .   .   .   .   .   .   .   22
+GetMotionEvents    .   .   .   .   .   .   .   .   .   .   .   .   .   .   22
+GetMotionEvents reply      .   .   .   .   .   .   .   .   .   .   .   .   22
+TranslateCoordinates   .   .   .   .   .   .   .   .   .   .   .   .   .   23
+TranslateCoordinates reply     .   .   .   .   .   .   .   .   .   .   .   23
+WarpPointer    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   23
+SetInputFocus      .   .   .   .   .   .   .   .   .   .   .   .   .   .   23
+GetInputFocus      .   .   .   .   .   .   .   .   .   .   .   .   .   .   23
+GetInputFocus reply    .   .   .   .   .   .   .   .   .   .   .   .   .   24
+QueryKeymap    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   24
+QueryKeymap reply      .   .   .   .   .   .   .   .   .   .   .   .   .   24
+OpenFont   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   24
+CloseFont      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   24
+QueryFont      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   24
+QueryFont reply    .   .   .   .   .   .   .   .   .   .   .   .   .   .   24
+QueryTextExtents   .   .   .   .   .   .   .   .   .   .   .   .   .   .   25
+QueryTextExtents reply     .   .   .   .   .   .   .   .   .   .   .   .   25
+ListFonts      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   25
+ListFonts reply    .   .   .   .   .   .   .   .   .   .   .   .   .   .   26
+ListFontsWithInfo      .   .   .   .   .   .   .   .   .   .   .   .   .   26
+ListFontsWithInfo reply (except for last in series)    .   .   .   .   .   26
+ListFontsWithInfo reply (last in series)   .   .   .   .   .   .   .   .   26
+SetFontPath    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   27
+GetFontPath    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   27
+GetFontPath reply      .   .   .   .   .   .   .   .   .   .   .   .   .   27
+CreatePixmap   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   27
+FreePixmap     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   27
+CreateGC   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   27
+ChangeGC   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   29
+CopyGC     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   29
+SetDashes      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   29
+SetClipRectangles      .   .   .   .   .   .   .   .   .   .   .   .   .   29
+FreeGC     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   30
+ClearArea      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   30
+CopyArea   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   30
+CopyPlane      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   30
+PolyPoint      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   30
+PolyLine   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   31
+PolySegment    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   31
+PolyRectangle      .   .   .   .   .   .   .   .   .   .   .   .   .   .   31
+PolyArc    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   31
+FillPoly   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   31
+PolyFillRectangle      .   .   .   .   .   .   .   .   .   .   .   .   .   31
+PolyFillArc    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   32
+PutImage   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   32
+GetImage   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   32
+GetImage reply     .   .   .   .   .   .   .   .   .   .   .   .   .   .   32
+PolyText8      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   32
+PolyText16     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   33
+ImageText8     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   33
+ImageText16    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   33
+CreateColormap     .   .   .   .   .   .   .   .   .   .   .   .   .   .   34
+FreeColormap   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   34
+CopyColormapAndFree    .   .   .   .   .   .   .   .   .   .   .   .   .   34
+InstallColormap    .   .   .   .   .   .   .   .   .   .   .   .   .   .   34
+UninstallColormap      .   .   .   .   .   .   .   .   .   .   .   .   .   34
+ListInstalledColormaps     .   .   .   .   .   .   .   .   .   .   .   .   34
+ListInstalledColormaps reply   .   .   .   .   .   .   .   .   .   .   .   34
+AllocColor     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   34
+AllocColor reply   .   .   .   .   .   .   .   .   .   .   .   .   .   .   35
+AllocNamedColor    .   .   .   .   .   .   .   .   .   .   .   .   .   .   35
+AllocNamedColor reply      .   .   .   .   .   .   .   .   .   .   .   .   35
+AllocColorCells    .   .   .   .   .   .   .   .   .   .   .   .   .   .   35
+AllocColorCells reply      .   .   .   .   .   .   .   .   .   .   .   .   35
+AllocColorPlanes   .   .   .   .   .   .   .   .   .   .   .   .   .   .   36
+AllocColorPlanes reply     .   .   .   .   .   .   .   .   .   .   .   .   36
+FreeColors     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   36
+StoreColors    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   36
+StoreNamedColor    .   .   .   .   .   .   .   .   .   .   .   .   .   .   36
+QueryColors    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   37
+QueryColors reply      .   .   .   .   .   .   .   .   .   .   .   .   .   37
+LookupColor    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   37
+LookupColor reply      .   .   .   .   .   .   .   .   .   .   .   .   .   37
+CreateCursor   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   38
+CreateGlyphCursor      .   .   .   .   .   .   .   .   .   .   .   .   .   38
+FreeCursor     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   38
+RecolorCursor      .   .   .   .   .   .   .   .   .   .   .   .   .   .   38
+QueryBestSize      .   .   .   .   .   .   .   .   .   .   .   .   .   .   38
+QueryBestSize reply    .   .   .   .   .   .   .   .   .   .   .   .   .   39
+QueryExtension     .   .   .   .   .   .   .   .   .   .   .   .   .   .   39
+QueryExtension reply   .   .   .   .   .   .   .   .   .   .   .   .   .   39
+ListExtensions     .   .   .   .   .   .   .   .   .   .   .   .   .   .   39
+ListExtensions reply   .   .   .   .   .   .   .   .   .   .   .   .   .   39
+ChangeKeyboardMapping      .   .   .   .   .   .   .   .   .   .   .   .   39
+GetKeyboardMapping     .   .   .   .   .   .   .   .   .   .   .   .   .   39
+GetKeyboardMapping reply   .   .   .   .   .   .   .   .   .   .   .   .   40
+ChangeKeyboardControl      .   .   .   .   .   .   .   .   .   .   .   .   40
+GetKeyboardControl     .   .   .   .   .   .   .   .   .   .   .   .   .   40
+GetKeyboardControl reply   .   .   .   .   .   .   .   .   .   .   .   .   40
+Bell   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   41
+ChangePointerControl   .   .   .   .   .   .   .   .   .   .   .   .   .   41
+GetPointerControl      .   .   .   .   .   .   .   .   .   .   .   .   .   41
+GetPointerControl reply    .   .   .   .   .   .   .   .   .   .   .   .   41
+SetScreenSaver     .   .   .   .   .   .   .   .   .   .   .   .   .   .   41
+GetScreenSaver     .   .   .   .   .   .   .   .   .   .   .   .   .   .   41
+GetScreenSaver reply   .   .   .   .   .   .   .   .   .   .   .   .   .   42
+ChangeHosts    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   42
+ListHosts      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   42
+ListHosts reply    .   .   .   .   .   .   .   .   .   .   .   .   .   .   42
+SetAccessControl   .   .   .   .   .   .   .   .   .   .   .   .   .   .   42
+SetCloseDownMode   .   .   .   .   .   .   .   .   .   .   .   .   .   .   42
+KillClient     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   43
+RotateProperties   .   .   .   .   .   .   .   .   .   .   .   .   .   .   43
+ForceScreenSaver   .   .   .   .   .   .   .   .   .   .   .   .   .   .   43
+SetPointerMapping      .   .   .   .   .   .   .   .   .   .   .   .   .   43
+SetPointerMapping reply    .   .   .   .   .   .   .   .   .   .   .   .   43
+GetPointerMapping      .   .   .   .   .   .   .   .   .   .   .   .   .   43
+GetPointerMapping reply    .   .   .   .   .   .   .   .   .   .   .   .   43
+SetModifierMapping     .   .   .   .   .   .   .   .   .   .   .   .   .   43
+SetModifierMapping reply   .   .   .   .   .   .   .   .   .   .   .   .   44
+GetModifierMapping     .   .   .   .   .   .   .   .   .   .   .   .   .   44
+GetModifierMapping reply   .   .   .   .   .   .   .   .   .   .   .   .   44
+NoOperation    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   44
+
+SECTION 11.  CONNECTION CLOSE      .   .   .   .   .   .   .   .   .   .   44
+
+SECTION 12.  EVENTS    .   .   .   .   .   .   .   .   .   .   .   .   .   44
+KeyPress   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   44
+KeyRelease     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   45
+ButtonPress    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   45
+ButtonRelease      .   .   .   .   .   .   .   .   .   .   .   .   .   .   45
+MotionNotify   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   45
+EnterNotify    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   46
+LeaveNotify    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   46
+FocusIn    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   47
+FocusOut   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   47
+KeymapNotify   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   47
+Expose     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   47
+GraphicsExposure   .   .   .   .   .   .   .   .   .   .   .   .   .   .   48
+NoExposure     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   48
+VisibilityNotify   .   .   .   .   .   .   .   .   .   .   .   .   .   .   48
+CreateNotify   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   48
+DestroyNotify      .   .   .   .   .   .   .   .   .   .   .   .   .   .   49
+UnmapNotify    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   49
+MapNotify      .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   49
+MapRequest     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   49
+ReparentNotify     .   .   .   .   .   .   .   .   .   .   .   .   .   .   49
+ConfigureNotify    .   .   .   .   .   .   .   .   .   .   .   .   .   .   49
+ConfigureRequest   .   .   .   .   .   .   .   .   .   .   .   .   .   .   50
+GravityNotify      .   .   .   .   .   .   .   .   .   .   .   .   .   .   50
+ResizeRequest      .   .   .   .   .   .   .   .   .   .   .   .   .   .   50
+CirculateNotify    .   .   .   .   .   .   .   .   .   .   .   .   .   .   50
+CirculateRequest   .   .   .   .   .   .   .   .   .   .   .   .   .   .   51
+PropertyNotify     .   .   .   .   .   .   .   .   .   .   .   .   .   .   51
+SelectionClear     .   .   .   .   .   .   .   .   .   .   .   .   .   .   51
+SelectionRequest   .   .   .   .   .   .   .   .   .   .   .   .   .   .   51
+SelectionNotify    .   .   .   .   .   .   .   .   .   .   .   .   .   .   51
+ColormapNotify     .   .   .   .   .   .   .   .   .   .   .   .   .   .   52
+ClientMessage      .   .   .   .   .   .   .   .   .   .   .   .   .   .   52
+MappingNotify      .   .   .   .   .   .   .   .   .   .   .   .   .   .   52
+
+SECTION 13.  FLOW CONTROL AND CONCURRENCY      .   .   .   .   .   .   .   52

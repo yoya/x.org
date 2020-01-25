@@ -1,0 +1,79 @@
+.TH XGetWindowProperty 3X 
+.SH NAME
+XGetWindowProperty, XListProperties, XChangeProperty, XRotateWindowProperties, 
+XDeleteProperty \- obtain and change window properties
+.SH SYNTAX
+.so ../Xsrc/XGetProperty.f
+.LP
+.so ../Xsrc/XListProps.f
+.LP
+.so ../Xsrc/XChProperty.f
+.LP
+.so ../Xsrc/XRotProp.f
+.LP
+.so ../Xsrc/XDeleteProp.f
+.SH ARGUMENTS
+.so ../Xsrc/act_format.a
+.so ../Xsrc/actual_type.a
+.so ../Xsrc/bytes_after.a
+.so ../Xsrc/data1.a
+.so ../Xsrc/delete.a
+.so ../Xsrc/display.a
+.so ../Xsrc/format.a
+.so ../Xsrc/long_length.a
+.so ../Xsrc/long_offset.a
+.so ../Xsrc/prop_mode.a
+.so ../Xsrc/nelements.a
+.so ../Xsrc/nitems1.a
+.so ../Xsrc/n_prop.a
+.so ../Xsrc/n_prop1.a
+.so ../Xsrc/num_pos.a
+.so ../Xsrc/prop.a
+.so ../Xsrc/property.a
+.so ../Xsrc/properties.a
+.so ../Xsrc/reqtype.a
+.so ../Xsrc/type.a
+.so ../Xsrc/w.a
+.SH DESCRIPTION
+.so ../Xdescrip/XGetProperty.d
+.ds fd .PN XGetWindowProperty
+.so ../Xsrc/errsent.com
+.PN BadAtom ,
+.PN BadValue ,
+and
+.PN BadWindow .
+.LP
+.so ../Xdescrip/XListProps.d
+.ds fd .PN XListProperties
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.so ../Xdescrip/XChProperty.d
+.ds fd .PN XChangeProperty
+.so ../Xsrc/errsent.com
+.PN BadWindow ,
+.PN BadAtom ,
+.PN BadAlloc ,
+and
+.PN BadValue .
+.LP
+.so ../Xdescrip/XRotProp.d
+.ds fd .PN XRotateWindowProperties
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.so ../Xdescrip/XDeleteProp.d
+.ds fd .PN XDeleteProperty
+.so ../Xsrc/errsent.com
+.PN BadWindow
+and
+.PN BadAtom .
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badatom.e
+.so ../Xerrors/badvalue.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XInternAtom(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

@@ -1,0 +1,71 @@
+Installation notes for GNUPLOT   --phr, Mon Jul 27 11:55:06 1987
+
+This is version 1.1 of GNUPLOT from Villanova University, as modified
+at MIT by Paul Rubin for the Athena project.
+
+Differences from the Villanova distribution:
+
+    1. An X window driver has been added.  Current source file is
+    `xterm2.c'.  It is still being modified.
+
+    2. Some changes had to be made in the order in which plot driver
+    initialization routines, etc. were called, in order to make the
+    X driver work.
+
+    3. The documentation file has been converted from nroff to Texinfo.
+    Texinfo, the GNU documentation format, is a simple Scribe-like
+    language that can produce either printed manuals or tree-structured
+    documentation files intended to be read using an Info browser.
+    Generating an Info file is described in more detail below.  Printed
+    manuals are produced from Texinfo files by running them through TeX
+    with a special macro package called 'texinfo.tex'.
+
+    4. The 'help' command has been rewritten to use the Info file generated
+    from the gnuplot.texinfo file (described above).
+
+Installing GNUPLOT:
+
+    1. Edit the Makefile to reflect your system configuration.
+
+    2. Edit file `plot.h' similarly.  The parameter HELP_INFO_FILE
+    tells Gnuplot where to look for the Info file used by the 'help'
+    command if you do not set your GNUHELP environment variable.
+    Its default value is probably not what you want.
+
+    3. Install the Info file 'docs/gnuplot.info' in the place you
+    have specified with the HELP_INFO_FILE parameter.  See below
+    for info on how to change the documentation.
+
+    4. Type "make gnuplot".  That's it!
+
+Changing the documentation:
+
+    Do NOT, ever, edit the gnuplot.info file.  It is automatically
+    generated from the gnuplot.texinfo file, and its last few lines
+    contain absolute character numbers which if made incorrect will
+    get the help system very confused.  Instead, edit the file
+    gnuplot.texinfo.  The Texinfo Manual included with the GNU Emacs
+    distribution explains Texinfo format in detail, but it is pretty
+    straightforward.
+
+    When you are through editing gnuplot.texinfo, convert the Texinfo
+    file into an Info file by giving the Info command
+	 M-x texinfo-format-buffer
+    and then generate the Info tag table by giving the command
+	 M-x Info-tagify
+    (note the capital I in Info-tagify), and finally save the Info-ized
+    file in 'gnuplot.info' (or wherever you have said in step 3, above).
+
+    If you forget to run the Info-tagify command, you will get an Info
+    file that the Emacs Info browser can read, but which the GNUPLOT
+    'help' command, as currently written, doesn't know how to.  The
+    help command should someday be replaced with an Info browser (see
+    below) that is smarter about this.
+
+    Note that you are out of luck with regard to generating a new Info
+    file if you edit files with something other than GNU Emacs.
+    Programs are being written at the GNU project that will allow you to
+    do this without needing Emacs, but they are not finished yet.  A
+    C-callable Info browser is also being written that should be merged
+    into GNUPLOT in place of the current 'help' command when it becomes
+    ready.

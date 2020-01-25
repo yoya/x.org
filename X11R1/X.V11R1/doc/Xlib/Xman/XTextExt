@@ -1,0 +1,39 @@
+.TH XTextExtents 3X 
+.SH NAME
+XTextExtents, XTextExtents16, XQueryTextExtents, XQueryTextExtents16 
+\- compute or query text extents
+.SH SYNTAX
+.so ../Xsrc/XTextExt.f
+.LP
+.so ../Xsrc/XTextExt16.f
+.LP
+.so ../Xsrc/XQryTExts.f
+.LP
+.so ../Xsrc/XQryTExt16.f
+.SH ARGUMENTS
+.so ../Xsrc/ascent.a
+.so ../Xsrc/descent.a
+.so ../Xsrc/dir_exts.a
+.so ../Xsrc/display.a
+.so ../Xsrc/font_id2.a
+.so ../Xsrc/fontstruct.a
+.so ../Xsrc/nchars.a
+.so ../Xsrc/string.a
+.so ../Xsrc/overall.a
+.SH DESCRIPTION
+.so ../Xdescrip/XTextExt.d
+.LP
+.so ../Xdescrip/XQryTExts.d
+.ds fd .PN XQueryTextExtents
+.ds fe .PN XQueryTextExtents16
+.so ../Xsrc/errsent3.com
+.PN BadGC
+and
+.PN BadFont .
+.SH DIAGNOSTICS
+.so ../Xerrors/badfont.e
+.so ../Xerrors/badgc.e
+.SH "SEE ALSO"
+XTextWidth(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

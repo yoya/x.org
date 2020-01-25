@@ -1,0 +1,293 @@
+.na
+.de FD
+.LP
+.KS
+.TA 1.0i 3i
+.ta 1.0i 3i
+.nf
+..
+.de FN
+.fi
+.KE
+.LP
+..
+.de IN		\" send an index entry to the stderr
+..
+.de C{
+.KS
+.nf
+.D
+.\"
+.\"	choose appropriate monospace font
+.\"	the imagen conditional, 480,
+.\"	may be changed to L if LB is too
+.\"	heavy for your eyes...
+.\"
+.ie "\\*(.T"480" .ft L
+.el .ie "\\*(.T"300" .ft L
+.el .ie "\\*(.T"202" .ft PO
+.el .ie "\\*(.T"aps" .ft CW
+.el .ft R
+.ps \\n(PS
+.ie \\n(VS>40 .vs \\n(VSu
+.el .vs \\n(VSp
+..
+.de C}
+.DE
+.R
+..
+.de PN
+.ie t \f(H\|\\$1\|\fR\\$2
+.el \fI\|\\$1\|\fP\\$2
+..
+.de NT
+.ne 7
+.ds NO Note
+.if \\n(.$>$1 .if !'\\$2'C' .ds NO \\$2
+.if \\n(.$ .if !'\\$1'C' .ds NO \\$1
+.ie n .sp
+.el .sp 10p
+.TB
+.ce
+\\*(NO
+.ie n .sp
+.el .sp 5p
+.if '\\$1'C' .ce 99
+.if '\\$2'C' .ce 99
+.in +5n
+.ll -5n
+.R
+..
+.		\" Note End -- doug kraft 3/85
+.de NE
+.ce 0
+.in -5n
+.ll +5n
+.ie n .sp
+.el .sp 10p
+..
+.ny0
+.TH XFillRectangle 3X 
+.SH NAME
+XFillRectangle, XFillRectangles, XFillPolygon, XFillArc, XFillArcs \- fill rectangles, polygons, or arcs
+.SH SYNTAX
+.\" $Header: XFillRect.f,v 11.4 87/08/15 12:12:35 mento Exp $
+XFillRectangle\^(\^\fIdisplay\fP, \fId\fP\^, \fIgc\fP\^, \fIx\fP\^, \fIy\fP\^, \fIwidth\fP\^, \fIheight\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Drawable \fId\fP\^;
+.br
+      GC \fIgc\fP\^;
+.br
+      int \fIx\fP\^, \fIy\fP\^;
+.br
+      unsigned int \fIwidth\fP\^, \fIheight\fP\^;
+.LP
+.\" $Header: XFillRects.f,v 11.4 87/08/15 12:12:36 mento Exp $
+XFillRectangles\^(\^\fIdisplay\fP, \fId\fP\^, \fIgc\fP\^, \fIrectangles\fP\^, \fInrectangles\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Drawable \fId\fP\^;
+.br
+      GC \fIgc\fP\^;
+.br
+      XRectangle *\fIrectangles\fP\^;
+.br
+      int \fInrectangles\fP\^;
+.LP
+.\" $Header: XFillPoly.f,v 11.4 87/08/15 12:12:34 mento Exp $
+XFillPolygon\^(\^\fIdisplay\fP, \fId\fP\^, \fIgc\fP\^, \fIpoints\fP\^, \fInpoints\fP\^, \fIshape\fP\^, \fImode\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Drawable \fId\fP\^;
+.br
+      GC \fIgc\fP\^;
+.br
+      XPoint *\fIpoints\fP\^;
+.br
+      int \fInpoints\fP\^;
+.br
+      int \fIshape\fP\^; 
+.br
+      int \fImode\fP\^; 
+.LP
+.\" $Header: XFillArc.f,v 11.4 87/08/15 12:12:32 mento Exp $
+XFillArc\^(\^\fIdisplay\fP, \fId\fP\^, \fIgc\fP\^,  \fIx\fP\^, \fIy\fP\^, \fIwidth\fP\^, \fIheight\fP\^, \fIangle1\fP\^, \fIangle2\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Drawable \fId\fP\^;
+.br
+      GC \fIgc\fP\^;
+.br
+      int \fIx\fP\^, \fIy\fP\^;
+.br
+      unsigned int \fIwidth\fP\^, \fIheight\fP\^;
+.br
+      int \fIangle1\fP\^, \fIangle2\fP\^;
+.LP
+.\" $Header: XFillArcs.f,v 11.4 87/08/15 12:12:33 mento Exp $
+XFillArcs\^(\^\fIdisplay\fP, \fId\fP\^, \fIgc\fP\^, \fIarcs\fP\^, \fInarcs\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Drawable \fId\fP\^;
+.br
+      GC \fIgc\fP\^;
+.br
+      XArc *\fIarcs\fP\^;
+.br
+      int \fInarcs\fP\^;
+.SH ARGUMENTS
+.\" $Header: angle1.a,v 11.3 87/09/09 17:27:47 mento Locked $
+.IP \fIangle1\fP 1i
+Specifies the start of the arc relative to the three-o-clock position
+from the center, in units of degrees * 64.
+.\" $Header: angle2.a,v 11.3 87/09/09 17:30:18 mento Exp $
+.IP \fIangle2\fP 1i
+Specifies the path and extent of the arc relative to the start of the
+arc, in units of degrees * 64.
+.\" $Header: arcs.a,v 11.2 87/03/28 10:53:55 mento Exp $
+.IP \fIarcs\fP 1i
+Specifies a pointer to an array of arcs.
+.\" $Header: d.a,v 11.2 87/03/28 10:54:59 mento Locked $
+.IP \fId\fP 1i
+Specifies the drawable. 
+.\" $Header: display.a,v 11.8 87/09/03 11:02:24 mento Exp $
+.IP \fIdisplay\fP 1i
+Specifies the connection to the X server.
+.\" $Header: gc.a,v 11.2 87/03/28 10:56:36 mento Exp $
+.IP \fIgc\fP 1i
+Specifies the graphics context.
+.\" $Header: mode.a,v 11.7 87/09/09 17:41:31 mento Exp $
+.IP \fImode\fP 1i
+Specifies the coordinate mode. 
+.PN CoordModeOrigin
+treats a coordinates as related to the origin,
+while
+.PN CoordModePrevious 
+treates all coordinates after the first as relative to the previous point.
+.\" $Header: narcs.a,v 11.2 87/03/28 10:58:02 mento Exp $
+.IP \fInarcs\fP 1i
+Specifies the number of arcs in the array.
+.\" $Header: npoints.a,v 11.2 87/03/28 10:58:35 mento Exp $
+.IP \fInpoints\fP 1i
+Specifies the number of points in the array.
+.\" $Header: nrectangles.a,v 11.2 87/03/28 10:58:38 mento Exp $
+.IP \fInrectangles\fP 1i
+Specifies the number of rectangles in the array.
+.\" $Header: points.a,v 11.2 87/03/28 10:59:30 mento Exp $
+.IP \fIpoints\fP 1i
+Specifies a pointer to an array of points.
+.\" $Header: rectangles.a,v 11.2 87/03/28 11:00:03 mento Exp $
+.IP \fIrectangles\fP 1i
+Specifies a pointer to an array of rectangles.
+.\" $Header: shape.a,v 11.3 87/05/19 11:23:31 jg Exp $
+.IP \fIshape\fP 1i
+Specifies an argument that helps the server to improve performance.
+You can pass one of these constants:
+.PN Complex , 
+.PN Convex , 
+or 
+.PN Nonconvex .
+.\" $Header: widtheight.a,v 11.2 87/03/28 11:02:26 mento Exp $
+.IP \fIwidth\fP 1i
+.br
+.ns
+.IP \fIheight\fP 1i
+Specify the width and height.
+.\" $Header: xy.a,v 11.2 87/03/28 11:02:46 mento Exp $
+.IP \fIx\fP 1i
+.br
+.ns
+.IP \fIy\fP 1i
+Specify the x and y coordinates.
+.SH DESCRIPTION
+.\" $Header: XFillRect.d,v 1.2 87/09/01 18:43:07 mento Exp $
+The
+.PN XFillRectangle
+and
+.PN XFillRectangles
+functions fill the specified rectangle or rectangles
+as if a four-point 
+.PN XFillPolygon
+were specified for each rectangle:
+.IP
+[x,y] [x+width,y] [x+width,y+height] [x,y+height]
+.LP
+.ds fd .PN XFillRectangle
+The errors that can be generated by 
+\*(fd
+and
+\*(fe
+are
+.PN BadGC 
+and
+.PN BadMatch .
+.LP
+.\" $Header: XFillPoly.d,v 1.1 87/08/27 14:19:03 mento Exp $
+The
+.PN XFillPolygon
+function fills a polygon area in the specified drawable.
+.ds .PN XFillPolygon
+The errors that can be generated by 
+\*(fd
+are
+.PN BadDrawable ,
+.PN BadGC ,
+.PN BadMatch ,
+and
+.PN BadValue .
+.LP
+.\" $Header: XFillArc.d,v 1.3 87/08/31 10:15:39 mento Exp $
+The
+.PN XFillArc
+function fills a single arc in the specified drawable, while
+.PN XFillArcs
+fills multiple arcs in the specified drawable.
+.ds fd .PN XFillArc
+.ds fe .PN XFillArcs
+The errors that can be generated by 
+\*(fd
+and
+\*(fe
+are
+.PN BadDrawable ,
+.PN BadGC ,
+and
+.PN BadMatch .
+.SH DIAGNOSTICS
+.\" $Header: baddrawable.e,v 1.1 87/09/04 08:22:59 mento Exp $
+.TP 1i
+.PN BadDrawable
+A value for a Drawable argument does not name a defined Window or Pixmap.
+.\" $Header: badgc.e,v 1.1 87/09/04 08:23:02 mento Locked $
+.TP 1i
+.PN BadGC
+A value for a GContext argument does not name a defined GContext.
+.\" $Header: badmatch1.e,v 1.3 87/09/09 18:18:54 mento Exp $
+.TP 1i
+.PN BadMatch
+An
+.PN InputOnly
+window is used as a Drawable.
+.\" $Header: badmatch2.e,v 1.3 87/09/11 11:53:42 mento Exp $
+.TP 1i
+.PN BadMatch
+Some argument or pair of arguments has the correct type and range but fails
+to match in some other way required by the request.
+.\" $Header: badvalue.e,v 1.1 87/09/04 08:23:19 mento Exp $
+.TP 1i
+.PN BadValue
+Some numeric value falls outside the range of values accepted by the request.
+Unless a specific range is specified for an argument, the full range defined
+by the argument's type is accepted.  Any argument defined as a set of
+alternatives can generate this error.
+.SH "SEE ALSO"
+XDrawArc(3X),
+XDrawRectangle(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

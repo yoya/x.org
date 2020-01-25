@@ -1,0 +1,4 @@
+.\" $Header: line_width.a,v 11.2 87/03/28 10:57:22 mento Exp $
+.IP \fIline_width\fP 1i
+Specifies the line width you want to set for 
+the specified graphics context.

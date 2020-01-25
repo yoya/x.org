@@ -1,0 +1,7 @@
+.\" $Header: geodef.a,v 11.2 87/03/28 10:56:38 mento Exp $
+.IP \fIgeometry\fP 1i
+.br
+.ns
+.IP \fIdefault\fP 1i
+Geometry specification strings that specify the position and/or size of the
+window and its default location.

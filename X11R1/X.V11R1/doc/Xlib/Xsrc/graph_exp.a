@@ -1,0 +1,17 @@
+.\" $Header: graph_exp.a,v 11.4 87/09/11 16:15:14 mento Exp $
+.IP \fIgraphics_exposures\fP 1i
+Specifies whether you want
+.PN GraphicsExpose
+events to be reported when calling
+.PN XCopyArea
+and
+.PN XCopyPlane
+with this graphics context.
+If
+.PN True ,
+.PN GraphicsExpose
+events are reported.
+If
+.PN False ,
+.PN GraphicsExpose
+events are not reported.

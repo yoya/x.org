@@ -1,0 +1,31 @@
+.TH XSetFontPath 3X 
+.SH NAME
+XSetFontPath, XGetFontPath, XFreeFontPath \- set, get, or free the font search path
+.SH SYNTAX
+.so ../Xsrc/XSetFontPath.f
+.LP
+.so ../Xsrc/XGetFontPath.f
+.LP
+.so ../Xsrc/XFFontPath.f
+.SH ARGUMENTS
+.so ../Xsrc/directories.a
+.so ../Xsrc/display.a
+.so ../Xsrc/list.a
+.so ../Xsrc/ndirs.a
+.so ../Xsrc/npaths.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSetFontPath.d
+.ds fd .PN XSetFontPath
+.so ../Xsrc/errsent4.com
+.PN BadValue .
+.LP
+.so ../Xdescrip/XGetFontPath.d
+.LP
+.so ../Xdescrip/XFFontPath.d
+.SH DIAGNOSTICS
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+XListFont(3X),
+XLoadFonts(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

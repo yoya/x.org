@@ -1,0 +1,107 @@
+.na
+.de FD
+.LP
+.KS
+.TA 1.0i 3i
+.ta 1.0i 3i
+.nf
+..
+.de FN
+.fi
+.KE
+.LP
+..
+.de IN		\" send an index entry to the stderr
+..
+.de C{
+.KS
+.nf
+.D
+.\"
+.\"	choose appropriate monospace font
+.\"	the imagen conditional, 480,
+.\"	may be changed to L if LB is too
+.\"	heavy for your eyes...
+.\"
+.ie "\\*(.T"480" .ft L
+.el .ie "\\*(.T"300" .ft L
+.el .ie "\\*(.T"202" .ft PO
+.el .ie "\\*(.T"aps" .ft CW
+.el .ft R
+.ps \\n(PS
+.ie \\n(VS>40 .vs \\n(VSu
+.el .vs \\n(VSp
+..
+.de C}
+.DE
+.R
+..
+.de PN
+.ie t \f(H\|\\$1\|\fR\\$2
+.el \fI\|\\$1\|\fP\\$2
+..
+.de NT
+.ne 7
+.ds NO Note
+.if \\n(.$>$1 .if !'\\$2'C' .ds NO \\$2
+.if \\n(.$ .if !'\\$1'C' .ds NO \\$1
+.ie n .sp
+.el .sp 10p
+.TB
+.ce
+\\*(NO
+.ie n .sp
+.el .sp 5p
+.if '\\$1'C' .ce 99
+.if '\\$2'C' .ce 99
+.in +5n
+.ll -5n
+.R
+..
+.		\" Note End -- doug kraft 3/85
+.de NE
+.ce 0
+.in -5n
+.ll +5n
+.ie n .sp
+.el .sp 10p
+..
+.ny0
+.TH XGrabServer 3X 
+.SH NAME
+XGrabServer, XUngrabServer \- manipulate the keyboard
+.SH SYNTAX
+.\" $Header: XGrabServer.f,v 11.3 87/08/15 12:13:52 mento Exp $
+XGrabServer\^(\^\fIdisplay\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.LP
+.\" $Header: XUngrbSrvr.f,v 11.3 87/08/15 12:17:28 mento Exp $
+XUngrabServer\^(\^\fIdisplay\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.SH ARGUMENTS
+.\" $Header: display.a,v 11.8 87/09/03 11:02:24 mento Exp $
+.IP \fIdisplay\fP 1i
+Specifies the connection to the X server.
+.SH DESCRIPTION
+.\" $Header: XGrabServer.d,v 1.1 87/08/27 14:19:52 mento Exp $
+The
+.PN XGrabServer
+function disables processing of requests and close-downs on all other connections
+than the one this request arrived on.
+It is recommended that you not grab the X server any more than is absolutely
+necessary.
+.LP
+.\" $Header: XUngrbSrvr.d,v 1.2 87/09/09 19:37:54 mento Exp $
+The
+.PN XUngrabServer
+function restarts processing of requests and close-downs on other connections.
+You should avoid grabbing the server as much as possible.
+.SH "SEE ALSO"
+XGrabButton(3X),
+XGrabKey(3X),
+XGrabKeyboard(3X),
+XGrabPointer(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

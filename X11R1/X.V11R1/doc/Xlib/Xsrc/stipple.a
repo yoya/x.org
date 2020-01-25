@@ -1,0 +1,3 @@
+.\" $Header: stipple.a,v 11.2 87/03/28 11:01:07 mento Exp $
+.IP \fIstipple\fP 1i
+Specifies the stipple you want to set for the specified graphics context.

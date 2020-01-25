@@ -1,0 +1,5 @@
+.\" $Header: onoff.a,v 11.3 87/08/31 08:45:20 mento Exp $
+.IP \fIonoff\fP 1i
+Specifies whether to enable or disable synchronization.
+Possible values you can pass are 0 (disable synchronization) or nonzero
+(enable synchronization).

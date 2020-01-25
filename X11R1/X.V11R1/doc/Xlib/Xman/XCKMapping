@@ -1,0 +1,58 @@
+.TH XChangeKeyboardMapping 3X 
+.SH NAME
+XChangeKeyboardMapping, XGetKeyboardMapping, XSetModifierMapping, XGetModifierMapping, 
+XNewModifierMapping, XFreeModifierMapping \- manipulate keyboard encoding
+.SH SYNTAX
+.so ../Xsrc/XCKMap.f
+.LP
+.so ../Xsrc/XGetKeyMap.f
+.LP
+.so ../Xsrc/XSetModMap.f
+.LP
+.so ../Xsrc/XGetModMap.f
+.LP
+.so ../Xsrc/XNewModMap.f
+.LP
+.so ../Xsrc/XFreeModMap.f
+.SH ARGUMENTS
+.so ../Xsrc/code_count.a
+.so ../Xsrc/display.a
+.so ../Xsrc/first_code2.a
+.so ../Xsrc/first_code1.a
+.so ../Xsrc/keysym_ptr.a
+.so ../Xsrc/keysym_cod.a
+.so ../Xsrc/keysym_ret.a
+.so ../Xsrc/keyspermod.a
+.so ../Xsrc/num_codes.a
+.SH DESCRIPTION
+.so ../Xdescrip/XCKMap.d
+.ds fd .PN XChangeKeyboardMapping
+.so ../Xsrc/errsent.com
+.PN BadAlloc 
+and
+.PN BadValue .
+.LP
+.so ../Xdescrip/XGetKeyMap.d
+.ds fd .PN XGetKeyboardMapping
+.so ../Xsrc/errsent4.com
+.PN BadValue .
+.LP
+.so ../Xdescrip/XSetModMap.d
+.ds fd .PN XSetModifierMapping
+.so ../Xsrc/errsent.com
+.PN BadAlloc
+and 
+.PN BadValue .
+.LP
+.so ../Xdescrip/XGetModMap.d
+.LP
+.so ../Xdescrip/XNewModMap.d
+.LP
+.so ../Xdescrip/XFreeModMap.d
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+XSetPointerMapping(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

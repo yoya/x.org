@@ -1,0 +1,32 @@
+.TH XInternAtom 3X 
+.SH NAME
+XInternAtom, XGetAtomName \- create and return atom names
+.SH SYNTAX
+.so ../Xsrc/XInternAtom.f
+.LP
+.so ../Xsrc/XGetAtomName.f
+.SH ARGUMENTS
+.so ../Xsrc/atom.a
+.so ../Xsrc/atom_name.a
+.so ../Xsrc/display.a
+.so ../Xsrc/onlyifexist.a
+.SH DESCRIPTION
+.so ../Xdescrip/XInternAtom.d
+.ds fd .PN XInternAtom
+.so ../Xsrc/errsent.com
+.PN BadAlloc 
+and
+.PN BadValue .
+.LP
+.so ../Xdescrip/XGetAtomName.d
+.ds fd .PN XGetAtomName
+.so ../Xsrc/errsent4.com
+.PN BadAtom .
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badatom.e
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+XGetWindowProperty(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

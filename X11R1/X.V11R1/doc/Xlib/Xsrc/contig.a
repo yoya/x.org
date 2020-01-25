@@ -1,0 +1,5 @@
+.\" $Header: contig.a,v 11.5 87/09/11 15:53:35 mento Exp $
+.IP \fIcontig\fP 1i
+Specifies a boolean value.
+You pass the value 1 if the planes must be contiguous or the value
+0 if the planes do not need to be contiguous. 

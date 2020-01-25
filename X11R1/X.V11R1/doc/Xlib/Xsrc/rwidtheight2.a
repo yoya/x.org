@@ -1,0 +1,7 @@
+.\" $Header: rwidtheight2.a,v 1.2 87/09/10 13:31:00 mento Exp $
+.IP \fIwidth_return\fP 1i
+.br
+.ns
+.IP \fIheight_return\fP 1i
+Returns the best width and height (that is, closest to the specified width 
+and height).

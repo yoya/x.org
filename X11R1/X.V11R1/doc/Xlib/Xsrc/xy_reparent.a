@@ -1,0 +1,7 @@
+.\" $Header: xy_reparent.a,v 1.2 87/09/04 09:17:46 mento Exp $
+.IP \fIx\fP 1i
+.br
+.ns
+.IP \fIy\fP 1i
+Specify the x and y coordinates of the position in the new parent window of
+the specified window.

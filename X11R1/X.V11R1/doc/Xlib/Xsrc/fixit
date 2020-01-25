@@ -1,0 +1,7 @@
+#!/bin/sh
+for i   
+do
+sed -f sedfile $i > $i.tmp
+mv $i.tmp $i
+echo $i done
+done

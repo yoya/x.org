@@ -1,0 +1,4 @@
+.\" $Header: percent.a,v 11.5 87/08/14 13:24:27 mento Exp $
+.IP \fIpercent\fP 1i
+Specifies the base volume for the bell,
+which can range from -100 to 100 inclusive. 

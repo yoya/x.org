@@ -1,0 +1,23 @@
+.TH XWarpPointer 3X 
+.SH NAME
+XWarpPointer \- control input focus
+.SH SYNTAX
+.so ../Xsrc/XWarpPointer.f
+.SH ARGUMENTS
+.so ../Xsrc/dw.a
+.so ../Xsrc/destxy2.a
+.so ../Xsrc/display.a
+.so ../Xsrc/srcwdht.a
+.so ../Xsrc/sw.a
+.so ../Xsrc/srcxy1.a
+.SH DESCRIPTION
+.so ../Xdescrip/XWarpPointer.d
+.ds fd .PN XWarpPointer
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.SH DIAGNOSTICS
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XSetInputFocus(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

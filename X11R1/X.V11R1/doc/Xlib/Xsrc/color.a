@@ -1,0 +1,4 @@
+.\" $Header: color.a,v 11.3 87/08/31 11:39:14 mento Exp $
+.IP \fIcolor\fP 1i
+Specifies the color name string (for example, ``red''). 
+The function then allocates this color cell.

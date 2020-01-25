@@ -1,0 +1,265 @@
+
+
+
+
+
+
+                      Changes Document
+                   Beta to "Final" release
+                       Sample Server
+
+
+CHANGES TO PORTING DEFINITION LAYER
+
+1. Changes to screen data structure:  (explainations of procedures are
+in other items below)
+
+	Procedures added:
+		CreateColormap()
+		DestroyColormap()
+		BlockHandler()
+		WakeupHandler()
+
+	Procedures removed:
+		GetStaticColormap()	
+
+
+	Field added:
+		PixmapPtr	PixmapPerDepth[]
+
+In this last one is stored the stipple used for the default GC.  This is a 
+space saving measure.  We didn't build a default tile of all depths because
+they are likely to be of a color different from the default foreground pixel
+and we'd have to build a new one anyway.
+
+
+2. Clarification to RealizeCursor: The source and mask bits pointed to by
+fields in pCurs are undefined for bits beyond the right edge of the cursor.
+This is so because the bits are in Bitmap format, which may have pad bits on
+the right edge.
+
+
+3.  If you need a GC for a very long time, say until the server is restarted,
+you should not take one from the pool used by GetScratchGC, but should get
+your own from CreateScratchGC. This leaves the ones in the pool free for
+routines that only need it for a little while and don't want to pay a heavy
+cost to get it.
+
+      GCPtr CreateScratchGC(pScreen, depth)
+           ScreenPtr pScreen;
+           int depth;
+
+The GC returned can be freed with FreeScratchGC.
+
+4. Clarification: The explanation of GetImage in the ddx layer defintion was
+wrong.  It has been reworded.
+
+
+5. Changes to colormap code:
+
+The colormap code is undergoing some radical improvements. A simple one is
+that there is now a devPriv field in the ColormapRec.
+
+A more complex set occurs in CreateColormap.  The problem stems from the
+confused notion that there could only be one static colormap for a given
+visual.  This is not the case; there can be many mappings of pixel ownership
+over the same set of unchanging hardware colors.  Also it was extremely
+difficult to initialize static colormaps.
+
+Since it does make sense to create multiple static colormaps for a given
+visual, there is no need for the DDX routine GetStaticColormap.  This routine
+has been eliminated from the DDX layer and there is no hook for it in the
+screen structure.
+
+We had a request for DDX hooks for CreateColormap and DestroyColormap.  These
+certainly seemed like a reasonable idea, so they have been added to the DDX
+layer and there are hooks for them in the screen structure.  Once we had a
+DDX CreateColormap routine, it became clear that that was the place to
+initial static colormaps.  The DDX CreateColormap routine (qvCreateColormap)
+now uses AllocColor to fill in the colormap.
+
+AllocColor had some problems too.  Generally when AllocColor is used on a
+static colormap the right thing to do is to return the pixel which most
+closely approximates the requested color.  But when we're initializing the
+colormap, we can actually stuff the pixel in. Just before dix/CreateColormap
+calls ddx/CreateColormap it sets a flag in the colormap, BeingCreated.
+AllocColor uses that flag to decide whether to stuff the value in the
+colormap or find the closest match.
+
+We thought about trying for more minimal changes, but decided that if we were
+going to add the ddx Create/Destroy Colormap routines, we might as well use
+them.  People who really use static colormaps probably can't get along
+without and people who don't can just lift the default code or write empty
+stubs.  
+
+
+6. There is now a procedure called "DoChangeGC" that takes 4 arguments (pGC,
+mask, values, fPointer).  The first three are just like ChangeGCs.  If
+fPointer is FALSE, then values are constants, integers, and IDs, just as they
+are for ChangeGC.  If fPointer is TRUE, then values are constants, integers,
+and pointers. Thus, for tiles, stipples, fonts, and clipmasks, if we are
+calling internally and already have a pointer to the object we wish to put
+into the GC, we don't have to convert that pointer into an ID and have
+ChangeGC look up the ID. We can directly pass the pointer to ChangeGC.
+
+
+6.  BlockHandler and WakeupHandler
+
+screen.BlockHandler is called by the os layer before the server sleeps.  It
+looks like
+
+	void
+	mfbBlockHandler(i, data)
+	int i;		/* index of this screen */
+	pointer data;	/* screen.blockData */
+
+screen.blockData can be filled in  by the screen with callback data.
+
+    screen.WakeupHandler is called by the server after it has
+unblocked.  It looks like
+	void
+	WakeupHandler(i, data)
+	int i;		/* index of this screen */
+	pointer data;  /* screen.wakeupData */
+
+screen.wakeupData can be filled with callback data by the screen.
+
+For example, a screen maintianing a queue of requests to a graphics engine
+might want to flush the queue before sleeping, and keep a pointer to some
+hardware state in screen.blockData.  Similar things can be imagined for
+WakeupHandler.
+
+
+	(For the OS layer)
+
+If the server is going to suspend execution while waiting for input (or
+sleep, , or block, or whatever your OS calls it) it must call the
+DIX-supplied routine
+
+	BlockHandler()
+
+When a server unblocks, it must call the DIS routine
+
+	WakeupHandler()
+
+
+7. Modifier key change
+
+	See protocol change.  DDX layer stayed basically the same, many
+changes to events.c.   One DDX change was the parameter to
+InitKeyboardDeviceStruct.  The modifierMap parameter (3rd) is now an array of
+CARD8 (see ddx/qvss/qvss_io.c, qvssKeybdProc)
+
+----------------------
+
+
+CHANGES TO FUNCTIONALITY, NAME CHANGES, REWRITES
+
+1. More robust connection startup.  If the connection information comes too
+slowly, the read times out and the connection is silently broken off.  See
+os/4.2bsd/connection.c
+
+2. Command line parsing implemented.  Usage message only printed if -help
+given on command line.  DDX and OS layers get a crack at the command line.
+See os/4.2bsd/utils.c
+
+3.  Passive grabs were not completely implemented and now are
+
+
+4.  We tried to be more consist about naming.  If it's in ddx/mfb, the
+procedure name starts with mfb; if it's in ddx/mi, the procedure name starts
+with mi.  For example:
+
+	[X|Y]RotatePixmap --> mfb[X|Y]RotatePixmap
+	SetScanline -->mfbSetScanline 
+	FindMaxBand --> miFindMaxBand in miregion.c
+	mfbClipSpans --> miClipSpans in miregion.c
+
+
+5. miValidateTree() has been completely rewritten.  See ddx/mi/mivaltree.c
+
+
+6. QueryBestSize vector in the screen is now assigned in the screen
+init procedure in ddx/qvss/qvss_io.c
+
+
+7. ResolveColor moved from mfb directory to qvss directory and has an extra
+parameter (pVisual)
+
+
+
+--------------------
+
+FILES THAT ARE NEW OR GONE
+
+1. Deleted server files
+
+   dix:
+	extension.c (see 3 below)
+
+	unionutils.c: gone  (region code long ago moved into ddx/mi/miregion.c)
+
+	clip.c: gone  (region code long ago moved into ddx/mi/miregion.c)
+
+	text.c: gone
+
+	grabs.c:  new -- we split events.c into 2 files.
+
+   ddx/mi:  none
+
+   ddx/mfb: 
+
+	ddx/mfb/mfbclipsp.c has gone away; the two functions that were in it
+	are now in ddx/mi/miregion.c
+
+	ddx/mfb/mfbutils.c: gone
+
+	ddx/mfb/init.c: gone
+
+	ddx/mfb/mfbglyfblt.c: gone
+
+	ddx/mfb/newline.c: gone
+
+	ddx/mfb/mfbisc.c: gone
+
+	ddx/mfb/mfbscrclose.c: new -- contains functions called when server 
+		resets.
+
+	ddx/mfb/mfbtegblt.c: (rewrite) does special case text for terminal
+		emulator (fixed width) fonts.
+
+   include: none
+
+   os/4.2bsd: none
+
+
+2. include/keysym.h was split into 2 files.  This is to allow
+applications/servers to define ONLY the sets of keysyms they
+were interested in when those sets did not subsume the default set.
+They can do this now by including keysymdef.h and defining the sets
+needed.
+
+	XK_MISCELLANY
+	XK_LATIN1
+	XK_LATIN2
+	XK_LATIN3
+	XK_LATIN4
+	XK_KATAKANA
+	XK_ARABIC
+	XK_CYRILLIC
+	XK_GREEK
+	XK_TECHNICAL
+	XK_SPECIAL
+	XK_PUBLISHING
+	XK_APL
+	XK_HEBREW
+
+MISCELLANY include all the keycodes that start with 0xff (functions keys,
+modifiers, tty keys, etc.). In keysym.h, you define which classes from the
+list above you want defined.
+
+
+3. There are two extensions provided, a zoid extension described in
+the extension document (doc/Server/extension.doc) and a bezier extension
+not really described anywhere.
+

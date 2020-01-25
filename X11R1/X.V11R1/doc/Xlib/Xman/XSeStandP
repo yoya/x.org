@@ -1,0 +1,39 @@
+.TH XSetStandardProperties 3X 
+.SH NAME
+XSetStandardProperties \- set standard window manager properties
+.SH SYNTAX
+.so ../Xsrc/XSetSProp.f
+.SH ARGUMENTS
+.so ../Xsrc/argc.a
+.so ../Xsrc/argv.a
+.so ../Xsrc/display.a
+.so ../Xsrc/hints.a
+.so ../Xsrc/icon_name.a
+.so ../Xsrc/icon_pix.a
+.so ../Xsrc/w.a
+.so ../Xsrc/window_name.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSetSProp.d
+.ds fd .PN XSetStandardProperties
+.so ../Xsrc/errsent.com
+.PN BadWindow 
+and
+.PN BadAlloc .
+.SH PROPERTIES
+WM_NAME, WM_ICON_NAME, WM_HINTS, WM_COMMAND, and WM_NORMALHINTS
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XSetClassHint(3X),
+XSetCommand(3X),
+XSetIconName(3X),
+XSetIconSizeHints(3X),
+XSetNormalHints(3X),
+XSetSizeHints(3X),
+XSetTransientForHint(3X),
+XSetWMHints(3X),
+XSetZoomHints(3X),
+XStoreName(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

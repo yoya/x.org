@@ -1,0 +1,44 @@
+.TH XChangeSaveSet 3X 
+.SH NAME
+XChangeSaveSet, XAddToSaveSet, XRemoveFromSaveSet \- change a client's save set
+.SH SYNTAX
+.so ../Xsrc/XChSaveSet.f
+.LP
+.so ../Xsrc/XAddSaveSet.f
+.LP
+.so ../Xsrc/XRmvSaveSet.f
+.SH ARGUMENTS
+.so ../Xsrc/changemode.a
+.so ../Xsrc/display.a
+.so ../Xsrc/w_save_set.a
+.so ../Xsrc/w_save_set1.a
+.SH DESCRIPTION
+.so ../Xdescrip/XChSaveSet.d
+.ds fd .PN XChangeSaveSet
+.so ../Xsrc/errsent.com
+.PN BadWindow ,
+.PN BadMatch ,
+and
+.PN BadValue .
+.LP
+.so ../Xdescrip/XAddSaveSet.d
+.ds fd .PN XAddToSaveSet
+.so ../Xsrc/errsent.com
+.PN BadWindow 
+and
+.PN BadMatch .
+.LP
+.so ../Xdescrip/XRmvSaveSet.d
+.ds fd .PN XRemoveFromSaveSet
+.so ../Xsrc/errsent.com
+.PN BadWindow
+and
+.PN BadMatch .
+.SH DIAGNOSTICS
+.so ../Xerrors/badmatch2.e
+.so ../Xerrors/badvalue.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XReparentWindow(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

@@ -1,0 +1,31 @@
+.TH XrmGetDataBase 3X 
+.SH NAME
+XrmGetDataBase, XrmLoadDataBase, XrmPutDataBase, XrmMergeDataBases \- manipulate resource data bases
+.SH SYNTAX
+.so ../Xsrc/XrmGDBase.f
+.LP
+.so ../Xsrc/XrmLDBase.f
+.LP
+.so ../Xsrc/XrmPDBase.f
+.LP
+.so ../Xsrc/XrmMDBase.f
+.SH ARGUMENTS
+.so ../Xsrc/data_rm.a
+.so ../Xsrc/db.a
+.so ../Xsrc/dbhandle.a
+.so ../Xsrc/into.a
+.so ../Xsrc/new.a
+.SH DESCRIPTION
+.so ../Xdescrip/XrmGDBase.d
+.LP
+.so ../Xdescrip/XrmLDBase.d
+.LP
+.so ../Xdescrip/XrmPDBase.d
+.LP
+.so ../Xdescrip/XrmMDBase.d
+.SH "SEE ALSO"
+XrmConvert(3X),
+XrmGetSearchList(3X),
+XrmPutDataBase(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

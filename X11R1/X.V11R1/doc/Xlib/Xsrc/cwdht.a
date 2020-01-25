@@ -1,0 +1,6 @@
+.\" $Header: cwdht.a,v 11.2 87/03/28 10:54:57 mento Exp $
+.IP \fIcwidth\fP 1i
+.br
+.ns
+.IP \fIcheight\fP 1i
+Contain the created size of the window.

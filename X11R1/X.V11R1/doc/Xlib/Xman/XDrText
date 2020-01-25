@@ -1,0 +1,34 @@
+.TH XDrawText 3X 
+.SH NAME
+XDrawText, XDrawText16 \- draw polytext text
+.SH SYNTAX
+.so ../Xsrc/XPolyText.f
+.LP
+.so ../Xsrc/XPolyText16.f
+.SH ARGUMENTS
+.so ../Xsrc/d.a
+.so ../Xsrc/display.a
+.so ../Xsrc/gc.a
+.so ../Xsrc/items.a
+.so ../Xsrc/nitems.a
+.so ../Xsrc/xy.a
+.SH DESCRIPTION
+.so ../Xdescrip/XPolyText.d
+.ds fd .PN XDrawText
+.ds fe .PN XDrawText16
+.so ../Xsrc/errsent3.com
+.PN BadDrawable ,
+.PN BadGC ,
+.PN BadFont ,
+and
+.PN BadMatch .
+.SH DIAGNOSTICS
+.so ../Xerrors/baddrawable.e
+.so ../Xerrors/badfont.e
+.so ../Xerrors/badgc.e
+.so ../Xerrors/badmatch1.e
+.SH "SEE ALSO"
+XDrawImageString(3X),
+XDrawString(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

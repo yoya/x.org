@@ -1,0 +1,3 @@
+.\" $Header: host.a,v 11.2 87/03/28 10:56:53 mento Exp $
+.IP \fIhost\fP 1i
+Specifies the network address of the host machine.

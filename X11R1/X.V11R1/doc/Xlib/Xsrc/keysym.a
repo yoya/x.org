@@ -1,0 +1,4 @@
+.IP \fIkeysym_return\fP 1i
+If this argument is not 
+.PN NULL , 
+returns the keysym computed from the event.

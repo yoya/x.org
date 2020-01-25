@@ -1,0 +1,21 @@
+.TH XReparentWindow 3X 
+.SH NAME
+XReparentWindow \- reparent windows
+.SH SYNTAX
+.so ../Xsrc/XReparentWin.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/parent.a
+.so ../Xsrc/w.a
+.so ../Xsrc/xy_reparent.a
+.SH DESCRIPTION
+.so ../Xdescrip/XReparentWin.d
+.ds fd .PN XReparentWindow
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.SH DIAGNOSTICS
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XChangeSaveSet(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

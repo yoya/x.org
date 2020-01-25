@@ -1,0 +1,10 @@
+.IP \fIsrc_x\fP 1i
+Specifies the offset in X from the left edge of the image defined
+by the 
+.PN XImage 
+data structure.
+.IP \fIsrc_y\fP 1i
+Specifies the offset in from the top edge of the image defined
+by the 
+.PN XImage 
+data structure.

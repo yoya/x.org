@@ -1,0 +1,4 @@
+.IP \fIfont_struct\fP 1i
+Specifies a pointer to the 
+.PN XFontStruct 
+structure.

@@ -1,0 +1,133 @@
+#!/bin/sh
+
+# Hack attack.
+# Assuming this program is stilled called paginate, it is intended to be
+# in the form
+#	paginate spec
+# It then generates the files
+#	spec.paged	nearly the same as foo with the exception of
+#			a header on the top of each page. Pages are
+#			assumed to be 58 lines long before the header
+#			gets added.
+#	spec.toc	A page number listing of all the lines that start
+#			with an upper case letter in column 1, up to but
+#			not including the first colon.
+#	spec.index	An index built from the x11.spec.toc lines.
+
+
+today="`date`"
+linesPerPage=58
+
+infile=$1
+pagedfile=$1.paged
+indexfile=$1.index
+tocfile=$1.toc
+addindex=addindex
+
+wordsfile=/usr/tmp/$1.words
+indexinput=/usr/tmp/$1.index-input
+grepscript=/usr/tmp/$1.grep-script
+
+rm -f $pagedfile $tocfile $indexfile $wordsfile $grepscript
+rm -f $indexinput
+
+case "infile" in
+spec)	  title="X/V11 Protocol Specification";;
+keysyms)  title="X/V11 Keysym Specification";;
+encoding) title="X/V11 Encoding Specification";;
+esac
+
+echo "Paginating $infile into $pagedfile."
+awk '
+BEGIN {
+	date = "'"$today"'";
+	n = split(date, dateparts);
+	date = dateparts[3] " " dateparts[2] " " dateparts[6]
+	FS = ":";
+	input = "'$infile'";
+	paged = "'$pagedfile'";
+	toc = "'$tocfile'";
+	ind = "'$indexfile'";
+	words = "'$wordsfile'";
+	title = "'$title'";
+	page = 1;
+	line = 0;
+    }
+
+    {
+	if ((line == 0) && (NF > 0))
+	    printf("\n") > paged
+	print > paged
+	line = line + 1
+	if (line >= '$linesPerPage') {
+	    page = page + 1
+	    line = 0
+	    printf("%c\n%s%42s%23s %d\n",\
+		12, date, title, "Page", page) > paged
+	}
+    }
+
+/^[A-Z]/ {
+	l = $1;
+	while ((length(l) % 4) != 0)
+	    l = l " "
+	while (length(l) < 70)
+	    l = l "   ."
+	if (l ~ /^SECTION/)
+	    printf("\n") > toc
+	printf("%s%5d\n", l, page) > toc
+	if (l !~ /^SECTION/)
+	    printf("\"%s\"\n", $1) > words
+    }
+
+' $infile
+
+cat $addindex >> $wordsfile
+
+echo "Sorting $wordsfile."
+sort -udf $wordsfile -o $wordsfile
+
+echo "Generating $grepscript."
+
+awk '{print "echo",$0, "; grep -n", $0, "'$infile'" > "'$grepscript'"}' $wordsfile
+
+echo "Executing $grepscript to generate $indexinput."
+sh $grepscript > $indexinput
+
+echo "Producing $indexfile."
+awk -F: '
+BEGIN {
+	ind = "'$indexfile'";
+    }
+/^[A-Z]/ {
+	if (length(line) > 0)
+	    printf("%s\n", line) > ind
+	line = sprintf("%-25s", $0)
+	separator = " "
+	lastPage = 0
+    }
+/^[0-9]/ {
+	pagen = ($1+'$linesPerPage'-1)/'$linesPerPage'
+	t = split(pagen, pageparts, ".")
+	page = pageparts[1]
+	if (lastPage != page)
+	{
+	    if (length(line) > 73)
+	    {
+		printf("%s,\n", line) > ind
+		line = sprintf("%-25s %d", " ", page)
+	    }
+	    else
+		line = line separator page
+	    separator = ", "
+	    lastPage = page
+	}
+    }
+END {
+	printf("%s\n", line) > ind
+    }
+' $indexinput
+
+
+echo "Cleaning up."
+rm -f $wordsfile $grepscript $indexinput

@@ -1,0 +1,144 @@
+.\" $Header: in.4,v 1.2 87/09/15 06:14:19 toddb Locked $
+.NH 1
+Xlib - C Language X Interface
+.LP
+These notes document the known problems in the base X library
+as of the first release of X Version 11, as well as some comments
+of what has changed during the last phases of beta test, since the
+beta test was so large.
+Bugs reported after early September are unlikely to have been
+fixed unless extremely important.
+My thanks to the beta testers for their efforts and comments.
+.LP
+\fBXPutImage\fP was extensively reworked at the last moment; see the
+comments at the beginning of the routine.  There are a few
+remaining nits with nibble swapping.
+\fBXGetImage\fP semantics are slightly different than during most of beta test.
+If you only ask for certain planes in x-y mode, the image returned
+is of the depth of the number of planes requested.
+.LP
+\fBXPutSubImage\fP in Z format does not work properly.
+.LP
+\fBXPending\fP still uses FIONREAD, which means that it does not
+detect dropped connections properly.  This was the cause of
+many client looping bugs when connections failed on V10.
+It should be be recoded to use a non-blocking read of 0 bytes to
+get status back.
+.LP
+\fBXGetDefault\fP now has the correct interface
+with a (Display *) as the first argument.
+Note that during beta
+test, the document was correct, and the code was wrong.
+Your code which you may have been running during beta test
+using this routine will have to be converted.
+.LP
+The types of members of some structures in Xlib.h were fixed so that
+machines on which int=16 bits would work correctly.
+Some members were declared int but were plane masks and should
+have been declared unsigned long.
+Some other members were renamed to type \fBBool\fP and \fBTime\fP,
+though the underlying type did not change.
+.LP
+The region code in the library has been regenerated after extraction
+from the server.  Since no one reported a single bug in the
+region code during beta test
+and we know there were many bugs in it from server bug reports, it 
+clearly was not heavily exercised (if at all) then.
+.LP
+There ought to be some way to generate a region from a series of
+exposure events, to make it very easy to do clever repaint on exposure
+of only exposed areas, using the GC region.
+No one volunteered to specify it/write it, so there still is no
+way.  The region code was known to be buggy during beta test,
+which may have reduced the inclination.
+.LP
+V10 conversion aid code documented in the X manual appendix is in
+a separate library; to link against it under
+UNIX\(dg
+.FS
+.ps 9
+.nr PS 9
+.LP
+The X Window System \(tm is a trademark of the Massachusetts Institute of
+Technology.
+.LP
+\(dg UNIX is a trademark of AT&T Bell Laboratories.
+.LP
+Copyright \(co 1987, 
+Massachusetts Institute of Technology, Cambridge, Massachusetts, 
+and Digital Equipment Corporation, Maynard, Massachusetts.
+.LP
+Permission to use, copy, modify and distribute this documentation for
+any purpose and without fee is hereby granted, provided that the above
+copyright notice appears in all copies and that both that copyright notice and
+this permission notice appear in supporting documentation, and that the name of
+M.I.T. or Digital not be used in in advertising or publicity pertaining 
+to distribution of the software without specific, written prior permission.
+M.I.T and Digital makes no representations about the suitability of the 
+software described herein for any purpose.
+It is provided ``as is'' without express or implied warranty.
+.ps 11
+.nr PS 11
+.FE
+add a \fI-loldX\fP to your link command.
+.LP
+The resource manager is currently split out into a separate library
+called \fIXrm\fP.
+It will be merged in a future release.  This occurred since the
+tool kit did not get converted to use the correct interfaces.
+The old (beta version) is in oldXrm and is still used by the tool kits.
+Since the X tool kit is the primary user of the resource manager, this
+also means that the current resource manager has not had the
+extensive exercise of the rest of the library (or even of the old resource 
+manager), and will undergo some
+final changes before being incorporated, though the interface is
+believed correct except for \fIXrmPutResource\fP, which should take a string
+rather than a quark.  This change was dropped on the floor until
+after the code had been frozen for release.
+Note that only applications linked against one of the resource manager
+libraries will use the error database as documented in the manual.
+Clients linking only against Xlib
+will only print the default strings.
+Until the next MIT release, you should therefore
+understand that it is conceivable that these routines may change
+interfaces; somewhat more likely is that more sophisticated
+matching will be implemented without interface changes.
+The most unfortunate part of this is that only \fBXGetDefault\fP in the
+new resource manager knows how to deal with the server resource
+data base property.  (See the xrdb utility).
+(One of the real pains to life in V10 was keeping your .Xdefaults
+file up to date on all the machines you used).
+.LP
+The library is not as portable to some machine architectures as we
+would like.  The changes required to deal with the Cray for example,
+were more extensive than we wished to incorporate during beta test,
+affecting too many files with insufficient time for shake down.
+My apologies to them, since it will have cost them additional
+work until the changes are made.
+Machines on which short!=16 bits may have difficulty in a port
+at the moment.
+.LP
+The V10 functionality that allowed remapping keys to strings
+read in from a file did not get reimplemented, due to
+upheavals during both alpha and beta tests in keyboard handling
+in general.  This is less needed in V11, where there is global
+renaming of keysyms, but would still be nice to have.
+The compose processing (yuk) in \fBXLookupString\fP is not implemented.
+.LP
+There are an extensive set of routines/macros for extracting
+screen structure information added late in beta test.  The tool kit
+is being reorganized to deal with multiple screen applications in
+a graceful way, and these additions were clearly useful.
+.LP
+Manual pages for Xlib now exist, though are quite terse.
+.LP
+Extensive work on the Xlib manual took place; the most glaring
+deficiencies are the lack of illustrations in the right places.
+There will be some additional work on the manual until it goes
+to Digital Press for printing as a book.
+.LP
+We still don't have an introductory Xlib Primer.  Any volunteers
+out there?
+.LP
+Locking for multi-threading is still untested.
+Unix needs a new system call interface!

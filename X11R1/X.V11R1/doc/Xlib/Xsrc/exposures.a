@@ -1,0 +1,6 @@
+.\" $Header: exposures.a,v 11.3 87/05/29 07:36:40 jg Exp $
+.IP \fIexposures\fP 1i
+Specifies a boolean value of 
+.PN True 
+or 
+.PN False .

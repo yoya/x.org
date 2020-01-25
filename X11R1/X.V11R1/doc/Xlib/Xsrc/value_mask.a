@@ -1,0 +1,5 @@
+.\" $Header: value_mask.a,v 11.3 87/09/11 16:27:34 mento Exp $
+.IP \fIvalue_mask\fP 1i
+Specifies which values are to be set using information in
+the values structure.
+This mask is the bitwise inclusive OR of the valid change window values bits.

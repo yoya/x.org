@@ -1,0 +1,6 @@
+.\" $Header: widtheight4.a,v 1.1 87/09/01 18:34:14 mento Exp $
+.IP \fIwidth\fP 1i
+.br
+.ns
+.IP \fIheight\fP 1i
+Specify the width and height that define the outline of the rectangle.

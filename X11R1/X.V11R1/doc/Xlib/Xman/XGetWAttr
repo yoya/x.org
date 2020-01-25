@@ -1,0 +1,35 @@
+.TH XGetWindowAttributes 3X 
+.SH NAME
+XGetWindowAttributes, XGetGeometry \- get current window attribute or geometry
+.SH SYNTAX
+.so ../Xsrc/XGetAttr.f
+.LP
+.so ../Xsrc/XGetGeometry.f
+.SH ARGUMENTS
+.so ../Xsrc/bordwid_ret.a
+.so ../Xsrc/d.a
+.so ../Xsrc/depth_ret.a
+.so ../Xsrc/display.a
+.so ../Xsrc/root.a
+.so ../Xsrc/w.a
+.so ../Xsrc/width_ret.a
+.so ../Xsrc/windatt.a
+.so ../Xsrc/getxy.a
+.SH DESCRIPTION
+.so ../Xdescrip/XGetAttr.d
+.ds fd .PN XGetWindowAttributes
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.so ../Xdescrip/XGetGeometry.d
+.ds fd .PN XGetGeometry
+.so ../Xsrc/errsent4.com
+.PN BadDrawable .
+.SH DIAGNOSTICS
+.so ../Xerrors/baddrawable.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XQueryPointer(3X),
+XQueryTree(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

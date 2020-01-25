@@ -1,0 +1,11 @@
+.\" $Header: format.a,v 11.5 87/08/28 07:28:21 mento Exp $
+.IP \fIformat\fP 1i
+Specifies whether the data should be viewed as a list
+of 8-bit, 16-bit, or 32-bit quantities.
+This information allows the X server to correctly perform
+byte-swap operations as necessary.
+If the format is 16-bit or 32-bit,
+you must explicitly cast your data pointer to a (char *) in the call
+to 
+.PN XChangeProperty .
+Possible values are 8, 16, and 32.

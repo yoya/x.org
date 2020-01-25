@@ -1,0 +1,3 @@
+.\" $Header: nbytes.a,v 11.6 87/09/10 16:34:04 mento Exp $
+.IP \fInbytes_return\fP 1i
+Returns the number of bytes in the string in the buffer.

@@ -1,0 +1,28 @@
+head     1.1;
+access   ;
+symbols  ;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     87.08.18.16.38.14;  author jg;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@free mod map.
+@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@XFreeModifierMapping(\^\fImodmap\fP\^)
+.br
+        XModifierMapping *\fImodmap\fP;
+@

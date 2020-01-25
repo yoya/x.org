@@ -1,0 +1,10 @@
+.\" $Header: tile.a,v 11.10 87/09/11 16:35:09 mento Exp $
+.IP \fIbackground_pixmap\fP 1i
+Specifies the background pixmap.
+If a Pixmap ID is specified, the background is painted with this pixmap.
+If
+.PN None ,
+no background is painted.
+If
+.PN ParentRelative ,
+the parent's pixmap is used.

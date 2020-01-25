@@ -1,0 +1,907 @@
+\input texinfo.tex	@c -*-texinfo-*-
+
+@ignore
+****WARNING**** Besides TeX and the Emacs Info system, this
+documentation is also used by the brain-damaged GNUPLOT built
+in help system (which reads the Info file).  This means that
+the Info file *must* have a tags table (use Info-tagify), and
+that the tags table MUST BE CORRECT (it uses the offsets without
+any error checking).  So make all changes in this texinfo file,
+then rebuild the Info file using M-x texinfo-format-buffer
+followed by M-x Info-tagify.
+@end ignore
+
+@setfilename gnuplot.info
+@titlepage
+@settitle GNUPLOT Manual
+@center @titlefont{GNUPLOT}
+@sp 3
+@center @titlefont{An Interactive Plotting Program}
+@sp 3
+@center @titlefont{Thomas Williams and Colin Kelley}
+@sp 3
+@center{Department of Electrical Engineering}
+@center{Villanova University}
+@center{Villanova, PA  19085}
+@center{May 11, 1987}
+@end titlepage
+
+@node top, introduction, , (DIR)
+@chapter The GNUPLOT program
+
+@menu
+* introduction:: What GNUPLOT is about
+* clear::	Command to clear the screen or output device
+* exit::	Quitting GNUPLOT
+* expressions:	The mathematical expressions that GNUPLOT understands
+* help::	GNUPLOT's built in help command
+* load::	Reading in a script file
+* plot::	Generating an actual plot
+* datafile::	GNUPLOT can read a file containing coordinates of
+		points to be plotted.
+* ranges::	Specifying the region of the plot to be displayed
+* style::	The styles of graph that GNUPLOT can produce
+* print::	Printing expressions on the screen
+* quit::	@code{quit} is a synonym for @code{exit}.
+* replot::	Repeating the last @code{plot} command
+* save::	Saving functions and variables to a file,
+		for later use by @code{load}
+* setshow::	The commands for setting and displaying GNUPLOT options
+* shell::	Running shell commands from inside GNUPLOT
+* startup::	The GNUPLOT initialization file
+* substitution:: Substituting output from shell commands in GNUPLOT
+		commands
+* userdefined:: Defining your own functions and variables
+@end menu
+
+@node introduction, clear, top, top
+@section INTRODUCTION
+
+GNUPLOT is a command-driven interactive function plotting program.  It is
+case sensitive (commands and function names written in lower case are not
+the same as those written in CAPS).  All command names may be abbreviated,
+as long as the abbreviation is not ambiguous.  Any number of commands may
+appear on a single line, separated by semicolons (;).
+
+The following sections provide brief descriptions of each of the
+program commands.
+
+@node clear, exit, introduction, top
+@section clear
+
+This command erases the current screen or output device as specified
+by @code{set output}.  This usually generates a formfeed on hardcopy
+devices.  Use @code{set terminal} to set the device type. 
+
+@node exit, expressions, clear, top
+@section exit
+
+@code{exit}, @code{quit} and your computer's END-OF-FILE character will
+exit GNUPLOT.  All these commands will clear the output device (as the
+@code{clear} command does) before exiting.
+
+@node expressions, help, exit, top
+@section expressions
+
+In general, any mathematical expression accepted by C, FORTRAN,
+Pascal, or BASIC is valid.  The precedence of these operators is
+determined by the specifications of the C programming language.
+White space (spaces and tabs) is ignored inside expressions. 
+
+Complex constants may be expressed as @{@var{real}, @var{imag}@}, where
+@var{real} and @var{imag} must be numerical constants.  For example @{3,2@}
+represents @w{3 + 2i}; @{0,1@} represents '@i{i}' itself.
+
+@menu
+* functions::	The mathematical functions built into GNUPLOT
+* operators::	GNUPLOT's arithmetic and logical operators
+@end menu
+
+@node functions, operators, expressions, expressions
+@subsection functions
+
+The functions in GNUPLOT are the same as the corresponding functions
+in the UNIX math library, except that all functions accept integer,
+real, and complex arguments, unless otherwise noted.  The @code{sgn()}
+function is also supported, as in BASIC.
+
+Here is a list of the functions provided by GNUPLOT.
+
+@table @code
+@item abs
+
+This function returns the absolute value of its argument.  The
+returned value is of the same type as the argument. 
+
+For complex arguments, abs(x) is defined as the length of x in the
+complex plane [i.e.  sqrt(real(x)**2 + imag(x)**2) ].
+
+@item acos
+
+This function returns the arc cosine (inverse cosine) of its
+argument.  @code{acos} returns its argument in radians. 
+
+@item arg
+
+This function returns the phase of a complex number, in radians.  
+
+@item asin
+
+This function returns the arc sin (inverse sin) of its argument.
+@code{asin} returns its argument in radians. 
+
+@item atan
+
+This function returns the arc tangent (inverse tangent) of its
+argument.  @code{atan} returns its argument in radians. 
+
+@item besj0
+
+This function returns the j0th Bessel function of its argument.
+@code{besj0} expects its argument to be in radians.
+
+@item besj1
+
+This function returns the j1st Bessel function of its argument.
+@code{besj1} expects its argument to be in radians.
+
+@item besy0
+
+This function returns the y0th Bessel function of its argument.
+@code{besy0} expects its argument to be in radians.
+
+@item besy1
+
+This function returns the y1st Bessel function of its argument.
+@code{besy1} expects its argument to be in radians.
+
+@item ceil
+
+This function returns the largest integer not less than its
+argument.  For complex numbers, @code{ceil} returns the largest integer
+not less than the real part of its argument. 
+
+@item cos
+
+This function returns the cosine of its argument.  @code{cos} expects its
+argument to be in radians. 
+
+@item cosh
+
+This function returns the hyperbolic cosine of its argument.
+@code{cosh} expects its argument to be in radians. 
+
+@item exp
+
+This function returns the exponential function of its argument
+(@i{e} raised to the power of its argument). 
+
+@item floor
+
+This function returns the smallest integer not greater than its
+argument.  For complex numbers, @code{floor} returns the smallest
+integer not greater than the real part of its argument. 
+
+@item imag
+
+This function returns the imaginary part of its argument as a real number.
+
+@item int
+
+This function returns the integer part of its argument, truncated
+toward zero. 
+
+@item log
+
+This function returns the natural logarithm (base @i{e}) of its
+argument. 
+
+@item log10
+
+This function returns the logarithm (base 10) of its argument.
+
+@item real
+
+This function returns the real part of its argument.
+
+@item sgn
+
+This function returns 1 if its argument is positive, -1 if its
+argument is negative, and 0 if its argument is 0.  If the argument
+is a complex value, the imaginary component is ignored. 
+
+@item sin
+
+This function returns the sine of its argument.  @code{sin} expects its
+argument to be in radians. 
+
+@item sinh
+
+This function returns the hyperbolic sine of its argument.  @code{sinh}
+expects its argument to be in radians. 
+
+@item sqrt
+
+This function returns the square root of its argument.
+
+@item tan
+
+This function returns the tangent of its argument.  @code{tan} expects
+its argument to be in radians. 
+
+@item tanh
+
+This function returns the hyperbolic tangent of its argument.
+@code{tanh} expects its argument to be in radians. 
+
+@end table
+
+@node operators, help, functions, expressions
+@subsection operators
+
+The operators in GNUPLOT are the same as the corresponding operators
+in the C programming language, except that all operators accept
+integer, real, and complex arguments, unless otherwise noted.
+The @code{**} operator (exponentiation) is supported, as in FORTRAN.
+
+Parentheses may be used to change order of evaluation.
+
+@menu
+* Binary Operators::	Operators which operate on two values
+* Unary Operators::	Operators which operate on a single value
+@end menu
+
+@node Binary Operators, Unary Operators, operators, operators
+@subsubsection Binary Operators
+
+The following is a list of all the binary operators and their
+usages:
+
+@example
+Symbol         Example        Explanation
+
+**             a**b           exponentiation
+*              a*b            multiplication
+/              a/b            division
+%              a%b          * modulo
++              a+b            addition
+-              a-b            subtraction
+==             a==b           equality
+!=             a!=b           inequality
+&              a&b          * bitwise and
+^              a^b          * bitwise exclusive or
+|              a|b          * bitwise inclusive or
+&&             a&&b         * logical and
+||             a||b         * logical or
+?:             a?b:c        * ternary operation
+
+@end example
+
+(*) Starred explanations indicate that the operator requires
+integer arguments.
+
+Logical AND (@code{&&}) and OR (@code{||}) short-circuit the way they do in
+C.  That is, the second @code{&&} operand is not evaluated if the first is
+false; the second @code{||} operand is not evaluated if the first is true.
+
+The ternary operator evaluates its first argument (a).  If it is
+true (non-zero) the second argument (b) is evaluated and returned,
+otherwise the third argument (c) is evaluated and returned. 
+
+@node Unary Operators, help, Binary Operators, operators
+@subsubsection Unary Operators
+
+The following is a list of all the unary operators and their
+usages:
+
+@example
+Symbol         Example           Explanation
+
+ -              -a               unary minus
+ ~              ~a             * one's complement
+ !              !a             * logical negation
+ !              a!             * factorial
+@end example
+
+(*) Starred explanations indicate that the operator requires an
+integer argument.
+
+The factorial operator returns a real number, to allow a greater range.
+
+@node help, load, expressions, top
+@section help
+
+The @code{help} command displays on-line help.  To get help with a
+particular topic use the syntax:
+
+@example
+help @var{topic}
+@end example
+
+The @code{help} command works by printing the node from the on-line
+GNUPLOT Info documentation corresponding to @var{topic}.  Typing
+@samp{help ?} prints a list of all the available topics.
+
+At a later time, a full blown Info system may be installed in GNUPLOT.
+Someone is currently writing such a thing, but it is not yet finished.
+
+You can change the name of the file where GNUPLOT looks for on-line
+documentation with the @code{set helpfile} command (@pxref{setshow}).
+Normally, you will not have to do this.
+
+@node load, plot, help, top
+@section load
+
+This command executes each line of the specified input file as if it had
+been typed in interactively.  Files created by the @code{save} command can
+later be @code{load}ed (@pxref{save}).  Any text file containing valid
+commands can be created and then executed by the @code{load} command.
+Files being @code{load}ed may themselves contain @code{load} commands.
+Lines beginning with # (or !  if using VMS) will be treated as comments and
+ignored.
+
+The @code{load} command must be the last command on the line. 
+
+Syntax:
+@example
+load @var{input-file}
+@end example
+
+@noindent
+The name of the input file must be enclosed in quotes.
+
+Examples:
+
+@example
+load 'work.gnu'
+load "func.dat"
+@end example
+
+@node plot, datafile, load, top
+@section plot
+
+@code{plot} is the primary command of the program.  It plots functions and
+data in many, many ways.  The full syntax of this command is:
+
+@example
+plot @{ranges@}   @var{function} @{style@} @{, @var{function} @{style@}...@}
+@end example
+
+@noindent
+Where @var{function} is either a mathematical expression or the name of a
+data file enclosed in quotes.  User-defined functions and variables may
+also be defined here.  @xref{ranges} for information about how to specify
+plotting ranges; @pxref{functions} for information about functions;
+@pxref{style} for information about plotting styles.@refill
+
+Curly braces (@{ and @}) denote optional items.
+
+A @code{plot} command can be as simple as
+
+@example
+plot sin(x)
+@end example
+
+@noindent
+or as complex as (!)
+
+@example
+plot [t=1:10] [-pi:pi*2] tan(t),"data.1" with lines,t**2 with points
+@end example
+
+@node datafile, ranges, plot, top
+@section data_file
+
+Discrete data contained in a file can displayed by specifying the
+name of the data file (enclosed in quotes) on the @code{plot} command
+line (@pxref{plot}).
+
+Data files should contain one data point per line.  A data point may
+be specified either as an X and Y value separated by blank space, or
+as just the Y value, in which case the program will use the number
+of the coordinate as the X value.  Coordinate numbers starts at 0
+and are incremented for each data point read.  Blank lines and lines
+beginning with # will be treated as comments and ignored. 
+
+This example compares the data in the file population.dat to a
+theoretical curve:
+
+@example
+pop(x) = 103*exp((1965-x)/10)
+plot [1960:1990] 'population.dat', pop(x)
+@end example
+
+@noindent
+The file population.dat might contain:
+
+@example
+# Gnu population in Antarctica since 1965
+1965   103
+1970   55
+1975   34
+1980   24
+1985   10
+@end example
+
+@node ranges, style, datafile, top
+@section ranges
+
+This option specifies the region of the plot which will be displayed. 
+
+Ranges may be provided on the @code{plot} command line as synonyms for
+the @code{set xrange} and @code{set yrange} commands.
+
+Syntax:
+@example
+[@{@var{dummy-var} =@} @{@var{xmin} : @var{xmax}@}] @{ [@{@var{ymin} : @var{ymax}@}] @}
+@end example
+
+@noindent
+Where @var{dummy-var} is the independent variable (the default is @code{x},
+but this may be changed with the @code{set dummy} command) and the min
+and max terms can be expressions or constants. 
+
+Both the @var{min} and @var{max} terms are optional.  The @samp{:} is also
+optional if neither a @var{min} nor a @var{max} term is specified.  This
+allows @samp{[]} to be used as a null range specification.
+
+Specifying a Y range turns autoscaling @i{off}.
+
+Examples:
+
+This uses current ranges:
+
+@example
+plot cos(x)
+@end example
+
+@noindent
+This sets the X range only:
+
+@example
+plot [-10:30] sin(pi*x)/(pi*x)
+@end example
+
+@noindent
+This is the same, but uses t as the dummy-variable:
+
+@example
+plot [t = -10 :30]  sin(pi*t)/(pi*t)
+@end example
+
+@noindent
+This sets both the x and yranges:
+
+@example
+plot [-pi:pi] [-3:3]  tan(x), 1/x
+@end example
+
+@noindent
+This sets only the Y range:
+
+@example
+plot [] [-2:sin(5)*-8] sin(x)**besj0(x)
+@end example
+
+@noindent
+This sets @var{xmax} and @var{ymin} only:
+
+@example
+plot [:200] [-pi:]  exp(sin(x))
+@end example
+
+@node style, print, ranges, top
+@section style
+
+Plots may be displayed in one of three styles: @code{lines}, @code{points},
+or @code{impulses}.  The @code{lines} style connects adjacent points with
+lines.  The @code{points} style displays a small symbol at each point.  The
+@code{impulses} style displays a vertical line from the X axis to each
+point.
+
+Default styles are chosen with the @code{set function style} and
+@code{set data style} commands.  @xref{setshow}.
+
+Syntax:
+
+@example
+with @var{style}
+@end example
+
+@noindent
+Where @var{style} is one of @code{lines}, @code{points}, or
+@code{impulses}.  These keywords may be abbreviated.  Examples:
+
+@noindent
+This plots sin(x) with impulses:
+
+@example
+plot sin(x) with impulses
+@end example
+
+@noindent
+This plots sin(x) with points, cos(x) default:
+
+@example
+plot [-9:30]  sin(x) w points, cos(x)
+@end example
+
+@noindent
+This plots tan(x) with the default function style, "data.1" with lines:
+
+@example
+plot [] [-2:5] tan(x), "data.1" with l
+@end example
+
+@noindent
+This plots @file{leastsq.dat} with impulses:
+
+@example
+plot 'leastsq.dat' w i
+@end example
+
+@noindent
+@xref{plot}.
+
+@node print, quit, style, top
+@section print
+
+This command prints the value of @var{expression} to the screen.
+
+@noindent
+Syntax:
+
+@example
+print @var{expression}
+@end example
+
+@noindent
+@xref{expressions}.
+
+@node quit, replot, print, top
+@section quit
+
+@code{quit} is a synonym for @code{exit}.  @xref{exit}.
+
+@node replot, save, quit, top
+@section replot
+
+@code{replot} repeats the last @code{plot} command (@pxref{plot}).  This
+can be useful for viewing a plot with different @code{set} options, or when
+generating the same plot for several devices.  @xref{setshow}.
+
+@node save, setshow, replot, top
+@section save
+
+This command saves either user-defined functions, variables, or both
+to the specified file. 
+
+Syntax:
+
+@example
+save  @{option@} @var{filename}
+@end example
+
+@noindent
+Where @var{option} is either @code{functions} or @code{variables}.  If no
+option is used GNUPLOT saves both functions and variables.
+
+@code{save}d files are written in text format and may be read by the
+@code{load} command.  @xref{load}.
+
+The filename must be enclosed in quotes.
+
+Examples:
+
+@example
+save "work.gnu"
+save functions 'func.dat'
+save var 'var.dat'
+@end example
+
+@node setshow, shell, save, top
+@section set-show
+
+The @code{set} command sets LOTS of options.
+
+The @code{show} command shows their settings.  @code{show all} shows all
+the settings.
+
+@table @code
+
+@item autoscale
+If autoscaling is set, the Y axis is automatically scaled to fit the range
+of the function or data being plotted.  If autoscaling is not set, the
+current Y range is used.  The @code{set yrange} command (@pxref{setshow})
+is used to change the current Y range.
+
+Syntax:
+@example
+set autoscale
+set noautoscale
+show autoscale
+@end example
+
+@item dummy
+By default, GNUPLOT assumes that the independent variable is @code{x} on
+the @code{plot} command line.  @code{x} is called the dummy variable because
+it is just a notation to indicate the independent variable.  The
+@code{set dummy} command changes this default dummy variable name.  For
+example, you may find it more convenient to call the dummy variable
+@code{t} when plotting time functions:
+
+
+@example
+set dummy t
+plot sin(t), cos(t)
+@end example
+
+@noindent
+Syntax:
+
+@example
+set dummy @var{dummy-var}
+show dummy
+@end example
+
+@item functions
+The @code{show functions} command lists all user-defined functions and
+their definitions. 
+
+Syntax:
+
+@example
+show functions
+@end example
+
+@item helpfile
+@code{set helpfile @var{filename}} tells GNUPLOT where its on-line
+documentation file lives.  By default, it is supposed to be set to the
+right place.  You must enclose @var{filename} in quotes.
+
+Example:
+
+@example
+set helpfile '/u1/gnuplot/docs/gnuplot.info'
+@end example
+
+@item logscale
+Log scaling may be set on the X and/or Y axis.
+
+Syntax:
+
+@example
+set logscale @var{axes}
+set nologscale
+show logscale
+@end example
+
+@noindent
+Where @var{axes} is either @samp{x}, @samp{y}, or @samp{xy}.
+
+@item output
+By default, plots are displayed to the standard output.  The
+@code{set output} command redirects the displays to the specified file or
+device. 
+
+Syntax:
+
+@example
+set output @{filename@}
+show output
+@end example
+
+@noindent
+The filename must be enclosed in quotes.  If the filename is
+omitted, output will be sent to the standard output. 
+
+@item samples
+The sampling rate of functions may be changed by the @code{set samples}
+command.  By default, sampling is set to 160 points.  A higher
+sampling rate will produce more accurate plots, but will take
+longer.  In generating plots, GNUPLOT will use either the sampling
+rate set or the resolution of the current output device, whichever
+is lower. 
+
+Syntax:
+
+@example
+set samples @var{expression}
+show samples
+@end example
+
+@item style
+Plots may be displayed in one of three styles: @code{lines}, @code{points},
+or @code{impulses}.  The @code{lines} style connects adjacent points with
+lines.  The @code{points} style displays a small symbol at each point.  The
+@code{impulses} style displays a vertical line from the X axis to each
+point.
+
+Default styles are chosen with the @code{set function style} and @code{set
+data style} commands.  See @code{plot} for information about how to
+override the default plotting style for individual functions. 
+
+Syntax:
+
+@example
+set function style @var{style}
+set data style @var{style}
+show function style
+show data style
+@end example
+
+@noindent
+Where style is either @code{lines}, @code{points}, or @code{impulses}.
+
+@item terminal
+GNUPLOT supports many different graphics devices.  Use the @code{set
+terminal} command to select the type of device for which GNUPLOT
+will produce output. 
+
+Syntax:
+
+@example
+set terminal @var{terminal-type}
+show terminal
+@end example
+
+@noindent
+If @var{terminal-type} is omitted, GNUPLOT will list the available
+terminal types.  @var{terminal-type} may be abbreviated. 
+
+Use @code{set output} to redirect this output to a file or device.
+
+@item variables
+The @code{show variables} command lists all user-defined variables and
+their values. 
+
+Syntax:
+
+@example
+show variables
+@end example
+
+@item xrange
+The @code{set xrange} command sets the horizontal range which will be
+displayed. 
+
+This range may also be specified on the @code{plot} command line.
+
+Syntax:
+
+@example
+set xrange [@{xmin : xmax@}]
+@end example
+
+@noindent
+Where @var{xmin} and @var{xmax} terms are expressions or constants.
+
+Both the @var{xmin} and @var{xmax} terms are optional.
+
+@item yrange
+The @code{set yrange} command sets the vertical range which will be
+displayed.  This command turns autoscaling OFF. 
+
+This range may also be specified on the @code{plot} command line.
+
+Syntax:
+
+@example
+set yrange [@{ymin : ymax@}]
+@end example
+
+@noindent
+Where @var{ymin} and @var{ymax} terms are expressions or constants.
+
+Both the @var{ymin} and @var{ymax} terms are optional.
+
+@item zero
+GNUPLOT will not plot a point if its imaginary part is greater in magnitude
+than the @code{zero} threshold.
+The default @code{zero} value is 1e-8.@refill
+
+Syntax:
+
+@example
+set zero @var{expression}
+show zero
+@end example
+@end table
+
+
+@node shell, startup, setshow, top
+@section shell
+
+The @code{shell} command spawns an interactive shell.  To return to
+GNUPLOT, type @samp{logout} if using VMS, @samp{exit} or your END-OF-FILE
+character if using Unix, or @samp{exit} if using MS-DOS. 
+
+A single shell command may be spawned by preceding it with the !
+character ($ if using VMS) at the beginning of a command line.
+Control will return immediately to GNUPLOT after this command is
+executed.  For example,
+
+
+@example
+! dir
+@end example
+
+@noindent
+prints a directory listing and then returns to GNUPLOT.
+
+@node startup, substitution, shell, top
+@section start_up
+
+When GNUPLOT is run, it looks for an initialization file to load.  This
+file is called @file{.gnuplot} on Unix systems, and @file{GNUPLOT.INI} on
+other systems.  If this file is not found in the current directory, the
+program will look for it in your home directory (under MS-DOS, the
+environment variable GNUPLOT should contain the name of this directory).
+
+If this file is found, GNUPLOT executes the commands in this file.
+This is most useful for setting your terminal type and defining any
+functions or variables which you use often.  The variable @code{pi} is
+already defined for you. 
+
+@node substitution, userdefined, shell, top
+@section substitution
+
+Command-line substitution is specified by a system command enclosed in
+backquotes (@kbd{`}).  This command is spawned and the output it produces
+replaces the name of the command (and backquotes) on the command line.
+Newlines in the output produced by the spawned command are replaced with
+blanks.  Command-line substitution can be used anywhere on the GNUPLOT
+command line.
+
+This example will run the program @file{leastsq} and substitute
+@samp{`leastsq`} on the command line with its output:
+
+@example
+f(x) = `leastsq`
+@end example
+
+@noindent
+or, in VMS
+
+@example
+f(x) = `run leastsq`
+@end example
+
+@node userdefined, , substitution, top
+@section user_defined
+
+You may define your own functions and variables.  User-defined
+functions and variables may be used anywhere. 
+
+User-defined function syntax:
+
+@example
+@var{function-name} ( @var{dummy-var} ) =  @var{expression}
+@end example
+
+@noindent
+Where @var{expression} is defined in terms of @var{dummy-var}.
+
+User-defined variable syntax:
+
+@example
+@var{variable-name} = @var{constant-expression}
+@end example
+
+@noindent
+Examples:
+
+@example
+w = 2
+q = floor(tan(pi/2 - 0.1))
+f(x) = sin(w*x)
+sinc(x) = sin(pi*x)/(pi*x)
+delta(t) = (t == 0)
+ramp(t) = (t > 0) ? t : 0
+@end example
+
+@noindent
+The variable @code{pi} is already defined for you.  The descriptions of
+@code{show functions} and @code{show variables} say more about variables
+(@pxref{setshow}).
+@bye

@@ -1,0 +1,3 @@
+.IP \fImax_keys_per_mod\fP 1i
+Specifies the maximum number of keycodes assigned to any of the modifiers
+in the map.

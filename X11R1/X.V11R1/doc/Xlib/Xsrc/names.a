@@ -1,0 +1,4 @@
+.IP \fInames\fP 1i		
+Specified the full name of the client, including any predecessor names,
+as returned by the resource manager from
+.PN XGetResources .

@@ -1,0 +1,3 @@
+.\" $Header: height0.a,v 11.3 87/03/28 10:56:46 mento Exp $
+.IP \fIheight0\fP 1i
+Returns the base height for the specified window.

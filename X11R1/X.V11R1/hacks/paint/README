@@ -1,0 +1,52 @@
+Read carefully; this is the only documentation there is!
+
+The paint program takes no paramaters.  It makes a connection to
+$DISPLAY, and opens a window near the upper-left corner of the screen.
+
+Paint is very modal.  There are keyboard commands to change the modes. 
+Type the commands at the window on the X11 display.  The current mode
+is displayed on stdout.  (I would like to display the current mode on
+the X11 window, but I couldn't get fonts to work.)
+
+Some of the keyboard commands take an integer argument.  To specify an
+argument, type a number (with an optional minus sign) before the key
+for the command.  Thus, to set line thickness to 72, type "72t".
+
+a	Draw an arc.  When the user drags through a rectangle with the
+mouse, an arc will be inscribed in that rectangle (from angle1 to angle2).
+
+A	Draw a filled arc.  Same as above, but arc will be filled.
+
+C	Clear the window.
+
+f	Change the alu function.  This takes an argument from 0 to 15.
+
+l	Draw lines.  When the user drags through the window, a line
+will be drawn from where he presses the button to where he releases it.
+
+p	Draw polygons.  Specify several points on the screen by
+clicking with the left button.  Specify the last point with the right
+button.  A polygon will be drawn connecting the points in order.  (This
+isn't a real polygon; it won't automatically connect the first and last
+points for you.  This is just a test for XLines().)
+
+P	Draw filled polygons.  Same as above, but the polygon will be
+filled.  (The first and last points are connected by the server.)
+
+r	Draw a rectangle.  Drag through a rectangle, and the outline of
+that rectangle will be drawn.
+
+R	Draw a filled rectangle.  Same as above, but the rectangle is filled.
+
+t	Change the thickness (a.k.a. "line width").  The line width is
+set to the argument.
+
+,	Set the value of angle1 to the argument.  The units are
+degrees.  (This was supposed to be a '<', but because I have to work to
+detect shifted characters, ',' was easier.)
+
+.	Set the value of angle2 to the argument.  (As above, this was
+supposed to be a '>'.)
+
+Paint will also refresh itself on expose windows.  The code to do this
+correctly with clipping rectangles is currently commented out.

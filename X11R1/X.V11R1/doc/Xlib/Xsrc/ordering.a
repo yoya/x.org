@@ -1,0 +1,9 @@
+.\" $Header: ordering.a,v 11.4 87/05/29 07:28:30 jg Exp $
+.IP \fIordering\fP 1i
+Specifies the ordering relations on the rectangles.
+Possible values are
+.PN Unsorted ,
+.PN YSorted ,
+.PN YXSorted ,
+or
+.PN YXBanded .

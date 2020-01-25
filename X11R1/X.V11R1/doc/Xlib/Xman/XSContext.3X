@@ -1,0 +1,137 @@
+.na
+.de FD
+.LP
+.KS
+.TA 1.0i 3i
+.ta 1.0i 3i
+.nf
+..
+.de FN
+.fi
+.KE
+.LP
+..
+.de IN		\" send an index entry to the stderr
+..
+.de C{
+.KS
+.nf
+.D
+.\"
+.\"	choose appropriate monospace font
+.\"	the imagen conditional, 480,
+.\"	may be changed to L if LB is too
+.\"	heavy for your eyes...
+.\"
+.ie "\\*(.T"480" .ft L
+.el .ie "\\*(.T"300" .ft L
+.el .ie "\\*(.T"202" .ft PO
+.el .ie "\\*(.T"aps" .ft CW
+.el .ft R
+.ps \\n(PS
+.ie \\n(VS>40 .vs \\n(VSu
+.el .vs \\n(VSp
+..
+.de C}
+.DE
+.R
+..
+.de PN
+.ie t \f(H\|\\$1\|\fR\\$2
+.el \fI\|\\$1\|\fP\\$2
+..
+.de NT
+.ne 7
+.ds NO Note
+.if \\n(.$>$1 .if !'\\$2'C' .ds NO \\$2
+.if \\n(.$ .if !'\\$1'C' .ds NO \\$1
+.ie n .sp
+.el .sp 10p
+.TB
+.ce
+\\*(NO
+.ie n .sp
+.el .sp 5p
+.if '\\$1'C' .ce 99
+.if '\\$2'C' .ce 99
+.in +5n
+.ll -5n
+.R
+..
+.		\" Note End -- doug kraft 3/85
+.de NE
+.ce 0
+.in -5n
+.ll +5n
+.ie n .sp
+.el .sp 10p
+..
+.ny0
+.TH XSaveContext 3X 
+.SH NAME
+XSaveContext, XFindContext, XDeleteContext, XUniqueContext \- manipulate the context manager
+.SH SYNTAX
+int XSaveContext(\^\fIdisplay\fP, \fIw\fP, \fIcontext\fP, \fIdata\fP\^)
+.br
+      Display *\fIdisplay\fP\^;	
+.br
+      Window \fIw\fP\^;
+.br
+      XContext \fIcontext\fP\^;
+.br
+      caddr_t \fIdata\fP\^;
+.LP
+int XFindContext(\^\fIdisplay\fP, \fIw\fP, \fIcontext\fP, \fIdata_return\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Window \fIw\fP\^;
+.br
+      XContext \fIcontext\fP\^;
+.br
+      caddr_t *\fIdata_return\fP\^;	
+.LP
+int XDeleteContext(\^\fIdisplay\fP, \fIw\fP, \fIcontext\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Window \fIw\fP;
+.br
+      XContext \fIcontext\fP;
+.LP
+XContext XUniqueContext(\^)
+.SH ARGUMENTS
+.IP \fIcontext\fP 1i
+Specifies the context type to which the data belongs.
+.IP \fIdata\fP 1i
+Specifies the data to be associated with the window and type.
+.IP \fIdata_return\fP 1i
+Returns a pointer to the data.
+.\" $Header: display.a,v 11.8 87/09/03 11:02:24 mento Exp $
+.IP \fIdisplay\fP 1i
+Specifies the connection to the X server.
+.IP \fIw\fP 1i
+Specifies the window with which the data is associated.
+.SH DESCRIPTION
+.\" $Header: XSContext.d,v 1.1 87/08/27 14:21:07 mento Exp $
+The
+.PN XSaveContext
+function saves a data value that corresponds to a window and context type.
+.LP
+.\" $Header: XFContext.d,v 1.1 87/08/27 14:18:53 mento Exp $
+The
+.PN XFindContext
+function gets the data associated with a window and type.
+.LP
+.\" $Header: XDContext.d,v 1.1 87/08/27 14:18:36 mento Exp $
+The
+.PN XDeleteContext
+function deletes an entry for a given window and type.
+.LP
+.\" $Header: XUContext.d,v 1.1 87/08/27 14:22:03 mento Exp $
+The
+.PN XUniqueContext
+function creates a unique context type that may be used in subsequent calls to
+.PN XSaveContext .
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

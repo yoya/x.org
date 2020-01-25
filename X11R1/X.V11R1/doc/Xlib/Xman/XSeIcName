@@ -1,0 +1,42 @@
+.TH XSetIconName 3X 
+.SH NAME
+XSetIconName, XGetIconName \- set or get icon names
+.SH SYNTAX
+.so ../Xsrc/XSetIName.f
+.LP
+.so ../Xsrc/XGetIName.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/icon_name.a
+.so ../Xsrc/icon_name1.a
+.so ../Xsrc/w.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSetIName.d
+.ds fd .PN XSetIconName
+.so ../Xsrc/errsent.com
+.PN BadWindow
+and
+.PN BadAlloc .
+.LP
+.so ../Xdescrip/XGetIName.d
+.ds fd .PN XGetIconName
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.SH PROPERTY
+WM_ICON_NAME
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XSetClassHint(3X),
+XSetCommand(3X),
+XSetIconSizeHints(3X),
+XSetNormalHints(3X),
+XSetSizeHints(3X),
+XSetStandardProperties(3X),
+XSetTransientForHint(3X),
+XSetWMHints(3X),
+XSetZoomHints(3X),
+XStoreName(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

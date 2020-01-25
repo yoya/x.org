@@ -1,0 +1,19 @@
+.TH XPolygonRegion 3X 
+.SH NAME
+XPolygonRegion, XClipBox \- generate regions
+.SH SYNTAX
+.so ../Xsrc/XPolyRegion.f
+.LP
+.so ../Xsrc/XClipBox.f
+.SH ARGUMENTS
+.so ../Xsrc/fill_rule.a
+.so ../Xsrc/n1.a
+.so ../Xsrc/points1.a
+.so ../Xsrc/r.a
+.so ../Xsrc/rect.a
+.SH DESCRIPTION
+.so ../Xdescrip/XPolyRegion.d
+.LP
+.so ../Xdescrip/XClipBox.d
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

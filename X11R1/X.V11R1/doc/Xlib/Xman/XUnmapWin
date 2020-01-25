@@ -1,0 +1,31 @@
+.TH XUnmapWindow 3X 
+.SH NAME
+XUnmapWindow, XUnmapSubwindows \- unmap windows
+.SH SYNTAX
+.so ../Xsrc/XUnmapWindow.f
+.LP
+.so ../Xsrc/XUnmapSubs.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/w.a
+.SH DESCRIPTION
+.so ../Xdescrip/XUnmapWindow.d
+.ds fd .PN XUnmapWindow
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.so ../Xdescrip/XUnmapSubs.d
+.ds fd .PN XUnmapSubwindows
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.SH DIAGNOSTICS
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XChangeWindowAttributes(3X),
+XConfigureWindow(3X),
+XCreateWindow(3X),
+XDestroyWindow(3X),
+XMapWindow(3X)
+XRaiseWindow(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

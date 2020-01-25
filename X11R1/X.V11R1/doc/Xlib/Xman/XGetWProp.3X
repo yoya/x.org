@@ -1,0 +1,334 @@
+.na
+.de FD
+.LP
+.KS
+.TA 1.0i 3i
+.ta 1.0i 3i
+.nf
+..
+.de FN
+.fi
+.KE
+.LP
+..
+.de IN		\" send an index entry to the stderr
+..
+.de C{
+.KS
+.nf
+.D
+.\"
+.\"	choose appropriate monospace font
+.\"	the imagen conditional, 480,
+.\"	may be changed to L if LB is too
+.\"	heavy for your eyes...
+.\"
+.ie "\\*(.T"480" .ft L
+.el .ie "\\*(.T"300" .ft L
+.el .ie "\\*(.T"202" .ft PO
+.el .ie "\\*(.T"aps" .ft CW
+.el .ft R
+.ps \\n(PS
+.ie \\n(VS>40 .vs \\n(VSu
+.el .vs \\n(VSp
+..
+.de C}
+.DE
+.R
+..
+.de PN
+.ie t \f(H\|\\$1\|\fR\\$2
+.el \fI\|\\$1\|\fP\\$2
+..
+.de NT
+.ne 7
+.ds NO Note
+.if \\n(.$>$1 .if !'\\$2'C' .ds NO \\$2
+.if \\n(.$ .if !'\\$1'C' .ds NO \\$1
+.ie n .sp
+.el .sp 10p
+.TB
+.ce
+\\*(NO
+.ie n .sp
+.el .sp 5p
+.if '\\$1'C' .ce 99
+.if '\\$2'C' .ce 99
+.in +5n
+.ll -5n
+.R
+..
+.		\" Note End -- doug kraft 3/85
+.de NE
+.ce 0
+.in -5n
+.ll +5n
+.ie n .sp
+.el .sp 10p
+..
+.ny0
+.TH XGetWindowProperty 3X 
+.SH NAME
+XGetWindowProperty, XListProperties, XChangeProperty, XRotateWindowProperties, 
+XDeleteProperty \- obtain and change window properties
+.SH SYNTAX
+.\" $Header: XGetProperty.f,v 11.23 87/08/15 12:13:38 mento Exp $
+int XGetWindowProperty\^(\^\fIdisplay\fP, \fIw\fP\^, \fIproperty\fP\^, \fIlong_offset\fP\^, \fIlong_length\fP\^, \fIdelete\fP\^, \fIreq_type\fP\^, 
+.br
+                        \fIactual_type_return\fP\^, \fIactual_format_return\fP\^, \fInitems_return\fP\^, \fIbytes_after_return\fP\^, 
+.br
+                        \fIprop_return\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Window \fIw\fP\^;
+.br
+      Atom \fIproperty\fP\^;
+.br
+      long \fIlong_offset\fP\^, \fIlong_length\fP\^;
+.br
+      Bool \fIdelete\fP\^;
+.br
+      Atom \fIreq_type\fP\^; 
+.br
+      Atom *\fIactual_type_return\fP\^;
+.br
+      int *\fIactual_format_return\fP\^;
+.br
+      unsigned long *\fInitems_return\fP\^;
+.br
+      long *\fIbytes_after_return\fP\^;
+.br
+      unsigned char **\fIprop_return\fP\^;
+.LP
+.\" $Header: XListProps.f,v 11.6 87/09/04 16:24:43 mento Exp $
+Atom *XListProperties\^(\^\fIdisplay\fP, \fIw\fP\^, \fInum_prop_return\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Window \fIw\fP\^;
+.br
+      int *\fInum_prop_return\fP\^; 
+.LP
+.\" $Header: XChProperty.f,v 11.7 87/08/15 12:10:58 mento Exp $
+XChangeProperty\^(\^\fIdisplay\fP, \fIw\fP\^, \fIproperty\fP\^, \fItype\fP\^, \fIformat\fP\^, \fImode\fP\^, \fIdata\fP\^, \fInelements\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Window \fIw\fP\^;
+.br
+      Atom \fIproperty\fP\^, \fItype\fP\^;
+.br
+      int \fIformat\fP\^;
+.br
+      int \fImode\fP\^;
+.br
+      unsigned char *\fIdata\fP\^;
+.br
+      int \fInelements\fP\^;
+.LP
+XRotateWindowProperties\^(\^\fIdisplay\fP, \fIw\fP, \fIproperties\fP, \fInum_prop\fP, \fInpositions\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Window \fIw\fP\^;
+.br
+      Atom \fIproperties\fP\^[]\^;
+.br
+      int \fInum_prop\fP\^;
+.br
+      int \fInpositions\fP\^;
+.LP
+.\" $Header: XDeleteProp.f,v 11.5 87/08/15 12:11:56 mento Exp $
+XDeleteProperty\^(\^\fIdisplay\fP, \fIw\fP\^, \fIproperty\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Window \fIw\fP\^;
+.br
+      Atom \fIproperty\fP\^;
+.SH ARGUMENTS
+.\" $Header: act_format.a,v 11.5 87/09/09 19:05:25 mento Exp $
+.IP \fIactual_format_return\fP 1i
+Returns the actual format of the property.
+.\" $Header: actual_type.a,v 11.5 87/09/09 19:06:46 mento Exp $
+.IP \fIactual_type_return\fP 1i
+Returns the atom identifier  that defines the actual type of the property.
+.IP \fIbytes_after_return\fP 1i
+Returns the number of bytes remaining.
+This is the number of bytes remaining to be read in the property if 
+a partial read was performed.
+.\" $Header: data1.a,v 11.2 87/03/28 10:55:07 mento Exp $
+.IP \fIdata\fP 1i
+Specifies the property data.
+.\" $Header: delete.a,v 11.5 87/08/31 10:42:29 mento Exp $
+.IP \fIdelete\fP 1i
+.IN "Property" "Deleting"
+Specifies a boolean value that determines whether the property is deleted
+from the window.
+You can pass one of these constants:
+.PN True
+or
+.PN False .
+.\" $Header: display.a,v 11.8 87/09/03 11:02:24 mento Exp $
+.IP \fIdisplay\fP 1i
+Specifies the connection to the X server.
+.\" $Header: format.a,v 11.5 87/08/28 07:28:21 mento Exp $
+.IP \fIformat\fP 1i
+Specifies whether the data should be viewed as a list
+of 8-bit, 16-bit, or 32-bit quantities.
+This information allows the X server to correctly perform
+byte-swap operations as necessary.
+If the format is 16-bit or 32-bit,
+you must explicitly cast your data pointer to a (char *) in the call
+to 
+.PN XChangeProperty .
+Possible values are 8, 16, and 32.
+.IP \fIlong_length\fP 1i
+Specifies the length in 32-bit multiples of the data to be retrieved.
+.IP \fIlong_offset\fP 1i
+Specifies the offset in the specified property (in 32-bit quantities) 
+where data will be retrieved.
+.\" $Header: prop_mode.a,v 1.5 87/09/01 11:16:19 mento Exp $
+.\" Changed name of this file to prop_mode.a on 1/13/87
+.IP \fImode\fP 1i
+Specifies the mode of the operation.
+You can pass one of these constants:
+.PN PropModeReplace ,
+.PN PropModePrepend ,
+or
+.PN PropModeAppend .
+.\" $Header: nelements.a,v 11.4 87/08/04 12:08:48 mento Exp $
+.IP \fInelements\fP 1i
+Specifies the number of elements of the specified data format (8-bit, 16-bit, or
+32-bit).
+.IP \fInitems_return\fP 1i
+Returns the actual number of 8-bit, 16-bit, or 32-bit items transferred.
+.IP \fInum_prop\fP 1i
+Specifies the length of the properties array.
+.IP \fInum_prop_return\fP 1i
+Returns the length of the properties array.
+.IP \fInpositions\fP 1i
+Specifies the rotation amount.
+.IP \fIprop_return\fP 1i
+Returns a pointer to the data, in the specified format.
+.\" $Header: property.a,v 11.2 87/03/28 10:59:51 mento Exp $
+.IP \fIproperty\fP 1i
+Specifies the property atom.
+.\" $Header: properties.a,v 11.3 87/09/01 11:21:20 mento Exp $
+.IP \fIproperties\fP 1i
+Specifies the array of properties that are to be rotated.
+.\" $Header: reqtype.a,v 11.5 87/03/08 04:20:39 mento Exp $
+.IP \fIreq_type\fP 1i
+.IN "Property" "Type"
+Specifies the atom identifier associated with the property type.
+You can pass an atom identifier or the constant
+.PN AnyPropertyType .
+.\" $Header: type.a,v 11.4 87/08/28 07:27:24 mento Exp $
+.IP \fItype\fP 1i
+Specifies the type of the property.
+The X server does not interpret the type but simply
+passes it back to an application that later calls 
+.PN XGetProperty .
+.\" $Header: w.a,v 11.2 87/03/28 11:02:22 mento Exp $
+.IP \fIw\fP 1i
+Specifies the window ID.
+.SH DESCRIPTION
+.\" $Header: XGetProperty.d,v 1.2 87/08/28 07:15:51 mento Exp $
+The
+.PN XGetWindowProperty
+function returns the actual type of the property; the actual format of the property;
+the number of 8-bit, 16-bit, or 32-bit items transferred; the number of bytes remaining
+to be read in the property; and a pointer to the data actually returned.
+.ds fd .PN XGetWindowProperty
+The errors that can be generated by 
+\*(fd
+are
+.PN BadAtom ,
+.PN BadValue ,
+and
+.PN BadWindow .
+.LP
+.\" $Header: XListProps.d,v 1.1 87/08/27 14:20:08 mento Exp $
+The
+.PN XListProperties
+function returns a pointer to an array of atom properties that are defined for the
+specified window.
+.ds fd .PN XListProperties
+The error that can be generated by
+\*(fd 
+is
+.PN BadWindow .
+.LP
+.\" $Header: XChProperty.d,v 1.2 87/08/28 07:29:43 mento Exp $
+The
+.PN XChangeProperty
+function alters the property for the specified window and
+causes the X server to generate a
+.PN PropertyNotify
+event on that
+window.
+.ds fd .PN XChangeProperty
+The errors that can be generated by 
+\*(fd
+are
+.PN BadWindow ,
+.PN BadAtom ,
+.PN BadAlloc ,
+and
+.PN BadValue .
+.LP
+.\" $Header: XRotProp.d,v 1.2 87/08/28 07:34:51 mento Exp $
+The
+.PN XRotateWindowProperties
+function allows you to rotate properties in the properties array and causes
+the X server to generate a
+.PN PropertyNotify
+event.
+.ds fd .PN XRotateWindowProperties
+The error that can be generated by
+\*(fd 
+is
+.PN BadWindow .
+.LP
+.\" $Header: XDeleteProp.d,v 1.3 87/09/04 16:30:00 mento Exp $
+The
+.PN XDeleteProperty
+function deletes the specified property only if the
+property was defined on the specified window.
+.PN XDeleteProperty
+causes the X server to generate a
+.PN PropertyNotify
+event on the window,
+unless the property does not exist.
+.ds fd .PN XDeleteProperty
+The errors that can be generated by 
+\*(fd
+are
+.PN BadWindow
+and
+.PN BadAtom .
+.SH DIAGNOSTICS
+.\" $Header: badalloc.e,v 1.3 87/09/11 11:17:14 mento Exp $
+.TP 1i
+.PN BadAlloc
+The server failed to allocate the requested resource or server memory.
+.\" $Header: badatom.e,v 1.1 87/09/04 08:22:55 mento Exp $
+.TP 1i
+.PN BadAtom
+A value for an Atom argument does not name a defined Atom.
+.\" $Header: badvalue.e,v 1.1 87/09/04 08:23:19 mento Exp $
+.TP 1i
+.PN BadValue
+Some numeric value falls outside the range of values accepted by the request.
+Unless a specific range is specified for an argument, the full range defined
+by the argument's type is accepted.  Any argument defined as a set of
+alternatives can generate this error.
+.\" $Header: badwindow.e,v 1.1 87/09/04 08:23:20 mento Exp $
+.TP 1i
+.PN BadWindow
+A value for a Window argument does not name a defined Window.
+.SH "SEE ALSO"
+XInternAtom(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

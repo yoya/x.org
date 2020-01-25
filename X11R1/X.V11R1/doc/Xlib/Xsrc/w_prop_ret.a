@@ -1,0 +1,2 @@
+.IP \fIprop_window_return\fP 1i
+Returns the WM_TRANSIENT_FOR property of the specified window.

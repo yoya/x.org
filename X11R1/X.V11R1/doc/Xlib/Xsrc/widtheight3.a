@@ -1,0 +1,5 @@
+.IP \fIwidth_return\fP 1i
+.br
+.ns
+.IP \fIheight_return\fP 1i
+Returns the width and height values of the read in bitmap file.

@@ -1,0 +1,40 @@
+.TH XGrabKey 3X 
+.SH NAME
+XGrabKey, XUngrabKey \- manipulate the keyboard
+.SH SYNTAX
+.so ../Xsrc/XGrabKey.f
+.LP
+.so ../Xsrc/XUngrabKey.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/grab_win3.a
+.so ../Xsrc/keycode.a
+.so ../Xsrc/keybdmode.a
+.so ../Xsrc/modifiers.a
+.so ../Xsrc/ownerevents.a
+.so ../Xsrc/pointermode.a
+.so ../Xsrc/grab_win4.a
+.SH DESCRIPTION
+.so ../Xdescrip/XGrabKey.d
+.ds fd .PN XGrabKey
+.so ../Xsrc/errsent.com
+.PN BadAccess ,
+.PN BadValue ,
+and
+.PN BadWindow .
+.LP
+.so ../Xdescrip/XUngrabKey.d
+.ds fd .PN XUngrabKey
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.SH DIAGNOSTICS
+.so ../Xerrors/badaccess1.e
+.so ../Xerrors/badvalue.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XAllowAccess(3X),
+XGrabButton(3X),
+XGrabKeyboard(3X),
+XGrabPointer(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

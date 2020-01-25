@@ -1,0 +1,12 @@
+.\" $Header: line_style.a,v 11.4 87/03/28 10:57:20 mento Exp $
+.IP \fIline_style\fP 1i
+Specifies the line style you want to set for 
+the specified graphics context.
+Possible values are 
+.PN LineSolid 
+(solid),
+.PN LineOnOffDash
+(on-off dash),
+or
+.PN LineDoubleDash
+(double dash).

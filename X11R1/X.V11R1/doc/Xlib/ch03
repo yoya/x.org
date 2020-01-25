@@ -1,0 +1,2213 @@
+.\".U7
+.\".UT "Window Functions" 3
+\&
+.sp 1
+.ce 3
+\s+1\fBChapter 3\fP\s-1
+
+\s+1\fBWindow Functions\fP\s-1
+.sp 2
+.nr H1 3
+.nr H2 0
+.nr H3 0
+.nr H4 0
+.nr H5 0
+.na
+.LP
+.XS
+Chapter 3 - Window Related Operations
+.XE
+In the X window system, 
+a window is a rectangular area on the screen that lets you
+view graphical output.
+Client applications
+can display overlapping and nested windows on one or more
+screens that are driven by X servers on one or more machines.
+Clients who want to create windows must first 
+connect their program to the X server
+by calling the Xlib function
+.PN XOpenDisplay .
+This chapter begins with a discussion of 
+visual types and window attributes.
+The chapter continues with a discussion of the Xlib functions you can use to:
+.IP \(bu 5
+Create windows 
+.IP \(bu 5
+Destroy windows
+.IP \(bu 5
+Map windows
+.IP \(bu 5
+Unmap windows
+.IP \(bu 5
+Configure windows
+.IP \(bu 5
+Change the stacking order
+.IP \(bu 5
+Change window attributes
+.IP \(bu 5
+Translate window coordinates
+.RE
+.NT
+Your application should seldom directly create windows, particularly
+top-level windows.
+If you use a 
+toolkit, the toolkit will do most of your window-creating 
+for you. See the documentation for your toolkit.
+.NE
+.LP
+This chapter also identifies the window actions that may generate events.
+See Chapter 8 for a complete discussion of events.
+.NH 2
+Visual Types
+.LP
+.IN "Definitions" "Visual Type"
+On some high end displays, it may be possible to deal with color
+resources in more than one way.
+For example, you may be able to deal with the display either as a 12-bit
+display with arbitrary mapping of pixel to color (pseudo-color) or as a 24-bit
+display with 8 bits of the pixel dedicated for red, green, and blue.
+These different ways of dealing with the visual aspects of the display
+are called Visuals.
+For each screen of the display, there may be a list of valid visual types
+supported at different depths of the display.
+Because there are default windows and visual types defined for each screen,
+most simple applications need not deal with this complexity.
+Xlib provides macros and functions that return the default root window, 
+the default depth of the default root window, and the default visual type.
+See Chapter 2 for information on these macros and functions.
+See 
+.PN XMatchVisualInfo
+in Chapter 10 for information about how to find the visual type you need.
+.LP
+Xlib uses a 
+.PN Visual 
+.IN "Data Structures" "Visual"
+structure that contains information about the possible color
+mapping.
+The members of this structure pertinent to this discussion are class, red_mask,
+green_mask, blue_mask, bits_per_rgb, and map_entries.
+The class member specifies the possible visual classes of the screen. 
+It can be one of the constants
+.IN "Visual Classes" "StaticGray"
+.IN "Visual Classes" "StaticColor"
+.IN "Visual Classes" "TrueColor"
+.IN "Visual Classes" "StaticColor"
+.IN "Visual Classes" "GrayScale"
+.IN "Visual Classes" "PseudoColor"
+.PN StaticGray ,
+.PN StaticColor ,
+.PN TrueColor ,
+.PN GrayScale ,
+.PN PseudoColor ,
+or
+.PN DirectColor .
+.LP
+Conceptually, as each pixel is read out of memory,
+it goes through a lookup stage by indexing into a colormap.
+Colormaps can be manipulated arbitrarily on some hardware, 
+in limited way on other hardware, and not at all on yet other hardware.  
+The visual types affect the color map and 
+the RGB values in the following ways:
+.LP
+.IP \(bu 5
+For 
+.PN PseudoColor , 
+a pixel value indexes a color map to produce
+independent RGB values, and the RGB values can be changed dynamically.
+.IP \(bu 5
+.PN GrayScale 
+is treated the same as 
+.PN PseudoColor , 
+except the primary
+which drives the screen is undefined. 
+Thus, the client should always store the
+same value for red, green, and blue in the color maps.  
+.IP \(bu 5
+For 
+.PN DirectColor ,
+a pixel value is decomposed into separate RGB subfields, and each
+subfield separately indexes the color map for the corresponding value.
+The RGB values can be changed dynamically.  
+.IP \(bu 5
+.PN TrueColor
+is treated the
+same as 
+.PN DirectColor ,
+except the color map has predefined read-only RGB
+values.
+These RGB values are server-dependent, but provide (near-)linear ramps in
+each primary.  
+.IP \(bu 5
+.PN StaticColor
+is treated the same as 
+.PN PseudoColor ,
+except
+the color map has predefined read-only server-dependent RGB values. 
+.IP \(bu 5
+.PN StaticGray 
+is treated the same as 
+.PN StaticColor ,
+except the red, green, and blue values are equal for any single pixel
+value, thus resulting in shades of gray.  
+.PN StaticGray 
+with a two-entry
+colormap can be thought of as monochrome.
+.LP
+The red_mask, green_mask, and blue_mask members are only defined for
+.PN DirectColor
+and 
+.PN TrueColor . 
+Each has one contiguous set of bits with no
+intersections.
+The bits_per_rgb member specifies the log base 2 of the approximate
+number of distinct color values (individually) of red, green, and blue.
+Actual RGB values are unsigned 16 bit numbers.
+The map_entries member defines the number of available color map entries
+in a newly created color map.  
+For 
+.PN DirectColor 
+and 
+.PN TrueColor , 
+this will
+be the size of an individual pixel subfield.
+The following concepts may serve to make the explanation of
+Visual types clearer. 
+The screen can be color or grayscale.
+The screen can have a colormap that is writable or
+read-only. 
+A screen can also have a colormap whose indices are
+decomposed into separate RGB pieces, provided one is not on a
+grayscale screen. This leads to the following diagram:
+.LP
+.DS 0
+.TA 1.25i 1.5i 1.75i 2i 2.25i
+.ta 1.25i 1.5i 1.75i 2i 2.25i
+		Color          GrayScale
+	R/O      R/W     R/O    R/W
+	+-------------------------------+
+Undecomposed	|Static|Pseudo|Static |Gray |  
+  Colormap	|Color\^|Color \^|Gray   |Scale|
+	+-------------------------------+
+ Decomposed	|True  |Direct|
+  Colormap	|Color\||Color\||
+	+---------------+
+.DE
+.NH 2
+Window Attributes
+.LP
+.IN "Window"
+.IN "Window" "Characteristics"
+All windows have a border width of zero or 
+more pixels, an optional background, an input mask, an event suppression mask,
+and a property list.
+The window border and background can be a solid color or a pattern, called
+a tile.
+All windows except the root have a parent and are clipped by their parent.
+If a window is stacked on top of another window, it obscures that other
+window for the purpose of input.
+If a window has a background (almost all do), it obscures the other
+window for purposes of output.
+Attempts to output to the obscured area will do nothing, 
+and no input events (for example, pointer motion) will be generated for the 
+obscured area.
+.LP
+Windows classified as
+.PN InputOnly
+have only the following attributes defined:
+.IP \(bu 5
+win_gravity
+.IP \(bu 5
+event_mask
+.IP \(bu 5
+do_not_propagate_mask
+.IP \(bu 5
+override_redirect
+.IP \(bu 5
+cursor
+.LP
+A
+.PN BadMatch
+error is generated if you specify any other attributes for an
+.PN InputOnly
+window.
+.LP
+Windows have borders of a programmable width and pattern
+as well as a background pattern or tile.
+.IN "Tile Pixmaps"
+Pixels can be used for solid colors.
+In a program, you refer to the window using its resource ID of type 
+.PN Window .
+.IN "Resource IDs" "Freeing"
+.IN "Freeing" "Resources"
+The background and border pixmaps may be destroyed immediately after
+creating the window if no further explicit references to them
+are to be made.
+.LP
+.IN "Definitions" "Tile Mode"
+A window's background pattern can be either a solid color or
+a pattern.
+The pattern can either be relative to the parent 
+or absolute.
+If relative to the parent,
+the pattern will be
+shifted appropriately to match the parent window. 
+If absolute, the pattern will be positioned in the window independently of the
+parent window.
+.LP
+When windows are first created, they are not visible on the screen.
+Any output to a window not visible (not mapped) on the screen
+will be discarded.
+.IN "Window" "Mapping to screen"
+An application may wish to create a window long before it is
+mapped to the screen.
+When a window is eventually mapped to the screen 
+(using
+.PN XMapWindow ),
+.IN "XMapWindow"
+the X server will generate an exposure 
+event for the window.
+.IN "Exposure Event"
+.LP
+A window manager may override your choice as to size, 
+border width, and style for
+a window.
+Your program must be prepared to use the actual size and position
+of the top window, which is reported when the window is first mapped.
+It is not acceptable for a client application to resize itself
+unless in direct response to a human command to do so.
+Instead, your program should either use the space given to it,
+or, if the space is too small for any useful work, your program
+might ask the user to resize the window.
+The border of your top-level windows are considered fair game 
+for window managers.
+.LP
+The following symbols and the
+.PN XSetWindowAttributes
+structure are used in the functions that follow.
+.LP
+.DS 0
+.TA .5i 3i
+.ta .5i 3i
+#define CWBackPixmap	(1L<<0)
+#define CWBackPixel	(1L<<1)
+#define CWBorderPixmap	(1L<<2)
+#define CWBorderPixel	(1L<<3)
+#define CWBitGravity	(1L<<4)
+#define CWWinGravity	(1L<<5)
+#define CWBackingStore	(1L<<6)
+#define CWBackingPlanes	(1L<<7)
+#define CWBackingPixel	(1L<<8)
+#define CWOverrideRedirect	(1L<<9)
+#define CWSaveUnder	(1L<<10)
+#define CWEventMask	(1L<<11)
+#define CWDontPropagate	(1L<<12)
+#define CWColormap	(1L<<13)
+#define CWCursor	(1L<<14)
+.DE
+.DS 0
+.TA .5i 3i
+.ta .5i 3i
+
+.\" Needed to move text to the left so that it would fit on the
+.\" 7 by 9 page. Thus, the first column is indented four spaces
+.\" from the left.
+typedef struct {
+	Pixmap background_pixmap;	/* background, None, or ParentRelative */
+	unsigned long background_pixel;	/* background pixel */
+	Pixmap border_pixmap;		/* border of the window */
+	unsigned long border_pixel;	/* border pixel value */
+	int bit_gravity;	/* one of bit gravity values */
+	int win_gravity;	/* one of the window gravity values */
+	int backing_store;	/* NotUseful, WhenMapped, Always */
+	unsigned long backing_planes;	/* planes to be preserved if possible */
+	unsigned long backing_pixel;	/* value to use in restoring planes */
+	Bool save_under;	/* should bits under be saved? (popups) */
+	long event_mask;	/* set of events that should be saved */
+	long do_not_propagate_mask;	/* set of events that should not propagate */
+	Bool override_redirect;	/* boolean value for override_redirect */
+	Colormap colormap;	/* color map to be associated with window */
+	Cursor cursor;		/* cursor to be displayed (or None) */
+} XSetWindowAttributes;
+.DE
+.IN "XSetWindowAttributes"
+.IN "Data Structures" "XSetWindowAttributes"
+.LP
+The XSetWindowAttributes structure
+members are discussed in the following sections.
+.NH 3
+The background_pixmap and background_pixel Members
+.LP
+The background_pixmap member specifies the pixmap to be used for a window's
+background.
+This pixmap can be of any size, although some sizes may be faster than others.
+The background_pixel member specifies a pixel value used to paint
+a window's background in a single color.
+.LP
+You can set the  background_pixmap member to a pixmap,  the constant
+.PN None ,
+or the constant
+.PN ParentRelative .
+The default value is the constant
+.PN None .
+You can set the background_pixel to any pixel value.
+The default value is undefined.
+If you specify a background_pixel, 
+it overrides either the default background_pixmap
+or any value you may have set in the background_pixmap member.
+All pixels in the background of the window will be set to this value.
+.LP
+If you set the background_pixmap,
+it overrides the default background_pixmap.
+The background_pixmap and the window must have the same depth.
+Otherwise, a
+.PN BadMatch
+error is returned.
+If you set background_pixmap to
+.PN None ,
+the window has no defined background.  
+If the parent window has a background_pixmap of
+.PN None ,
+the window will also have a background_pixmap of
+.PN None . 
+If you set the background_pixmap to
+.PN ParentRelative :
+.IP \(bu 5
+The parent window's background_pixmap is used, but the 
+child window must have the same depth as 
+its parent.
+Otherwise, a
+.PN BadMatch
+error is returned.
+.IP \(bu 5
+A copy of the parent window's background_pixmap is not made.
+The parent's background_pixmap is examined each time the child window 
+background_pixmap is required.  
+.IP \(bu 5
+The background tile origin always aligns with the parent window's
+background tile origin. 
+Otherwise, the background tile origin
+is always the child window origin.
+.LP
+Setting a new background, whether by setting background_pixmap or
+background_pixel, overrides any previous border.
+The background_pixmap can be freed immediately if no further explicit reference
+is made to it (the X server will keep a copy to use when needed).
+If you later draw into the pixmap used for the background,
+X does not predict what happens because the
+X implementation is free to either make a copy of the pixmap or
+just use the same pixmap.
+.LP
+When regions of the window are exposed and the X server has not retained the contents,
+it automatically tiles the regions with the window's background as long as the
+background_pixmap is not
+.PN None .
+If the background_pixmap is
+.PN None ,
+the previous screen contents are left in place if 
+the window and its parent are the same depth. 
+Otherwise, the initial contents of the exposed regions are undefined.
+Exposure events are then generated for the regions, 
+even if the background_pixmap
+is
+.PN None .
+See Chapter 8 for a discussion of exposure event processing.
+.NH 3
+The border_pixmap and border_pixel Members
+.LP
+The border_pixmap member specifies the pixmap to be used for a window's
+border.
+This pixmap can be of any size, although some sizes may be faster than others.
+The border_pixel member specifies a pixmap of undefined size be used for a
+window's border. 
+The border tile origin is always the same as the background tile origin.
+.LP
+You can also set border_pixmap to
+.PN CopyFromParent .
+In this case, the pixmap used for the border will be a copy of
+the parent window's border pixmap.
+The default value is the constant
+.PN CopyFromParent .
+You can set the border_pixel to any pixel value.
+The default value is undefined.
+If you specify a border_pixel, it overrides either the default border_pixmap
+or any value you may have set in the border_pixmap member.
+All pixels in the window's border will be set to the border_pixel value.
+Setting a new border, whether by setting border_pixel or by setting
+border_pixmap overrides any previous border.
+.LP
+If you set a border_pixmap value, it overrides the default border_pixmap.
+The border_pixmap and the window must have the same depth.
+Otherwise, a
+.PN BadMatch
+error is returned.
+If you set the border_pixmap to the constant 
+.PN CopyFromParent ,
+the parent window's border_pixmap is copied.
+Subsequent changes to the parent window do not affect the child window.
+However, the child window must have the same depth as the parent window.
+Otherwise, a
+.PN BadMatch
+error is returned.
+.LP
+The border_pixmap can be freed immediately if no further explicit reference
+is made to it.
+If you later draw into the pixmap used for the border,
+X does not predict what happens because the
+X implementation is free to either make a copy of the pixmap or
+use the same pixmap each time the window border is repainted.
+.LP
+Output to a window is always clipped to the inside of the window. 
+Therefore, graphics operations never affect the window border.
+Borders are added to the window size specified.
+.NH 3
+The bit_gravity and win_gravity Members
+.LP
+Bit gravity defines which region of the window should be retained when the window is 
+resized. 
+The default value for the bit_gravity member is the constant
+.PN ForgetGravity .
+Window gravity allows you to  define
+how the window should be repositioned if its parent is resized.  
+The default value for the win_gravity member is the constant
+.PN NorthWestGravity .
+See 
+.PN XGetWindowAttributes 
+in Section 4.1 for a description of the possible values you can
+set these to.
+.NH 3
+The backing_store Member
+.LP
+Some implementations of the X server may choose to maintain the contents
+of windows.
+If the X server maintains the contents of a window, 
+the off-screen saved pixels
+are known as backing store.
+The backing_store member advises the X server on what to do with the contents of a
+window.
+You can set this member to
+.PN NotUseful ,
+.PN WhenMapped ,
+or
+.PN Always .
+The default value is 
+.PN NotUseful .
+.LP
+A backing_store of 
+.PN WhenMapped 
+advises the X server that maintaining contents of 
+obscured regions when the window is mapped would be beneficial.
+A 
+backing_store of 
+.PN Always 
+advises the X server that maintaining contents even when 
+the window is unmapped would be beneficial.  
+Even if the window is larger than its parent, 
+this is a request to the X server to  maintain complete contents, not just 
+the region within the parent window boundaries.  
+If the X server maintains contents, 
+exposure events will not be generated, 
+but the X server may stop maintaining 
+contents at any time.  
+A backing_store of 
+.PN NotUseful 
+advises the X server that 
+maintaining contents is unnecessary, 
+although some X implementations may
+still choose to maintain contents and, therefore, not generate exposure
+events.
+.NH 3
+The backing_planes and backing_pixel Members
+.LP
+The default value for the backing_planes member is all ones.
+It indicates (with one bits) which bit planes of 
+the window hold dynamic data that
+must be preserved in backing_stores and during save_unders.
+The default value for the backing_pixel member is zero (0).
+It specifies what values to use in planes not covered by backing_planes.  
+The 
+X server is free to save only the specified bit planes in the backing_store
+or the save_under 
+and is free to regenerate the remaining planes with the specified pixel value.
+Any extraneous bits (that is, those beyond the specified depth of the window) in these
+values may be simply ignored.
+.NH 3
+The save_under Member
+.IN "Save Unders"
+.LP
+Some server implementations may preserve bits of windows under other
+windows.
+This is not the same as preserving the contents of a window for you.
+You may get better visual
+appeal if transient windows (for example, pop-up menus) request that the system
+preserve the bits under them, so the temporarily obscured applications
+do not have to repaint.
+.LP
+The default value for the save_under member is 
+.PN False .
+If save_under is 
+.PN True , 
+the X server is advised that, when this window is mapped, 
+saving the contents of windows it obscures would be beneficial.
+.NH 3
+The event_mask and do_not_propagate_mask Members
+.LP
+The event_mask defines which events the client is interested in for
+this window (or, for some event types, inferiors of the window).  
+The do_not_propagate_mask defines which events should not be propagated to 
+ancestor windows when no client has the event type selected in this window.
+These masks are the bitwise inclusive OR of one or more of the valid event 
+mask bits.
+You can specify that no maskable events are reported by passing the constant
+.PN NoEventMask .
+The default value for these members is the empty set.
+See Section 8.3 for information on the event mask and events.
+.NH 3
+The override_redirect Member
+.LP
+The default value for the override_redirect member is
+.PN False .
+Override_redirect specifies whether map and configure requests on this window 
+should override a 
+.PN SubstructureRedirectMask 
+on the parent. 
+Window manages use this information to avoid tampering with pop-up windows.
+.NH 3
+The colormap Member
+.LP
+The default value for the colormap member is
+.PN CopyFromParent .
+The colormap member specifies which color map, if any, 
+best reflects the true
+colors of the window.  
+The colormap must have the same visual type as the
+window.
+Otherwise, a 
+.PN BadMatch 
+error is returned.  
+X servers capable of supporting multiple 
+hardware color maps may use this information, 
+and window managers may use it for 
+.PN InstallColormap 
+requests.
+.IN "XInstallColormap"
+.IN "XConfigureWindow"
+If 
+you set the colormap member to
+.PN CopyFromParent , 
+the parent window's color map is copied and used by its
+child.
+Subsequent changes to the parent window do
+not affect the child window.
+However, the child window must have the same visual type as
+the parent. 
+Otherwise, a 
+.PN BadMatch 
+error is returned. 
+The parent window must not have a color map
+of 
+.PN None . 
+Otherwise, a 
+.PN BadMatch 
+error is returned.
+.NH 3
+The cursor Member
+.LP
+The default value for the cursor member is the constant
+.PN None .
+If a cursor is specified, it will be used whenever the pointer is in the 
+window.  
+If 
+.PN None 
+is specified, the parent's cursor will be used when the 
+pointer is in the window, and any change in the parent's cursor will cause an
+immediate change in the displayed cursor.
+The cursor may be freed immediately if no further explicit reference to it is 
+made by calling
+.PN XFreeCursor .
+.IN "XFreeCursor"
+See Section 6.8.2 for further information.
+.NH 3
+Default Values for XSetWindowAttributes Members
+.LP
+The following table lists the default values for each member in 
+the
+.PN XSetWindowAttributes 
+structure.
+.TS H
+tab(@);
+l l
+lw(1.4i) lw(1.3i).
+_
+.sp 6p
+Member@Default Value
+.sp 6p
+_
+.sp 6p
+.TH
+.R
+background_pixmap@None
+background_pixel@Undefined
+border_pixmap@CopyFromParent
+border_pixel@Undefined
+bit_gravity@ForgetGravity
+win_gravity@NorthWestGravity
+backing_store@NotUseful
+backing_planes@All ones
+backing_pixel@0 (zero)
+save_under@False
+event_mask@empty set
+do_not_propagate_mask@empty set
+override_redirect@False
+colormap@CopyFromParent
+cursor@None
+_
+.TE
+.NH 2
+Creating Windows
+.LP
+Xlib provides basic ways of creating windows.
+See the X toolkit documentation for more information.
+If you create your own top level windows (direct children of the root
+window) the rules enumerated below must be observed for applications to
+interact reasonably across differing styles of window management.
+.LP
+You should never fight with a window manager for size or placement
+of your top-level window(s).
+Toolkits often supply routines specifically for creating and placing
+top level windows.
+If you do not use a toolkit,
+you should provide some standard information or ``hints'' to the window
+manager by using the utility functions described in Chapter 10.
+.LP
+The policy guidelines for window creation are:
+.IP 1. 5
+An application, by listening to the first exposure event, must be able to
+deal with whatever size window it gets, even if this means that the application
+just prints a message, like ``Please make me bigger,'' in its window.
+.IP 2. 5
+An application should only attempt to resize or move its top-level window in
+direct response to a user request.
+An application is free to resize or move the children of its top-level
+window as necessary.
+(Toolkits often have facilities for automatic relayout.)
+If a request to change the size of its top-level window fails,
+the application must not fight with the window manager.
+.IP 3. 5
+If an application does not use a toolkit that automatically sets standard
+window properties,
+that application should set these properties for the top-level window
+before mapping it.
+To set standard window properties for a top-level window,
+use
+.PN XSetStandardProperties .
+See Chapter 9
+for further information.
+.LP
+The low-level functions provided by Xlib to create an unmapped subwindow for a 
+specified parent window are
+.PN XCreateWindow
+.IN "XCreateWindow"
+and 
+.PN XCreateSimpleWindow . 
+.IN "XCreateSimpleWindow"
+.PN XCreateWindow
+is a more general function that allows you to set specific window attributes 
+when you create it.
+.PN XCreateSimpleWindow 
+creates a window that inherits its attributes from its parent window.
+That is,
+you do not set specific attributes when you create a  simple window. 
+.LP
+.IN "Window" "Input Only"
+The X server acts as if 
+.PN InputOnly 
+windows do not exist for
+the purposes of graphics requests, exposure processing, and
+.PN VisibilityNotify 
+events.
+An 
+.PN InputOnly 
+window cannot be used as a
+drawable (that is, as a source or destination for graphics requests).
+.PN InputOnly
+and 
+.PN InputOutput 
+windows act identically in other respects (properties,
+grabs, input control, and so on).
+Extension packages may define other classes of windows.
+.LP
+The definition for
+.PN XCreateWindow
+is:
+.IN "Definitions" "XCreateWindow"
+.FD 0
+.so ./Xsrc/XWindow.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/parent.a
+.so ./Xsrc/xy.a
+These coordinates are the top left outside corner of the created window's borders and are
+relative to the inside of the parent window's borders.
+.so ./Xsrc/widtheight.a
+These are the created window's inside dimensions.
+These dimensions do not include the created window's borders, which are entirely outside
+of the window.
+The dimensions must be nonzero. 
+Otherwise, a
+.PN BadValue
+error is returned.
+.so ./Xsrc/borderwidth.a
+.so ./Xsrc/depth.a
+.so ./Xsrc/class.a
+.so ./Xsrc/visual.a
+.so ./Xsrc/valuemask.a
+.so ./Xsrc/attributes.a
+See Section 3.2 for further information.
+.LP
+.so ./Xdescrip/XWindow.d
+.LP
+For class
+.PN InputOutput ,
+the visual type and depth must be a combination
+supported for the screen.
+Otherwise, a
+.PN BadMatch
+error is returned.
+The depth need not be the same as the parent,
+but the parent must not be a window of class 
+.PN InputOnly .
+Otherwise, a
+.PN BadMatch
+error is generated.
+For an
+.PN InputOnly
+window
+the depth must be zero (0), and the visual must be one supported by the screen.
+If either of these conditions are not met,
+a
+.PN BadMatch
+error is generated.
+The parent window, however, may have any depth and class.
+The only window attributes defined for
+.PN InputOnly 
+windows are win_gravity, event_mask, do_not_propagate_mask, override_redirect,
+and cursor.
+If you specify any other window attribute for an
+.PN InputOnly
+window, a
+.PN BadMatch
+error is returned.
+.IN "XCreateWindow"
+.LP
+.ds fd .PN XCreateWindow
+.so ./Xsrc/errsent.com
+.PN BadAlloc
+.PN BadColor ,
+.PN BadCursor ,
+.PN BadMatch ,
+.PN BadPixmap ,
+.PN BadValue ,
+and
+.PN BadWindow .
+.LP
+.sp
+Use
+.PN XCreateSimpleWindow
+to create an unmapped 
+.PN InputOutput
+subwindow of the specified parent window.
+The definition for this function is:
+.IN "Definitions" "XCreateSimpleWindow"
+.FD 0
+.so ./Xsrc/XCreWin.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/parent.a
+.so ./Xsrc/xy.a
+These coordinates are the top left outside corner of the new window's borders and are
+relative to the inside of the parent window's borders.
+.so ./Xsrc/widtheight.a
+These are the created window's inside dimensions.
+These dimensions do not include the created window's borders, which are entirely
+outside of the window.
+The dimensions must be nonzero.
+Otherwise, a
+.PN BadValue
+error is returned.
+.so ./Xsrc/borderwidth.a
+.so ./Xsrc/border.a
+.so ./Xsrc/backpixel.a
+.LP
+.so ./Xdescrip/XCreWin.d
+The created window is placed on top in the stacking order with respect to siblings.
+Any part of the window that extends outside its parent window will be clipped.
+.PN XCreateSimpleWindow
+inherits its depth, class, and visual from its parent.
+All other window attributes have their default values.
+.LP
+The created window is not yet displayed (mapped) on the user's display.
+To display the window, call
+.PN XMapWindow .
+.IN "XMapWindow"
+The new window will initially use the same cursor as
+its parent. 
+A new cursor may, of course, be defined for the
+new window by calling
+.PN XDefineCursor .
+.IN "Cursor" "Initial State"
+.IN "XDefineCursor" 
+The window will not be visible on the screen unless it and all of its
+ancestors are mapped, and it is not obscured by any of its ancestors.
+The window is placed on top of the stacking order with respect to its
+siblings.
+In addition, the new window's cursor will be
+.PN None .
+.LP
+.ds fd .PN XCreateSimpleWindow
+.so ./Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadValue ,
+and
+.PN BadWindow .
+.NH 2
+Destroying Windows
+.LP
+Xlib provides functions with which you can destroy a window or  destroy all
+subwindows of a window.
+.LP
+.sp
+Use
+.PN XDestroyWindow
+to destroy a window and all of its subwindows. 
+.IN "XDestroyWindow"
+The definition for this function is:
+.IN "Definitions" "XDestroyWindow"
+.FD 0
+.so ./Xsrc/XDestroyWind.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.LP
+.so ./Xdescrip/XDestroyWind.d
+The window should never again be referenced.
+If the window specified by the w argument is mapped,
+it is unmapped automatically.
+The window and all of its inferiors are then destroyed,
+and a
+.PN DestroyNotify
+event is generated for each window.
+The ordering of the
+.PN DestroyNotify
+events is such that for any given window being destroyed,
+.PN DestroyNotify
+is generated on any inferiors of the window before being generated on
+the window itself.
+The ordering among siblings and across subhierarchies is not otherwise
+constrained.
+If the window you specified is a root window, no windows are destroyed.
+Destroying a mapped  window will generate exposure events on other
+windows that were obscured by the window being destroyed.
+.LP
+.ds fd .PN XDestroyWindow
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.sp
+Use 
+.PN XDestroySubwindows 
+to destroy all subwindows of a specified window. 
+.IN "XDestroySubwindows"
+The definition for this function is:
+.IN "Definitions" "XDestroySubwindows"
+.FD 0
+.so ./Xsrc/XDestroySubs.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.LP
+.so ./Xdescrip/XDestroySubs.d
+This is much more efficient than deleting many windows
+one at a time because much of the work need only be performed once for all
+of the windows rather than for each window.
+The subwindows should never again be referenced.  
+.LP
+.ds fd .PN XDestroySubwindows
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.NT
+.IN "XCloseDisplay"
+.PN XCloseDisplay
+automatically destroys all windows that have been created
+on that server if it is the last copy of the connection.
+(Remember that under UNIX, 
+.IN "Unix System Call" "fork"
+.PN fork
+will duplicate open connections).
+.NE
+.NH 2
+Mapping Windows 
+.LP
+A window manager may want to control the placement of subwindows.
+If 
+.PN SubstructureRedirectMask 
+has been selected by a window manager
+on a parent window (usually a root window),
+a map request initiated by other clients on a child window is not performed,
+and the window manager would be sent a 
+.PN MapRequest 
+event.
+However, if the override_redirect flag on the child had been set to
+.PN True
+(usually only on pop-up menus),
+the map request would be performed.
+.LP
+A tiling window manager might decide to reposition and resize other client's 
+windows and then decide to map the window at its final location.
+A window manager that wants to provide decoration might
+reparent the child into a frame first.
+See Section 3.2.7 and Chapter 8 for further information.
+Only a single client at a time can select for 
+.PN SubstructureRedirectMask .
+.LP
+Similarly, a single client can select for 
+.PN ResizeRedirectMask 
+on a parent window.
+Then, any attempt to resize the window is suppressed, and
+the client (usually, a window manager) receives a 
+.PN ResizeRequest 
+event.
+These mechanisms allow arbitrary placement policy to be enforced by
+an external window manager.
+.LP
+.IN "XMapWindow"
+A window is considered mapped if a 
+.PN XMapWindow
+call has been made on it.
+It may not be visible on the screen for one of the following reasons:
+.IP \(bu 5
+It is obscured by another opaque sibling window.
+.IP \(bu 5
+One of its ancestors is not mapped.
+.IP \(bu 5
+It is entirely clipped by an ancestor.
+.LP
+.IN "Exposure Events"
+Exposure events will be generated for the window when part or all of
+it becomes visible on the screen. 
+A client will only receive the
+exposure events if it has asked for them using 
+.PN XSelectInput .
+Windows retain their position in the stacking order when unmapped.
+.IN "XSelectInput"
+.LP
+.sp
+Use 
+.PN XMapWindow 
+to map the specified window. 
+.IN "XMapWindow"
+The definition for this function is:
+.IN "Definitions" "XMapWindow"
+.FD 0
+.so ./Xsrc/XMapWindow.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.LP
+.so ./Xdescrip/XMapWindow.d
+A subwindow will appear on the screen as long as all of its ancestors
+are mapped and not obscured by a sibling or are not clipped by an ancestor.
+Mapping a window that has an unmapped ancestor does not display the
+window but marks it as eligible for display when the ancestor becomes
+mapped.
+Such a window is called unviewable.
+When all its ancestors are mapped,
+the window becomes viewable
+and will be visible on the screen if it is not obscured by any sibling or
+ancestor.
+This function has no effect if the window is already mapped.
+.LP
+If the override_redirect member of the
+.PN XSetWindowAttributes
+structure is
+.PN False ,
+and if some other client has selected
+.PN SubstructureRedirectMask
+on the parent window, then the X server generates a
+.PN MapRequest
+event, and the
+.PN XMapWindow
+function does not map the window.
+Otherwise, the window is mapped, and the X server generates a
+.PN MapNotify
+event.
+.LP
+If the window becomes viewable and no earlier contents for
+it are remembered,
+.PN XMapWindow
+tiles the window with its background.
+If no background was defined for the window, 
+the existing screen contents are not
+altered, and the X server generates one or more 
+.PN Expose
+events.
+If a backing_store was maintained while the window was unmapped, no 
+.PN Expose
+events
+are generated.
+If a backing_store will now be maintained, a full-window exposure is always
+generated.
+Otherwise, only visible regions may be reported.
+Similar tiling and exposure take place for any newly viewable inferiors.
+.LP
+.IN "XMapWindow"
+.IN "Expose Event"
+If the window is an
+.PN InputOutput 
+window,
+.PN XMapWindow
+generates 
+.PN Expose 
+events on each 
+.PN InputOutput
+window that it causes to become displayed.
+If the client maps and paints the window, and if the client begins
+processing events, the window will be painted twice.
+To avoid this,
+the client should call 
+.IN "XSelectInput"
+.PN XSelectInput
+for exposure events, and
+map the window. 
+Then, the client should process input events normally.
+The event list will include 
+.PN Expose 
+for each
+window that has appeared on the screen. 
+The client's normal response to
+an 
+.PN Expose 
+event should be to repaint the window.
+This method usually leads to simpler programs and to proper interaction
+with window managers.
+.LP
+.ds fd .PN XMapWindow
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.sp
+Use
+.PN XMapRaised 
+to map and raise a window.
+.IN "XMapRaised"
+The definition for this function is:
+.IN "Definitions" "XMapRaised"
+.FD 0
+.so ./Xsrc/XMapRaised.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.LP
+.so ./Xdescrip/XMapRaised.d
+See the 
+.PN XMapWindow
+description for additional information.
+.LP
+.ds fd .PN XMapRaised
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.sp
+Use 
+.PN XMapSubwindows 
+to map all subwindows for a specified window. 
+.IN "Expose Event"
+The definition for this function is:
+.IN "Definitions" "XMapSubwindows"
+.FD 0
+.so ./Xsrc/XMapSubs.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.LP
+.so ./Xdescrip/XMapSubs.d
+This is much more efficient than mapping many windows
+one at a time, because the server needs only perform much of the work 
+once for all of the windows rather than for each window.
+.LP
+.ds fd .PN XMapSubwindows
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.NH 2
+Unmapping Windows
+.LP
+Xlib provides functions with which you can unmap a window or all subwindows.
+.LP
+.sp
+Use 
+.PN XUnmapWindow 
+to unmap a window. 
+The definition for this function is:
+.IN "Definitions" "XUnmapWindow"
+.FD 0
+.so ./Xsrc/XUnmapWindow.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.LP
+.so ./Xdescrip/XUnmapWindow.d
+If the specified window is already unmapped, 
+.PN XUnmapWindow 
+has no effect.
+Normal exposure processing on formerly obscured windows is performed.
+Any child window will no longer be visible until another map call is
+made on the parent.
+In other words, the subwindows are still mapped but not visible
+until the parent is mapped.
+Unmapping a window will
+generate exposure events on windows that were formerly obscured
+by it and its children.
+.LP
+.ds fd .PN XUnmapWindow
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.sp
+Use 
+.PN XUnmapSubwindows 
+to unmap all subwindows for a specified window. 
+.IN "XUnmapSubwindows"
+The definition for this function is:
+.IN "Definitions" "XUnmapSubwindows"
+.FD 0
+.so ./Xsrc/XUnmapSubs.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.LP
+.so ./Xdescrip/XUnmapSubs.d
+Using this function is much more efficient than unmapping multiple windows
+one at a time, because the server needs only perform much of the work
+once for all of the windows rather than for each window.
+.LP
+.ds fd .PN XUnmapSubwindows
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.NH 2
+Configuring Windows
+.LP
+Xlib provides functions with which you can
+move a window, resize a window, move and resize a window, or
+change a window's border width.
+The most general interface to configuring windows,
+.PN XConfigureWindow ,
+uses the 
+.PN XWindowChanges
+structure, which contains:
+.LP
+.DS 0
+.TA .5i 3i
+.ta .5i 3i
+#define CWX	(1<<0)
+#define CWY	(1<<1)
+#define CWWidth	(1<<2)
+#define CWHeight	(1<<3)
+#define CWBorderWidth	(1<<4)
+#define CWSibling	(1<<5)
+#define CWStackMode	(1<<6)
+.DE
+.DS 0
+.TA .5i 3i
+.ta .5i 3i
+typedef struct {
+	int x, y;
+	int width, height;
+	int border_width;
+	Window sibling;
+	int stack_mode;
+} XWindowChanges;
+.DE
+.IN "XWindowChanges"
+.IN "Data Structures" "XWindowChanges"
+.LP
+The following paragraphs discuss the members of this structure and the processing
+that occurs for
+.PN XConfigureWindow .
+.LP
+The x and y members
+specify the x and y coordinates relative to the parent's origin
+and indicate the position of the upper left outer corner of the window.
+The width and height members
+specify the inside size of the window,
+not including the border.
+These arguments must be nonzero.
+Otherwise, a
+.PN BadValue
+error is generated.
+Attempts to configure a root window have no effect.
+.LP
+The border_width member specifies the width of the border in pixels.
+Note that changing just the border_width leaves the outer-left corner of the window
+in a fixed position, but moves the absolute position of the window's origin.
+A
+.PN BadMatch
+error is generated if you attempt to make the border_width of an
+.PN InputOnly
+window nonzero.
+.LP
+The sibling member specifies the sibling window for stacking operations.
+The stack_mode member can be one of these constants:
+.PN Above , 
+.PN Below , 
+.PN TopIf , 
+.PN BottomIf ,
+or 
+.PN Opposite .
+.LP
+If the override_redirect attribute of the window is
+.PN False ,
+and if some other client has selected
+.PN SubstructureRedirectMask
+on the parent, then the X server generates a
+.PN ConfigureRequest
+event, and no further processing is performed.
+Otherwise, 
+if some other client has selected 
+.PN ResizeRedirectMask 
+on the window and the inside
+width or height of the window is being changed,
+a 
+.PN ResizeRequest
+event is generated, and the current inside width and height are
+used instead in the following.
+Note that the override_redirect attribute of the window has no effect
+on
+.PN ResizeRedirectMask 
+and that
+.PN SubstructureRedirectMask
+on the parent has precedence over
+.PN ResizeRedirectMask 
+on the window.
+.LP
+The geometry of the window is changed as specified, the
+window is restacked among siblings, and a
+.PN ConfigureNotify 
+event is generated.
+X generates 
+.PN GravityNotify
+events after generating
+.PN ConfigureNotify 
+events.
+If the inside width or height of the
+window has actually changed, then children of the window are
+affected as described below.
+.LP
+Exposure processing is performed on formerly obscured windows, including the
+window itself and its inferiors, if regions of them were obscured but now are not.
+As a result of increasing the width or height,
+exposure processing is also performed on any new regions of the window 
+and any regions where window contents are lost.
+.LP
+If the inside width or height of a window is not changed, and if the window is moved or
+its border is changed, then the contents of the window are not lost but move with
+the window.
+Changing the inside width or height of the window causes its contents to be
+moved or lost, depending on the bit_gravity of the window, and causes
+children to be reconfigured, depending on their win_gravity.  
+For a
+change of width and height, the (x, y) pairs are defined:
+.LP
+.TS
+l l
+l l.
+_
+.sp 6p
+.TB
+Gravity Direction	Coordinates
+.sp 6p
+_
+.sp 6p
+.R
+T{
+.PN NorthWestGravity
+T}	T{
+(0, 0)
+T}
+T{
+.PN NorthGravity
+T}	T{
+(Width/2, 0)
+T}
+T{
+.PN NorthEastGravity
+T}	T{
+(Width, 0)
+T}
+T{
+.PN WestGravity
+T}	T{
+(0, Height/2)
+T}
+T{
+.PN CenterGravity
+T}	T{
+(Width/2, Height/2)
+T}
+T{
+.PN EastGravity
+T}	T{
+(Width, Height/2)
+T}
+T{
+.PN SouthWestGravity
+T}	T{
+(0, Height)
+T}
+T{
+.PN SouthGravity
+T}	T{
+(Width/2, Height)
+T}
+T{
+.PN SouthEastGravity
+T}	T{
+(Width, Height)
+T}
+.sp 6p
+_
+.TE
+.LP
+When a window with one of these bit_gravities is resized, 
+the corresponding pair
+defines the change in position of each pixel in the window.
+When a window with one of these win_gravities has its parent window resized,
+the
+corresponding pair defines the change in position of the window within the parent.
+When a window is so repositioned, a
+.PN GravityNotify
+event is generated.
+.LP
+A bit_gravity of
+.PN StaticGravity 
+indicates that the contents or origin should not move relative to the origin of the
+root window.
+If the change in size of the window is coupled with a change in position (x, y),
+then for bit_gravity the change in position of each pixel is (-x, -y), and for
+win_gravity the change in position of a child when its parent is so resized is
+(-x, -y).
+Note that
+.PN StaticGravity
+still only takes effect when the width or height of the window is changed, 
+not when the window is moved.
+.LP
+A bit_gravity of 
+.PN ForgetGravity 
+indicates that the window's contents are always
+discarded after a size change, even if a backing_store or save_under has
+been requested.
+The window is tiled with its background
+and one or more exposure events are generated. 
+If no background is defined, the existing screen contents are not
+altered.
+Some X servers may also ignore the specified bit_gravity and 
+always generate exposure events.
+.LP
+A win_gravity of 
+.PN UnmapGravity 
+is like NorthWest
+(the window is not moved),
+but the child is also
+unmapped when the parent is resized,
+and an 
+.PN UnmapNotify 
+event is
+generated.
+X generates
+.PN GravityNotify
+notify events after generating
+.PN ConfigureNotify
+events.
+A win_gravity of
+.PN AntiGravity
+indicates all pixels should move radically outward from the
+center of the window.\(+-
+.FS
+\(+- (If you believe this statement, there is a bridge for sale.)
+.FE
+.LP
+The restack check (specifically, the computation for 
+.PN BottomIf ,
+.PN TopIf ,
+and 
+.PN Opposite )
+is performed with respect to the window's final size and position (as
+controlled by the other arguments to the request), not its initial position.
+It is an error if a sibling is specified without a stack_mode.
+.LP
+If a sibling and a stack_mode are specified, 
+the window is restacked as follows:
+.TS
+lw(1i) lw(5i).
+T{
+.PN Above 
+T}	T{
+The window is placed just above the sibling.
+T}
+.sp 6p
+T{
+.PN Below 
+T}	T{
+The window is placed just below the sibling.
+T}
+.sp 6p
+T{
+.PN TopIf 
+T}	T{
+If the sibling occludes the window, the window is placed
+at the top of the stack.
+T}
+.sp 6p
+T{
+.PN BottomIf 
+T}	T{
+If the window occludes the sibling, the window is
+placed at the bottom of the stack.
+T}
+.sp 6p
+T{
+.PN Opposite 
+T}	T{
+If the sibling occludes the window, the window 
+is placed at the top of the stack.
+Otherwise, if 
+the window occludes the sibling, the window is placed 
+at the bottom of the stack.
+T}
+.TE
+.LP
+If a stack_mode is specified but no sibling is specified,
+the window is restacked as follows:
+.TS
+lw(1i) lw(5i).
+T{
+.PN Above	
+T}	T{
+The window is placed at the top of the stack.
+T}
+.sp 6p
+T{
+.PN Below	
+T}	T{
+The window is placed at the bottom of the stack.
+T}
+.sp 6p
+T{
+.PN TopIf	
+T}	T{
+If any sibling occludes the window, the window is placed at
+the top of the stack.
+T}
+.sp 6p
+T{
+.PN BottomIf	
+T}	T{
+If the window occludes any sibling, the window is placed at
+the bottom of the stack.
+T}
+.sp 6p
+T{
+.PN Opposite	
+T}	T{
+If any sibling occludes the window, the window 
+is placed at the top of the stack. 
+Otherwise, if 
+the window occludes any sibling, the window is placed 
+at the bottom of the stack.
+T}
+.TE
+.LP
+.sp
+Use 
+.PN XConfigureWindow 
+to reconfigure a window's size, position, border, and stacking order.
+.\" *** NEW CHARACTERISTIC NEEDED. ***
+.IN "XConfigureWindow"
+The definition for this function is:
+.IN "Definitions" "XConfigureWindow"
+.FD 0
+.so ./Xsrc/XReconfWin.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+This is the window to be reconfigured.
+.so ./Xsrc/value_mask.a
+.so ./Xsrc/values.a
+.LP
+.so ./Xdescrip/XReconfWin.d
+The stacking order of the window is controlled by the function's arguments.
+Values not specified are taken from the existing geometry of the window.
+.LP
+A
+.PN BadMatch
+error is generated if a sibling is specified without a stack_mode or if the window
+is not actually a sibling.
+Note that the computations for
+.PN BottomIf ,
+.PN TopIf ,
+and
+.PN Opposite
+are performed with respect to the window's final geometry (as controlled by the
+other arguments passed to
+.PN XConfigureWindow ),
+not its initial geometry.
+Any backing-store contents of the window, its
+inferiors, and other newly visible windows are either discarded or
+changed to reflect the current screen contents (implementation
+dependent).
+.LP
+.ds fd .PN XConfigureWindow
+.so ./Xsrc/errsent.com
+.PN BadWindow ,
+.PN BadMatch ,
+and
+.PN BadValue .
+.LP
+.sp
+Use 
+.PN XMoveWindow 
+to move a window without changing its size. 
+.IN "XMoveWindow"
+The definition for this function is:
+.IN "Definitions" "XMoveWindow"
+.FD 0 
+.so ./Xsrc/XMoveWindow.f
+.FN	
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+This is the window to be moved.
+.so ./Xsrc/xy.a
+These coordinates define the new location of the top left pixel of the window's border
+or the window itself, if it has no border.
+.LP
+.so ./Xdescrip/XMoveWindow.d
+Moving a mapped window may or may not lose its contents depending on:
+.IP \(bu 5
+If its tile mode is relative 
+.IP \(bu 5
+If the window is obscured by nonchildren
+.LP
+.IN "Exposure Events"
+If the
+contents of the window are lost, 
+exposure events will be generated for the window and any mapped subwindows.
+.IN "Exposure Events"
+Moving a mapped window will generate exposure events on any
+formerly obscured  windows. 
+.LP
+If the override_redirect attribute of the window is 
+.PN False 
+and some
+other client has selected 
+.PN SubstructureRedirectMask 
+on the parent, a
+.PN ConfigureRequest 
+event is generated, and no further processing is
+performed.  
+Otherwise, the window is moved.
+.LP
+.ds fd .PN XMoveWindow
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.sp
+Use 
+.PN XResizeWindow 
+to change a window's size without changing the upper left coordinate. 
+.IN "XResizeWindow"
+The definition for 
+.PN XResizeWindow
+is:
+.IN "Definitions" "XResizeWindow"
+.FD 0
+.so ./Xsrc/XChWindow.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/widtheight.a
+These are the dimensions of the window after the call completes.
+.LP
+.so ./Xdescrip/XChWindow.d
+Changing the size of a mapped window may lose its contents and generate
+an 
+.PN Expose 
+event.
+If a mapped window is made smaller, exposure events will be generated on
+windows that it formerly obscured.
+.LP
+If the override_redirect attribute of the window is 
+.PN False 
+and some
+other client has selected 
+.PN SubstructureRedirectMask 
+on the parent, a
+.PN ConfigureRequest 
+event is generated, and no further processing is
+performed.  
+.LP
+.ds fd .PN XResizeWindow
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.sp
+Use 
+.PN XMoveResizeWindow 
+.IN "XMoveResizeWindow"
+to change the size and location of a window. 
+The definition for
+this function
+is:
+.IN "Definitions" "XMoveResizeWindow"
+.FD 0
+.so ./Xsrc/XConfWindow.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+This is the window to be reconfigured.
+.so ./Xsrc/xy.a
+These coordinates define the new position of the window relative to its parent.
+.so ./Xsrc/widtheight.a
+These arguments define the interior size of the window.
+.LP
+.so ./Xdescrip/XConfWindow.d
+Moving and resizing a mapped window may generate an
+.IN "Expose Event"
+.PN Expose 
+event on the window.
+Depending on the new size and location parameters,
+moving and resizing a window may generate exposure events on windows that the
+window formerly obscured. 
+.LP
+If the override_redirect attribute of the window is 
+.PN False 
+and some
+other client has selected 
+.PN SubstructureRedirectMask 
+on the parent, then a
+.PN ConfigureRequest 
+event is generated, and no further processing is
+performed.  
+Otherwise, the window size and location is changed.
+.LP
+.ds fd .PN XMoveResizeWindow
+.so ./Xsrc/errsent.com
+.PN BadWindow ,
+.PN BadMatch ,
+and
+.PN BadValue .
+.LP
+.sp
+Use
+.PN XSetWindowBorderWidth 
+to change the border width of a window.
+.IN "XSetWindowBorderWidth"
+The definition for this function is:
+.IN "Definitions" "XSetWindowBorderWidth"
+.FD 0
+.so ./Xsrc/XBdrWidth.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/width.a
+.LP
+.so ./Xdescrip/XBdrWidth.d
+.LP
+.ds fd .PN XSetWindowBorderWidth
+.so ./Xsrc/errsent.com
+.PN BadWindow 
+and
+.PN BadValue .
+.NH 2
+Changing Window Stacking Order
+.LP
+Xlib provides functions with which you can raise, lower, circulate,
+or restack windows.
+.LP
+.sp
+Use 
+.PN XRaiseWindow 
+to raise a window so that no sibling window obscures it.
+.IN "XRaiseWindow"
+The definition for this function is:
+.IN "Definitions" "XRaiseWindow"
+.FD 0
+.so ./Xsrc/XRaiseWindow.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.LP
+.so ./Xdescrip/XRaiseWindow.d
+If the windows are regarded as overlapping sheets of paper stacked 
+on a desk,
+then raising a window is analogous to moving the sheet to the top of
+the stack but leaving its x and y location on the desk constant.
+.IN "Exposure Events"
+Raising a mapped window may generate exposure events for the
+window and any mapped subwindows that were formerly obscured.  
+.LP
+If the override_redirect attribute of the window is 
+.PN False 
+and some
+other client has selected 
+.PN SubstructureRedirectMask 
+on the parent, a
+.PN ConfigureRequest 
+event is generated, and no processing is
+performed.
+Otherwise, the window is raised.
+.LP
+.ds fd .PN XRaiseWindow
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.sp
+Use 
+.PN XLowerWindow 
+to lower a window so that it does not obscure any sibling windows. 
+.IN "XLowerWindow"
+The definition for this function is:
+.IN "Definitions" "XLowerWindow"
+.FD 0
+.so ./Xsrc/XLowerWindow.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.LP
+.so ./Xdescrip/XLowerWindow.d
+If the windows are regarded as overlapping sheets of paper
+stacked on a desk, then lowering a window is analogous to moving the
+sheet to the bottom of the stack but leaving its x and y location on
+the desk constant.
+.IN "Exposure Events"
+Lowering a mapped window will generate exposure events on any
+windows it formerly obscured.
+.LP
+If the override_redirect attribute of the window is 
+.PN False 
+and some
+other client has selected 
+.PN SubstructureRedirectMask 
+on the parent, a
+.PN ConfigureRequest 
+event is generated, and no processing is
+performed.  
+Otherwise, the window is lowered to the bottom of the
+stack.
+.LP
+.ds fd .PN XLowerWindow
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.sp
+Use
+.PN XCirculateSubwindows 
+to circulate a subwindow up or down.
+.IN "XCirculateSubwindows"
+The definition for this function is:
+.IN "Definitions" "XCirculateSubwindows"
+.FD 0
+.so ./Xsrc/XCircWindow.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/direction.a
+.LP
+.so ./Xdescrip/XCircWindow.d
+If some other client has selected 
+.PN SubstructureRedirectMask 
+on the window,
+a 
+.PN CirculateRequest 
+event is generated, and no further processing
+is performed.
+Otherwise, the processing described in the following paragraph is performed,
+and if the window is actually restacked,
+the X server generates a
+.PN CirculateNotify
+event. 
+.LP
+If you specify
+.PN RaiseLowest ,
+this function raises the lowest mapped child (if any) that is occluded by another
+child to the top of the stack.
+If you specify
+.PN LowerHighest ,
+this function lowers the highest mapped child (if any) that occludes another child
+to the bottom of the stack.
+Exposure processing is performed on formerly obscured windows.
+.LP
+.ds fd .PN XCirculateSubwindows
+.so ./Xsrc/errsent.com
+.PN BadWindow 
+and
+.PN BadValue .
+.LP
+.sp
+Use 
+.PN XCirculateSubwindowsUp 
+to raise the lowest mapped child of an occluded window. 
+.IN "XCirculateSubwindowsUp"
+The definition for this function is:
+.IN "Definitions" "XCirculateSubwindowsUp"
+.FD 0
+.so ./Xsrc/XCircWinUp.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.LP
+.so ./Xdescrip/XCircWinUp.d
+Completely unobscured children are not affected.
+.IN "Exposure Events"
+This is a convenience routine equivalent to
+.PN XCirculateWindow
+(display, window, 
+.PN RaiseLowest ).
+.LP
+.ds fd .PN XCirculateSubwindowsUp
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.sp
+Use 
+.PN XCirculateSubwindowsDown 
+to lower the highest mapped child of a window that partially or 
+completely occludes another child. 
+.IN "XCirculateSubwindowsDown"
+The definition for this function is:
+.IN "Definitions" "XCirculateSubwindowsDown"
+.FD 0
+.so ./Xsrc/XCircWinDn.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.LP
+.so ./Xdescrip/XCircWinDn.d
+Completely unobscured children are not affected.
+This is a convenience routine equivalent to
+.PN XCirculateWindow
+(display, window, 
+.PN LowerHighest ).
+.LP
+.ds fd .PN XCirculateSubwindowsDown
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.sp
+Use 
+.PN XRestackWindows 
+to restack a set of windows from top to bottom. 
+.IN "XRestackWindows"
+The definition for this function is:
+.IN "Definitions" "XRestackWindows"
+.FD 0
+.so ./Xsrc/XRestackWins.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/windows.a
+.so ./Xsrc/nwindows.a
+.LP
+.so ./Xdescrip/XRestackWins.d
+.LP
+If the override_redirect attribute of a window is 
+.PN False 
+and some
+other client has selected 
+.PN SubstructureRedirectMask 
+on the parent, 
+.PN ConfigureRequest 
+events are generated for each window 
+whose override_redirect is not set, and no further processing is
+performed.
+Otherwise, the windows will be restacked in top to bottom order.
+.LP
+.ds fd .PN XRestackWindows
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.NH 2
+Changing Window Attributes
+.LP
+Xlib provides functions with which you can set window attributes.
+.PN XChangeWindowAttributes
+is the more general function that allows you to set one or more window
+attributes provided by the
+.PN XSetWindowAttributes
+structure.
+See Section 3.2
+for descriptions of these window attributes.
+The other functions described in this section allow you to set one specific
+window attribute, such as a window's background.
+.LP
+Use
+.PN XChangeWindowAttributes
+to change one or more window attributes.
+.IN "XChangeWindowAttributes"
+The definition for this function is:
+.IN "Definitions" "XChangeWindowAttributes"
+.FD 0
+.so ./Xsrc/XChWAttr.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/valuemask.a
+The values and restrictions are
+the same as for
+.PN XCreateSimpleWindow
+and
+.PN XCreateWindow .
+.IP
+.so ./Xsrc/attributes.a
+.LP
+.so ./Xdescrip/XChWAttr.d
+Changing the background does not cause the window contents to be
+changed.
+Use 
+.PN XClearWindow
+to repaint the window and its background.
+(See Section 6.2 for further information.)
+Setting the border or changing the background such that the
+border tile origin changes causes the border to be repainted.
+Changing the background of a root window to 
+.PN None 
+or 
+.PN ParentRelative
+restores the default background pixmap.
+Changing the border of a root window to
+.PN CopyFromParent
+restores the default border pixmap.
+Changing the win_gravity does not affect the current position of the
+window.
+Either changing the backing_store of an obscured window to 
+.PN WhenMapped 
+or
+.PN Always , 
+or changing the backing_planes, backing_pixel, or
+save_under of a mapped window may have no immediate effect.
+.LP
+Multiple clients can select input on the same window. 
+If this is the case, their event masks
+are maintained separately.
+When an event is generated, it will be reported to all
+interested clients. 
+However, at most, one client at a time can select
+for 
+.PN SubstructureRedirectMask , 
+.PN ResizeRedirectMask , 
+and
+.PN ButtonPressMask .
+If a client attempts to select any of these event masks 
+and some other client has
+already selected it, the X server generates a
+.PN BadAccess
+error.
+There is only one do_not_propagate_mask for a window, not one per
+client.
+.LP
+Changing the color map of a window (that is, defining a new map, not
+changing the contents of the existing map) generates a 
+.PN ColormapNotify
+event.  
+Changing the color map of a visible window may have no
+immediate effect on the screen because the map may not be installed.
+See
+.PN XInstallColormap
+in Chapter 7.
+Changing the cursor of a root window to 
+.PN None 
+restores the default
+cursor.
+Whenever possible, you are encouraged to share color maps.
+.LP
+.ds fd .PN XChangeWindowAttributes
+.so ./Xsrc/errsent1.com
+.PN BadWindow ,
+.PN BadPixmap ,
+.PN BadColor ,
+.PN BadCursor ,
+.PN BadMatch ,
+.PN BadAccess ,
+and
+.PN BadValue .
+.LP
+.sp
+Use 
+.PN XSetWindowBackground 
+to set the background of a specified window to the specified pixel. 
+.IN "XSetWindowBackground"
+The definition for this function is:
+.LP
+.IN "Definitions" "XSetWindowBackground"
+.FD 0
+.so ./Xsrc/XBackground.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/back_pix.a
+.LP
+.so ./Xdescrip/XBackground.d
+Changing the background does not cause the window contents to be changed.
+.PN XSetWindowBackground
+uses a pixmap of undefined size filled with the color associated with
+the pixel value you passed to the background_pixel argument.
+This can not be performed on an 
+.PN InputOnly
+window.
+An error will result if you try to change the background of an 
+.PN InputOnly
+window.
+.LP
+.ds fd .PN XSetWindowBackground
+.so ./Xsrc/errsent.com
+.PN BadWindow
+and
+.PN BadMatch .
+.LP
+.sp
+.LP
+Use 
+.PN XSetWindowBackgroundPixmap
+to set the background of a specified window to the specified pixmap.
+.IN "Window" "Background"
+.IN "XSetWindowBackgroundPixmap"
+The definition for 
+.PN XSetWindowBackgroundPixmap
+is:
+.LP
+.IN "Definitions" "XSetWindowBackgroundPixmap"
+.FD 0
+.so ./Xsrc/XPmapBgnd.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/tile.a
+.LP
+.IN "Resource IDs" "Freeing"
+.IN "Freeing" "Resources"
+.so ./Xdescrip/XPmapBgnd.d
+If no background Pixmap is specified, 
+the background pixmap of the window's parent is used.
+On the root window, the default background will be restored.
+The background Pixmap can immediately be freed if no further explicit
+references to it are to be made.
+This can not be performed on an 
+.PN InputOnly
+window.
+An error will result if you try to change the background of an 
+.PN InputOnly
+window.
+.LP
+.ds fd .PN XSetWindowBackgroundPixmap
+.so ./Xsrc/errsent.com
+.PN BadWindow ,
+.PN BadPixmap ,
+.PN BadColor ,
+and 
+.PN BadMatch .
+.NT
+.PN XSetWindowBackground
+and
+.PN XSetWindowBackgroundPixmap
+do not change the current contents of the window, and you
+may wish to clear and repaint the screen after these functions because they
+will not repaint the background you just set.
+.NE
+.LP
+.sp
+Use 
+.PN XSetWindowBorder 
+to change and repaint a window's border to the specified pixel. 
+.IN "XSetWindowBorder"
+The definition for this function is:
+.IN "Definitions" "XSetWindowBorder"
+.FD 0
+.so ./Xsrc/XBorder.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/bord_pix.a
+.LP
+.so ./Xdescrip/XBorder.d
+This can not be performed on an 
+.PN InputOnly 
+window.
+It will cause an error to perform this on an 
+.PN InputOnly 
+window. 
+.LP
+.ds fd .PN XSetWindowBorder
+.so ./Xsrc/errsent.com
+.PN BadWindow ,
+.PN BadPixmap ,
+.PN BadMatch ,
+and
+.PN BadValue .
+.LP
+.sp
+Use 
+.PN XSetWindowBorderPixmap 
+to change and repaint a window's border tile. 
+.IN "XSetWindowBorderPixmap"
+The definition for this function is:
+.IN "Definitions" "XSetWindowBorderPixmap"
+.FD 0
+.so ./Xsrc/XPmapBorder.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/bord_pixmap.a
+.LP
+.so ./Xdescrip/XPmapBorder.d
+.IN "Resource IDs" "Freeing"
+.IN "Freeing" "Resources"
+The border Pixmap can be freed immediately if no further explicit
+references to it are to be made.
+This can not be performed on an 
+.PN InputOnly 
+window.
+It will cause an error to perform this on an 
+.PN InputOnly 
+window. 
+.LP
+.ds fd .PN XSetWindowBorderPixmap
+.so ./Xsrc/errsent.com
+.PN BadWindow ,
+.PN BadPixmap ,
+.PN BadMatch ,
+and
+.PN BadValue .
+.NH 2
+Translating Window Coordinates
+.LP
+Applications, mostly window managers,
+often need to perform a coordinate transformation from the coordinate
+space of one window to another window or need to determine which
+subwindow a coordinate lies in.
+.IN "XTranslateCoordinates"
+.PN XTranslateCoordinates
+fulfills these needs and avoids any race conditions by
+asking the X server to perform this operation.
+The definition for this function is:
+.IN "Definitions" "XTranslateCoordinates"
+.FD 0
+.so ./Xsrc/XTranCoords.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/sw.a
+.so ./Xsrc/dw.a
+.so ./Xsrc/srcxy1.a
+.so ./Xsrc/destxy.a
+.so ./Xsrc/child.a
+.LP
+.so ./Xdescrip/XTranCoords.d
+.LP
+.ds fd .PN XTranslateCoordinates
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.bp

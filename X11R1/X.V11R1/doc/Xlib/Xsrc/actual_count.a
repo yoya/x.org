@@ -1,0 +1,3 @@
+.IP \fIactual_count\fP 1i
+Specifies the actual number of matched font names that were returned by
+.PN XlistFontsWithInfo .

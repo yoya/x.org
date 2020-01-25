@@ -1,0 +1,4 @@
+.IP \fIbytes_after_return\fP 1i
+Returns the number of bytes remaining.
+This is the number of bytes remaining to be read in the property if 
+a partial read was performed.

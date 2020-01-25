@@ -1,0 +1,28 @@
+.TH XChangePointerControl 3X 
+.SH NAME
+XChangePointerControl, XGetPointerControl \- control pointer 
+.SH SYNTAX
+.so ../Xsrc/XChPointCon.f
+.LP
+.so ../Xsrc/XGetPntrCnt.f
+.SH ARGUMENTS
+.so ../Xsrc/acceldenom.a
+.so ../Xsrc/acceldenomrt.a
+.so ../Xsrc/accelnum.a
+.so ../Xsrc/accelnumret.a
+.so ../Xsrc/display.a
+.so ../Xsrc/doaccel.a
+.so ../Xsrc/dothreshold.a
+.so ../Xsrc/threshold.a
+.so ../Xsrc/thresholdret.a
+.SH DESCRIPTION
+.so ../Xdescrip/XChPointCon.d
+.ds fd .PN XChangePointerControl
+.so ../Xsrc/errsent4.com
+.PN BadValue .
+.LP
+.so ../Xdescrip/XGetPntrCnt.d
+.SH DIAGNOSTICS
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

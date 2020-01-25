@@ -1,0 +1,48 @@
+.TH XChangeKeyboardControl 3X 
+.SH NAME
+XChangeKeyboardControl, XGetKeyboardControl, XAutoRepeatOn, XAutoRepeatOff, XBell, 
+XQueryKeymap \- manipulate keyboard settings
+.SH SYNTAX
+.so ../Xsrc/XChKeyCon.f
+.LP
+.so ../Xsrc/XGetKeybdCnt.f
+.LP
+.so ../Xsrc/XAutoReptOn.f
+.LP
+.so ../Xsrc/XAutoReptOff.f
+.LP
+.so ../Xsrc/XBell.f
+.LP
+.so ../Xsrc/XQueryKeybd.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/keys.a
+.so ../Xsrc/percent.a
+.so ../Xsrc/value_mask1.a
+.so ../Xsrc/values2.a
+.so ../Xsrc/values3.a
+.SH DESCRIPTION
+.so ../Xdescrip/XChKeyCon.d
+.ds fd .PN XChangeKeyboardControl
+.so ../Xsrc/errsent.com
+.PN BadMatch
+and
+.PN BadValue .
+.LP
+.so ../Xdescrip/XGetKeybdCnt.d
+.LP
+.so ../Xdescrip/XAutoReptOn.d
+.LP
+.so ../Xdescrip/XAutoReptOff.d
+.LP
+.so ../Xdescrip/XBell.d
+.LP
+.so ../Xdescrip/XQueryKeybd.d
+.SH DIAGNOSTICS
+.so ../Xerrors/badmatch2.e
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+XChangeKeyboardMapping(3X),
+XSetPointerMapping(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

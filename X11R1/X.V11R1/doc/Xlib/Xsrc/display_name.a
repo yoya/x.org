@@ -1,0 +1,9 @@
+.\" $Header: display_name.a,v 1.7 87/09/10 11:47:35 mento Exp $
+.IP \fIdisplay_name\fP 1i
+Specifies the hardware display name, which determines the display
+and communications domain to be used.
+On a UNIX-based system, if the display_name is NULL, 
+it defaults to the DISPLAY environment variable. 
+.IN "DISPLAY Environment Variable"
+.IN "Environment" "DISPLAY"
+.IN "Definitions" "Display"

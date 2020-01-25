@@ -1,0 +1,1124 @@
+I N T E R O F F I C E   M E M O R A N D U M
+
+
+
+TO: Bob Scheifler, 			Date:    V1.0 10 Sept 87
+    Jim Gettys 				From:    Jim FLOWERS
+					Company: Digital Equipment Corp
+CC: see distribution list		Dept:    TBU Program Office
+    					Loc:     129 Parker Street
+						 PK03-1/C10
+						 Maynard, MA
+					Net:     VIDEO::FLOWERS
+					Tel:     DTN 223-8110, 617 493-8110
+
+
+
+
+SUBJECT: X Font Naming Proposal (V11.0)
+
+This is an updated draft proposal and replaces all drafts.  Please address
+comments to both Jim Flowers, and Bob Scheifler.
+
+SUMMARY
+
+This document is a proposal for including a specific font naming mechanism
+in the first version release of the X protocol.  It has taken shape from
+discussions, memos and draft documents by the author, various members of
+the Digital engineering community and Bob Scheifler (MIT, X protocol
+architect).
+
+This proposal meets the short and long-term goals to have a logical font
+description which is:
+
+    o	Unique;
+    o	Supports multiple vendors, character sets;
+    o	Operating system and file system independent;
+    o	Simple to use;
+    o	Extensible.
+
+
+(0) INTRODUCTION
+
+The current X protocol does not specify the contents of the font name
+pattern supplied to ListFont, ListFontWithInfo, and OpenFont, the
+implication being that font naming is implementation dependent, probably
+bound to the file system naming conventions of the server.  An application
+that wishes to be portable across server implementations, with very
+different file systems, naming conventions, and font libraries, has no
+guarantee of being able to determine what fonts are available on a foreign
+server, or a mechanism of logically describing the font it is looking for.
+
+Applications should be able to find out the currently available typefaces,
+in what sizes, styles, format, etc, so that understandable information can
+be presented to the user in dialogue boxes, or that intelligent font
+fallbacks can be chosen.  If a user selected a "Bodoni" type family, the
+application should be able to query the system for all Bodoni fonts and
+present only those Sets, Weights, Sizes available, etc.  Printer fonts and
+screen fonts must share the same logical font description conventions and
+the same font model.  This is the correct way for application writers to
+think about type.
+
+This document proposes a logical font description to be used in X so that
+applications can query and access type libraries in a consistent manner
+across all X servers.  In addition to completely specifying a given font
+name, it also provides key generic font attributes for matching purposes
+where complete font information is unknown or not needed.
+
+(1) GOALS
+
+This proposal meets the short and long-term goals to have a logical font
+description which is:
+
+    o	Unique;
+    o	Supports multiple vendors, character sets;
+    o	Operating system and file system independent;
+    o	Simple to use;
+    o	Extensible.
+
+(1.1) Unique font name
+
+It should be possible to have font names that are long enough and
+descriptive enough to have a reasonable probability of being unique without
+inventing a new registration organization.
+
+(1.2) Support multiple vendors and character sets
+
+The logical font description should distinguish between fonts that were
+supplied by different font vendors, but possibly have the same name.  We
+anticipate a highly competitive font market where users will be able to buy
+fonts from a number of sources according to their application needs.
+
+Current vendor practice is to deliver each font with all chars designed for
+that font, where charsets mappings are defined by encoding vectors.
+Provisions must be made which allows a font request to specify a specific
+charset mapping, in server environments where multiple charsets are
+supported.  Long-term plans should include extensions for supporting a
+completely general character set encoding mechanism in V11+.
+
+(1.3) OS and file system independent
+
+An application wanting a particular font should be able to use the
+descriptive name, without knowing about the file system or other repository
+in use by the server (therefore, the font logical description is NOT
+equivalent to a font file name).  However, it should be possible for
+servers to translate a given logical font description into a file name
+syntax that it knows how to deal with, without compromising the uniqueness
+of the font name.  This algorithm should be reversible (exactly how this
+translation is done is implementation dependent).
+
+(1.4) Simple pattern matching
+
+Logical font descriptions should be amenable to simple pattern matching,
+e.g., allowing "don't care" and "care some" notions to be roughly
+expressed, to cut down on the set of fonts returned by a query (that would
+otherwise have to be expressed as "return all fonts").  It is also
+necessary to be able to constrain matching to just a few fields, such as
+the typeface "FamilyName", in order to minimize the number of fonts
+processed in servers with large commercial type libraries.  This might be
+thought of as "return the first instance of" or "ignore this field"
+parsing.  [note, restrictions on making protocol changes to V11 make this
+final point hard or impossible to meet]
+
+(1.5) Extensible 
+
+The proposed logical font description must be open, so that new attributes
+and attribute values can be added in the future.  In particular, the
+description must be able to model continuously scaled outline fonts.
+
+(2) NON GOALS
+
+    o fall-backs, if exact match is not found, return "font not found";
+    o define a font file id 
+
+
+(3) PROPOSED LOGICAL FONT ATTRIBUTES
+
+Following are the proposed attributes to be used in X logical font
+descriptions.  The description is divided into four groups,
+"PhysicalAttributes", "MatchingAttributes", "RenderingAttributes" and
+"Other" to distinguish between attributes that describe a physical or base
+font (usually 1:1 mapping with physical data image), attributes used
+primarily to aid in matching or sub-setting the available font library and
+rendering attributes that describe how the font should be transformed for a
+given device or application need. "Other" is proposed as a catch-all field
+that would be used for tie-breaking.
+
+Future extensions are planned, in terms of the number of attributes of the
+description (appended to one of the existing groups), and the content of
+certain fields (new codes defined).  Server implementations of the font
+description parser should anticipate handling font requests using old and
+new logical font descriptions in a transparent way.
+
+LogicalFontDescription	::=	PhysicalAttributes
+				MatchingAttributes
+				RenderingAttributes
+				Other
+
+PhysicalAttributes	::=	FamilyName
+				Foundry
+				Weight
+				Set
+				Style
+				PixelSize
+				PointSize
+				ResolutionX
+				ResolutionY
+				MonoSpaced
+				FixedWidth
+
+MatchingAttributes	::=	Classification
+
+RenderingAttributes	::=	CharSetRegistry
+				CharSetEncoding
+				Quality
+
+
+(3.1) Syntax
+
+It is proposed that logical font description be a parsable string of 
+the form:
+
+   "<PhysicalAttributes>;<MatchingAttributes>;<RenderingAttributes>;<Other>"
+
+where ISO Latin1 semicolon (';'), is the suggested group delimiter.
+
+PhysicalAttributes is a parsable sub-string of the form:
+
+   "<FamilyName>#<Foundry>#<Weight>#<Style>#<Set>#<PixelSize>#<Pointsize>#
+    <ResolutionX>#<ResolutionY>#<MonoSpaced>#<FixedWidth>"
+
+MatchingAttributes is a parsable sub-string of the form:
+
+   "<Classification>"
+
+RenderingAttributes is a parsable sub-string of the form:
+
+    "<CharSetEncoding>#<Quality>"
+
+and Other is a simple string whose content is unspecified.
+
+
+The suggested delimiter character is the ISO Latin1 sharp ('#').  ISO
+Latin1 slash ('/') was eliminated given their confusion with Unix and
+other filenames.  ISO Latin1 colon (':') and period ('.') conflict with VMS
+file system conventions.
+
+Field values will be restricted to characters in the ISO Latin-1 character
+set encoding, i.e., certain fields may contain accented characters (e.g.,
+type FamilyName of fonts designed and primarily used in Europe), and should
+not include the delimiters, question mark (?) and asterisk (*).  Alphabetic
+case does not matter.  The entire logical font description string must have
+no more than 255 characters.
+
+
+(3.2) Physical Attributes
+
+The physical attributes are described below:
+
+FamilyName <string>
+
+   This is the type "family" of the font.  It denotes a range of typeface
+   designs that are all variations of one basic typographic style.  This must
+   be spelled out in full, with words separated by spaces as required.  This
+   character string must be human-readable and suitable for presentation to a
+   font user to identify the typeface (by convention the FamilyName is not
+   usually translated).  Often the trademarked commercial name.
+
+   Note, that type foundry, design ownership or typeface style information
+   such as italic or bold, or numeric encodings of these attributes
+   (Univers 55), must not be included in the family name.
+
+   It is up to the type supplier to supply and maintain a suitable string
+   for this field (should be fewer than 32 chars), to secure the proper
+   legal title to a given FamilyName, and to guard against the infringement
+   of other's copyrights.  [need some kind of language to tell people that
+   fonts and typeface names are trademarked]
+
+   Examples:
+	Times
+	Univers
+	Snell Roundhand
+	Baskerville II
+	Avant Garde Gothic
+	
+   Pattern Match Example:
+
+	Century School Book	- Century School Book typeface family
+	*			- any family
+
+Foundry <code-string>
+
+   This is the name or id of the type foundry that supplied the font in
+   digital form, or the name of the font designer, if independent.  The
+   legal owner of a typeface, as well as other copyright information,
+   should be captured in the font file header as a copyright notice, and is
+   not addressed in this proposal.
+
+   The reason this distinction is necessary is that a "Souvenir" licensed
+   from ITC and digitized by Bitstream could be very different (it's
+   CapHeight, XHeight, general weight, and of course, its glyph widths)
+   from a "Souvenir" digitized by another type vendor, such as Compugraphic
+   or Adobe.  Each type foundry has it own standards and practices for
+   tweaking a typeface for specific technology, or its own perception of
+   market needs.
+
+   It is up to the type supplier to supply and maintain a suitable
+   code-string for this field (variable length, but should be fewer than 17
+   chars), although it is recommended that Foundry be the corporate
+   trademark.
+
+   Examples:
+	ITC		-for International Typeface Corporation
+	CG		-for CompuGraphic, USA
+	Bitstream	-for Bitstream
+ 	Linotype	-for Linotype
+	Adobe		-for Adobe Systems
+
+   Pattern Match Example:
+	*		if the "Foundry" is not relevant
+
+Weight <code>
+
+   A code giving the nominal weight or "blackness" of the font, according
+   to the designer's or Foundry's judgment, ranging from UltraLight, Medium
+   to UltraBold.
+
+   Note, the use of mnemonic codes such as "UL" will allow for useful
+   requests such as "any light weight" via "*L", etc.  These codes,
+   however, are for programming convenience only, and must be converted
+   into their equivalent human-readable form before being presented to a
+   user.  Human-readable forms are language-specific, i.e., they must be
+   translated according to prevailing market/country custom.
+
+   NA should be used for fonts where the notion of weight makes no sense
+   or is unknown (e.g., certain pi fonts, cursor fonts).  Font selection 
+   managers will probably represent NA weights as grayed menu or list box 
+   items.
+
+   The encoding is as follows:
+
+      Mnemonic	Human-readable form (English)
+
+	"UL"	UltraLight
+	"EL"	ExtraLight
+	"L"	Light	
+	"SL"	SemiLight
+	"M"	Medium (Normal, Regular, Book, ...)
+	"SB"	SemiBold (DemiBold, ...)
+	"B"	Bold	
+	"EB"	ExtraBold (Heavy, ...)
+	"UB"	UltraBold (Black, ...)
+	"NA"	<NULL string> - unknown or not applicable
+
+   Pattern Match Examples:
+
+	*B	- any bold
+	?B	- any bold, except "Bold"
+	*L	- any light
+	M	- Medium
+	DB	- DemiBold
+	*	- any weight, including NA
+
+Set <code>
+
+   A code giving the nominal width per horizontal unit (setwidth) of the
+   font, according to the designer's or Foundry's judgment, ranging from
+   UltraCondensed, Medium to UltraExpanded.  Condensed typefaces are often
+   used to conserve column space while maintaining a given pointsize, while
+   expanded versions are sometimes used for added emphasis.
+
+   It is very important to distinguish a font's "Set" from an eventual
+   distortion due to anamorphic scaling; an application or user may want to
+   digitally condense the "Condensed" font to obtain an "UltraCondensed",
+   if none is available, etc.
+
+   As with Weight above, the use of mnemonic codes such as "UC" will allow
+   for useful requests such as "any condensed set" via "*C", etc.  These
+   codes, however, are for programming convenience only, and must be
+   converted into their equivalent human-readable form before being
+   presented to a user.  Human-readable forms are language-specific, i.e.,
+   they must be translated according to prevailing market/country custom.
+
+   NA should be used for fonts where the notion of setwidth makes no
+   sense or is unknown (e.g., certain pi fonts, cursor fonts, etc).  Font 
+   selection managers will probably represent NA setwidths as grayed menu 
+   or list box items.
+
+   Note, normal usage of this field is restricted to "UltraCondensed",
+   "Condensed", "Medium" and "Expanded", except for a small handful of
+   modern typefaces such as Univers.
+
+   The encoding is as follows:
+
+      Mnemonic	Human-readable form (English)
+
+	"UE"	UltraExpanded
+	"EE"	ExtraExpanded
+	"E"	Expanded
+	"SE"	SemiExpanded
+	"M"	Medium (Normal, Regular, ...)
+	"SC"	SemiCondensed
+	"C"	Condensed (Narrow, ...)
+	"EC"	ExtraCondensed
+	"UC"	UltraCondensed
+	"NA"	<NULL string> - unknown or not applicable
+
+   Pattern Match Example:
+
+	*C	- any condensed
+	?C	- any condensed, except "Condensed"
+	*E	- any expanded
+	M	- Medium
+	DC	- DemiCondensed
+	*	- any setwidth, including NA
+
+Style <code>
+
+   A code indicating whether the font is an italic or roman style design.
+   "Roman" identifies a typeface design that is generally upright.  The
+   term "italic", meaning slanted or cursive typographic design, is used
+   independent of whether the italic version was created as a new design or
+   generated from a roman by obliquing (e.g., even though the PostScript
+   name of an italic version of Courier is Courier-Oblique, it would be
+   treated as an italic design for matching purposes).  Not to be confused
+   with a possible extension, electronic obliquing, which would be done at
+   rendering time (see below).
+
+   The following codes are for programming convenience only, and must be
+   converted into their equivalent human-readable form before being
+   presented to a user.  Human-readable forms are language-specific, i.e.,
+   they must be translated according to prevailing market/country custom.
+
+   NA should be used for fonts where the notion of italic or roman makes
+   no sense or is unknown (e.g., certain pi fonts, cursor fonts, Hebrew, 
+   Arabic, etc).  Font selection managers will probably represent NA styles
+   as grayed menu or list box items.
+
+   The encoding is as follows:
+
+   Mnemonic Code	Human-readable form
+   -------------	-------------------
+
+	'I'		Italic
+	'R'		Roman	
+	'NA'		<NULL string> - unknown or not applicable
+
+
+    Pattern match examples
+
+	I	- Italic
+	*	- any italic, roman, or NA
+
+
+PixelSize <integer-string>
+
+   A physical metric in device pixels which gives the size of the font
+   desired, i.e., the size of the EM square (char cell) used to design the
+   font, including any extra vertical spacing.  Note, that PixelSize is not
+   equivalent to the ascent, which is normally the height of capital
+   letters for Latin alphabets.
+
+   PixelSize would normally be used by an application that wanted a list of
+   available fonts according to PixelSize, independent of the pointsize and
+   resolution the font was designed for (i.e., PointSize and ResolutionX,Y
+   wildcarded).
+
+   PixelSize is in the range 1 to a "very-large-number".
+
+PointSize <integer-string>
+
+   A physical metric in device-independent units which gives the size of
+   the font desired, i.e., the size of the EM square (char cell) used to
+   design the font, including any extra vertical spacing.  It would
+   normally be used in conjunction with ResolutionY, wildcarding PixelSize.
+
+   Pointsize is expressed as a integer string in deci-points (where
+   points are as defined in the X protocol) in the range 1 to a
+   "very-large-number".
+
+ResolutionX <integer-string>
+ResolutionY <integer-string>
+
+   The horizontal and vertical resolution of the device where the font will
+   be displayed, measured in pixels per inch (dpi).  Horizontal and vertical
+   values are required since a separate bitmap font must be designed for
+   displays with very different aspect ratios, e.g., 1:1, 2:1, 3:2, etc.
+   Note, ResolutionX,Y is normally used with PointSize, with the PixelSize
+   wildcarded.
+
+   The separation of PixelSize, PointSize and Resolution is necessary
+   because X allows for servers with very different video characteristics
+   (horizontal and vertical resolution, screen and pixel size, pixel shape,
+   color or gray-level capabilities) to potentially access the same font
+   library.  The font name, then, must differentiate between a 14 point
+   font designed for 75 dpi (14 pixels) or a 14 point font designed for 150
+   (28 pixels), etc.  Further, when continuously scaled outline fonts are
+   supported, PointSize and ResolutionY will help the server to
+   differentiate between separate font masters for text, title and display
+   sizes or for other typographic considerations.
+
+ISSUE:  it has been pointed out that X returns screen size in millimeters,
+so expressing resolution in dpi requires conversion and possible rounding
+errors.  If metric units are desired, then dots per METER would be
+necessary, which is not guaranteed to fit in 16 bits for high resolution
+devices.  DPI does seem to be an industry de facto standard, however.
+
+
+   Matching examples :
+   (PixelSize, PointSize, ResolutionX, ResolutionY)
+
+	12#*#*#*	- 12 pixel font
+	72#*#300#300 	- 72 pixel font designed for 300 dpi
+	*#120#75#75	- 12 pixel font designed for 12 point @ 75 dpi
+	*#120#37#75	- 12 pixel font designed for 12 point at
+			  non-square aspect ratio of 1:2 
+	*#120#150#150	- 24 pixel font designed for 12 point @ 150 dpi
+	*#95#300#300 	- 38 pixel font designed for 9.5 point @ 300 dpi
+	*#*#75#75	- any pointsize designed for 75 dpi
+	*#*#*#*		- any size at any resolution
+
+MonoSpaced <code>
+
+   A code that indicates if the font is monospaced (fixed pitch) or
+   proportional spaced (variable pitch).  A monospaced font, by definition,
+   must follow the standard typewriter character cell model, i.e., the glyphs
+   of the font can be thought of as "boxes" of the same width and height that
+   can be imaged side by side to form text strings, or top to bottom to form
+   text lines.  In X, this means that all glyphs of the font are set on the
+   same width (character-width = right-side-bearing = FixedWidth), any extra 
+   vertical spacing needed by the font is embedded in the char cell itself,
+   no glyph marks occur outside the char cell and all left-side-bearings must 
+   be zero (no kerning).
+
+   Normally used in conjunction with FixedWidth, below, to further distinguish
+   between possible versions of a monospaced font designed for different
+   character densities.
+
+   The encoding is as follows:
+
+   Mnemonic Code	Human-readable form
+   -------------	-------------------
+   
+	'Y'		Monospaced
+	'N'		Proportional
+
+FixedWidth <integer-string>
+
+   An integer value giving the character cell width of monospaced fonts,
+   measured in device-dependent pixels.  By convention, the FixedWidth of a
+   proportional font would be zero.  Pitch can easily be calculated or
+   specified using the FixedWidth and ResolutionX attribute values.
+
+
+(3.3) Matching Attributes
+
+The following attributes, while not needed for uniqueness, allow for
+efficient sub-setting of the available server font library:
+
+Classification <code-string>
+
+   This attribute defines the general "class" of font, i.e., whether the
+   design incorporates serifs, no serifs, is a more cursive or script-like
+   design, etc.  It will allow applications to describe the general design
+   of the typeface that they want when more specific information is unknown
+   or not important, especially when moving from one server implementation
+   to another where the available font resources may be very different.
+
+   The encoding is as follows:
+
+   Mnemonic Code	Human-readable form
+   -------------	-------------------
+   
+	"Serif"		Serif
+	"Sans"		SansSerif
+	"Script"	Script
+	"NA"		<NULL string> - unknown or not applicable
+
+   Note, other typeface classifications may be added in the future.
+
+
+(3.4) Rendering Attributes
+
+CharSetRegistry <code-string>
+
+   A code-string that defines the registry athority that registered the 
+   specified CharSetEncoding (e.g., ANSI, ISO, DEC, IBM, <application-name>, 
+   etc).
+
+CharSetEncoding <code-string>
+
+   A code-string that defines the character set encoding vector, (and
+   implicitly its glyph set) as registered with the CharSetRegistry (e.g.,
+   Latin1, Kanji, Special Graphics, ASCII, etc).  Note, that the type of
+   character set encoding, i.e., 7-bit, 8-bit, 2 byte row-column, 3 byte,
+   etc), is implied by the CharSetEncoding itself.
+	
+   Although X does not currently have any specific knowledge about character
+   set encodings, it is expected that server implementers will prefer to embed
+   knowledge of certain proprietary or industry standard charsets into their
+   font library for reasons of performance and convenience.  Current vendor
+   practice is to deliver each font with all chars designed for that font,
+   where charsets mappings are defined by encoding vectors.  CharSetRegistery
+   & CharSetEncoding allows a font request to specify a specific charset
+   mapping in server environments where multiple charsets are supported.
+   Extensions for supporting a completely general character set encoding
+   mechanism in V11+ is proposed in Appendix A.
+
+   ALL X servers will be required to support at least the "Latin1"
+   CharSetEncoding of the "ISO" CharSetRegistry.  The availability of any
+   other registry or charset is font and server implementation dependent.
+
+
+  Matching examples:
+  (CharSetRegistry, CharSetEncoding)
+
+	ISO#Latin1		- the ISO Latin1 8-bit charset & glyphs
+	ISO#Latin3		- ISO Latin3 8-bit charset & glyphs
+	ISO#Latin*		- all ISO latin-"n" charsets & glyphs
+	ANSI#ASCII		- ANSI 7-bit ASCII charset & glyphs
+	JIS#Kanji		- JIS 16-bit Kanji charset & glyphs
+	DEC#Special Graphics	- Digital's 7-bit line drawing charset
+				  & glyphs
+
+
+Quality <code-string> 
+
+   A attribute that indicates the factor of typographic quality that the
+   application needs.  Certain applications may be willing to accept scaled
+   or synthesized fonts (emboldened or obliqued fonts, etc.) to improve
+   performance, or to expand the type library offered to users.  Requests
+   for physical fonts would normally be made to determine the actual fonts
+   available, or by typographically sensitive publishing applications.
+   Scaled or synthesized fonts may not be supported by all server
+   implementations.
+
+   Quality would not normally require a human-readable form.
+
+   The encoding is as follows:
+
+   Mnemonic Code	Description
+   -------------	-------------------
+   
+	"Phy"		allow physical (unrendered fonts) only
+	"Scale"		allow pixel scaled physical bitmap fonts
+	"Synth"		allow emboldened or obliqued physical bitmap fonts
+
+ 
+(4) EXAMPLES
+
+Consider a hypothetical X server font library that contains:
+
+    (1)	WYSIWYG screen fonts (i.e., screen fonts designed to match printer
+	fonts), in a complement of standard styles, sizes and resolutions 
+	(Medium, Bold, Italic, BoldItalic, etc, in 10, 12, 14, 18, 24 points
+	@ 75 & 150 dpi);
+
+    (2) VideoText screen fonts (i.e., screen fonts "tuned" for maximum
+	legibility and readability on the screen), in proportional and 
+	monospace designs, in larger range of sizes (7, 8, 9, 10, 12, 14, 
+	18, 24, 28, 36 points @ 75 & 150 dpi), in condensed, normal 
+	and expanded versions.
+
+Most fonts are supplied in ISO Latin1 character set encoding, a few are
+available for imaging in a special math encoding.  A special symbol
+font and a family of Hebrew fonts are also defined.
+
+
+
+FAMILY		Styles 			Charset		Sizes		DPI
+		(Weight,italic,set)
+---------------------------------------------------------------------------
+
+Times 		Medium Roman Medium,	ISO Latin1, 	Std* 		Std**
+		Medium Italic Medium,	Math
+		Bold Roman Medium,
+		Bold Italic Medium
+
+Helvetica	Medium Roman Medium,	ISO Latin1, 	Std 		Std
+		Medium Italic Medium,	Math
+		Medium Roman Condensed,
+		Medium Italic Condensed,
+		Bold Roman Medium,
+		Bold Italic Medium,
+		Bold Roman Condensed,
+		Bold Italic Condensed
+
+Courier		Medium Roman Medium,	ISO Latin1, 	Std 		Std
+(monospaced)	Medium Italic Medium,	Math
+		Bold Roman Medium,
+		Bold Italic Medium
+
+Souvenir	Light Roman Medium,	 ISO Latin1	Std		Std
+		Light Italic Medium, 
+		DemiBold Roman Medium,
+		DemiBold Italic Medium
+
+Symbol 		Medium NA NA***		Symbol		Std		Std
+
+Hebrew 		Medium NA NA		Hebrew		Std		Std
+
+
+VideoText 	Medium Roman Medium,	ISO Latin1, 	7,8,9,Std, 	75
+(proportional)	Medium Roman Condensed,	Math		28,36
+		Medium Roman Expanded,
+		Medium Italic Medium,
+		Medium Italic Condensed,
+		Medium Italic Expanded,
+		Bold Roman Medium,
+		Bold Roman Condensed,
+		Bold Roman Expanded,
+		Bold Italic Medium,
+		Bold Italic Condensed,
+		Bold Italic Expanded
+
+	
+VideoText	Medium Roman Medium,	ISO Latin1,	as above	75
+(monospaced)	Medium Italic Medium,	Math,
+		Bold Roman Medium,	Mumble-1,
+		Bold Italic Medium	Mumble-2
+
+
+* "Std" sizes are 10, 12, 14, 18, 24 points.
+** "Std" resolutions are 75 & 150 dpi.
+*** 'NA' implies not applicable style attribute
+
+
+Some ListFonts requests and the matching font names are given below:
+
+ o List all typeface FamilyNames:
+
+ TF#F#W#S#SW#PX#PS#RX#RY#MS#FW;C;CR#CS#Q;O
+ "*"	[how to distinguish this??]
+
+ =>	"Times"		[only want FamilyNames here, not match all fonts?]
+	"Helvetica"
+	"Courier"
+	"Souvenir"
+	"Symbol"
+	"Hebrew"
+	"VideoText proportional"
+	"VideoText monospace"
+
+ o List all FamilyNames available for 100 dpi displays:
+
+ TF#F#W#S#SW#PX#PS#RX#RY#MS#FW;C;CR#CS#Q;O
+ "*#*#*#*#*#*#*#100#100*"
+
+ =>	"Times"				[only want FamilyNames]
+	"Helvetica"
+	"Courier"
+	"Souvenir"
+	"Symbol"
+	"Hebrew"
+
+
+ o List all physical fonts that support ISO Latin1, designed for 75 dpi:
+
+ TF#F#W#S#SW#PX#PS#RX#RY#MS#FW;C;CR#CS#Q;O  
+ "*#*#*#*#*#*#*#75#75#*;;ISO#Latin1#*"
+
+ =>	"Times#Adobe#M#R#M#10#100#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Times#Adobe#M#I#M#10#100#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Times#Adobe#B#R#M#10#100#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Times#Adobe#B#I#M#10#100#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+
+	"Times#Adobe#M#R#M#12#120#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Times#Adobe#M#I#M#12#120#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Times#Adobe#B#R#M#12#120#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Times#Adobe#B#I#M#12#120#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+
+	"Times#Adobe#M#R#M#14#140#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Times#Adobe#M#I#M#14#140#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Times#Adobe#B#R#M#14#140#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Times#Adobe#B#I#M#14#140#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+
+	"Times#Adobe#M#R#M#18#180#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Times#Adobe#M#I#M#18#180#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Times#Adobe#B#R#M#18#180#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Times#Adobe#B#I#M#18#180#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+
+	"Times#Adobe#M#R#M#24#240#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Times#Adobe#M#I#M#24#240#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Times#Adobe#B#R#M#24#240#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Times#Adobe#B#I#M#24#240#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+
+	...and so on for Helvetica, Courier, Souvenir, Symbol
+	and Hebrew.
+
+ o List all charsets available for Bitstream's Helvetica Bold Italic 
+   Condensed that were designed for 75 dpi:
+
+ TF#F#W#S#SW#PX#PS#RX#RY#MS#FW;C;CR#CS#Q;O   
+ "Helvetica#Bitstream#B#I#C#10#100#75#75#N#0;;*"
+
+ =>	"Helvetica#Bitstream#B#I#C#10#100#75#75#N#0;Sans;
+		ISO#Latin1#Phy"
+	"Helvetica#Bitstream#B#I#C#10#100#75#75#N#0;Sans;
+		Mumble#Math#Phy"
+
+ o List all unrendered Souvenir typeface styles that support 
+   ISO Latin1, designed for 75 dpi:
+
+ TF#F#W#S#SW#PX#PS#RX#RY#MS#FW;C;CR#CS#Q;O    
+ "Souvenir#*#*#*#*#10#100#75#75#*;ISO#Latin1#Phy"
+
+
+ =>	"Souvenir#ITC#L#R#M#10#100#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Souvenir#ITC#L#I#M#10#100#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Souvenir#ITC#DB#R#M#10#100#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Souvenir#ITC#DB#I#M#10#100#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+
+
+ o List all unscaled pointsizes of Souvenir DemiBold Roman Medium that 
+   support ISO#Latin1, designed for 75 dpi:
+
+
+ TF#F#W#S#SW#PX#PS#RX#RY#MS#FW;C;CR#CS#Q;O    
+ "Souvenir#ITC#DB#R#M#*#*#75#75#N#0;ISO#Latin1#Phy"
+
+
+ =>	"Souvenir#ITC#DB#R#M#10#100#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Souvenir#ITC#DB#R#M#12#120#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Souvenir#ITC#DB#R#M#14#140#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Souvenir#ITC#DB#R#M#18#180#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+	"Souvenir#ITC#DB#R#M#24#240#75#75#N#0;Serif;
+		ISO#Latin1#Phy"
+
+
+(5) AFFECTED ELEMENTS OF THE X PROTOCOL
+
+No changes in the X protocol or sample server implementations are
+anticipated.  All instances of ASCII in the protocol document should be
+changed to ISO Latin1.
+
+The following X protocol requests must use the proposed font naming 
+conventions:
+
+	OpenFont		name:STRING8
+	ListFonts		pattern:STRING8
+	ListFontsWithInfo	pattern:STRING8
+
+
+(6) OPEN ISSUES & PROBLEMS
+
+    o	X font properties should include logical font description 
+	attributes, overlapping properties, such as Weight, should be
+	expressed as in proposed attribute;
+    o	sample server implementation of proposed logical font description
+	to file name, visa versa;
+    o	minimal font set on all X servers;
+
+
+
+APPENDIX A
+
+
+			PROPOSED EXTENSIONS TO X (V11+)
+
+
+The proposed extensions to X below, although incomplete, are provided to
+generate discussion around the font issue.
+
+(1) Logical Font Description
+
+RenderingAttributes:
+
+Destination <code>
+
+   A code that gives the font design destination, i.e., whether it was
+   designed as a screen proofing font to match printer font glyph widths
+   (WYSIWYG), as an optimal video font (possibly with corresponding printer
+   font) for extended screen viewing (VideoText), etc.  The font design
+   considerations are very different, and at current display resolutions, the
+   readability and legibility of these two kinds of screen fonts are very
+   different (WYSIWYG fonts are generally harder to read).  This attribute
+   would allow publishing applications, which will use X to model the printed
+   page, and VideoText applications such as on-line documentation, to
+   distinguish one set of fonts from the other without having to examine the
+   properties of all server fonts.
+
+   The encoding is as follows:
+
+   Mnemonic Code	Description
+   -------------	-------------------
+   
+	'W'		WYSIWYG
+	'V'		VideoText
+
+   Note, other font destinations may be added in the future.
+
+AntiAliasing <integer-string>			
+
+   The logical font description should allow for the possibility in the
+   future of an X server being able to cope with gray-level bitmap fonts or
+   possibly being able to create them on the fly from outlines.  Either
+   way, the application should be able to specify it really wants this kind
+   of font or not (reasons of performance, quality issues, just applied for
+   larger sizes, etc.).
+
+   The supplied integer-string gives either the number of color planes or
+   the number of gray levels to use, TBD.
+
+Outline <code>
+
+   Although not always typographically correct, outline fonts are normally
+   generated by applying a given stroke weight to be used for tracing the
+   outline of an outline font (large bitmap screen font outlines could be
+   synthesized).
+
+   It is recommended that the same encoding conventions used for "Weight"
+   above be adopted for the stroke weight, to remove EM relative unit
+   considerations from application responsibility:
+
+      Mnemonic	Human-readable form (English)
+
+	"UL"	UltraLight
+	"EL"	ExtraLight
+	"L"	Light	
+	"SL"	SemiLight
+	"M"	Medium (Normal, Regular, Book, ...)
+	"SB"	SemiBold (DemiBold, ...)
+	"B"	Bold	
+	"EB"	ExtraBold (Heavy, ...)
+	"UB"	UltraBold (Black, ...)
+	"NA"	<NULL string> - unknown or not applicable
+
+Oblique [+|-] <integer-string>
+
+   Oblique is not the same as italic, it is rather a digital distortion
+   performed on an existing roman font (outline or bitmap).  Often used by
+   publishing applications to obtain "funny-looking" type effects for
+   display pointsizes.  Integer string is the signed angle of the oblique,
+   relative to the 3:00 position, measured positive in counterclockwise 
+   direction in deci-degrees. Almost always restricted to +/- 45 degrees.
+
+Rotation [+#-] <integer-string>
+
+   The orientation of all the glyphs in the font, i.e., their rotation angle
+   around the EM (char cell) origin.  Integer string is the signed angle of
+   the rotation, relative to the 3:00 position, measured positive in the
+   counterclockwise direction in deci-degrees.
+
+ScaleWidth <integer-string>
+
+   An integer string giving the percentage of normal that the font is to be
+   scaled horizontally, in 1/10th percent (1000 is normal).  This attribute is
+   supplied primarily for continuously scaled outline fonts (Times Medium
+   Roman Medium scaled to 66% normal width to simulate condensed).
+
+(2) X Requests
+
+ListFamilyNames
+	pattern: STRING8
+  =>	names: LISTofStrings
+
+   Fast request to return only the list of available typeface FamilyNames.
+
+
+(3) Character set related requests
+
+	Author:	Bob Scheifler, X architect, 
+		MIT Lab for Computer Science
+		12-AUG-1987 13:56
+
+
+To avoid changes or additions to the protocol, we are suggesting that for
+now, servers export multiple font names, differing only in their character
+set (and hence internally in their glyph indexes).  One idea for an
+extension is as follows.  For a given collection of glyphs, the server
+should only export a single font name, specifying some all-encompassing
+character set.  For example, all TeX fonts might have the character set
+"Sail", and all PostScript compatible fonts might have the character set
+"PostScript".  The exact name of such character sets is not considered
+particularly important.  Additional server requests are provided to
+discover related character sets, and to reindex the glyphs according to
+other character sets:
+
+GetCharacterSetMappings
+	pattern: STRING8
+	max-sets: CARD16
+    =>
+	mappings: LISTofCSETMAP
+
+	where
+
+		CSETMAP: [from-cset: STRING8
+			  to-csets: LISTofSTRING8]
+
+
+	The idea here is to allow one to find out what character sets exist,
+	and what other character sets they can be converted to.  This doesn't
+	mean the mapping is onto (and maybe not even 1-to-1?); it merely means
+	that for each to-cset, some subset of from-cset can be mapped into a
+	subset of that to-cset (and the from-cset can differ).  The pattern
+	says which from-cset's you are interested in, with * and ? used for
+	matching in the usual way.
+
+An alternative formulation:
+
+GetCharacterSetMappings
+    =>
+	csets: LISTofSTRING8
+	intos: MATRIXofBOOL
+
+	This would return all character sets, plus a boolean square matrix with
+	intos[i,j] indicating if csets[i] maps into csets[j].
+
+CreateFontWithCharacterSet
+	font: FONT
+	cset: STRING8
+	fid: FONT
+
+	Errors: Font, CSet, Match, IDChoice
+
+	Creates a new font by taking the specified font and its current
+	character set, and remapping the glyph indexes according to cset, the
+	specified destination character set.  Note that the default-char of the
+	font must also be remapped.  The identifier fid is associated with the
+	new font.  Generates a CSet error if cset is not a defined character
+	set.  Generates a Match error if there is no defined mapping from the
+	font's character set to cset.  Generates a Match error if the source
+	font does not have a defined character set (or is it reasonable to
+	require all fonts to have a set, no matter how bogus?).  The character
+	set for a font is presumably just one more property on the font, with
+	value being the atom that has the name of the character set as its
+	string value.  This property would of course be changed in the new
+	font, to match the new character set.  Various FONTINFO metrics need to
+	also be calculated for the new font, but I think that can be done
+	automatically.
+
+An alternative formulation:
+
+SetCharacterSetMapping
+	gc: GCONTEXT
+	cset: STRING8
+
+	Errors: CSet, Match
+
+	Changes the glyph indexing within the gcontext, but does not produce a
+	new font or modify an existing font.  Generates a CSet error if cset is
+	not a defined character set.  Generates a Match error if there is no
+	defined mapping from the current character set to the new character
+	set.
+
+	Problem: what happens when you store a new font?  The character set
+	could change to that of the new font, or it could be an error if there
+	is no mapping from the font's character set to the current character
+	set.  CreateFontWithCharacterSet seems simpler to me.
+
+DefineCharacterSet
+	cset: STRING8
+	min-char-or-byte2, max-char-or-byte2: CARD16
+	min-byte1, max-byte1: CARD8
+	
+	Errors: Match
+
+	Defines a character set, and the range of valid indexes for fonts using
+	that character set.
+
+	This should probably generate a (Match?) error if the character set is
+	already defined (at least if the range differs), otherwise existing
+	mappings will be nonsense.
+	
+	The "right" thing might be to define GLYPHSYMs, similar to KEYSYMs, and
+	additionally define a character set by associating a GLYPHSYM with each
+	valid index.  This alone could be sufficient to determine the mappings
+	between character sets, without further specification.  But, I will
+	assume we don't do this.
+
+GetCharacterSet
+	cset: STRING8
+    =>
+	min-char-or-byte2, max-char-or-byte2: CARD16
+	min-byte1, max-byte1: CARD8
+	
+	Errors: CSet
+
+	Returns the index range of the character set.  Generates a CSet error
+	if cset is not a defined character set.
+
+DeleteCharacterSet
+	cset: STRING8
+
+	Errors: CSet
+
+	Deletes the specified character set.  Generates a CSet error if cset is
+	not a defined character set.  Also deletes all mappings both to and
+	from the character set.
+
+DefineCharacterSetMapping
+	from-cset: STRING8
+	to-cset: STRING8
+	mapping: LISTofCARD16
+	no-glyph: CARD16
+
+	Errors: CSet, Match
+
+	Defines a mapping between a pair of character sets.  Mapping gives the
+	re-indexing.  The indexes into mapping should correspond to the
+	indexing for to-cset; the element values are the indexes in from-cset,
+	except that values matching no-glyph indicate that there is no
+	corresponding glyph.  Index values are always specified as 16-bit
+	values for simplicity.  The indexes into mapping are the same indexes
+	as used in QueryFont, which is not necessarily identical to normal
+	glyph indexing; see QueryFont.  Generates a Match error if the length
+	of mapping does not match the glyph-set size of to-cset.  Generates a
+	CSet error if from-cset or to-cset is not a defined character set.
+
+	The mapping might seem backwards, but inverting it would require error
+	checks to make sure that multiple glyphs didn't map to the same index;
+	as defined this can't happen.
+
+GetCharacterSetMapping
+	from-cset: STRING8
+	to-cset: STRING8
+    =>
+	mapping: LISTofCARD16
+	no-glyph: CARD16
+
+	Errors: CSet, Match
+
+	Returns the mapping between a pair of character sets.  Generates a CSet
+	error if from-cset or to-cset is not a defined character set.
+	Generates a Match error if there is no defined mapping from from-cset
+	to to-cset.
+
+In all the above, one could consider replacing STRING8 as the specification of
+character sets with ATOM.  This provides a more compact representation, but
+would generally require additional round-trips on the part of the client to
+convert atom to string or vice versa.  Unclear exactly what the tradeoffs are.
+If one were to favor SetCharacterSetMapping over DefineFontWithCharacterSet,
+then by using an ATOM one could actually just extend the value-mask/value-list
+in ChangeGC, rather than adding a new request.
+
+This is all somewhat tentative; there may well be holes that haven't been
+plugged, etc.

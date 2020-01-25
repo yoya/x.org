@@ -1,0 +1,3 @@
+.\" $Header: dest.a,v 11.2 87/03/28 10:55:19 mento Exp $
+.IP \fIdest\fP 1i
+Specifies the destination graphics context.

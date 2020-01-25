@@ -1,0 +1,122 @@
+.na
+.de FD
+.LP
+.KS
+.TA 1.0i 3i
+.ta 1.0i 3i
+.nf
+..
+.de FN
+.fi
+.KE
+.LP
+..
+.de IN		\" send an index entry to the stderr
+..
+.de C{
+.KS
+.nf
+.D
+.\"
+.\"	choose appropriate monospace font
+.\"	the imagen conditional, 480,
+.\"	may be changed to L if LB is too
+.\"	heavy for your eyes...
+.\"
+.ie "\\*(.T"480" .ft L
+.el .ie "\\*(.T"300" .ft L
+.el .ie "\\*(.T"202" .ft PO
+.el .ie "\\*(.T"aps" .ft CW
+.el .ft R
+.ps \\n(PS
+.ie \\n(VS>40 .vs \\n(VSu
+.el .vs \\n(VSp
+..
+.de C}
+.DE
+.R
+..
+.de PN
+.ie t \f(H\|\\$1\|\fR\\$2
+.el \fI\|\\$1\|\fP\\$2
+..
+.de NT
+.ne 7
+.ds NO Note
+.if \\n(.$>$1 .if !'\\$2'C' .ds NO \\$2
+.if \\n(.$ .if !'\\$1'C' .ds NO \\$1
+.ie n .sp
+.el .sp 10p
+.TB
+.ce
+\\*(NO
+.ie n .sp
+.el .sp 5p
+.if '\\$1'C' .ce 99
+.if '\\$2'C' .ce 99
+.in +5n
+.ll -5n
+.R
+..
+.		\" Note End -- doug kraft 3/85
+.de NE
+.ce 0
+.in -5n
+.ll +5n
+.ie n .sp
+.el .sp 10p
+..
+.ny0
+.TH XPolygonRegion 3X 
+.SH NAME
+XPolygonRegion, XClipBox \- generate regions
+.SH SYNTAX
+.\" $Header: XPolyRegion.f,v 11.4 87/08/15 12:14:50 mento Exp $
+Region XPolygonRegion\^(\^\fIn\fP\^, \fIpoints\fP\^, \fIfill_rule\fP\^)
+.br
+      int \fIn\fP\^;
+.br
+      XPoint \fIpoints[]\fP\^;
+.br
+      int \fIfill_rule\fP\^;	
+.LP
+.\" $Header: XClipBox.f,v 11.4 87/08/15 12:11:12 mento Exp $
+XClipBox\^(\^\fIr\fP\^, \fIrect\fP\^)
+.br
+      Region \fIr\fP\^;
+.br
+      XRectangle *\fIrect\fP\^;
+.SH ARGUMENTS
+.\" $Header: fill_rule.a,v 11.3 87/08/31 11:12:18 mento Exp $
+.IP \fIfill_rule\fP 1i
+Specifies the fill rule you want to set for 
+the specified graphics context.
+You can pass one of these constants:
+.PN EvenOddRule
+or
+.PN WindingRule .
+.\" $Header: n1.a,v 11.3 87/03/28 10:57:53 mento Exp $
+.IP \fIn\fP 1i
+Specifies the number of points in the polygon. 
+.\" $Header: points1.a,v 1.1 87/08/11 04:46:28 mento Exp $
+.IP \fIpoints\fP 1i
+Specifies an array of points.
+.\" $Header: r.a,v 11.2 87/03/28 10:59:55 mento Exp $
+.IP \fIr\fP 1i
+Specifies the region.
+.\" $Header: rect.a,v 11.2 87/03/28 11:00:01 mento Exp $
+.IP \fIrect\fP 1i
+Specifies the rectangle.
+.SH DESCRIPTION
+.\" $Header: XPolyRegion.d,v 1.1 87/08/27 14:20:36 mento Exp $
+The
+.PN XPolygonRegion
+function returns a region defined by the points array.
+.LP
+.\" $Header: XClipBox.d,v 1.2 87/08/28 07:43:36 mento Exp $
+The
+.PN XClipBox
+function generates the smallest enclosing rectangle in the specified rectangle
+that is located in the specified region.
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

@@ -1,0 +1,142 @@
+.na
+.de FD
+.LP
+.KS
+.TA 1.0i 3i
+.ta 1.0i 3i
+.nf
+..
+.de FN
+.fi
+.KE
+.LP
+..
+.de IN		\" send an index entry to the stderr
+..
+.de C{
+.KS
+.nf
+.D
+.\"
+.\"	choose appropriate monospace font
+.\"	the imagen conditional, 480,
+.\"	may be changed to L if LB is too
+.\"	heavy for your eyes...
+.\"
+.ie "\\*(.T"480" .ft L
+.el .ie "\\*(.T"300" .ft L
+.el .ie "\\*(.T"202" .ft PO
+.el .ie "\\*(.T"aps" .ft CW
+.el .ft R
+.ps \\n(PS
+.ie \\n(VS>40 .vs \\n(VSu
+.el .vs \\n(VSp
+..
+.de C}
+.DE
+.R
+..
+.de PN
+.ie t \f(H\|\\$1\|\fR\\$2
+.el \fI\|\\$1\|\fP\\$2
+..
+.de NT
+.ne 7
+.ds NO Note
+.if \\n(.$>$1 .if !'\\$2'C' .ds NO \\$2
+.if \\n(.$ .if !'\\$1'C' .ds NO \\$1
+.ie n .sp
+.el .sp 10p
+.TB
+.ce
+\\*(NO
+.ie n .sp
+.el .sp 5p
+.if '\\$1'C' .ce 99
+.if '\\$2'C' .ce 99
+.in +5n
+.ll -5n
+.R
+..
+.		\" Note End -- doug kraft 3/85
+.de NE
+.ce 0
+.in -5n
+.ll +5n
+.ie n .sp
+.el .sp 10p
+..
+.ny0
+.TH XIfEvent 3X 
+.SH NAME
+XIfEvent, XCheckIfEvent, XPeekIfEvent \- check the event queue
+.SH SYNTAX
+XIfEvent\^(\^\fIdisplay\fP, \fIevent_return\fP, \fIpredicate\fP, \fIarg\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      XEvent *\fIevent_return\fP\^;
+.br
+      Bool (\^*\fIpredicate\fP\^)\^(\^)\^;
+.br
+      char *\fIarg\fP\^;
+.LP
+Bool XCheckIfEvent\^(\^\fIdisplay\fP, \fIevent_return\fP, \fIpredicate\fP, \fIarg\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      XEvent *\fIevent_return\fP\^;
+.br
+      Bool (\^*\fIpredicate\fP\^)\^(\^)\^;
+.br
+      char *\fIarg\fP\^;
+.LP
+XPeekIfEvent\^(\^\fIdisplay\fP, \fIevent_return\fP, \fIpredicate\fP, \fIarg\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      XEvent *\fIevent_return\fP\^;
+.br
+      Bool (\^*\fIpredicate\fP\^)\^(\^)\^;
+.br
+      char *\fIarg\fP\^;
+.SH ARGUMENTS
+.IP \fIarg\fP 1i
+Specifies the user-supplied argument that will be passed to the predicate procedure.
+.\" $Header: display.a,v 11.8 87/09/03 11:02:24 mento Exp $
+.IP \fIdisplay\fP 1i
+Specifies the connection to the X server.
+.\" $Header: event.a,v 11.8 87/09/10 17:50:06 mento Exp $
+.IP \fIevent_return\fP 1i
+The 
+\*(fd
+function copies the matched event's associated structure into
+this client-supplied structure. 
+.IP \fIpredicate\fP 1i
+Specifies the procedure that is to be called to determine
+if the next event in the queue matches the one specified by the event argument.
+.SH DESCRIPTION
+.\" $Header: XIfEvent.d,v 1.2 87/09/09 19:41:05 mento Exp $
+The
+.PN XIfEvent
+function
+flushes the output buffer, checks the event queue for the specified
+event, and, if the events match as determined by your predicate procedure, 
+removes the event from the queue.
+.LP
+.\" $Header: XCkIfEvent.d,v 1.1 87/08/27 14:18:11 mento Exp $
+The
+.PN XCheckIfEvent
+function
+flushes the output buffer and checks the event queue for the specified event.
+.LP
+.\" $Header: XPkIfEvent.d,v 1.1 87/08/27 14:20:31 mento Exp $
+The
+.PN XPeekIfEvent
+function flushes the output buffer, checks the event queue for the specified event,
+but does not remove the event from the queue.
+.SH "SEE ALSO"
+XFlush(3X),
+XPutBackEvent(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

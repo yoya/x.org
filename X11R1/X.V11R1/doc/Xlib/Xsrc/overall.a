@@ -1,0 +1,4 @@
+.IP \fIoverall_return\fP 1i
+Returns the overall size in the specified
+.PN XCharStruct 
+structure.

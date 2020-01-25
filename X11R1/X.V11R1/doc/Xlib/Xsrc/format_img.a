@@ -1,0 +1,6 @@
+.IP \fIformat\fP 1i
+Specifies the format for the image.
+You can pass one of these constants:
+.PN XYPixmap 
+or 
+.PN ZPixmap .

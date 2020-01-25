@@ -1,0 +1,3 @@
+.\" $Header: thresholdret.a,v 1.3 87/08/11 11:23:45 mento Exp $
+.IP \fIthreshold_return\fP 1i
+Returns the acceleration threshold.

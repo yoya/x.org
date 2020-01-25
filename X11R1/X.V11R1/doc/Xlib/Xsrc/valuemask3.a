@@ -1,0 +1,8 @@
+.\" $Header: valuemask3.a,v 1.2 87/08/22 08:17:53 mento Exp $
+.IP \fIvaluemask_change\fP 1i
+Specifies which components in the graphics context are to be changed 
+using information in the
+.PN XGCValues
+structure.
+This argument is the bitwise inclusive OR of one or more of the valid 
+GC component masks.

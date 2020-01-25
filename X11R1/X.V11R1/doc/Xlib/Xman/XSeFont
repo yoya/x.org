@@ -1,0 +1,32 @@
+.TH XSetFont 3X 
+.SH NAME
+XSetFont \- GC convience routines
+.SH SYNTAX
+.so ../Xsrc/XSetFont.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/font.a
+.so ../Xsrc/gc.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSetFont.d
+.ds fd .PN XSetFont
+.so ../Xsrc/errsent.com
+.PN BadGC ,
+.PN BadFont ,
+and
+.PN BadAlloc .
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badfont.e
+.so ../Xerrors/badgc.e
+.SH "SEE ALSO"
+XCreateGC(3X),
+XQueryBestSize(3X),
+XSetArcMode(3X),
+XSetClipOrigin(3X),
+XSetFillStyle(3X),
+XSetLineAttributes(3X),
+XSetState(3X),
+XSetTile(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

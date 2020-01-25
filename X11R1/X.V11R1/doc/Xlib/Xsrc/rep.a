@@ -1,0 +1,7 @@
+.\" $Header: rep.a,v 11.5 87/07/09 06:16:17 mento Exp $
+.IP \fIrep\fP 1i
+Specifies a pointer to the structure
+.PN XEvent .
+This structure is a union of the individual structures declared for each event type.
+The function returns to this client-supplied structure the event it removed
+from the event queue.

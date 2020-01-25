@@ -1,0 +1,266 @@
+Access                    7, 42
+Alloc                     7, 34, 35, 36
+AllocColor                34, 35, 36
+AllocColor reply          35
+AllocColorCells           35
+AllocColorCells reply     35
+AllocColorPlanes          36
+AllocColorPlanes reply    36
+AllocNamedColor           35
+AllocNamedColor reply     35
+AllowEvents               21
+ARC                       5, 9, 31, 32
+Atom                      7, 16, 17
+Bell                      41
+BITGRAVITY                4, 13, 14
+BITMASK                   2, 3, 13, 15, 27, 29, 40, 50
+BOOL                      4, 12, 13, 14, 16, 17, 19, 20, 21, 22, 23, 25, 26,
+                          29, 30, 35, 36, 39, 41, 44, 45, 46, 48, 49, 50, 52
+BUTTON                    5, 9, 20, 45
+ButtonMotion              4
+ButtonPress               4, 45
+ButtonRelease             4, 45
+BYTE                      3, 6, 17, 18, 32
+CARD16                    4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18,
+                          19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 32, 34,
+                          35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+                          48, 49, 50, 51, 52
+CARD32                    3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 17, 18, 26, 28,
+                          30, 32, 35, 36, 37, 40, 43
+CARD8                     1, 2, 4, 5, 6, 7, 8, 9, 11, 12, 16, 17, 18, 24, 25,
+                          26, 27, 29, 32, 39, 40, 41, 42, 43, 47, 48, 52
+ChangeActivePointerGrab   20
+ChangeGC                  29
+ChangeHosts               42
+ChangeKeyboardControl     40
+ChangeKeyboardMapping     39
+ChangePointerControl      41
+ChangeProperty            17
+ChangeSaveSet             14
+ChangeWindowAttributes    13
+CHAR2B                    5, 33
+CirculateNotify           50
+CirculateRequest          51
+CirculateWindow           16
+ClearArea                 30
+ClientMessage             52
+CloseFont                 24
+COLORMAP                  3, 9, 11, 13, 14, 34, 35, 36, 37, 52
+ColormapChange            5
+ColormapNotify            52
+ConfigureNotify           49
+ConfigureRequest          50
+ConfigureWindow           15
+ConvertSelection          19
+CopyArea                  30
+CopyColormapAndFree       34
+CopyGC                    29
+CopyPlane                 30
+CreateColormap            34
+CreateCursor              37
+CreateGC                  27, 29
+CreateGlyphCursor         38
+CreateNotify              48
+CreatePixmap              27
+CreateWindow              12, 13
+CURSOR                    3, 9, 13, 19, 20, 38
+DeleteProperty            17
+DestroyNotify             49
+DestroySubwindows         14
+DestroyWindow             14
+Drawable                  7
+EnterNotify               46
+EnterWindow               4
+Expose                    47
+FillPoly                  31
+FocusChange               5
+FocusIn                   47
+FocusOut                  47
+FONT                      3, 9, 10, 24, 25, 26, 29, 38
+FONTABLE                  3, 24, 25
+ForceScreenSaver          43
+FreeColormap              34
+FreeColors                36
+FreeCursor                38
+FreeGC                    30
+FreePixmap                27
+GCONTEXT                  3, 27, 29, 30, 31, 32, 33, 34
+GetAtomName               17
+GetAtomName reply         17
+GetFontPath               27
+GetFontPath reply         27
+GetGeometry               16
+GetGeometry reply         16
+GetImage                  32
+GetImage reply            32
+GetInputFocus             23, 24
+GetInputFocus reply       24
+GetKeyboardControl        40
+GetKeyboardControl reply  40
+GetKeyboardMapping        39, 40
+GetKeyboardMapping reply  40
+GetModifierMapping        44
+GetModifierMapping reply  44
+GetMotionEvents           22
+GetMotionEvents reply     22
+GetPointerControl         41
+GetPointerControl reply   41
+GetPointerMapping         43
+GetPointerMapping reply   43
+GetProperty               17, 18
+GetProperty reply         18
+GetScreenSaver            41
+GetScreenSaver reply      41
+GetSelectionOwner         18
+GetSelectionOwner reply   18
+GetWindowAttributes       13, 14
+GetWindowAttributes reply 14
+GrabButton                5, 20
+GrabKey                   20, 21
+GrabKeyboard              20, 21
+GrabKeyboard reply        21
+GrabPointer               19
+GrabPointer reply         19
+GrabServer                22
+GraphicsExposure          48
+GravityNotify             50
+HOST                      6, 42
+IDChoice                  8
+ImageText16               33
+ImageText8                33
+Implementation            8
+InstallColormap           34
+INT16                     4, 5, 6, 12, 15, 16, 22, 23, 25, 26, 29, 30, 31, 32,
+                          33, 34, 40, 41, 43, 44, 45, 46, 48, 49, 50
+INT32                     4, 25
+INT8                      4, 33, 40, 41
+InternAtom                16
+InternAtom reply          16
+KEYCODE                   5, 9, 11, 21, 39, 40, 44, 45, 52
+KeymapNotify              47
+KeymapState               4
+KeyPress                  4, 44
+KeyRelease                4, 45
+KEYSYM                    5, 9, 39
+KillClient                43
+LeaveNotify               46
+LeaveWindow               4
+Length                    8
+ListExtensions            39
+ListExtensions reply      39
+ListFonts                 25, 26
+ListFonts reply           26
+ListFontsWithInfo         26
+ListFontsWithInfo reply (except for last in series) 26
+ListFontsWithInfo reply (last in series) 26
+ListHosts                 42
+ListHosts reply           42
+ListInstalledColormaps    34
+ListInstalledColormaps reply 34
+LISTofFOO                 3
+ListProperties            18
+ListProperties reply      18
+LookupColor               37
+LookupColor reply         37
+MapNotify                 49
+MappingNotify             52
+MapRequest                49
+MapSubwindows             15
+MapWindow                 15
+Match                     7
+MotionNotify              45
+Name                      1, 2, 8, 17, 35, 36
+NoExposure                48
+NoOperation               44
+OpenFont                  24
+OwnerGrabButton           5
+PIXMAP                    3, 9, 13, 27, 28, 29, 38
+POINT                     3, 5, 9, 10, 19, 20, 30, 31
+PointerMotion             4
+PointerMotionHint         4
+PolyArc                   31
+PolyFillArc               32
+PolyFillRectangle         31
+PolyLine                  30
+PolyPoint                 30
+PolyRectangle             31
+PolySegment               31
+PolyText16                33
+PolyText8                 32
+PropertyChange            5
+PropertyNotify            51
+PutImage                  32
+QueryBestSize             38, 39
+QueryBestSize reply       39
+QueryColors               37
+QueryColors reply         37
+QueryExtension            39
+QueryExtension reply      39
+QueryFont                 24, 26
+QueryFont reply           24
+QueryKeymap               24
+QueryKeymap reply         24
+QueryPointer              22
+QueryPointer reply        22
+QueryTextExtents          25
+QueryTextExtents reply    25
+QueryTree                 16
+QueryTree reply           16
+RecolorCursor             38
+RECTANGLE                 5, 9, 30, 31, 32
+ReparentNotify            49
+ReparentWindow            14
+Request	                  6
+ResizeRedirect            4
+ResizeRequest             50
+RotateProperties          43
+SelectionClear            51
+SelectionNotify           51
+SelectionRequest          51
+SendEvent                 19
+SetAccessControl          42
+SetClipRectangles         29
+SetCloseDownMode          42
+SetDashes                 29
+SetFontPath               27
+SetInputFocus             23
+SetModifierMapping        43, 44
+SetModifierMapping reply  44
+SETofDEVICEEVENT          5, 13, 14
+SETofEVENT                4, 5, 12, 13, 14, 19
+SETofFOO                  3
+SETofKEYBUTMASK           5, 22, 44, 45, 46, 47
+SETofKEYMASK              5, 20, 21
+SETofPOINTEREVENT         5, 19, 20
+SetPointerMapping         43
+SetPointerMapping reply   43
+SetScreenSaver            41
+SetSelectionOwner         18
+StoreColors               36
+StoreNamedColor           36
+STR                       5, 6, 9, 10, 11, 16, 24, 25, 26, 27, 33, 34, 35, 37,
+                          39
+STRING16                  5, 25, 33, 34
+STRING8                   5, 6, 10, 11, 16, 24, 25, 26, 33, 35, 37, 39
+StructureNotify           4
+SubstructureNotify        5
+SubstructureRedirect      5
+TIMESTAMP                 4, 18, 19, 20, 21, 22, 23, 44, 45, 46, 51
+TranslateCoordinates      23
+TranslateCoordinates reply 23
+UngrabButton              20
+UngrabKey                 21
+UngrabKeyboard            21
+UngrabPointer             20
+UngrabServer              22
+UninstallColormap         34
+UnmapNotify               49
+UnmapSubwindows           15
+UnmapWindow               15
+Value                     6, 51
+VisibilityChange          4
+VisibilityNotify          48
+VISUALID                  3, 9, 12, 13, 14, 32, 34
+WarpPointer               23
+Window                    1, 2, 4, 6, 9, 12, 13, 14, 15, 16, 19
+WINGRAVITY                4, 13, 14

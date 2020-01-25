@@ -1,0 +1,40 @@
+.TH XStoreName 3X 
+.SH NAME
+XStoreName, XFetchName \- set or get window names
+.SH SYNTAX
+.so ../Xsrc/XStoreName.f
+.LP
+.so ../Xsrc/XFetchName.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/w.a
+.so ../Xsrc/window_name.a
+.so ../Xsrc/window_name1.a
+.SH DESCRIPTION
+.so ../Xdescrip/XStoreName.d
+.ds fd .PN XStoreName
+.so ../Xsrc/errsent.com
+.PN BadWindow 
+and
+.PN BadAlloc .
+.LP
+.so ../Xdescrip/XFetchName.d
+.ds fd .PN XFetchName
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.SH PROPERTY
+WM_NAME
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XSetCommand(3X),
+XSetIconName(3X),
+XSetIconSizeHints(3X),
+XSetNormalHints(3X),
+XSetSizeHints(3X),
+XSetStandardProperties(3X),
+XSetWMHints(3X),
+XSetZoomHints(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

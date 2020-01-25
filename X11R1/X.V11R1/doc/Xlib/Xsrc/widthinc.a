@@ -1,0 +1,10 @@
+.\" $Header: widthinc.a,v 11.2 87/03/28 11:02:28 mento Exp $
+.IP \fIwidth0\fP 1i
+.br
+.ns
+.IP \fIwidthinc\fP 1i
+The inside width of the window is the base width (width0) plus some
+multiple of the width increment (widthinc).
+The base width must be non-negative, and the width increment must be
+positive.
+By default, the base width is 0 and the width increment is 0.

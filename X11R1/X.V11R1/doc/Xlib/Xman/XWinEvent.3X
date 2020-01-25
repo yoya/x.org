@@ -1,0 +1,282 @@
+.na
+.de FD
+.LP
+.KS
+.TA 1.0i 3i
+.ta 1.0i 3i
+.nf
+..
+.de FN
+.fi
+.KE
+.LP
+..
+.de IN		\" send an index entry to the stderr
+..
+.de C{
+.KS
+.nf
+.D
+.\"
+.\"	choose appropriate monospace font
+.\"	the imagen conditional, 480,
+.\"	may be changed to L if LB is too
+.\"	heavy for your eyes...
+.\"
+.ie "\\*(.T"480" .ft L
+.el .ie "\\*(.T"300" .ft L
+.el .ie "\\*(.T"202" .ft PO
+.el .ie "\\*(.T"aps" .ft CW
+.el .ft R
+.ps \\n(PS
+.ie \\n(VS>40 .vs \\n(VSu
+.el .vs \\n(VSp
+..
+.de C}
+.DE
+.R
+..
+.de PN
+.ie t \f(H\|\\$1\|\fR\\$2
+.el \fI\|\\$1\|\fP\\$2
+..
+.de NT
+.ne 7
+.ds NO Note
+.if \\n(.$>$1 .if !'\\$2'C' .ds NO \\$2
+.if \\n(.$ .if !'\\$1'C' .ds NO \\$1
+.ie n .sp
+.el .sp 10p
+.TB
+.ce
+\\*(NO
+.ie n .sp
+.el .sp 5p
+.if '\\$1'C' .ce 99
+.if '\\$2'C' .ce 99
+.in +5n
+.ll -5n
+.R
+..
+.		\" Note End -- doug kraft 3/85
+.de NE
+.ce 0
+.in -5n
+.ll +5n
+.ie n .sp
+.el .sp 10p
+..
+.ny0
+.TH XWindowEvent 3X 
+.SH NAME
+XWindowEvent, XCheckWindowEvent, XMaskEvent, XCheckMaskEvent, XCheckTypedEvent, XCheckTypedWindowEvent, XGetMotionEvents, XSendEvent \- select event types
+.SH SYNTAX
+.\" $Header: XWindowEvent.f,v 11.6 87/08/15 12:17:44 mento Exp $
+XWindowEvent\^(\^\fIdisplay\fP, \fIw\fP\^, \fIevent_mask\fP\^, \fIevent_return\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Window \fIw\fP\^;
+.br
+      long \fIevent_mask\fP\^;
+.br
+      XEvent *\fIevent_return\fP\^;
+.LP
+.\" $Header: XChkWinEvnt.f,v 11.7 87/09/04 21:47:07 mento Exp $
+Bool XCheckWindowEvent\^(\^\fIdisplay\fP, \fIw\fP\^, \fIevent_mask\fP\^, \fIevent_return\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Window \fIw\fP\^;
+.br
+      int \fIevent_mask\fP\^;
+.br
+      XEvent *\fIevent_return\fP\^;
+.LP
+.\" $Header: XMaskEvent.f,v 11.7 87/08/15 12:14:23 mento Exp $
+XMaskEvent\^(\^\fIdisplay\fP, \fIevent_mask\fP\^, \fIevent_return\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      unsigned long \fIevent_mask\fP\^;
+.br
+      XEvent *\fIevent_return\fP\^;
+.LP
+.\" $Header: XChkMskEvnt.f,v 11.10 87/09/04 21:48:38 mento Exp $
+Bool XCheckMaskEvent\^(\^\fIdisplay\fP, \fIevent_mask\fP\^, \fIevent_return\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      unsigned long \fIevent_mask\fP\^;
+.br
+      XEvent *\fIevent_return\fP\^;
+.LP
+.\" $Header: XChkTypEvnt.f,v 1.1 87/09/07 16:40:02 mento Exp $
+int XCheckTypedEvent\^(\^\fIdisplay\fP, \fIevent_type\fP\^, \fIevent_return\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      int \fIevent_type\fP\^;
+.br
+      XEvent *\fIevent_return\fP\^;
+.LP
+.\" $Header: XChkTypWEvnt.f,v 1.2 87/09/07 18:29:50 mento Exp $
+int XCheckTypedWindowEvent\^(\^\fIdisplay\fP, \fIw\fP\^, \fIevent_type\fP\^, \fIevent_return\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Window \fIw\fP\^;
+.br
+      int \fIevent_type\fP\^;
+.br
+      XEvent *\fIevent_return\fP\^;
+.LP
+.\" $Header: XGetMoEvents.f,v 11.7 87/08/15 12:13:31 mento Exp $
+XTimeCoord *XGetMotionEvents\^(\^\fIdisplay\fP, \fIw\fP\^, \fIstart\fP\^, \fIstop\fP\^, \fInevents_return\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Window \fIw\fP\^;
+.br
+      Time \fIstart\fP\^, \fIstop\fP\^;	
+.br
+      int *\fInevents_return\fP\^;
+.LP
+.\" $Header: XSendEvent.f,v 11.6 87/09/03 09:34:45 mento Exp $
+XSendEvent\^(\^\fIdisplay\fP, \fIw\fP\^, \fIpropagate\fP\^, \fIevent_mask\fP\^, \fIevent_send\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Window \fIw\fP\^;
+.br
+      Bool \fIpropagate\fP\^;
+.br
+      unsigned long \fIevent_mask\fP\^;
+.br
+      XEvent *\fIevent_send\fP\^;
+.SH ARGUMENTS
+.\" $Header: display.a,v 11.8 87/09/03 11:02:24 mento Exp $
+.IP \fIdisplay\fP 1i
+Specifies the connection to the X server.
+.\" $Header: eventmask.a,v 11.5 87/07/31 04:51:38 mento Exp $
+.IP \fIevent_mask\fP 1i
+Specifies the event mask.
+This mask is the bitwise inclusive OR of one or more of the valid event mask bits.
+.\" $Header: event.a,v 11.8 87/09/10 17:50:06 mento Exp $
+.IP \fIevent_return\fP 1i
+The 
+\*(fd
+function copies the matched event's associated structure into
+this client-supplied structure. 
+.IP \fIevent_send\fP 1i
+Specifies a pointer to the event that is to be sent.
+.\" $Header: event_type.a,v 1.1 87/09/07 16:39:38 mento Exp $
+.IP \fIevent_type\fP 1i
+Specifies the event type to be compared.
+
+.\" $Header: nevents.a,v 11.5 87/09/10 18:02:34 mento Exp $
+.IP \fInevents_return\fP 1i
+Returns the number of events from the motion history buffer.
+.\" $Header: propagate.a,v 11.3 87/06/02 12:23:21 jg Exp $
+.IP \fIpropagate\fP 1i
+Specifies a boolean value that is either the constant
+.PN True 
+or 
+.PN False .
+.\" $Header: startstop.a,v 11.3 87/07/07 11:36:06 mento Exp $
+.IP \fIstart\fP 1i
+.br
+.ns
+.IP \fIstop\fP 1i
+Specify the time interval in which the events are returned from the motion
+history buffer.
+You can pass a time stamp, expressed in milliseconds, or the constant
+.PN CurrentTime .
+If the stop time is in the future, it is equivalent to specifying
+.PN CurrentTime .
+.\" $Header: w.a,v 11.2 87/03/28 11:02:22 mento Exp $
+.IP \fIw\fP 1i
+Specifies the window ID.
+.SH DESCRIPTION
+.\" $Header: XWindowEvent.d,v 1.1 87/08/27 14:22:20 mento Exp $
+The
+.PN XWindowEvent
+function
+flushes the output buffer and removes the next matched event for the specified window.
+.LP
+.\" $Header: XChkWinEvnt.d,v 1.1 87/08/27 14:18:07 mento Exp $
+The
+.PN XCheckWindowEvent
+function flushes the output buffer and
+removes the next event that matches both the passed window and the passed
+mask.
+.LP
+.\" $Header: XMaskEvent.d,v 1.1 87/08/27 14:20:19 mento Exp $
+The
+.PN XMaskEvent
+function flushes the output buffer and removes the next event in the
+queue that matches the passed
+mask.
+.LP
+.\" $Header: XChkMskEvnt.d,v 1.1 87/08/27 14:18:06 mento Exp $
+The
+.PN XCheckMaskEvent
+function flushes the output buffer and removes the next event that matches the passed
+mask.
+.LP
+The
+.PN XCheckTypedEvent
+function flushes the output buffer, searches the event queue for 
+the specified event type, and, if there is a match, returns its associated 
+event structure to the specified
+.PN XEvent
+structure. 
+.LP
+The
+.PN XCheckTypedWindowEvent
+function flushes the output buffer and searches the event queue for  
+the events associated with the specified window.
+.PN XCheckTypedWindowEvent
+returns the next event that matches the window and the specified event type
+to the specified
+.PN XEvent
+structure.
+.LP
+.\" $Header: XGetMoEvents.d,v 1.2 87/08/31 08:41:08 mento Exp $
+The
+.PN XGetMotionEvents
+function returns all events in the motion history buffer that fall between the
+specified start and stop times inclusive and that have coordinates
+that lie within (including borders) the specified window at its present
+placement.
+.ds fd .PN XGetMotionEvents
+The error that can be generated by
+\*(fd 
+is
+.PN BadWindow .
+.LP
+.\" $Header: XSendEvent.d,v 1.1 87/08/27 14:21:10 mento Exp $
+The
+.PN XSendEvent
+function sends an event to a specified window.
+.ds fd .PN XSendEvent
+The errors that can be generated by 
+\*(fd
+are
+.PN BadWindow
+and
+.PN BadValue .
+.SH DIAGNOSTICS
+.\" $Header: badvalue.e,v 1.1 87/09/04 08:23:19 mento Exp $
+.TP 1i
+.PN BadValue
+Some numeric value falls outside the range of values accepted by the request.
+Unless a specific range is specified for an argument, the full range defined
+by the argument's type is accepted.  Any argument defined as a set of
+alternatives can generate this error.
+.\" $Header: badwindow.e,v 1.1 87/09/04 08:23:20 mento Exp $
+.TP 1i
+.PN BadWindow
+A value for a Window argument does not name a defined Window.
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

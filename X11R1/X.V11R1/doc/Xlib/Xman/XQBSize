@@ -1,0 +1,49 @@
+.TH XQueryBestSize 3X 
+.SH NAME
+XQueryBestSize, XQueryBestTile, XQueryBestStipple \- determine efficient sizes
+.SH SYNTAX
+.so ../Xsrc/XQBestSize.f
+.LP
+.so ../Xsrc/XQTileShp.f
+.LP
+.so ../Xsrc/XQStipShp.f
+.SH ARGUMENTS
+.so ../Xsrc/class_size.a
+.so ../Xsrc/display.a
+.so ../Xsrc/widtheight.a
+.so ../Xsrc/w_screen.a
+.so ../Xsrc/rwidtheight.a
+.SH DESCRIPTION
+.so ../Xdescrip/XQBestSize.d
+.ds fd .PN XQueryBestSize
+.so ../Xsrc/errsent.com
+.PN BadDrawable ,
+.PN BadMatch ,
+and
+.PN BadValue .
+.LP
+.so ../Xdescrip/XQTileShp.d
+.ds fd .PN XQueryBestTile
+.so ../Xsrc/errsent4.com
+.PN BadDrawable .
+.LP
+.so ../Xdescrip/XQStipShp.d
+.ds fd .PN XQueryBestStipple
+.so ../Xsrc/errsent4.com
+.PN BadDrawable .
+.SH DIAGNOSTICS
+.so ../Xerrors/badmatch1.e
+.so ../Xerrors/baddrawable.e
+.so ../Xerrors/badmatch4.e
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+XCreateGC(3X),
+XSetArcMode(3X),
+XSetClipOrigin(3X),
+XSetFillStyle(3X),
+XSetFont(3X),
+XSetLineAttributes(3X),
+XSetState(3X),
+XSetTile(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

@@ -1,0 +1,48 @@
+.TH XIntersectRegion 3X 
+.SH NAME
+XIntersectRegion, XUnionRegion, XSubtractRegion, XXorRegion,
+XOffsetRegion, XShrinkRegion, XPointInRegion, XRectInRegion \- region arthmetic
+.SH SYNTAX
+.so ../Xsrc/XInterReg.f
+.LP
+.so ../Xsrc/XUnionRegion.f
+.LP
+.so ../Xsrc/XSubtractReg.f
+.LP
+.so ../Xsrc/XXorRegion.f
+.LP
+.so ../Xsrc/XOffsetReg.f
+.LP
+.so ../Xsrc/XShrinkReg.f
+.LP
+.so ../Xsrc/XPointInReg.f
+.LP
+.so ../Xsrc/XRectInReg.f
+.SH ARGUMENTS
+.so ../Xsrc/dr.a
+.so ../Xsrc/dxdy.a
+.so ../Xsrc/r.a
+.so ../Xsrc/srasrb.a
+.so ../Xsrc/widtheight.a
+.so ../Xsrc/xy.a
+.SH DESCRIPTION
+.so ../Xdescrip/XInterReg.d
+.LP
+.so ../Xdescrip/XUnionRegion.d
+.LP
+.so ../Xdescrip/XSubtractReg.d
+.LP
+.so ../Xdescrip/XXorRegion.d
+.LP
+.so ../Xdescrip/XOffsetReg.d
+.LP
+.so ../Xdescrip/XShrinkReg.d
+.LP
+.so ../Xdescrip/XPointInReg.d
+.LP
+.so ../Xdescrip/XRectInReg.d
+.SH "SEE ALSO"
+XCreateRegion(3X),
+XEmptyRegion(3X),
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

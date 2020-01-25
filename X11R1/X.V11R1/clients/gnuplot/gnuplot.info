@@ -1,0 +1,856 @@
+Info file gnuplot.info, produced by texinfo-format-buffer   -*-Text-*-
+from file gnuplot.texinfo
+
+
+File: gnuplot.info  Node: top, Up: (DIR), Next: introduction
+
+The GNUPLOT program
+*******************
+
+* Menu:
+
+* introduction:: What GNUPLOT is about
+* clear::	Command to clear the screen or output device
+* exit::	Quitting GNUPLOT
+* expressions:	The mathematical expressions that GNUPLOT understands
+* help::	GNUPLOT's built in help command
+* load::	Reading in a script file
+* plot::	Generating an actual plot
+* datafile::	GNUPLOT can read a file containing coordinates of
+		points to be plotted.
+* ranges::	Specifying the region of the plot to be displayed
+* style::	The styles of graph that GNUPLOT can produce
+* print::	Printing expressions on the screen
+* quit::	`quit' is a synonym for `exit'.
+* replot::	Repeating the last `plot' command
+* save::	Saving functions and variables to a file,
+		for later use by `load'
+* setshow::	The commands for setting and displaying GNUPLOT options
+* shell::	Running shell commands from inside GNUPLOT
+* startup::	The GNUPLOT initialization file
+* substitution:: Substituting output from shell commands in GNUPLOT
+		commands
+* userdefined:: Defining your own functions and variables
+
+
+File: gnuplot.info  Node: introduction, Prev: top, Up: top, Next: clear
+
+INTRODUCTION
+============
+
+GNUPLOT is a command-driven interactive function plotting program.  It is
+case sensitive (commands and function names written in lower case are not
+the same as those written in CAPS).  All command names may be abbreviated,
+as long as the abbreviation is not ambiguous.  Any number of commands may
+appear on a single line, separated by semicolons (;).
+
+The following sections provide brief descriptions of each of the
+program commands.
+
+
+File: gnuplot.info  Node: clear, Prev: introduction, Up: top, Next: exit
+
+clear
+=====
+
+This command erases the current screen or output device as specified
+by `set output'.  This usually generates a formfeed on hardcopy
+devices.  Use `set terminal' to set the device type. 
+
+
+File: gnuplot.info  Node: exit, Prev: clear, Up: top, Next: expressions
+
+exit
+====
+
+`exit', `quit' and your computer's END-OF-FILE character will
+exit GNUPLOT.  All these commands will clear the output device (as the
+`clear' command does) before exiting.
+
+
+File: gnuplot.info  Node: expressions, Prev: exit, Up: top, Next: help
+
+expressions
+===========
+
+In general, any mathematical expression accepted by C, FORTRAN,
+Pascal, or BASIC is valid.  The precedence of these operators is
+determined by the specifications of the C programming language.
+White space (spaces and tabs) is ignored inside expressions. 
+
+Complex constants may be expressed as {REAL, IMAG}, where
+REAL and IMAG must be numerical constants.  For example {3,2}
+represents 3 + 2i; {0,1} represents 'i' itself.
+
+* Menu:
+
+* functions::	The mathematical functions built into GNUPLOT
+* operators::	GNUPLOT's arithmetic and logical operators
+
+
+File: gnuplot.info  Node: functions, Prev: expressions, Up: expressions, Next: operators
+
+functions
+---------
+
+The functions in GNUPLOT are the same as the corresponding functions
+in the UNIX math library, except that all functions accept integer,
+real, and complex arguments, unless otherwise noted.  The `sgn()'
+function is also supported, as in BASIC.
+
+Here is a list of the functions provided by GNUPLOT.
+
+`abs'     
+     
+     This function returns the absolute value of its argument.  The
+     returned value is of the same type as the argument. 
+     
+     For complex arguments, abs(x) is defined as the length of x in the
+     complex plane [i.e.  sqrt(real(x)**2 + imag(x)**2) ].
+     
+`acos'     
+     
+     This function returns the arc cosine (inverse cosine) of its
+     argument.  `acos' returns its argument in radians. 
+     
+`arg'     
+     
+     This function returns the phase of a complex number, in radians.  
+     
+`asin'     
+     
+     This function returns the arc sin (inverse sin) of its argument.
+     `asin' returns its argument in radians. 
+     
+`atan'     
+     
+     This function returns the arc tangent (inverse tangent) of its
+     argument.  `atan' returns its argument in radians. 
+     
+`besj0'     
+     
+     This function returns the j0th Bessel function of its argument.
+     `besj0' expects its argument to be in radians.
+     
+`besj1'     
+     
+     This function returns the j1st Bessel function of its argument.
+     `besj1' expects its argument to be in radians.
+     
+`besy0'     
+     
+     This function returns the y0th Bessel function of its argument.
+     `besy0' expects its argument to be in radians.
+     
+`besy1'     
+     
+     This function returns the y1st Bessel function of its argument.
+     `besy1' expects its argument to be in radians.
+     
+`ceil'     
+     
+     This function returns the largest integer not less than its
+     argument.  For complex numbers, `ceil' returns the largest integer
+     not less than the real part of its argument. 
+     
+`cos'     
+     
+     This function returns the cosine of its argument.  `cos' expects its
+     argument to be in radians. 
+     
+`cosh'     
+     
+     This function returns the hyperbolic cosine of its argument.
+     `cosh' expects its argument to be in radians. 
+     
+`exp'     
+     
+     This function returns the exponential function of its argument
+     (e raised to the power of its argument). 
+     
+`floor'     
+     
+     This function returns the smallest integer not greater than its
+     argument.  For complex numbers, `floor' returns the smallest
+     integer not greater than the real part of its argument. 
+     
+`imag'     
+     
+     This function returns the imaginary part of its argument as a real number.
+     
+`int'     
+     
+     This function returns the integer part of its argument, truncated
+     toward zero. 
+     
+`log'     
+     
+     This function returns the natural logarithm (base e) of its
+     argument. 
+     
+`log10'     
+     
+     This function returns the logarithm (base 10) of its argument.
+     
+`real'     
+     
+     This function returns the real part of its argument.
+     
+`sgn'     
+     
+     This function returns 1 if its argument is positive, -1 if its
+     argument is negative, and 0 if its argument is 0.  If the argument
+     is a complex value, the imaginary component is ignored. 
+     
+`sin'     
+     
+     This function returns the sine of its argument.  `sin' expects its
+     argument to be in radians. 
+     
+`sinh'     
+     
+     This function returns the hyperbolic sine of its argument.  `sinh'
+     expects its argument to be in radians. 
+     
+`sqrt'     
+     
+     This function returns the square root of its argument.
+     
+`tan'     
+     
+     This function returns the tangent of its argument.  `tan' expects
+     its argument to be in radians. 
+     
+`tanh'     
+     
+     This function returns the hyperbolic tangent of its argument.
+     `tanh' expects its argument to be in radians. 
+     
+
+
+File: gnuplot.info  Node: operators, Prev: functions, Up: expressions, Next: help
+
+operators
+---------
+
+The operators in GNUPLOT are the same as the corresponding operators
+in the C programming language, except that all operators accept
+integer, real, and complex arguments, unless otherwise noted.
+The `**' operator (exponentiation) is supported, as in FORTRAN.
+
+Parentheses may be used to change order of evaluation.
+
+* Menu:
+
+* Binary Operators::	Operators which operate on two values
+* Unary Operators::	Operators which operate on a single value
+
+
+File: gnuplot.info  Node: Binary Operators, Prev: operators, Up: operators, Next: Unary Operators
+
+Binary Operators
+................
+
+The following is a list of all the binary operators and their
+usages:
+
+     Symbol         Example        Explanation
+     
+     **             a**b           exponentiation
+     *              a*b            multiplication
+     /              a/b            division
+     %              a%b          * modulo
+     +              a+b            addition
+     -              a-b            subtraction
+     ==             a==b           equality
+     !=             a!=b           inequality
+     &              a&b          * bitwise and
+     ^              a^b          * bitwise exclusive or
+     |              a|b          * bitwise inclusive or
+     &&             a&&b         * logical and
+     ||             a||b         * logical or
+     ?:             a?b:c        * ternary operation
+     
+
+(*) Starred explanations indicate that the operator requires
+integer arguments.
+
+Logical AND (`&&') and OR (`||') short-circuit the way they do in
+C.  That is, the second `&&' operand is not evaluated if the first is
+false; the second `||' operand is not evaluated if the first is true.
+
+The ternary operator evaluates its first argument (a).  If it is
+true (non-zero) the second argument (b) is evaluated and returned,
+otherwise the third argument (c) is evaluated and returned. 
+
+
+File: gnuplot.info  Node: Unary Operators, Prev: Binary Operators, Up: operators, Next: help
+
+Unary Operators
+...............
+
+The following is a list of all the unary operators and their
+usages:
+
+     Symbol         Example           Explanation
+     
+      -              -a               unary minus
+      ~              ~a             * one's complement
+      !              !a             * logical negation
+      !              a!             * factorial
+
+(*) Starred explanations indicate that the operator requires an
+integer argument.
+
+The factorial operator returns a real number, to allow a greater range.
+
+
+File: gnuplot.info  Node: help, Prev: expressions, Up: top, Next: load
+
+help
+====
+
+The `help' command displays on-line help.  To get help with a
+particular topic use the syntax:
+
+     help TOPIC
+
+The `help' command works by printing the node from the on-line
+GNUPLOT Info documentation corresponding to TOPIC.  Typing
+`help ?' prints a list of all the available topics.
+
+At a later time, a full blown Info system may be installed in GNUPLOT.
+Someone is currently writing such a thing, but it is not yet finished.
+
+You can change the name of the file where GNUPLOT looks for on-line
+documentation with the `set helpfile' command (*Note setshow::).
+Normally, you will not have to do this.
+
+
+File: gnuplot.info  Node: load, Prev: help, Up: top, Next: plot
+
+load
+====
+
+This command executes each line of the specified input file as if it had
+been typed in interactively.  Files created by the `save' command can
+later be `load'ed (*Note save::).  Any text file containing valid
+commands can be created and then executed by the `load' command.
+Files being `load'ed may themselves contain `load' commands.
+Lines beginning with # (or !  if using VMS) will be treated as comments and
+ignored.
+
+The `load' command must be the last command on the line. 
+
+Syntax:
+     load INPUT-FILE
+
+The name of the input file must be enclosed in quotes.
+
+Examples:
+
+     load 'work.gnu'
+     load "func.dat"
+
+
+File: gnuplot.info  Node: plot, Prev: load, Up: top, Next: datafile
+
+plot
+====
+
+`plot' is the primary command of the program.  It plots functions and
+data in many, many ways.  The full syntax of this command is:
+
+     plot {ranges}   FUNCTION {style} {, FUNCTION {style}...}
+
+Where FUNCTION is either a mathematical expression or the name of a data
+file enclosed in quotes.  User-defined functions and variables may also be
+defined here.  *Note ranges:: for information about how to specify plotting
+ranges; *Note functions:: for information about functions; *Note style::
+for information about plotting styles.
+
+Curly braces ({ and }) denote optional items.
+
+A `plot' command can be as simple as
+
+     plot sin(x)
+
+or as complex as (!)
+
+     plot [t=1:10] [-pi:pi*2] tan(t),"data.1" with lines,t**2 with points
+
+
+File: gnuplot.info  Node: datafile, Prev: plot, Up: top, Next: ranges
+
+data_file
+=========
+
+Discrete data contained in a file can displayed by specifying the
+name of the data file (enclosed in quotes) on the `plot' command
+line (*Note plot::).
+
+Data files should contain one data point per line.  A data point may
+be specified either as an X and Y value separated by blank space, or
+as just the Y value, in which case the program will use the number
+of the coordinate as the X value.  Coordinate numbers starts at 0
+and are incremented for each data point read.  Blank lines and lines
+beginning with # will be treated as comments and ignored. 
+
+This example compares the data in the file population.dat to a
+theoretical curve:
+
+     pop(x) = 103*exp((1965-x)/10)
+     plot [1960:1990] 'population.dat', pop(x)
+
+The file population.dat might contain:
+
+     # Gnu population in Antarctica since 1965
+     1965   103
+     1970   55
+     1975   34
+     1980   24
+     1985   10
+
+
+File: gnuplot.info  Node: ranges, Prev: datafile, Up: top, Next: style
+
+ranges
+======
+
+This option specifies the region of the plot which will be displayed. 
+
+Ranges may be provided on the `plot' command line as synonyms for
+the `set xrange' and `set yrange' commands.
+
+Syntax:
+     [{DUMMY-VAR =} {XMIN : XMAX}] { [{YMIN : YMAX}] }
+
+Where DUMMY-VAR is the independent variable (the default is `x',
+but this may be changed with the `set dummy' command) and the min
+and max terms can be expressions or constants. 
+
+Both the MIN and MAX terms are optional.  The `:' is also
+optional if neither a MIN nor a MAX term is specified.  This
+allows `[]' to be used as a null range specification.
+
+Specifying a Y range turns autoscaling off.
+
+Examples:
+
+This uses current ranges:
+
+     plot cos(x)
+
+This sets the X range only:
+
+     plot [-10:30] sin(pi*x)/(pi*x)
+
+This is the same, but uses t as the dummy-variable:
+
+     plot [t = -10 :30]  sin(pi*t)/(pi*t)
+
+This sets both the x and yranges:
+
+     plot [-pi:pi] [-3:3]  tan(x), 1/x
+
+This sets only the Y range:
+
+     plot [] [-2:sin(5)*-8] sin(x)**besj0(x)
+
+This sets XMAX and YMIN only:
+
+     plot [:200] [-pi:]  exp(sin(x))
+
+
+File: gnuplot.info  Node: style, Prev: ranges, Up: top, Next: print
+
+style
+=====
+
+Plots may be displayed in one of three styles: `lines', `points',
+or `impulses'.  The `lines' style connects adjacent points with
+lines.  The `points' style displays a small symbol at each point.  The
+`impulses' style displays a vertical line from the X axis to each
+point.
+
+Default styles are chosen with the `set function style' and
+`set data style' commands.  *Note setshow::.
+
+Syntax:
+
+     with STYLE
+
+Where STYLE is one of `lines', `points', or
+`impulses'.  These keywords may be abbreviated.  Examples:
+
+This plots sin(x) with impulses:
+
+     plot sin(x) with impulses
+
+This plots sin(x) with points, cos(x) default:
+
+     plot [-9:30]  sin(x) w points, cos(x)
+
+This plots tan(x) with the default function style, "data.1" with lines:
+
+     plot [] [-2:5] tan(x), "data.1" with l
+
+This plots `leastsq.dat' with impulses:
+
+     plot 'leastsq.dat' w i
+
+*Note plot::.
+
+
+File: gnuplot.info  Node: print, Prev: style, Up: top, Next: quit
+
+print
+=====
+
+This command prints the value of EXPRESSION to the screen.
+
+Syntax:
+
+     print EXPRESSION
+
+*Note expressions::.
+
+
+File: gnuplot.info  Node: quit, Prev: print, Up: top, Next: replot
+
+quit
+====
+
+`quit' is a synonym for `exit'.  *Note exit::.
+
+
+File: gnuplot.info  Node: replot, Prev: quit, Up: top, Next: save
+
+replot
+======
+
+`replot' repeats the last `plot' command (*Note plot::).  This
+can be useful for viewing a plot with different `set' options, or when
+generating the same plot for several devices.  *Note setshow::.
+
+
+File: gnuplot.info  Node: save, Prev: replot, Up: top, Next: setshow
+
+save
+====
+
+This command saves either user-defined functions, variables, or both
+to the specified file. 
+
+Syntax:
+
+     save  {option} FILENAME
+
+Where OPTION is either `functions' or `variables'.  If no
+option is used GNUPLOT saves both functions and variables.
+
+`save'd files are written in text format and may be read by the
+`load' command.  *Note load::.
+
+The filename must be enclosed in quotes.
+
+Examples:
+
+     save "work.gnu"
+     save functions 'func.dat'
+     save var 'var.dat'
+
+
+File: gnuplot.info  Node: setshow, Prev: save, Up: top, Next: shell
+
+set-show
+========
+
+The `set' command sets LOTS of options.
+
+The `show' command shows their settings.  `show all' shows all
+the settings.
+
+     
+`autoscale'     
+     If autoscaling is set, the Y axis is automatically scaled to fit the range
+     of the function or data being plotted.  If autoscaling is not set, the
+     current Y range is used.  The `set yrange' command (*Note setshow::)
+     is used to change the current Y range.
+     
+     Syntax:
+          set autoscale
+          set noautoscale
+          show autoscale
+     
+`dummy'     
+     By default, GNUPLOT assumes that the independent variable is `x' on
+     the `plot' command line.  `x' is called the dummy variable because
+     it is just a notation to indicate the independent variable.  The
+     `set dummy' command changes this default dummy variable name.  For
+     example, you may find it more convenient to call the dummy variable
+     `t' when plotting time functions:
+     
+     
+          set dummy t
+          plot sin(t), cos(t)
+     
+     Syntax:
+     
+          set dummy DUMMY-VAR
+          show dummy
+     
+`functions'     
+     The `show functions' command lists all user-defined functions and
+     their definitions. 
+     
+     Syntax:
+     
+          show functions
+     
+`helpfile'     
+     `set helpfile FILENAME' tells GNUPLOT where its on-line
+     documentation file lives.  By default, it is supposed to be set to the
+     right place.  You must enclose FILENAME in quotes.
+     
+     Example:
+     
+          set helpfile '/u1/gnuplot/docs/gnuplot.info'
+     
+`logscale'     
+     Log scaling may be set on the X and/or Y axis.
+     
+     Syntax:
+     
+          set logscale AXES
+          set nologscale
+          show logscale
+     
+     Where AXES is either `x', `y', or `xy'.
+     
+`output'     
+     By default, plots are displayed to the standard output.  The
+     `set output' command redirects the displays to the specified file or
+     device. 
+     
+     Syntax:
+     
+          set output {filename}
+          show output
+     
+     The filename must be enclosed in quotes.  If the filename is
+     omitted, output will be sent to the standard output. 
+     
+`samples'     
+     The sampling rate of functions may be changed by the `set samples'
+     command.  By default, sampling is set to 160 points.  A higher
+     sampling rate will produce more accurate plots, but will take
+     longer.  In generating plots, GNUPLOT will use either the sampling
+     rate set or the resolution of the current output device, whichever
+     is lower. 
+     
+     Syntax:
+     
+          set samples EXPRESSION
+          show samples
+     
+`style'     
+     Plots may be displayed in one of three styles: `lines', `points',
+     or `impulses'.  The `lines' style connects adjacent points with
+     lines.  The `points' style displays a small symbol at each point.  The
+     `impulses' style displays a vertical line from the X axis to each
+     point.
+     
+     Default styles are chosen with the `set function style' and `set
+     data style' commands.  See `plot' for information about how to
+     override the default plotting style for individual functions. 
+     
+     Syntax:
+     
+          set function style STYLE
+          set data style STYLE
+          show function style
+          show data style
+     
+     Where style is either `lines', `points', or `impulses'.
+     
+`terminal'     
+     GNUPLOT supports many different graphics devices.  Use the `set
+     terminal' command to select the type of device for which GNUPLOT
+     will produce output. 
+     
+     Syntax:
+     
+          set terminal TERMINAL-TYPE
+          show terminal
+     
+     If TERMINAL-TYPE is omitted, GNUPLOT will list the available
+     terminal types.  TERMINAL-TYPE may be abbreviated. 
+     
+     Use `set output' to redirect this output to a file or device.
+     
+`variables'     
+     The `show variables' command lists all user-defined variables and
+     their values. 
+     
+     Syntax:
+     
+          show variables
+     
+`xrange'     
+     The `set xrange' command sets the horizontal range which will be
+     displayed. 
+     
+     This range may also be specified on the `plot' command line.
+     
+     Syntax:
+     
+          set xrange [{xmin : xmax}]
+     
+     Where XMIN and XMAX terms are expressions or constants.
+     
+     Both the XMIN and XMAX terms are optional.
+     
+`yrange'     
+     The `set yrange' command sets the vertical range which will be
+     displayed.  This command turns autoscaling OFF. 
+     
+     This range may also be specified on the `plot' command line.
+     
+     Syntax:
+     
+          set yrange [{ymin : ymax}]
+     
+     Where YMIN and YMAX terms are expressions or constants.
+     
+     Both the YMIN and YMAX terms are optional.
+     
+`zero'     
+     GNUPLOT will not plot a point if its imaginary part is greater in
+     magnitude than the `zero' threshold.  The default `zero' value is
+     1e-8.
+     
+     Syntax:
+     
+          set zero EXPRESSION
+          show zero
+
+
+
+File: gnuplot.info  Node: shell, Prev: setshow, Up: top, Next: startup
+
+shell
+=====
+
+The `shell' command spawns an interactive shell.  To return to
+GNUPLOT, type `logout' if using VMS, `exit' or your END-OF-FILE
+character if using Unix, or `exit' if using MS-DOS. 
+
+A single shell command may be spawned by preceding it with the !
+character ($ if using VMS) at the beginning of a command line.
+Control will return immediately to GNUPLOT after this command is
+executed.  For example,
+
+
+     ! dir
+
+prints a directory listing and then returns to GNUPLOT.
+
+
+File: gnuplot.info  Node: startup, Prev: shell, Up: top, Next: substitution
+
+start_up
+========
+
+When GNUPLOT is run, it looks for an initialization file to load.  This
+file is called `.gnuplot' on Unix systems, and `GNUPLOT.INI' on
+other systems.  If this file is not found in the current directory, the
+program will look for it in your home directory (under MS-DOS, the
+environment variable GNUPLOT should contain the name of this directory).
+
+If this file is found, GNUPLOT executes the commands in this file.
+This is most useful for setting your terminal type and defining any
+functions or variables which you use often.  The variable `pi' is
+already defined for you. 
+
+
+File: gnuplot.info  Node: substitution, Prev: shell, Up: top, Next: userdefined
+
+substitution
+============
+
+Command-line substitution is specified by a system command enclosed in
+backquotes (``').  This command is spawned and the output it produces
+replaces the name of the command (and backquotes) on the command line.
+Newlines in the output produced by the spawned command are replaced with
+blanks.  Command-line substitution can be used anywhere on the GNUPLOT
+command line.
+
+This example will run the program `leastsq' and substitute
+``leastsq`' on the command line with its output:
+
+     f(x) = `leastsq`
+
+or, in VMS
+
+     f(x) = `run leastsq`
+
+
+File: gnuplot.info  Node: userdefined, Prev: substitution, Up: top
+
+user_defined
+============
+
+You may define your own functions and variables.  User-defined
+functions and variables may be used anywhere. 
+
+User-defined function syntax:
+
+     FUNCTION-NAME ( DUMMY-VAR ) =  EXPRESSION
+
+Where EXPRESSION is defined in terms of DUMMY-VAR.
+
+User-defined variable syntax:
+
+     VARIABLE-NAME = CONSTANT-EXPRESSION
+
+Examples:
+
+     w = 2
+     q = floor(tan(pi/2 - 0.1))
+     f(x) = sin(w*x)
+     sinc(x) = sin(pi*x)/(pi*x)
+     delta(t) = (t == 0)
+     ramp(t) = (t > 0) ? t : 0
+
+The variable `pi' is already defined for you.  The descriptions of
+`show functions' and `show variables' say more about variables
+(*Note setshow::).
+
+Tag table:
+Node: top101
+Node: introduction1228
+Node: clear1766
+Node: exit2043
+Node: expressions2301
+Node: functions2952
+Node: operators6958
+Node: Binary Operators7511
+Node: Unary Operators8932
+Node: help9552
+Node: load10242
+Node: plot10940
+Node: datafile11755
+Node: ranges12732
+Node: style13904
+Node: print14860
+Node: quit15056
+Node: replot15185
+Node: save15468
+Node: setshow16028
+Node: shell21122
+Node: startup21678
+Node: substitution22353
+Node: userdefined23005
+
+End tag table

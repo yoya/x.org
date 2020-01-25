@@ -1,0 +1,7 @@
+.\" $Header: sub_mode.a,v 11.4 87/09/10 14:32:41 mento Exp $
+.IP \fIsubwindow_mode\fP 1i
+Specifies the subwindow mode:
+.PN ClipByChildren
+clips source and destination by all viewable children, while
+.PN IncludeInferiors 
+draws through all subwindows, that is, does not clip by inferiors.

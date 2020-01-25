@@ -1,0 +1,323 @@
+.na
+.de FD
+.LP
+.KS
+.TA 1.0i 3i
+.ta 1.0i 3i
+.nf
+..
+.de FN
+.fi
+.KE
+.LP
+..
+.de IN		\" send an index entry to the stderr
+..
+.de C{
+.KS
+.nf
+.D
+.\"
+.\"	choose appropriate monospace font
+.\"	the imagen conditional, 480,
+.\"	may be changed to L if LB is too
+.\"	heavy for your eyes...
+.\"
+.ie "\\*(.T"480" .ft L
+.el .ie "\\*(.T"300" .ft L
+.el .ie "\\*(.T"202" .ft PO
+.el .ie "\\*(.T"aps" .ft CW
+.el .ft R
+.ps \\n(PS
+.ie \\n(VS>40 .vs \\n(VSu
+.el .vs \\n(VSp
+..
+.de C}
+.DE
+.R
+..
+.de PN
+.ie t \f(H\|\\$1\|\fR\\$2
+.el \fI\|\\$1\|\fP\\$2
+..
+.de NT
+.ne 7
+.ds NO Note
+.if \\n(.$>$1 .if !'\\$2'C' .ds NO \\$2
+.if \\n(.$ .if !'\\$1'C' .ds NO \\$1
+.ie n .sp
+.el .sp 10p
+.TB
+.ce
+\\*(NO
+.ie n .sp
+.el .sp 5p
+.if '\\$1'C' .ce 99
+.if '\\$2'C' .ce 99
+.in +5n
+.ll -5n
+.R
+..
+.		\" Note End -- doug kraft 3/85
+.de NE
+.ce 0
+.in -5n
+.ll +5n
+.ie n .sp
+.el .sp 10p
+..
+.ny0
+.TH XAllocColor 3X 
+.SH NAME
+XAllocColor, XAllocNamedColor, XAllocColorCells, XAllocColorPlanes, XFreeColors 
+\- allocate and free colors
+.SH SYNTAX
+.\" $Header: XGetHardClr.f,v 11.9 87/08/15 12:13:00 mento Exp $
+Status XAllocColor\^(\^\fIdisplay\fP, \fIcmap\fP\^, \fIscreen_def_return\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Colormap \fIcmap\fP\^;
+.br
+      XColor *\fIscreen_def_return\fP\^;
+.LP
+.\" $Header: XGetColor.f,v 11.9 87/09/01 14:20:43 mento Exp $
+Status XAllocNamedColor\^(\^\fIdisplay\fP, \fIcmap\fP\^, \fIcolorname\fP\^, \fIscreen_def_return\fP\^, \fIexact_def_return\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Colormap \fIcmap\fP\^;
+.br
+      char *\fIcolorname\fP\^;
+.br
+      XColor *\fIscreen_def_return\fP\^, *\fIexact_def_return\fP\^;
+.LP
+.\" $Header: XAllocCells.f,v 11.8 87/09/01 14:38:11 mento Exp $
+Status XAllocColorCells\^(\^\fIdisplay\fP, \fIcmap\fP\^, \fIcontig\fP\^, \fIplane_masks_return\fP\^, \fInplanes\fP\^, 
+.br
+                          \fIpixels_return\fP\^, \fIncolors\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Colormap \fIcmap\fP\^;
+.br
+      Bool \fIcontig\fP\^;
+.br
+      unsigned long \fIplane_masks_return\fP[\^]\^;
+.br
+      unsigned int \fInplanes\fP\^;
+.br
+      unsigned long \fIpixels_return\fP[\^]\^;
+.br
+      unsigned int \fIncolors\fP\^;
+.LP
+.\" $Header: XAllocPlanes.f,v 11.10 87/09/07 11:35:45 mento Exp $
+Status XAllocColorPlanes\^(\^\fIdisplay\fP, \fIcmap\fP\^, \fIcontig\fP\^, \fIpixels_return\fP\^, \fIncolors\fP\^, \fInreds\fP\^, \fIngreens\fP\^, 
+.br
+                           \fInblues\fP\^, \fIrmask_return\fP\^, \fIgmask_return\fP\^, \fIbmask_return\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Colormap \fIcmap\fP\^;
+.br
+      Bool \fIcontig\fP\^;
+.br
+      unsigned long \fIpixels_return\fP[\^]\^;
+.br
+      int \fIncolors\fP\^;
+.br
+      int \fInreds\fP\^, \fIngreens\fP\^, \fInblues\fP\^;
+.br
+      unsigned long *\fIrmask_return\fP\^, *\fIgmask_return\fP\^, *\fIbmask_return\fP\^;
+.LP
+.\" $Header: XFreeColors.f,v 11.4 87/08/15 12:12:44 mento Exp $
+XFreeColors\^(\^\fIdisplay\fP, \fIcmap\fP\^, \fIpixels\fP\^, \fInpixels\fP\^, \fIplanes\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Colormap \fIcmap\fP\^;
+.br
+      unsigned long \fIpixels[]\fP\^;
+.br
+      int \fInpixels\fP\^;
+.br
+      unsigned long \fIplanes\fP\^;
+.SH ARGUMENTS
+.\" $Header: cmap.a,v 11.3 87/06/16 08:35:24 jg Exp $
+.IP \fIcmap\fP 1i
+Specifies the color map ID.
+.\" $Header: colorname.a,v 11.2 87/03/28 10:54:48 mento Exp $
+.IP \fIcolorname\fP 1i
+Specifies the color name string (for example, "red") whose color 
+definition structure you want returned.
+.\" $Header: contig.a,v 11.5 87/09/11 15:53:35 mento Exp $
+.IP \fIcontig\fP 1i
+Specifies a boolean value.
+You pass the value 1 if the planes must be contiguous or the value
+0 if the planes do not need to be contiguous. 
+.\" $Header: display.a,v 11.8 87/09/03 11:02:24 mento Exp $
+.IP \fIdisplay\fP 1i
+Specifies the connection to the X server.
+.\" $Header: exact_def.a,v 11.9 87/09/10 17:08:12 mento Exp $
+.IP \fIexact_def_return\fP 1i
+Returns the true pixel values that indicate the closest color provided 
+by the hardware for the specified color name.
+.\" $Header: ncolors1.a,v 11.4 87/09/11 15:55:21 mento Exp $
+.IP \fIncolors\fP 1i
+Specifies the number of pixel values that are to be returned in the 
+pixels_return array. 
+.\" $Header: npixels.a,v 11.2 87/03/28 10:58:31 mento Exp $
+.IP \fInpixels\fP 1i
+Specifies the number of pixels. 
+.\" $Header: nplanes.a,v 11.3 87/09/01 14:39:46 mento Exp $
+.IP \fInplanes\fP 1i
+Specifies the number of plane masks that are to be returned in the plane masks 
+array. 
+.\" $Header: nredgrbl.a,v 11.2 87/03/28 10:58:40 mento Exp $
+.IP \fInreds\fP 1i
+.br
+.ns
+.IP \fIngreens\fP 1i
+.br
+.ns
+.IP \fInblues\fP 1i
+.br
+.ns
+Specify the number of red, green, and blue colors (shades).
+The value you pass must be non-negative. 
+.\" $Header: pixels2.a,v 1.1 87/08/14 13:09:02 mento Exp $
+.IP \fIpixels\fP 1i
+Specifies an array of pixel values. 
+.\" $Header: pixels.a,v 11.4 87/09/09 15:55:23 mento Exp $
+.IP \fIpixels_return\fP 1i
+Returns an array of pixel values. 
+.\" $Header: plane_masks.a,v 11.4 87/09/09 15:56:21 mento Exp $
+.IP \fIplane_mask_return\fP 1i
+Returns an array of plane masks.
+.\" *** JIM: NEED MORE INFO FOR THIS. ***
+.\" $Header: planes.a,v 11.2 87/03/28 10:59:21 mento Exp $
+.IP \fIplanes\fP 1i
+Specifies the planes you want to free.
+.\" $Header: rgbmask.a,v 11.4 87/08/11 10:31:23 mento Locked $
+.IP \fIrmask_return\fP 1i
+.br
+.ns
+.IP \fIgmask_return\fP 1i
+.br
+.ns
+.IP \fIbmask_return\fP 1i
+Return bit masks for the red, green, and blue planes.
+.\" $Header: def.a,v 11.7 87/09/10 17:06:31 mento Exp $
+.IP \fIscreen_def_return\fP 1i
+Returns the values actually used in the color map.
+.SH DESCRIPTION
+.\" $Header: XGetHardClr.d,v 1.1 87/08/27 14:19:26 mento Exp $
+The
+.PN XAllocColor
+function returns the pixel value indicating the closest color supported by the hardware.
+It also returns the red, green, and blue values actually used.
+.ds fd .PN XAllocColor
+The errors that can be generated by 
+\*(fd
+are
+.PN BadAlloc
+and
+.PN BadColor .
+.LP
+.\" $Header: XGetColor.d,v 1.3 87/08/31 09:10:06 mento Exp $
+The
+.PN XAllocNamedColor
+function determines the correct color (shade) for the given screen.
+.PN XAllocNamedColor
+returns zero (0) when it encounters an error or a nonzero when it succeeds.
+Both the exact data base definition and
+the closest color supported by the hardware are returned.
+.ds fd .PN XAllocNamedColor
+The errors that can be generated by 
+\*(fd
+are
+.PN BadColor ,
+.PN BadAlloc ,
+and
+.PN BadName .
+.LP
+.\" $Header: XAllocCells.d,v 1.2 87/08/28 08:18:07 mento Exp $
+The
+.PN XAllocColorCells
+function allocates color cells.
+The number of colors must be positive and the number of planes
+nonnegative.
+.ds fd .PN XAllocColorCells
+The errors that can be generated by 
+\*(fd
+are
+.PN BadColor ,
+.PN BadValue
+and
+.PN BadAlloc .
+.LP
+.LP
+.\" $Header: XAllocPlanes.d,v 1.3 87/08/31 09:11:55 mento Exp $
+The
+.PN XAllocColorPlanes
+function allocates color planes.
+The specified ncolors must be positive, and nreds, ngreens, and nblues
+must be nonnegative.
+.ds fd .PN XAllocColorPlanes
+The errors that can be generated by 
+\*(fd
+are
+.PN BadAlloc ,
+.PN BadValue ,
+and
+.PN BadColor .
+.LP
+.\" $Header: XFreeColors.d,v 1.1 87/08/27 14:19:13 mento Exp $
+The
+.PN XFreeColors
+function frees the cells represented by pixels whose values are in the
+pixels array.
+.ds fd .PN XFreeColors
+The errors that can be generated by 
+\*(fd
+are
+.PN BadColor ,
+.PN BadAccess ,
+and
+.PN BadValue .
+.SH DIAGNOSTICS
+.\" $Header: badaccess2.e,v 1.1 87/09/04 08:22:45 mento Exp $
+.TP 1i
+.PN BadAccess
+A client attempted
+to free a color map entry that it did not already allocate.
+.\" $Header: badaccess3.e,v 1.1 87/09/04 08:22:50 mento Exp $
+.TP 1i
+.PN BadAccess
+A client attempted
+to store into a read-only color map entry.
+.\" $Header: badalloc.e,v 1.3 87/09/11 11:17:14 mento Exp $
+.TP 1i
+.PN BadAlloc
+The server failed to allocate the requested resource or server memory.
+.\" $Header: badcolor.e,v 1.1 87/09/04 08:22:57 mento Exp $
+.TP 1i
+.PN BadColor
+A value for a Colormap argument does not name a defined Colormap.
+.\" $Header: badname.e,v 1.1 87/09/04 08:23:14 mento Exp $
+.TP 1i
+.PN BadName
+A font or color of the specified name does not exist.
+.\" $Header: badvalue.e,v 1.1 87/09/04 08:23:19 mento Exp $
+.TP 1i
+.PN BadValue
+Some numeric value falls outside the range of values accepted by the request.
+Unless a specific range is specified for an argument, the full range defined
+by the argument's type is accepted.  Any argument defined as a set of
+alternatives can generate this error.
+.SH "SEE ALSO"
+XCreateColormap(3X), 
+XQueryColor(3X),
+XStoreColors(3X) 
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

@@ -1,0 +1,58 @@
+.TH XWindowEvent 3X 
+.SH NAME
+XWindowEvent, XCheckWindowEvent, XMaskEvent, XCheckMaskEvent, XCheckTypedEvent, XCheckTypedWindowEvent, XGetMotionEvents, XSendEvent \- select event types
+.SH SYNTAX
+.so ../Xsrc/XWindowEvent.f
+.LP
+.so ../Xsrc/XChkWinEvnt.f
+.LP
+.so ../Xsrc/XMaskEvent.f
+.LP
+.so ../Xsrc/XChkMskEvnt.f
+.LP
+.so ../Xsrc/XChkTypEvnt.f
+.LP
+.so ../Xsrc/XChkTypWEvnt.f
+.LP
+.so ../Xsrc/XGetMoEvents.f
+.LP
+.so ../Xsrc/XSendEvent.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/eventmask.a
+.so ../Xsrc/event.a
+.so ../Xsrc/event_send.a
+.so ../Xsrc/event_type.a
+.so ../Xsrc/nevents.a
+.so ../Xsrc/propagate.a
+.so ../Xsrc/startstop.a
+.so ../Xsrc/w.a
+.SH DESCRIPTION
+.so ../Xdescrip/XWindowEvent.d
+.LP
+.so ../Xdescrip/XChkWinEvnt.d
+.LP
+.so ../Xdescrip/XMaskEvent.d
+.LP
+.so ../Xdescrip/XChkMskEvnt.d
+.LP
+.so ../Xdescrip/XChkTypEvnt.d
+.LP
+.so ../Xdescrip/XChkTypWEvnt.d
+.LP
+.so ../Xdescrip/XGetMoEvents.d
+.ds fd .PN XGetMotionEvents
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.so ../Xdescrip/XSendEvent.d
+.ds fd .PN XSendEvent
+.so ../Xsrc/errsent.com
+.PN BadWindow
+and
+.PN BadValue .
+.SH DIAGNOSTICS
+.so ../Xerrors/badvalue.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

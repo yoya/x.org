@@ -1,0 +1,15 @@
+.TH XPutBackEvent 3X 
+.SH NAME
+XPutBackEvent \- put events back on the queue
+.SH SYNTAX
+.so ../Xsrc/XPutBckEvent.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/event_put.a
+.SH DESCRIPTION
+.so ../Xdescrip/XPutBckEvent.d
+.SH "SEE ALSO"
+XFlush(3X),
+XIfEvent(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

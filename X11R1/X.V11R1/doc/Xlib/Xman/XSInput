@@ -1,0 +1,21 @@
+.TH XSelectInput 3X 
+.SH NAME
+XSelectInput \- select input events
+.SH SYNTAX
+.so ../Xsrc/XSelectInput.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/eventmask.a
+.so ../Xsrc/w.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSelectInput.d
+.ds fd .PN XSelectInput
+.so ../Xsrc/errsent.com
+.PN BadWindow 
+and
+.PN BadValue .
+.SH DIAGNOSTICS
+.so ../Xerrors/badvalue.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

@@ -1,0 +1,42 @@
+.TH XSetZoomHints 3X 
+.SH NAME
+XSetZoomHints, XGetZoomHints \- set or get zoom state hints
+.SH SYNTAX
+.so ../Xsrc/XSetZHnts.f
+.LP
+.so ../Xsrc/XGetZHnts.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/w.a
+.so ../Xsrc/zhints.a
+.so ../Xsrc/zhints_ret.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSetZHnts.d
+.ds fd .PN XSetZoomHints
+.so ../Xsrc/errsent.com
+.PN BadWindow 
+and
+.PN BadAlloc .
+.LP
+.so ../Xdescrip/XGetZHnts.d
+.ds fd .PN XGetZoomHints
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.SH PROPERTY
+WM_ZOOM_HINTS
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XSetClassHint(3X),
+XSetCommand(3X),
+XSetIconName(3X),
+XSetIconSizeHints(3X),
+XSetNormalHints(3X),
+XSetSizeHints(3X),
+XSetStandardProperties(3X),
+XSetTransientForHint(3X),
+XSetWMHints(3X),
+XStoreName(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

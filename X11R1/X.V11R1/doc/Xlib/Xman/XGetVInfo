@@ -1,0 +1,22 @@
+.TH XGetVisualInfo 3X 
+.SH NAME
+XGetVisualInfo, XMatchVisualInfo \- obtain visual information
+.SH SYNTAX
+.so ../Xsrc/XGetVInfo.f
+.LP
+.so ../Xsrc/XMatVInfo.f
+.SH ARGUMENTS
+.so ../Xsrc/v_class.a
+.so ../Xsrc/v_depth.a
+.so ../Xsrc/display.a
+.so ../Xsrc/v_nitems.a
+.so ../Xsrc/screen.a
+.so ../Xsrc/vinfo_mask.a
+.so ../Xsrc/vinfo.a
+.so ../Xsrc/vinfo_temp.a
+.SH DESCRIPTION
+.so ../Xdescrip/XGetVInfo.d
+.LP
+.so ../Xdescrip/XMatVInfo.d
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

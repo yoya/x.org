@@ -1,0 +1,20 @@
+.TH XOpenDisplay 3X 
+.SH NAME
+XOpenDisplay, XCloseDisplay, XNoOp \- connect or disconnect to X server
+.SH SYNTAX
+.so ../Xsrc/XOpenDisplay.f
+.LP
+.so ../Xsrc/XCloseDisp.f
+.LP
+.so ../Xsrc/XNoop.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/display_name.a
+.SH DESCRIPTION
+.so ../Xdescrip/XOpenDisplay.d
+.LP
+.so ../Xdescrip/XCloseDisp.d
+.LP
+.so ../Xdescrip/XNoOP.d
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

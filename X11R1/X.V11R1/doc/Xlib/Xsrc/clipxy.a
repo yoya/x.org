@@ -1,0 +1,6 @@
+.\" $Header: clipxy.a,v 11.2 87/03/28 10:54:38 mento Exp $
+.IP \fIclip_x_origin\fP 1i
+.br
+.ns
+.IP \fIclip_y_origin\fP 1i
+Specify the x and y coordinates of the clip origin.

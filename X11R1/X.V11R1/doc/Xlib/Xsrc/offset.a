@@ -1,0 +1,5 @@
+.IP \fIoffset\fP 1i
+Specifies the number of pixels to ignore at the beginning of the scanline.
+This permits the rapid displaying of the image without requiring each scanline
+to be shifted into position.
+

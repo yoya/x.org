@@ -1,0 +1,46 @@
+.TH XSetLineAttribute 3X 
+.SH NAME
+XSetLineAttribute, XSetDashes \- GC convience routines
+.SH SYNTAX
+.so ../Xsrc/XSetLnStle.f
+.LP
+.so ../Xsrc/XSetDashes.f
+.SH ARGUMENTS
+.so ../Xsrc/cap_style.a
+.so ../Xsrc/dashlist.a
+.so ../Xsrc/dashoff.a
+.so ../Xsrc/display.a
+.so ../Xsrc/gc.a
+.so ../Xsrc/join_style.a
+.so ../Xsrc/line_style.a
+.so ../Xsrc/line_width.a
+.so ../Xsrc/n3.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSetLnStle.d
+.ds fd .PN XSetLineAttributes
+.so ../Xsrc/errsent.com
+.PN BadGC 
+and
+.PN BadValue .
+.LP
+.so ../Xdescrip/XSetDashes.d
+.ds fd .PN XSetDashes
+.so ../Xsrc/errsent.com
+.PN BadAlloc
+and
+.PN BadGC .
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badgc.e
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+XCreateGC(3X),
+XQueryBestSize(3X),
+XSetArcMode(3X),
+XSetClipOrigin(3X),
+XSetFillStyle(3X),
+XSetFont(3X),
+XSetState(3X),
+XSetTile(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

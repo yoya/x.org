@@ -1,0 +1,43 @@
+.TH XQueryColor 3X 
+.SH NAME
+XQueryColor, XQueryColors, XLookupColor \- obtain color values
+.SH SYNTAX
+.so ../Xsrc/XQueryColor.f
+.LP
+.so ../Xsrc/XQueryColors.f
+.LP
+.so ../Xsrc/XLkUpColor.f
+.SH ARGUMENTS
+.so ../Xsrc/cmap.a
+.so ../Xsrc/def_ret.a
+.so ../Xsrc/defs_ret.a
+.so ../Xsrc/display.a
+.so ../Xsrc/exact_def.a
+.so ../Xsrc/ncolors.a
+.so ../Xsrc/def.a
+.SH DESCRIPTION
+.\" The following takes care of both XQueryColor and XQueryColors.
+.so ../Xdescrip/XQueryColor.d
+.ds fd .PN XQueryColor
+.ds fe .PN XQueryColors
+.so ../Xsrc/errsent3.com
+.PN BadValue
+and
+.PN BadColor .
+.LP
+.so ../Xdescrip/XLkUpColor.d
+.ds fd .PN XLookupColor
+.so ../Xsrc/errsent.com
+.PN BadColor
+and
+.PN BadName .
+.SH DIAGNOSTICS
+.so ../Xerrors/badcolor.e
+.so ../Xerrors/badname.e
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+XAllocColor(3X),
+XCreateColormap(3X),
+XStoreColors(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

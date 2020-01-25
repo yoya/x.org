@@ -1,0 +1,169 @@
+.na
+.de FD
+.LP
+.KS
+.TA 1.0i 3i
+.ta 1.0i 3i
+.nf
+..
+.de FN
+.fi
+.KE
+.LP
+..
+.de IN		\" send an index entry to the stderr
+..
+.de C{
+.KS
+.nf
+.D
+.\"
+.\"	choose appropriate monospace font
+.\"	the imagen conditional, 480,
+.\"	may be changed to L if LB is too
+.\"	heavy for your eyes...
+.\"
+.ie "\\*(.T"480" .ft L
+.el .ie "\\*(.T"300" .ft L
+.el .ie "\\*(.T"202" .ft PO
+.el .ie "\\*(.T"aps" .ft CW
+.el .ft R
+.ps \\n(PS
+.ie \\n(VS>40 .vs \\n(VSu
+.el .vs \\n(VSp
+..
+.de C}
+.DE
+.R
+..
+.de PN
+.ie t \f(H\|\\$1\|\fR\\$2
+.el \fI\|\\$1\|\fP\\$2
+..
+.de NT
+.ne 7
+.ds NO Note
+.if \\n(.$>$1 .if !'\\$2'C' .ds NO \\$2
+.if \\n(.$ .if !'\\$1'C' .ds NO \\$1
+.ie n .sp
+.el .sp 10p
+.TB
+.ce
+\\*(NO
+.ie n .sp
+.el .sp 5p
+.if '\\$1'C' .ce 99
+.if '\\$2'C' .ce 99
+.in +5n
+.ll -5n
+.R
+..
+.		\" Note End -- doug kraft 3/85
+.de NE
+.ce 0
+.in -5n
+.ll +5n
+.ie n .sp
+.el .sp 10p
+..
+.ny0
+.TH XReadBitmapFile 3X 
+.SH NAME
+XReadBitmapFile, XWriteBitmapFile, XCreateBitmapFromData \- manipulate bitmaps
+.SH SYNTAX
+int XReadBitmapFile(\^\fIdisplay\fP, \fId\fP, \fIfilename\fP, \fIwidth_return\fP, \fIheight_return\fP, \fIbitmap_return\fP, \fIx_hot_return\fP, 
+.br
+                       \fIy_hot_return\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Drawable \fId\fP\^;
+.br
+      char *\fIfilename\fP\^;
+.br
+      int *\fIwidth_return\fP, *\fIheight_return\fP\^;
+.br
+      Pixmap *\fIbitmap_return\fP\^;
+.br
+      int *\fIx_hot_return\fP, *\fIy_hot_return\fP\^;	
+.LP
+int XWriteBitmapFile(\^\fIdisplay\fP, \fIfilename\fP, \fIbitmap\fP, \fIwidth\fP, \fIheight\fP, \fIx_hot\fP, \fIy_hot\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      char *\fIfilename\fP\^;
+.br
+      Pixmap \fIbitmap\fP\^;
+.br
+      int \fIwidth\fP, \fIheight\fP\^;
+.br
+      int \fIx_hot\fP, \fIy_hot\fP\^;
+.LP
+Pixmap XCreateBitmapFromData(\^\fIdisplay\fP, \fId\fP, \fIdata\fP, \fIwidth\fP, \fIheight\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Drawable \fId\fP\^;
+.br
+      char *\fIdata\fP\^;
+.br
+      int \fIwidth\fP, \fIheight\fP\^;
+.SH ARGUMENTS
+.IP \fIbitmap\fP 1i
+Specifies the bitmap to be written.
+.IP \fIbitmap_return\fP 1i
+Returns the bitmap ID that is created.
+.\" $Header: d.a,v 11.2 87/03/28 10:54:59 mento Locked $
+.IP \fId\fP 1i
+Specifies the drawable. 
+.IP \fIdata\fP 1i
+Specifies the location of the bitmap data.
+.\" $Header: display.a,v 11.8 87/09/03 11:02:24 mento Exp $
+.IP \fIdisplay\fP 1i
+Specifies the connection to the X server.
+.\" $Header: filename.a,v 11.5 87/05/23 09:21:54 jg Exp $
+.IP \fIfilename\fP 1i
+Specifies the file name to use.
+The format of the file name is operating system specific.
+.\" $Header: widtheight.a,v 11.2 87/03/28 11:02:26 mento Exp $
+.IP \fIwidth\fP 1i
+.br
+.ns
+.IP \fIheight\fP 1i
+Specify the width and height.
+.IP \fIwidth_return\fP 1i
+.br
+.ns
+.IP \fIheight_return\fP 1i
+Returns the width and height values of the read in bitmap file.
+.IP \fIx_hot\fP 1i
+.br
+.ns
+.IP \fIy_hot\fP 1i
+Specifies where to place the hot spot coordinates (or -1,-1 if none are present)
+in the file.
+.IP \fIx_hot_return\fP 1i
+.br
+.ns
+.IP \fIy_hot_return\fP 1i
+Returns the hot spot coordinates.
+.SH DESCRIPTION
+.\" $Header: XRBitFile.d,v 1.1 87/08/27 14:20:51 mento Exp $
+The
+.PN XReadBitmapFile
+function reads in a file containing a bitmap.
+.LP
+.\" $Header: XWBitFile.d,v 1.1 87/08/27 14:22:16 mento Exp $
+The
+.PN XWriteBitmapFile
+function writes a bitmap out to a file.
+.LP
+.\" $Header: XCreBmap.d,v 1.1 87/08/27 14:18:25 mento Exp $
+The
+.PN XCreateBitmapFromData
+function allows you to include in your C program (using #include) a bitmap file
+that was written out by
+.PN XWriteBitmapFile
+(X version 11 format only) and, without reading in the bitmap file,
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

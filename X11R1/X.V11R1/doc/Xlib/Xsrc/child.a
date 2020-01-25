@@ -1,0 +1,4 @@
+.\" $Header: child.a,v 11.5 87/09/10 17:33:17 mento Exp $
+.IP \fIchild_return\fP 1i
+Returns the child if the coordinates are contained in a mapped child of the
+destination window.

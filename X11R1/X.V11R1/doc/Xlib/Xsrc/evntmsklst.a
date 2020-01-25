@@ -1,0 +1,18 @@
+.DS 0
+.TA .5i 2i
+.ta .5i 2i
+.R
+Button1MotionMask	KeyPressMask
+Button2MotionMask	KeyReleaseMask
+Button3MotionMask	LeaveWindowMask
+Button4MotionMask	NoEventMask
+Button5MotionMask	OwnerGrabButtonMask
+ButtonMotionMask	PointerMotionHintMask
+ButtonPressMask	PointerMotionMask
+ButtonReleaseMask	PropertyChangeMask
+ColormapChangeMask	ResizeRedirectMask
+EnterWindowMask	StructureNotifyMask
+ExposureMask	SubstructureNotifyMask
+FocusChangeMask	SubstructureRedirectMask
+KeymapStateMask	VisibilityChangeMask
+.DE

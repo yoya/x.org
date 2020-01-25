@@ -1,0 +1,9 @@
+.\" $Header: rgbmask.a,v 11.4 87/08/11 10:31:23 mento Locked $
+.IP \fIrmask_return\fP 1i
+.br
+.ns
+.IP \fIgmask_return\fP 1i
+.br
+.ns
+.IP \fIbmask_return\fP 1i
+Return bit masks for the red, green, and blue planes.

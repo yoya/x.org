@@ -1,0 +1,5 @@
+LOCAL_LIBRARIES = $(XLIB)
+           SRCS = cursorcolor.c
+           OBJS = cursorcolor.o
+
+SimpleProgramTarget(cursorcolor)

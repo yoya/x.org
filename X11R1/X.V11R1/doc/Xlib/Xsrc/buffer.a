@@ -1,0 +1,3 @@
+.\" $Header: buffer.a,v 11.2 87/03/28 10:54:14 mento Exp $
+.IP \fIbuffer\fP 1i
+Specifies the buffer in which you want to store the byte string.

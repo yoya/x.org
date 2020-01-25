@@ -1,0 +1,3 @@
+.IP \fIdb\fP 1i
+Specifies an argument to which the handle of the application's 
+copy of the current database is returned.

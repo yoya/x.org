@@ -1,0 +1,25 @@
+.TH XQueryPointer 3X 
+.SH NAME
+XQueryPointer \- get pointer coordinates
+.SH SYNTAX
+.so ../Xsrc/XQueryPntr.f
+.SH ARGUMENTS
+.so ../Xsrc/child_ret.a
+.so ../Xsrc/display.a
+.so ../Xsrc/mask1.a
+.so ../Xsrc/root.a
+.so ../Xsrc/rootxy.a
+.so ../Xsrc/w.a
+.so ../Xsrc/winxy.a
+.SH DESCRIPTION
+.so ../Xdescrip/XQueryPntr.d
+.ds fd .PN XQueryPointer
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.SH DIAGNOSTICS
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XGetWindowAttributes(3X),
+XQueryTree(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

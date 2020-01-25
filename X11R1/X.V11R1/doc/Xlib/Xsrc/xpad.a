@@ -1,0 +1,5 @@
+.IP \fIbitmap_pad\fP 1i
+Specifies the quantum of a scanline.
+In other words, the start of one scanline is separated in client memory from 
+the start of the next scanline by an integer multiple of this many bits.  
+You must pass one of these values: 8, 16, or 32.

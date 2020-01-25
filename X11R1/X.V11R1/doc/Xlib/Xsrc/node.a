@@ -1,0 +1,3 @@
+.\" $Header: node.a,v 11.2 87/03/28 10:58:27 mento Exp $
+.IP \fInode\fP 1i
+Specifies the network address of the DECnet node.

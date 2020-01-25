@@ -1,0 +1,130 @@
+.na
+.de FD
+.LP
+.KS
+.TA 1.0i 3i
+.ta 1.0i 3i
+.nf
+..
+.de FN
+.fi
+.KE
+.LP
+..
+.de IN		\" send an index entry to the stderr
+..
+.de C{
+.KS
+.nf
+.D
+.\"
+.\"	choose appropriate monospace font
+.\"	the imagen conditional, 480,
+.\"	may be changed to L if LB is too
+.\"	heavy for your eyes...
+.\"
+.ie "\\*(.T"480" .ft L
+.el .ie "\\*(.T"300" .ft L
+.el .ie "\\*(.T"202" .ft PO
+.el .ie "\\*(.T"aps" .ft CW
+.el .ft R
+.ps \\n(PS
+.ie \\n(VS>40 .vs \\n(VSu
+.el .vs \\n(VSp
+..
+.de C}
+.DE
+.R
+..
+.de PN
+.ie t \f(H\|\\$1\|\fR\\$2
+.el \fI\|\\$1\|\fP\\$2
+..
+.de NT
+.ne 7
+.ds NO Note
+.if \\n(.$>$1 .if !'\\$2'C' .ds NO \\$2
+.if \\n(.$ .if !'\\$1'C' .ds NO \\$1
+.ie n .sp
+.el .sp 10p
+.TB
+.ce
+\\*(NO
+.ie n .sp
+.el .sp 5p
+.if '\\$1'C' .ce 99
+.if '\\$2'C' .ce 99
+.in +5n
+.ll -5n
+.R
+..
+.		\" Note End -- doug kraft 3/85
+.de NE
+.ce 0
+.in -5n
+.ll +5n
+.ie n .sp
+.el .sp 10p
+..
+.ny0
+.TH XGetVisualInfo 3X 
+.SH NAME
+XGetVisualInfo, XMatchVisualInfo \- obtain visual information
+.SH SYNTAX
+XVisualInfo *XGetVisualInfo\^(\^\fIdisplay\fP, \fIvinfo_mask\fP, \fIvinfo_template\fP, \fInitems_return\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      long \fIvinfo_mask\fP\^;
+.br
+      XVisualInfo *\fIvinfo_template\fP\^;
+.br
+      int *\fInitems_return\fP\^;
+.LP
+Status XMatchVisualInfo\^(\^\fIdisplay\fP, \fIscreen\fP, \fIdepth\fP, \fIclass\fP, \fIvinfo_return\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      int \fIscreen\fP\^;
+.br
+      int \fIdepth\fP\^;
+.br
+      int \fIclass\fP\^;
+.br
+      XVisualInfo *\fIvinfo_return\fP\^;
+.SH ARGUMENTS
+.IP \fIclass\fP 1i
+Specifies the class of the screen.
+.IP \fIdepth\fP 1i
+Specifies the depth of the screen.
+.\" $Header: display.a,v 11.8 87/09/03 11:02:24 mento Exp $
+.IP \fIdisplay\fP 1i
+Specifies the connection to the X server.
+.IP \fInitems_return\fP 1i
+Returns the number of matching visual structures.
+.IP \fIscreen\fP 1i
+Specifies the screen.
+.IP \fIvinfo_mask\fP 1i
+Specifies the visual mask value.
+.IP \fIvinfo_return\fP 1i
+Returns the match visual information.
+.IP \fIvinfo_template\fP 1i
+Specifies the visual attributes that are to be used in matching the visual
+structures.
+.SH DESCRIPTION
+.\" $Header: XGetVInfo.d,v 1.2 87/09/03 14:13:51 mento Exp $
+The
+.PN XGetVisualInfo
+function returns a list of visual structures that match the attributes specified
+by the template argument.
+If no visual structures match the template using the specified vinfo_mask,
+.PN XGetVisualInfo
+returns a NULL.
+.LP
+.\" $Header: XMatVInfo.d,v 1.1 87/08/27 14:20:21 mento Exp $
+The
+.PN XMatchVisualInfo
+function obtains the visual information that matches the specified depth and
+class of the screen.
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

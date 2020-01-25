@@ -1,0 +1,40 @@
+# $Header: Imakefile,v 1.3 87/09/05 17:04:35 toddb Exp $
+       INCLUDES = -I$(TOP) -I$(INCLUDESRC) -I$(XLIBSRC) -I../include
+           SRCS = XFillZoids.c XBezier.c
+           OBJS = XFillZoids.o XBezier.o
+
+#if DebugLibXext && ProfileLibXext
+DebuggedAndProfiledLibraryObjectRule()
+#else
+# if DebugLibXext
+DebuggedLibraryObjectRule()
+# else
+#  if ProfileLibXext
+ProfiledLibraryObjectRule()
+#  else
+NormalLibraryObjectRule()
+#  endif
+# endif
+#endif
+
+NormalLibraryTarget(Xext,$(OBJS))
+LintLibraryTarget(Xext,$(SRCS))
+InstallLibrary(Xext,$(USRLIBDIR))
+InstallLintLibrary(Xext,$(USRLIBDIR))
+
+#if ProfileLibXext
+ProfiledLibraryTarget(Xext,$(OBJS))
+InstallLibrary(Xext_p,$(USRLIBDIR))
+#endif
+
+#if DebugLibXext
+DebuggedLibraryTarget(Xext,$(OBJS))
+#endif
+
+DependTarget()
+
+lint:
+	$(LINT) -buz ${INCLUDES} \
+		-DLIBDIR=\"${LIBDIR}\" \
+		${SRCS} \
+		$(XLIBSRC)/llib-lX.ln

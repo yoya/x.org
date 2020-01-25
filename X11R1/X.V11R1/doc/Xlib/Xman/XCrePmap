@@ -1,0 +1,33 @@
+.TH XCreatePixmap 3X 
+.SH NAME
+XCreatePixmap, XFreePixmap \- create and destroy pixmaps
+.SH SYNTAX
+.so ../Xsrc/XCrePmap.f
+.LP
+.so ../Xsrc/XFreePixmap.f
+.SH ARGUMENTS
+.so ../Xsrc/d_crepix.a
+.so ../Xsrc/depth1.a
+.so ../Xsrc/display.a
+.so ../Xsrc/pixmap.a
+.so ../Xsrc/widtheight.a
+.SH DESCRIPTION
+.so ../Xdescrip/XCrePmap.d
+.ds fd .PN XCreatePixmap
+.so ../Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadDrawable ,
+and
+.PN BadValue .
+.LP
+.so ../Xdescrip/XFreePixmap.d
+.ds fd .PN XFreePixmap
+.so ../Xsrc/errsent4.com
+.PN BadPixmap .
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/baddrawable.e
+.so ../Xerrors/badpixmap.e
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

@@ -1,0 +1,6 @@
+.IP \fIevent\fP 1i
+Specifies a pointer to the structure
+.PN XEvent .
+This structure is a union of the individual structures declared for each event type.
+The function copies the matched event's associated structure into
+this client-supplied structure. 

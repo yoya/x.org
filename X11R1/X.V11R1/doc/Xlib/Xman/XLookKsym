@@ -1,0 +1,38 @@
+.TH XLookupKeysym 3X 
+.SH NAME
+XLookupKeysym, XRefreshKeyboardMapping, XLookupString, XRebindKeySym \- handle keyboard input events
+.SH SYNTAX
+.so ../Xsrc/XLKeysym.f
+.LP
+.so ../Xsrc/XRKMap.f
+.LP
+.so ../Xsrc/XLookStr.f
+.LP
+.so ../Xsrc/XRKeySym.f
+.SH ARGUMENTS
+.so ../Xsrc/buffer_ptr.a
+.so ../Xsrc/buf_length.a
+.so ../Xsrc/num_bytes.a
+.so ../Xsrc/display.a
+.so ../Xsrc/event_ksym.a
+.so ../Xsrc/event_map.a
+.so ../Xsrc/event_key.a
+.so ../Xsrc/index.a
+.so ../Xsrc/keysym_reb.a
+.so ../Xsrc/keysym.a
+.so ../Xsrc/list_reb.a
+.so ../Xsrc/mod_count.a
+.so ../Xsrc/status_str.a
+.so ../Xsrc/str_rebind.a
+.SH DESCRIPTION
+.so ../Xdescrip/XLKeysym.d
+.LP
+.so ../Xdescrip/XRKMap.d
+.LP
+.so ../Xdescrip/XLookStr.d
+.LP
+.so ../Xdescrip/XRKeySym.d
+.SH "SEE ALSO"
+XStringToKeysym(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

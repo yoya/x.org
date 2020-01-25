@@ -1,0 +1,4 @@
+.IP \fImask\fP 1i
+Specifies the source bits of the cursor that are to be displayed.
+You can pass the constant
+.PN None .

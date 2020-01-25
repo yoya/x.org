@@ -1,0 +1,3 @@
+.\" $Header: acceldenom.a,v 11.4 87/05/28 05:00:49 jg Exp $
+.IP \fIaccel_denominator\fP 1i
+Specifies the denominator for the acceleration multiplier.

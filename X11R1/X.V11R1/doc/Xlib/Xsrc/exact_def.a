@@ -1,0 +1,4 @@
+.\" $Header: exact_def.a,v 11.9 87/09/10 17:08:12 mento Exp $
+.IP \fIexact_def_return\fP 1i
+Returns the true pixel values that indicate the closest color provided 
+by the hardware for the specified color name.

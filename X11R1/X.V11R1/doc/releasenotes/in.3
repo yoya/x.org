@@ -1,0 +1,499 @@
+.\" $Header: in.3,v 1.2 87/09/15 06:14:10 toddb Locked $
+.NH 1
+Contents of this Release
+.LP
+The enclosed tape contains nineteen megabytes
+of source files and documentation including:
+.LP
+\(bu
+A sample server with device-dependent layers (DDX) for several
+displays and vendors, including IBM, DEC, Apollo and Sun workstations.
+.br
+\(bu
+Several libraries including a toolkit and both C and Common-Lisp
+language bindings for the X11 protocol.
+.br
+\(bu
+Some bitmaps in include/bitmaps for use with xsetroot, et. al.
+.br
+\(bu
+Several clients, including a terminal emulator and
+a toolkit-based client for browsing mh-style mail folders.
+.br
+\(bu
+Some demo clients
+.br
+\(bu
+Some random utilities to help you build this release
+.LP
+There are many aspects to the software in this release,
+so in the following we provide a perusal of the release software by directory
+name, calling attention to salient features or notable bugs.
+To be brief, not all directories are present in this discussion.
+If you find problems not mentioned here,
+they
+should be mailed to xbugs@athena.mit.edu using the template
+bug report found in doc/bugs.
+.IP clients/bitmap
+.br
+This is a very nice program for editing small bitmaps such as cursors or
+icons.
+However,
+it comes up a silly size under the "wm" window manager, and puts dialog box
+in wrong place.
+With the "woman" bitmap, the small images
+are corrupt on color screens (server bug likely).
+The program dumps core when colors are specified in .Xdefaults.
+.IP clients/emacs
+.br
+All that is provided here are the files that needed to change
+in gnuemacs so that it could use the X11 window system.
+You must obtain the complete source for this separately.
+Consult the files DISTRIB and README in this directory for more
+information.
+This implementation is known to be slow and to have screen-updating problems,
+especially when doing incremental searches with control-S.
+.IP clients/gnuplot
+.br
+This is a plotting program converted by an undergraduate summer
+student at MIT and he was never able to test it on anything
+but a microvax.
+The display window is totally white on Sun, for both BW and color.
+The program fails to link on Ultrix 2.0 because it is missing -lgamma
+on the load line.
+.IP clients/puzzle
+.br
+A very simple program that animates a game you
+probably carried in your pocket as a child.
+This really belongs in the hacks directory, but
+we noticed it too late.
+It doesn't center text in squares correctly
+when its window is created with the default height and width.
+The window never appears when run under wm.
+.IP clients/uwm
+.br
+This is the most mature window manager available on the release.
+Resizing with this window manager causes double exposures because of the tiny
+XxY display box placed over the window being resized and because of lack of save-unders.
+The server should
+do save-unders (the saving and restoring the contents of
+the screen under a very short-lived window),
+but in the interim, uwm should either
+place the display box outside the bounds of the resized window, or perhaps
+unmap the display box after resize, so that least both
+repaints are at the new size.
+The program doesn't deal with multiple screens.
+.IP clients/xcalc
+.br
+This is a clever tool that
+implements a hand-held calculator or a slide-rule on the screen.
+Unfortunatley,
+it dies with a
+parameter mismatch on ChangeWindowAttributes when the cursor
+leaves the xcalc window on color screen, and it dies immediately in
+-analog mode on a color screen.
+The program dumps core when run without a window
+manager in -analog mode, and has a strange initial window size
+when started under wm.
+.IP clients/xclock
+.br
+This displays digital or analog time.
+The "-update N" option has an old bug of not keeping the second
+hand pointing to a multiple of N seconds.
+It also doesn't center the time string in digital mode.
+.IP clients/xedit
+.br
+This is a nice attempt at implementing an editor under X11 using
+the toolkit.
+But it dumps core on a black-and-white Sun.
+It gets parameter mismatch for CreateGC
+when run on a color screen.
+It makes the assumption that background=white.
+Resizing this client sometimes seems to do strange things.
+.IP clients/xfd
+.br
+This program will display the X11 fonts.
+Pressing the right button should page through the font,
+but continues to wrap around and continue on forever.
+The -icon option doesn't seem to work with uwm.
+.IP clients/xhost
+.br
+This provides a way to allow or deny access to specific hosts.
+Regretably, it does not allow the user to enable/disable access control.
+.IP clients/xload
+.br
+This client displays the "load average" in a histogram plot,
+but it may need to be set-userid to root or set-groupid to kmem if the permissions
+to /dev/kmem don't allow normal users to read it.
+In addition, the toolkit widget may need to be reimplemented for
+your kernel.
+.IP clients/xlsfonts
+.br
+This client will list the fonts known to the server,
+but the undocumented -l option (long listing ala QueryFontsWithInfo)
+brings out a shortcoming in the sample server: it will freeze
+your display until the request is complete, which may take several seconds.
+.IP clients/xmh
+.br
+This is potentially a very nice interface to the mh-style tools used to read
+one's mail.
+But it gets parameter mismatch on CreateGC on a color screen.
+It, too, has the background=white assumption.
+.IP clients/xmodmap
+.br
+This client will allow you to change the modifier mappings of your keyboard.
+Sometimes, additions will fail because it doesn't know how to "stretch"
+the modifier map, but success is still indicated.
+.IP clients/xpr
+.br
+This program prints out a screendump created with xwd.
+It seems to have VAX byte order dependencies for -dev ps (postscript output).
+Postscript output generates printer errors sometimes.
+.IP clients/xprop
+.br
+It displays properties of windows and fonts,
+but it should have a way to get at subwindows.
+As is, it is useless under wm because it will only give information about
+the "frame" window.
+.IP clients/xrdb
+.br
+This client will take an Xdefaults file and load it into the server
+as a property for use by clients globally.
+.IP clients/xsetroot
+.br
+Among other things, try the command "xsetroot -bitmap include/bitmaps/woman".
+.IP clients/xterm
+.br
+This is the one and only terminal emulator for X11 available publicly.
+If it is resized by wm, it paints twice; once at the old size and once at the new.
+Selecting reverse video from the menu doesn't invert scroll bar.
+The -ms and -cr options don't work.
+.IP clients/xwd
+.br
+Dumping a window or a portion thereof is the purpose of this client.
+The -xy mode on color screens is broken (server bug likely).
+It doesn't retain button release during grab, resulting
+in spurious up event to the window you wanted dumped.
+If the output is desired in z format
+from a 1-bit screen,
+it duplicates a top stripe of the selected window instead of
+dumping the window as seen (server bug likely).
+It should check for the selected window being on-screen.
+Large windows cause
+the Xqdss server to dump core (server bug).
+.IP clients/xwininfo
+.br
+Like xprop,
+the program doesn't retain button release during grab, resulting
+in spurious up event to another window.
+.IP clients/xwud
+.br
+This client will dump to the screen, the file created by xwd,
+but a partial refresh of Z format image produces garbage (library bug).
+A 1-bit image on N-bit screen is garbled (server bug likely).
+It dies in strange ways on large color images.
+.IP contrib/InterViews
+.br
+This is the only software found in the "contributed software" directory: i.e.
+untested software.
+This is a C++ implementation of a toolkit and some clients.
+.IP "demos/ico, muncher, plaid"
+.br
+These are cute programs that do nothing but paint somewhat pretty pictures.
+They don't obey window resizing or exposure correctly.
+The "plaid" program needs to throttle output to keep other clients happy,
+but this may suggest that the server isn't round-robining properly.
+.IP demos/wm
+.br
+This is the "other" window manager;
+it is pretty simple minded, but it implements title bars,
+real-estate style window management and understands multiple screens.
+It seems to cause various clients grief, particularly
+with respect to initial size.
+It should do something
+about borders so that they arent always white,
+and when it closes down, it should
+restore rational borders.
+.IP doc
+.br
+As might be expected,
+this contains all the documentation.
+Any file in this directory named *.ps or *.psc can be handed directly to
+a postscript printer, as it is the postscript output from programs such as troff.
+.IP doc/Protocol
+.br
+Here you will find the formal description of the
+protocol, the numeric encoding of same and the keysym description.
+.IP doc/Server
+.br
+There are several documents in this directory
+dealing with the implementation of the sample server and helpful
+hints for porting.
+.IP doc/Xlib
+.br
+The C language X interface is documented here.
+The printed document is just under 300 pages and is quite complete.
+.IP doc/Xlib/Xman
+.br
+The section 3 man pages can be found here.
+If you can tolerate file names longer than 14 characters, you
+should consider running the (largely untested) shell script
+named "expand.names" in
+this directory that will change the prefix of the .3X files to names
+matching the names of the Xlib routines they describe.
+.IP doc/bugs
+.br
+A bug report template appears in this directory.
+Bug reports should be submitted using this form and
+should be mailed to xbugs@athena.mit.edu.
+.IP doc/releasenotes
+.br
+You will find the troff source for this document here.
+.IP extensions
+.br
+This directory contains a lib, server, test and include directory
+for two extensions: a useless trapezoid filling extensioin called "zoid"
+and a rather interesting one for implementing bezier curve fitting
+called "bezier".
+The beziertest program repaints on the wrong kind of events.
+.IP fonts/bdf
+The ascii representation of the fonts live in this directory.
+You should try to remember that the "bdf" stands for
+Bitmap Distribution Format.  This format is an extension of Adobe, Inc's standard
+ASCII format for font distribution.
+It should be noted that you can purchase fonts
+from Adobe, inc. in a format close to this.  When doing so, you should ask for
+both the bitmap and the font metric files ('afm'), which are combined together
+for an X11 .bdf file. 
+Please do not contact MIT to buy fonts.
+.IP fonts/snf
+This directory holds the compiled fonts.
+The "snf" stands for Server Natural Format.
+snf files are not portable between servers except in rare cases.
+.IP include/bitmaps
+.br
+Bitmap files found in this directory
+have a different format in X11 than they did in X10.
+The "bitmap" program can read files in either format, but always
+writes out X11-format files.  In addition, there is a utility program
+called "bm-convert" which converts X10-format bitmap files to X11
+format.  For more information, see clients/bitmap/bitmap.man and
+util/bm-convert/bm-convert.doc.
+.IP lib/CLX
+.br
+This contains the Common - Lisp language interface to the X11
+protocol and has been tested under TI, Symbolics, and Lucid.
+.IP lib/X
+.br
+Here you can find the source for the C - language interface to the
+X11 protocol.
+The next section is devoted to its discussion.
+.IP lib/Xrm
+.br
+This is the directory containing the implementation of the "new"
+resource manager.
+None of the clients use it and neither the old nor new toolkits use it.
+However, this will be the resource manager used in future releases.
+As soon as the new toolkit is stable and has been converted to
+use this, all clients will be converted as well.
+If you write a new client, it should use this resource manager.
+.IP
+Note that both the new and the old resource manager are case-sensitive now.
+You should keep this in mind when you build your .Xdefaults file.
+.IP lib/Xtk
+.br
+The Xtk library ("new toolkit") is still in a very unfinished state.
+We've identified three bugs that cause problems on the Sun, but
+not on the Vax:
+.RS
+.IP
+Resources.c fails to correctly handle resources whose size is 1; in
+particular, it gets confused on Boolean resources such as the
+"analog/digital" option to the Clock widget.  There is currently
+special case code, surrounded by "#ifdef BIGENDIAN", to handle
+resources whose size is 2 (= sizeof(short)); this code probably needs
+to be extended to similarly handle resources whose size is 1.
+.IP
+Text.c incorrectly calls XtGetSubresources with a Display argument
+instead of the proper Widget argument. This core-dumps the "xtext"
+application instantly on a Sun.
+.IP
+AsciiSink.c contains bitmap constants declared as arrays of shorts,
+rather than arrays of char, and assumes that the shorts are stored in
+LSBFirst (little-endian) order.  The result is that on big-endian
+machines such as the Sun, Text widgets don't display a caret at the
+insertion point.
+.RE
+.IP
+All of the widgets should be using XtCreateWindow instead of
+XCreateWindow, but currently none of them do.
+The SetValues routines in most of the widgets are either incorrect or
+are complete no-ops.  None of the widgets' SetValues routines have
+been exercised by any code yet, with the exception of the "top-level"
+widget that is returned by XtInitialize.
+.IP
+The IBM hc compiler will not compile lib/Xtk directory,
+but the pcc compiler will.
+We suggest you build this directory by hand with pcc before
+doing a full make.
+.IP lib/Xtk/clients
+.br
+With the exception of "xboxes", all the sample clients in this
+subdirectory run more-or-less correctly on a Vax.
+However, various bugs become evident when you run them on a Sun.
+For instance, "xtext" immediately core-dumps, and "xclock" comes up in
+digital mode regardless of .Xdefaults options or command line arguments.
+.IP lib/oldX
+.br
+This library contains code that existed in X10 such
+as the "XAssocTable" routines and an implementation
+of the X10 XDraw and XDrawFilled requests that turn spline descriptions
+into X11 PolyLine requests.  You should not assume that these routines will
+continue to exist in this form in future releases.
+.IP lib/oldXMenu
+.br
+This is a deck-of-cards menu facility that has simply been ported
+to X11 and is known to run slowly.
+Eventually, this will be subsumed by a menu widget in the toolkit.
+.IP lib/oldXrm
+This is the "old" resource manager as it appeared on the Beta release.
+It will remain a part of the release only as long as there remains a
+client that has not been converted to the new resource manager.
+.IP lib/oldXtk
+.br
+This contains the "old" toolkit, with the old intrinsics interface.
+As soon as the new toolkit becomes stable
+all clients will be converted to it and this will not appear on
+future releases.
+Currently, only xload, xmh, xclock, xedit and xterm use this toolkit.
+.IP server/ddx/apollo
+.br
+This holds the Apollo device-dependent code (ddx) for the sample server.
+It will run on any Apollo display, color or monochrome, but it will only do
+1-bit black-and-white graphics.  You should consult the README file in
+this directory before trying to build an Apollo server.
+The only problem not mentioned there is that the server builds with about
+a half-dozen undefined variables, but since they are never referenced, the
+server runs.
+.IP server/ddx/cfb
+.br
+In here,
+Sun Microsystems has placed a "generic" analogue of "mfb" for memory color frame-buffers.
+The code has been tested only on displays with a pixel size of 8 bits,
+both with all 8 planes implemented (Sun) and less than 8 planes implemented (HP).
+As distributed,  it is set up for 8-bit pixels with all 8 planes implemented.
+The code is intended to be highly portable,  and to use as much as possible of the
+"mi" code.  As a result,  it is very slow, but very portable.
+You should read the README file in this directory before using it for a new port.
+.IP server/ddx/ibm
+.br
+IBM has provided us with ddx layers for IBM PC/RT with AED and/or APA16/APA19
+display.
+The hc compiler available on this machine is known to have
+problems with *foo++ = *bar++ constructs.
+To get around this,
+you should run the command "RTSETUP init" in this directory before the
+server is built.
+This will build patch, makedepend and imake,
+then it will patch sources for the sake of the RT compiler 
+(miregion.c and ../../../lib/Xtk/Imakefile).
+Finally, it will build and depend the makefiles.
+After this, a top-level make should complete without errors.
+Note that source files will be patched only if the "init" argument
+is specified on the command line.
+.IP server/ddx/lk201
+.br
+This is the ddx driver code for the keyboard
+used by most DEC displays.
+.IP server/ddx/mfb
+.br
+This is the "monochrome frame-buffer" ddx code.
+If you are beginning a new port and plan to use this,
+you should read the code very carefully in maskbits.h and the comments
+in ../../include/servermd.h, and then
+choose appropriate constants for IMAGE_BYTE_ORDER, BITMAP_BIT_ORDER,
+GETLEFTBITS_ALIGNMENT and GLYPHPADBYTES.
+.IP server/ddx/mi
+.br
+This is the "machine-independent" ddx layer.
+.IP server/ddx/qdss
+.br
+The pre-compiled libraries found here are are for DEC's GPX display.
+No source code is available.
+.IP server/ddx/qvss
+.br
+This holds the DEC version of the QVSS display ddx code.
+.IP server/ddx/sun
+.br
+This is the directory containing general Sun ddx code.
+It expects to be linked with the cfb code.
+You should consult the README file in this directory before
+using this server.
+.IP server/dix
+.br
+In here are the sources for the device-independent layer of the
+sample server.
+.IP util/bm-convert
+.br
+This is a special utility for converting X10-format bitmaps to X11-style.
+Alternatively, you can run the bitmap program,
+which can read X10-format bitmaps and will always write X11-format bitmaps.
+This program will never be built unless you explicitly do so in this directory.
+.IP util/imake
+.br
+This facility has become crucial to the maintenance of the X11 source tree.
+If you have a machines other that what this release has been
+tested for, I suggest that you read the man page (found in this directory)
+very carefully.
+This is the program used to create all the Makefiles from the files
+named "Imakefile" throughout the source tree.
+.IP util/imake.includes
+.br
+This is where the header files and template are kept for the imake utility.
+You should study the *.macros files carefully to decide how
+to configure your machine.
+There is more on this subject in section 2.
+.IP util/makedepend
+.br
+This utility is used to generate \fImake\fP(1) dependencies for
+all the .o files.
+It runs an order of magnitude faster than any other implementation
+of a dependency-generator by caching the include files for each directory.
+There is more on this subject in section 2.
+.IP util/patch
+.br
+This is the source-code patching utility
+written by Larry Wall and distributed
+in mod.sources.
+If there are patches sent out from MIT,
+this program can be used to apply them.
+This program will never be built unless you explicitly do so in this directory.
+.IP util/rgb
+.br
+This the the unchanged X10 version of program by the same name.
+It reads a text file describing a set of colors, and creates
+a database for the server to consult.
+.IP util/vtobdf
+.br
+This program reads a Sun vfont file and creates a character bitmap
+distribution format file.
+.NH 2
+Your .Xdefaults file
+.LP
+In previous releases of X, the specification of configuration
+options in the .Xdefaults file was not case-sensitive,
+although this fact was never explicitly mentioned in any
+documentation.
+.LP
+For version 11, we have chosen to define the contents of .Xdefaults
+to be case-sensitive.  This is not yet fully
+implemented; some clients may still allow non-matching case in
+their options.
+.LP
+The principal reason for this change is the addition of option "classes"
+to the Resource Manager, where before everything was
+only an option "instance".  The new naming and classing
+hierarchy will enable users to customize large parts of client
+interfaces with much fewer lines than before, at the expense
+of having to read the man pages somewhat more carefully when
+customizing. 

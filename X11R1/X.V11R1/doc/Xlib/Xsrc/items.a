@@ -1,0 +1,3 @@
+.\" $Header: items.a,v 11.2 87/03/28 10:57:04 mento Exp $
+.IP \fIitems\fP 1i
+Specifies a pointer to an array of text items.

@@ -1,0 +1,33 @@
+.TH XDrawImageString 3X 
+.SH NAME
+XDrawImageString, XDrawImageString16 \- draw image text
+.SH SYNTAX
+.so ../Xsrc/XImageText.f
+.LP
+.so ../Xsrc/XImageText16.f
+.SH ARGUMENTS
+.so ../Xsrc/d.a
+.so ../Xsrc/display.a
+.so ../Xsrc/gc.a
+.so ../Xsrc/length.a
+.so ../Xsrc/string.a
+.so ../Xsrc/xy.a
+.SH DESCRIPTION
+.so ../Xdescrip/XImageText.d
+.ds fd .PN XDrawImageString
+.ds fe .PN XDrawImageString16
+.so ../Xsrc/errsent3.com
+.PN BadDrawable ,
+.PN BadGC ,
+and
+.PN BadMatch .
+.SH DIAGNOSTICS
+.so ../Xerrors/baddrawable.e
+.so ../Xerrors/badgc.e
+.so ../Xerrors/badmatch1.e
+.so ../Xerrors/badmatch2.e
+.SH "SEE ALSO"
+XDrawString(3X),
+XDrawText(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

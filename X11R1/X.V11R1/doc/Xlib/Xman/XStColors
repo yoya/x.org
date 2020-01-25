@@ -1,0 +1,51 @@
+.TH XStoreColors 3X 
+.SH NAME
+XStoreColors, XStoreColor, XStoreNamedColor \- set colors
+.SH SYNTAX
+.so ../Xsrc/XStoreColors.f
+.LP
+.so ../Xsrc/XStoreColor.f
+.LP
+.so ../Xsrc/XStoreNColor.f
+.SH ARGUMENTS
+.so ../Xsrc/cmap.a
+.so ../Xsrc/color.a
+.so ../Xsrc/defs.a
+.so ../Xsrc/display.a
+.so ../Xsrc/flags.a
+.so ../Xsrc/ncolors.a
+.so ../Xsrc/pixel.a
+.so ../Xsrc/def.a
+.SH DESCRIPTION
+.so ../Xdescrip/XStoreColors.d
+.ds fd .PN XStoreColors
+.so ../Xsrc/errsent.com
+.PN BadAccess 
+and
+.PN BadColor .
+.LP
+.so ../Xdescrip/XStoreColor.d
+.ds fd .PN XStoreColor
+.so ../Xsrc/errsent4.com
+.PN BadColor .
+.LP
+.so ../Xdescrip/XStoreNColor.d
+.ds fd .PN XStoreNamedColor
+.so ../Xsrc/errsent.com
+.PN BadColor ,
+.PN BadAccess ,
+.PN BadName ,
+and
+.PN BadValue .
+.SH DIAGNOSTICS
+.so ../Xerrors/badaccess2.e
+.so ../Xerrors/badaccess3.e
+.so ../Xerrors/badcolor.e
+.so ../Xerrors/badname.e
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+XAllocColor(3X),
+XCreateColormap(3X),
+XQueryColor(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

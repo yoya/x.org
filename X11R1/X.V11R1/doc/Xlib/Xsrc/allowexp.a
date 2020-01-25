@@ -1,0 +1,8 @@
+.\" $Header: allowexp.a,v 11.3 87/03/28 10:53:46 mento Exp $
+.IP \fIallow_exposures\fP 1i
+Specifies the current screen save control values.
+Possible values are
+.PN DontAllowExposures ,
+.PN AllowExposures ,
+or
+.PN DefaultExposures .

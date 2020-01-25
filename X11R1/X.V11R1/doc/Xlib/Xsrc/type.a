@@ -1,0 +1,6 @@
+.\" $Header: type.a,v 11.4 87/08/28 07:27:24 mento Exp $
+.IP \fItype\fP 1i
+Specifies the type of the property.
+The X server does not interpret the type but simply
+passes it back to an application that later calls 
+.PN XGetProperty .

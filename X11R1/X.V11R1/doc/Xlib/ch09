@@ -1,0 +1,1379 @@
+.\".U7
+.\".UT "Predefined Property Functions" 9
+\&
+.sp 1
+.ce 3
+\s+1\fBChapter 9\fP\s-1
+
+\s+1\fBPredefined Property Functions\fP\s-1
+.sp 2
+.nr H1 9
+.nr H2 0
+.nr H3 0
+.nr H4 0
+.nr H5 0
+.na
+.LP
+.XS
+Chapter 9 - Predefined Property Functions
+.XE
+There are a number of predefined properties for common information
+usually associated with windows.
+The atoms for these predefined properties can be found in 
+.PN <X11/Xatom.h> .
+.LP
+Xlib provides functions with which you can perform predefined property 
+operations.
+This chapter discusses how to:
+.IP \(bu 5
+Communicate with window managers
+.IP \(bu 5
+Manipulate standard colormaps
+.NH 2
+Communicating with Window Managers
+.LP
+This section discusses a set of properties and functions that are
+necessary for clients to communicate effectively with window managers.
+Some of these properties have complex structures.
+Because all the data in a single property on the server has to be of the same 
+format (8, 16, or 32 bit), and because the C structures representing property 
+types cannot be guaranteed to be uniform in the same way,
+Set and Get functions are provided for properties with complex structures
+to format.
+.LP
+These functions define but do not enforce minimal policy among window
+managers.
+Writers of window managers are urged to use the information in these
+properties rather than invent their own properties and types.
+A window manager writer, however, can define additional properties
+beyond this proposed least common denominator.
+.LP
+In addition to Set and Get functions for individual properties, Xlib
+includes one function,
+.PN XSetStandardProperties ,
+that sets all or portions of several properties.  The purpose of 
+.PN XSetStandardProperties
+is to provide a simple interface for the
+programmer who wants to code an application in an afternoon.  Applications
+which need to communicate to the window manager more information than is
+possible with
+.PN XSetStandardProperties
+should not use this interface.
+Instead, they should call the Set functions for the additional or
+specific properties that they need.
+.LP
+In order to work well with most window managers, every
+application should specify the following information:
+.IP \(bu 5
+Name of the application
+.IP \(bu 5
+Name string for the icon
+.IP \(bu 5
+Command used to invoke the application
+.IP \(bu 5
+Size and window manager hints as defined below
+.LP
+Xlib does not set defaults for the properties described in this section.
+Thus, the default behavior is determined by the window manager and may be
+based on the presence or absence of certain properties.
+All the properties are considered to be hints to a window manager.
+When implementing window management policy, a window manager determines
+what to do with this information and is allowed to ignore it.
+.LP
+The supplied properties are:
+.IN "Atom" "Predefined"
+.TS H
+lw(1.4i) lw(1.2i) lw(.4i) lw(2.25i)
+lw(1.4i) lw(1.2i) cw(.4i) lw(2.25i).
+_
+.sp 6p
+.B
+Name	Type	Format	Description
+.sp 6p
+_
+.TH
+.R
+T{
+WM_NAME	
+T}	T{
+STRING	
+T}	T{
+8
+T}	T{
+Name of the application
+T}
+.sp 6p
+T{
+WM_ICON_NAME
+T}	T{
+STRING
+T}	T{
+8
+T}	T{
+Name to be used in icon
+T}
+.sp 6p
+T{
+WM_NORMAL_HINTS
+T}	T{
+WM_SIZE_HINTS
+T}	T{
+32
+T}	T{
+Size hints for a window in its normal state.
+The C type of this property is XSizeHints (see below).
+T}
+.sp 6p
+T{
+WM_ZOOM_HINTS
+T}	T{
+WM_SIZE_HINTS
+T}	T{
+32
+T}	T{
+Size hints for a zoomed window.
+The C type of this property is XSizeHints (see below).
+T}
+.sp 6p
+T{
+WM_HINTS
+T}	T{
+WM_HINTS
+T}	T{
+32
+T}	T{
+Additional hints set by client for use by the window manager.
+The C type of this property is \f(TRXWMHints\fP (see below).
+T}
+.sp 6p
+T{
+WM_COMMAND
+T}	T{
+STRING
+T}	T{
+8
+T}	T{
+The command and arguments, separated by ASCII 0s, used to invoke the
+application.
+T}
+.sp 6p
+T{
+WM_ICON_SIZE
+T}	T{
+WM_ICON_SIZE
+T}	T{
+32
+T}	T{
+The window manager may set this property on the root window to
+specify the icon sizes it supports.
+The C type of this property is XIconSize (see below).
+T}
+.sp 6p
+T{
+WM_CLASS
+T}	T{
+STRING
+T}	T{
+32
+T}	T{
+Set by application programs to allow window and session
+managers to obtain the application's resources from the resource database.
+T}
+.sp 6p
+T{
+WM_TRANSIENT_FOR
+T}	T{
+WINDOW
+T}	T{
+32
+T}	T{
+Set by application programs to indicate to the window manager that a transient
+top-level window, such as a dialog box, is not really a full-fledged window.
+T}
+
+_
+.TE
+.LP
+The atom names stored in 
+.PN <X11/Xatom.h>
+.IN "Files" "<X11/Xatom.h>"
+are named ``XA_\fIPROPERTY\fP_\fINAME\fP''.
+.LP
+Xlib provides functions with which you can set and get predefined
+properties.  
+Note that calling the Set function for a property with complex structure
+redefines all fields in that property, even though only some of those fields
+may have a specified new value.
+Simple properties for which Xlib does not provide a Set or Get function
+may be set using
+.PN XChangeProperty 
+.IN "XChangeProperty"
+and their values may be retrieved using
+.PN XGetWindowProperty .
+.IN "XGetWindowProperty"
+The remainder of this section discusses how to:
+.IP \(bu 5
+Set standard properties
+.IP \(bu 5
+Set and get the name of a window
+.IP \(bu 5
+Set and get the icon name of a window
+.IP \(bu 5
+Set the command atom
+.IP \(bu 5
+Set and get window manager hints
+.IP \(bu 5
+Set and get window sizing hints
+.IP \(bu 5
+Set and get icon size hints
+.IP \(bu 5
+Set and get the class of a window
+.IP \(bu 5
+Set and get the transient property for a window
+.IP
+.NH 3
+Setting Standard Properties
+.LP
+Use
+.PN XSetStandardProperties 
+to specify a minimum set of properties describing the ``quickie'' application. 
+.IN "XSetStandardProperties"
+This function sets all or portions of the 
+WM_NAME, WM_ICON_NAME, WM_HINTS, WM_COMMAND, WM_NORMAL_HINTS properties.
+The definition for this function is:
+.IN "Definitions" "XSetStandardProperties"
+.FD 0
+.so ./Xsrc/XSetSProp.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/window_name.a
+.so ./Xsrc/icon_name.a
+.so ./Xsrc/icon_pix.a
+.so ./Xsrc/argv.a
+.so ./Xsrc/argc.a
+.so ./Xsrc/hints.a
+.LP
+.so ./Xdescrip/XSetSProp.d
+.PN XSetStandardProperties
+should be used to give a window manager some information about 
+your program's preferences. 
+It should not be used by applications which need
+to communicate more information than is possible with
+.PN XSetStandardProperties .
+See Section 9.1.6 for a discussion of the
+.PN XSizeHints
+structure.
+.LP
+.ds fd .PN XSetStandardProperties
+.so ./Xsrc/errsent.com
+.PN BadWindow 
+and
+.PN BadAlloc .
+.NH 3
+Setting and Getting Window Names
+.LP
+Xlib provides functions to set and read the name of a window.  These functions set
+and read the WM_NAME property.
+.LP
+.sp
+Use
+.PN XStoreName 
+to assign a name to a window. 
+.IN "XStoreName"
+.IN "Window" "Name"
+The definition for this function is:
+.IN "Definitions" "XStoreName"
+.FD 0
+.so ./Xsrc/XStoreName.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+This is the window to which you want to assign a name.
+.so ./Xsrc/window_name.a
+The name should be a
+null-terminated string.
+This name will be returned by any subsequent call to
+.PN XFetchName .
+.IN "XFetchName"
+.LP
+.so ./Xdescrip/XStoreName.d
+A window manager may display the window name in some prominent
+place, such as the title bar, to allow users to identify windows easily.
+Some window managers may display a window's name in the window's icon,
+although they are encouraged to use the window's icon name, if one is
+provided by the application.
+.LP
+.ds fd .PN XStoreName
+.so ./Xsrc/errsent.com
+.PN BadWindow 
+and
+.PN BadAlloc .
+.LP
+.sp
+Use
+.PN XFetchName 
+to get the name of a window.
+.IN "XFetchName"
+The definition for this function is:
+.IN "Definitions" "XFetchName"
+.FD 0	
+.so ./Xsrc/XFetchName.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+This is the window whose name you want a pointer set to.
+.so ./Xsrc/window_name1.a
+.LP
+.so ./Xdescrip/XFetchName.d
+If the WM_NAME property has not been set for this window,
+.PN XFetchName
+sets this argument to NULL.
+When finished with it, a client must free
+the name string  using the free library subroutine.
+.LP
+.ds fd .PN XFetchName
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.NH 3
+Setting and Getting Icon Names
+.LP
+Xlib provides functions to set and read the name to be displayed in a window's
+icon.  
+These functions set and read the WM_ICON_NAME property.
+.LP
+.sp
+Use
+.PN XSetIconName 
+to set the name to be displayed in a window's icon.
+.IN "XSetIconName"
+.IN "Window" "Name" "Icon"
+The definition for this function is:
+.IN "Definitions" "XSetIconName"
+.FD 0
+.so ./Xsrc/XSetIName.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+This is the window whose icon name is being set.
+.so ./Xsrc/icon_name.a
+The name should be a
+null-terminated string.
+This name is returned by
+any subsequent call to
+.PN XGetIconName .
+.IN "XGetIconName"
+.LP
+.ds fd .PN XSetIconName
+.so ./Xsrc/errsent.com
+.PN BadWindow
+and
+.PN BadAlloc .
+.LP
+.sp
+Use
+.PN XGetIconName 
+to get the name a window wants displayed in its icon.
+.IN "XGetIconName"
+The definition for this function is:
+.IN "Definitions" "XGetIconName"
+.FD 0	
+.so ./Xsrc/XGetIName.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+This is the window whose icon name you want a pointer set to.
+.so ./Xsrc/icon_name1.a
+.LP
+.so ./Xdescrip/XGetIName.d
+If you never assigned a name to the window,
+.PN XGetIconName
+sets this argument to NULL.
+When finished with it, a client must free
+the icon name string using the free library subroutine.
+.LP
+.ds fd .PN XGetIconName
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.NH 3
+Setting the Command Atom 
+.LP
+Use
+.PN XSetCommand 
+to set the value of the command atom.
+This function sets the WM_COMMAND property.
+.IN "XSetCommand"
+The definition for this function is:
+.IN "Definitions" "XSetCommand"
+.FD 0
+.so ./Xsrc/XSetCmd.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/argv.a
+.so ./Xsrc/argc.a
+.LP
+.so ./Xdescrip/XSetCmd.d
+.LP
+.ds fd .PN XSetCommand
+.so ./Xsrc/errsent.com
+.PN BadWindow 
+and
+.PN BadAlloc .
+.NH 3
+Setting and Getting Window Manager Hints
+.LP
+The functions discussed in this section set and read the WM_HINTS property
+and use the 
+.PN XWMHints 
+structure:
+.LP
+.DS 0
+.TA .5i 2.5i
+.ta .5i 2.5i
+typedef struct {
+	long flags;	/* marks which fields in this structure are defined */
+	Bool input;	/* does this application rely on the window manager to
+			get keyboard input? */
+	int initial_state;	/* see below */
+	Pixmap icon_pixmap;	/* pixmap to be used as icon */
+	Window icon_window;	/* window to be used as icon */
+	int icon_x, icon_y;	/* initial position of icon */
+	Pixmap icon_mask;	/* pixmap to be used as mask for icon_pixmap */
+	XID window_group;	/* id of related window group */
+	/* this structure may be extended in the future */
+} XWMHints;
+.DE
+.IN "XWMHints"
+.IN "Data Structures" "XWMHints"
+The definitions for the flags field are:
+.sp
+.DS 0
+.TA .5i 2.5i
+.ta .5i 2.5i
+#define InputHint	(1L << 0)
+#define StateHint	(1L << 1)
+#define IconPixmapHint	(1L << 2)
+#define IconWindowHint	(1L << 3)
+#define IconPositionHint	(1L << 4)
+#define IconMaskHint	(1L << 5)
+#define WindowGroupHint		(1L << 6)
+#define AllHints (InputHint|StateHint|IconPixmapHint|IconWindowHint| \\\\ 
+	IconPositionHint|IconMaskHint|WindowGroupHint)
+.DE
+The input field is used to communicate to the window manager the input focus
+model used by the application.  Applications which expect input but never
+explicitly set focus to any of their subwindows (use the push model of
+focus management), such as X10-style applications that use real-estate
+driven focus, should set this field to 
+.PN True .  
+Similarly, applications
+that set input focus to their subwindows only when it is given to their
+top-level window by a window manager should also set this field to 
+.PN True .
+Applications which manage their own input focus by explicitly setting
+focus to one of their subwindows whenever they want keyboard input 
+(that is, use the pull model of focus management) should set this field to 
+.PN False .
+Applications which never expect any keyboard input should also set this field
+to 
+.PN False .
+.LP
+Pull model window managers should make it possible for push model
+applications to get input by setting input focus to the top level windows of
+applications whose input field is 
+.PN True .  
+Push model window managers should
+make sure that pull model applications do not break them, by resetting input
+focus to 
+.PN PointerRoot 
+when appropriate (for example, whenever an application whose
+input field is False sets input focus to one of its subwindows).
+.LP
+The definitions for the initial_state flag are:
+.sp
+.DS 0
+.TA .5i 2.5i
+.ta .5i 2.5i
+#define DontCareState	0     /* don't know or care */
+#define NormalState	1     /* most applications want to start this way */
+#define ZoomState	2     /* application wants to start zoomed */
+#define IconicState	3     /* application wants to start as an icon */
+#define InactiveState	4     /* application believes it is seldom used;
+		     some wm's may put it on inactive menu */
+.DE
+The icon_mask specifies which pixels of the icon_pixmap should be used as the
+icon.  
+This allows for nonrectangular pixmaps.
+The window_group lets you specify that this window belongs to a group
+of other windows.
+For example, if a single application manipulates multiple 
+children of the root window, this allows you to provide enough
+information that a window manager can iconify all of the windows,
+rather than just the one window.
+.LP
+.sp
+Use
+.PN XSetWMHints 
+to set the value of the window manager hints atom.
+.IN "XSetWMHints"
+The definition for this function is:
+.IN "Definitions" "XSetWMHints"
+.FD 0
+.so ./Xsrc/XSetWMHnts.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/wmhints.a
+.LP
+.so ./Xdescrip/XSetWMHnts.d
+.LP
+.ds fd .PN XSetWMHints
+.so ./Xsrc/errsent.com
+.PN BadWindow 
+and
+.PN BadAlloc .
+.LP
+.sp
+Use
+.PN XGetWMHints 
+to read the value of the window manager hints atom.
+.IN "XGetWMHints"
+The definition for this function is:
+.IN "Definitions" "XGetWMHints"
+.FD 0
+.so ./Xsrc/XGetWMHnts.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.LP
+.so ./Xdescrip/XGetWMHnts.d
+When finished with this function,
+an application must free the space used for that structure by calling 
+.PN XFree .
+(See Section 2.4 for further information).
+.LP
+.ds fd .PN XGetWMHints
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.NH 3
+Setting and Getting Window Sizing Hints
+.LP
+Xlib provides functions with which you can set or get window sizing hints.
+.LP
+The functions discussed in this section use the 
+.PN XSizeHints 
+structure:
+.LP
+.DS 0
+.TA .5i 2.5i
+.ta .5i 2.5i
+typedef struct {
+	long flags;	/* marks which fields in this structure are defined */
+	int x, y;
+	int width, height;
+	int min_width, min_height;
+	int max_width, max_height;
+	int width_inc, height_inc;
+	struct {
+	       int x;  /* numerator */
+	       int y;  /* denominator */
+	} min_aspect, max_aspect;
+} XSizeHints;
+.DE
+.IN "XSizeHints"
+.IN "Data Structures" "XSizeHints"
+The definitions for the flags field are:
+.LP
+.DS 0
+.TA .5i 2.5i
+.ta .5i 2.5i
+#define USPosition	(1L << 0)     /* user specified x, y */
+#define USSize	(1L << 1)     /* user specified width, height */
+#define PPosition	(1L << 2)     /* program specified position */
+#define PSize	(1L << 3)     /* program specified size */
+#define PMinSize	(1L << 4)     /* program specified minimum size */
+#define PMaxSize	(1L << 5)     /* program specified maximum size */
+#define PResizeInc	(1L << 6)     /* program specified resize increments */
+#define PAspect	(1L << 7)     /* program specified min and max aspect ratios */
+#define PAllHints (PPosition|PSize|PMinSize|PMaxSize|PResizeInc|PAspect)
+.DE
+The x, y, width, and height elements describe a desired position and size
+for the window.
+To indicate that this information was specified by the user, set the
+.PN USPosition
+and
+.PN USSize
+flags. 
+To indicate that it was specified by the application without any user
+involvement, set 
+.PN PPosition
+and 
+.PN PSize .
+This allows a window manager to know that the user specifically asked where
+the window should be placed or how the window should be sized and that
+the window manager does not have to rely the program's opinion.
+.LP
+The min_width and min_height elements specify the
+minimum size that the window can be for the application to be useful.
+The max_width and max_height elements specify the maximum size.
+The width_inc and height_inc elements define an arithmetic progression of
+sizes (minimum to maximum) into which the window prefers to be resized.
+The min_aspect and max_aspect elements are expressed
+as ratios of x and y, 
+and they allow an application to specify the range of aspect
+ratios it prefers.
+.LP
+The next two functions set and read the WM_NORMAL_HINTS property.
+.LP
+.sp
+Use
+.PN XSetNormalHints 
+to set the size hints for a window in its normal state.
+.IN "XSetNormalHints"
+The definition for this function is:
+.IN "Definitions" "XSetNormalHints"
+.FD 0
+.so ./Xsrc/XSetNHnts.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/hints.a
+.LP
+The
+.PN XSetNormalHints
+function sets the size hints structure for the specified window.
+Applications use
+.PN XSetNormalHints
+to inform the window manager of the size
+or position desirable for that window.  In addition, an application that wants
+to move or resize itself should call
+.PN XSetNormalHints
+and specify its new desired location and size, 
+instead of making direct X calls to move or resize.  
+This is because window managers may ignore redirected
+configure requests, but they pay attention to property changes.
+.LP
+To set size hints, 
+an application not only must assign values to the appropriate elements
+in the hints structure,
+but it also must set the flags field of the structure to indicate 
+which information is present and where it came from.  
+A call to
+.PN XSetNormalHints
+is meaningless, unless the flags field is set to indicate which elements of
+the structure have been assigned values.
+.LP
+.ds fd .PN XSetNormalHints
+.so ./Xsrc/errsent.com
+.PN BadWindow 
+and
+.PN BadAlloc .
+.LP
+.sp
+Use
+.PN XGetNormalHints 
+to return the size hints for a window in its normal state.
+.IN "XGetNormalHints"
+The definition for this function is:
+.IN "Definitions" "XGetNormalHints"
+.FD 0
+.so ./Xsrc/XGetNHnts.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/hints_ret.a
+.LP
+The
+.PN XGetNormalHints
+function returns in its last argument the size hints for a window in its normal state.
+It returns either a nonzero status if it succeeds or zero (0) if it fails 
+(for example, the application specified no normal size hints for this window).
+.LP
+.ds fd .PN XGetNormalHints
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+The next two functions set and read the WM_ZOOM_HINTS property.
+.LP
+.sp
+Use
+.PN XSetZoomHints 
+to set the value of the zoom hints atom.
+.IN "XSetZoomHints"
+The definition for this function is:
+.IN "Definitions" "XSetZoomHints"
+.FD 0
+.so ./Xsrc/XSetZHnts.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/zhints.a
+.LP
+Many window managers think of windows in three states:
+iconic, normal, or zoomed.
+The
+.PN XSetZoomHints
+function provides the window manager with information for the window in the
+zoomed state.
+.LP
+.ds fd .PN XSetZoomHints
+.so ./Xsrc/errsent.com
+.PN BadWindow
+and
+.PN BadAlloc .
+.LP
+.sp
+Use
+.PN XGetZoomHints 
+to read the value of the zoom hints atom.
+.IN "XGetZoomHints"
+The definition for this function is:
+.IN "Definitions" "XGetZoomHints"
+.FD 0
+.so ./Xsrc/XGetZHnts.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/zhints_ret.a
+.LP
+The
+.PN XGetZoomHints 
+function returns in its last argument the size hints for a window in its zoomed state.
+It returns either a nonzero status if it succeeds or zero (0) if it fails 
+(for example, the application specified no zoom size hints for this window).
+.LP
+.ds fd .PN XGetZoomHints
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.sp
+Use
+.PN XSetSizeHints 
+to set the value of any property of type WM_SIZE_HINTS.
+.IN "XSetSizeHints"
+The definition for this function is:
+.IN "Definitions" "XSetSizeHints"
+.FD 0
+.so ./Xsrc/XSetSHnts.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/hints1.a
+.so ./Xsrc/property.a
+.LP
+The
+.PN XSetSizeHints
+function sets the XSizeHints structure for the named property and the
+specified window.
+This is used by 
+.PN XSetNormalHints
+and
+.PN XSetZoomHints ,
+and can be used to set the value of any property of type WM_SIZE_HINTS. 
+Thus, it may be useful if other properties of that type get defined.
+.LP
+.ds fd .PN XSetSizeHints
+.so ./Xsrc/errsent.com
+.PN BadWindow ,
+.PN BadAlloc
+and
+.PN BadAtom .
+.LP
+.sp
+Use
+.PN XGetSizeHints 
+to read the value of any property of type WM_SIZE_HINTS.
+.IN "XGetSizeHints"
+The definition for this function is:
+.IN "Definitions" "XGetSizeHints"
+.FD 0
+.so ./Xsrc/XGetSHnts.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/hints1_ret.a
+.so ./Xsrc/property.a
+.LP
+.PN XGetSizeHints
+returns the XSizeHints structure for the named property and the
+specified window.
+This is used by 
+.PN XGetNormalHints
+and
+.PN XGetZoomHints .
+It also can be used to retrieve the value of any property of type SIZE_HINTS. 
+Thus, it may be useful if other properties of that type get defined.
+.PN XGetSizeHints
+returns a nonzero status if a size hint was defined 
+and zero (0) otherwise.
+.LP
+.ds fd .PN XGetSizeHints
+.so ./Xsrc/errsent.com
+.PN BadWindow 
+and 
+.PN BadAtom .
+.NH 3
+Setting and Getting Icon Sizing Hints
+.LP
+Applications can cooperate with window managers by providing
+icons in sizes supported by a window manager.  To communicate the supported
+icon sizes to the applications, a window manager should set the icon size
+property on the root window. 
+To find out what icon sizes a window manager supports, 
+applications should read the icon size property from the root window.
+.LP
+The functions discussed in this section set or read the WM_ICON_SIZE property.
+In addition, they use the 
+.PN XIconSize 
+.IN "XIconSize"
+structure:
+.LP
+.DS 0
+.TA .5i 2.5i
+.ta .5i 2.5i
+typedef struct {
+	int min_width, min_height;
+	int max_width, max_height;
+	int width_inc, height_inc;
+} XIconSize;
+.DE
+The width_inc and height_inc elements define an arithmetic progression of
+sizes (minimum to maximum) that represent the supported icon sizes.
+.IN "XIconSize"
+.IN "Data Structures" "XIconSize"
+.LP
+.sp
+Use
+.PN XSetIconSizes 
+to set the value of the icon size atom.
+.IN "XSetIconSizes"
+The definition for this function is:
+.IN "Definitions" "XSetIconSizes"
+.FD 0
+.so ./Xsrc/XSetISizes.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/size_list.a
+.so ./Xsrc/list_count.a
+.LP
+The
+.PN XSetIconSizes
+function is used only by window managers to set the supported icon sizes.
+.LP
+.ds fd .PN XSetIconSizes
+.so ./Xsrc/errsent.com
+.PN BadWindow
+and
+.PN BadAlloc .
+.LP
+.sp
+Use
+.PN XGetIconSizes 
+to return the value of the icon sizes atom.
+.IN "XGetIconSizes"
+The definition for this function is:
+.IN "Definitions" "XGetIconSizes"
+.FD 0
+.so ./Xsrc/XGetISizes.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/get_sz_list.a
+.so ./Xsrc/get_count.a
+.LP
+The
+.PN XGetIconSizes
+function 
+returns zero (0) if a window manager has not set icon sizes and nonzero
+status otherwise.  
+This function should be called by an application which
+wants to find out what icon sizes would be most appreciated by the
+window manager under which the application is running.  
+The application
+should then use
+.PN XSetWMHints
+to supply the window manager with an icon pixmap or window in one of the
+supported sizes.
+.LP
+.ds fd .PN XGetIconSizes
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.NH 3
+Setting and Getting the Class of a Window
+.LP
+Xlib provides functions to set and get the class of a window.
+These functions set and read the WM_CLASS property.
+In addition, they use the
+.PN XWMClass 
+.IN "Data Structures" "XWMClass"
+structure:
+.LP
+.DS 0
+.TA .5i
+.ta .5i
+typedef struct{
+	char *res_name;
+	char *res_class;
+} XWMClassHint;
+.DE
+.LP
+The res_name member contains the application name, while the res_class
+member contains the application class. 
+Note that the name set in this property may differ from the name set as WM_NAME.
+That is, WM_NAME specifies what should be displayed in the title bar and,
+therefore, may contain temporal information (for example, the name of
+a file currently in an editor's buffer).
+n the other hand, 
+the name specified as part of WM_CLASS is the formal name of the application
+that should be used when retrieving the application's resources from the 
+resource database.
+.LP
+.sp
+Use
+.PN XSetClassHint
+.IN "XSetClassHint"
+to set the class of a window.
+The definition of this function is:
+.IN "Definitions" "XSetClassHint"
+.FD 0
+.so ./Xsrc/XSetClassHs.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/class_hint.a
+.LP
+.so ./Xdescrip/XSetClassHs.d
+.LP
+.ds fd .PN XSetClassHint
+.so ./Xsrc/errsent.com
+.PN BadWindow
+and
+.PN BadAlloc .
+.LP
+.sp
+Use
+.PN XGetClassHint
+.IN "XGetClassHint"
+to  get the class of a window.
+The definition of this function is:
+.IN "Definitions" "XGetClassHint"
+.FD 0
+.so ./Xsrc/XGetClassHs.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/class_hint2.a
+.LP
+.so ./Xdescrip/XGetClassHs.d
+.LP
+.ds fd .PN XGetClassHint
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.NH 3
+Setting and Getting the Transient Property
+.LP
+An application may want to indicate to the window manager that a transient
+top-level window (for example, a dialog box) is not really a full-fledged 
+window.
+Rather,
+it is operating on behalf of (or is transient for) another window.
+To do so,
+the application would set the WM_TRANSIENT_FOR
+property of the dialog box to be the window handle of its main window.
+Some window managers may use this information to unmap an application's 
+dialog boxes (for example, when the main application window gets iconified).
+.LP
+The functions discussed in this section set and read the WM_TRANSIENT_FOR
+property.
+.LP
+.sp
+Use
+.PN XSetTransientForHint
+.IN "XSetTransientForHint"
+to set the WM_TRANSIENT_FOR property for a window.
+The definition of this function is:
+.IN "Definitions" "XSetTransientForHint"
+.FD 0
+.so ./Xsrc/XSetTransHs.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/w_prop.a
+.LP
+.so ./Xdescrip/XSetTransHs.d
+.LP
+.ds fd .PN XSetTransientForHint
+.so ./Xsrc/errsent.com
+.PN BadWindow
+and
+.PN BadAlloc .
+.LP
+.sp
+Use
+.PN XGetTransientForHint
+.IN "XGetTransientForHint"
+to get the WM_TRANSIENT_FOR value for a window.
+The definition of this function is:
+.IN "Definitions" "XGetTransientForHint"
+.FD 0
+.so ./Xsrc/XGetTransHs.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/w_prop_ret.a
+.LP
+.so ./Xdescrip/XGetTransHs.d
+.LP
+.ds fd .PN XGetTransientForHint
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.NH 2
+Manipulating Standard Colormaps
+.LP
+Applications with color palettes, smooth-shaded drawings, or digitized
+images demand large numbers of colors.  
+In addition, these application often require an efficient mapping 
+from color triples to pixel values that display the appropriate colors.
+.LP
+As an example, consider a 3D display program that wants to draw a
+smoothly shaded sphere.  
+At each pixel in the image of the sphere, 
+the program computes the intensity and color of light
+reflected back to the viewer.  
+The result of each computation is a triple of red, green, and blue
+coefficients in the range 0.0 to 1.0.  
+To draw the sphere, the program needs a colormap that provides a
+large range of uniformly distributed colors.  
+The colormap should be arranged so that the program can
+convert its RGB triples into pixel values very quickly,
+because drawing the entire sphere will require many such
+conversions.
+.LP
+On many current workstations the display is limited to 256 or fewer
+colors.  
+Applications must allocate colors carefully not only to make sure 
+they cover the entire range they need but also to make use of as 
+many of the available colors as possible.
+On a typical X display, 
+many applications are active at once.
+Most workstations have only one hardware lookup table for colors,
+so only one application colormap can be installed at a given time.
+The application using the installed colormap is displayed correctly, 
+while the other applications ``go technicolor'' and are
+displayed with false colors.
+.LP
+As another example, consider a user who is running an 
+image processing program to display earth-resources data.  
+The image processing program needs a colormap set up with 8 reds, 
+8 greens, and 4 blues (total of 256 colors).
+Because some colors are already in use in the default colormap, 
+the image processing program allocates and installs a new colormap.
+.LP
+The user decides to alter some of the colors in the
+image.  He invokes a color palette program to mix and
+choose colors.  The color palette program also needs a
+colormap with 8 reds, 8 greens, and 4 blues, so, just as
+the image-processing program, it must allocate and
+install a new colormap.
+.LP
+Because only one colormap can be installed at a time,
+the color palette may be displayed incorrectly
+whenever the image-processing program is active.
+Conversely, whenever the palette program is active, 
+the image may be displayed incorrectly.  
+The user can never match or compare colors in the palette and image.
+Contention for colormap resources can be reduced if applications
+with similar color needs share colormaps.
+.LP
+As another example, 
+the image processing program and the color palette program 
+could share the same colormap if there existed a convention that described
+how the colormap was set up.  
+Whenever either program was active, 
+both would be displayed correctly.
+.LP
+The standard colormap properties define a set of commonly used
+colormaps.  
+Applications that share these colormaps and conventions display 
+true colors more often and provide a better interface to the user.
+.NH 3
+Standard Colormaps
+.LP
+Standard colormaps allow applications to share commonly used color
+resources.  
+This allows many applications to be displayed in true colors
+simultaneously, even when each application needs an entirely filled
+colormap.
+.LP
+Several standard colormaps are described.  
+Usually, these colormaps are created by a window manager.  
+Applications should use the standard colormaps if they already exist.
+If the standard colormaps do not exist,
+applications should create new standard colormaps.
+.LP
+The 
+.PN XStandardColormap 
+structure contains:
+.LP
+.DS 0
+.TA .5i 1.5i
+.ta .5i 1.5i
+typedef struct {
+	Colormap colormap;
+	unsigned long red_max;
+	unsigned long red_mult;
+	unsigned long green_max;
+	unsigned long green_mult;
+	unsigned long blue_max;
+	unsigned long blue_mult;
+	unsigned long base_pixel;
+} XStandardColormap;
+.DE
+The colormap field is the ID of a colormap created by the
+.PN XCreateColormap
+function.
+The red_max, green_max, and blue_max fields give the maximum
+red, green, and blue values, respectively.  
+Each color coefficient ranges from zero (0) to its max, inclusive.  
+For example,
+a common colormap allocation is 3/3/2 (3 planes for red, 3
+planes for green, and 2 planes for blue).  
+This colormap would have red_max = 7, green_max = 7, 
+and blue_max = 3.  
+An alternate allocation that uses only 216 colors is red_max = 5, 
+green_max = 5, and blue_max = 5.
+.LP
+The red_mult, green_mult, and blue_mult fields give the
+scale factors used to compose a full pixel value. 
+(See the discussion of the base_pixel field for further information.)
+For a 3/3/2 allocation red_mult might be 32,
+green_mult might be 4, and blue_mult might be 1.  
+For a 6-colors-each allocation, red_mult might be 36, 
+green_mult might be 6, and blue_mult might be 1.
+.LP
+The base_pixel field gives the base pixel value used to
+compose a full pixel value.  
+Usually, the base_pixel is obtained from a call to the 
+.PN XAllocColorPlanes
+function.  
+Given integer red, green, and blue coefficients in their appropriate 
+ranges, one then can compute a corresponding pixel value by
+using the following expression.
+.LP
+.DS
+.TA .5i 1.5i
+.ta .5i 1.5i
+r * red_mult + g * green_mult + b * blue_mult + base_pixel
+.DE
+For gray-scale colormaps, 
+only the colormap, red_max, red_mult, 
+and base_pixel fields are defined. 
+The other fields are ignored.  
+.LP
+To compute a gray-scale pixel value, use the following
+expression.
+.LP
+.DS
+.TA .5i 1.5i
+.ta .5i 1.5i
+gray * red_mult + base_pixel
+.DE
+The properties containing the 
+.PN XStandardColormap 
+information have 
+the type RGB_COLOR_MAP.
+.NH 3
+Standard Colormap Properties and Atoms
+.LP
+Several standard colormaps are available.  
+Each standard colormap is defined by a property, 
+and each such property is identified by an atom.  
+The following list names the atoms and describes the colormap
+associated with each one.
+.IP RGB_DEFAULT_MAP 1i
+This atom names a property.
+The value of the property is an 
+.PN XStandardColormap .
+.IP
+The property defines an RGB subset of the system default colormap.  
+Some applications only need a few RGB colors and
+may be able to allocate them from the system default colormap.
+This is the ideal situation, since the fewer colormaps are
+active in the system the more applications are displayed
+with correct colors at all times.
+.IP
+A typical allocation for the RGB_DEFAULT_MAP on 8-plane displays
+is 6 reds, 6 greens, and 6 blues.  
+This gives 216 uniformly distributed colors 
+(6 intensities of 36 different hues) and still leaves 40 elements 
+of a 256-element colormap available for special-purpose colors 
+for text, borders, and so on.
+.IP RGB_BEST_MAP 1i
+.br
+This atom names a property.
+The value of the property is an 
+.PN XStandardColormap .
+.IP 
+The property defines the best RGB colormap available on
+the display.  (Of course, this is a subjective evaluation.)
+Many image processing and 3D applications need to
+use all available colormap cells and distribute as many
+perceptually distinct colors as possible over those cells.
+This implies that there may be more green values available than
+red, as well as more green or red than blue.
+.IP
+On an 8-plane pseudocolor display, 
+RGB_BEST_MAP is a 3/3/2 allocation.  
+On a 24-plane directcolor display, 
+RGB_BEST_MAP is an 8/8/8 allocation.  
+On other displays, 
+RGB_BEST_MAP is purely up to the implementor of the display.
+.IP RGB_RED_MAP 1i
+.br
+.ns
+.IP RGB_GREEN_MAP 1i
+.br
+.ns
+.IP RGB_BLUE_MAP 1i
+These atoms name properties.
+The values of the properties are 
+.PN XStandardColormaps . 
+.IP
+The properties define all-red, all-green, and all-blue
+colormaps, respectively.  
+These maps are used by applications that want to make color-separated 
+images.  
+For example, a user might generate a full-color image 
+on an 8-plane display both by rendering an image three times 
+(once with high color resolution in red, once with green, 
+and once with blue) and by multiply-exposing a single frame in a camera.
+.IP RGB_GRAY_MAP 1i
+This atom names a property.
+The value of the property is an 
+.PN XStandardColormap .
+.LP
+The property describes the best gray-scale colormap
+available on the display.  
+As previously mentioned, 
+only the colormap, red_max, red_mult, and base_pixel fields of the
+.PN XStandardColormap 
+structure are used for gray-scale colormaps.
+.NH 3
+Getting and Setting the XStandardColormap Structure
+.LP
+Use
+.PN XGetStandardColormap 
+to get the 
+.PN XStandardColormap 
+structure associated with one of the 
+described atoms. 
+.IN "XGetStandardColormap"
+The definition for this function is:
+.IN "Definitions" "XGetStandardColormap"
+.FD 0
+.so ./Xsrc/XGetSCmap.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/cmap_ret.a
+.so ./Xsrc/property.a
+.LP
+The
+.PN XGetStandardColormap 
+function returns the colormap definition associated with the atom supplied 
+as the property argument.  
+For example, 
+to fetch the standard gray-scale colormap for a display, 
+you use
+.PN XGetStandardColormap
+with the following syntax:
+.LP
+.DS 0
+.TA .5i 1.5i
+.ta .5i 1.5i
+XGetStandardColormap(dpy, DefaultRootWindow(dpy), &cmap, RGB_GRAY_MAP);
+.DE
+Once you have fetched a standard colormap, 
+you can use it to convert RGB values into pixel values.  
+For example, given an 
+.PN XStandardColormap 
+structure 
+and floating point RGB coefficients in the range 0.0 to 1.0,
+you can compose pixel values with the following C expression:
+.LP
+.DS 0
+.TA .5i 1.5i
+.ta .5i 1.5i
+pixel = base_pixel
+	+ ((unsigned long) (0.5 + r * red_max)) * red_mult
+	+ ((unsigned long) (0.5 + g * green_max)) * green_mult
+	+ ((unsigned long) (0.5 + b * blue_max)) * blue_mult;
+.DE
+The use of addition rather than logical OR for composing pixel
+values permits allocations where the RGB value is not aligned
+to bit boundaries.
+.LP
+.ds fd .PN XGetStandardColormap
+.so ./Xsrc/errsent.com
+.PN BadWindow
+and
+.PN BadAtom .
+.LP
+.sp
+Use
+.PN XSetStandardColormap 
+to create or change a standard colormap. 
+.IN "XSetStandatrdColormap"
+The definition for this function is:
+.IN "Definitions" "XSetStandardColormap"
+.FD 0
+.so ./Xsrc/XSetSCmap.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/cmap.a
+.so ./Xsrc/property.a
+.LP
+The
+.PN XSetStandardColormap
+function usually is only used by window managers.  
+To create a standard colormap, 
+follow this procedure:
+.IP 1. 5
+Grab the server.
+.IP 2. 5
+See if the property is on the property list of the root window for the display.
+.IP 3. 5
+If the desired property is not present, do the following:
+.RS
+.IP \(bu 5
+Create a colormap (not required for RGB_DEFAULT_MAP)
+.IP \(bu 5
+Determine the color capabilities of the display.
+.IP \(bu 5
+Call 
+.PN XAllocColorPlanes
+or 
+.PN XAllocColorCells
+to allocate cells in the colormap.
+.IP \(bu 5
+Call 
+.PN XStoreColors
+to store appropriate color values in the colormap.
+.IP \(bu 5
+Fill in the descriptive fields in the property.
+.IP \(bu 5
+Attach the property to the root window.
+.RE
+.IP 4. 5
+Ungrab the server.
+.LP
+.ds fd .PN XSetStandardColormap
+.so ./Xsrc/errsent.com
+.PN BadWindow ,
+.PN BadAtom ,
+and
+.PN BadAlloc .
+.bp

@@ -1,0 +1,5 @@
+.IP \fIx_hot_return\fP 1i
+.br
+.ns
+.IP \fIy_hot_return\fP 1i
+Returns the hot spot coordinates.

@@ -1,0 +1,4 @@
+.\" $Header: first_event.a,v 11.2 87/03/28 10:56:12 mento Exp $
+.IP \fIfirst_event\fP 1i
+Specifies the first event for the extension.
+.PN XQueryExtension returns the first event to this argument.

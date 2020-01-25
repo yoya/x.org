@@ -1,0 +1,6 @@
+.\" $Header: posdef.a,v 11.2 87/03/28 10:59:32 mento Exp $
+.IP \fIposition\fP 1i
+.br
+.ns
+.IP \fIdefault\fP 1i
+Specify the geometry specifications.

@@ -1,0 +1,5 @@
+.\" $Header: mfont.a,v 11.4 87/09/02 10:05:27 mento Exp $
+.IP \fImask_font\fP 1i
+Specifies the font for the mask glyph. 
+You can pass the constant
+.PN None .

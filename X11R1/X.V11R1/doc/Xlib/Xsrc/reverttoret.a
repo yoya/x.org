@@ -1,0 +1,8 @@
+.\" $Header: reverttoret.a,v 1.5 87/09/10 15:22:00 mento Exp $
+.IP \fIrevert_to_return\fP 1i
+Returns the current focus state.
+The function can return one of these constants:
+.PN RevertToParent , 
+.PN RevertToPointerRoot , 
+or 
+.PN RevertToNone .

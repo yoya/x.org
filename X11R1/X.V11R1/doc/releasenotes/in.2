@@ -1,0 +1,353 @@
+.\" $Header: in.2,v 1.2 87/09/15 06:14:02 toddb Locked $
+.NH 1
+Installation
+.LP
+Given an X distribution tape, the following basic steps need
+to be performed:
+.IP 1)
+Read in the tape.
+.IP 2)
+Edit the configuration files to your taste.
+This includes selecting debugging compilations,
+selecting installation directories, etc.
+.IP 3)
+Build all software.
+.IP 4)
+Install the software into the directories.
+.LP
+The following steps may not be needed (or possible) on some systems.
+.IP 5)
+Add a device driver or configure the device driver into your kernel.
+.IP 6)
+Rename pseudo-teletypes for your login window.
+.IP 7)
+Test that everything is working.
+.IP 8)
+Configure your /etc/ttys file for the display.
+.NH 2
+Installation Steps
+.LP
+This distribution was tested under the following versions of different
+vendors systems.
+.DS
+	4.3BSD
+	Ultrix 2.0
+	Sun 3.2 and 3.4
+	Apollo 9.5
+	IBM 4.3 Release 1.
+.DE
+You are on your own if you are using versions prior to those listed above.
+We recommend upgrading to the later releases.
+In particular, the server will not run on IBM 4.2A release 2,
+and previous releases of the other systems may or may not work properly.
+It is impossible for us to keep straight all the different versions
+of different vendor's systems.
+.LP
+.NH 2
+Prelude
+.LP
+NOTE:
+As X is a network transparent window system, client programs use
+network facilities to communicate with the window system.
+Make sure your network code works properly BEFORE attempting to use X.
+For example, \fItalk(1)\fP should be working properly between normal terminals,
+or you should be able to \fIrlogin\fP to either the local or to
+another machine if you have a network.
+.NH 2
+Reading the distribution.
+.LP
+The software comes on a single 1600 BPI magnetic tape in \fItar\fP(1) format.
+All files will be extracted into a directory named \fBX\fP.
+An example command would be:
+.DS
+% tar xf /dev/rmt8
+.DE
+.LP
+If you move the distribution to a different machine than the
+one you read the tape on, use care to preserve
+the symbolic links, either by moving the distribution as a single file
+or by using \fItar\fP across the net.
+If you don't, you will end up with more than one copy of certain key
+include files, and may get confused later if you make changes.
+.NH 2
+Configuring the Release
+.LP
+Much of the software compilation for this release can
+be controlled by three files in the directory util/imake.includes:
+Imake.tmpl, Imake.rules and especially, one of the *.macros files
+that pertains to your machine.
+If you have one of the machines that has been tested for this release,
+you will probably only need to consider the appropriate *.macros file;
+e.g. on a vax, you should look at Vax.macros. 
+If you are trying to bring up a machine for which MIT has not done any testing,
+we suggest you read the man page for \fIimake\fP very carefully, and
+start by copying only of these *.macros files as a starting place.
+.LP
+Each of the *.macros files has in it every parameter that can
+affect the configuration of the software build, either commented out
+or appearing with an appropriate value.  Let us consider each.
+.IP "TOP = TOPDIR"
+.br
+This should remain unchanged.
+.IP "AS = ??, CC = ??, CPP = ??, LD = ??, LINT = ??, MAKE = ??"
+.br
+These should be selected as you would normally for the \fImake\fP program
+on your machine.  Use
+existing values as a guide.
+.IP "CDEBUGFLAGS = ??"
+.br
+These flags are used in every makefile (except for the server)
+to determine
+what kind of compilation takes place.
+Usually this is "CDEBUGFLAGS = -O".
+.IP "DESTDIR = ??"
+.br
+We recommend leaving the value blank.
+It is only used by "install" targets in the makefiles and can be overridden
+throughout an entire subtree of the source with a command
+like
+.DS
+% make DESTDIR=/foo
+.DE
+.IP "#define X???Server"
+.br
+This should be defined to be the name of whatever server you want to build;
+e.g., at Project Athena, we have both QVSS and QDSS displays for our
+DEC MicroVaxes, so we have both servers defined here:
+.DS
+#define XqvssServer Xqvss
+#define XqdssServer Xqdss
+.DE
+You should only chose X???Server values already found in 
+one of the existing *.macros files, or you should
+be quite sure you understand \fIimake\fP, util/imake.includes/Imake.rules
+and server/Imakefile.
+.IP "#define ExtensionDefines"
+.br
+The value for ExtensionDefines is used to determine which extensions
+are pulled into the server.
+We distribute the system with the value set to nil
+because neither of the two working extensions are yet considered standard,
+but you may want to try them.
+For example,
+you may turn on the "bezier" extension with
+.DS
+#define ExtensionDefines -DBEZIER
+.DE
+In any case,
+ExtensionDefines must be defined to be something or nothing.  It cannot be
+left undefined.
+.IP "#define DebugLib?? YES"
+.IP "#define ProfileLib?? NO"
+.IP "#define DebugOldLib?? YES"
+.IP "#define ProfileOldLib?? NO"
+.br
+All of the defines of this form must be defined to be either YES or NO.
+Defining DebugLibX to be YES will mean that you
+will get a debug (compiled with -g) version \fIin addition\fP
+to the normal library.
+Defining ProfileOldXMenu to be NO, will mean that you will not
+get a profiled library in addition to the normal library.
+.IP "#define BigEndianArchitecture ??"
+.br
+This must be defined.
+If you are on a machine that has Vax-like architecture,
+it should be defined to be NO.
+A 68000-like architure should get a YES.
+This is only used by the toolkit and may disappear someday.
+.IP "#define CppSourcesPresent"
+.br
+This should only be defined if you have sources to the Berkeley
+version of cpp (although some other versions may work).
+Its value should be the pathname of the directory containing the source.
+It is only used by the sources in util/makedepend.
+.IP "#define ManSuffix n"
+.br
+Currently this is a poor solution for installing manpages.
+This should probably always be defined this way.
+.IP "#define ConstructMFLAGS"
+.br
+This should only be defined if your \fImake\fP program
+internally maintains the macro MAKEFLAGS but not MFLAGS.
+.NH 2
+Building the Release
+.LP
+Compiling all software takes quite a while. 
+Building the X library takes the longest, as there are more than two
+hundred modules.
+This should complete without error on most machines.
+After having selected your configuration,
+simply type
+.DS
+% make -k >& make.log
+.DE
+in the top level directory.
+This will take from two to twelve hours or more depending on your
+machine.
+The -k option will allow it to continue if it encounters any errors.
+.NH 2
+Installing the X Executables
+.LP
+At this point, you
+should check the file
+util/imake.include/Imake.tmpl
+to be sure that the installation directories,
+those macro names ending in "...DIR"
+are right for your machine.
+We believe that /usr/bin/X11, /usr/lib/X11, etc are the right values,
+but you may disagree.
+.LP
+Then,
+as super user,
+execute the command 
+.DS
+# make install
+.DE
+This should complete without error.
+.LP
+This  also copies all necessary files for users to program
+using X into \fI/usr/include/X\fP.
+.LP
+You should also install the correct termcap and terminfo (if
+applicable)
+files out of
+\fIclients/xterm/termcap\fP and \fIclients/xterm/terminfo\fP into \fI/etc/termcap\fP
+and your terminfo database if they are not already there.
+.LP
+The \fIxinit\fP program, useful
+on machines without the proper init support for login,
+expects that the running server to be called "X".
+You can either rename the appropriate server for your display,
+or use the correct arguments to \fIxinit\fP.
+.NH 2
+Building a Kernel With the Device Driver
+.LP
+On some machines, the display driver or other
+auxilary file may not come configured into
+the system or other device files may not exist.
+You must add a line to your configuration file for each display you have.
+Make sure the CSR address matches between your configuration file and your
+hardware.
+Configure, make, and install the kernel containing the display driver.
+When you reboot the machine, make sure that your display auto configures
+during boot.
+.LP
+As the superuser, you should also make a device entry for each display.
+Some examples of
+the command would be 
+.DS
+# /etc/mknod /dev/mouse c 35 2	# if /dev/mouse does not exist on a VS-2.
+# /etc/mknod /dev/bell c 12 2	# for bell to ring on a Sun.
+# MAKEDEV displays		# for displays on the RT/PC
+.DE
+Normally, the protection on the device would be only user read/write,
+but for debugging purposes you may want to temporarily change it.
+On a DEC VS-2, you should also adb /sys/vaxuba/qv.o and change
+the variable "qv_def_scrn" to 2 and rebuild your system.
+This will cause the correct screen parameters to be used on the VR-260 monitor.
+.NH 2
+Testing and Trouble Shooting
+.LP
+We highly recommend testing your newly built server
+from a separate terminal before attempting to enable
+login on the display.
+In this way, error messages will go to your terminal, rather than being logged in 
+the file \fI/usr/adm/X?msgs\fP.
+Testing is most easily performed from terminal or from across the network.
+.LP
+To test a Sun, for example,
+you would change directory to /usr/bin/X11 (or wherever you decided to put the
+executable programs), and would type ``Xsun &''.
+(For a MicroVAX, the command would be ``Xqvss &'').
+There can only be one display on a MicroVAX.
+See the \fIX(8c)\fP and the manual pages
+for particular servers manual page for other options.
+.LP
+If everything succeeds, you should get a grey background and a large
+X cursor on the screen.
+If not, the most common mistake is for the fonts or firmware to be in the
+wrong location or a directory or file to not be readable.
+.LP
+You should now be able to run any of the X programs
+from the separate terminal or network login.
+A common beginning mistake is to forget to set the "DISPLAY"
+environment variable.
+Most programs also take arguments to specify the host and display number.
+So, for convenience while testing, you might execute the
+command ``setenv DISPLAY \fIyourhost\fP:0'' where \fIyourhost\fP is the name of your
+machine when using the C-shell.
+You should edit your .login or .profile
+so that his variable will be set for you automatically
+when you log in in the future.
+.LP
+\fIXterm\fP may also fail if the files described in the previous
+section are not consistent.
+If the xterm is to be started as a login xterm (the -L option),
+it must be setid root or started by a root process, such as /etc/init.
+.LP
+If everything is working, you should be ready to enable the line in
+/etc/ttys for login.
+.NH 2
+Automatic Login Support
+.LP
+Some systems are capable of starting the server and a login \fIxterm\fP
+automatically, in particular 4.3BSD and Ultrix 1.2 and later.
+If your system does not support the new /etc/ttys format,
+you should skip this section.
+On other systems, if you have source for 4.3BSD you may want to
+install this support.
+Mere mortals should probably think long and hard before risking such
+installation, but wizards may find it not too difficult.
+Affected programs include \fI/etc/init\fP, \fI/etc/getty\fP, \fI/bin/login\fP,
+and C library routines \fIttyname\fP(3), \fIisatty\fP(3), \fIttyslot\fP(3) and
+all programs that depend on the format of \fI/etc/ttys\fP, \fI/etc/gettytab\fP
+and \fI/etc/utmp\fP.
+The programs need to be installed as a set.
+.LP
+To avoid a possible race condition, and to allow consistent Unix program
+behavior, we dedicate a pseudo teletype for each display's login window.
+All other pty's are allocated dynamically when used.
+You will use many pty's, so make as many as possible.
+Pseudo TTY's come in pairs, the master and the slave.
+We rename them to be ``ttyv?'' where `?' is the number of the display.
+.LP
+So for example,
+we might execute the commands:
+.DS
+# cd /dev
+# MAKEDEV pty0
+# MAKEDEV pty1
+# mv ttyqf ttyv0		# may already exist on some machines
+# mv ptyqf ptyv0
+.DE
+and similarly for any other displays.
+When logged in, you would appear to be logged in on ``ttyv0'' in this case.
+We use the last pseudo teletypes since all other utilities start searching
+from lower to higher, and we'd just as soon have them find a pty as soon
+as they can.
+.NH 2
+Configuring Lines in /etc/ttys
+.LP
+If you started X in the previous step, you will want to abort it now.
+For each display you have on a machine, you
+must have a line in \fI/etc/ttys\fP to drive the terminal emulator used for
+login and the window system server.
+NOTE:
+The format of the \fI/etc/ttys\fP file has changed radically between 4.2 and
+4.3.
+You cannot set up a display for login on a 4.2BSD system without installing
+new versions of \fI/etc/init\fP,
+\fI/etc/getty\fP, and \fI/bin/login\fP from 4.3.
+.LP
+An example line in \fI/etc/ttys\fP is given in the \fIX(8c)\fP manual page
+(though you will have to customize the line for the location and names of
+the executable programs).
+An example for a QVSS installed without any reconfiguration on 4.3BSD
+might be:
+.sp
+	ttyv0 "/etc/xterm -L =80x64+0+0 :0" xterm off window="/etc/Xqvss :0"
+.sp
+You can customize these commands to taste.
+.LP
+You can tell \fIinit(8)\fP to re-read the \fI/etc/ttys\fP file by the command
+``kill -1 1'' as super user.

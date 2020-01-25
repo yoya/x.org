@@ -1,0 +1,4 @@
+.\" $Header: nelements.a,v 11.4 87/08/04 12:08:48 mento Exp $
+.IP \fInelements\fP 1i
+Specifies the number of elements of the specified data format (8-bit, 16-bit, or
+32-bit).

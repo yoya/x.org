@@ -1,0 +1,6 @@
+.\" $Header: srcdest.a,v 11.2 87/03/28 11:00:56 mento Exp $
+.IP \fIsrc\fP 1i
+.br
+.ns
+.IP \fIdest\fP 1i
+Specify the source and destination rectangles to be combined. 

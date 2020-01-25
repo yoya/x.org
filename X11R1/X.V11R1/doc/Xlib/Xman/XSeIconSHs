@@ -1,0 +1,44 @@
+.TH XSetIconSizeHints 3X 
+.SH NAME
+XSetIconSizes, XGetIconSizes \- set or get icon size hints
+.SH SYNTAX
+.so ../Xsrc/XSetISizes.f
+.LP
+.so ../Xsrc/XGetISizes.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/list_count.a
+.so ../Xsrc/get_count.a
+.so ../Xsrc/size_list.a
+.so ../Xsrc/get_sz_list.a
+.so ../Xsrc/w.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSetISizes.d
+.ds fd .PN XSetIconSizes
+.so ../Xsrc/errsent.com
+.PN BadWindow
+and
+.PN BadAlloc .
+.LP
+.so ../Xdescrip/XGetISizes.d
+.ds fd .PN XGetIconSizes
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.SH PROPERTY
+WM_ICON_SIZE
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XSetClassHint(3X),
+XSetCommand(3X),
+XSetIconName(3X),
+XSetNormalHints(3X),
+XSetSizeHints(3X),
+XSetStandardProperties(3X),
+XSetTransientForHint(3X),
+XSetWMHints(3X),
+XSetZoomHints(3X),
+XStoreName(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

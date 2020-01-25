@@ -1,0 +1,7 @@
+.\" $Header: wdhtimage.a,v 1.3 87/08/26 04:12:10 mento Exp $ 
+.IP \fIwidth\fP 1i
+.br
+.ns
+.IP \fIheight\fP 1i
+Specify the width and height of the subimage.
+These arguments define the dimensions of the rectangle.

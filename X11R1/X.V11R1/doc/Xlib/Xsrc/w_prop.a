@@ -1,0 +1,2 @@
+.IP \fIprop_window\fP 1i
+Specifies the window ID that the WM_TRANSIENT_FOR property is to be set to.

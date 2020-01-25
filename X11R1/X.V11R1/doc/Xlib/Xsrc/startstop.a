@@ -1,0 +1,11 @@
+.\" $Header: startstop.a,v 11.3 87/07/07 11:36:06 mento Exp $
+.IP \fIstart\fP 1i
+.br
+.ns
+.IP \fIstop\fP 1i
+Specify the time interval in which the events are returned from the motion
+history buffer.
+You can pass a time stamp, expressed in milliseconds, or the constant
+.PN CurrentTime .
+If the stop time is in the future, it is equivalent to specifying
+.PN CurrentTime .

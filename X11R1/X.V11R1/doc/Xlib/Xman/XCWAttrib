@@ -1,0 +1,89 @@
+.TH XChangeWindowAttributes 3X 
+.SH NAME
+XChangeWindowAttributes, XSetWindowBackground, XSetWindowBackgroundPixmap, 
+XSetWindowBorder, XSetWindowBorderPixmap \- change window attributes
+.SH SYNTAX
+.so ../Xsrc/XChWAttr.f
+.LP
+.so ../Xsrc/XBackground.f
+.LP
+.so ../Xsrc/XPmapBgnd.f
+.LP 
+.so ../Xsrc/XBorder.f
+.LP
+.so ../Xsrc/XPmapBorder.f
+.SH ARGUMENTS
+.so ../Xsrc/attributes.a
+.so ../Xsrc/back_pix.a
+.so ../Xsrc/tile.a
+.so ../Xsrc/bord_pix.a
+.so ../Xsrc/bord_pixmap.a
+.so ../Xsrc/display.a
+.so ../Xsrc/valuemask.a
+.so ../Xsrc/w.a
+.SH DESCRIPTION
+.so ../Xdescrip/XChWAttr.d
+.ds fd .PN XChangeWindowAttributes
+.so ../Xsrc/errsent.com
+.PN BadWindow ,
+.PN BadPixmap ,
+.PN BadPixmap ,
+.PN BadColor ,
+.PN BadCursor ,
+.PN BadMatch ,
+.PN BadAccess ,
+and
+.PN BadValue .
+.LP
+.so ../Xdescrip/XBackground.d
+.ds fd .PN XSetWindowBackground
+.so ../Xsrc/errsent.com
+.PN BadWindow 
+and
+.PN BadMatch .
+.LP
+.so ../Xdescrip/XPmapBgnd.d
+.ds fd .PN XSetWindowBackgroundPixmap
+.so ../Xsrc/errsent.com
+.PN BadWindow ,
+.PN BadPixmap ,
+.PN BadColor ,
+and
+.PN BadMatch .
+.LP 
+.so ../Xdescrip/XBorder.d
+.ds fd .PN XSetWindowBorder
+.so ../Xsrc/errsent.com
+.PN BadWindow ,
+.PN BadPixmap ,
+.PN BadValue ,
+and 
+.PN BadMatch .
+.LP
+.so ../Xdescrip/XPmapBorder.d
+.ds fd .PN XSetWindowBorderPixmap
+.so ../Xsrc/errsent.com
+.PN BadWindow ,
+.PN BadPixmap ,
+.PN BadMatch ,
+and
+.PN BadValue .
+.SH DIAGNOSTICS
+.so ../Xerrors/badaccess2.e
+.so ../Xerrors/badaccess3.e
+.so ../Xerrors/badcolor.e
+.so ../Xerrors/badcursor.e
+.so ../Xerrors/badmatch2.e
+.so ../Xerrors/badmatch3.e
+.so ../Xerrors/badpixmap.e
+.so ../Xerrors/badvalue.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XConfigureWindow(3X),
+XCreateWindow(3X),
+XDestroyWindow(3X),
+XMapWindow(3X),
+XRaiseWindow(3X),
+XUnmapWindow(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

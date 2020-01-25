@@ -1,0 +1,35 @@
+.TH XParseGeometry 3X 
+.SH NAME
+XParseGeometry, XGeometry, XParseColor \- parse window geometry and color
+.SH SYNTAX
+.so ../Xsrc/XParseGeom.f
+.LP
+.so ../Xsrc/XGeometry.f
+.LP
+.so ../Xsrc/XParseColor.f
+.SH ARGUMENTS
+.so ../Xsrc/bwidth.a
+.so ../Xsrc/cmap.a
+.so ../Xsrc/display.a
+.so ../Xsrc/fwdht.a
+.so ../Xsrc/parsestring.a
+.so ../Xsrc/posdef.a
+.so ../Xsrc/screen.a
+.so ../Xsrc/def.a
+.so ../Xsrc/spec.a
+.so ../Xsrc/widtheight2.a
+.so ../Xsrc/xyadder.a
+.so ../Xsrc/xy_ret.a
+.SH DESCRIPTION
+.so ../Xdescrip/XParseGeom.d
+.LP
+.so ../Xdescrip/XGeometry.d
+.LP
+.so ../Xdescrip/XParseColor.d
+.ds fd .PN XParseColor
+.so ../Xsrc/errsent4.com
+.PN BadColor .
+.SH DIAGNOSTICS
+.so ../Xerrors/badcolor.e
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

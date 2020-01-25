@@ -1,0 +1,3 @@
+.\" $Header: atom.a,v 11.2 87/03/28 10:53:57 mento Exp $
+.IP \fIatom\fP 1i
+Specifies the atom associated with the string name you want returned.

@@ -1,0 +1,40 @@
+.TH XSetNormalHints 3X 
+.SH NAME
+XSetNormalHints, XGetNormalHints \- set or get normal state hints
+.SH SYNTAX
+.so ../Xsrc/XSetNHnts.f
+.LP
+.so ../Xsrc/XGetNHnts.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/hints.a
+.so ../Xsrc/hints_ret.a
+.so ../Xsrc/w.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSetNHnts.d
+.ds fd .PN XSetNormalHints
+.so ../Xsrc/errsent.com
+.PN BadWindow
+and
+.PN BadAlloc .
+.LP
+.so ../Xdescrip/XGetNHnts.d
+.ds fd .PN XGetNormalHints
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.SH PROPERTY
+WM_NORMAL_HINTS
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XSetCommand(3X),
+XSetIconName(3X),
+XSetIconSizeHints(3X),
+XSetSizeHints(3X),
+XSetStandardProperties(3X),
+XSetWMHints(3X),
+XSetZoomHints(3X),
+XStoreName(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

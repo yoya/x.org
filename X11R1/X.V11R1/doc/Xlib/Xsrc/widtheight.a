@@ -1,0 +1,6 @@
+.\" $Header: widtheight.a,v 11.2 87/03/28 11:02:26 mento Exp $
+.IP \fIwidth\fP 1i
+.br
+.ns
+.IP \fIheight\fP 1i
+Specify the width and height.

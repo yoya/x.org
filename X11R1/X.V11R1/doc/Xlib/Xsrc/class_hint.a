@@ -1,0 +1,4 @@
+.IP \fIclass_hints\fP 1i
+Specifies a pointer to a
+.PN XWMClassHint
+structure that is to be used.

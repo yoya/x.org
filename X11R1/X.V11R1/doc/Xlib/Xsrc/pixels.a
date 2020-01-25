@@ -1,0 +1,3 @@
+.\" $Header: pixels.a,v 11.4 87/09/09 15:55:23 mento Exp $
+.IP \fIpixels_return\fP 1i
+Returns an array of pixel values. 

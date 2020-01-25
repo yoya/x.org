@@ -1,0 +1,3 @@
+.IP \fIlong_offset\fP 1i
+Specifies the offset in the specified property (in 32-bit quantities) 
+where data will be retrieved.

@@ -1,0 +1,76 @@
+.TH XLoadFont 3X 
+.SH NAME
+XLoadFont, XQueryFont, XListFontsWithInfo, XFreeFontInfo, XLoadQueryFont, XFreeFont, XGetFontProperty, XUnloadFont, XGContextFromGC \- manipulate fonts
+.SH SYNTAX
+.so ../Xsrc/XLoadFont.f
+.LP
+.so ../Xsrc/XQueryFont.f
+.LP
+.so ../Xsrc/XFNameInfo.f
+.LP
+.so ../Xsrc/XFFontInfo.f
+.LP
+.so ../Xsrc/XFontStruct.f
+.LP
+.so ../Xsrc/XFontFree.f
+.LP
+.so ../Xsrc/XGetFontProp.f
+.LP
+.so ../Xsrc/XCloseFont.f
+.LP
+.so ../Xsrc/XGCFromGC.f
+.SH ARGUMENTS
+.so ../Xsrc/actual_count.a
+.so ../Xsrc/atom.a
+.so ../Xsrc/count_font.a
+.so ../Xsrc/display.a
+.so ../Xsrc/font.a
+.so ../Xsrc/font_id3.a
+.so ../Xsrc/gc_gcontext.a
+.so ../Xsrc/ptr.a
+.so ../Xsrc/info.a
+.so ../Xsrc/info_ret.a
+.so ../Xsrc/maxnames.a
+.so ../Xsrc/name.a
+.so ../Xsrc/names_info.a
+.so ../Xsrc/pattern.a
+.so ../Xsrc/value.a
+.SH DESCRIPTION
+.so ../Xdescrip/XLoadFont.d
+.ds fd .PN XLoadFont
+.so ../Xsrc/errsent.com
+.PN BadAlloc 
+and
+.PN BadName .
+.LP
+.so ../Xdescrip/XQueryFont.d
+.ds fd .PN XLoadQueryFont
+.so ../Xsrc/errsent4.com
+.PN BadAlloc .
+.LP
+.so ../Xdescrip/XFNameInfo.d
+.LP
+.so ../Xdescrip/XFFontInfo.d
+.LP
+.so ../Xdescrip/XFontStruct.d
+.LP
+.so ../Xdescrip/XFontFree.d
+.ds fd .PN XFreeFont
+.so ../Xsrc/errsent4.com
+.PN BadFont .
+.LP
+.so ../Xdescrip/XGetFontProp.d
+.LP
+.so ../Xdescrip/XCloseFont.d
+.ds fd .PN XUnloadFont
+.so ../Xsrc/errsent4.com
+.PN BadFont .
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badfont.e
+.so ../Xerrors/badname.e
+.SH "SEE ALSO"
+XListFonts(3X),
+XSetFontPath(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

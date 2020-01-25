@@ -1,0 +1,107 @@
+.na
+.de FD
+.LP
+.KS
+.TA 1.0i 3i
+.ta 1.0i 3i
+.nf
+..
+.de FN
+.fi
+.KE
+.LP
+..
+.de IN		\" send an index entry to the stderr
+..
+.de C{
+.KS
+.nf
+.D
+.\"
+.\"	choose appropriate monospace font
+.\"	the imagen conditional, 480,
+.\"	may be changed to L if LB is too
+.\"	heavy for your eyes...
+.\"
+.ie "\\*(.T"480" .ft L
+.el .ie "\\*(.T"300" .ft L
+.el .ie "\\*(.T"202" .ft PO
+.el .ie "\\*(.T"aps" .ft CW
+.el .ft R
+.ps \\n(PS
+.ie \\n(VS>40 .vs \\n(VSu
+.el .vs \\n(VSp
+..
+.de C}
+.DE
+.R
+..
+.de PN
+.ie t \f(H\|\\$1\|\fR\\$2
+.el \fI\|\\$1\|\fP\\$2
+..
+.de NT
+.ne 7
+.ds NO Note
+.if \\n(.$>$1 .if !'\\$2'C' .ds NO \\$2
+.if \\n(.$ .if !'\\$1'C' .ds NO \\$1
+.ie n .sp
+.el .sp 10p
+.TB
+.ce
+\\*(NO
+.ie n .sp
+.el .sp 5p
+.if '\\$1'C' .ce 99
+.if '\\$2'C' .ce 99
+.in +5n
+.ll -5n
+.R
+..
+.		\" Note End -- doug kraft 3/85
+.de NE
+.ce 0
+.in -5n
+.ll +5n
+.ie n .sp
+.el .sp 10p
+..
+.ny0
+.TH XEmptyRegion 3X 
+.SH NAME
+XEmptyRegion, XEqualRegion \- determine if regions are empty or equal
+.SH SYNTAX
+.\" $Header: XEmptyRegion.f,v 11.4 87/08/15 12:12:18 mento Exp $
+int XEmptyRegion\^(\^\fIr\fP\^)
+.br
+      Region \fIr\fP\^;
+.LP
+.\" $Header: XEqualRegion.f,v 11.2 87/08/15 12:12:20 mento Exp $
+int XEqualRegion\^(\^\fIr1\fP\^, \fIr2\fP\^)
+.br
+      Region \fIr1\fP\^, \fIr2\fP\^;
+.SH ARGUMENTS
+.\" $Header: r.a,v 11.2 87/03/28 10:59:55 mento Exp $
+.IP \fIr\fP 1i
+Specifies the region.
+.\" $Header: r1r2.a,v 11.2 87/03/28 10:59:58 mento Exp $
+.IP \fIr1\fP 1i
+.br
+.ns
+.IP \fIr2\fP 1i
+Specify the two regions.
+.SH DESCRIPTION
+.\" $Header: XEmptyRegion.d,v 1.2 87/08/31 10:12:24 mento Exp $
+The
+.PN XEmptyRegion
+function returns nonzero if the specified region is empty.
+.LP
+.\" $Header: XEqualRegion.d,v 1.2 87/08/31 10:13:00 mento Exp $
+The
+.PN XEqualRegion
+function returns nonzero if two regions have the same offset, size, and shape.
+.SH "SEE ALSO"
+XCreateRegion(3X),
+XIntersectRegion(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

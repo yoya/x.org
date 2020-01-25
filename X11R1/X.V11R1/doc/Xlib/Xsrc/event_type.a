@@ -1,0 +1,4 @@
+.\" $Header: event_type.a,v 1.1 87/09/07 16:39:38 mento Exp $
+.IP \fIevent_type\fP 1i
+Specifies the event type to be compared.
+

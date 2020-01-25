@@ -1,0 +1,4 @@
+.IP \fItime\fP 1i
+Specifies the time.
+You can pass either a timestamp, expressed in milliseconds, or the constant
+.PN CurrentTime .

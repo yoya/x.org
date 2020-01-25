@@ -1,0 +1,24 @@
+.TH XCreateRegion 3X 
+.SH NAME
+XCreateRegion, XSetRegion, XDestroyRegion \- create and destroy regions
+.SH SYNTAX
+.so ../Xsrc/XCreRegion.f
+.LP
+.so ../Xsrc/XSetRegion.f
+.LP
+.so ../Xsrc/XDestroyReg.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/gc.a
+.so ../Xsrc/r.a
+.SH DESCRIPTION
+.so ../Xdescrip/XCreRegion.d
+.LP
+.so ../Xdescrip/XSetRegion.d
+.LP
+.so ../Xdescrip/XDestroyReg.d
+.SH "SEE ALSO"
+XEmptyRegion(3X),
+XIntersectRegion(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

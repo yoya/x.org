@@ -1,0 +1,27 @@
+.TH XSaveContext 3X 
+.SH NAME
+XSaveContext, XFindContext, XDeleteContext, XUniqueContext \- manipulate the context manager
+.SH SYNTAX
+.so ../Xsrc/XSContext.f
+.LP
+.so ../Xsrc/XFContext.f
+.LP
+.so ../Xsrc/XDContext.f
+.LP
+.so ../Xsrc/XUContext.f
+.SH ARGUMENTS
+.so ../Xsrc/context.a
+.so ../Xsrc/data_context.a
+.so ../Xsrc/data_ret.a
+.so ../Xsrc/display.a
+.so ../Xsrc/w_context.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSContext.d
+.LP
+.so ../Xdescrip/XFContext.d
+.LP
+.so ../Xdescrip/XDContext.d
+.LP
+.so ../Xdescrip/XUContext.d
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

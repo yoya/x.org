@@ -1,0 +1,3 @@
+.\" $Header: widthinc1.a,v 11.3 87/03/28 11:02:31 mento Exp $
+.IP \fIwidthinc\fP 1i
+Returns the width increment for the specified window.

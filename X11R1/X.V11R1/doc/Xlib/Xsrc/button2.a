@@ -1,0 +1,4 @@
+.\" $Header: button2.a,v 1.1 87/09/02 13:38:33 mento Exp $
+.IP \fIbutton_ungrab\fP 1i
+Specifies the pointer button that is to be released in combination with the
+modifier keys.

@@ -1,0 +1,6 @@
+.\" $Header: widtheight5.a,v 1.2 87/09/13 22:09:10 jg Exp $
+.IP \fIwidth\fP 1i
+.br
+.ns
+.IP \fIheight\fP 1i
+Specify the width and height of the cursor that you want the size information for.

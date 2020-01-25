@@ -1,0 +1,104 @@
+.na
+.de FD
+.LP
+.KS
+.TA 1.0i 3i
+.ta 1.0i 3i
+.nf
+..
+.de FN
+.fi
+.KE
+.LP
+..
+.de IN		\" send an index entry to the stderr
+..
+.de C{
+.KS
+.nf
+.D
+.\"
+.\"	choose appropriate monospace font
+.\"	the imagen conditional, 480,
+.\"	may be changed to L if LB is too
+.\"	heavy for your eyes...
+.\"
+.ie "\\*(.T"480" .ft L
+.el .ie "\\*(.T"300" .ft L
+.el .ie "\\*(.T"202" .ft PO
+.el .ie "\\*(.T"aps" .ft CW
+.el .ft R
+.ps \\n(PS
+.ie \\n(VS>40 .vs \\n(VSu
+.el .vs \\n(VSp
+..
+.de C}
+.DE
+.R
+..
+.de PN
+.ie t \f(H\|\\$1\|\fR\\$2
+.el \fI\|\\$1\|\fP\\$2
+..
+.de NT
+.ne 7
+.ds NO Note
+.if \\n(.$>$1 .if !'\\$2'C' .ds NO \\$2
+.if \\n(.$ .if !'\\$1'C' .ds NO \\$1
+.ie n .sp
+.el .sp 10p
+.TB
+.ce
+\\*(NO
+.ie n .sp
+.el .sp 5p
+.if '\\$1'C' .ce 99
+.if '\\$2'C' .ce 99
+.in +5n
+.ll -5n
+.R
+..
+.		\" Note End -- doug kraft 3/85
+.de NE
+.ce 0
+.in -5n
+.ll +5n
+.ie n .sp
+.el .sp 10p
+..
+.ny0
+.TH XGetDefault 3X 
+.SH NAME
+XGetDefault \- get X program defaults
+.SH SYNTAX
+.\" $Header: XGetDefault.f,v 11.3 87/08/15 12:12:53 mento Exp $
+char *XGetDefault\^(\^\fIdisplay\fP, \fIprogram\fP\^, \fIoption\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      char *\fIprogram\fP\^;
+.br
+      char *\fIoption\fP\^;
+.SH ARGUMENTS
+.\" $Header: display.a,v 11.8 87/09/03 11:02:24 mento Exp $
+.IP \fIdisplay\fP 1i
+Specifies the connection to the X server.
+.\" $Header: option.a,v 11.2 87/03/28 10:58:50 mento Exp $
+.IP \fIoption\fP 1i
+Specifies the option name.
+.\" $Header: program.a,v 11.4 87/09/09 18:33:49 mento Exp $
+.IP \fIprogram\fP 1i
+Specifies the program name for the Xlib defaults.
+You must pass the program name in with the program 
+argument (usually argv[0]).
+.SH DESCRIPTION
+.\" $Header: XGetDefault.d,v 1.2 87/09/09 18:35:02 mento Exp $
+The
+.PN XGetDefault
+function finds out the fonts, colors, and
+other environment defaults favored by a particular user for the specified
+program.
+.SH "SEE ALSO"
+XrmGetSearchList(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

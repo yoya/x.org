@@ -1,0 +1,19 @@
+.TH XEmptyRegion 3X 
+.SH NAME
+XEmptyRegion, XEqualRegion \- determine if regions are empty or equal
+.SH SYNTAX
+.so ../Xsrc/XEmptyRegion.f
+.LP
+.so ../Xsrc/XEqualRegion.f
+.SH ARGUMENTS
+.so ../Xsrc/r.a
+.so ../Xsrc/r1r2.a
+.SH DESCRIPTION
+.so ../Xdescrip/XEmptyRegion.d
+.LP
+.so ../Xdescrip/XEqualRegion.d
+.SH "SEE ALSO"
+XCreateRegion(3X),
+XIntersectRegion(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

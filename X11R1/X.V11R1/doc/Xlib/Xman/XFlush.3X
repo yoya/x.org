@@ -1,0 +1,156 @@
+.na
+.de FD
+.LP
+.KS
+.TA 1.0i 3i
+.ta 1.0i 3i
+.nf
+..
+.de FN
+.fi
+.KE
+.LP
+..
+.de IN		\" send an index entry to the stderr
+..
+.de C{
+.KS
+.nf
+.D
+.\"
+.\"	choose appropriate monospace font
+.\"	the imagen conditional, 480,
+.\"	may be changed to L if LB is too
+.\"	heavy for your eyes...
+.\"
+.ie "\\*(.T"480" .ft L
+.el .ie "\\*(.T"300" .ft L
+.el .ie "\\*(.T"202" .ft PO
+.el .ie "\\*(.T"aps" .ft CW
+.el .ft R
+.ps \\n(PS
+.ie \\n(VS>40 .vs \\n(VSu
+.el .vs \\n(VSp
+..
+.de C}
+.DE
+.R
+..
+.de PN
+.ie t \f(H\|\\$1\|\fR\\$2
+.el \fI\|\\$1\|\fP\\$2
+..
+.de NT
+.ne 7
+.ds NO Note
+.if \\n(.$>$1 .if !'\\$2'C' .ds NO \\$2
+.if \\n(.$ .if !'\\$1'C' .ds NO \\$1
+.ie n .sp
+.el .sp 10p
+.TB
+.ce
+\\*(NO
+.ie n .sp
+.el .sp 5p
+.if '\\$1'C' .ce 99
+.if '\\$2'C' .ce 99
+.in +5n
+.ll -5n
+.R
+..
+.		\" Note End -- doug kraft 3/85
+.de NE
+.ce 0
+.in -5n
+.ll +5n
+.ie n .sp
+.el .sp 10p
+..
+.ny0
+.TH XFlush 3X 
+.SH NAME
+XFlush, XSync, XPending, XNextEvent, XPeekEvent \- basic error handling
+.SH SYNTAX
+.\" $Header: XFlush.f,v 11.3 87/08/15 12:12:37 mento Exp $
+XFlush\^(\^\fIdisplay\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.LP
+.\" $Header: XSync.f,v 11.3 87/08/15 12:16:59 mento Exp $
+XSync\^(\^\fIdisplay\fP, \fIdiscard\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      int \fIdiscard\fP\^;
+.LP
+.\" $Header: XPending.f,v 11.3 87/08/15 12:14:43 mento Exp $
+int XPending\^(\^\fIdisplay\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.LP
+.\" $Header: XNextEvent.f,v 11.6 87/08/15 12:14:26 mento Exp $
+XNextEvent\^(\^\fIdisplay\fP, \fIevent_return\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      XEvent *\fIevent_return\fP\^;
+.LP
+.\" $Header: XPeekEvent.f,v 11.7 87/08/15 12:14:42 mento Exp $
+XPeekEvent\^(\^\fIdisplay\fP, \fIevent_return\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      XEvent *\fIevent_return\fP\^;
+.SH ARGUMENTS
+.\" $Header: discard.a,v 11.4 87/07/16 14:11:24 mento Exp $
+.IP \fIdiscard\fP 1i
+Specifies whether 
+.PN XSync
+discards all events on the event queue.
+You can pass the value 0 or 1.
+.\" $Header: display.a,v 11.8 87/09/03 11:02:24 mento Exp $
+.IP \fIdisplay\fP 1i
+Specifies the connection to the X server.
+.\" $Header: event2.a,v 1.3 87/09/10 17:52:59 mento Exp $
+.IP \fIevent_return\fP 1i
+The 
+\*(fd
+function copies the event's associated structure into this client-supplied 
+structure. 
+.SH DESCRIPTION
+.\" $Header: XFlush.d,v 1.2 87/09/02 19:17:24 mento Exp $
+The
+.PN XFlush
+function
+flushes the output buffer.
+.LP
+.\" $Header: XSync.d,v 1.2 87/09/02 19:21:08 mento Exp $
+The
+.PN XSync
+function
+flushes the output buffer and then waits until all events have been recieved
+and processed by the X server.
+.LP
+.\" $Header: XPending.d,v 1.2 87/09/02 19:22:19 mento Exp $
+The
+.PN XPending
+function
+flushes the output buffer and returns the number of events that are pending.
+.LP
+.\" $Header: XNextEvent.d,v 1.1 87/08/27 14:20:23 mento Exp $
+The
+.PN XNextEvent
+function
+flushes the output buffer and then removes and copies an event from the
+event queue.
+.LP
+.\" $Header: XPeekEvent.d,v 1.1 87/08/27 14:20:29 mento Exp $
+The
+.PN XPeekEvent
+function
+flushes the output buffer and peeks at the event queue.
+.SH "SEE ALSO"
+XIfEvent(3X),
+XPutBackEvent(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

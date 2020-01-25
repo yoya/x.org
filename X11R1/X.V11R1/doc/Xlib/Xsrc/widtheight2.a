@@ -1,0 +1,6 @@
+.\" $Header: widtheight2.a,v 1.3 87/09/10 11:55:47 mento Exp $
+.IP \fIwidth_return\fP 1i
+.br
+.ns
+.IP \fIheight_return\fP 1i
+Return the width and height determined.

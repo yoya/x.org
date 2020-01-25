@@ -1,0 +1,4 @@
+.IP \fIclasses\fP 1i
+Specifies the full class of the client, including any predessor classes,
+as returned by the resource manager from 
+.PN XrmGetResources .

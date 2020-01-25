@@ -1,0 +1,16 @@
+.TH XFree 3X 
+.SH NAME
+XFree, XNoOp \- free client data
+.SH SYNTAX
+.so ../Xsrc/XFree.f
+.LP
+.so ../Xsrc/XNoop.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/data_free.a
+.SH DESCRIPTION
+.so ../Xdescrip/XFree.d
+.LP
+.so ../Xdescrip/XNoOP.d
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

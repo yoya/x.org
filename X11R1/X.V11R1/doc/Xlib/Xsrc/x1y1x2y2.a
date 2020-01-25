@@ -1,0 +1,15 @@
+.\" $Header: x1y1x2y2.a,v 11.3 87/09/01 18:25:46 mento Exp $
+.IP \fIx1\fP 1i
+.br
+.ns
+.IP \fIy1\fP 1i
+.br
+.ns
+.IP \fIx2\fP 1i
+.br
+.ns
+.IP \fIy2\fP 1i
+Specify the points used to connect the line.
+Thus,
+.PN XDrawLine 
+draws a line connecting point x1, y1 to point x2, y2.

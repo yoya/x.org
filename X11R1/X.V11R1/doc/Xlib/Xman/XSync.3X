@@ -1,0 +1,116 @@
+.na
+.de FD
+.LP
+.KS
+.TA 1.0i 3i
+.ta 1.0i 3i
+.nf
+..
+.de FN
+.fi
+.KE
+.LP
+..
+.de IN		\" send an index entry to the stderr
+..
+.de C{
+.KS
+.nf
+.D
+.\"
+.\"	choose appropriate monospace font
+.\"	the imagen conditional, 480,
+.\"	may be changed to L if LB is too
+.\"	heavy for your eyes...
+.\"
+.ie "\\*(.T"480" .ft L
+.el .ie "\\*(.T"300" .ft L
+.el .ie "\\*(.T"202" .ft PO
+.el .ie "\\*(.T"aps" .ft CW
+.el .ft R
+.ps \\n(PS
+.ie \\n(VS>40 .vs \\n(VSu
+.el .vs \\n(VSp
+..
+.de C}
+.DE
+.R
+..
+.de PN
+.ie t \f(H\|\\$1\|\fR\\$2
+.el \fI\|\\$1\|\fP\\$2
+..
+.de NT
+.ne 7
+.ds NO Note
+.if \\n(.$>$1 .if !'\\$2'C' .ds NO \\$2
+.if \\n(.$ .if !'\\$1'C' .ds NO \\$1
+.ie n .sp
+.el .sp 10p
+.TB
+.ce
+\\*(NO
+.ie n .sp
+.el .sp 5p
+.if '\\$1'C' .ce 99
+.if '\\$2'C' .ce 99
+.in +5n
+.ll -5n
+.R
+..
+.		\" Note End -- doug kraft 3/85
+.de NE
+.ce 0
+.in -5n
+.ll +5n
+.ie n .sp
+.el .sp 10p
+..
+.ny0
+.TH XSynchronize 3X 
+.SH NAME
+XSynchronize, XSetAfterFunction \- enable or diable synchronization 
+.SH SYNTAX
+.\" $Header: XSynchronize.f,v 11.4 87/08/15 12:17:02 mento Exp $
+int (*XSynchronize\^(\^\fIdisplay\fP, \fIonoff\fP\^)\^)()
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      int \fIonoff\fP\^;
+.LP
+.\" $Header: XSyncHandler.f,v 11.7 87/09/04 21:51:38 mento Exp $
+int (*XSetAfterFunction\^(\^\fIdisplay\fP, \fIproc\fP\^))()
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      int (\^*\^\fIproc\fP\^)\^();
+.SH ARGUMENTS
+.\" $Header: display.a,v 11.8 87/09/03 11:02:24 mento Exp $
+.IP \fIdisplay\fP 1i
+Specifies the connection to the X server.
+.\" $Header: func.a,v 11.6 87/09/04 21:52:18 mento Exp $
+.IP \fIproc\fP 1i
+Specifies the function to be called after an Xlib function that generates a
+protocol request completes its work.
+.\" $Header: onoff.a,v 11.3 87/08/31 08:45:20 mento Exp $
+.IP \fIonoff\fP 1i
+Specifies whether to enable or disable synchronization.
+Possible values you can pass are 0 (disable synchronization) or nonzero
+(enable synchronization).
+.SH DESCRIPTION
+.\" $Header: XSynchronize.d,v 1.1 87/08/27 14:21:58 mento Exp $
+The
+.PN XSynchronize
+function enables or disables synchronization.
+.LP
+.\" $Header: XSyncHandler.d,v 1.3 87/08/31 10:06:12 mento Exp $
+After completing their work,
+all Xlib functions that generate protocol requests call
+what is known as a previous after function.
+.PN XSetAfterFunction
+sets which function is to be called.
+.IN "XSetAfterFunction"
+.SH "SEE ALSO"
+XSetErrorHandler(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

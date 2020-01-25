@@ -1,0 +1,4 @@
+.IP \fImy_name\fP 1i
+Specifies the name string chosen by the client for itself. 
+If a resource called "name" exists in the override ArgList, 
+the value of that entry will override this name.

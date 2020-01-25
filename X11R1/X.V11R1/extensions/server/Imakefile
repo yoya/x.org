@@ -1,0 +1,13 @@
+# $Header: Imakefile,v 1.2 87/09/03 12:21:13 toddb Exp $
+       SRCS = zoid.c bezier.c
+       OBJS = zoid.o bezier.o
+CDEBUGFLAGS = ServerCDebugFlags
+   INCLUDES = -I../include -I$(INCLUDESRC) -I$(SERVERSRC)/include
+
+NormalLibraryObjectRule()
+NormalLibraryTarget(ext,$(OBJS))
+
+DependTarget()
+
+lint:
+	lint -Cext $(INCLUDES) $(SRCS) > lint.out

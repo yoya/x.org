@@ -1,0 +1,4 @@
+.\" $Header: scolor.a,v 11.3 87/09/02 09:52:08 mento Exp $
+.IP \fIforeground_color\fP 1i
+Specifies the red, green, and blue (RGB) values for the foreground of the
+source. 

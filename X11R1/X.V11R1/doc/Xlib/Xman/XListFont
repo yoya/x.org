@@ -1,0 +1,22 @@
+.TH XListFonts 3X 
+.SH NAME
+XListFonts, XFreeFontNames \- obtain and free font names
+.SH SYNTAX
+.so ../Xsrc/XFontNames.f
+.LP
+.so ../Xsrc/XFrFntNames.f
+.SH ARGUMENTS
+.so ../Xsrc/actualcount.a
+.so ../Xsrc/display.a
+.so ../Xsrc/list.a
+.so ../Xsrc/maxnames.a
+.so ../Xsrc/pattern.a
+.SH DESCRIPTION
+.so ../Xdescrip/XFontNames.d
+.LP
+.so ../Xdescrip/XFrFntNames.d
+.SH "SEE ALSO"
+XLoadFont(3X)
+XSetFontPath(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

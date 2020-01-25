@@ -1,0 +1,11 @@
+# $Header: Imakefile,v 1.2 87/09/03 12:19:27 toddb Exp $
+     HEADERS = zoid.h bezier.h
+INSTALLFLAGS = -m 0444
+
+all:
+	@echo "all: skipping extensions/include"
+
+InstallMultiple($(HEADERS),$(INCDIR))
+
+depend:
+	@echo "depend: skipping extensions/include"

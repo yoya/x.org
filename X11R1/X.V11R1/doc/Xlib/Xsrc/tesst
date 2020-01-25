@@ -1,0 +1,17 @@
+.\" $Header: XGetGeometry.f,v 11.5 87/05/15 11:55:53 jg Exp $
+Status XGetGeometry\^(\^\fIdisplay\fP, \fId\fP\^, \^\fIroot\fP\^, \fIx\fP\^, \fIy\fP\^, \fIwidth\fP\^, \fIheight\fP\^, \fIborder_width\fP\^, \fIdepth\fP\^)
+.br
+	Display *\fIdisplay\fP\^;
+.br
+	Drawable \fId\fP\^;
+.br
+        Window *\fIroot\fP\^; /* RETURN */
+.br
+	int *\fIx\fP\^, *\fIy\fP\^;	/* RETURN */
+.br
+	unsigned int *\fIwidth\fP\^, *\fIheight\fP\^;	/* RETURN */
+.br
+	unsigned int *\fIborder_width\fP\^;	/* RETURN */
+.br
+	unsigned int *\fIdepth\fP\^;	/* RETURN */
+.\" $Header: XGetGeometry.f,v 11.5 87/05/15 11:55:53 jg Exp $

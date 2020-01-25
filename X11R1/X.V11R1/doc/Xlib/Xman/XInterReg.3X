@@ -1,0 +1,208 @@
+.na
+.de FD
+.LP
+.KS
+.TA 1.0i 3i
+.ta 1.0i 3i
+.nf
+..
+.de FN
+.fi
+.KE
+.LP
+..
+.de IN		\" send an index entry to the stderr
+..
+.de C{
+.KS
+.nf
+.D
+.\"
+.\"	choose appropriate monospace font
+.\"	the imagen conditional, 480,
+.\"	may be changed to L if LB is too
+.\"	heavy for your eyes...
+.\"
+.ie "\\*(.T"480" .ft L
+.el .ie "\\*(.T"300" .ft L
+.el .ie "\\*(.T"202" .ft PO
+.el .ie "\\*(.T"aps" .ft CW
+.el .ft R
+.ps \\n(PS
+.ie \\n(VS>40 .vs \\n(VSu
+.el .vs \\n(VSp
+..
+.de C}
+.DE
+.R
+..
+.de PN
+.ie t \f(H\|\\$1\|\fR\\$2
+.el \fI\|\\$1\|\fP\\$2
+..
+.de NT
+.ne 7
+.ds NO Note
+.if \\n(.$>$1 .if !'\\$2'C' .ds NO \\$2
+.if \\n(.$ .if !'\\$1'C' .ds NO \\$1
+.ie n .sp
+.el .sp 10p
+.TB
+.ce
+\\*(NO
+.ie n .sp
+.el .sp 5p
+.if '\\$1'C' .ce 99
+.if '\\$2'C' .ce 99
+.in +5n
+.ll -5n
+.R
+..
+.		\" Note End -- doug kraft 3/85
+.de NE
+.ce 0
+.in -5n
+.ll +5n
+.ie n .sp
+.el .sp 10p
+..
+.ny0
+.TH XIntersectRegion 3X 
+.SH NAME
+XIntersectRegion, XUnionRegion, XSubtractRegion, XXorRegion,
+XOffsetRegion, XShrinkRegion, XPointInRegion, XRectInRegion \- region arthmetic
+.SH SYNTAX
+.\" $Header: XInterReg.f,v 11.2 87/08/15 12:14:00 mento Exp $
+XIntersectRegion\^(\^\fIsra\fP\^, \fIsrb\fP\^, \fIdr\fP\^)
+.br
+      Region \fIsra\fP\^, \fIsrb\fP\^, \fIdr\fP\^;
+.LP
+.\" $Header: XUnionRegion.f,v 11.2 87/08/15 12:17:30 mento Exp $
+XUnionRegion\^(\^\fIsra\fP\^, \fIsrb\fP\^, \fIdr\fP\^)
+.br
+      Region \fIsra\fP\^, \fIsrb\fP\^, \fIdr\fP\^;
+.LP
+.\" $Header: XSubtractReg.f,v 11.2 87/08/15 12:16:58 mento Exp $
+XSubtractRegion\^(\^\fIsra\fP\^, \fIsrb\fP\^, \fIdr\fP\^)
+.br
+      Region \fIsra\fP\^, \fIsrb\fP\^, \fIdr\fP\^;
+.LP
+.\" $Header: XXorRegion.f,v 11.2 87/08/15 12:17:45 mento Exp $
+XXorRegion\^(\^\fIsra\fP\^, \fIsrb\fP\^, \fIdr\fP\^)
+.br
+      Region \fIsra\fP\^, \fIsrb\fP\^, \fIdr\fP\^;
+.LP
+.\" $Header: XOffsetReg.f,v 11.2 87/08/15 12:14:30 mento Exp $
+XOffsetRegion\^(\^\fIr\fP\^, \fIdx\fP\^, \fIdy\fP\^)
+.br
+      Region \fIr\fP\^;
+.br
+      int \fIdx\fP\^, \fIdy\fP\^;
+.LP
+.\" $Header: XShrinkReg.f,v 11.2 87/08/15 12:16:49 mento Exp $
+XShrinkRegion\^(\^\fIr\fP\^, \fIdx\fP\^, \fIdy\fP\^)
+.br
+      Region \fIr\fP\^;
+.br
+      int \fIdx\fP\^, \fIdy\fP\^;
+.LP
+.\" $Header: XPointInReg.f,v 11.2 87/08/15 12:14:48 mento Exp $
+int XPointInRegion\^(\^\fIr\fP\^, \fIx\fP\^, \fIy\fP\^)
+.br
+      Region \fIr\fP\^;
+.br
+      int \fIx\fP\^, \fIy\fP\^;
+.LP
+.\" $Header: XRectInReg.f,v 11.5 87/08/15 12:15:22 mento Exp $
+int XRectInRegion\^(\^\fIr\fP\^, \fIx\fP\^, \fIy\fP\^, \fIwidth\fP\^, \fIheight\fP\^)
+.br
+      Region \fIr\fP\^;
+.br
+      int \fIx\fP\^, \fIy\fP\^; 
+.br
+      unsigned int \fIwidth\fP\^, \fIheight\fP\^;
+.SH ARGUMENTS
+.\" $Header: dr.a,v 11.2 87/03/28 10:55:39 mento Exp $
+.IP \fIdr\fP 1i
+Stores the result of the computation.
+.\" $Header: dxdy.a,v 11.3 87/04/15 09:31:59 jg Exp $
+.IP \fIdx\fP 1i
+.br
+.ns
+.IP \fIdy\fP 1i
+Specify the x and y coordinates.
+.\" $Header: r.a,v 11.2 87/03/28 10:59:55 mento Exp $
+.IP \fIr\fP 1i
+Specifies the region.
+.\" $Header: srasrb.a,v 11.3 87/08/31 10:58:02 mento Exp $
+.IP \fIsra\fP 1i
+.br
+.ns
+.IP \fIsrb\fP 1i
+Specify the two regions with which you want to perform the computation.
+.\" $Header: widtheight.a,v 11.2 87/03/28 11:02:26 mento Exp $
+.IP \fIwidth\fP 1i
+.br
+.ns
+.IP \fIheight\fP 1i
+Specify the width and height.
+.\" $Header: xy.a,v 11.2 87/03/28 11:02:46 mento Exp $
+.IP \fIx\fP 1i
+.br
+.ns
+.IP \fIy\fP 1i
+Specify the x and y coordinates.
+.SH DESCRIPTION
+.\" $Header: XInterReg.d,v 1.1 87/08/27 14:19:58 mento Exp $
+The
+.PN XIntersectRegion
+function computes the intersection of two regions.
+.LP
+.\" $Header: XUnionRegion.d,v 1.1 87/08/27 14:22:13 mento Exp $
+The
+.PN XUnionRegion
+function computes the union of two regions.
+.LP
+.\" $Header: XSubtractReg.d,v 1.1 87/08/27 14:21:55 mento Exp $
+The
+.PN XSubtractRegion
+function subtracts two regions.
+.LP
+.\" $Header: XXorRegion.d,v 1.1 87/08/27 14:22:21 mento Exp $
+The
+.PN XXorRegion
+function calculates the difference between the union and intersection
+of two regions.
+.LP
+.\" $Header: XOffsetReg.d,v 1.1 87/08/27 14:20:24 mento Exp $
+The
+.PN XOffsetRegion
+function moves the specified region by a specified amount.
+.LP
+.\" $Header: XShrinkReg.d,v 1.1 87/08/27 14:21:47 mento Exp $
+The
+.PN XShrinkRegion
+function reduces the specified region by a specified amount.
+.LP
+.\" $Header: XPointInReg.d,v 1.2 87/08/31 11:10:39 mento Exp $
+The
+.PN XPointInRegion
+function returns nonzero if the point x, y
+is contained in the region r.
+.LP
+.\" $Header: XRectInReg.d,v 1.3 87/09/05 11:08:55 mento Exp $
+The
+.PN XRectInRegion
+function returns
+.PN RectangleIn
+if the rectangle is entirely in the specified region,
+.PN RectangleOut
+if the rectangle is entirely out of the specified region,
+and
+.PN RectanglePart
+if the rectangle is partially in the specified region.
+.SH "SEE ALSO"
+XCreateRegion(3X),
+XEmptyRegion(3X),
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

@@ -1,0 +1,31 @@
+.TH XDestroyWindow 3X 
+.SH NAME
+XDestroyWindow, XDestroySubwindows \- destroy windows
+.SH SYNTAX
+.so ../Xsrc/XDestroyWind.f
+.LP
+.so ../Xsrc/XDestroySubs.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/w.a
+.SH DESCRIPTION
+.so ../Xdescrip/XDestroyWind.d
+.ds fd .PN XDestroyWindow
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.so ../Xdescrip/XDestroySubs.d
+.ds fd .PN XDestroySubwindows
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.SH DIAGNOSTICS
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XChangeWindowAttributes(3X),
+XConfigureWindow(3X),
+XCreateWindow(3X),
+XMapWindow(3X),
+XRaiseWindow(3X),
+XUnmapWindow(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

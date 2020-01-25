@@ -1,0 +1,4 @@
+.\" $Header: windows.a,v 11.3 87/09/10 13:14:03 mento Exp $
+.IP \fIwindows\fP 1i
+Specifies an array containing the windows to be restacked.
+All the windows must have the same parent.

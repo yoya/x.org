@@ -1,0 +1,4 @@
+.\" $Header: spec.a,v 11.5 87/08/28 07:39:39 mento Exp $
+.IP \fIspec\fP 1i
+Specifies the color name string.
+Uppercase and lowercase characters are acceptable.

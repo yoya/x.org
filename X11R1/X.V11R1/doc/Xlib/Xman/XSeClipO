@@ -1,0 +1,54 @@
+.TH XSetClipOrigin 3X 
+.SH NAME
+XSetClipOrigin, XSetClipMask, XSetClipRectangles \- GC convience routines
+.SH SYNTAX
+.so ../Xsrc/XSetClipOrig.f
+.LP
+.so ../Xsrc/XSetClpMask.f
+.LP
+.so ../Xsrc/XSetClpRects.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/clipxy.a
+.so ../Xsrc/gc.a
+.so ../Xsrc/n2.a
+.so ../Xsrc/ordering.a
+.so ../Xsrc/pixmap.a
+.so ../Xsrc/rectangles1.a
+.SH DESCRIPTION
+.so ../Xdescrip/XSetClipOrig.d
+.ds fd .PN XSetClipOrigin
+.so ../Xsrc/errsent4.com
+.PN BadGC .
+.LP
+.so ../Xdescrip/XSetClpMask.d
+.ds fd .PN XSetClipMask
+.so ../Xsrc/errsent.com
+.PN BadGC ,
+.PN BadMatch ,
+and
+.PN BadAlloc .
+.LP
+.so ../Xdescrip/XSetClpRects.d
+.ds fd .PN XSetClipRectangles
+.so ../Xsrc/errsent.com
+.PN BadGC ,
+.PN BadAlloc ,
+and
+.PN BadValue .
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badgc.e
+.so ../Xerrors/badmatch2.e
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+XCreateGC(3X),
+XQueryBestSize(3X),
+XSetArcMode(3X),
+XSetFillStyle(3X),
+XSetFont(3X),
+XSetLineAttributes(3X),
+XSetState(3X),
+XSetTile(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

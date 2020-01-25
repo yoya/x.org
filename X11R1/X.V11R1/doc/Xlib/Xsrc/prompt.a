@@ -1,0 +1,5 @@
+.\" $Header: prompt.a,v 11.2 87/03/28 10:59:41 mento Exp $
+.IP \fIprompt\fP 1i
+Specifies the prompt string.
+You use this argument in a prompt window (if needed) to inform the
+user what application wants to be placed.

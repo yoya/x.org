@@ -1,0 +1,6 @@
+.IP \fImode\fP 1i
+Specifies whether you want to change the access control to enable or disable.
+.PN EnableAccess
+enables host access control or
+.PN DisableAccess 
+disables host access control. 

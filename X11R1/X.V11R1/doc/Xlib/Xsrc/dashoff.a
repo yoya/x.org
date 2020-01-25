@@ -1,0 +1,4 @@
+.\" $Header: dashoff.a,v 11.2 87/03/28 10:55:03 mento Exp $
+.IP \fIdash_offset\fP 1i
+Specifies the phase of the pattern for the dashed line style you want to set
+for the specified graphics context. 

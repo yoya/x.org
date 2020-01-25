@@ -1,0 +1,83 @@
+.TH XAllocColor 3X 
+.SH NAME
+XAllocColor, XAllocNamedColor, XAllocColorCells, XAllocColorPlanes, XFreeColors 
+\- allocate and free colors
+.SH SYNTAX
+.so ../Xsrc/XGetHardClr.f
+.LP
+.so ../Xsrc/XGetColor.f
+.LP
+.so ../Xsrc/XAllocCells.f
+.LP
+.so ../Xsrc/XAllocPlanes.f
+.LP
+.so ../Xsrc/XFreeColors.f
+.SH ARGUMENTS
+.so ../Xsrc/cmap.a
+.so ../Xsrc/colorname.a
+.so ../Xsrc/contig.a
+.so ../Xsrc/display.a
+.so ../Xsrc/exact_def.a
+.so ../Xsrc/ncolors1.a
+.so ../Xsrc/npixels.a
+.so ../Xsrc/nplanes.a
+.so ../Xsrc/nredgrbl.a
+.so ../Xsrc/pixels2.a
+.so ../Xsrc/pixels.a
+.so ../Xsrc/plane_masks.a
+.so ../Xsrc/planes.a
+.so ../Xsrc/rgbmask.a
+.so ../Xsrc/def.a
+.SH DESCRIPTION
+.so ../Xdescrip/XGetHardClr.d
+.ds fd .PN XAllocColor
+.so ../Xsrc/errsent.com
+.PN BadAlloc
+and
+.PN BadColor .
+.LP
+.so ../Xdescrip/XGetColor.d
+.ds fd .PN XAllocNamedColor
+.so ../Xsrc/errsent.com
+.PN BadColor ,
+.PN BadAlloc ,
+and
+.PN BadName .
+.LP
+.so ../Xdescrip/XAllocCells.d
+.ds fd .PN XAllocColorCells
+.so ../Xsrc/errsent.com
+.PN BadColor ,
+.PN BadValue
+and
+.PN BadAlloc .
+.LP
+.LP
+.so ../Xdescrip/XAllocPlanes.d
+.ds fd .PN XAllocColorPlanes
+.so ../Xsrc/errsent.com
+.PN BadAlloc ,
+.PN BadValue ,
+and
+.PN BadColor .
+.LP
+.so ../Xdescrip/XFreeColors.d
+.ds fd .PN XFreeColors
+.so ../Xsrc/errsent.com
+.PN BadColor ,
+.PN BadAccess ,
+and
+.PN BadValue .
+.SH DIAGNOSTICS
+.so ../Xerrors/badaccess2.e
+.so ../Xerrors/badaccess3.e
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badcolor.e
+.so ../Xerrors/badname.e
+.so ../Xerrors/badvalue.e
+.SH "SEE ALSO"
+XCreateColormap(3X), 
+XQueryColor(3X),
+XStoreColors(3X) 
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

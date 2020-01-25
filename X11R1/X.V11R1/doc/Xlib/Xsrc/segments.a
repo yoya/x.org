@@ -1,0 +1,3 @@
+.\" $Header: segments.a,v 11.2 87/03/28 11:00:36 mento Exp $
+.IP \fIsegments\fP 1i
+Specifies a pointer to an array of segments.

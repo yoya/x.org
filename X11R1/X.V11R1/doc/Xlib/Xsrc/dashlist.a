@@ -1,0 +1,5 @@
+.\" $Header: dashlist.a,v 11.2 87/03/28 10:55:01 mento Exp $
+.IP \fIdash_list\fP 1i
+Specifies the dash list for the dashed line style
+you want to set
+for the specified graphics context. 

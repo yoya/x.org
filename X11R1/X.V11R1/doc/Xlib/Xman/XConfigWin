@@ -1,0 +1,67 @@
+.TH XConfigureWindow 3X 
+.SH NAME
+XConfigureWindow, XMoveWindow, XResizeWindow, XMoveResizeWindow, XSetWindowBorderWidth \- configure windows
+.SH SYNTAX
+.so ../Xsrc/XReconfWin.f
+.LP
+.so ../Xsrc/XMoveWindow.f
+.LP
+.so ../Xsrc/XChWindow.f
+.LP
+.so ../Xsrc/XConfWindow.f
+.LP
+.so ../Xsrc/XBdrWidth.f
+.SH ARGUMENTS
+.so ../Xsrc/display.a
+.so ../Xsrc/value_mask.a
+.so ../Xsrc/values.a
+.so ../Xsrc/w.a
+.so ../Xsrc/widtheight.a
+.so ../Xsrc/xy.a
+.SH DESCRIPTION
+.so ../Xdescrip/XReconfWin.d
+.ds fd .PN XConfigureWindow
+.so ../Xsrc/errsent.com
+.PN BadWindow ,
+.PN BadMatch ,
+and 
+.PN BadValue .
+.LP
+.so ../Xdescrip/XMoveWindow.d
+.ds fd .PN XMoveWindow
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.so ../Xdescrip/XChWindow.d
+.ds fd .PN XResizeWindow
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.so ../Xdescrip/XConfWindow.d
+.ds fd .PN XMoveResizeWindow
+.so ../Xsrc/errsent.com
+.PN BadWindow ,
+.PN BadMatch ,
+and
+.PN BadValue .
+.LP
+.so ../Xdescrip/XBdrWidth.d
+.ds fd .PN XSetWindowBorderWidth
+.so ../Xsrc/errsent.com
+.PN BadWindow 
+and
+.PN BadValue .
+.SH DIAGNOSTICS
+.so ../Xerrors/badmatch1.e
+.so ../Xerrors/badmatch2.e
+.so ../Xerrors/badvalue.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XChangeWindowAttributes(3X),
+XCreateWindow(3X),
+XDestroyWindow(3X),
+XMapWindow(3X),
+XRaiseWindow(3X),
+XUnmapWindow(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

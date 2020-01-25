@@ -1,0 +1,27 @@
+.TH XrmGetSearchList 3X 
+.SH NAME
+XrmGetSearchList, XrmGetSearchResource \- get resource database levels
+.SH SYNTAX
+.so ../Xsrc/XrmGSList.f
+.LP
+.so ../Xsrc/XrmGSRes.f
+.SH ARGUMENTS
+.so ../Xsrc/class_rm.a
+.so ../Xsrc/classes_rm.a
+.so ../Xsrc/list_rm3.a
+.so ../Xsrc/list_rm2.a
+.so ../Xsrc/name_rm.a
+.so ../Xsrc/names_rm.a
+.so ../Xsrc/screen.a
+.so ../Xsrc/type_rm2.a
+.so ../Xsrc/value_rm2.a
+.SH DESCRIPTION
+.so ../Xdescrip/XrmGSList.d
+.LP
+.so ../Xdescrip/XrmGSRes.d
+.SH "SEE ALSO"
+XrmConvert(3X),
+XrmGetDataBase(3X),
+XrmPutResource
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

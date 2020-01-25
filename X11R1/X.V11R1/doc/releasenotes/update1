@@ -1,0 +1,22 @@
+
+
+		Update 1
+
+	files affected:			reason:
+
+	server/Imakefile,		correction to properly
+	server/Makefile,		build libsun.a
+	server/ddx/sun/Imakefile,
+	server/ddx/sun/Makefile
+
+	doc/bdf.ps			update
+
+	doc/Xlib/index.psc,		reformat from sources;
+	doc/Xlib/paper.psc		distributed .psc was out-of-date.
+
+	doc/releasenotes/update1	this file
+
+	doc/update1/server/Imakefile,	patch files (context diffs)
+	doc/update1/server/Makefile,
+	doc/update1/server/ddx/sun/Imakefile,
+	doc/update1/server/ddx/sun/Makefile

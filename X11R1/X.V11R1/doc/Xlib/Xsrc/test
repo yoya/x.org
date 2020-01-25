@@ -1,0 +1,17 @@
+.\" $Header: XGeometry.f,v 11.4 87/07/16 06:35:39 mento Exp $
+int XGeometry\^(\^\fIdisplay\fP, \fIscreen\fP, \fIposition\fP\^, \fIdefault\fP\^, \fIbwidth\fP\^, \fIfwidth\fP\^, \fIfheight\fP\^, \fIxadder\fP\^, \fIyadder\fP\^, 
+                \fIx\fP\^, \fIy\fP\^, \fIwidth\fP\^, \fIheight\fP\^)
+.br
+	Display *\fIdisplay\fP\^;
+.br
+	int \fIscreen\fP\^;
+.br
+	char *\fIposition\fP\^, *\fIdefault\fP\^;	
+.br
+	int \fIbwidth\fP\^;
+.br
+	int \fIfwidth\fP\^, \fIfheight\fP\^;	
+.br
+	int \fIxadder\fP\^, \fIyadder\fP\^;	
+.br
+	int *\fIx\fP\^, *\fIy\fP\^, *\fIwidth\fP\^, *\fIheight\fP\^;	

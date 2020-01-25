@@ -1,0 +1,283 @@
+.na
+.de FD
+.LP
+.KS
+.TA 1.0i 3i
+.ta 1.0i 3i
+.nf
+..
+.de FN
+.fi
+.KE
+.LP
+..
+.de IN		\" send an index entry to the stderr
+..
+.de C{
+.KS
+.nf
+.D
+.\"
+.\"	choose appropriate monospace font
+.\"	the imagen conditional, 480,
+.\"	may be changed to L if LB is too
+.\"	heavy for your eyes...
+.\"
+.ie "\\*(.T"480" .ft L
+.el .ie "\\*(.T"300" .ft L
+.el .ie "\\*(.T"202" .ft PO
+.el .ie "\\*(.T"aps" .ft CW
+.el .ft R
+.ps \\n(PS
+.ie \\n(VS>40 .vs \\n(VSu
+.el .vs \\n(VSp
+..
+.de C}
+.DE
+.R
+..
+.de PN
+.ie t \f(H\|\\$1\|\fR\\$2
+.el \fI\|\\$1\|\fP\\$2
+..
+.de NT
+.ne 7
+.ds NO Note
+.if \\n(.$>$1 .if !'\\$2'C' .ds NO \\$2
+.if \\n(.$ .if !'\\$1'C' .ds NO \\$1
+.ie n .sp
+.el .sp 10p
+.TB
+.ce
+\\*(NO
+.ie n .sp
+.el .sp 5p
+.if '\\$1'C' .ce 99
+.if '\\$2'C' .ce 99
+.in +5n
+.ll -5n
+.R
+..
+.		\" Note End -- doug kraft 3/85
+.de NE
+.ce 0
+.in -5n
+.ll +5n
+.ie n .sp
+.el .sp 10p
+..
+.ny0
+.TH XLoadFont 3X 
+.SH NAME
+XLoadFont, XQueryFont, XListFontsWithInfo, XFreeFontInfo, XLoadQueryFont, XFreeFont, XGetFontProperty, XUnloadFont, XGContextFromGC \- manipulate fonts
+.SH SYNTAX
+.\" $Header: XLoadFont.f,v 11.4 87/08/15 12:14:13 mento Exp $
+Font XLoadFont\^(\^\fIdisplay\fP, \fIname\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      char *\fIname\fP\^;
+.LP
+XFontStruct *XQueryFont\^(\^\fIdisplay\fP, \fIfont_ID\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      XID \fIfont_ID\fP\^;
+.LP
+char **XListFontsWithInfo\^(\^\fIdisplay\fP, \fIpattern\fP, \fImaxnames\fP, \fIcount_return\fP, \fIinfo_return\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      char *\fIpattern\fP\^;
+.br
+      int \fImaxnames\fP\^;
+.br
+      int *\fIcount_return\fP\^;
+.br
+      XFontStruct **\fIinfo_return\fP\^;
+.LP
+XFreeFontInfo(\^\fInames\fP, \fIfree_info\fP, \fIactual_count\fP\^)
+.br
+      char **\fInames\fP\^;
+.br
+      XFontStruct *\fIfree_info\fP;
+.br
+      int \fIactual_count\fP\^;
+.LP
+.\" $Header: XFontStruct.f,v 11.4 87/08/15 12:12:40 mento Exp $
+XFontStruct *XLoadQueryFont\^(\^\fIdisplay\fP, \fIname\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      char *\fIname\fP\^;
+.LP
+.\" $Header: XFontFree.f,v 11.5 87/08/15 12:12:38 mento Exp $
+XFreeFont\^(\^\fIdisplay\fP, \fIfont_struct\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      XFontStruct *\fIfont_struct\fP\^;
+.LP
+.\" $Header: XGetFontProp.f,v 11.10 87/08/15 12:12:58 mento Exp $
+Bool XGetFontProperty\^(\^\fIfont_struct\fP\^, \^\fIatom\fP\^, \^\fIvalue_return\fP\^)
+.br
+      XFontStruct *\fIfont_struct\fP\^;
+.br
+      Atom \fIatom\fP\^;
+.br
+      unsigned long *\fIvalue_return\fP\^;
+.LP
+.\" $Header: XCloseFont.f,v 11.4 87/08/15 12:11:14 mento Exp $
+XUnloadFont\^(\^\fIdisplay\fP, \fIfont\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      Font \fIfont\fP\^;
+.LP
+GContext XGContextFromGC\^(\^\fIgc\fP\^)
+.br
+      GC \fIgc\fP\^;
+.SH ARGUMENTS
+.IP \fIactual_count\fP 1i
+Specifies the actual number of matched font names that were returned by
+.PN XlistFontsWithInfo .
+.\" $Header: atom.a,v 11.2 87/03/28 10:53:57 mento Exp $
+.IP \fIatom\fP 1i
+Specifies the atom associated with the string name you want returned.
+.IP \fIcount_return\fP 1i
+Returns the actual number of matched font names.
+.\" $Header: display.a,v 11.8 87/09/03 11:02:24 mento Exp $
+.IP \fIdisplay\fP 1i
+Specifies the connection to the X server.
+.\" $Header: font.a,v 11.3 87/05/19 06:41:29 jg Exp $
+.IP \fIfont\fP 1i
+Specifies the font ID.
+.IP \fIfont_ID\fP 1i
+Specifies the ID of the font or the graphics context whose current font
+you want font information about.
+.IP \fIgc\fP 1i
+Specifies the graphics context that you want the resource for.
+.\" $Header: ptr.a,v 11.3 87/05/19 11:58:51 jg Exp $
+.IP \fIfont_struct\fP 1i
+Specifies the storage associated with the font.
+.IP \fIinfo_return\fP 1i
+Returns a pointer to the font information.
+.IP \fIfree_info\fP 1i
+Specifies a pointer to the font information that was returned by
+.PN XlistFontWithInfo .
+.IP \fImaxnames\fP 1i
+Specifies the maximum number of names that are to be in the returned list.
+.\" $Header: name.a,v 11.2 87/03/28 10:58:00 mento Exp $
+.IP \fIname\fP 1i
+Specifies the name of the font.
+This name is a null terminated string.
+.IP \fInames\fP 1i
+Specifies a pointer to the list of font names that were returned by 
+.PN XListFontsWithInfo .
+.\" $Header: pattern.a,v 11.6 87/09/07 12:32:04 mento Exp $
+.IP \fIpattern\fP 1i
+Specifies the null-terminated string associated with the font names 
+that you want returned.
+You can specify any string, an
+asterisk (*), or a question mark (?). 
+The asterisk indicates a wildcard on any number
+of characters, and the question mark indicates a wildcard on a single
+character.
+\" $Header: value.a,v 11.4 87/09/10 11:41:03 mento Exp $
+.IP \fIvalue_return\fP 1i
+Returns the value of the font property.
+.SH DESCRIPTION
+.\" $Header: XLoadFont.d,v 1.1 87/08/27 14:20:11 mento Exp $
+The
+.PN XLoadFont
+function loads the specified font and returns its associated font ID.
+.ds fd .PN XLoadFont
+The errors that can be generated by 
+\*(fd
+are
+.PN BadAlloc 
+and
+.PN BadName .
+.LP
+.\" $Header: XQueryFont.d,v 1.1 87/08/27 14:20:47 mento Exp $
+The
+.PN XQueryFont
+function returns a pointer to the
+.PN XFontStruct
+structure, which contains information associated with the font.
+.ds fd .PN XLoadQueryFont
+The error that can be generated by
+\*(fd 
+is
+.PN BadAlloc .
+.LP
+.\" $Header: XFNameInfo.d,v 1.1 87/08/27 14:18:57 mento Exp $
+The
+.PN XListFontsWithInfo
+function returns a list of names of fonts that match the specified pattern and their
+associated font information.
+.LP
+.\" $Header: XFFontInfo.d,v 1.1 87/08/27 14:18:54 mento Exp $
+The
+.PN XFreeFontInfo
+function frees the the font information array.
+.LP
+.\" $Header: XFontStruct.d,v 1.1 87/08/27 14:19:09 mento Exp $
+The
+.PN XLoadQueryFont
+function provides the most common way for accessing a font.
+That is,
+.PN XLoadQueryFont
+both opens (loads) the specified font and returns a pointer to the
+appropriate
+.PN XFontStruct
+structure.
+.LP
+.\" $Header: XFontFree.d,v 1.1 87/08/27 14:19:07 mento Exp $
+The
+.PN XFreeFont
+function deletes the association between the font resource ID and the specified font.
+The font itself will be freed when no other resource references it.
+The data and the font should not be referenced again.
+.ds fd .PN XFreeFont
+The error that can be generated by
+\*(fd 
+is
+.PN BadFont .
+.LP
+.\" $Header: XGetFontProp.d,v 1.3 87/08/31 11:02:31 mento Exp $
+Given the atom for
+that property,
+the
+.PN XGetFontProperty
+function returns the value of the specified font property. 
+The function returns zero (0) if the atom was not defined or one (1) if 
+it was defined.
+.LP
+.\" $Header: XCloseFont.d,v 1.1 87/08/27 14:18:17 mento Exp $
+The
+.PN XUnloadFont
+function deletes the association between the font resource ID and the specified font.
+.ds fd .PN XUnloadFont
+The error that can be generated by
+\*(fd 
+is
+.PN BadFont .
+.SH DIAGNOSTICS
+.\" $Header: badalloc.e,v 1.3 87/09/11 11:17:14 mento Exp $
+.TP 1i
+.PN BadAlloc
+The server failed to allocate the requested resource or server memory.
+.\" $Header: badfont.e,v 1.2 87/09/09 18:08:11 mento Exp $
+.TP 1i
+.PN BadFont
+A value for a Font or GContext argument does not name a defined Font.
+.\" $Header: badname.e,v 1.1 87/09/04 08:23:14 mento Exp $
+.TP 1i
+.PN BadName
+A font or color of the specified name does not exist.
+.SH "SEE ALSO"
+XListFonts(3X),
+XSetFontPath(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

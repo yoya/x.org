@@ -1,0 +1,3 @@
+.\" $Header: length.a,v 11.2 87/03/28 10:57:18 mento Exp $
+.IP \fIlength\fP 1i
+Specifies the number of characters in the string argument.

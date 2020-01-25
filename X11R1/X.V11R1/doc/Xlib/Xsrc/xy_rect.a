@@ -1,0 +1,7 @@
+.\" $Header: xy_rect.a,v 1.1 87/09/01 18:31:53 mento Exp $
+.IP \fIx\fP 1i
+.br
+.ns
+.IP \fIy\fP 1i
+Specify the x and y coordinates that define the upper left corner of
+the rectangle.

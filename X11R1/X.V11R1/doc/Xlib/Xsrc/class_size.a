@@ -1,0 +1,7 @@
+.IP \fIclass\fP 1i
+Specifies the class that you are interested in.
+You can pass one of these constants:
+.PN TileShape , 
+.PN CursorShape , 
+or 
+.PN StippleShape .

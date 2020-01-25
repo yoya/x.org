@@ -1,0 +1,6 @@
+.\" $Header: visual1.a,v 11.5 87/09/01 14:09:58 mento Exp $
+.IP \fIvisual\fP 1i
+Specifies a pointer to a visual type supported on the screen.
+If the visual type is not one supported by the screen, the function returns a
+.PN BadMatch
+error. 

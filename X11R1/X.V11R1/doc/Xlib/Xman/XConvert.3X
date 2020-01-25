@@ -1,0 +1,163 @@
+.na
+.de FD
+.LP
+.KS
+.TA 1.0i 3i
+.ta 1.0i 3i
+.nf
+..
+.de FN
+.fi
+.KE
+.LP
+..
+.de IN		\" send an index entry to the stderr
+..
+.de C{
+.KS
+.nf
+.D
+.\"
+.\"	choose appropriate monospace font
+.\"	the imagen conditional, 480,
+.\"	may be changed to L if LB is too
+.\"	heavy for your eyes...
+.\"
+.ie "\\*(.T"480" .ft L
+.el .ie "\\*(.T"300" .ft L
+.el .ie "\\*(.T"202" .ft PO
+.el .ie "\\*(.T"aps" .ft CW
+.el .ft R
+.ps \\n(PS
+.ie \\n(VS>40 .vs \\n(VSu
+.el .vs \\n(VSp
+..
+.de C}
+.DE
+.R
+..
+.de PN
+.ie t \f(H\|\\$1\|\fR\\$2
+.el \fI\|\\$1\|\fP\\$2
+..
+.de NT
+.ne 7
+.ds NO Note
+.if \\n(.$>$1 .if !'\\$2'C' .ds NO \\$2
+.if \\n(.$ .if !'\\$1'C' .ds NO \\$1
+.ie n .sp
+.el .sp 10p
+.TB
+.ce
+\\*(NO
+.ie n .sp
+.el .sp 5p
+.if '\\$1'C' .ce 99
+.if '\\$2'C' .ce 99
+.in +5n
+.ll -5n
+.R
+..
+.		\" Note End -- doug kraft 3/85
+.de NE
+.ce 0
+.in -5n
+.ll +5n
+.ie n .sp
+.el .sp 10p
+..
+.ny0
+.TH XrmConvert 3X 
+.SH NAME
+XrmConvert, XrmRegisterTypeConverter, XrmParseCommand \- convert resources and parse command line
+.SH SYNTAX
+void XrmConvert(\^\fIscreen\fP, \fIfrom_type_convert\fP, \fIfrom\fP, \fIto_type_convert\fP, \fIto\fP\^)
+.br
+      Screen \fIscreen\fP\^;
+.br
+      XrmAtom \fIfrom_type_convert\fP\^;
+.br
+      XrmValuePtr \fIfrom\fP\^;
+.br
+      XrmAtom \fIto_type_convert\fP\^;
+.br
+      XrmValuePtr \fIto\fP\^;
+.LP
+void XrmRegisterTypeConverter(\^\fIfrom_type\fP, \fIto_type\fP, \fIproc\fP\^)
+.br
+      XrmAtom \fIfrom_type\fP, \fIto_type\fP\^;
+.br
+      XrmTypeConverter \fIproc\fP\^;
+.LP
+void XrmParseCommand\^(\^\fIdb\fP\^, \^\fItable\fP\^, \^\fItable_count\fP\^, \^\fIname\fP\^, \^\fIargc_return\fP\^, \^\fIargv_return\fP\^,)
+.br
+      XrmResourceDataBase *\fIdb\fP\^;
+.br
+      XrmOptionDescList \fItable\fP\^;
+.br
+      int \fItable_count\fP\^;
+.br
+      char *\fIname\fP\^;
+.br
+      int *\fIargc_return\fP\^;
+.br
+      char **\fIargv_return\fP\^;
+.SH ARGUMENTS
+.IP \fIdb\fP 1i
+Specifies the descriptor of the resource database.
+.IP \fItable\fP 1i
+Specifies table of command line arguments to be parsed.
+.IP \fIcount\fP 1i
+Specifies the number of entries in the table.
+.IP \fIfrom\fP 1i
+Specifies the typed value descriptor for the type to be converted.
+.IP \fIfrom_type\fP 1i
+Specifies the source value type.
+.IP \fIfrom_type_convert\fP 1i
+Specifies the string (atom) describing the type to be converted. 
+.\" $Header: parname.a,v 1.1 87/09/07 22:41:15 jg Exp $
+.IP \fIname\fP 1i
+Specifies the application name.
+.IP \fIargc_return\fP 1i
+Before the call, contains the number of arguments, after the call,
+returns the number of remaining arguments.
+
+.IP \fIargv_return\fP 1i
+Before the call, a pointer to the command line arguments.
+After the call, matched arguments have been removed.
+.IP \fIproc\fP 1i
+Specifies the conversion procedure used to convert the value.
+.IP \fIscreen\fP 1i
+Specifies the screen that is to be used for the conversion.
+.IP \fIto\fP 1i
+Specifies the descriptor that is to receive the converted value.
+.IP \fIto_type\fP 1i
+Specifies the destination value type.
+.IP \fIto_type_convert\fP 1i
+Specifies the string (atom) describing the type desired.
+.SH DESCRIPTION
+.\" $Header: XrmConvert.d,v 1.1 87/08/27 14:22:22 mento Exp $
+The
+.PN XrmConvert
+function converts a value from one representation to another.
+.LP
+.\" $Header: XrmRegTConv.d,v 1.1 87/08/27 14:22:29 mento Exp $
+The
+.PN XrmRegisterTypeConverter
+function allows clients to extend the mechanism by which the
+resource manager converts between representations.
+.LP
+.\" $Header: XrmParse.d,v 1.1 87/09/07 22:50:43 jg Exp $
+The
+.PN XrmParseCommand
+function parses an (arc, argv) pair in your main program according
+to the specified option table,
+loads recognised options into the specified database,
+and modifies the (arc, argv) pair to remove all recognised options.
+
+.SH "SEE ALSO"
+XrmGetDataBase(3X),
+XrmGetSearchList(3X),
+XrmPutResource(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

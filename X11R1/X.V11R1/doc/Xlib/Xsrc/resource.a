@@ -1,0 +1,5 @@
+.\" $Header: resource.a,v 11.6 87/09/07 14:13:13 jg Exp $
+.IP \fIresource\fP 1i
+Specifies any resource associated with the client you want to destroy.
+You can also pass the constant
+.PN AllTemporary .

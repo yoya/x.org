@@ -1,0 +1,4 @@
+.\" $Header: values2.a,v 11.3 87/06/02 11:37:30 jg Exp $
+.IP \fIvalues\fP 1i
+Specifies a pointer to the structure
+.PN XKeyboardControl .

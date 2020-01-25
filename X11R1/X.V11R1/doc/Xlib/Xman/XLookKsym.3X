@@ -1,0 +1,186 @@
+.na
+.de FD
+.LP
+.KS
+.TA 1.0i 3i
+.ta 1.0i 3i
+.nf
+..
+.de FN
+.fi
+.KE
+.LP
+..
+.de IN		\" send an index entry to the stderr
+..
+.de C{
+.KS
+.nf
+.D
+.\"
+.\"	choose appropriate monospace font
+.\"	the imagen conditional, 480,
+.\"	may be changed to L if LB is too
+.\"	heavy for your eyes...
+.\"
+.ie "\\*(.T"480" .ft L
+.el .ie "\\*(.T"300" .ft L
+.el .ie "\\*(.T"202" .ft PO
+.el .ie "\\*(.T"aps" .ft CW
+.el .ft R
+.ps \\n(PS
+.ie \\n(VS>40 .vs \\n(VSu
+.el .vs \\n(VSp
+..
+.de C}
+.DE
+.R
+..
+.de PN
+.ie t \f(H\|\\$1\|\fR\\$2
+.el \fI\|\\$1\|\fP\\$2
+..
+.de NT
+.ne 7
+.ds NO Note
+.if \\n(.$>$1 .if !'\\$2'C' .ds NO \\$2
+.if \\n(.$ .if !'\\$1'C' .ds NO \\$1
+.ie n .sp
+.el .sp 10p
+.TB
+.ce
+\\*(NO
+.ie n .sp
+.el .sp 5p
+.if '\\$1'C' .ce 99
+.if '\\$2'C' .ce 99
+.in +5n
+.ll -5n
+.R
+..
+.		\" Note End -- doug kraft 3/85
+.de NE
+.ce 0
+.in -5n
+.ll +5n
+.ie n .sp
+.el .sp 10p
+..
+.ny0
+.TH XLookupKeysym 3X 
+.SH NAME
+XLookupKeysym, XRefreshKeyboardMapping, XLookupString, XRebindKeySym \- handle keyboard input events
+.SH SYNTAX
+KeySym XLookupKeysym(\^\fIevent_key\fP, \fIindex\fP\^)
+.br
+      XKeyEvent *\fIevent_key\fP\^;
+.br
+      int \fIindex\fP\^;
+.LP
+XRefreshKeyboardMapping(\^\fIevent_map\fP\^)
+.br
+      XMappingEvent *\fIevent_map\fP\^;
+.LP
+int XLookupString(\^\fIevent_struct\fP, \fIbuffer_return\fP, \fIbytes_buffer\fP, \fIkeysym_return\fP, \fIstatus_return\fP\^)
+.br
+      XKeyEvent *\fIevent_struct\fP\^;
+.br
+      char *\fIbuffer_return\fP\^;
+.br
+      int \fIbytes_buffer\fP\^;
+.br
+      KeySym *\fIkeysym_return\fP\^;
+.br
+      XComposeStatus *\fIstatus_return\fP\^;
+.LP
+XRebindKeysym(\^\fIdisplay\fP, \fIkeysym\fP, \fIlist\fP, \fImod_count\fP, \fIstring\fP, \fIbytes_string\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      KeySym \fIkeysym\fP\^;
+.br
+      KeySym *\fIlist\fP\^;
+.br
+      int \fImod_count\fP\^;
+.br
+      unsigned char *\fIstring\fP\^;
+.br
+      int \fIbytes_string\fP\^;
+.SH ARGUMENTS
+.IP \fIbuffer_return\fP 1i
+Returns the translated characters.
+.IP \fIbytes_buffer\fP 1i
+Specifies the length of the buffer.
+No more than bytes_buffer of translation are returned.
+.IP \fIbytes_string\fP 1i
+Specifies the length of the string.
+.\" $Header: display.a,v 11.8 87/09/03 11:02:24 mento Exp $
+.IP \fIdisplay\fP 1i
+Specifies the connection to the X server.
+.IP \fIevent_key\fP 1i
+Specifies the key event that is to be used.
+This event is either a
+.PN KeyPress
+event or a
+.PN KeyRelease
+event.
+.IP \fIevent_map\fP 1i
+Specifies the mapping event that is to be used.
+.IP \fIevent_struct\fP 1i
+Specifies the key event structure to be used:
+.PN XKeyPressedEvent
+or
+.PN XKeyReleasedEvent .
+.IP \fIindex\fP 1i
+Specifies the index into the KeySyms table.
+.IP \fIkeysym\fP 1i
+Specifies the keysym to be rebound.
+.IP \fIkeysym_return\fP 1i
+If this argument is not 
+.PN NULL , 
+returns the keysym computed from the event.
+.IP \fIlist\fP 1i
+Specifies a pointer to an array of keysyms that are being used as modifiers.
+.IP \fImod_count\fP 1i
+Specifies the number of modifiers in the modifier list.
+.IP \fIstatus_return\fP 1i
+Specifies either a pointer to the XCompose structure that is to contain 
+compose key state information and that allows compose key processing to take 
+place, or
+.PN NULL .
+.IP \fIstring\fP 1i
+Specifies a pointer to the string that is to be returned by 
+.PN XLookupString .
+.SH DESCRIPTION
+.\" $Header: XLKeysym.d,v 1.1 87/08/27 14:20:05 mento Exp $
+The
+.PN XLookupKeysym
+function uses a given keyboard event and the index you specified to return
+the KeySym from the list that corresponds to the keycode member in the
+.PN XKeyPressedEvent
+or
+.PN XKeyReleasedEvent
+structure.
+.LP
+.\" $Header: XRKMap.d,v 1.1 87/08/27 14:20:52 mento Exp $
+The
+.PN XRefreshKeyboardMapping
+function refreshes the stored modifier and keymap information.
+.LP
+.\" $Header: XLookStr.d,v 1.1 87/08/27 14:20:12 mento Exp $
+The
+.PN XLookupString
+function is a convenience routine that
+can be used to map a key event to
+an ASCII string, using the modifier bits in the key event to deal with
+shift, lock, and control.
+.LP
+.\" $Header: XRKeySym.d,v 1.1 87/08/27 14:20:53 mento Exp $
+The
+.PN XRebindKeysym
+function can be used to rebind the meaning of a keysym for the
+client.
+.SH "SEE ALSO"
+XStringToKeysym(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

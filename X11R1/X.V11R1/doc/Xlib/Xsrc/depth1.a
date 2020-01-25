@@ -1,0 +1,4 @@
+.\" $Header: depth1.a,v 11.2 87/03/28 10:55:17 mento Exp $
+.IP \fIdepth\fP 1i
+Specifies the depth of the pixmap.
+The depth must be supported by the root of the specified drawable.

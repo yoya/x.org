@@ -1,0 +1,4 @@
+.\" $Header: keys.a,v 11.7 87/09/09 16:09:33 mento Exp $
+.IP \fIkeys_return\fP 1i
+Returns an array of bytes that identifies which keys are pressed down.
+Each bit represents one key of the keyboard.

@@ -1,0 +1,4 @@
+.\" $Header: eventmask.a,v 11.5 87/07/31 04:51:38 mento Exp $
+.IP \fIevent_mask\fP 1i
+Specifies the event mask.
+This mask is the bitwise inclusive OR of one or more of the valid event mask bits.

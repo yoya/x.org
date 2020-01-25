@@ -1,0 +1,66 @@
+.TH XRaiseWindow 3X 
+.SH NAME
+XRaiseWindow, XLowerWindow, XCirculateSubwindows, XCirculateSubwindowsUp, 
+XCirculateSubwindowsDown, XRestackWindows \- change window stacking order
+.SH SYNTAX
+.so ../Xsrc/XRaiseWindow.f
+.LP
+.so ../Xsrc/XLowerWindow.f
+.LP
+.so ../Xsrc/XCircWindow.f
+.LP
+.so ../Xsrc/XCircWinUp.f
+.LP
+.so ../Xsrc/XCircWinDn.f
+.LP
+.so ../Xsrc/XRestackWins.f
+.SH ARGUMENTS
+.so ../Xsrc/direction.a
+.so ../Xsrc/display.a
+.so ../Xsrc/nwindows.a
+.so ../Xsrc/w.a
+.so ../Xsrc/windows.a
+.SH DESCRIPTION
+.so ../Xdescrip/XRaiseWindow.d
+.ds fd .PN XRaiseWindow
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.so ../Xdescrip/XLowerWindow.d
+.ds fd .PN XLowerWindow
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.so ../Xdescrip/XCircWindow.d
+.ds fd .PN XCirculateSubwindows
+.so ../Xsrc/errsent.com
+.PN BadWindow
+and
+.PN BadValue .
+.LP
+.so ../Xdescrip/XCircWinUp.d
+.ds fd .PN XCirculateSubwindowsUp
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.so ../Xdescrip/XCircWinDn.d
+.ds fd .PN XCirculateSubwindowsDown
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.so ../Xdescrip/XRestackWins.d
+.ds fd .PN XRestackWindows
+.so ../Xsrc/errsent.com
+.PN BadWindow .
+.SH DIAGNOSTICS
+.so ../Xerrors/badvalue.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+XChangeWindowAttributes(3X),
+XConfigureWindow(3X),
+XCreateWindow(3X),
+XDestroyWindow(3X),
+XMapWindow(3X),
+XUnmapWindow(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

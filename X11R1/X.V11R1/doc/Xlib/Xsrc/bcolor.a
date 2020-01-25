@@ -1,0 +1,4 @@
+.\" $Header: bcolor.a,v 11.3 87/09/02 09:52:56 mento Exp $
+.IP \fIbackground_color\fP 1i
+Specifies the red, green, and blue (RGB) values for the background of the
+source.

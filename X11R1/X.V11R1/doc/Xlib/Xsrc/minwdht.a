@@ -1,0 +1,6 @@
+.\" $Header: minwdht.a,v 11.2 87/03/28 10:57:42 mento Exp $
+.IP \fIminwidth\fP 1i
+.br
+.ns
+.IP \fIminheight\fP 1i
+Specify the minimum size, in pixels, of the created window.

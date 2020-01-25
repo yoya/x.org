@@ -1,0 +1,7 @@
+.\" $Header: valuemask.a,v 11.7 87/08/31 11:51:54 mento Exp $
+.IP \fIvaluemask\fP 1i
+Specifies which window attributes are defined in the attributes
+argument.
+This mask is the bitwise inclusive OR of the valid attribute mask bits.
+If valuemask is zero (0), 
+the rest is ignored, and the attributes are not referenced.

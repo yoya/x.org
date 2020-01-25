@@ -1,0 +1,15 @@
+.\" $Header: changemode.a,v 11.7 87/09/10 20:29:11 mento Exp $
+.IP \fIchange_mode\fP 1i
+Specifies the mode.
+You can pass one of the constants
+.PN SetModeInsert 
+or 
+.PN SetModeDelete .
+If
+.PN SetModeInsert ,
+.PN XChangeSaveSet 
+adds the window to this client's save-set. 
+If
+.PN SetModeDelete ,
+.PN XChangeSaveSet 
+deletes the window from this client's save-set.

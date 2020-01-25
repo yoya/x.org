@@ -1,0 +1,2013 @@
+.\".U7
+.\".UT "Application Utility Functions" 10
+\&
+.sp 1
+.ce 3
+\s+1\fBChapter 10\fP\s-1
+
+\s+1\fBApplication Utility Functions\fP\s-1
+.sp 2
+.nr H1 10
+.nr H2 0
+.nr H3 0
+.nr H4 0
+.nr H5 0
+.na
+.LP
+.XS
+Chapter 10 - Application Utility Functions
+.XE
+Once you have initialized the X system,
+you can use the Xlib utility functions to:
+.IP \(bu 5
+Handle keyboard events
+.IP \(bu 5
+Obtain the X environment defaults
+.IP \(bu 5
+Parse the window geometry
+.IP \(bu 5
+Parse the hardware colors
+.IP \(bu 5
+Generate regions
+.IP \(bu 5
+Manipulate regions
+.IP \(bu 5
+Use the cut and paste buffers
+.IP \(bu 5
+Determine the appropriate visual 
+.IP \(bu 5
+Manipulate images
+.IP \(bu 5
+Manipulate bitmaps
+.IP \(bu 5
+Use the resource manager
+.IP \(bu 5
+Use the context manager
+.RE
+.NT
+As a group,
+the functions discussed in this chapter provide the functionality that 
+is frequently needed and spans toolkits.
+These functions do not generate actual protocol requests to the server.
+.NE
+.NH 2
+Keyboard Utility Functions
+.LP
+Xlib provides with which you manipulate keyboard event
+or can determine information about a keysym.
+This section discusses:
+.IP \(bu 5
+Keyboard event functions
+.IP \(bu 5
+Keysym classification macros
+.NH 3
+Keyboard Event Functions
+.LP
+The X server does not predefine the keyboard to be ASCII characters.
+It is often useful to know that the ``a'' key was just pressed
+or possibly that it was just released.
+When a key is pressed or released, the X server sends keyboard events to client
+programs.
+The structures associated with keyboard events contain a keycode member that
+assigns a number to each physical key on the keyboard.
+See Section 8.4.1 for a discussion of keyboard event processing.
+See Section 7.9 for information on how to manipulate the keyboard encoding.
+.LP
+Because keycodes are completely arbitrary and may differ from server to server,
+client programs wanting to deal with ASCII text, for example, must explicitly
+convert the keycode value into ASCII.
+The transformation of keycodes to ASCII or other character sets is arbitrary.
+Therefore, Xlib provides functions to help you customize the keyboard layout.
+Keyboards often differ dramatically, so writing code that presumes the existence
+of a particular key on the main keyboard will create portability problems.
+It may also be difficult to receive
+.PN KeyRelease
+events on certain X server implementations because of hardware or software
+restrictions.
+.LP
+Keyboard events are usually sent to the smallest enclosing window
+which is interested in that type of event underneath the
+pointer's position.
+It is also possible to assign the keyboard input focus to a specific
+window.
+When the input focus is attached to a window,
+keyboard events will go to the client which has selected
+input on that window rather than the window under the pointer.
+.LP
+This section discusses the
+functions with which you can
+query the keyboard, look up the keyboard mappings,
+rebind the keyboard, or use an alternate keyboard mapping file.
+.NT Warning
+Some implementations cannot support 
+.PN KeyRelease 
+events.
+You should think seriously before designing software that takes
+advantage of 
+.PN KeyRelease
+events if you are concerned about wide portability,
+though there are some applications that can exploit 
+.PN KeyRelease
+events
+to provide superior user interfaces.
+You should also be very careful when selecting which keys may be used
+in such applications.
+It may be impossible
+to guarantee the existence of a set of keys on all keyboards with the probable
+exception of a-z, spacebar, and carriage return.
+.NE
+.sp
+Use
+.PN XLookupKeysym 
+.IN "XLookupKeysym"
+to look up the KeySyms.
+The definition for this function is:
+.IN "Definitions" "XLookupKeysym"
+.FD 0
+.so ./Xsrc/XLKeysym.f
+.FN
+.so ./Xsrc/event_ksym.a
+.so ./Xsrc/index.a
+.LP
+.so ./Xdescrip/XLKeysym.d
+.LP
+.sp
+Use
+.PN XRefreshKeyboardMapping 
+.IN "XRefreshKeyboardMapping"
+to refresh the stored modifier and keymap information. 
+The definition for this function is:
+.IN "Definitions" "XRefreshKeyboardMapping"
+.FD 0
+.so ./Xsrc/XRKMap.f
+.FN
+.so ./Xsrc/event_map.a
+.LP
+.so ./Xdescrip/XRKMap.d
+You usually call this function when a
+.PN MappingNotify 
+event occurs. 
+The result is to update a client application's knowledge of the keyboard.
+See Section 8.4.7.7 for information on
+.PN MappingNotify
+event processing.
+.LP
+.sp
+Use
+.PN XLookupString 
+to map a key event to an ASCII string. 
+.IN "XLookupString"
+The definition for this function is:
+.IN "Definitions" "XLookupString"
+.FD 0
+.so ./Xsrc/XLookStr.f
+.FN
+.so ./Xsrc/event_key.a
+.so ./Xsrc/buffer_ptr.a
+.so ./Xsrc/buf_length.a
+.so ./Xsrc/keysym.a
+.so ./Xsrc/status_str.a
+.LP
+.so ./Xdescrip/XLookStr.d
+It returns the translated string into the user's buffer.  
+It also detects any rebound keysyms (see
+.PN XRebindKeysym ) 
+and returns the specified bytes.
+.PN XLookupString
+returns, as its value, the length of the string stored in the tag buffer.
+If the lock modifier has a caps_lock key associated with it,
+.PN XLookupString
+interprets the lock modifier to perform caps lock processing.
+.LP
+.sp
+Use
+.PN XRebindKeysym 
+.IN "XRebindKeysym"
+to rebind the meaning of a keysym for a client.
+The definition for this function is:
+.IN "Definitions" "XRebindKeysym"
+.FD 0
+.so ./Xsrc/XRKeySym.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/keysym_reb.a
+.so ./Xsrc/list_reb.a
+.so ./Xsrc/mod_count.a
+.so ./Xsrc/str_rebind.a
+.so ./Xsrc/num_bytes.a
+.LP
+.so ./Xdescrip/XRKeySym.d
+It does not redefine the keycode in the X server but merely
+provides an easy way for long strings to be attached to keys.
+.PN XLookupString 
+.IN "XLookupString" 
+returns this string when the appropriate set of
+modifier keys are pressed and when the keysym would have been used for
+the translation.
+Note that you can rebind a keysym that may not exist.
+.LP
+.sp
+Use
+.PN XStringToKeysym
+.IN "XStringToKeysym"
+to convert the name of the keysym to the keysym code.
+The definition for this function is:
+.IN "Definitions" "XStringToKeysym"
+.FD 0
+.so ./Xsrc/XSTKeysym.f
+.FN
+.so ./Xsrc/string_ksym.a
+.LP
+Valid keysym names are listed in
+.PN <X11/keysymdef.h> .
+.IN "Files" "<X11/keysymdef.h>"
+If the specified string does not match a valid keysym,
+.PN XStringToKeysym
+returns
+.PN NoSymbol .
+.LP
+.sp
+Use
+.PN XKeysymToString
+.IN "XKeysymToString"
+to convert a keysym code to the name of the keysym.
+The definition for this function is:
+.IN "Definitions" "XKeysymToString"
+.FD 0
+.so ./Xsrc/XKTString.f
+.FN
+.so ./Xsrc/keysym_str.a
+.LP
+The returned string is in a static area and must not be modified.
+If the specified keysym is not defined,
+.PN XKeysymToString
+returns a 
+.PN NULL .
+.LP
+.sp
+Use
+.PN XKeycodeToKeysym
+.IN "XKeycodeToKeysym"
+to convert a key code to a defined keysym.
+The definition for this function is:
+.IN "Definitions" "XKeycodeToKeysym"
+.FD 0
+.so ./Xsrc/XKTKeysym.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/keycode.a
+.so ./Xsrc/col.a
+.LP
+.PN XKeycodeToKeysym
+uses internal Xlib tables, 
+which already have converted alphabetic upper case to lowercase, 
+and returns the keysym defined for the specified keycode and
+the element of the keycode vector.
+.LP
+.sp
+Use
+.PN XKeysymToKeycode
+.IN "XKeysymToKeycode"
+to convert a keysym to the appropriate keycode.
+The definition for this function is:
+.IN "Definitions" "XKeysymToKeycode"
+.FD 0
+.so ./Xsrc/XKTKeycode.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/keysym_kcode.a
+.LP
+If the specified keysym is not defined for any keycode,
+.PN XKeysymToKeycode
+returns zero (0).
+.NH 3
+Keysym Classification Macros
+.LP
+You may want to test if a keysym of the defined set (XK_MISCELLANY)
+is, for example, on the key pad or the function keys.
+You can use the keysym macros to perform the following tests.
+.LP
+.sp
+.FD 0
+IsKeypadKey\^(\^\fIkeysym\fP\^)
+.FN
+Returns
+.PN True
+if the keysym is on the key pad.
+.LP
+.sp
+.FD 0
+IsCursorKey\^(\^\fIkeysym\fP\^)
+.FN
+Returns
+.PN True
+if the keysyum is on the cursor key.
+.LP
+.sp
+.FD 0
+IsPFKey\^(\^\fIkeysym\fP\^)
+.FN
+Returns 
+.PN True
+if the keysyum is on the PF keys.
+.LP
+.sp
+.FD 0
+IsFunctionKey\^(\^\fIkeysym\fP\^)
+.FN
+Returns 
+.PN True
+if the keysyum is on the function keys.
+.LP
+.sp
+.FD 0
+IsMiscFunctionKey\^(\^\fIkeysym\fP\^)
+.FN
+Returns 
+.PN True
+if the keysyum is on the miscellaneous function keys.
+.LP
+.sp
+.FD 0
+IsModifierKey\^(\^\fIkeysym\fP\^)
+.FN
+Returns 
+.PN True
+if the keysyum is on the modifier keys.
+.NH 2
+Obtaining the X Environment Defaults
+.LP
+A program often needs a variety of options in the X environment
+(for example, fonts, colors, mouse, background, text, cursor).
+Specifying these options on the command line is inefficient and
+unmanageable because individual users have a variety of tastes
+with regard to window appearance.
+.PN XGetDefault 
+makes it easy to find out the fonts, colors, and
+other environment defaults favored by a particular user.
+Defaults are usually loaded onto a property on the root window
+at login.
+It merges any additional defaults from a file in the user's home directory.
+On a UNIX-based system, 
+it uses
+.PN "~/.Xdefaults" .
+.IN "Files" "$HOME/.Xdefaults"
+See the X manual page
+for details of its format.
+This is a simple interface for clients not wishing to use
+the X toolkit or the more elaborate interfaces provided by the
+resource manager discussed in section 10.11.
+.LP
+The strings returned by 
+.PN XGetDefault
+are owned by Xlib and should not
+be modified or freed by the client.
+.IN "XGetDefault"
+.IN "Default Options"
+The definition for this function is:
+.IN "Definitions" "XGetDefault"
+.FD 0
+.so ./Xsrc/XGetDefault.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/program.a
+.so ./Xsrc/option.a
+.LP
+.PN XGetDefault
+returns the value NULL if the option name specified in this argument does
+not exist for the program.
+.NH 2
+Parsing the Window Geometry
+.LP
+Xlib provides functions with which you can parse the window geometry.
+.LP
+.sp
+Use
+.PN XParseGeometry 
+to parse standard window geometry strings. 
+.IN "XParseGeometry"
+.IN "Window" "Initial Location"
+The definition for 
+.PN XParseGeometry
+is: 
+.IN "Definitions" "XParseGeometry"
+.LP
+.FD 0
+.so ./Xsrc/XParseGeom.f
+.FN
+.so ./Xsrc/parsestring.a
+.so ./Xsrc/xy_ret.a
+.so ./Xsrc/widtheight2.a
+.LP
+By convention,
+X applications use a standard string to indicate window size and placement.
+.PN XParseGeometry
+makes it easier to conform to this standard because it allows you
+to parse the standard window geometry.
+Specifically, this function lets you parse strings of the form:
+.IP
+\fI=<width>x<height>{+-}<xoffset>{+-}<yoffset>\fP 
+.LP
+The items in this form map into the arguments associated with this
+function.
+.LP
+The
+.PN XParseGeometry
+function returns a bitmask that indicates which of the four values (width,
+height, xoffset, and yoffset) were
+actually found in the string and that indicates whether the x and y values
+are negative. 
+By convention, -0 is not equal to +0, because the user needs to
+be able to say "position the window relative to the right or bottom edge."
+For each value found, the corresponding argument is updated.
+For each value not found, the argument is left unchanged.
+The bits are represented by these constants:
+.PN XValue , 
+.PN YValue , 
+.PN WidthValue , 
+.PN HeightValue ,
+.PN XNegative , 
+.PN YNegative
+and are defined in 
+.PN <X11/Xutil.h> .
+.IN "Files" "<X11/Xutil.h>
+They will be set whenever one of the values are defined or signs
+are set.
+.LP
+If the function returns either the 
+.PN XValue 
+or 
+.PN YValue 
+flag,
+you should
+place the window at the requested position.
+The border width (bwidth),
+size of the increments width and height
+(typically font width and height),
+and any additional interior space (xadd and yadd)
+are passed in to make it easy to compute the resulting size.
+It is not normally used by user programs, which typically use
+the 
+.PN XCreateWindow
+or 
+.PN XCreateSimpleWindow
+function to create the window.
+.IN "XCreateWindow"
+.IN "XCreateSimpleWindow"
+.LP
+.sp
+Use
+.PN XGeometry
+to parse window geometry given an argument and a default position. 
+.IN "XGeometry"
+.IN "Window" "Initial Location"
+.IN "Window" "Computing Placement"
+The definition for this function is:
+.IN "Definitions" "XGeometry"
+.program
+.FD 0
+.so ./Xsrc/XGeometry.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/screen.a
+.so ./Xsrc/posdef.a
+.so ./Xsrc/bwidth.a
+.so ./Xsrc/fwdht.a
+.so ./Xsrc/xyadder.a
+.so ./Xsrc/xy_ret.a
+.so ./Xsrc/widtheight2.a
+.LP
+The
+.PN XGeometry 
+function returns the position the window should be placed given a position and
+a default position.
+.PN XGeometry
+determines the placement of
+a window using the current format to position windows.
+Given a fully qualified default geometry specification and, possibly,
+an incompletely specified geometry specification, it 
+will return a bitmask
+value as defined above in the 
+.PN XParseGeometry
+call.
+.NH 2
+Parsing the Color Specifications
+.LP
+Use
+.PN XParseColor 
+to parse color values. 
+.IN "XParseColor"
+.IN "Color" "Parsing Command Lines"
+The definition for this function is:
+.IN "Definitions" "XParseColor"
+.FD 0
+.so ./Xsrc/XParseColor.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/cmap.a
+.so ./Xsrc/spec.a
+.so ./Xsrc/def.a
+.LP 
+The
+.PN XParseColor
+function provides a simple way to create a standard user interface to color.
+It takes a string specification of a color, typically from a command line
+or 
+.PN XGetDefault 
+option, and returns the corresponding red, green, and blue
+values that are suitable for a subsequent call to 
+.PN XAllocColor 
+or
+.PN XStoreColor .
+The color can be specified either as a color name (as in 
+.PN XAllocNamedColor )
+or as an initial sharp sign character following by a numeric specification,
+in one of the following formats:
+.LP
+.DS 0
+.TA .5i 3i
+.ta .5i 3i
+.R
+	#RGB	(4 bits each)
+	#RRGGBB	(8 bits each)
+	#RRRGGGBBB	(12 bits each)
+	#RRRRGGGGBBBB	(16 bits each)
+.DE
+The R, G, and B represent single hexadecimal digits (upper or lower case).
+When fewer than 16 bits each are specified, they represent the most significant
+bits of the value.  For example, #3a7 is the same as #3000a0007000.
+The colormap is used only to determine which screen to look up the color on.
+For example,
+you can use the screen's default colormap.
+.LP
+This routine will fail and return zero (0) status
+either if the initial character is a sharp sign, but the string
+otherwise fails to fit of the above formats, or if the initial character is
+not a sharp sign and the named color does not exist in the server's database.
+.LP
+.ds fd .PN XParseColor
+.so ./Xsrc/errsent4.com
+.PN BadColor .
+.NH 2
+Generating Regions 
+.LP
+Regions are arbitrary collections of pixels.
+Xlib provides functions for manipulating regions.
+The opaque type 
+.PN Region
+is defined in 
+.PN <X11/Xutil.h> .
+.IN "Files" "<X11/Xutil.h>"
+.LP
+.sp
+Use
+.PN XPolygonRegion 
+to generate a region from points. 
+.IN "XPolygonRegion"
+The definition for this function is:
+.IN "Definitions" "XPolygonRegion"
+.FD 0
+.so ./Xsrc/XPolyRegion.f
+.FN
+.so ./Xsrc/n1.a
+.so ./Xsrc/points1.a
+.so ./Xsrc/fill_rule.a
+.LP 
+.so ./Xdescrip/XPolyRegion.d
+See 
+.PN XCreateGC
+in Section 5.3
+for an explanation of fill_rule.
+.IN "XCreateGC"
+.LP
+.sp
+Use
+.PN XClipBox 
+to generate the smallest enclosing rectangle in rect. 
+.IN "XClipBox"
+The definition for this function is:
+.IN "Definitions" "XClipBox"
+.FD 0
+.so ./Xsrc/XClipBox.f
+.FN
+.so ./Xsrc/r.a
+This is the region in which the rectangle is located.
+.so ./Xsrc/rect.a
+This is the rectangle in which the smallest enclosing rectangle is generated.
+.LP
+.so ./Xdescrip/XClipBox.d
+.NH 2
+Manipulating Regions
+.LP
+Xlib provides functions with which you can manipulate regions.
+This section discusses how to:
+.IP \(bu 5
+Create, copy, or destroy regions
+.IP \(bu 5
+Move or shrink regions
+.IP \(bu 5
+Compute with regions
+.IP \(bu 5
+Determine if regions are empty or equal
+.IP \(bu 5
+Locate a point or rectangle in a region
+.LE
+.NH 3
+Creating, Copying, or Destroying Regions
+.LP
+Xlib provides functions with which you can create, copy, or destroy a region.
+.LP
+.sp
+Use
+.PN XCreateRegion 
+to create a new empty region. 
+.IN "XCreateRegion"
+The definition for this function is:
+.IN "Definitions" "XCreateRegion"
+.FD 0
+.so ./Xsrc/XCreRegion.f
+.FN
+.LP
+.sp
+Use
+.PN XSetRegion 
+to set the graphics contexts to the specified region. 
+.IN "XSetRegion"
+The definition for this function is:
+.IN "Definitions" "XSetRegion"
+.FD 0
+.so ./Xsrc/XSetRegion.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/gc.a
+.so ./Xsrc/r.a
+This is the region in which you want to set the specified graphics context.
+.LP
+.so ./Xdescrip/XSetRegion.d
+.LP 
+.sp
+Use
+.PN XDestroyRegion 
+to deallocate the storage associated with a specified region. 
+.IN "XDestroyRegion"
+The definition for this function is:
+.IN "Definitions" "XDestroyRegion"
+.FD 0
+.so ./Xsrc/XDestroyReg.f
+.FN
+.so ./Xsrc/r.a
+.NH 3
+Moving or Shrinking Regions
+.LP
+Xlib provides functions with which you can move or shrink regions.
+.LP
+.sp
+Use 
+.PN XOffsetRegion 
+to move the specified region by a specified amount. 
+.IN "XOffsetRegion"
+The definition for this function is:
+.IN "Definitions" "XOffsetRegion"
+.FD 0
+.so ./Xsrc/XOffsetReg.f
+.FN
+.so ./Xsrc/r.a
+.so ./Xsrc/dxdy.a
+These coordinates define the amount by which you want to move the specified region.
+.LP 
+.sp
+Use
+.PN XShrinkRegion 
+to reduce the specified region by a specified amount. 
+.IN "XShrinkRegion"
+The definition for this function is:
+.IN "Definitions" "XShrinkRegion"
+.FD 0
+.so ./Xsrc/XShrinkReg.f
+.FN
+.so ./Xsrc/r.a
+.so ./Xsrc/dxdy.a
+These coordinates define the amount by which you want to shrink the specified region.
+.LP
+Positive values shrink the size of the region, while negative values expand
+the region.
+.NH 3
+Computing with Regions
+.LP
+Xlib provides functions with which you can compute the intersection, union,
+or results of two regions.
+.LP
+.sp
+Use
+.PN XIntersectRegion 
+to compute the intersection of two regions. 
+.IN "XIntersectRegion"
+The definition for this function is:
+.IN "Definitions" "XIntersectRegion"
+.FD 0
+.so ./Xsrc/XInterReg.f
+.FN
+.so ./Xsrc/srasrb.a
+.so ./Xsrc/dr.a
+.LP
+.sp
+Use
+.PN XUnionRegion 
+to compute the union of two regions. 
+.IN "XUnionRegion"
+The definition for this function is:
+.IN "Definitions" "XUnionRegion"
+.FD 0
+.so ./Xsrc/XUnionRegion.f
+.FN
+.so ./Xsrc/srasrb.a
+.so ./Xsrc/dr.a
+.LP
+.sp
+Use
+.PN XSubtractRegion 
+to subtract two regions. 
+.IN "XSubtractRegion"
+The definition for this function is:
+.IN "Definitions" "XSubtractRegion"
+.FD 0
+.so ./Xsrc/XSubtractReg.f
+.FN
+.so ./Xsrc/srasrb.a
+.so ./Xsrc/dr.a
+.LP
+.sp
+Use
+.PN XXorRegion 
+to calculate the difference between the union and intersection 
+of two regions. 
+.IN "XXorRegion"
+The definition for this function is:
+.IN "Definitions" "XXorRegion"
+.FD 0
+.so ./Xsrc/XXorRegion.f
+.FN
+.so ./Xsrc/srasrb.a
+.so ./Xsrc/dr.a
+.NH 3
+Determining If Regions Are Empty or Equal
+.LP
+Xlib provides functions with which you can determine if regions are 
+empty or equal.
+.LP
+.sp
+Use
+.PN XEmptyRegion 
+to determine if the specified region is empty. 
+.IN "XEmptyRegion"
+The definition for this function is:
+.IN "Definitions" "XEmptyRegion"
+.FD 0
+.so ./Xsrc/XEmptyRegion.f
+.FN
+.so ./Xsrc/r.a
+.LP 
+The
+.PN XEmptyRegion 
+function returns 
+nonzero if the region is empty.
+.LP
+.sp
+Use
+.PN XEqualRegion 
+to determine if two regions have the same offset, size, and shape. 
+.IN "XEqualRegion"
+The definition for this function is:
+.IN "Definitions" "XEqualRegion"
+.FD 0
+.so ./Xsrc/XEqualRegion.f
+.FN
+.so ./Xsrc/r1r2.a
+These are the regions you want to determine have the same offset, size, and shape.
+.LP
+The
+.PN XEqualRegion
+function returns nonzero if the two regions are identical
+(that is, they have the same offset, size, and shape).
+.NH 3
+Locating a Point or a Rectangle in a Region
+.LP
+Xlib provides functions with which you can determine if a point
+or a rectangle is contained in a region.
+.LP
+.sp
+Use
+.PN XPointInRegion 
+to determine if a specified point resides in a specified region.
+.IN "XPointInRegion"
+The definition for this function is:
+.IN "Definitions" "XPointInRegion"
+.FD 0
+.so ./Xsrc/XPointInReg.f
+.FN
+.so ./Xsrc/r.a
+.so ./Xsrc/xy.a
+These define the coordinates of the point.
+.LP
+.so ./Xdescrip/XPointInReg.d
+.LP
+.sp
+Use
+.PN XRectInRegion 
+to determine if a specified rectangle resides in the specified region. 
+.IN "XRectInRegion"
+The definition for this function is:
+.IN "Definitions" "XRecInRegion"
+.FD 0
+.so ./Xsrc/XRectInReg.f
+.FN
+.so ./Xsrc/r.a
+.so ./Xsrc/xy.a
+These define the coordinates of the point.
+.so ./Xsrc/widtheight.a
+These specify the rectangle in which you want to determine the point resides.
+.LP 
+.so ./Xdescrip/XRectInReg.d
+.NH 2
+Using the Cut and Paste Buffers
+.LP
+Xlib provides functions with which you can use cut and paste buffers
+for programs using this form of communications.
+See also the sections on selections, which are a more
+useful mechanism for interchanging data between clients,
+as typed information can be exchanged.
+X provides areas of memory in which bytes can be stored for implementing
+cut and paste between windows
+.IN "Cut Buffers"
+.IN "Paste Buffers"
+(implemented by use of properties on the first root window of the display).
+It is up to applications to agree on how to represent the 
+data in the buffers.
+The data is most often ISO Latin 1 text.
+The atoms for eight such buffers are provided, 
+which can be accessed as a ring or as explicit buffers (numbered 0 through 7).
+These buffers are typically used by either XYO applications or Andrew
+applications.
+We encourage new applications to share data by using selections.
+See Section 4.4 for further information.
+.LP
+.sp
+Use 
+.PN XStoreBytes 
+to store data in cut buffer 0.
+.IN "XStoreBytes"
+The definition for this function is:
+.IN "Definitions" "XStoreBytes"
+.FD 0
+.so ./Xsrc/XStoreBytes.f
+.FN 
+.so ./Xsrc/display.a
+.so ./Xsrc/bytes.a
+.so ./Xsrc/nbytes2.a
+.LP
+.so ./Xdescrip/XStoreBytes.d
+Note that the cut buffer's contents need not be text, so null bytes 
+are not special.
+The cut buffer's contents may be retrieved later by
+any client calling 
+.PN XFetchBytes .
+.IN "XFetchBytes"
+.LP
+.ds fd .PN XStoreBytes
+.so ./Xsrc/errsent.com
+.PN BadWindow 
+and
+.PN BadAlloc .
+.LP
+.sp
+Use
+.PN XStoreBuffer 
+to store data in a specified cut buffer.
+.IN "XStoreBuffer"
+The definition for this function is:
+.IN "Definitions" "XStoreBuffer"
+.FD 0
+.so ./Xsrc/XStoreBuffer.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/bytes.a
+.so ./Xsrc/nbytes2.a
+.so ./Xsrc/buffer.a
+.LP
+.ds fd .PN XStoreBuffer
+.so ./Xsrc/errsent.com
+.PN BadWindow ,
+.PN BadAtom ,
+and 
+.PN BadAlloc .
+.LP
+.sp
+Use 
+.PN XFetchBytes 
+to return data from cut buffer 0.
+.IN "XFetchBytes"
+The definition for this function is:
+.IN "Definitions" "XFetchBytes"
+.FD 0
+.so ./Xsrc/XFetchBytes.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/nbytes.a
+.PN XFetchBytes
+returns the number of bytes in this argument.
+If there is no data in the buffer, 
+the value zero (0) is returned to this argument.
+.LP
+.so ./Xdescrip/XFetchBytes.d
+The
+.PN XFetchBytes
+function
+returns the number of bytes in the nbytes argument,
+if the buffer contains data.
+Otherwise, the function
+returns NULL and sets nbytes to zero (0).
+The appropriate amount of storage is allocated and the pointer returned.
+The client must free this storage when finished with it by calling
+.PN XFree .
+(See Section 2.4 for further information.)
+Note that the cut buffer does not necessarily contain text, so it may
+contain embedded null bytes and may not terminate with a null byte.
+.LP
+.ds fd .PN XFetchBytes
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.sp
+Use 
+.PN XFetchBuffer 
+to return data from a specified cut buffer.
+.IN "XFetchBuffer"
+The definition for this function is:
+.IN "Definitions" "XFetchBuffer"
+.FD 0
+.so ./Xsrc/XFetchBuffer.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/nbytes.a
+.so ./Xsrc/buffer1.a
+.LP
+.so ./Xdescrip/XFetchBuffer.d
+.LP
+.ds fd .PN XFetchBuffer
+.so ./Xsrc/errsent4.com
+.PN BadValue .
+.LP
+.sp
+Use 
+.PN XRotateBuffers 
+to rotate the cut buffers.
+.IN "XRotateBuffers"
+The definition for this function is:
+.IN "Definitions" "XRotateBuffers"
+.FD 0
+.so ./Xsrc/XRotateBufs.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/rotate.a
+.LP 
+.so ./Xdescrip/XRotateBufs.d
+Note that 
+.PN XRotateBuffers
+will generate an error if any of the eight buffer have not been created.
+.LP
+.ds fd .PN XRotateBuffers
+.so ./Xsrc/errsent.com
+.PN BadWindow ,
+.PN BadAtom ,
+and
+.PN BadMatch .
+.NH 2
+Determining the Appropriate Visual
+.LP
+A single display may support multiple screens.
+Each screen can have several different visual types supported 
+at different depths.
+You can use the functions described in this section to determine
+which visual to use for your application.
+.LP
+The functions in this section use the 
+.PN XVisualInfo 
+structure,
+which can be found in 
+.PN <X11/Xutil.h> .
+.LP
+.DS 0
+.TA .5i 3i
+.ta .5i 3i
+typedef struct {
+	Visual *visual;
+	VisualID visualid;
+	int screen;
+	unsigned int depth;
+	int class;
+	unsigned long red_mask;
+	unsigned long green_mask;
+	unsigned long blue_mask;
+	int colormap_size;
+	int bits_per_rgb;
+} XVisualInfo;
+.DE
+.IN "XVisualInfo"
+.IN "Data Structures" "XVisualInfo"
+The definitions used for the visual information mask (vinfo_mask) are:
+.LP
+.DS 0
+.TA .5i 3i
+.ta .5i 3i
+#define VisualNoMask	0x0
+#define VisualIDMask	0x1
+#define VisualScreenMask	0x2
+#define VisualDepthMask	0x4
+#define VisualClassMask	0x8
+#define VisualRedMaskMask	0x10
+#define VisualGreenMaskMask	0x20
+#define VisualBlueMaskMask	0x40
+#define VisualColormapSizeMask	0x80
+#define VisualBitsPerRGBMask	0x100
+#define VisualAllMask	0x1FF
+.DE
+.sp
+Use
+.PN XGetVisualInfo 
+to obtain a list of visual information structures that match a specified
+template. 
+.IN "XGetVisualInfo"
+The definition for this function is:
+.IN "Definitions" "XGetVisualInfo"
+.FD 0
+.so ./Xsrc/XGetVInfo.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/vinfo_mask.a
+.so ./Xsrc/vinfo_temp.a
+.so ./Xsrc/v_nitems.a
+.LP
+.so ./Xdescrip/XGetVInfo.d
+Use
+.PN XFree 
+to free the data returned by this function.
+(See Section 2.4 for further information.)
+.LP
+.sp
+Use
+.PN XMatchVisualInfo 
+to obtain the visual information that matches the specified depth and
+class of the screen. 
+.IN "XMatchVisualInfo"
+The definition for this function is:
+.IN "Definitions" "XMatchVisualInfo"
+.FD 0
+.so ./Xsrc/XMatVInfo.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/screen.a
+.so ./Xsrc/v_depth.a
+.so ./Xsrc/v_class.a
+.so ./Xsrc/vinfo.a
+.LP
+The
+.PN XMatchVisualInfo
+function returns the visual information for a visual that matches the specified 
+depth and class for a screen.
+Because multiple visuals that match the specified depth and class can exist,
+the exact visual chosen is undefined.
+If a visual is found,
+this function returns 
+.PN True ,
+and the information on the visual is returned
+to the vinfo argument.
+Otherwise, when a visual is not found,
+it returns 
+.PN False .
+.NH 2
+Manipulating Images
+.LP
+Xlib provides several functions that perform basic operations on images.
+All operations on images are defined using an 
+.PN XImage 
+structure, 
+as defined in
+.PN <X11/Xlib.h> .
+Because the number of different types of image formats can be very large,
+this hides details of image storage properly from applications.
+.LP
+This section describes the functions for generic operations on images.
+Manufacturers can provide very fast implementations of these for the
+formats frequently encountered on their hardware.
+These functions are neither sufficient nor desirable to use for general image
+processing.
+Rather, they are here to provide minimal functions on screen format
+images.
+The basic operations for getting and putting images are
+.PN XGetImage
+and 
+.PN XPutImage .
+See Chapter 6 for further information about these functions.
+.NT
+The functions to read and write images to and from
+disk files are not, as yet, defined.
+This whole section probably needs work and elaboration.
+Suggestions are gratefully solicited.
+.NE
+Most of the fields are defined in the core protocol to specify hardware
+variants, bit and byte ordering you may encounter across manufacturers.
+.LP
+The
+.PN XImage 
+structure describes an image as it exists in the client's memory.  
+The user may request that some of the members such as height, width, and xoffset be
+changed when the image is sent to the server (that is, the user may send a
+subset of the image).
+Other members (for example, byte order, bitmap_unit, and so forth)
+are characteristics of both the image and of the server.  
+If these members
+differ between the image and the server, 
+.PN XPutImage 
+makes the appropriate conversions.
+See Chapter 6 for information about
+.PN XPutImage .
+If the image is formatted as an XYPixmap, that is the format member is set to
+the constant
+.PN XYPixmap , 
+the first byte of the first line of
+plane n must be located at the address (data + (n * height * bytes_per_line)).
+.LP
+.sp
+Use
+.PN XCreateImage 
+to allocate sufficient memory for an 
+.PN XImage 
+structure.
+.IN "XCreateImage"
+The definition for this function is:
+.IN "Definitions" "XCreateImage"
+.FD 0
+.so ./Xsrc/XCreImage.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/visual_img.a
+.so ./Xsrc/depth_img.a
+.so ./Xsrc/format_img.a
+.so ./Xsrc/offset.a
+.so ./Xsrc/data_img.a
+.so ./Xsrc/width_img.a
+.so ./Xsrc/height_img.a
+.so ./Xsrc/xpad.a
+.so ./Xsrc/bytesperln.a
+.LP
+.so ./Xdescrip/XCreImage.d
+This function does not allocate space for the image itself.
+Rather, it initializes the structure with ``default'' values and
+returns a pointer to the 
+.PN XImage 
+structure.
+The red, green, and blue mask values are defined for Z format images only
+and are derived from the 
+.PN Visual 
+structure passed in.
+.LP
+The basic functions used to get a pixel, set a pixel, create a subimage,
+and add a constant offset to a Z format image are defined in the image object.
+The macros to call through the image object are defined in
+.PN <X11/Xutil.h> .
+.LP
+.sp
+Use
+.PN XGetPixel 
+to obtain a pixel value in an image.
+.IN "XGetPixel"
+The definition for this function is:
+.IN "Definitions" "XGetPixel"
+.FD 0
+.so ./Xsrc/XGetPixel.f
+.FN
+.so ./Xsrc/ximage.a
+.so ./Xsrc/xy.a
+.LP
+.so ./Xdescrip/XGetPixel.d
+The X and Y coordinates are relative to the origin (upper left [0,0]) of the 
+image.
+The pixel value is returned in normalized format (that is, 
+the least significant byte of the long is the least significant byte of the pixel).
+.LP
+.sp
+Use
+.PN XPutPixel 
+to set a pixel value in an image.
+.IN "XPutPixel"
+The definition for this function is:
+.IN "Definitions" "XPutPixel"
+.FD 0
+.so ./Xsrc/XPutPixel.f
+.FN
+.so ./Xsrc/ximage.a
+.so ./Xsrc/xy.a
+.so ./Xsrc/pixel_img.a
+.LP
+.so ./Xdescrip/XPutPixel.d
+The X and Y coordinates are relative to the origin (upper left [0,0])
+of the image.
+The input pixel value must be in normalized format.
+That is, the least significant byte of the long is the least significant 
+byte of the pixel.
+.LP
+.sp
+Use
+.PN XSubImage 
+to create a subimage.
+.IN "XSubImage"
+The definition for this function is:
+.IN "Definitions" "XSubImage"
+.FD 0
+.so ./Xsrc/XSubImage.f
+.FN
+.so ./Xsrc/ximage.a
+.so ./Xsrc/xy.a
+.so ./Xsrc/sub_width.a
+.so ./Xsrc/sub_height.a
+.LP
+.so ./Xdescrip/XSubImage.d
+It allocates the memory necessary for the new 
+.PN XImage 
+structure
+and returns a pointer to the new image.
+The algorithm used is repetitive calls to
+.PN XGetPixel
+and 
+.PN XPutPixel .
+Therefore, this function may be very slow.
+.LP
+.sp
+Use
+.PN XAddPixel 
+to increment each pixel in the pixmap by a constant value.
+.IN "XAddPixel"
+The definition for this function is:
+.IN "Definitions" "XAddPixel"
+.FD 0
+.so ./Xsrc/XAddPixel.f
+.FN
+.so ./Xsrc/ximage.a
+.so ./Xsrc/value_img.a
+.LP
+.so ./Xdescrip/XAddPixel.d
+This function is very useful when you have a base pixel value from allocating
+color resources and need to manipulate the image to that form.
+.LP
+.sp
+Use
+.PN XDestroyImage
+to deallocate the memory allocated in a previous call to
+.IN "XDestroyImage"
+.PN XCreateImage .
+.IN "XCreateImage"
+The definition for this function is:
+.IN "Definitions" "XDestroyImage"
+.FD 0
+.so ./Xsrc/XDestImage.f
+.FN
+.so ./Xsrc/ximage.a
+.LP
+.so ./Xdescrip/XDestImage.d
+.NH 2
+Manipulating Bitmaps
+.LP
+Xlib provides functions with which you can read a bitmap from a file,
+save a bitmap to a file, or create a bitmap. 
+This section describes those functions that transfer bitmaps to and
+from the client's file system, thus allowing their reuse in a later
+connection (for example, from an entirely different client or to a
+different display or server).
+.LP
+.sp
+Use
+.PN XReadBitmapFile 
+to read a bitmap in from disk. 
+.IN "XReadBitmapFile"
+The definition for this function is:
+.IN "Definitions" "XReadBitmapFile"
+.FD 0
+.so ./Xsrc/XRBitFile.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/filename.a
+.so ./Xsrc/widtheight3.a
+.so ./Xsrc/read_bmap.a
+.so ./Xsrc/xy_hot2.a
+.LP
+.so ./Xdescrip/XRBitFile.d
+The file can be either in the standard X version 10 format 
+(that is, the format used by X version 10 bitmap program)
+or in the newer X version 11 bitmap format.
+If the file cannot be opened, 
+.PN XReadBitmapFile 
+returns 
+.PN BitmapOpenFailed .  
+If the file can be opened but does not contain valid bitmap data, 
+.PN XReadBitmapFile 
+returns 
+.PN BitmapFileInvalid .  
+If insufficient working storage is allocated,
+.PN XReadBitmapFile 
+returns
+.PN BitmapNoMemory .  
+If the file is readable and valid,
+.PN XReadBitmapFile 
+returns 
+.PN BitmapSuccess .
+.LP
+.PN XReadBitmapFile 
+assigns the bitmap's height and width, as read
+from the file, to the caller's variables width and height.  
+It then creates a pixmap of the appropriate size, 
+reads the bitmap data from the file into the pixmap 
+and assigns the pixmap to the caller's variable bitmap.  
+The caller must free the bitmap using 
+.PN XFreePixmap 
+when done.
+If x_hot and y_hot are non-NULL, 
+.PN XReadBitmapFile 
+sets *x_hot and *y_hot to the value of the hot spot as defined 
+in the file.
+If no hot spot is defined, 
+.PN XReadBitmapFile 
+sets *x_hot and *y_hot to -1,-1.
+.LP
+.sp
+Use
+.PN XWriteBitmapFile 
+to write out a bitmap to a file. 
+.IN "XWriteBitmapFile"
+The definition for this function is:
+.IN "Definitions" "XWriteBitmapFile"
+.FD 0
+.so ./Xsrc/XWBitFile.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/filename.a
+.so ./Xsrc/write_bmap.a
+.so ./Xsrc/widtheight.a
+These are the dimensions of the bitmap to be written.
+.so ./Xsrc/xy_hot.a
+.LP
+.so ./Xdescrip/XWBitFile.d
+The file is written out in X version 11 bitmap format,  
+which is the format used by the X version 11 bitmap program.  
+Refer to that program's man pages
+for details.  
+While 
+.PN XReadBitmapFile 
+can read in either X
+version 10 format or X version 11 format, 
+.PN XWriteBitmapFile 
+always writes out X version 11 format only.
+If the file cannot be opened for writing, 
+.PN XWriteBitmapFile
+returns 
+.PN BitmapOpenFailed .  
+If insufficient memory is allocated
+.PN XWriteBitmapFile 
+returns
+.PN BitmapNoMemory .
+Otherwise, on no error,
+.PN XWriteBitmapFile 
+returns
+.PN BitmapSuccess .
+If x_hot and y_hot are not -1, -1, 
+.PN XWriteBitmapFile
+writes them out as the hot spot coordinates for the bitmap.
+.LP
+.sp
+Use
+.PN XCreateBitmapFromData 
+to include a bitmap written out by 
+.PN XWriteBitmapFile 
+.IN "XWriteBitmapFile"
+in a program directly, as opposed to reading it in every time at run time.
+.IN "XCreateBitmapFromData"
+The definition for this function is:
+.IN "Definitions" "XCreateBitmapFromData"
+.FD 0
+.so ./Xsrc/XCreBmap.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/d.a
+.so ./Xsrc/data_bmap.a
+.so ./Xsrc/widtheight.a
+These are the dimensions of the bitmap to create.
+.LP
+.so ./Xdescrip/XCreBmap.d
+The following is an example of getting a gray bitmap:
+.LP
+.DS 0
+#include "gray.bitmap"
+.sp 6p
+Pixmap XCreateBitmapFromData(display, window, gray_bits, gray_width, gray_height);
+.DE
+If insufficient working storage was allocated,
+.PN XCreateBitmapFromData 
+returns NULL.
+It is the user's responsibly to free the
+bitmap using 
+.PN XFreePixmap 
+when done.
+.XS no y
+Resource Manager
+.XE
+.NH 2
+Using the Resource Manager
+.NT
+Currently, for the first MIT release,
+the greatest user of the resource manager is the X Toolkit,
+which is running approximately a release cycle behind the
+Xlib and the server.
+The interfaces described in this section are believed accurate and final.
+However, for this release,
+the resource manager is packaged as a separate library, called ``Xrm''.
+.NE
+.LP
+The resource manager essentially is a database manager.
+Definitions for its use are contained in the
+.PN <X11/Xresource.h>
+header file.
+.LP
+Consider an X-based mail reading application called 
+.PN xmail .
+Further assume that it is designed in such a manner that it uses a complex
+window hierarchy, all the way down to individual command buttons which are 
+actually small subwindows.  If each window is properly assigned a name and
+class, it becomes easy for the user to specify attributes of any portion of
+the application.
+.LP
+At the top level,
+it might consist of a paned window. 
+One pane of the paned window is a
+button box window of command buttons, named toc. 
+One of these command buttons is used to include (fetch) new mail. 
+This window has a name ``xmail.toc.buttons.include'' and a class
+``application.panelwindow.buttonbox.commandButton''.
+Its name is the name of its parent, ``xmail.toc.buttons'', 
+followed by its name ``include''. 
+Its class is the class of its parent, ``Application.Panelwindow.Buttonbox'',
+followed by its particular class, ``CommandButton''.
+The fully qualified name of an attribute is its name appended to the window name, 
+and its class is its class appended to the window class.
+.LP
+This button needs the following resources:
+.IP \(bu 5
+Title string
+.IP \(bu 5
+Font
+.IP \(bu 5
+Foreground color
+.IP \(bu 5
+Background color
+.IP \(bu 5
+Foreground color for its active state
+.IP \(bu 5
+Background color for its active state
+.LP
+Each of the resources that this button needs are considered to be attributes of the
+button and, as such, have a name and a class. 
+For example, the foreground color for the button in its active state might be 
+named ``activeForeground'' and its class would be ``Color.''
+.LP
+When a window requests a resource (for example, a color),
+it passes the complete name and class of the resource
+along with the desired representation type to a lookup routine. 
+The representation type lets a window request different
+representations for the same resource. 
+For example, a color might be requested as a color record, a pixel, a pixmap, 
+or a name string. 
+Rather than require the application to store every possible representation 
+of a resource,
+Xlib provides a mechanism for converting between representations.
+.LP
+The interface is implemented in two layers. 
+The top layer allows applications to store resources by 
+name, class, and
+representation type, 
+as well as to retrieve them given a fully qualified name, class, and
+destination representation. 
+The resource manager automatically calls a
+conversion routine, if necessary and possible, to convert
+the stored representation to the destination representation.
+.LP
+This layer is built on top of a primitive manager that 
+provides the ability to store entries by
+name and class
+and a way of retrieving these values given a full name and class. 
+This layer
+stores uninterpreted variable length values and has no knowledge of
+resource representations.
+.LP
+The algorithm for determining which resource name or names match 
+a given query is the heart of the database.
+The idea is that resources are stored with only partially specified
+name and classes. 
+The unspecified portions of the name match any part of a more completely
+specified name or class. 
+In particular, all queries fully specify the name and class of the resource needed.
+The lookup algorithm then searches the database for the name that most closely
+matches this full name and class.
+The definition of a match is as follows:
+.LP
+For a query of name N = n1.n2.n3...nk and class C = c1.c2.c3...ck,
+a partial name P = p1.p2.p3...pm matches (N,C),
+if P matches the regular expression [n1|c1] [n2|c2] [n3|c3]...[nk|ck]. 
+The regular expression ``a|b'' matches either ``a'' or ``b'', ``[a]'' 
+matches ``a'' or NULL (that is, ``a'' is optional),
+and ``a b'' matches ``a'' followed by ``b''.
+As they are defined, the name and the class have exactly the same 
+number of components. 
+.LP
+If two distinct partial names P and Q both match (N,C), then the rule for
+establishing precedence is defined below.  For P, construct a k element
+list (X = x1, x2, x3...xk).  If ni is an element of P, then xi = 2.  If ci
+is an element of P, then xi = 1.  If any other case occurs, xi = 0.
+.LP
+Construct a similar k element list for Q (Y = y1, y2, y3...yk).  Compare
+X and Y by comparing the values of x1 and y1.  If they are equal, compare
+x2 and y2, and so on.  If X > Y, then the partial name P takes precedence 
+over the partial name Q. 
+.LP
+For example, assume the following user preference specification:
+.DS 
+.TA 2.5i
+.ta 2.5i
+.R
+xmail.background:	red
+button.font:	Helv10
+button.background:	blue
+button.color:	green
+xmail.toc.button.activeForeground:	black
+xmail.toc.buttons.border:	3
+.DE
+.LP
+A query for the name ``xmail.toc.button.include.activeForeground'' and
+class ``application.panelwindow.buttonbox.button.color''
+matches ``xmail.toc.button.activeForeground'' and returns ``black''. 
+However, it also matches ``button.color''. 
+.LP
+Using the precedence algorithm described above indicates that the 
+``xmail.toc.button.activeForeground'' specification is the one that
+``wins''.
+.LP
+Database values consist of a size and an address. 
+The size is specified in machine dependent units, 
+while the address is a machine-dependent pointer to uninterpreted machine memory,
+for example:
+.LP
+.DS 0
+typedef  void (*XrmTypeConverter)();
+.DE
+The type conversion machinery calls conversion procedures to convert between
+differing resource representations. 
+There are some predefined conversions, but clients can register as many new conversions
+as are needed. 
+These registered conversion procedures have a type of XrmTypeConverter. 
+They take a source type and value. 
+Then, they convert them to a destination type and value. 
+There is a string (atom) for each defined resource representation type, 
+and the values are size and address pairs. 
+See 
+.PN XrmRegisterTypeConverter  
+and
+.PN XrmConvert
+for further information.
+.LP
+A resource database is an opaque structure used by the lookup routines.
+.LP
+.DS 0
+typedef struct ResourceDataBaseStruct *ResourceDataBase; 
+.DE
+See
+.PN XrmGetDataBase ,
+.PN XrmPutDataBase , 
+and 
+.PN XrmMergeDataBases 
+for further information.
+.LP
+Xlib provides resource management functions with which you can manipulate
+the resource manager.
+The following sections discuss how to:
+.IP \(bu 5
+Store and get resources
+.IP \(bu 5
+Getting database levels
+.IP \(bu 5
+Convert resource values
+.IP \(bu 5
+Merge the resource database
+.IP \(bu 5
+Retrieve and store databases
+.NH 3
+Storing and Getting Resources
+.LP
+Use
+.PN XrmPutResource 
+to store a resource in the database. 
+.IN "XrmPutResource"
+The definition for this function is:
+.IN "Definitions" "XrmPutResource"
+.FD 0
+.so ./Xsrc/XrmPResource.f
+.FN
+.so ./Xsrc/db.a
+.so ./Xsrc/list_rm.a
+.so ./Xsrc/type_rm.a
+.so ./Xsrc/value_rm.a
+.LP
+.so ./Xdescrip/XrmPResource.d
+.LP
+.sp
+Use
+.PN XrmGetResource 
+to retrieve a resource from the database. 
+.IN "XrmGetResource"
+The definition for this function is:
+.IN "Definitions" "XrmGetResource"
+.FD 0
+.so ./Xsrc/XrmGResource.f
+.FN
+.so ./Xsrc/screen1.a
+.so ./Xsrc/db.a
+.so ./Xsrc/inher_name.a
+.so ./Xsrc/inher_class.a
+.so ./Xsrc/type_dest.a
+.so ./Xsrc/value_getrm.a
+.LP
+.so ./Xdescrip/XrmGResource.d
+The value returned points into database memory. 
+Therefore, the client should copy it to be safe.  
+Currently, the database only frees or overwrites entries on 
+.PN XrmPutResource
+or 
+.PN XrmMergeDataBases .
+A client that is
+not doing any 
+.PN XrmPutResources
+or that is not merging the database should 
+be safe using the address passed back.
+.NH 3
+Getting Database Levels
+.LP
+Some applications and toolkits do not make random probes into the
+database to fetch resources.
+The toolkit access pattern for the database is quite stylized:
+a series of from one to twenty probes are made with only the last
+name/class differing in each probe.
+The
+.PN XrmGetResource
+is at worst a 2^n algorithm (n is the length of the name/class list).
+.LP
+.sp
+Use
+.PN XrmGetSearchList
+.IN "XrmGetSearchList"
+to return a list of database levels.
+The definition for this function is:
+.IN "Definitions" "XrmGetSearchList"
+.FD 0
+.so ./Xsrc/XrmGSList.f
+.FN
+.so ./Xsrc/names_rm.a
+.so ./Xsrc/classes_rm.a
+.so ./Xsrc/list_rm2.a
+.LP
+.so ./Xdescrip/XrmGSList.d
+.LP
+.sp
+Use
+.PN XrmGetSearchResource
+.IN "XrmGetSearchResource"
+to search the database levels for a given resource.
+The definition for this function is:
+.IN "Definitions" "XrmGetSearchResource"
+.FD 0
+.so ./Xsrc/XrmGSRes.f
+.FN
+.so ./Xsrc/screen.a
+.so ./Xsrc/list_rm3.a
+.so ./Xsrc/name_rm.a
+.so ./Xsrc/class_rm.a
+.so ./Xsrc/type_rm2.a
+.so ./Xsrc/value_rm2.a
+.LP
+.so ./Xdescrip/XrmGSRes.d
+The search stops with the first match.
+If it does not find the resource,
+.PN XrmGetSearchResource
+returns
+.PN NULL .
+.NH 3
+Converting Resource Values
+.LP
+Use
+.PN XrmConvert 
+to convert a value from one representation to another. 
+.IN "XrmConvert"
+For example, a client might want to convert the string ``blue''
+to a pixel that will appear blue on a given screen.
+The predefined types can be found in
+.PN <X11/Xresource.h> .
+.IN "Files" "<X11/Xresource.h>"
+The definition for this function is:
+.IN "Definitions" "XrmConvert"
+.FD 0
+.so ./Xsrc/XrmConvert.f
+.FN
+.so ./Xsrc/screen2.a
+.so ./Xsrc/from_type2.a
+.so ./Xsrc/from2.a
+.so ./Xsrc/to_type2.a
+.so ./Xsrc/to2.a
+.LP
+.sp
+Use
+.PN XrmRegisterTypeConverter 
+to extend the resource manager conversion mechanism. 
+.IN "XrmRegisterTypeConverter"
+The definition for this function is:
+.IN "Definitions" "XrmRegisterTypeConverter"
+.FD 0
+.so ./Xsrc/XrmRegTConv.f
+.FN
+.so ./Xsrc/from_type3.a
+.so ./Xsrc/to_type3.a
+.so ./Xsrc/proc.a
+.LP
+.so ./Xdescrip/XrmRegTConv.d
+This is especially useful for those clients who wish to 
+extend the known representation types.
+If there is no conversion from the source type to the destination type,
+then NULLs are returned for the destination size and address. 
+This procedure is used by the higher-level resource manager to implement 
+.PN XrmGetResource .
+.LP
+The converters themselves have the following calling sequence:
+.FD 0
+void \fIyourTypeConverter\fP\^(\^\fIscreen\fP, \fIfrom_value\fP, \fIto_value_return\fP\^)
+.br
+      Screen *\fIscreen\fP\^;
+.br
+      XrmValuePtr \fIfrom_value\fP\^;
+.br
+      XrmValuePtr \fIto_value_return\fP\^;
+.FN
+.IP \fIscreen\fP 1i
+Specifies that the conversion is performed relative to the specified screen.
+.IP \fIfrom_value\fP 1i
+Specifies the value to be converted.
+.IP \fIto_value_return\fP 1i
+Returns the value after the conversion.
+.LP
+Your conversion routine should convert the from_value to the target type.
+.NH 3
+Merging Resource Databases
+.LP
+Use
+.PN XrmMergeDataBases 
+to merge the contents of one database into another. 
+.IN "XrmMergeDataBases"
+The definition for this function is:
+.IN "Definitions" "XrmMergeDataBases"
+.FD 0
+.so ./Xsrc/XrmMDBase.f
+.FN
+.so ./Xsrc/new.a
+.so ./Xsrc/into.a
+.LP
+The 
+.PN XrmMergeDataBases  
+function may overwrite entries in
+the destination database. 
+This procedure is used to combine databases (for example,
+an application specific database of defaults and a database of
+user preferences).
+.NH 3
+Retrieving and Storing Databases
+.LP
+Use
+.PN XrmGetDataBase 
+to retrieve a database from nonvolatile storage. 
+.IN "XrmGetDataBase"
+The definition for this function is:
+.IN "Definitions" "XrmGetDataBase"
+.FD 0
+.so ./Xsrc/XrmGDBase.f
+.FN
+.so ./Xsrc/dbhandle.a
+.LP
+The
+.PN XrmGetDataBase
+function is used primarily to get a copy of the global user-preference database.
+However, it also can be used to retrieve stored copies of other
+resource databases (perhaps, those from earlier invocations of the program or a
+database editor).
+.LP
+.sp
+Use
+.PN XrmPutDataBase 
+to store a copy of the application's current database in nonvolatile
+storage. 
+.IN "XrmPutDataBase"
+The definition for this function is:
+.IN "Definitions" "XrmPutDataBase"
+.FD 0
+.so ./Xsrc/XrmPDBase.f
+.FN
+.so ./Xsrc/dbhandle.a
+.so ./Xsrc/db.a
+.LP
+.so ./Xdescrip/XrmPDBase.d
+.LP
+.sp
+Use
+.PN XrmLoadDataBase
+.IN "XrmLoadDataBase"
+to retrieve a resource from the database and add it to a string.
+The definition for this function is:
+.IN "Definitions" "XrmLoadDataBase"
+.FD 0
+.so ./Xsrc/XrmLDBase.f
+.FN
+.so ./Xsrc/data_rm.a
+.LP
+.so ./Xdescrip/XrmLDBase.d
+.NH 3
+Parsing Command Line Options
+.LP
+Use
+.PN XrmParseCommand
+to load a resource data base from a C command line.
+The definition for this function is:
+.IN "Definitions" "XrmParseCommand"
+.IN "XrmParseCommand"
+.DS
+.TA .5i 3i
+.ta .5i 3i
+
+typedef enum {
+    XrmoptionNoArg,	/* Value is specified in OptionDescRec.value	    */
+    XrmoptionIsArg,	/* Value is the option string itself		    */
+    XrmoptionStickyArg,	/* Value is characters immediately following option */
+    XrmoptionSepArg,	/* Value is next argument in argv		    */
+    XrmoptionSkipArg,	/* Ignore this option and the next argument in argv */
+    XrmoptionSkipLine	/* Ignore this option and the rest of argv	    */
+} XrmOptionKind;
+
+typedef struct {
+    char *option;	/* Option abbreviation in argv		    */
+    char *resourceName;	/* Resource name (sans application name)    */
+    XrmOptionKind argKind;/* Which style of option it is	    */
+    caddr_t value;	/* Value to provide if XrmoptionNoArg    */
+} XrmOptionDescRec, *XrmOptionDescList;
+
+.DE
+.FD 0
+.so ./Xsrc/XrmParse.f
+.FN
+.so ./Xsrc/db.a
+.so ./Xsrc/dbtable.a
+.so ./Xsrc/dbtcount.a
+.so ./Xsrc/parname.a
+.so ./Xsrc/parseargc.a
+.so ./Xsrc/parseargv.a
+.LP
+.so ./Xdescrip/XrmParse.d
+.LP
+The specified table is used to parse the command line.
+Recognised entries in the table are removed from argv,
+and entries are made in the specified resource data base.
+The table entries contain information on
+the option string,
+the the option name,
+which style of option
+and a value to provide if the option kind is XrmoptionNoArg.
+The argc argument specifies the number of arguments in argv,
+and is set to the remaining number of arguments that were not
+parsed.
+The name argument should be the name of your application
+for use in building the data base entry.
+.NH 2
+Using the Context Manager
+.LP
+The context manager provides a way of associating data with a window in your
+program.  
+Any amount of data in any number of pieces can be associated with a window,
+and each piece of data has a type associated with it.  
+The context manager requires knowledge of the window ID
+and type to store or retrieve data.
+.LP
+Essentially, the context manager can be viewed as a two-dimensional, 
+sparse array:  one dimension is subscripted by the window ID 
+and the other by a context type field.
+Each entry in the array contains a pointer to the data.
+Xlib provides context management functions with which you can
+save data values, get data values, delete entries, and create a unique
+context type.
+The symbols used are in
+.PN <X11/Xutil.h>
+header file.
+.IN "Files" "<X11/Xutil.h>"
+.LP
+.sp
+Use
+.PN XSaveContext 
+to save a data value that corresponds to a window and context type. 
+.IN "XSaveContext"
+The definition for this function is:
+.IN "Definitions" "XSaveContext"
+.FD 0
+.so ./Xsrc/XSContext.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w_context.a
+.so ./Xsrc/context.a
+.so ./Xsrc/data_context.a
+.LP
+If an entry with the specified window and type already exists, 
+.PN XSaveContext
+overrides it with the specified context.  
+However, this override has costs in time and space.  
+If you know the entry already exists,
+it is better to call 
+.PN XDeleteContext
+first.
+The
+.PN XSaveContext
+function returns nonzero error code if an error has occurred 
+and zero (0) otherwise.
+Possible errors are 
+.PN XCNOMEM
+(out of memory).
+.LP
+.sp
+Use
+.PN XFindContext 
+to get the data associated with a window and type. 
+.IN "XFindContext"
+The definition for this function is:
+.IN "Definitions" "XFindContext"
+.FD 0
+.so ./Xsrc/XFContext.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w_context.a
+.so ./Xsrc/context.a
+.so ./Xsrc/data_ret.a
+.LP
+Because it is a return value,  
+the data is a pointer.
+The
+.PN XFindContext
+function returns nonzero error code if an error has occurred 
+and zero (0) otherwise. 
+Possible errors are 
+.PN XCNOENT
+(context-not-found).
+.LP
+.sp
+Use
+.PN XDeleteContext 
+to delete an entry for a given window and type. 
+.IN "XDeleteContext"
+The definition for this function is:
+.IN "Definitions" "XDeleteContext"
+.FD 0
+.so ./Xsrc/XDContext.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w_context.a
+.so ./Xsrc/context.a
+.LP
+The 
+.PN XDeleteContext
+function deletes the entry for the given window and type from the data structure.
+This returns the same error codes that 
+.PN XFindContext
+returns if called with the same arguments.
+.LP
+.sp
+Use
+.PN XUniqueContext 
+to create a unique context type that may be used in subsequent calls to
+.PN XSaveContext .
+.IN "XSaveContext"
+and
+.PN XFindContext .
+.IN "XFindContext"
+.IN "XUniqueContext"
+The definition for this function is:
+.IN "Definitions" "XUniqueContext"
+.FD 0
+.so ./Xsrc/XUContext.f
+.FN
+.bp

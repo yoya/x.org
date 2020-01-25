@@ -1,0 +1,64 @@
+.TH XStoreBytes 3X 
+.SH NAME
+XStoreBytes, XStoreBuffer, XFetchBytes, XFetchBuffer, XRotateBuffers 
+\- manipulate cut and paste buffers
+.SH SYNTAX
+.so ../Xsrc/XStoreBytes.f
+.LP
+.so ../Xsrc/XStoreBuffer.f
+.LP
+.so ../Xsrc/XFetchBytes.f
+.LP
+.so ../Xsrc/XFetchBuffer.f
+.LP
+.so ../Xsrc/XRotateBufs.f
+.SH ARGUMENTS
+.so ../Xsrc/buffer.a
+.so ../Xsrc/bytes.a
+.so ../Xsrc/display.a
+.so ../Xsrc/nbytes2.a
+.so ../Xsrc/nbytes.a
+.so ../Xsrc/buffer1.a
+.so ../Xsrc/rotate.a
+.SH DESCRIPTION
+.so ../Xdescrip/XStoreBytes.d
+.ds fd .PN XStoreBytes
+.so ../Xsrc/errsent.com
+.PN BadWindow 
+and
+.PN BadAlloc .
+.LP
+.so ../Xdescrip/XStoreBuffer.d
+.ds fd .PN XStoreBuffer
+.so ../Xsrc/errsent.com
+.PN BadWindow ,
+.PN BadAtom ,
+and
+.PN BadAlloc .
+.LP
+.so ../Xdescrip/XFetchBytes.d
+.ds fd .PN XFetchBytes
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.so ../Xdescrip/XFetchBuffer.d
+.ds fd .PN XFetchBuffer
+.so ../Xsrc/errsent4.com
+.PN BadValue .
+.LP
+.so ../Xdescrip/XRotateBufs.d
+.ds fd .PN XRotateBuffers
+.so ../Xsrc/errsent.com
+.PN BadWindow ,
+.PN BadAtom ,
+and
+.PN BadMatch .
+.SH DIAGNOSTICS
+.so ../Xerrors/badalloc.e
+.so ../Xerrors/badatom.e
+.so ../Xerrors/badmatch2.e
+.so ../Xerrors/badvalue.e
+.so ../Xerrors/badwindow.e
+
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

@@ -1,0 +1,6 @@
+.\" $Header: winxy.a,v 11.6 87/09/10 12:22:32 mento Exp $
+.IP \fIwin_x_return\fP 1i
+.br
+.ns
+.IP \fIwin_y_return\fP 1i
+Returns the pointer coordinates relative to the specified window.

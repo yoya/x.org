@@ -1,0 +1,4 @@
+.\" $Header: foreground.a,v 11.3 87/03/28 10:56:23 mento Exp $
+.IP \fIforeground\fP 1i
+Specifies the foreground you want to set for the specified
+graphics context.

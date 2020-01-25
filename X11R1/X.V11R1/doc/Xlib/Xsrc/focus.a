@@ -1,0 +1,6 @@
+.\" $Header: focus.a,v 1.7 87/09/10 15:20:30 mento Exp $
+.IP \fIfocus_return\fP 1i
+Returns the focus window ID, the constant
+.PN PointerRoot ,
+or the constant
+.PN None .

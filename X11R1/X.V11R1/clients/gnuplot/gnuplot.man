@@ -1,0 +1,74 @@
+GNUPLOT man page
+
+SYNOPSIS
+	gnuplot
+DESCRIPTION
+
+Gnuplot is a command driven, interactive plotting program 
+which can draw graphs either an X11 window or into a Postscript
+file which can then be printed on a Postscript-using printer.
+Output drivers for several other kinds of hardcopy plotters and
+personal computer graphic displays are also available.
+
+It is extremely simple to display graphs of mathematical functions
+using Gnuplot.  For example, if you want to view the parabola defined
+by the equation
+	y = x^2,
+then, after entering Gnuplot and receiving the prompt "gnuplot>",
+simply type
+	plot x**2
+(Gnuplot, like Fortran, uses the syntax x**y to denote exponentation).
+
+The X values plotted range by default from -10 to +10.  The graph
+scaling in both the X and Y directions is done automatically according
+to the values that need to be plotted.
+
+Different commands exist to change the plotting style, manually set
+ranges and scaling, change output devices, etc.  Also, there is a
+fairly good library of mathematical functions.  All of these functions
+work in the complex plane, as Gnuplot does all of its calculations using
+complex numbers.  (Only real numbers actually get plotted, though.
+Complex domain plotting waits for a future enhancement).
+
+There is a built in help system which you can access by typing "help"
+to the "gnuplot>" prompt.  Typing "help ?" lists all the topics that
+the help system knows about.  Examining the help for each of the topics,
+in the order that "help ?" lists them, shows you all of the material
+in the printed Gnuplot manual.
+
+Gnuplot was written by Thomas Williams and Colin Kelley at Villanova
+University in Pennsylvania.  The X window driver and some other
+features were added at MIT.  There is at the moment no connection
+between the original Gnuplot authors and the GNU project of the Free
+Software Foundation Inc.  Gnuplot's name might have been chosen
+because the authors intend to contribute the program to the GNU
+project someday, or it might be a coincidence.  All attempts to date
+to get in touch with them and get this question answered have failed.
+
+DISTRIBUTION
+
+As originally received from Villanova, all the Gnuplot source files
+contained the notice
+
+/*
+ *
+ *    G N U P L O T  --	 graphics.c
+ *
+ *  Copyright (C) 1986, 1987  Thomas Williams, Colin Kelley
+ *
+ *  You may use this code as you wish if credit is given and this message
+ *  is retained.
+ *
+ *  Please e-mail any useful additions to vu-vlsi!plot so they may be
+ *  included in later releases.
+ *
+ */
+
+The MIT version can be freely redistributed, but only under the terms
+of a GNU-like copyleft.  This means that you can redistribute it as long
+as you include all the source code, including source code to any changes
+you make, and your recipient is allowed to further redistribute everything
+s/he receives from you.  See the GNU Emacs General Public License, viewable
+by typing Control-H Control-C to GNU Emacs, for the exact redistribution
+terms specified by such a copyleft.  The terms of distribution for MIT
+Gnuplot are identical.

@@ -1,0 +1,6 @@
+LOCAL_LIBRARIES = $(XLIB)
+  SYS_LIBRARIES = -lm
+           SRCS = main.c util.c
+           OBJS = main.o util.o
+
+ComplexProgramTarget(paint, $(BINDIR))

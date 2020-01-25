@@ -1,0 +1,4 @@
+.\" $Header: frame.a,v 11.2 87/03/28 10:56:28 mento Exp $
+.IP \fIframe\fP 1i
+Specifies the background and border pixmaps.
+You must pass the background and border pixmaps

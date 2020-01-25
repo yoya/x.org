@@ -1,0 +1,6 @@
+.\" $Header: major_opcode.a,v 11.2 87/03/28 10:57:32 mento Exp $
+.IP \fImajor_opcode\fP 1i
+Specifies the major opcode for the extension, if the extension is
+present.
+.PN XQueryExtension
+returns the major opcode to this argument.

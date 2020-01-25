@@ -1,0 +1,3 @@
+.IP \fInames\fP 1i
+Specifies a pointer to the list of font names that were returned by 
+.PN XListFontsWithInfo .

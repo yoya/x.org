@@ -1,0 +1,3 @@
+.\" $Header: mchar.a,v 11.3 87/09/02 10:09:44 mento Exp $
+.IP \fImask_char\fP 1i
+Specifies the glyph character for the mask. 

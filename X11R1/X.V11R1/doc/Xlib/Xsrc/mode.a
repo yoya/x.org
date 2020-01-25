@@ -1,0 +1,8 @@
+.\" $Header: mode.a,v 11.7 87/09/09 17:41:31 mento Exp $
+.IP \fImode\fP 1i
+Specifies the coordinate mode. 
+.PN CoordModeOrigin
+treats a coordinates as related to the origin,
+while
+.PN CoordModePrevious 
+treates all coordinates after the first as relative to the previous point.

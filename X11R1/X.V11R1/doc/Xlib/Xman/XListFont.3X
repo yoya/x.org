@@ -1,0 +1,125 @@
+.na
+.de FD
+.LP
+.KS
+.TA 1.0i 3i
+.ta 1.0i 3i
+.nf
+..
+.de FN
+.fi
+.KE
+.LP
+..
+.de IN		\" send an index entry to the stderr
+..
+.de C{
+.KS
+.nf
+.D
+.\"
+.\"	choose appropriate monospace font
+.\"	the imagen conditional, 480,
+.\"	may be changed to L if LB is too
+.\"	heavy for your eyes...
+.\"
+.ie "\\*(.T"480" .ft L
+.el .ie "\\*(.T"300" .ft L
+.el .ie "\\*(.T"202" .ft PO
+.el .ie "\\*(.T"aps" .ft CW
+.el .ft R
+.ps \\n(PS
+.ie \\n(VS>40 .vs \\n(VSu
+.el .vs \\n(VSp
+..
+.de C}
+.DE
+.R
+..
+.de PN
+.ie t \f(H\|\\$1\|\fR\\$2
+.el \fI\|\\$1\|\fP\\$2
+..
+.de NT
+.ne 7
+.ds NO Note
+.if \\n(.$>$1 .if !'\\$2'C' .ds NO \\$2
+.if \\n(.$ .if !'\\$1'C' .ds NO \\$1
+.ie n .sp
+.el .sp 10p
+.TB
+.ce
+\\*(NO
+.ie n .sp
+.el .sp 5p
+.if '\\$1'C' .ce 99
+.if '\\$2'C' .ce 99
+.in +5n
+.ll -5n
+.R
+..
+.		\" Note End -- doug kraft 3/85
+.de NE
+.ce 0
+.in -5n
+.ll +5n
+.ie n .sp
+.el .sp 10p
+..
+.ny0
+.TH XListFonts 3X 
+.SH NAME
+XListFonts, XFreeFontNames \- obtain and free font names
+.SH SYNTAX
+.\" $Header: XFontNames.f,v 11.9 87/08/15 12:12:39 mento Exp $
+char **XListFonts\^(\^\fIdisplay\fP, \fIpattern\fP\^, \fImaxnames\fP, \fIactual_count_return\fP\^)
+.br
+      Display *\^\fIdisplay\fP\^;
+.br
+      char *\^\fIpattern\fP\^;
+.br
+      int \fImaxnames\fP\^;
+.br
+      int *\^\fIactual_count_return\fP\^;
+.LP
+.\" $Header: XFrFntNames.f,v 11.3 87/09/02 09:05:56 mento Exp $
+XFreeFontNames\^(\^\fIlist\fP\^)
+.br
+      char *\fIlist\fP\^[\^]\^;
+.SH ARGUMENTS
+.IP \fIactual_count_return\fP 1i
+Returns the actual number of font names.
+.\" $Header: display.a,v 11.8 87/09/03 11:02:24 mento Exp $
+.IP \fIdisplay\fP 1i
+Specifies the connection to the X server.
+.\" $Header: list.a,v 11.3 87/03/28 10:57:25 mento Exp $
+.IP \fIlist\fP 1i
+Specifies the array of strings you want to free.
+.IP \fImaxnames\fP 1i
+Specifies the maximum number of names that are to be in the returned list.
+.\" $Header: pattern.a,v 11.6 87/09/07 12:32:04 mento Exp $
+.IP \fIpattern\fP 1i
+Specifies the null-terminated string associated with the font names 
+that you want returned.
+You can specify any string, an
+asterisk (*), or a question mark (?). 
+The asterisk indicates a wildcard on any number
+of characters, and the question mark indicates a wildcard on a single
+character.
+.SH DESCRIPTION
+.\" $Header: XFontNames.d,v 1.2 87/09/02 09:04:10 mento Exp $
+The
+.PN XListFonts
+function returns an array of font names that match the string you passed to the
+pattern argument.
+.LP
+.\" $Header: XFrFntNames.d,v 1.1 87/08/27 14:19:11 mento Exp $
+The
+.PN XFreeFontNames
+function frees the array and strings returned by
+.PN XListFonts .
+.SH "SEE ALSO"
+XLoadFont(3X)
+XSetFontPath(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

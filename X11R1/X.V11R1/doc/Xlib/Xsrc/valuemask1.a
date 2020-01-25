@@ -1,0 +1,7 @@
+.\" $Header: valuemask1.a,v 11.5 87/08/22 08:13:20 mento Exp $
+.IP \fIvaluemask_create\fP 1i
+Specifies which components in the graphics context are to be set using information in the
+.PN XGCValues
+structure.
+This argument is the bitwise inclusive OR of one or more of the valid 
+GC component masks.

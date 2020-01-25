@@ -1,0 +1,26 @@
+.TH XrmPutResource 3X 
+.SH NAME
+XrmPutResource, XrmGetResource \- store or get resources
+.SH SYNTAX
+.so ../Xsrc/XrmPResource.f
+.LP
+.so ../Xsrc/XrmGResource.f
+.SH ARGUMENTS
+.so ../Xsrc/type_rm.a
+.so ../Xsrc/db.a
+.so ../Xsrc/inher_class.a
+.so ../Xsrc/inher_name.a
+.so ../Xsrc/list_rm.a
+.so ../Xsrc/screen1.a
+.so ../Xsrc/type_dest.a
+.so ../Xsrc/value_rm.a
+.so ../Xsrc/value_getrm.a
+.SH DESCRIPTION
+.so ../Xdescrip/XrmPResource.d
+.LP
+.so ../Xdescrip/XrmGResource.d
+.SH "SEE ALSO"
+XrmConvert(3X),
+XrmGetDataBase(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

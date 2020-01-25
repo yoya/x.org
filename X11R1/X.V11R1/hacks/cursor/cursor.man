@@ -1,0 +1,36 @@
+.\" $Header: cursor.man,v 1.1 87/09/14 00:30:29 toddb Exp $
+.TH XMODMAP 1 "6 July 1987" "X Version 11"
+.SH NAME
+cursorcolor - X Window System cursor color test
+.SH SYNOPSIS
+.B "cursorcolor"
+[ -fg \fIname\fP ]
+[ -bg \fIname\fP ]
+[ \fIhost\fP:\fIdisplay\fP ]
+.SH DESCRIPTION
+.PP
+.I Cursorcolor
+puts up a window with a black background,  and the X cursor.
+It does a RecolorCursor based on the background & foreground
+colors from the command line (white & black by default),
+to check that cursor colors are being set correctly.
+If no display is specified,  the value of the
+.B DISPLAY
+environment variable is used.
+.SH OPTIONS
+.TP 8
+.B "-fg \fIname\fP"
+Set the foreground cursor color to \fIname\fP.
+.B "-bg \fIname\fP"
+Set the background cursor color to \fIname\fP.
+.SH ENVIRONMENT
+.PP
+.TP 8
+.B DISPLAY
+To get default host and display number.
+.SH SEE ALSO
+X(1)
+.SH AUTHOR
+David Rosenthal,  Sun Microsystems
+.sp
+Copyright \(co 1987 Sun Microsystems,  Inc.

@@ -1,0 +1,4 @@
+.IP \fImodmap\fP 1i
+Specifies a pointer to the 
+.PN XModifierKeymap
+structure.

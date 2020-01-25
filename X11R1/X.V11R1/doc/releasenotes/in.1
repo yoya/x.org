@@ -1,0 +1,132 @@
+.\" $Header: in.1,v 1.2 87/09/15 06:13:46 toddb Locked $
+.EF '\fBX Window System Release Notes\fP''\fBX Version 11\fP'
+.OF '\fBX Window System Release Notes\fP''\fBX Version 11\fP'
+.EH ''\fB- % -\fP''
+.OH ''\fB- % -\fP''
+.DA "September 15, 1987"
+.TL
+X Window System Release Notes
+.br
+Version 11
+.br
+Release 1
+.AU
+Todd Brunhoff
+.AI
+Tektronix, inc.
+MIT, Project Athena
+.AU
+Ralph Swick
+.AI
+Digital Equipment Corporation
+MIT, Project Athena
+.AU
+Bob Scheifler
+.AI
+MIT, Laboratory for Computer Science
+.AU
+Ron Newman
+.AI
+MIT, Project Athena
+.AU
+Jim Gettys
+.AI
+Digital Equipment Corporation
+Systems Research Center
+.AB
+X Window System version 11 is
+a network transparent window system developed at MIT and is intended to
+be able to support virtually all known instances of raster display hardware.
+This document is a collection of notes on the system's installation and
+use.
+.AE
+.NH 1
+Overview
+.LP
+Welcome to the first release of version 11 of The X Window System.
+This release represents a major redesign and enhancement of X and signals
+its graduation from the research community into the product engineering
+and development community.  The X Window System version 11 is intended to
+be able to support virtually all known instances of raster display
+hardware and reasonable future hardware, including hardware supporting
+deep frame buffers, multiple colormaps and various levels of hardware
+graphics assist.
+.LP
+A note about terminology is in order here.  First, the document "X Window
+System Protocol, Version 11" is the definitive description of what is (and
+what is not) part of the core X Window System.  This is distinct from the
+sample server implementation that forms the foundation of this release.
+The sample server is provided here for the benefit of developers who wish
+to quickly produce an implementation for a new piece of hardware.  The
+sample server is not necessarily intended to be a reference
+implementation, although that remains a possibility for the future.
+Instead, it is
+our intention that future implementors
+will be able to rely on the protocol
+specification and related documents and not be forced to refer
+to the code.  The sample server, with device-dependent and device-independent
+implementations as
+contributed from various places, will remain the foundation of the M.I.T.
+X Window System distribution.
+.LP
+The C language interface defined by Xlib is only one of many possible
+language bindings to the protocol.  While we certainly encourage
+standardization of the Xlib interface (and at least one international
+standards organization is considering this), we are not dogmatic on this
+point.  Xlib has two somewhat conflicting requirements; first, it is the
+lowest level procedural interface to the X protocol.  As such, it must
+implement all the nuances possible without encroaching on the vendors' and
+application developers' prerogative to set conventions for style.  Xlib's
+second mission is to be the first level interface for applications
+development, in anticipation of future work (such as the toolkit) on
+common higher-level applications interfaces.  In fulfillment of this
+objective, Xlib includes many "convenience routines" that are a
+re-packaging of one or more protocol operations to simplify common cases,
+and it includes several additional utility routines that have no direct
+relationship to the protocol but that are required when building "real"
+applications, such as window managers.
+.LP
+The toolkit is a 'beta test' release.  The design here should look
+familiar to those of you who used our early prototypes under version
+10, but we have changed most of the interfaces in ways that we hope
+make the task of writing widgets much easier to accomplish.  The
+earlier prototype toolkit is included on the tape for those of you who need it
+to assist your conversion.  You should not expect it to appear on the
+next release.
+.LP
+The clients provided on this release should not be construed as
+the correct way for them to be written,
+but should be regarded as what most of them really are:
+straight-forward ports of existing X version 10 clients.
+Only a few use the toolkit and only the old version at that.
+Those of you
+who used previous versions of X will find several differences
+in their input, output and options, not all
+of them documented.  Some of the differences are intentional and some
+not.  Feel free to let us know if you really think something is
+broken, but we will also feel free to respond with an alternative to
+your proposal.
+.LP
+By default, X is distributed to install on a stock 4.3BSD system;
+installation under Ultrix-32 release 2.0 should essentially be the same.
+It has been known to compile and run on ATT System V systems
+but we haven't had access to such a system to verify this.
+.FS
+\(dd Ultrix and Ultrix-32 are trademarks of Digital Equipment Corporation
+.FE
+.FS
+Copyright 1985, 1986, 1987 by the Massachusetts Institute of Technology
+.FE
+.FS
+Permission to use, copy, modify, and distribute this
+software and its documentation for any purpose and without
+fee is hereby granted, provided that the above copyright
+notice appear in all copies and that both that copyright
+notice and this permission notice appear in supporting
+documentation, and that the name of M.I.T. not be used in
+advertising or publicity pertaining to distribution of the
+software without specific, written prior permission.
+M.I.T. makes no representations about the suitability of
+this software for any purpose.  It is provided "as is"
+without express or implied warranty.
+.FE

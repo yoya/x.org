@@ -1,0 +1,9 @@
+.\" $Header: getxy.a,v 1.9 87/09/10 20:26:11 mento Exp $
+.IP \fIx_return\fP 1i
+.IP \fIy_return\fP 1i
+Returns the x and y coordinates of the drawable.
+These coordinates define the location of the drawable.
+For a window, 
+these coordinates specify the upper left outer corner relative to
+its parent's origin.
+For pixmaps, these coordinates are always zero (0).

@@ -1,0 +1,9 @@
+.\" $Header: onlyifexist.a,v 11.4 87/03/08 02:46:04 mento Exp $
+.IP \fIonly_if_exists\fP 1i
+Specifies a boolean value that indicates whether
+.PN XInternAtom
+creates the atom.
+You can pass one of the constants
+.PN True
+or
+.PN False .

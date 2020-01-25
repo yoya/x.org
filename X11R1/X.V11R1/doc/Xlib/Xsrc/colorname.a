@@ -1,0 +1,4 @@
+.\" $Header: colorname.a,v 11.2 87/03/28 10:54:48 mento Exp $
+.IP \fIcolorname\fP 1i
+Specifies the color name string (for example, "red") whose color 
+definition structure you want returned.

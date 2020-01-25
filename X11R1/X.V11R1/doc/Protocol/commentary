@@ -1,0 +1,481 @@
+		Commentary on X Version 11 Design
+			August 1986
+			Jim Gettys
+		Corresponds to Protocol Draft 4.0
+
+	Copyright (c) 1986, Massachusetts Institute of Technology
+
+The information in this document is subject to change without notice,
+and should not be construed as a commitment by MIT.  MIT assumes no
+responsibility for the use of this information.  This document is a
+companion to the "X Window System Protocol, Version 11" document.
+
+1) Introduction
+
+We have been surprised and gratified by people's reactions to X since
+its widespread availability.  X is now running on more different
+hardware of more manufacturers than any other window system we know
+of, and it is no longer feasible to even keep track of these
+implementations.  
+
+The obvious question emerges, therefore, of "Where is X going from
+here?"  particularly since X does not attempt to address many
+perfectly valid functions and user interfaces, or support some of the
+hardware now being designed.  There was also no mechanism to extend
+the X protocol without potentially conflicting with other extensions.
+Rather than watching the current consensus collapse, we are therefore
+attempting to forestall the otherwise inevitable incompatible changes
+that would occur, both to support this new hardware and to support
+other user interfaces.
+
+The intent with V11 is to address enough of the outstanding issues that
+the "Core" X protocol can be frozen.  The intent is that the protocol
+not change again (for a long time), except by universal adoption of
+extensions.  Therefore, V11 of X should be regarded as the long
+term "standard" X window system.
+
+There are a number of issues we deliberately avoided in the design of
+X protocol version 10, either because we did not understand the issues, or
+know what the issues were.  There were also great manpower limitations
+which the acceptance of X has relieved (of course, introducing another
+problem, of too many helping hands).
+
+This has encouraged us in the design of this version of X to be
+somewhat more ambitious in its design, and technology is forcing us to
+handle problems which were deliberately put aside (for example, 24 bit
+frame buffers).  We also want to flesh the basic structure of X out
+into a more complete environment, capable of supporting most
+applications we have seen on many manufacturer's displays, and
+generalize many facilities to reflect experience gained with the
+current design.
+
+When reading this document, please realize that the protocol is
+underneath the programmer's interface (usually for C, called Xlib),
+and can change in substantial ways without impacting this interface.
+See section 12 for details.  A new version of Xlib will be in a separate
+document available sometime after the protocol.
+
+Please direct discussion of Version 11 of X to the Xpert mailing list
+"Xpert@athena.mit.edu".
+
+People participating in the V11 design meetings were: Robert W.
+Scheifler (MIT), Jim Gettys (MIT/Project Athena, DEC), Scott McGregor
+(DECSSG), David Rosenthal (Sun Microsystems), Craig Taylor (Sun
+Microsystems), Branko Gerovac (DEC Workstations), Ram Rao and Dave
+Winchell (DEC Unix engineering group), and Phil Karlton, (DECWSL).
+
+Ron Newman (MIT/Project Athena) did great service reading several drafts
+of the spec.
+
+2) Requirements
+
+The following requirements were placed on V11 design:
+
+	1) Increase the types of displays on which X runs on to include
+deep frame buffers and other color map types.  X should also support
+more than one pointing device and be generalizable to deal with many
+types of input devices.
+
+	2) Preserve as much device independence as possible while
+increasing basic functionality.  Some display devices may have resource
+limits however.
+
+	3) No change in basic philosophy of the system.
+
+	4) support multiple displays from a single server.  We believe
+this will become a common situation and want applications to be
+able to handle this gracefully.
+
+	5) support a wider variety of window managers, including tiled
+styles of window management, as usual in external processes.  For example,
+þòan Andrew or MSWindows style of user interface should be possible.
+
+	6) increase performance and reduce overhead.
+  
+	7) define a core system that can run on most common hardware,
+and provide an extension facility to allow addition of unanticipated
+or experimental facilities without conflict to the base window system.
+
+	8) correct oversights and fix problems.
+
+	9) improve graphics capability.
+
+Equally important is a statement of what we decided NOT to attempt in
+the design.  The following were deliberately set aside in the design,
+though we expect that extension packages will be defined for many of
+these.
+
+	3-D displays and graphics
+	Z buffer displays
+	Sub-pixel coordinate graphics (X is arguably wrong, but fixing this
+		was more of an upheaval than we could tolerate, and much
+		hardware is not capable of correct behavior.)
+	Antialiased greyscale fonts
+	Programmable extension language facilities.
+
+3) System Model
+
+V10 allows connections from any machine on a list of trusted hosts.
+This is adequate for workstations, but not adequate when dealing with
+timeshared machines or other shared resource machines.  Unfortunately,
+Unix does not yet have commonly available authentication servers, but
+V11 provides the protocol hook at connection set up time to support
+various sorts of authentication services.
+
+In V10, the round trip time to return the window and other resource
+id's dominates the actual creation time, so while client menu
+libraries have adequate performance, creating them was taking
+observable lengths of time, even with batching of window creation
+requests.  Reducing the number of calls in X returning results was
+therefore a goal in V11 design.  Allocation of resource ID address
+space is done in the server, but each client now actually assigns
+resource id's locally.  This should improve creation times of complex
+objects in X.
+
+In V11, you will notice various advice a program can give to the
+window system server for handling backing store (occluded bitmaps, for
+example).  This is to be taken as advice by the window system; some
+server implementations may implement such storage, and others may not.
+We did not want to preclude such server implementations, though we
+expect many to find it hard or impossible to preserve window contents.
+Applications must still be prepared to regenerate window contents on
+demand.  These hints may help performance on servers which do
+implement backing stores.
+
+4) Window Hierarchy
+
+We believe that workstations with more than one screen (but a single
+instance of mouse, keyboard, etc.) will become common over the next
+few years.  First hand experience of several of us (jg, dshr) was that
+this is a common and desirable arrangement in many real world
+applications.  While a "hot key" approach could be taken, it seemed to
+us that use of such a system is much less graceful and writing
+applications would likely be much more clumsy under such design than
+in a design in which multiple screens could be supported from a single
+server.
+
+X11 supports an array of root windows, one for each screen to be used
+by a single user.  The characteristics of each screen can be
+different; for example, one may be monochrome and one may be color.  X
+does not define how a pointer may roam between screens (nor does it
+need to know), but it is expected that a server will allow such
+roaming.  This should allow clean input handling in applications
+manipulating windows on different screens.
+
+When the V11 design was well underway, it became clear that 
+V10 transparent windows were of little use, given the more general
+facilities.  Having different types of windows seems to be a long term
+bad idea.  While the semantics of transparent windows cannot be 
+completely simulated in V11, we doubt that it will be any real problem.
+This is discussed further below.
+
+A number of requests for changing the position and stacking of windows
+have been merged into a general single "ConfigureWindow" request to
+provide better control over window placement, appearance and sizing.
+
+In V10, windows always had to have a background, and they did not
+always have to define a border.  In V11, a window does not have
+to define a background, and will then share the bits of its parent.
+This provides one of the major purposes of a transparent window,
+since a window with a zero width border sharing bits with its
+parent is quite similar to a transparent window. 
+
+In V10 of X, all windows have background pixmaps.  We believe this is
+usually correct in a network environment of timeshared machines, where
+a process may be swapped out or the network latency is relatively
+high.  It is much less objectionable for a window to be moved, its
+border and background repainted immediately with a delay repainting
+the contents than there be "ghosts" of windows past to confuse the
+user.  There are certain circumstances where this may not be
+desirable, however.  In V10, painting of a multiplane menu may be much
+slower than desirable, as the window system repaints the background
+of each plane, which will be covered nearly immediately (for full
+discussion, see above).  By no longer requiring a background pixmap
+and no longer painting the background of such windows, such repainting
+can be left to client programs to perform when they have better
+information than the window system.  By default, the V10 behavior,
+(repaint the background) occurs.  We considered eliminating borders
+entirely, but the compatibility implications were large and the burden
+on client programs large.  Many programs desiring buttons use
+subwindows, and they do not have to worry about repainting the border
+when exposed.  V11 also permits background and borders to be
+pixels rather than pixmaps.
+
+The border is always required to exist to permit a window manager to safely
+use the border for indications like input focus.  In V10, there was
+no way to change the border width once a window was created.
+
+5) Color
+
+The V11 design allows multiple virtual color maps which are associated
+with windows.  On displays with more color map than bits/pixel, this
+should allow multiple windows to have truly independent color maps.
+Applications requiring the full color map should  now be able to run, but
+may cause other windows to display incorrect colors.  We highly
+discourage software which presumes it has complete use of the
+entire color map, but some people have found it difficult to
+remove this presumption from some existing applications when porting
+to X.
+
+Color displays without color maps should at least be able to run the
+majority of applications which do not dynamically alter the color of a
+pixel by changing color map entries.
+
+V10 only used 16 bit quantities for pixel values and plane mask in the
+transport protocol.  V11 fully supports 32 bits/pixel or less
+displays.  In order to keep the basic request size down and increase
+other graphics performance, the concept of graphics context was added
+to X.  (See the section on graphics below).  This allows full
+functionality, while reducing the network bandwidth required.
+The current stateless form of graphics calls will be provided in
+the X client library for those who prefer this style of programming.
+
+
+
+6) Graphics and Text
+
+The distinction between bitmap and pixmap is being eliminated.
+A bitmap is a single plane pixmap in V11.  Pixmaps can be
+of different depths (one bit and the depth of the display are
+required, but others are permissible).
+
+Previous versions of X maintained no graphics state.  All information
+(foreground, background, etc.) was encapsulated in the graphics
+request, set up, the operation performed, and discarded.  This was
+attractive in that a separate resource type was not needed, and for
+the hardware X originally ran on, did not make any performance
+difference.  Most color devices, however, have additional outboard
+hardware, and register set up time has become significant on these
+classes of displays.
+
+An additional reason for the introduction of graphics context is to
+reduce the size of basic requests.  In V10, a basic request was 24
+bytes, and only 16 bit pixel values and plane masks were required in
+them.  If graphics requests were to remain stateless and V11 was to
+support 32 bits/pixel, the basic request would almost certainly have
+had to grow to at least 32 if not 36 bytes.  Instead, in V11 almost
+all requests can be fit into 16 byte byte requests, reducing the
+network overhead for most applications, which should also increase
+performance somewhat.
+
+There were two other possibilities considered in the design of graphics
+contexts: 1) associating state with windows, and 2) associating windows with
+state objects.  Both strategies were discarded after long debate,
+with the current, most general solution chosen to permit multi-client and
+multi-thread languages to use X with little difficulty, and to keep
+windows as cheap as possible.  Some applications (of dubious merit)
+have used as many as 3000 windows (!), while some more serious
+applications use of order 100.
+
+Both stateless and graphics context based calls will be available in
+the V11 Xlib library.
+
+One strength of the Macintosh is the concept of a region, which is an
+arbitrary set of pixels on the screen.  The one essential facility
+that must be at the server in X is the actual clipping of graphics
+operations to a region.  Other region arithmetic may have to be done
+in client programs, and since it may have to be done in client
+programs to meet speed requirements, there is no reason to put full
+region arithmetic in the server.  We intend to provide general region
+support in the X library.  In addition, regions are useful for
+refreshing windows after complex exposure events.
+
+The major drawing primitive in V10 was a command called XDraw, which
+was capable of a poly (sp)line single or wide line to be drawn.  This
+has been split into separate polypoint, polysegment, polypoint, poly
+line, and poly arc commands.  The poly arc command will allow simple
+circles and elliptic arcs to be drawn.  There are fill forms of the
+arc and line primitives, and a client can give accelerator information
+to a server on some of these commands when it has information that may
+allow faster drawing and filling algorithms to be chosen.  The current
+XDraw form will become a library routine.
+
+When drawing wide lines, cap style, and join style shapes become of
+serious concern.  V11 supports line cap types and join styles in the
+graphics context.  V10 defined wide lines in terms of a rectangular
+width and height, which is not what most applications want to deal
+with.  This has been replaced with a single line width in the graphics
+context.
+
+There were a number of facilities overlooked in V10 design which have
+caused significant trouble implementing certain applications.  These
+include "stipple fill", where a bitmap defines which bits on the screen
+to modify in a fill (pattern as a mask).  V10 only allowed fill
+with a pixmap (pattern as a source).  The work arounds for this oversight
+caused poor performance for certain types of VLSI design programs.
+
+V11 supports more forms of tiled and stippled lines and more general dash
+patterns.
+
+Per font metric information includes drawing direction, first and last
+character information, subscript and superscript information,
+underlining, strikeout, baseline, worst case character box, and
+accelerator information.  Per character information in V11 includes
+spacing as well as width information and character attributes flags.
+16 bit characters are available.  One can query font names using
+simple wild cards patterns.
+
+Both source and mask fonts are available in V11.  The existing
+intercharacter and space padding text primatives are being replaced
+with more general poly text operation, which permit additional padding
+and font changes between characters.  The existing interface will be
+provided in the C library, though we know of few applications using them.
+
+V11 permits graphics to any drawable (pixmap, or window), but there is
+no guarantee that the window system will be able to create arbitrary
+amounts (or even any) drawable off screen memory.  This should permit
+various double buffered applications to run which have not been
+possible under V10.  We believe this is the compromise which maximizes
+the portability and functionality of the window system.  It does, of
+course mean that some applications which either require or abuse the
+privilege may not run on certain displays, but most software should
+run on most displays.  V10 did not permit graphics into off screen
+memory; any off screen object allocated had to be accompanied by the
+data at the time of creation.
+
+
+7) Exposure
+
+In V11, it is possible to mark a window as expensive to refresh, and
+some server implementations may attempt to save bitmap unders (area
+under other windows) or unmapped windows and avoid sending clients
+exposure events.  We expect as now that most server implementations
+may not support this capability.  This capability can be very
+difficult to provide on color displays and have very significant
+performance impacts.
+
+V11 also allows a client to advise the window system where bits
+previously in a window should be put when a window is resized.  Under
+V10, the contents of a window was always discarded when resized; under
+V11, you can specify which edge, center, or corner of the window the
+bits should be moved to (or to the bit-bucket, the V10 behavior).
+This is called "bit gravity".
+
+Clients must still be prepared to repaint windows on request.
+
+8) Input
+
+Previous versions of X had a notion of a single input device which was
+a three button mouse, in control of the pointer on the screen.  This
+is clearly inadequate, and in V11 has been generalized to allow
+different devices (tablet, touch screen, etc.) to control the pointer
+on the screen, and support other sorts of input devices.  One can
+attach different input devices to the pointer, and get input from
+arbitrary input devices that a manufacturer may need for their
+particular hardware.  Obviously, an application which presumes a 3/D
+tablet will not port to other implementations of X, but may not be of
+concern to particular dedicated applications.
+
+Mouse buttons could be "grabbed" in previous versions of X, but not
+keyboard keys.  This has been generalized to allow arbitrary keyboard
+key grabbing to allow more forms of user interface to be created,
+including dedicating keyboard keys to window management functions.
+
+A mouse, tablet or other device may control the "sprite" or pointer
+on the screen.  Which device controls the pointer is settable under V11.
+The X protocol does not define how or if the pointer "roams" between screens
+on a multiheaded display, though we expect server implementations to
+support this.
+
+X has always supported mouse motion events.  These have been
+often used as a hint that the mouse has moved, with an explicit query
+of the mouse position afterwards to determine where the mouse actually
+is, followed by discarding any other motion events.  In V11, you can
+ask for mouse motion as a "hint", which suppresses further
+motion events until the query pointer (or certain other situations)
+have occurred.  This reduces load on the server, reduces network
+traffic, and load on the client who no longer must flush the extra
+motion events.
+
+
+
+
+9) Application Layout Control
+
+X has only been capable of supporting certain styles of window
+management.  Notably, X has been incapable of supporting "automatic"
+layout policy, exemplified by "tiled" window management, without
+building it into each application.  In the V11 design, we wished to
+generalize the facilities to support this and other styles of window
+managers.
+
+V11 includes a number of facilities used together to provide control
+of (sub)window placement and appearance.  A window manager or an
+application interested in controlling placement of subwindows in
+library packages can select structure redirect control.  Whenever
+there is an attempt to map, unmap, destroy, reposition, resize, alter
+border of a (sub)window) the selecting client will be notified, and
+the operation ignored.  A window manager can then perform the
+operation on behalf of the clients.  This permits creation of window
+managers which can enforce window tiling layout policy, for example.
+
+Applications may also find the substructure redirect facilities useful
+for controlling their own subwindows positions.  V11 also provides the
+concept of "window gravity".  A client can cause a subwindow to be
+automatically repositioned when the parent is resized to an edge,
+corner, or have the subwindow automatically unmapped.  This should
+be easier to use than the fully general redirect facility.
+
+
+11) Extension mechanism
+
+There were a number of areas (for example, 3-D graphics) which even
+people involved in them could only agree that it would not be possible
+to agree on a set of primatives.  In addition, much hardware on the
+market may have facilities for which software emulation may run so
+slowly that it is inadvisable for the core of X to require support.
+On the other hand, it should be possible to use these facilities
+without giving up the ability to run X altogether.
+
+An extension mechanism was prototyped under V10 and adopted in the V11
+design, allowing extension packages to be added to the server. This
+should allow manufacturers and others to add facilities without
+conflicting with the core window system and other extension packages.
+Other desirable but not fully understood facilities (anti aliased text,
+Z buffers, and the like) can be prototyped without delaying the
+availability of V11.
+
+The facilities provided allow the querying of extension packages by name.
+If the extension exists, a major op-code is returned, and a minor
+opcode can be used to specify which function in the package should be
+invoked.
+
+A set of input event types are reserved for extension packages, but
+undefined.
+
+12) Emulation Problems
+
+Tools will be provided to ease the conversion from X10 to X11.
+The list below highlights areas of particular concern which are most
+likely to affect applications.
+
+	1) BlackPixel and WhitePixel cannot be treated as constants and
+	used in static initialization.  This problem is fundamental,
+	since deep frame buffers may not be able to arbitrarily map
+	pixel values to colors.  They will become variables, valid
+	only after XOpenDisplay is called.
+
+	2) The precise semantics of transparent windows are hard to
+	emulate.  One can come close, but windows without backgrounds
+	would still clip sibling windows, which is not the case with
+	V10 transparent windows.
+
+	3) Wide lines only have a single width, rather than a
+	rectangular brush.
+
+	4) Applications must NEVER presume the size of their window
+	is what they asked for, as a tiled window manager may be imposing
+	other constraints.
+
+	5) applications which look inside keyboard events to
+	convert to ascii (rather than using the provided XLookUpMapping)
+	may have some problems.
+
+	6) Enter/Leave semantics may change slightly.
+
+	7) Focus event semantics may change slightly.
+
+The native V11 Xlib will be quite similar to the V10 version, but with
+many additional calls.  Both statefull and state free graphics calls
+will be provided, as we have heard cogent arguments toward each
+approach as to which is more convenient.

@@ -1,0 +1,40 @@
+/* $Header: Imakefile,v 1.1 87/09/12 13:52:43 toddb Exp $ */
+LOCAL_LIBRARIES = $(XLIB)
+
+# -lplot if you have -DUNIXPLOT
+
+  SYS_LIBRARIES = -lnm -lplot
+
+SRCS =	command.c eval.c graphics.c internal.c misc.c parse.c help.c\
+	plot.c scanner.c standard.c term.c util.c version.c x11term.c\
+	unix-fns.c obstack.c
+
+OBJS = 	command.o eval.o graphics.o internal.o misc.o parse.o plot.o\
+	scanner.o standard.o term.o util.o x11term.o unix-fns.o help.o\
+	obstack.o version.o
+
+
+# -DFORK if you have vfork()
+# -DBCOPY if your memcpy() is called bcopy() (a Berkeleyism, right?)
+# -DNOCOPY if you don't have a memcpy() by any name
+# -DGAMMA if you've got gamma(3)
+# -DOLD_HELP if you want to use the old help system,
+#       which as far as I can tell doesn't work.
+# -O if you trust your compiler's optimizer
+# -ma (???) for RT PC, to make alloca() work correctly.
+# -D<terminal> in TERMFLAGS iff you wish to support <terminal>
+# -DAED         AED 512 and AED 767
+# -DBITGRAPH    BBN BitGraph
+# -DHP26        HP2623A and maybe others
+# -DHP75        HP7580, and probably other HPs
+# -DPOSTSCRIPT  Postscript
+# -DQMS         QMS/QUIC laserprinter (Talaris 1200 and others)
+# -DREGIS       ReGis graphics (vt125, vt220, vt240, Gigis...)
+# -DSELANAR     Selanar
+# -DTEK         Tektronix 4010, and probably others
+# -DUNIXPLOT    unixplot
+# -DV384        Vectrix 384 and tandy color printer
+
+DEFINES = -DVFORK -DBCOPY -DGAMMA -DTEK -DPOSTSCRIPT -DXWINDOW
+
+ComplexProgramTarget(gnuplot)

@@ -1,0 +1,6 @@
+.\" $Header: dxdy.a,v 11.3 87/04/15 09:31:59 jg Exp $
+.IP \fIdx\fP 1i
+.br
+.ns
+.IP \fIdy\fP 1i
+Specify the x and y coordinates.

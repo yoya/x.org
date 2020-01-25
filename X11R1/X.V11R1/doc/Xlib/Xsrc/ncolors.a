@@ -1,0 +1,6 @@
+.\" $Header: ncolors.a,v 11.3 87/05/18 10:54:12 jg Exp $
+.IP \fIncolors\fP 1i
+.\"Specifies the number of color definition structures. 
+Specifies the number of 
+.PN XColor
+structures in the color definition array.

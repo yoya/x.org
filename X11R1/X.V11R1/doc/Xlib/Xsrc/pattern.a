@@ -1,0 +1,9 @@
+.\" $Header: pattern.a,v 11.6 87/09/07 12:32:04 mento Exp $
+.IP \fIpattern\fP 1i
+Specifies the null-terminated string associated with the font names 
+that you want returned.
+You can specify any string, an
+asterisk (*), or a question mark (?). 
+The asterisk indicates a wildcard on any number
+of characters, and the question mark indicates a wildcard on a single
+character.

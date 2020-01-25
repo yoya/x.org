@@ -1,0 +1,3 @@
+.IP \fIstring\fP 1i
+Specifies a pointer to the string that is to be returned by 
+.PN XLookupString .

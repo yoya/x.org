@@ -1,0 +1,8 @@
+.\" $Header: doaccel.a,v 11.3 87/05/28 04:44:18 jg Exp $
+.IP \fIdo_accel\fP 1i
+Specifies a boolean value that controls whether the values for the accel_numerator
+or accel_denominator are set.
+You can pass one of these constants:
+.PN True
+or
+.PN False .

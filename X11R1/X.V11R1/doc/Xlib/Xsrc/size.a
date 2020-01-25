@@ -1,0 +1,4 @@
+.\" $Header: size.a,v 11.2 87/03/28 11:00:46 mento Exp $
+.IP \fIsize\fP 1i
+Specifies the number of buckets in the hash system of
+.PN XAssocTable .

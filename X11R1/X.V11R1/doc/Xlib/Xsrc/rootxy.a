@@ -1,0 +1,6 @@
+.\" $Header: rootxy.a,v 11.5 87/09/10 12:20:45 mento Exp $
+.IP \fIroot_x_return\fP 1i
+.br
+.ns
+.IP \fIroot_y_return\fP 1i
+Returns the pointer coordinates relative to the root window's origin.

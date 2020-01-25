@@ -1,0 +1,3 @@
+.\" $Header: acceldenomrt.a,v 1.3 87/08/11 11:22:42 mento Locked $
+.IP \fIaccel_denominator_return\fP 1i
+Returns the denominator for the acceleration multiplier.

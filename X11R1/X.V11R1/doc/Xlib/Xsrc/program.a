@@ -1,0 +1,5 @@
+.\" $Header: program.a,v 11.4 87/09/09 18:33:49 mento Exp $
+.IP \fIprogram\fP 1i
+Specifies the program name for the Xlib defaults.
+You must pass the program name in with the program 
+argument (usually argv[0]).

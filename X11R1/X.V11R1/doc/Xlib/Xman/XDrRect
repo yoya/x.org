@@ -1,0 +1,36 @@
+.TH XDrawRectangle 3X 
+.SH NAME
+XDrawRectangle, XDrawRectangles \- draw rectyangles
+.SH SYNTAX
+.so ../Xsrc/XRectangle.f
+.LP
+.so ../Xsrc/XRectangles.f
+.SH ARGUMENTS
+.so ../Xsrc/d.a
+.so ../Xsrc/display.a
+.so ../Xsrc/gc.a
+.so ../Xsrc/nrectangles.a
+.so ../Xsrc/rectangles.a
+.so ../Xsrc/widtheight4.a
+.so ../Xsrc/xy_rect.a
+.SH DESCRIPTION
+.so ../Xdescrip/XRectangle.d
+.LP
+.ds fd .PN XDrawRectangle
+.ds fe .PN XDrawRectangles
+.so ../Xsrc/errsent3.com
+.PN BadDrawable ,
+.PN BadGC ,
+and
+.PN BadMatch .
+.SH DIAGNOSTICS
+.so ../Xerrors/baddrawable.e
+.so ../Xerrors/badgc.e
+.so ../Xerrors/badmatch1.e
+.so ../Xerrors/badmatch2.e
+.SH "SEE ALSO"
+XDrawArc(3X),
+XDrawLine(3X),
+XDrawPoint(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

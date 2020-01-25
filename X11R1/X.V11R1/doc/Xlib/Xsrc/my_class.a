@@ -1,0 +1,3 @@
+.IP \fImy_class\fP 1i
+Specifies the class string chosen by the client for itself.
+***SHOULDN'T CLASS WORK LIKE NAME W.R.T. THE VALUE LIST???

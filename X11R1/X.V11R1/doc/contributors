@@ -1,0 +1,112 @@
+Managerial Support (people without whose support and political battles
+the release would never have materialized):
+
+Carol Berry, IBM
+Larry Breed, IBM
+Michael Dertouzos, MIT
+Sam Fuller, Digital
+Dan Geer, MIT
+Jeff Lane, Digital
+Rick LeFaivre, Tektronix
+Steve Lerman, MIT
+Al Lopez, Apollo
+Scott McGregor, Digital
+Jerry Saltzer, MIT
+Warren Teitelman, Sun
+Dave Verhoven, Tektronix
+Smokey Wallace, Digital
+
+Thanks also to DARPA, for supporting the research side of the X protocol.
+
+Our undying gratitude to Todd Brunhoff (and to Tektronix for sending him);
+Todd performed wonders in making the alpha and beta tests happen, filtering
+bug reports, integrating sources from everywhere, putting the releases
+and updates together, and generally hacking up a storm.
+
+Infinite thanks to Ken Goldman, MIT, for accepting thousands of phone
+calls, mail messages, being patient, sending out documentation, and
+generally keeping us insulated from the outside world.
+
+The people who made it happen, either with code or documentation; so
+many of these people worked on more than one major component of the
+system (toolkits, libraries, applications, servers) that we have not
+attempted to list people by component:
+
+Allen Akin, Digital
+Susan Angebranndt, Digital
+Tom Benson, Digital
+Adam de Boor, UC Berkeley
+Todd Brunhoff, Tektronix
+Richard Carling, Masscomp
+Colyn Case, Digital
+Ann Mei Chang, Digital
+Mike Chow, Digital
+Larry Church, Digital
+Jeff Dike, Digital
+Raymond Drewry, Digital
+Jerry Farrell, Sun
+Burns Fisher, Digital
+Erik Fortune, IBM
+Hania Gajewska, Digital
+Mike Gancarz, Digital
+Peter George, Digital
+Jim Gettys, Digital
+Dave Gorgen, Apollo
+Jackie Grandfield, Digital
+Joel Gringorten, Digital
+Phil Gust, HP
+Frank Hall, HP
+Peter Ham, Digital
+Charles Haynes, Digital
+Scott Hennes, Apollo
+Harry Hersh, Digital
+Frances Ho, Sun
+Tom Houser, HP
+Rich Hyde, Digital
+Richard Johnsson, Digital
+Phil Karlton, Digital
+Kathy Langone, Digital
+Mary Larson, Digital
+Geoff Lee, Sun
+Ed Lee, HP
+Bob Leichner, HP
+Mark Manasse, Digital
+Stuart Marks, Sun
+Joel McCormack, Digital
+Rick McKay, HP
+Al Mento, Digital
+Don Mullis, Digital
+Hal Murray, Digital
+Todd Newman, Digital
+Ron Newman, MIT
+Mark Opperman, Sun
+Vince Orgovan, Digital
+Jack Palevich, HP
+Matt Pappas, Digital
+Ram Rao, Digital
+Loretta Guarino Reid, Digital
+David Rosenthal, Sun
+Robin Schaufler, Sun
+Bob Scheifler, MIT
+Mike Schwartz, Sun
+Alok Singhania, Sun
+Ralph Swick, MIT, Digital
+Al Tabayoyon, Apollo
+Fred Taft, HP
+Leo Treggiari, Digital
+Jake VanNoy, Digital
+Pam Verno, Digital
+Smokey Wallace, Digital
+Jeff Weinstein, IBM
+Terry Weissman, Digital
+Ted Wilson, HP
+Al Wojtas, Digital
+
+Thanks to the alpha and beta sites, who contributed much in the way of
+bug reports and fixes.
+
+Thanks to the MIT Statistics Center, for the use of their Suns and for
+putting up with us.
+
+Thanks to John Guttag of MIT LCS for the use of an 8600 for final
+build test.

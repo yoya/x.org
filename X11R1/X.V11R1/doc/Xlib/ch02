@@ -1,0 +1,1133 @@
+.\".U7
+.\".UT "Display Functions" 2
+\&
+.sp 1
+.ce 3
+\s+1\fBChapter 2\fP\s-1
+
+\s+1\fBDisplay Functions\fP\s-1
+.sp 2
+.nr H1 2
+.nr H2 0
+.nr H3 0
+.nr H4 0
+.nr H5 0
+.na
+.LP
+.XS
+Chapter 1 - Opening and Closing the Display
+.XE
+Before your program can use a display, you must establish a connection
+to the X server driving your display.
+Once you have established a connection,
+you then can use the Xlib macros and functions discussed in this chapter
+to return information about the display.
+This chapter discusses how to:
+.IP \(bu 5
+Open (connect) the display
+.IP \(bu 5
+Obtain information about the display, image formats, or a screen
+.IP \(bu 5
+Generate a NoOperation protocol request
+.IP \(bu 5
+Free client-created data
+.IP \(bu 5
+Close (disconnect) a display
+.LP
+Finally, the chapter concludes with a section that describes 
+the operations that occur when the connection to the X server is closed.
+.NH 2
+Opening the Display
+.LP
+Use
+.PN XOpenDisplay 
+.IN "XOpenDisplay"
+to open a connection to the X server controlling the specified display.
+X servers may implement various types of access control mechanisms.
+See section 7.11 for information about access control.
+The definition for this function is:
+.IN "Definitions" "XOpenDisplay"
+.LP
+.FD 0
+.so ./Xsrc/XOpenDisplay.f
+.FN	
+.so ./Xsrc/display_name.a
+On all non-UNIX systems, see the Xlib manual associated with your
+operating system to determine the default for this argument.
+.LP
+On UNIX-based systems,
+the display name or DISPLAY environment variable is a string
+that has the format:
+.LP
+.IP "" 1i
+\fIhostname\fP\^:\^\fInumber\fP\^.\^\fIscreen\fP
+.IP \fIhostname\fP 1i
+Specifies the name of the host machine on which the display is physically
+attached.
+You follow the hostname with either a single colon (:) or a double colon (::).
+Each is discussed in the following paragraph.
+.IP \fInumber\fP 1i
+Specifies the number of the display server on that host machine.
+You may optionally follow this display number with a period (.).
+.IN "Definitions" "Screen"
+.IN "Screen"
+.IP \fIscreen\fP 1i
+Specifies the number of the screen on that host server.
+Multiple screens can be connected to or controlled by a single X server.
+The screen sets an internal variable that can be accessed by
+using the 
+.PN DefaultScreen 
+macro (or the 
+.PN XDefaultScreen
+function if you are using other languages).
+See Section 2.2.1 for further information. 
+.LP
+For example, the following would specify screen 2 of display 0 on the 
+machine named mit-athena:
+.LP
+.DS 0
+mit-athena:0.2
+.DE
+.LP
+.so ./Xdescrip/XOpenDisplay.d
+If the hostname is a host machine name and a single colon (:)
+separates the hostname and display number,
+.PN XOpenDisplay
+connects using TCP streams.
+If the hostname is 
+\fIunix\fP
+and a single colon (:) separates it from the display number, 
+.PN XOpenDisplay
+connects using UNIX domain IPC streams.
+If the hostname is a host machine name and a double colon (::)
+separates the hostname and display number,
+.PN XOpenDisplay
+connects using DECnet streams.
+To use DECnet, however,
+the X library implementation must have been built to support it.
+A single server can support any or all of these transport mechanisms
+simultaneously.
+.LP
+.IN "Data Structures" "Display"
+If successful, 
+.PN XOpenDisplay 
+returns a pointer to a 
+.PN Display 
+structure that is defined in 
+.PN <X11/Xlib.h> .
+.IN "Files" "<X11/Xlib.h>"
+See Section 2.2.1,
+for information about using macros and functions to obtain information from 
+the
+.PN Display 
+structure.
+If 
+.PN XOpenDisplay 
+does not succeed, it returns a NULL.
+After a successful call to
+.PN XOpenDisplay ,
+all of the screens in the display may be used by the client application.
+The screen number specified in the display_name argument serves only to
+specify the value that will be returned by the 
+.PN DefaultScreen
+macro or the
+.PN XDefaultScreen
+function.
+You can access elements of the
+.PN Display
+and
+.PN Screen
+structures by using the information macros or functions.
+.NH 2
+Obtaining Information About the Display, Image Formats, or Screens
+.LP
+The Xlib library provides a number of useful macros 
+and corresponding functions that return data from the 
+.PN Display 
+structure.
+The macros are to be used for C programming, while
+their corresponding function equivalents are for other language bindings.
+This section discusses the:
+.IP \(bu 5
+Display macros
+.IP \(bu 5
+Image format macros
+.IP \(bu 5
+Screen macros
+.LP
+.IN "Data Structures" "Display"
+All other members of the 
+.PN Display 
+structure (that is, those for which no macros are defined) are private to Xlib 
+and must not be used.
+That is,
+applications must never directly modify or inspect
+these private elements in the 
+.PN Display 
+structure.
+.NH 3
+Display Macros 
+.LP
+Once you have successfully connected to the X server that is
+driving a screen on your display,
+you can use the Xlib display macros or corresponding functions to obtain 
+information about that display.  
+Applications should not directly modify any part of the
+.PN Display
+and
+.PN Screen
+structures.
+The members should be considered read-only,
+although they may change as the result of other operations on the display.
+.LP 
+The following lists the C language macros,
+their corresponding function equivalents that are for other language bindings,
+and what data they both can return.
+.LP
+.sp
+.FD 0
+AllPlanes(\^) 
+.sp
+.so ./Xsrc/XAllPlanes.f
+.FN
+.LP
+.IN "AllPlanes"
+.IN "Macros" "AllPlanes"
+.IN "XAllPlanes"
+.IN "Definitions" "XAllPlanes"
+Both return a value with all bits set on suitable for use in a plane argument to
+a procedure.
+.LP
+.sp
+.FD 0
+BlackPixel\^(\^\fIdisplay\fP\^, \^\fIscreen\fP\^)
+.sp
+.so ./Xsrc/XBlkPixel.f
+.FN
+.LP
+.IN "BlackPixel"
+.IN "Macros" "BlackPixel"
+.IN "XBlackPixel"
+.IN "Definitions" "XBlackPixel"
+Both return the black pixel value for the specified screen.
+.LP
+.sp
+.FD 0
+ConnectionNumber\^(\^\fIdisplay\fP\^)
+.sp
+.so ./Xsrc/Xdpyno.f
+.FN
+.LP
+.IN "ConnectionNumber"
+.IN "Macros" "ConnectionNumber"
+.IN "XConnectionNumber"
+.IN "Definitions" "XConnectionNumber"
+Both return a connection number for the specified display.
+On a UNIX-based system,
+this is the file descriptor of the connection.
+.LP
+.sp
+.FD 0
+DefaultColormap\^(\^\fIdisplay\fP\^, \^\fIscreen\fP\^)
+.sp
+.so ./Xsrc/XDefClrmap.f
+.FN
+.LP
+.IN "DefaultColormap"
+.IN "Macros" "DefaultColormap"
+.IN "XDefaultColormap"
+.IN "Definitions" "XDefaultColormap"
+Both return the default Colormap ID for allocation on the specified screen.
+Most routine allocations of color should be made out of this color map.
+.LP
+.sp
+.FD 0
+DefaultDepth\^(\^\fIdisplay\fP\^, \^\fIscreen\fP\^)
+.sp
+.so ./Xsrc/XDefDepth.f
+.FN
+.LP
+.IN "DefaultDepth"
+.IN "Macros" "DefaultDepth"
+.IN "XDefaultDepth"
+.IN "Definitions" "XDefaultDepth"
+Both return the depth (number of planes) of the default root window for the
+specified screen.
+Other depths may also be supported on this screen.
+See
+.PN XMatchVisualInfo
+in Chapter 10 to find out how to determine what depths may be available.
+.LP
+.sp
+.FD 0
+DefaultGC\^(\^\fIdisplay\fP\^, \^\fIscreen\fP\^)
+.sp
+.so ./Xsrc/XDefGC.f
+.FN
+.LP
+.IN "DefaultGC"
+.IN "Macros" "DefaultGC"
+.IN "XDefaultScreen"
+.IN "Definitions" "XDefaultScreen"
+Both return the default graphics context for the root window of the 
+specified screen.
+This GC is created for the convenience of simple applications
+and contains the default GC components with the foreground and
+background pixel values initialized to the black and white
+pixels, respectively, for the screen.
+You can modify its contents freely because it is not used in any Xlib
+function.
+.LP
+.sp
+.FD 0
+DefaultRootWindow\^(\^\fIdisplay\fP\^)
+.sp
+.so ./Xsrc/XDefRootWin.f
+.FN
+.LP
+.IN "DefaultRootWindow"
+.IN "Macros" "DefaultRootWindow"
+.IN "XDefaultRootWindow"
+.IN "Definitions" "XDefaultRootWindow"
+Both return the root window for the default screen.
+.LP
+.sp
+.FD 0
+DefaultScreen\^(\^\fIdisplay\fP\^)
+.sp
+.so ./Xsrc/XDefScreen.f
+.FN
+.LP
+.IN "DefaultScreen"
+.IN "Macros" "DefaultScreen"
+.IN "XDefaultScreen"
+.IN "Definitions" "XDefaultScreen"
+Both return the default screen referenced in the 
+.PN XOpenDisplay
+routine. 
+This macro and function should be used to retrieve the screen number in applications
+that will use only a single screen.
+.LP
+.sp
+.FD 0
+DefaultVisual\^(\^\fIdisplay\fP\^, \^\fIscreen\fP\^)
+.sp
+.so ./Xsrc/XDefVisual.f
+.FN
+.LP
+.IN "DefaultVisual"
+.IN "Macros" "DefaultVisual"
+.IN "XDefaultVisual"
+.IN "Definitions" "XDefaultVisual"
+Both return the default visual type for the specified screen.
+See section 3.1 for further information about visual types.
+.LP
+.sp
+.FD 0
+DisplayCells\^(\^\fIdisplay\fP\^, \^\fIscreen\fP\^)
+.sp
+.so ./Xsrc/XDispCells.f
+.FN
+.LP
+.IN "DisplayCells"
+.IN "Macros" "DisplayCells" 
+.IN "XDisplayCells"
+.IN "Definitions" "XDisplayCells"
+Both return the number of entries in the default color map.
+.LP
+.sp
+.FD 0
+DisplayPlanes\^(\^\fIdisplay\fP\^, \^\fIscreen\fP\^)
+.sp
+.so ./Xsrc/XDispPlanes.f
+.FN
+.LP
+.IN "DisplayPlanes"
+.IN "Macros" "DisplayPlanes" 
+.IN "XDisplayPlanes"
+.IN "Definitions" "XDisplayPlanes"
+Both return the depth of the root window of the specified screen.
+See the glossary for a discussion of depth.
+.LP
+.sp
+.FD 0
+DisplayString\^(\^\fIdisplay\fP\^)
+.sp
+.so ./Xsrc/XDispStrng.f
+.FN
+.LP
+.IN "DisplayString"
+.IN "Macros" "DisplayString"
+.IN "XDisplayString"
+.IN "Definitions" "XDisplayString"
+Both return the string that was passed to 
+.PN XOpenDisplay
+when the current display was opened. 
+On UNIX-based systems, 
+if the passed string was NULL, this macro returns the value of
+the DISPLAY environment variable when the current display was opened.
+.IN "Unix System Call" "fork"
+This macro is useful to applications that invoke the 
+.PN fork
+system call and want to open a new connection to the same display from the 
+child process.
+.LP
+.sp
+.FD 0
+ImageByteOrder\^(\^\fIdisplay\fP\^)
+.sp
+.so ./Xsrc/XByteOrder.f
+.FN
+.LP
+.IN "ImageByteOrder"
+.IN "Macros" "ImageByteOrder"
+.IN "XImageByteOrder"
+.IN "Definitions" "XImageByteOrder"
+Both specify the required byte order for images for each scanline unit in 
+XYFormat (bitmap) or for each pixel value in 
+ZFormat.
+The macro and function can return one of the constants
+.PN LSBFirst 
+or 
+.PN MSBFirst .
+.LP
+.sp
+.FD 0
+ProtocolRevision\^(\^\fIdisplay\fP\^)
+.sp
+.so ./Xsrc/XProtoRev.f
+.FN
+.LP
+.IN "ProtocolRevision"
+.IN "Macros" "ProtocolRevision"
+.IN "XProtocolRevision"
+.IN "Definitions" "XProtocolRevision"
+Both return the minor protocol revision number of the X server.
+.LP
+.sp
+.FD 0
+ProtocolVersion\^(\^\fIdisplay\fP\^)
+.sp
+.so ./Xsrc/XProtoVers.f
+.FN
+.LP
+.IN "ProtocolVersion"
+.IN "Macros" "ProtocolVersion"
+.IN "XProtocolVersion"
+.IN "Definitions" "XProtocolVersion"
+Both return the major version number (11) of the X protocol associated with 
+the connected display.
+.LP
+.sp
+.FD 0
+QLength\^(\^\fIdisplay\fP\^)
+.sp
+.so ./Xsrc/XQLenth.f
+.FN
+.LP
+.IN "QLength"
+.IN "Macros" "QLength"
+.IN "XQLength"
+.IN "Definitions" "XQLength"
+Both return the length of the event queue for the connected display.
+Note that there may be more events that have not been read into
+the queue yet.
+.LP
+.sp
+.FD 0
+RootWindow\^(\^\fIdisplay\fP\^, \^\fIscreen\fP\^)
+.sp
+.so ./Xsrc/XRootWindow.f
+.FN
+.LP
+.IN "Window" "RootWindow"
+.IN "RootWindow"
+.IN "Macros" "RootWindow"
+.IN "Window" "XRootWindow"
+.IN "XRootWindow"
+.IN "Definitions" "XRootWindow"
+Both return the root window.
+This macro and function are useful with functions that take a
+parent window as an argument.
+.LP
+.sp
+.FD 0
+ScreenCount\^(\^\fIdisplay\fP\^)
+.sp
+.so ./Xsrc/XScrnCount.f
+.FN
+.LP
+.IN "ScreenCount"
+.IN "Macros" "ScreenCount"
+.IN "ScreenCount"
+.IN "Definitions" "ScreenCount"
+Both return the number of available screens.
+.LP
+.sp
+.FD 0
+ServerVendor\^(\^\fIdisplay\fP\^)
+.sp
+.so ./Xsrc/XSrvVendor.f
+.FN
+.LP
+.IN "ServerVendor"
+.IN "Macros" "ServerVendor"
+.IN "XServerVendor"
+.IN "Definitions" "XServerVendor"
+Both return a pointer to a null-terminated string that provides
+some identification of the owner of the X server implementation.
+.LP
+.sp
+.FD 0
+VendorRelease\^(\^\fIdisplay\fP\^)
+.sp
+.so ./Xsrc/XVenRelease.f
+.FN
+.LP
+.IN "VendorRelease"
+.IN "Macros" "VendorRelease"
+.IN "XVendorRelease"
+.IN "Definitions" "XVendorRelease"
+Both return a number related to a vendor's release of the X server.
+.LP
+.sp
+.FD 0
+WhitePixel\^(\^\fIdisplay\fP\^, \^\fIscreen\fP\^)
+.sp
+.so ./Xsrc/XWPixel.f
+.FN
+.LP
+.IN "WhitePixel"
+.IN "Macros" "WhitePixel"
+.IN "XWhitePixel"
+.IN "Definitions" "XWhitePixel"
+Both return the white pixel value for the specified screen. 
+.NH 3
+Image Format Macros
+.LP
+Once you have successfully connected to the X server that is
+driving a screen on your display,
+you can use the Xlib image format macros to obtain information about
+image formats.  
+.LP 
+The following lists the C language macros,
+their corresponding function equivalents that are for other language bindings,
+and what data they both return.
+These are often used by toolkits as well as simple applications.
+.LP
+.sp
+.FD 0
+BitmapBitOrder\^(\^\fIdisplay\fP\^)
+.sp
+.so ./Xsrc/XBitBitOdr.f
+.FN
+.LP
+.IN "BitmapBitOrder"
+.IN "Macros" "BitmapBitOrder"
+.IN "XBitmapBitOrder"
+.IN "Definitions" "XBitmapBitOrder"
+Within each bitmap unit, the leftmost bit in the bitmap as displayed
+on the screen is either the least or most significant bit in the
+unit.
+This macro and function can return one of the constants
+.PN LSBFirst
+or 
+.PN MSBFirst .
+.LP
+.sp
+.FD 0
+BitmapPad\^(\^\fIdisplay\fP\^)
+.sp
+.so ./Xsrc/XBitmapPad.f
+.FN
+.LP
+.IN "BitmapPad"
+.IN "Macros" "BitmapPad"
+.IN "XBitmapPad"
+.IN "Definitions" "XBitmapPad"
+Each scanline must be padded to a multiple of bits returned
+by this macro or function.
+.LP
+.sp
+.FD 0
+BitmapUnit\^(\^\fIdisplay\fP\^)
+.sp
+.so ./Xsrc/XBitmapUnit.f
+.FN
+.LP
+.IN "BitmapUnit"
+.IN "Macros" "BitmapUnit"
+.IN "XBitmapUnit"
+.IN "Definitions" "XBitmapUnit"
+Both return the size of a bitmap's unit in bits.
+The scanline is calculated in multiples of this value.
+.LP
+.sp
+.FD 0
+DisplayHeight\^(\^\fIdisplay\fP\^, \^\fIscreen\fP\^)
+.sp
+.so ./Xsrc/XDispHeight.f
+.FN
+.LP
+.IN "DisplayHeight"
+.IN "Macros" "DisplayHeight"
+.IN "XDisplayHeight"
+.IN "Definitions" "XDisplayHeight"
+Both return an integer that describes the height of the screen
+in pixels.
+.LP
+.sp
+.FD 0
+DisplayHeightMM\^(\^\fIdisplay\fP\^, \^\fIscreen\fP\^)
+.sp
+.so ./Xsrc/XDispHeight.f
+.FN
+.LP
+.IN "DisplayHeightMM"
+.IN "Macros" "DisplayHeightMM"
+.IN "XDisplayHeight"
+.IN "Definitions" "XDisplayHeight"
+Both return the height of the specified screen in millimeters.
+.LP
+.sp
+.FD 0
+DisplayWidth\^(\^\fIdisplay\fP\^, \^\fIscreen\fP\^)
+.sp
+.so ./Xsrc/XDispWidth.f
+.FN
+.LP
+.IN "DisplayWidth"
+.IN "Macros" "DisplayWidth"
+.IN "XDisplayWidth"
+.IN "Definitions" "XDisplayWidth"
+Both return an integer that describes the width of the screen
+in pixels.
+.LP
+.sp
+.FD 0
+DisplayWidthMM\^(\^\fIdisplay\fP\^, \^\fIscreen\fP\^)
+.sp
+.so ./Xsrc/XDWidthMM.f
+.FN
+.LP
+.IN "DisplayWidthMM"
+.IN "Macros" "DisplayWidthMM"
+.IN "XDisplayWidthMM"
+.IN "Definitions" "XDisplayWidthMM"
+Both return the width of the specified screen in millimeters.
+.NH 3
+Screen Information Macros
+.LP
+Once you have successfully connected to the X server that is
+driving a screen on your display,
+you can use the Xlib screen information macros to obtain information about
+screens.
+.LP 
+The following lists the C language macros,
+their corresponding function equivalents that are for other language bindings,
+and what data they both can return.
+.LP
+.sp
+.FD 0
+BlackPixelOfScreen\^(\^\fIscreen\fP\^)
+.sp
+unsigned long XBlackPixelOfScreen\^(\^\fIscreen\fP\^)
+.br
+      Screen *\fIscreen\fP\^;
+.FN
+.LP
+.IN "BlackPixelOfScreen"
+.IN "Macros" "BlackPixelOfScreen"
+.IN "XBlackPixelOfScreen"
+.IN "Definitions" "XBlackPixelOfScreen"
+Both return the black pixel value of the specified screen.
+.LP
+.sp
+.FD 0
+CellsOfScreen\^(\^\fIscreen\fP\^)
+.sp
+int XCellsOfScreen\^(\^\fIscreen\fP\^)
+.br
+      Screen *\fIscreen\fP\^;
+.FN
+.LP
+.IN "CellsOfScreen"
+.IN "Macros" "CellsOfScreen"
+.IN "XCellsOfScreen"
+.IN "Definitions" "XCellsOfScreen"
+Both return the number of colormap cells of the specified screen.
+.LP
+.sp
+.FD 0
+DefaultColormapOfScreen\^(\^\fIscreen\fP\^)
+.sp
+Colormap XDefaultColormapOfScreen\^(\^\fIscreen\fP\^)
+.br
+      Screen *\fIscreen\fP\^;
+.FN
+.LP
+.IN "DefaultColormapOfScreen"
+.IN "Macros" "DefaultColormapOfScreen"
+.IN "XDefaultColormapOfScreen"
+.IN "Definitions" "XDefaultColormapOfScreen"
+Both return the default colormap of the specified screen.
+.LP
+.sp
+.FD 0
+DefaultDepthOfScreen\^(\^\fIscreen\fP\^)
+.sp 
+int XDefaultDepthOfScreen\^(\^\fIscreen\fP\^)
+.br
+      Screen *\fIscreen\fP\^;
+.FN
+.LP
+.IN "DefaultDepthOfScreen"
+.IN "Macros" "DefaultDepthOfScreen"
+.IN "XDefaultDepthOfScreen"
+.IN "Definitions" "XDefaultDepthOfScreen"
+Both return the default depth of the specified screen.
+.LP
+.sp
+.FD 0
+DefaultGCOfScreen\^(\^\fIscreen\fP\^)
+.sp
+GC XDefaultGCOfScreen\^(\^\fIscreen\fP\^)
+.br
+      Screen *\fIscreen\fP\^;
+.FN
+.LP
+.IN "DefaultGCOfScreen"
+.IN "Macros" "DefaultGCOfScreen"
+.IN "XDefaultGCOfScreen"
+.IN "Definitions" "XDefaultGCOfScreen"
+Both return the default graphics context (GC) of the specified screen.
+.LP
+.sp
+.FD 0
+DefaultScreenOfDisplay\^(\^\fIdisplay\fP\^)
+.sp
+Screen *XDefaultScreenOfDisplay\^(\^\fIdisplay\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.FN
+.LP
+.IN "DefaultScreenOfDisplay"
+.IN "Macros" "DefaultScreenOfDisplay"
+.IN "XDefaultScreenOfDisplay"
+.IN "Definitions" "XDefaultScreenOfDisplay"
+Both return the default screen of the specified display.
+.LP
+.sp
+.FD 0
+DefaultVisualOfScreen\^(\^\fIscreen\fP\^)
+.sp
+Visual *XDefaultVisualOfScreen\^(\^\fIscreen\fP\^)
+.br
+      Screen *\fIscreen\fP\^;
+.FN
+.LP
+.IN "DefaultVisualOfScreen"
+.IN "Macros" "DefaultVisualOfScreen"
+.IN "XDefaultVisualOfScreen"
+.IN "Definitions" "XDefaultVisualOfScreen"
+Both return the default visual of the specified screen.
+See Section 3.1 for information on visual types.
+.LP
+.sp
+.FD 0
+DoesBackingStore\^(\^\fIscreen\fP\^)
+.sp
+int XDoesBackingStore\^(\^\fIscreen\fP\^)
+.br
+      Screen *\fIscreen\fP\^;
+.FN
+.LP
+.IN "DoesBackingStore"
+.IN "Macros" "DoesBackingStore"
+.IN "XDoesBackingStore"
+.IN "Definitions" "XDoesBackingStore"
+Both return a value indicating whether the screen supports backing
+stores.
+The value returned can be one of the constants
+.PN WhenMapped ,
+.PN NotUseful ,
+or
+.PN Always .
+See section 3.2.4 for a discussion of the backing store.
+.LP
+.sp
+.FD 0
+DoesSaveUnders\^(\^\fIscreen\fP\^)
+.sp
+Bool XDoesSaveUnders\^(\^\fIscreen\fP\^)
+.br
+      Screen *\fIscreen\fP\^;
+.FN
+.LP
+.IN "DoesSaveUnders"
+.IN "Macros" "DoesSaveUnders"
+.IN "XDoesSaveUnders"
+.IN "Definitions" "XDoesSaveUnders"
+Both return a boolean value indicating whether the
+screen supports save unders.
+If
+.PN True ,
+the screen supports save unders.
+If
+.PN False ,
+the screen does not support save unders.
+See section 3.2.6 for a discussion of the save under.
+.LP
+.sp
+.FD 0
+DisplayOfScreen\^(\^\fIscreen\fP\^)
+.sp
+Display *XDisplayOfScreen\^(\^\fIscreen\fP\^)
+.br
+      Screen *\fIscreen\fP\^;
+.FN
+.LP
+.IN "DisplayOfScreen"
+.IN "Macros" "DisplayOfScreen"
+.IN "XDisplayOfScreen"
+.IN "Definitions" "XDisplayOfScreen"
+Both return the display of the specified screen.
+.LP
+.sp
+.FD 0
+EventMaskOfScreen\^(\^\fIscreen\fP\^)
+.sp
+long XEventMaskOfScreen\^(\^\fIscreen\fP\^)
+.br
+      Screen *\fIscreen\fP\^;
+.FN
+.LP
+.IN "EventMaskOfScreen"
+.IN "Macros" "EventMaskOfScreen"
+.IN "XEventMaskOfScreen"
+.IN "Definitions" "XEventMaskOfScreen"
+Both return the initial root event mask for the specified screen.
+.LP
+.sp
+.FD 0
+HeightOfScreen\^(\^\fIscreen\fP\^)
+.sp
+int XHeightOfScreen\^(\^\fIscreen\fP\^)
+.br
+      Screen *\fIscreen\fP\^;
+.FN
+.LP
+.IN "HeightOfScreen"
+.IN "Macros" "HeightOfScreen"
+.IN "XHeightOfScreen"
+.IN "Definitions" "XHeightOfScreen"
+Both return the height of the specified screen.
+.LP
+.sp
+.FD 0
+HeightMMOfScreen\^(\^\fIscreen\fP\^)
+.sp
+int XHeightMMOfScreen\^(\^\fIscreen\fP\^)
+.br
+      Screen *\fIscreen\fP\^;
+.FN
+.LP
+.IN "HeightMMOfScreen"
+.IN "Macros" "HeightMMOfScreen"
+.IN "XHeightMMOfScreen"
+.IN "Definitions" "XHeightMMOfScreen"
+Both return the height of the specified screen in millimeters.
+.LP
+.sp
+.FD 0
+MaxCmapsOfScreen\^(\^\fIscreen\fP\^)
+.sp
+int XMaxCmapsOfScreen\^(\^\fIscreen\fP\^)
+.br
+      Screen *\fIscreen\fP\^;
+.FN
+.LP
+.IN "MaxCmapsOfScreen"
+.IN "Macros" "MaxCmapsOfScreen"
+.IN "XMaxCmapsOfScreen"
+.IN "Definitions" "XMaxCmapsOfScreen"
+Both return the maximum number of color maps supported by the specified screen.
+.LP
+.sp
+.FD 0
+MinCmapsOfScreen\^(\^\fIscreen\fP\^)
+.sp
+int XMinCmapsOfScreen\^(\^\fIscreen\fP\^)
+.br
+      Screen *\fIscreen\fP\^;
+.FN
+.LP
+.IN "MinCmapsOfScreen"
+.IN "Macros" "MinCmapsOfScreen"
+.IN "XMinCmapsOfScreen"
+.IN "Definitions" "XMinCmapsOfScreen"
+Both return the minimum number of color maps supported by the specified screen.
+.LP
+.sp
+.FD 0
+PlanesOfScreen\^(\^\fIscreen\fP\^)
+.sp
+int XPlanesOfScreen\^(\^\fIscreen\fP\^)
+.br
+      Screen *\fIscreen\fP\^;
+.FN
+.LP
+.IN "PlanesOfScreen"
+.IN "Macros" "PlanesOfScreen"
+.IN "XPlanesOfScreen"
+.IN "Definitions" "XPlanesOfScreen"
+Both return the number of planes in the specified screen.
+.LP
+.sp
+.FD 0
+RootWindowOfScreen\^(\^\fIscreen\fP\^)
+.sp
+Window XRootWindowOfScreen\^(\^\fIscreen\fP\^)
+.br
+      Screen *\fIscreen\fP\^;
+.FN
+.LP
+.IN "RootWindowOfScreen"
+.IN "Macros" "RootWindowOfScreen"
+.IN "XRootWindowOfScreen"
+.IN "Definitions" "XRootWindowOfScreen"
+Both return the root window of the specified screen.
+.LP
+.sp
+.FD 0
+ScreenOfDisplay\^(\^\fIdisplay\fP, \fIscreen_number\fP\^)
+.sp
+Screen *XScreenOfDisplay\^(\^\fIdisplay\fP, \fIscreen_number\fP\^)
+.br
+      Display *\fIdisplay\fP\^;
+.br
+      int \fIscreen_number\fP\^;
+.FN
+.LP
+.IN "ScreenOfDisplay"
+.IN "Macros" "ScreenOfDisplay"
+.IN "XScreenOfDisplay"
+.IN "Definitions" "XScreenOfDisplay"
+Both return a pointer to the screen of the specified display.
+.LP
+.sp
+.FD 0
+WhitePixelOfScreen\^(\^\fIscreen\fP\^)
+.sp
+unsigned long XWhitePixelOfScreen\^(\^\fIscreen\fP\^)
+.br
+      Screen *\fIscreen\fP\^;
+.FN
+.LP
+.IN "WhitePixelOfScreen"
+.IN "Macros" "WhitePixelOfScreen"
+.IN "XWhitePixelOfScreen"
+.IN "Definitions" "XWhitePixelOfScreen"
+Both return the white pixel value of the specified screen.
+.LP
+.sp
+.FD 0
+WidthOfScreen\^(\^\fIscreen\fP\^)
+.sp
+int XWidthOfScreen\^(\^\fIscreen\fP\^)
+.br
+      Screen *\fIscreen\fP\^;
+.FN
+.LP
+.IN "WidthOfScreen"
+.IN "Macros" "WidthOfScreen"
+.IN "XWidthOfScreen"
+.IN "Definitions" "XWidthOfScreen"
+Both return the width of the specified screen.
+.LP
+.sp
+.FD 0
+WidthMMOfScreen\^(\^\fIscreen\fP\^)
+.sp
+int XWidthMMOfScreen\^(\^\fIscreen\fP\^)
+.br
+      Screen *\fIscreen\fP\^;
+.FN
+.LP
+.IN "WidthMMOfScreen"
+.IN "Macros" "WidthMMOfScreen"
+.IN "XWidthMMOfScreen"
+.IN "Definitions" "XWidthMMOfScreen"
+Both return the width of the specified screen in millimeters.
+.NH 2
+Generating a NoOperation Protocol Request
+.LP
+Use
+.PN XNoOp 
+.IN "XNoOp"
+to execute a NoOperation protocol request.
+The definition for this function is:
+.IN "Definitions" "XNoOp"
+.FD 0
+.so ./Xsrc/XNoop.f
+.FN
+.so ./Xsrc/display.a
+.LP
+The
+.PN XNoOp
+function sends a NoOperation request to the X server,
+thereby exercising the connection.
+It does not flush the output buffer.
+.NH 2
+Freeing Client-Created Data
+.LP
+Use
+.PN XFree
+.IN "XFree"
+to free any in-memory data that was created by an Xlib function.
+The definition for this function is:
+.IN "Definitions" "XFree"
+.FD 0
+.so ./Xsrc/XFree.f
+.FN
+.so ./Xsrc/data_free.a
+.LP
+.so ./Xdescrip/XFree.d
+.NH 2
+Closing the Display
+.LP
+Use
+.PN XCloseDisplay 
+.IN "XCloseDisplay"
+.IN "Definitions" "XCloseDisplay"
+to close or disconnect a display from the X server.
+The definition for this function is:
+.LP
+.FD 0
+.so ./Xsrc/XCloseDisp.f
+.FN
+.so ./Xsrc/display.a
+.LP
+.so ./Xdescrip/XCloseDisp.d
+The 
+.PN XCloseDisplay 
+function destroys all windows, resource IDs (Window, Font, Pixmap, Colormap, 
+Cursor, and GContext), or other resources (GCs) that the 
+client application has created on this display, unless the closedown mode
+of the resource has been changed.
+Therefore, these windows, resource IDs, and other resources should never be 
+referenced again.
+In addition, this function discards
+any output requests that have been buffered but have not yet been sent. 
+Because these operations automatically (implicitly) occur if a process exits,
+you normally do not have to call 
+.PN XCloseDisplay 
+explicitly.
+.IN "Resource IDs"
+.IN "XCloseDisplay"
+.NH 2
+X Server Connection Close Operations 
+.LP
+When the X server's connection to a client is closed,
+either by an explicit call to
+.PN XCloseDisplay
+or by a process that exits, the X server performs these
+automatic operations:
+.IP \(bu 5
+All selections (see 
+.PN XSetSelectionOwner )
+owned by the client are disowned.
+.IP \(bu 5
+Performs an
+.PN XUngrabPointer
+and
+.PN XUngrabKeyboard 
+if the client application
+has actively grabbed the pointer or the keyboard. 
+These functions are described in Chapter 7.
+.IP \(bu 5
+Performs an
+.PN XUngrabServer 
+if the client has grabbed the server.
+This function is described in Chapter 7.
+.IP \(bu 5
+Releases all passive grabs made by the client application.  
+.IP \(bu 5
+Marks all resources (including color map entries) allocated 
+by the client application either as permanent or temporary, 
+depending on whether the close_mode argument is one of the constants 
+.PN RetainPermanent
+or
+.PN RetainTemporary .
+However, this does not prevent other client applications from explicitly
+destroying the resources.
+(See below and
+.PN XSetCloseDownMode 
+in Chapter 7 for further information.)
+.LP
+When the mode is
+.PN DestroyAll ,
+the X server destroys all of a client application's resources as follows:
+.IP \(bu 5
+Examines each window in the client's save-set to determine if it is an inferior
+(subwindow) of a window created by the client.
+(The save-set is a list of other clients windows, and windows in this list are
+referred to as a save-set window.)
+If so, the X server reparents the save-set window to the closest ancestor such
+that the save-set window is not an inferior of a window created by the client.
+.IP \(bu 5
+Performs a
+.PN MapWindow
+request on the save-set window if the save-set window is unmapped.
+The X server does this even if the save-set window was not an inferior of 
+a window created by the client.
+.IP \(bu 5
+Examines each window in the client's save-set,
+and destroys all windows created by the client.
+.IP \(bu 5
+Performs the appropriate free request on each nonwindow resource created by
+the client in the server (for example, Font, Pixmap, Cursor, Colormap, 
+and GContext).
+.IP \(bu 5
+Frees all colors and color map entries allocated by a client application.
+.LP
+Additional processing occurs when the last connection to the X server closes.
+An X server goes through a cycle of having no connections and having some
+connections.
+When the last display connection to the X server closes as a result of a connection
+closing with the close_mode argument
+.PN DestroyAll 
+(that is, the X server reverts
+to the state of having no connections), the X server: 
+.IP \(bu 5
+Resets its state, as if it had just been
+started.  
+The X server begins by destroying all lingering resources from
+clients that have terminated in 
+.PN RetainPermanent
+or
+.PN RetainTemporary
+mode.
+.IP \(bu 5
+Deletes all but the predefined atom identifiers.
+.IP \(bu 5
+Deletes all properties on all root windows.
+See Chapter 4 for information about properties.
+.IP \(bu 5
+Resets all device maps and attributes 
+(for example, key click, bell volume, and acceleration) 
+and the access control list.
+.IP \(bu 5
+Restores the standard root tiles and cursors.
+.IP \(bu 5
+Restores the default font path.
+.IP \(bu 5
+Restores the input focus to state
+.PN PointerRoot .
+.LP
+However, the X server does not reset if you close a connection with a close_down
+mode argument set to
+.PN RetainPermanent
+or
+.PN RetainTemporary .
+.bp

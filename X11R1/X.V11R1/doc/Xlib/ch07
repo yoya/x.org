@@ -1,0 +1,2694 @@
+.\".U7
+.\".UT "Window Manager Functions" 7
+\&
+.sp 1
+.ce 3
+\s+1\fBChapter 7\fP\s-1
+
+\s+1\fBWindow Manager Functions\fP\s-1
+.sp 2
+.nr H1 7
+.nr H2 0
+.nr H3 0
+.nr H4 0
+.nr H5 0
+.na
+.LP
+.XS
+Chapter 7 - Window Manager Functions
+.XE
+Once you have connected the display to the X server
+and want to create a window manager application,
+you can use the Xlib window manager functions to:
+.IP \(bu 5
+Change the parent of a window
+.IP \(bu 5
+Control the lifetime of a window
+.IP \(bu 5
+Manipulate color maps
+.IP \(bu 5
+Manipulate the pointer
+.IP \(bu 5
+Manipulate the keyboard
+.IP \(bu 5
+Grab the server
+.IP \(bu 5
+Control processing 
+.IP \(bu 5
+Manipulate the keyboard encoding
+.IP \(bu 5
+Manipulate the screen saver
+.IP \(bu 5
+Control host access
+.RE
+.NT
+The functions in this chapter are most often used by window managers,
+though it can be difficult to definitively categorize functions as
+application only or window manager only.
+It is not expected that these functions will be used by most 
+normal application programs.
+.NE
+.NH 2
+Changing the Parent of a Window
+.LP
+Use
+.PN XReparentWindow 
+to change a window's parent within a single screen.
+There is no way to move a window between screens.
+.IN "XReparentWindow"
+The definition for this function is:
+.IN "Definitions" "XReparentWindow"
+.FD 0
+.so ./Xsrc/XReparentWin.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+.so ./Xsrc/parent.a
+.so ./Xsrc/xy_reparent.a
+.LP
+.so ./Xdescrip/XReparentWin.d
+If the window is mapped,
+.PN XReparentWindow
+automatically performs an
+.PN XUnmapWindow
+request on the specified window.
+The function then removes the specified window from its current position
+in the hierarchy and inserts it as the child of the specified parent.
+The window is placed on top in the stacking order with respect to
+sibling windows.
+.LP
+After reparenting the specified window,
+.PN XReparentWindow
+causes the X server to generate a
+.PN ReparentNotify
+event.
+The override_redirect member of the structure returned by this event is
+set to either
+.PN True
+or
+.PN False .
+Window manager clients normally should ignore this event if this member
+is set to
+.PN True .
+See Chapter 8 for more information on
+.PN ReparentNotify
+event
+processing.
+Finally, if the specified window was originally mapped, this function
+automatically performs a
+.PN XMapWindow
+request on it.
+.LP
+The X server performs normal exposure processing on formerly obscured
+windows.
+The X server might not generate exposure events for regions from the
+initial
+.PN XUnmapWindow
+request that are immediately obscured by the final
+.PN XMapWindow
+request.
+A
+.PN BadMatch
+error is generated:
+.IP \(bu 5
+If the new parent window is not on the same screen as
+the old parent window
+.IP \(bu 5
+If the new parent window is the specified window or an inferior of the
+specified window
+.IP \(bu 5
+If the specified window has a
+.PN ParentRelative
+background and if the new parent window is not the same depth as the
+specified window.
+.LP
+.ds fd .PN XReparentWindow
+.so ./Xsrc/errsent2.com
+.PN BadWindow .
+.NH 2
+Controlling the Lifetime of a Window
+.LP
+The save-set of a client is a list of other client's windows which,
+if they are inferiors of one of the client's windows at connection close,
+should not be destroyed and should be remapped if they are unmapped.
+To allow an application's window to survive when a window manager that
+has reparented a window fails,
+Xlib provides the save-set functions with which you can 
+change a client's save-set, add a subwindow to a client's save-set, 
+or remove a subwindow from a client's save-set.
+.LP
+The functions described in this section are used to control the longevity of subwindows
+that are normally destroyed when the parent is destroyed.
+For example, a window manager that wants to add decoration
+to a window by adding a frame might reparent an application's
+window. 
+When the frame is destroyed,
+the application's window should not be destroyed, but
+returned to its previous place in the window hierarchy.
+.LP
+Windows are removed automatically from the save-set by the X server when
+they are destroyed.
+For each window in the client's save-set, if the window is an inferior
+of a window created by the client, the save-set window is reparented to
+the closest ancestor such that the save-set window is not an inferior
+of a window created by the client.  
+If the save-set window is unmapped,
+a 
+.PN MapWindow 
+request is performed on it.  
+After save-set processing, all
+windows created by the client are destroyed.  
+For each nonwindow
+resource created by the client, the appropriate 
+Free request is performed.  
+All colors and color map entries allocated by the client are
+freed.
+.LP
+.sp
+Use
+.PN XChangeSaveSet 
+to add or remove a window from the client's save-set. 
+.IN "XChangeSaveSet"
+The definition for this function is:
+.IN "Definitions" "XChangeSaveSet"
+.FD 0
+.so ./Xsrc/XChSaveSet.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w_save_set.a
+.so ./Xsrc/changemode.a
+.LP
+.so ./Xdescrip/XChSaveSet.d
+The specified window must have been created by some other client. 
+Otherwise, a
+.PN BadMatch
+error is generated.
+See Section 2.6 for information on
+what happens to the save-set during connection close.
+The X server automatically removes windows from the save-set when they are destroyed.
+.LP
+.ds fd .PN XChangeSaveSet
+.so ./Xsrc/errsent1.com
+.PN BadWindow ,
+.PN BadMatch ,
+and
+.PN BadValue .
+.LP
+.sp
+Use
+.PN XAddToSaveSet
+.IN "XAddToSaveSet"
+to add a window to the client's save-set.
+The definition for this function is:
+.IN "Definitions" "XAddToSaveSet"
+.FD 0
+.so ./Xsrc/XAddSaveSet.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w_save_set.a
+.LP
+.so ./Xdescrip/XAddSaveSet.d
+The specified window must have been created by some other client. 
+Otherwise, a
+.PN BadMatch
+error is generated.
+See Section 2.6 for information on
+what happens to the save-set during connection close.
+The X server automatically removes windows from the save-set when they are destroyed.
+.LP
+.ds fd .PN XAddToSaveSet
+.so ./Xsrc/errsent1.com
+.PN BadWindow 
+and
+.PN BadMatch .
+.LP
+.sp
+Use
+.PN XRemoveFromSaveSet
+.IN "XRemoveFromSaveSet"
+to remove a window from the client's save-set.
+The definition for this function is:
+.IN "Definitions" "XRemoveFromSaveSet"
+.FD 0
+.so ./Xsrc/XRmvSaveSet.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w_save_set1.a
+.LP
+.so ./Xdescrip/XRmvSaveSet.d
+The specified window must have been created by some other client. 
+Otherwise, a
+.PN BadMatch
+error is generated.
+See Section 2.6 for information on
+what happens to the save-set during connection close.
+The X server automatically removes windows from the save-set when they are destroyed.
+.LP
+.ds fd .PN XRemoveFromSaveSet
+.so ./Xsrc/errsent1.com
+.PN BadWindow 
+and
+.PN BadMatch .
+.NH 2
+Manipulating Color Maps
+.LP
+Xlib provides functions with which you can install a color map, 
+uninstall a color map, and obtain a list of installed color maps.
+.LE
+.LP
+Window manager applications usually install and uninstall color maps, and, thus, these
+tasks should not be performed by normal client applications.
+The X server always maintains a subset of the installed color maps in an
+ordered list 
+called the ``required list.''
+The length of the required list is at most the
+minimum installed  maps specified for the screen when
+the connection is opened to the server.
+Initially, only the default color map for a screen is installed, 
+but it is not in the
+required list.
+The X server maintains the required list as follows:
+.IP \(bu 5
+If you pass a color map resource ID to the cmap argument, 
+.PN XInstallColormap
+adds the color map to the top of the list and
+truncates a color map at the bottom of the list, if necessary,
+so as not to exceed the maximum length of the list.
+.IP \(bu 5
+If you pass a color map resource ID to the cmap argument 
+and that color map is in the required list,
+.PN XUninstallColormap 
+removes the color map from the required list.
+A colormap is not added to the required list when it is installed
+implicitly by the server, and the X server cannot implicitly uninstall
+a colormap that is in the required list.
+.LP
+.sp
+Use
+.PN XInstallColormap 
+to install a color map. 
+.IN "XInstallColormap"
+The definition for this function is:
+.IN "Definitions" "XInstallColormap"
+.FD 0
+.so ./Xsrc/XInsCmap.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/cmap.a
+.LP
+.so ./Xdescrip/XInsCmap.d
+All windows associated with this color map immediately display with
+true colors.
+You associated the windows with this color map when you created them by calling
+the
+functions
+.PN XCreateWindow
+or
+.PN XCreateSimpleWindow .
+See Chapter 3 for a discussion of how to associate a window with a 
+color map using
+these functions.
+.LP
+The X server obtains the color map from a required list,
+which is an ordered list containing a subset of the installed color
+maps.
+The X server might implicitly install or uninstall additional color maps.
+Which other color maps get installed or uninstalled is 
+sever-dependent, except that
+the required list must remain installed.
+If the specified color map is not already an installed color map, the X server
+generates a
+.PN ColormapNotify
+event on every window having the cmap as the color map resource ID.
+In addition, for every other color map that is installed or uninstalled as 
+a result of a call to this
+function, the X server generates a
+.PN ColormapNotify
+event on every window having that cmap as the color map resource ID.
+.LP
+.ds fd .PN XInstallColormap
+.so ./Xsrc/errsent4.com
+.PN BadColor .
+.LP
+.sp
+Use
+.PN XUninstallColormap 
+to uninstall a color map. 
+.IN "XUninstallColormap"
+The definition for this function is:
+.IN "Definitions" "XUninstallColormap"
+.FD 0
+.so ./Xsrc/XUninsCmap.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/cmap.a
+.LP
+.so ./Xdescrip/XUninsCmap.d
+As a result,
+the specified cmap might be uninstalled, and the X server might implicitly
+install or uninstall additional color maps.
+Which color maps get installed or uninstalled is 
+sever-dependent, except that
+the required list must remain installed.
+.LP
+If the specified color map becomes uninstalled, the X server
+generates a
+.PN ColormapNotify
+event on every window having the cmap as the color map resource ID.
+In addition, for every other color map that is uninstalled as a 
+result of a call to this
+function, the X server generates a
+.PN ColormapNotify
+event on every window having that cmap as the color map resource ID.
+.LP
+.ds fd .PN XUninstallColormap
+.so ./Xsrc/errsent4.com
+.PN BadColor .
+.LP
+.sp
+Use
+.PN XListInstalledColormaps 
+to obtain a list of the currently installed color maps. 
+.IN "XListInstalledColormaps"
+The definition for this function is:
+.IN "Definitions" "XListInstalledColormaps"
+.FD 0
+.so ./Xsrc/XLstInsCmaps.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/w.a
+This is the window whose screen you want to obtain the list of currently 
+installed color maps.
+.so ./Xsrc/num.a
+.LP
+.so ./Xdescrip/XLstInsCmaps.d
+The order in which the color maps appear in the list is not 
+significant, and there is
+no explicit indication of the required list.
+You should free the allocated list by using
+.PN XFree ,
+when it no longer is needed.
+(See Section 2.4 for further information.)
+.LP
+.ds fd .PN XListInstalledColormaps
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.NH 2
+Manipulating the Pointer
+.LP
+Xlib provides functions with which you can control input from the pointer,
+which usually is a mouse.
+.NT
+Window managers most often use these facilities
+to implement certain styles of user interfaces.
+Some applications may use these facilities for special purposes.
+However, most applications will not use these functions.
+.NE
+.LP
+Usually, the X server delivers keyboard and mouse events as
+soon as they occur to the appropriate client depending upon the
+window and input focus.
+The X server provides sufficient control over event delivery to
+allow window managers to support mouse ahead and various other
+styles of user interface.
+Many of these depend upon synchronous delivery of events.
+The delivery of  pointer and keyboard events can be controlled
+independently.
+.LP
+When mouse buttons or keyboard keys are grabbed, events
+will be sent to the grabbing client rather than the normal
+client who would have received the event.
+If the keyboard or pointer is in asynchronous mode,
+further mouse and keyboard events will continue to be processed.
+If the keyboard or pointer is in synchronous mode, no
+further events will be processed until the grabbing client
+allows them.
+(See
+.PN XAllowEvents .)
+The keyboard or pointer is considered frozen during this
+interval.
+The triggering event can also be replayed.
+.LP
+.IN Definitions "Active Grab"
+There are two kinds of grabs:
+active and passive.
+An active grab occurs when a single client grabs the keyboard and/or pointer
+explicitly.
+(See
+.PN XGrabPointer
+and
+.PN XGrabKeyboard .)
+.IN Definitions "Passive Grab"
+Clients can also grab a particular keyboard key or pointer button in a window.
+The grab activates when the key or button is actually pressed,
+and is called a ``passive grab''.
+Passive grabs can be very convenient for implementing reliable
+pop-up menus.
+For example, you can arrange to guarantee that the pop-up will
+be mapped before the up pointer button event occurs by
+grabbing a button requesting synchronous behavior.
+The down event will trigger the grab and freeze further
+processing of pointer events until you have the chance to
+map the pop up window.
+You can then allow further event processing.
+The up event will then be correctly processed relative to the
+pop-up window.
+.LP
+For many operations,
+there are functions which take a time argument.
+The X server includes a time stamp in various events.
+One special time
+called
+.IN "CurrentTime"
+.IN "Definitions" "CurrentTime"
+.IN "Definitions" "time"
+.PN CurrentTime 
+represents the current server time.
+The X server maintains the time when the input focus was last changed and
+the time of the server itself when the client last performed
+an active grab (discussed below),
+when the keyboard was last grabbed,
+when the pointer was last grabbed,
+or when a selection was last changed.
+Your
+application may be slow reacting to an event.
+You often need some way to specify that your
+request not occur if some other application has in the meanwhile
+taken control of the keyboard, pointer, or selection.
+By providing the timestamp from the event in the
+request, you can arrange that the operation not take effect
+if someone else has in the meanwhile performed an operation.
+.LP
+.sp
+Use
+.PN XGrabPointer 
+to grab the pointer. 
+.IN "XGrabPointer"
+.IN "Grabbing" "Pointer"
+.IN "Pointer" "Grabbing"
+The definition for this function is:
+.IN "Definitions" "XGrabPointer"
+.FD 0
+.so ./Xsrc/XGrabPointer.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/grab_win1.a
+.so ./Xsrc/ownerevents2.a
+.so ./Xsrc/pointermask.a
+.so ./Xsrc/pointermode.a
+.so ./Xsrc/keybdmode.a
+.so ./Xsrc/confineto.a
+.so ./Xsrc/cursor_grab.a
+.so ./Xsrc/time.a
+.LP
+.so ./Xdescrip/XGrabPointer.d
+Further pointer events are only reported to the
+grabbing client.
+This function overrides any active pointer grab by this client.
+If owner_events is 
+.PN False , 
+all generated pointer events
+are reported with respect to grab_window and are only reported if
+selected by event_mask.
+If owner_events is 
+.PN True , 
+and if a generated
+pointer event would normally be reported to this client, it is reported
+normally. 
+Otherwise, the event is reported with respect to the
+grab_window and is only reported if selected by event_mask.
+For either value of owner_events, unreported events are discarded.
+.LP
+Pointer_mode controls further processing of pointer events, and
+keyboard_mode controls further processing of main keyboard events.  
+If the pointer_mode is 
+.PN GrabModeAsync , 
+pointer event processing continues normally.
+If the pointer is currently frozen by this client, the processing of events for
+the pointer is resumed.
+If the pointer_mode is 
+.PN GrabModeSync , 
+the the pointer, as seen by
+client applications,
+appears to freeze, and no further pointer events are generated by the
+X server until the grabbing client calls the
+.PN XAllowEvents
+function.
+Actual pointer changes are not lost while the pointer is frozen;
+they are simply queued for later processing.
+.LP
+If the keyboard_mode is 
+.PN GrabModeAsync , 
+keyboard event processing is unaffected by activation of the grab.
+If the keyboard_mode is 
+.PN GrabModeSync , 
+the the keyboard, as seen by
+client applications,
+appears to freeze, and no further keyboard events are generated by the
+X server until the grabbing client calls the
+.PN XAllowEvents
+function.
+Actual keyboard changes are not lost while the pointer is frozen;
+they are simply queued for later processing.
+.LP
+If a cursor is specified, it is displayed regardless of what
+window the pointer is in.  
+If no cursor is specified,
+the normal cursor for that window is displayed
+when the pointer is in grab_window or one of its subwindows;
+otherwise, the cursor for grab_window is displayed.
+.LP
+If a confine_to window is specified, the pointer will be
+restricted to stay contained in that window.
+The confine_to window
+need have no relationship to the grab_window.
+If the pointer is not
+initially in the confine_to window, it is warped automatically to
+the closest edge 
+just before the grab activates
+and enter/leave events are generated normally. 
+If the confine_to window is subsequently
+reconfigured, the pointer will be warped automatically as necessary to
+keep it contained in the window.
+.LP
+The time argument allows you to avoid certain circumstances that come up
+if applications take a long while to respond or if there are long network
+delays.
+Consider a situation where you have two applications, both
+of which normally grab the pointer when clicked on.
+If both applications specify the timestamp from the event, the second
+application may successfully grab the pointer, while the first gets an
+indication the other application grabbed the pointer before its request
+was processed.
+.LP
+.PN XGrabPointer 
+generates
+.PN EnterNotify 
+and
+.PN LeaveNotify 
+events.
+.LP
+The
+.PN XGrabPointer
+function fails and returns:
+.TS
+lw(1.5i) lw(4.25i).
+T{
+.PN GrabNotViewable
+T}	T{
+If grab_window or confine_to window is not viewable.
+T}
+.sp 6p
+T{
+.PN AlreadyGrabbed 
+T}	T{
+If the pointer is actively grabbed by some other client.
+T}
+.sp 6p
+T{
+.PN GrabFrozen 
+T}	T{
+If the pointer is frozen by an active grab of another client.
+T}
+.sp 6p
+T{
+.PN GrabInvalidTime 
+T}	T{
+If the specified time is earlier than the last-pointer-grab time or later 
+than the current X server time.
+Otherwise, the last-pointer-grab time is set to the specified time and
+the constant
+.PN CurrentTime 
+is replaced by the current X server time. 
+T}
+.TE
+.LP
+.ds fd .PN XGrabPointer
+.so ./Xsrc/errsent.com
+.PN BadWindow ,
+.PN BadCursor ,
+and
+.PN BadValue .
+.LP
+.sp
+Use
+.PN XGrabButton 
+to grab a mouse button. 
+.IN "XGrabButton"
+.IN "Grabbing" "Buttons"
+.IN "Buttons" "Grabbing"
+The definition for this function is:
+.IN "Definitions" "XGrabButton"
+.FD 0
+.so ./Xsrc/XGrabButton.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/button.a
+You can pass the constant
+.PN AnyButton ,
+which is equivalent to issuing the
+grab request for all possible buttons.
+.so ./Xsrc/modifiers.a
+You can also pass the constant
+.PN AnyModifier ,
+which is equivalent to issuing the
+grab request for all
+possible modifier combinations (including the combination of no modifiers).
+.\" Need grab_window argument to connect to EnterNotify event discussion.
+.so ./Xsrc/grab_win.a
+.so ./Xsrc/ownerevents2.a
+.so ./Xsrc/pointermask.a
+.so ./Xsrc/pointermode.a
+.so ./Xsrc/keybdmode.a
+.so ./Xsrc/confineto.a
+.so ./Xsrc/cursor_grab.a
+.LP
+.so ./Xdescrip/XGrabButton.d
+Consequently, in the future:
+.IP \(bu 5
+IF the specified button is pressed when the specified modifier keys 
+are down (and no other buttons or modifier keys are down)
+.IP \(bu 5
+AND if grab_window contains the pointer 
+.IP \(bu 5
+AND if the confine_to window (if any) is viewable
+.IP \(bu 5
+AND if these constraints are not satisfied for any ancestor
+.IP \(bu 5
+THEN the pointer is actively grabbed, as for 
+.PN XGrabPointer , 
+the last-pointer-grab time is set to the time at which the button was pressed
+(as transmitted in the
+.PN ButtonPress
+event), and the 
+.PN ButtonPress
+events is reported.
+.LP
+The interpretation of the remaining arguments is as for
+.PN XGrabPointer .
+The active grab is terminated automatically when all buttons are released
+(independent of the state of the modifier keys).
+.LP
+A modifiers of 
+.PN AnyModifier 
+is equivalent to issuing the grab request for all
+possible modifier combinations (including the combination of no modifiers).  
+It is not required that all modifiers specified have currently assigned 
+keycodes.
+A button of 
+.PN AnyButton 
+is equivalent to
+issuing the request for all possible buttons.
+Otherwise, it is not required that the specified button currently be assigned
+to a physical button.
+.LP
+The request fails and the
+X server generates a
+.PN BadAccess 
+error if some other client has already issued a 
+.PN XGrabButton
+with the same button/key combination on the same window.
+When using 
+.PN AnyModifier 
+or 
+.PN AnyButton , 
+the request fails completely 
+generating an
+.PN BadAccess
+error (no grabs are
+established) if there is a conflicting grab for any combination.
+The request has no effect on an active grab.
+.LP
+.ds fd .PN XGrabButton
+.so ./Xsrc/errsent1.com
+.PN BadWindow ,
+.PN BadCursor ,
+.PN BadAccess ,
+and
+.PN BadValue .
+.LP
+.sp
+Use
+.PN XUngrabButton 
+to ungrab a mouse button. 
+.IN "XUngrabButton"
+.IN "Ungrabbing" "Buttons"
+.IN "Buttons" "Ungrabbing"
+The definition for this function is:
+.IN "Definitions" "XUngrabButton"
+.FD 0
+.so ./Xsrc/XUngrabBut.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/button2.a
+You can pass the constant
+.PN AnyButton ,
+which is equivalent to issuing the
+ungrab request for all possible buttons.
+.so ./Xsrc/modifiers.a
+You can also pass the constant
+.PN AnyModifier ,
+which is equivalent to issuing the
+ungrab request for all
+possible modifier combinations (including the combination of no modifiers).
+.so ./Xsrc/ungrab_win.a
+.LP
+.so ./Xdescrip/XUngrabBut.d
+A modifiers of 
+.PN AnyModifier 
+is
+equivalent to issuing 
+the ungrab request for all possible modifier combinations, including 
+the combination of no modifiers.
+A button of 
+.PN AnyButton 
+is equivalent to issuing the
+request for all possible buttons.
+This function has no effect on an active grab.
+.LP
+.ds fd .PN XUngrabButton
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.sp
+Use
+.PN XUngrabPointer 
+to ungrab the pointer. 
+.IN "XUngrabPointer"
+.IN "Ungrabbing" "Pointer"
+.IN "Pointer" "Ungrabbing"
+The definition for this function is:
+.IN "Definitions" "XUngrabPointer"
+.FD 0
+.so ./Xsrc/XUngrabPntr.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/time.a
+.LP
+.so ./Xdescrip/XUngrabPntr.d
+The function does not release the pointer if the specified
+time is earlier than the last-pointer-grab time or is later than the
+current X server time.
+It also generates 
+.PN EnterNotify 
+and 
+.PN LeaveNotify 
+events.
+The X server performs an 
+.PN XUngrabPointer 
+automatically if the event window or
+confine-to window for an active pointer grab becomes not viewable.
+.LP
+.sp
+Use
+.PN XChangeActivePointerGrab 
+to change the active pointer. 
+.IN "XChangeActivePointerGrab"
+.IN "Pointer" "Grabbing"
+.IN "Grabbing" "Pointer" "Changing"
+The definition for this function is:
+.IN "Definitions" "XChangeActivePointerGrab"
+.FD 0
+.so ./Xsrc/XChActPGrab.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/pointermask.a
+.so ./Xsrc/cursor.a
+This is the cursor that is displayed.
+A possible value you can pass is 
+.PN None .
+.so ./Xsrc/time.a
+.LP
+.so ./Xdescrip/XChActPGrab.d
+This function has no effect on the passive parameters of a
+.PN XGrabButton .  
+The event-mask is always augmented to include 
+.PN ButtonPress
+mask and 
+.PN ButtonRelease 
+mask.
+The interpretation of event_mask and cursor is the same as described in
+.PN XGrabPointer .
+.LP
+.ds fd .PN XChangeActivePointerGrab
+.so ./Xsrc/errsent4.com
+.PN BadCursor .
+.NH 2
+Manipulating the Keyboard
+.LP
+Xlib provides functions with which you can grab or ungrab the keyboard
+as well as allow events.
+.LP
+.sp
+Use
+.PN XGrabKeyboard 
+to grab the keyboard. 
+.IN "XGrabKeyboard"
+.IN "Keyboard" "Grabbing"
+.IN "Grabbing" "Keyboard"
+The definition for this function is:
+.IN "Definitions" "XGrabKeyboard"
+.FD 0
+.so ./Xsrc/XGrabKeybd.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/grab_win2.a
+.so ./Xsrc/ownerevents.a
+.so ./Xsrc/pointermode.a
+.so ./Xsrc/keybdmode.a
+.so ./Xsrc/time.a
+.LP
+.so ./Xdescrip/XGrabKeybd.d
+Further key events are reported only to the
+grabbing client.
+This function overrides any active keyboard grab by this client.
+If owner_events is 
+.PN False , 
+all generated key events are reported with
+respect to grab_window.  
+If owner_events is 
+.PN True , 
+then if a generated
+key event would normally be reported to this client, it is reported
+normally; otherwise the event is reported with respect to the
+grab_window.  
+Both 
+.PN KeyPress 
+and 
+.PN KeyRelease 
+events are always reported,
+independent of any event selection made by the client.
+.LP
+The pointer_mode argument controls the further processing 
+of pointer events, and the keyboard_mode argument controls
+the further processing of the keyboard events.
+.IP \(bu 5
+If the keyboard_mode argument is 
+.PN GrabModeAsync ,
+keyboard event processing continues
+normally; if the keyboard is currently frozen by this client, then
+processing of keyboard events is resumed.
+If the keyboard_mode  argument is
+.PN GrabModeSync ,
+the keyboard (as seen by client applications) appears to freeze,
+and no further keyboard events are generated by the server until the
+grabbing client issues a releasing 
+.PN XAllowEvents 
+call.
+Actual
+keyboard changes are not lost while the keyboard is frozen; they are
+simply queued for later processing.
+.IP \(bu 5
+If pointer_mode is 
+.PN GrabModeAsync ,
+pointer event processing is unaffected
+by activation of the grab.  
+If pointer_mode is 
+.PN GrabModeSync ,
+the pointer
+(as seen by client applications) appears to freeze, and no further pointer
+events are generated by the server until the grabbing client issues a
+releasing 
+.PN XAllowEvents 
+call.
+Actual pointer changes are not lost
+while the pointer is frozen; they are simply queued for later
+processing.
+.LP
+.PN XGrabKeyboard
+fails and returns:
+.TS
+lw(1.5i) lw(4.25i).
+T{
+.PN AlreadyGrabbed 
+T}	T{
+If the keyboard is actively grabbed by some other client.
+T}
+.sp 6p
+T{
+.PN GrabNotViewable 
+T}	T{
+If grab_window is not viewable.
+T}
+.sp 6p
+T{
+.PN GrabInvalidTime
+T}	T{
+If the specified time is earlier
+than the last-keyboard-grab time or later than the current X server time.
+Otherwise, the last-keyboard-grab time is set to the specified time and
+.PN CurrentTime 
+is replaced by the current X server time.
+T}
+.sp 6p
+T{
+.PN GrabFrozen
+T}	T{
+If the keyboard is frozen by an active grab of another client.
+T}
+.TE
+.LP
+.ds fd .PN XGrabKeyboard
+.so ./Xsrc/errsent.com
+.PN BadWindow
+and 
+.PN BadValue .
+.LP
+.sp
+Use
+.PN XUngrabKeyboard 
+to ungrab the keyboard. 
+.IN "XUngrabKeyboard"
+.IN "Keyboard" "Ungrabbing"
+.IN "Ungrabbing" "Keyboard"
+The definition for this function is:
+.IN "Definitions" "XUngrabKeyboard"
+.FD 0
+.so ./Xsrc/XUngrabKeybd.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/time.a
+.LP
+.so ./Xdescrip/XUngrabKeybd.d
+The function does not release the keyboard and any queued events
+if the specified time is earlier than
+the last-keyboard-grab time or is later than the current X server time.
+It also generates
+.PN FocusIn 
+and 
+.PN FocusOut 
+events.
+The X server automatically performs an 
+.PN XUngrabKeyboard 
+if the event window for an
+active keyboard grab becomes not viewable.
+.LP
+.sp
+Use
+.PN XGrabKey 
+to passively grab a single key of the keyboard key. 
+.IN "XGrabKey"
+.IN "Keys" "Grabbing"
+.IN "Grabbing" "Keys"
+The definition for this function is:
+.IN "Definitions" "XGrabKey"
+.FD 0
+.so ./Xsrc/XGrabKey.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/keycode.a
+This keycode maps to the specific key you want to grab.
+You can pass either the keycode or the constant
+.PN AnyKey .
+.so ./Xsrc/modifiers.a
+.IP
+You can also pass the constant
+.PN AnyModifier , 
+which is equivalent to issuing the 
+grab key request for all possible modifier combinations (including the combination of
+no modifiers).
+.so ./Xsrc/grab_win3.a
+.so ./Xsrc/ownerevents.a
+.so ./Xsrc/pointermode.a
+.so ./Xsrc/keybdmode.a
+.LP
+.so ./Xdescrip/XGrabKey.d
+Consequently, in the future:
+.IP \(bu 5
+IF the specified key, which itself can be a modifier key, is pressed
+when the specified modifier keys are down (and no other keys are down),
+.IP \(bu 5
+AND EITHER the grab window is an ancestor of (or is) the focus window
+OR the grab window is a descendent of the focus window and contains the pointer,
+.IP \(bu 5
+AND these constraints are not satisfied for any ancestor of grab_window,
+.IP \(bu 5
+THEN the keyboard is actively grabbed, as for 
+.PN XGrabKeyboard ,
+the last-keyboard-grab time is set to the time at which the key was pressed
+(as transmitted in the
+.PN KeyPress
+event), and the 
+.PN KeyPress
+event is reported.
+.LP
+The interpretation of the remaining arguments is as for 
+.PN XGrabKeyboard .
+The active grab is terminated automatically when the specified key has been
+released (independent of the state of the modifier keys).
+.LP
+A modifiers of 
+.PN AnyModifier
+is equivalent to issuing the request for all
+possible modifier combinations (including the combination of no
+modifiers).  
+It is not required that all modifiers specified have
+currently assigned keycodes.
+A key of 
+.PN AnyKey
+is equivalent to issuing
+the request for all possible keycodes.
+Otherwise, the key must be in
+the range specified by min_keycode and max_keycode in the connection
+setup. 
+Otherwise, a 
+.PN BadValue
+error is generated.
+.LP
+A 
+.PN BadAccess 
+error is generated if some other client has issued a 
+.PN XGrabKey
+with the same key combination on the same window.  
+When using
+.PN AnyModifier
+or 
+.PN AnyKey ,
+the request fails completely 
+and the X server generates a
+.PN BadAccess 
+error and no grabs are
+established if there is a conflicting grab for any combination.
+.LP
+.ds fd .PN XGrabKey
+.so ./Xsrc/errsent.com
+.PN BadAccess ,
+.PN BadValue , 
+and
+.PN BadWindow .
+.LP
+.sp
+Use
+.PN XUngrabKey 
+to ungrab a key.  
+.IN "XUngrabKey"
+.IN "Keys" "Ungrabbing"
+.IN "Ungrabbing" "Keys"
+The definition for this function is:
+.IN "Definitions" "XUngrabKey"
+.FD 0
+.so ./Xsrc/XUngrabKey.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/keycode.a
+This keycode maps to the specific key you want to ungrab.
+You can pass either the keycode or the constant
+.PN AnyKey .
+.so ./Xsrc/modifiers.a
+You can also pass the constant
+.PN AnyModifier , 
+which is equivalent to issuing the 
+ungrab key request for all possible modifier combinations (including the combination of
+no modifiers).
+.so ./Xsrc/grab_win4.a
+.LP
+.so ./Xdescrip/XUngrabKey.d
+This function has no effect on an active grab.
+A modifiers of 
+.PN AnyModifier 
+is equivalent to issuing
+the request for all possible modifier combinations (including the combination of no 
+modifiers).
+A key of 
+.PN AnyKey 
+is equivalent to issuing the request for all possible
+nonmodifier key codes.
+.LP
+.ds fd .PN XUngrabKey
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.sp
+Use
+.PN XAllowEvents 
+to allow further events to be processed when the device has been frozen. 
+.IN "XAllowEvents"
+The definition for this function is:
+.IN "Definitions" "XAllowEvents"
+.FD 0
+.so ./Xsrc/XAllowEvents.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/eventmode.a
+.so ./Xsrc/time.a
+.LP
+.so ./Xdescrip/XAllowEvents.d
+The function has no effect if the specified time is earlier than the last-grab 
+time of the most recent active grab for the client, or if the specified time
+is later than the current X server time.
+The following describes the processing that occurs depending on what constant
+you pass to the event_mode argument:
+.TS
+lw(1.75i) lw(4i).
+T{
+.PN AsyncPointer
+T}	T{
+If the pointer is frozen by the client
+the pointer event processing continues as usual.
+If the pointer is frozen twice by the client on behalf of two separate grabs,
+AsyncPointer thaws for both.
+AsyncPointer has no effect if the pointer is not frozen by the client,
+but the pointer need not be grabbed by the client.
+T}
+.sp 6p
+T{
+.PN SyncPointer 
+T}	T{
+If the pointer is frozen and actively grabbed by the client,
+pointer event processing continues normally until the next 
+ButtonPress or ButtonRelease event is reported to the client.
+At this time, 
+the pointer again appears to freeze.
+However, if the reported event causes the pointer grab to be released,
+the pointer does not freeze.
+SyncPointer has no effect if the pointer is not frozen by the client
+or if the pointer is not grabbed by the client.
+T}
+.sp 6p
+T{
+.PN ReplayPointer
+T}	T{
+If the pointer is actively grabbed by the client and is frozen as the result of
+an event having been sent to the client (either from the activation of a 
+XGrabButton or from a previous XAllowEvents with mode (SyncPointer, 
+but not from a XGrabPointer),
+the pointer grab is released and that event is completely reprocessed.
+This time, however, the function ignores any passive grabs at or above 
+(towards the root) the grab_window of the grab just released.
+The request has no effect if the pointer is not grabbed by the client
+or if the pointer is not frozen as the result of an event.
+T}
+.sp 6p
+T{
+.PN AsyncKeyboard 
+T}	T{
+If the keyboard is frozen by the client,
+the keyboard event processing continues as usual.
+If the keyboard is frozen twice by the client on behalf of two separate grabs,
+AsyncKeyboard ``thaws'' for both.
+AsyncKeyboard has no effect if the keyboard is not frozen by the client,
+but the keyboard need not be grabbed by the client.
+T}
+.sp 6p
+T{
+.PN SyncKeyboard
+T}	T{
+If the keyboard is frozen and actively grabbed by the client,
+keyboard event processing continues as usual until the next 
+KeyPress or KeyRelease event is reported to the client.
+At this time,
+the keyboard again appears to freeze.
+However, if the reported event causes the keyboard grab to be released,
+the keyboard does not freeze.
+SyncKeyboard has no effect if the keyboard is not frozen by the client
+or if the keyboard is not grabbed by the client.
+T}
+.sp 6p
+T{
+.PN ReplayKeyboard
+T}	T{
+If the keyboard is actively grabbed by the client and is frozen 
+as the result of an event having been sent to the client (either from the
+activation of a XGrabKey or from a previous XAllowEvents with mode 
+(SyncKeyboard, but not from a XGrabKeyboard),
+the keyboard grab is released and that event is completely reprocessed.
+This time, however, the function ignores any passive grabs at or above (towards the root)
+the grab_window of the grab just released.
+The request has no effect if the keyboard is not grabbed by the client
+or if the keyboard is not frozen as the result of an event.
+T}
+.sp 6p
+T{
+.PN SyncBoth
+T}	T{
+If both pointer and keyboard are frozen by the client,
+event processing (for both devices) continues normally until the next
+ButtonPress, ButtonRelease, KeyPress, or KeyRelease event is reported
+to the client for a grabbed device (button event for the pointer, key
+event for the keyboard), at which time the devices again appear to
+freeze.  However, if the reported event causes the grab to be released,
+then the devices do not freeze (but if the other device is still
+grabbed, then a subsequent event for it will still cause both devices
+to freeze).  
+SyncBoth has no effect unless both pointer and keyboard
+are frozen by the client.  If the pointer or keyboard is frozen twice
+by the client on behalf of two separate grabs, 
+SyncBoth "thaws" for both (but a subsequent freeze for SyncBoth 
+will only freeze each device once).
+T}
+.sp 6p
+T{
+.PN AsyncBoth
+T}	T{
+If the pointer and the keyboard are frozen by the
+client, event processing (for both devices) continues normally.
+If a device is frozen twice by the client on behalf of two separate grabs,
+AsyncBoth "thaws" for both.
+AsyncBoth has no effect unless both
+pointer and keyboard are frozen by the client.
+T}
+.TE
+.LP
+.PN AsyncPointer , 
+.PN SyncPointer , 
+and 
+.PN ReplayPointer 
+have no effect on the
+processing of keyboard events.
+.PN AsyncKeyboard , 
+.PN SyncKeyboard , 
+and 
+.PN ReplayKeyboard 
+have no effect on the
+processing of pointer events.
+It is possible for both a pointer grab and a keyboard grab (by the same 
+or different clients) to be active simultaneously.
+If a device is frozen on behalf of either grab,
+no event processing is performed for the device.
+It is possible for a single device to be frozen because of both grabs.
+In this case,
+the freeze must be released on behalf of both grabs before events can 
+again be processed.
+.LP
+.ds fd .PN XAllowEvents
+.so ./Xsrc/errsent4.com
+.PN BadValue .
+.NH 2
+Grabbing the Server
+.LP
+Xlib provides functions with which you can grab and ungrab the server.
+These functions can be used to control processing of output on other
+connections by the window system server.
+No processing of requests or close downs on any other connection
+will occur while the server is grabbed.
+A client closing its connection automatically ungrabs the server.
+.IN "Menus"
+.IN "Window" "Managers"
+Although grabbing the server is highly discouraged, it is sometimes necessary.
+.LP
+.sp
+Use
+.PN XGrabServer 
+to grab the server. 
+.IN "XGrabServer"
+.IN "Grabbing" "Server"
+The definition for this function is:
+.IN "Definitions" "XGrabServer"
+.FD 0
+.so ./Xsrc/XGrabServer.f
+.FN
+.so ./Xsrc/display.a
+.LP
+.so ./Xdescrip/XGrabServer.d
+.LP
+.sp
+Use
+.PN XUngrabServer 
+to ungrab the server. 
+.IN "XUngrabServer"
+The definition for this function is:
+.IN "Definitions" "XUngrabServer"
+.FD 0
+.so ./Xsrc/XUngrbSrvr.f
+.FN
+.so ./Xsrc/display.a
+.LP
+.so ./Xdescrip/XUngrbSrvr.d
+.NH 2
+Miscellaneous Control Function
+.LP
+This section discusses how to:
+.IP \(bu 5
+Control the input focus
+.IP \(bu 5
+Control the pointer
+.IP \(bu 5
+Kill clients
+.LE
+.NH 3
+Controlling the Input Focus
+.LP
+Xlib provides functions with which you can move the pointer position as well as
+set and get the input focus.
+.LP
+.sp
+Use
+.PN XWarpPointer 
+to move the pointer to an arbitrary point on the screen. 
+.IN "XWarpPointer"
+The definition for this function is:
+.IN "Definitions" "XWarpPointer"
+.FD 0
+.so ./Xsrc/XWarpPointer.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/sw.a
+You can pass the window ID or the constant
+.PN None .
+.so ./Xsrc/dw.a
+You can pass the window ID or the constant
+.PN None .
+.so ./Xsrc/srcxy1.a
+.so ./Xsrc/srcwdht.a
+.so ./Xsrc/destxy2.a
+.LP
+.so ./Xdescrip/XWarpPointer.d
+There is seldom any reason for calling this function. 
+The pointer should normally
+be left to the mouse.
+If you do use this function, however, it generates events just as if the user
+had instantaneously moved the pointer from one position to another.
+Note that you cannot use
+.PN XWarpPointer
+to move the pointer outside the confine_to window of an active pointer grab.
+An attempt to do so will only move the pointer as far as the closest edge of the
+confine_to window. 
+.LP
+If the src_w argument is
+.PN None ,
+the move is independent of the current pointer position.
+However, if src_w is a window, the move only takes place if the pointer is
+currently contained in a visible portion of the specified rectangle of the
+src_w.
+If dest_w is
+.PN None ,
+the function moves the pointer by offsets (dest_x, dest_y) relative to the
+current position of the pointer.
+If dest_w is a window, the function moves the pointer to (dest_x, dest_y)
+relative to the origin of dest_w.
+However, if src_w is not
+.PN None ,
+the move only takes place if the pointer is currently contained in a visible
+portion of the specified rectangle of the src_w.
+.LP
+The coordinates passed to src_x and src_y are relative to the source window's origin.
+If src_height is zero (0), the function replaces it with the current height of
+the source window minus src_y.
+If src_width is zero (0), the function replaces it with the current width of the
+source window minus src_x.
+.LP
+.ds fd .PN XWarpPointer
+.so ./Xsrc/errsent4.com
+.PN BadWindow .
+.LP
+.sp
+Use
+.PN XSetInputFocus 
+to set the input focus. 
+.IN "XSetInputFocus"
+The definition for this function is:
+.IN "Definitions" "XSetInputFocus"
+.FD 0
+.so ./Xsrc/XSetInFocus.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/focus1.a
+This is the window in which you want to set the input focus.
+You can pass the window ID or one of the constants 
+.PN PointerRoot 
+or 
+.PN None .
+.so ./Xsrc/revertto.a
+.so ./Xsrc/time.a
+.LP
+.so ./Xdescrip/XSetInFocus.d
+The function has no effect if the specified time is earlier than the current
+last-focus-change time or is later than the current X server time.
+Otherwise, the last-focus-change time is set to the specified time
+and the 
+.PN CurrentTime 
+replaced by the current X server time.
+This function causes the X server to generate
+.PN FocusIn 
+and 
+.PN FocusOut 
+events.
+.LP
+Depending on what value you assign to the
+focus argument,
+.PN XSetInputFocus
+executes as follows: 
+.IP \(bu 5
+If you assign
+.PN None 
+to the focus argument, all keyboard events are discarded until you set a new
+focus window.  
+In this case, the revert_to argument is ignored.
+.IP \(bu 5
+If you assign a window ID to the focus argument, 
+it becomes the keyboard's focus window.
+If a generated keyboard event would normally be reported to this window
+or one of its inferiors, the event is reported normally. 
+Otherwise, the event is reported relative to the focus window.
+.IP \(bu 5
+If you assign 
+.PN PointerRoot 
+to the focus argument, the focus window is dynamically taken to
+be the root window of whatever screen the pointer is on at each
+keyboard event.  
+In this case, the revert_to argument is ignored.
+.LP
+The specified focus window must be viewable at the time 
+.PN XSetInputFocus
+is called.
+Otherwise, a
+.PN BadMatch
+error is generated.
+If the focus window later becomes not viewable, 
+the X server
+evaluates the revert_to argument to determine the new focus window: 
+.IP \(bu 5
+If you assign 
+.PN RevertToParent 
+to the revert_to argument, the focus reverts to the parent
+(or the closest viewable ancestor), and the new revert_to value is taken to
+be
+.PN RevertToNone .  
+.IP \(bu 5
+If you assign
+.PN RevertToPointerRoot 
+or 
+.PN RevertToNone 
+to the revert_to argument, the focus reverts to that value.
+When the focus reverts,
+the X server generates
+.PN FocusIn
+and
+.PN FocusOut
+events, but the last-focus-change time is not affected.
+.LP
+.ds fd .PN XSetInputFocus
+.so ./Xsrc/errsent.com
+.PN BadWindow 
+and
+.PN BadValue .
+.LP
+.sp
+Use
+.PN XGetInputFocus 
+to obtain the current input focus. 
+.IN "XGetInputFocus"
+The definition for this function is:
+.IN "Definitions" "XGetInputFocus"
+.FD 0
+.so ./Xsrc/XGetInFocus.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/focus.a
+.so ./Xsrc/reverttoret.a
+.LP
+.so ./Xdescrip/XGetInFocus.d
+.NH 3
+Controlling the Pointer
+.LP
+Xlib provides functions with which you can change the pointer control or
+can get the current pointer control parameters.
+.LP
+.sp
+Use
+.PN XChangePointerControl 
+to control the interactive feel of the pointer device.
+.IN "XChangePointerControl"
+The definition for this function is:
+.IN "Definitions" "XChangePointerControl"
+.FD 0
+.so ./Xsrc/XChPointCon.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/doaccel.a
+.so ./Xsrc/dothreshold.a
+.so ./Xsrc/accelnum.a
+.so ./Xsrc/acceldenom.a
+.so ./Xsrc/threshold.a
+.LP
+.so ./Xdescrip/XChPointCon.d
+The acceleration, expressed as a fraction, is a
+multiplier for movement. 
+For example,
+specifying 3/1 means the pointer moves three times as fast as normal.
+The fraction may be rounded arbitrarily by the X server.  
+Acceleration
+only takes effect if the pointer moves more than threshold pixels at
+once and only applies to the amount beyond the value in the threshold argument.
+Setting a value to -1 restores the default.
+The values of the do_accel and do_threshold arguments must be nonzero for
+the pointer values to be set.
+Otherwise, the parameters will be unchanged.
+Negative values generate a
+.PN BadValue
+error, as does a zero value
+for the accel_denominator argument.
+.LP
+.ds fd .PN XChangePointerControl
+.so ./Xsrc/errsent4.com
+.PN BadValue .
+.LP
+.sp
+Use
+.PN XGetPointerControl 
+to get the current parameters set for the pointer. 
+.IN "XGetPointerControl"
+The definition for this function is:
+.IN "Definitions" "XGetPointerControl"
+.FD 0
+.so ./Xsrc/XGetPntrCnt.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/accelnumret.a
+.so ./Xsrc/acceldenomrt.a
+.so ./Xsrc/thresholdret.a
+.LP
+.so ./Xdescrip/XGetPntrCnt.d
+.NH 3
+Killing Clients
+.LP
+Xlib provides functions with which you can control the life time
+of resources owned by a client or can cause the connection to
+a client to be destroyed.
+.LP
+.sp
+Use
+.PN XSetCloseDownMode 
+to change the close down mode of a client. 
+.IN XSetCloseDownMode
+The definition for this function is:
+.IN "Definitions" XSetCloseDownMode
+.FD 0
+.so ./Xsrc/XChClsDwnMd.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/closemode.a
+.LP
+.so ./Xdescrip/XChClsDwnMd.d
+A connection starts in 
+.PN DestroyAll
+mode.
+See the Section 2.6 for information on
+what happens to the client's resources when the close_mode argument is
+one of the valid constants.
+.LP
+.ds fd .PN XSetCloseDownMode
+.so ./Xsrc/errsent4.com
+.PN BadValue .
+.LP
+.sp
+Use
+.PN XKillClient 
+to destroy a client. 
+.IN "XKillClient"
+The definition for this function is:
+.IN "Definitions" "XKillClient"
+.FD 0
+.so ./Xsrc/XKillClient.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/resource.a
+.LP
+.so ./Xdescrip/XKillClient.d
+If the client has already terminated in
+either 
+.PN RetainPermanent 
+or 
+.PN RetainTemporary 
+mode, all of the client's
+resources are destroyed.
+If 
+.PN AllTemporary 
+is
+specified, the resources of all clients that have terminated in
+.PN RetainTemporary 
+are destroyed.
+See Section 2.6 
+for further information.
+.LP
+.ds fd .PN XKillClient
+.so ./Xsrc/errsent4.com
+.PN BadValue .
+.NH 2
+Manipulating Keyboard Settings
+.LP
+Xlib provides functions with which you can
+change the keyboard control, obtain a list of the auto-repeat keys,
+turn keyboard auto-repeat on or off, ring the bell, 
+set or obtain the pointer button or keyboard mapping, 
+and obtain a bit vector for the keyboard.
+.LP
+.IN "Keyboard" "Bell Volume"
+.IN "Keyboard" "Keyclick Volume"
+.IN "Keyboard" "Bit Vector"
+.IN "Mouse" "Programming"
+This section discusses 
+the user preference options of bell, keyclick,
+mouse behavior, and so on.
+The default values for many of these functions are determined by
+command line arguments to the X server, and on UNIX-based systems are typically set in 
+.PN /etc/ttys .
+.IN "Files" "/etc/ttys"
+Not all implementations will actually be able to control all of these
+parameters.
+.LP
+.sp
+Use
+.PN XChangeKeyboardControl 
+to change control from a keyboard. 
+.IN "XChangeKeyboardControl"
+.IN "XKeyboardControl"
+The definition for this function is:
+.IN "Definitions" "XChangeKeyboardControl"
+.FD 0
+.so ./Xsrc/XChKeyCon.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/value_mask1.a
+.so ./Xsrc/values2.a
+.LP
+.so ./Xdescrip/XChKeyCon.d
+The values argument
+specifies which values are to be changed. 
+The value_mask contains one
+value for each one bit in the mask (least to most significant bit).
+This function operates on a
+.PN XKeyboardControl
+structure:
+.DS 0
+.TA .5i 3i
+.ta .5i 3i
+/* masks for ChangeKeyboardControl */
+
+#define KBKeyClickPercent	(1L<<0)
+#define KBBellPercent	(1L<<1)
+#define KBBellPitch	(1L<<2)
+#define KBBellDuration	(1L<<3)
+#define KBLed	(1L<<4)
+#define KBLedMode	(1L<<5)
+#define KBKey	(1L<<6)
+#define KBAutoRepeatMode	(1L<<7)
+
+typedef struct {
+	int key_click_percent;
+	int bell_percent;
+	int bell_pitch;
+	int bell_duration;
+	int led;
+	int led_mode
+	int key;
+	int auto_repeat_mode;	/* AutoRepeatModeOff, AutoRepeatModeOn, 
+                            	AutoRepeatModeDefault */
+} XKeyboardControl;
+.DE
+.IN "XKeyboardControl"
+.IN "Data Structures" "XKeyboardControl"
+The following describes each of the members of the
+.PN XKeyboardControl
+structure.
+.LP
+The
+key_click_percent member sets the volume for key clicks between 0 (off) and
+100 (loud) inclusive, if possible.  
+A setting of -1 restores the default.
+Other negative values generate a
+.PN BadValue
+error.
+.LP
+The
+bell_percent sets the base volume for the bell between 0 (off) and 100
+(loud) inclusive, if possible.  
+A setting of -1 restores the default.
+Other negative values generate a
+.PN BadValue
+error.
+The
+bell_pitch member sets the pitch (specified in Hz) of the bell, if possible.
+A setting to -1 restores the default.
+Other negative values generate a
+.PN BadValue
+error.
+The
+bell_duration member sets the duration, specified in milliseconds, of the
+bell, if possible.  
+A setting to -1 restores the default.
+Other negative values generate a
+.PN BadValue
+error.
+.LP
+If both the led_mode and led members are specified,
+the state of those LEDs are changed, if possible.  
+If only led_mode is specified, the state of
+all LEDs are changed, if possible.  
+At most 32 LEDs numbered from one are supported. 
+No standard interpretation of LEDs is defined.
+A
+.PN BadMatch
+error is generated if an led is specified without an led_mode.
+.LP
+If both the auto_repeat_mode and key members are specified, 
+the auto_repeat_mode of that key is changed, if possible (where LED is the ordinal
+number of the LED to be changed, not a mask).  
+If only auto_repeat_mode is
+specified, the global auto_repeat mode for the entire keyboard is
+changed, if possible, and does not affect the per_key settings.
+A
+.PN BadMatch
+error is generated if a key is specified without an auto_repeat_mode.
+.LP
+A bell generator connected with the console but not directly on a
+keyboard is treated as if it were part of the main keyboard.
+The order in which controls are verified and altered is server-dependent.
+If an error is generated, a subset of the controls may have been altered.
+.LP
+.ds fd .PN XChangeKeyboardControl
+.so ./Xsrc/errsent.com
+.PN BadMatch
+and
+.PN BadValue .
+.LP
+.sp
+Use
+.PN XGetKeyboardControl 
+to obtain the current control values for the keyboard.
+The definition for this function is:
+.IN "Definitions" "XGetKeyboardControl"
+.FD 0
+.so ./Xsrc/XGetKeybdCnt.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/values3.a
+.LP
+.so ./Xdescrip/XGetKeybdCnt.d
+The members of this structure are:
+.LP
+.IN "XGetKeyboardControl"
+.DS 0
+typedef struct {
+	int key_click_percent;
+	int bell_percent;
+	unsigned int bell_pitch, bell_duration;
+	unsigned long led_mask;
+	int global_auto_repeat;
+	char auto_repeats[32];
+	} XKeyboardState;
+.DE	
+.IN "XKeyboardState"
+.IN "Data Structures" "XKeyboardState"
+.LP
+For the
+LEDs, the least significant bit of led_mask corresponds to LED one,
+and each one bit in led_mask indicates an LED that is lit.
+The
+auto_repeats member is a bit vector. 
+Each one bit indicates that auto-repeat
+is enabled for the corresponding key.
+The vector is represented as 32
+bytes.  
+Byte N (from 0) contains the bits for keys 8N to 8N+7, with the
+least significant bit in the byte representing key 8N.
+The global_auto_repeat member can be set to one of the constants
+.PN AutoRepeatModeOn
+or
+.PN AutoRepeatModeOff .
+.LP
+.sp
+Use
+.PN XAutoRepeatOn 
+to turn on the keyboard auto-repeat. 
+.IN "XAutoRepeatOn"
+The definition for this function is:
+.IN "Definitions" "XAutoRepeatOn"
+.FD 0
+.so ./Xsrc/XAutoReptOn.f
+.FN
+.so ./Xsrc/display.a
+.LP
+.so ./Xdescrip/XAutoReptOn.d
+.LP
+.sp
+Use
+.PN XAutoRepeatOff 
+to turn off the keyboard auto-repeat. 
+.IN "XAutoRepeatOff"
+The definition for this function is:
+.IN "Definitions" "XAutoRepeatOff"
+.FD 0
+.so ./Xsrc/XAutoReptOff.f
+.FN
+.so ./Xsrc/display.a
+.LP
+.so ./Xdescrip/XAutoReptOff.d
+.LP
+.sp
+Use
+.PN XBell 
+to ring the bell. 
+.IN "XBell"
+The definition for this function is:
+.IN "Definitions" "XBell"
+.FD 0
+.so ./Xsrc/XBell.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/percent.a
+.LP
+.so ./Xdescrip/XBell.d
+The specified
+volume is relative to the base volume for the keyboard.
+If the value for the percent argument is not in the range -100 to 100
+inclusive, a
+.PN BadValue
+error is generated.
+The volume at which the bell is rung
+when the percent argument is nonnegative is:
+.IP
+base - [(base * percent) / 100] + percent
+.LP
+The volume at which the bell is rung
+when the percent argument is negative is:
+.IP
+base + [(base * percent) / 100]
+.LP
+To change the base volume of the bell for this keyboard, use
+.PN XChangeKeyboardControl .
+.LP
+.sp
+Use
+.PN XSetPointerMapping 
+to set the mapping of buttons on the pointer.
+.IN "XSetPointerMapping"
+The definition for this function is:
+.IN "Definitions" "XSetPointerMapping"
+.FD 0
+.so ./Xsrc/XSetPMap.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/map.a
+.so ./Xsrc/nmap.a
+.LP
+.so ./Xdescrip/XSetPMap.d
+Elements of the list are indexed starting from one.
+The length of the list must be the same as
+.PN XGetPointerMapping
+would return.
+Otherwise, a
+.PN BadValue
+error is generated.
+The index is a core button number, and the element of the list
+defines the effective number.
+A zero element disables a button, and elements are not restricted in
+value by the number of physical buttons.
+However, no two elements can have the same nonzero value.
+Otherwise, a
+.PN BadValue
+error is generated.
+If any of the buttons to be altered are currently in the down state,
+the status reply is 
+.PN MappingBusy 
+and the mapping is not changed.
+This function returns either 
+.PN MappingSuccess 
+or
+.PN MappingBusy .
+.LP
+.sp
+Use
+.PN XGetPointerMapping 
+to get the pointer mapping.
+.IN "XGetPointerMapping"
+The definition for this function is:
+.IN "Definitions" "XGetPointerMapping"
+.FD 0
+.so ./Xsrc/XGetPMap.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/map.a
+.so ./Xsrc/nmap.a
+.LP
+.so ./Xdescrip/XGetPMap.d
+Elements of the list are indexed starting from one.
+The length of the list indicates the number of physical buttons.
+The nominal mapping for a pointer is the identity mapping: map[i]=i.
+.LP
+.sp
+.LP
+Use
+.PN XQueryKeymap 
+.IN "XQueryKeymap"
+to obtain a bit vector for the keyboard.
+The definition for this function is:
+.IN "Definitions" "XQueryKeymap"
+.FD 0
+.so ./Xsrc/XQueryKeybd.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/keys.a
+.LP
+.so ./Xdescrip/XQueryKeybd.d
+The vector is represented as 32 bytes.
+Byte N (from 0) contains the bits for keys 8N to 8N+7 
+with the least significant
+bit in the byte representing key 8N.
+.NH 2
+Manipulating the Keyboard Encoding
+.LP
+.LP
+A KeyCode represents a physical (or logical) key.  
+Keycodes lie in the inclusive range [8,255].  
+A keycode value carries no intrinsic information,
+although server implementors may attempt to encode geometry 
+(for example, matrix) information in some fashion so that it can
+be interpreted in a server-dependent fashion.
+The mapping between keys and keycodes cannot be changed.
+.LP
+A KeySym is an encoding of a symbol on the cap of a key.  
+The set of defined KeySyms include the ISO Latin character sets (1-4), 
+Katakana, Arabic, Cyrillic, Greek, Technical,
+Special, Publishing, APL, Hebrew,
+and a special miscellany of keys found
+on keyboards (RETURN, HELP, TAB, and so on).  
+To the extent possible, these sets are derived from international
+standards. 
+In areas where no standards exist,
+some of these sets are derived from Digital standards.
+The list of defined symbols can be found in the 
+.PN <X11/keysymdef.h> 
+.IN "Files" "<X11/keysymdef.h>"
+header file.
+Unfortunately, some C preprocessors have
+limits on the number of defined symbols.
+If you must use keysyms not
+in the Latin 1-4, Greek, and miscellany classes,
+you may have to define a symbol for those sets.
+Most applications usually only include 
+.IN "Files" "<X11/keysym.h>"
+.PN <X11/keysym.h> ,
+which defines symbols for ISO Latin 1-4, Greek, and Miscellany.
+.LP
+A list of KeySyms is associated with each KeyCode. 
+The length of the list can vary with each KeyCode. 
+The list is intended to convey the set of symbols on
+the corresponding key.  
+By convention, if the list contains a single KeySym
+and if that KeySym is alphabetic and case distinction is relevant for it,
+then it
+should be treated as equivalent to a two-element list of the lowercase and
+uppercase KeySyms.  
+For example, if the list contains the single KeySym for
+uppercase A, the client should treat it as if it were a pair with
+lowercase a as the first KeySym and uppercase A as the second KeySym.
+.LP
+For any KeyCode, the first KeySym in the list should be chosen as the
+interpretation of a KeyPress when no modifier keys are down.
+The second
+KeySym in the list normally should be chosen when the Shift modifier is on, or
+when the Lock modifier is on and Lock is interpreted as ShiftLock.
+When the
+Lock modifier is on and is interpreted as CapsLock, it is suggested that the
+Shift modifier first be applied to choose a KeySym, but if that KeySym is
+lowercase alphabetic, the corresponding uppercase KeySym should be used
+instead.  
+Other interpretations of CapsLock are possible; for example, it may
+be viewed as equivalent to ShiftLock, but only applying when the first KeySym
+is lowercase alphabetic and the second KeySym is the corresponding uppercase
+alphabetic.  
+No interpretation of KeySyms beyond the first two in a list is
+suggested here.  
+No spatial geometry of the symbols on the key is defined by
+their order in the KeySym list, 
+although a geometry might be defined on a
+vendor-specific basis.
+The X server does not use the mapping between KeyCodes and KeySyms.
+Rather, it stores it merely for reading and writing by clients.
+.IN "XLookupString"
+.NT
+The simple interface,
+.PN XLookupString 
+will perform simple translation of a key 
+event to an ASCII string. 
+Keyboard related utilities are discussed in Chapter 10.
+.NE
+.LP
+.sp
+Use
+.PN XGetKeyboardMapping 
+to obtain the symbols for the specified number of keycodes.
+.IN "XGetKeyboardMapping"
+The definition for this function is:
+.IN "Definitions" "XGetKeyboardMapping"
+.FD 0
+.so ./Xsrc/XGetKeyMap.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/first_code1.a
+.so ./Xsrc/code_count.a
+.so ./Xsrc/keysym_ret.a
+.LP
+.so ./Xdescrip/XGetKeyMap.d
+The value specified in the first_keycode argument must be greater than 
+or equal to min_keycode as returned in the 
+.PN Display 
+structure at connection setup. 
+Otherwise, a 
+.PN BadValue 
+error is generated.
+In addition, the following expression must be less than or equal 
+to max_keycode as returned in the 
+.PN Display 
+structure at connection setup. 
+If this is not the case, a 
+.PN BadValue 
+error is generated. 
+.LP
+.DS 
+first_keycode + keycode_count - 1
+.DE
+The number of elements in the keysyms list is:
+.LP
+.DS 
+keycode_count * keysyms_per_keycode_return
+.DE
+Then, KeySym number N, counting from zero, for keycode K has an index,
+counting from zero, of the following in KeySym:
+.DS
+(K - first_code) * keysyms_per_code + N
+.DE
+The keysyms_per_keycode_return value is chosen arbitrarily by the
+X server to be large enough to report all requested symbols. 
+A special KeySym value of 
+.PN NoSymbol 
+is used to fill in unused elements for
+individual keycodes.
+.LP
+Use
+.PN XFree
+to free the storage returned by 
+.PN XGetKeyboardMapping .
+(See Section 2.4 for further information.)
+.LP
+.ds fd .PN XGetKeyboardMapping
+.so ./Xsrc/errsent2.com
+.PN BadValue .
+.LP
+.sp
+Use
+.PN XChangeKeyboardMapping 
+to change the keyboard mapping. 
+.IN "XChangeKeyboardMapping"
+The definition for this function is:
+.IN "Definitions" "XChangeKeyboardMapping"
+.FD 0
+.so ./Xsrc/XCKMap.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/first_code2.a
+.so ./Xsrc/keysym_cod.a
+.so ./Xsrc/keysym_ptr.a
+.so ./Xsrc/num_codes.a
+.LP
+.so ./Xdescrip/XCKMap.d
+The symbols for keycodes outside this range remained unchanged.  
+The number of elements in the keysyms list must be
+a multiple of keysyms_per_keycode.
+Otherwise, a 
+.PN BadLength 
+error is generated. 
+The specified first_keycode must be greater than or equal to min_keycode 
+supplied at connection setup and stored in the 
+.PN Display 
+structure.
+Otherwise, a 
+.PN BadValue 
+error is generated.
+In addition, the following expression must be less than or equal to 
+max_keycode as returned in the connection setup (else a BadValue error).  
+.LP
+.DS
+first_keycode + (num_codes / keysyms_per_keycode) - 1
+.DE
+The KeySym number N, counting from zero, for keycode K has an index, 
+counting from zero, of the following in keysyms:
+.LP
+.DS 
+	(K - first_keycode) * keysyms_per_keycode + N
+.DE
+The specified keysyms_per_keycode can be chosen arbitrarily by the client
+to be large enough to hold all desired symbols. 
+A special KeySym value of 
+.PN NoSymbol 
+should be used to fill in unused elements 
+for individual keycodes.  
+It is legal for 
+.PN NoSymbol 
+to appear in nontrailing positions
+of the effective list for a keycode.
+.PN XChangeKeyboardMapping
+generates a 
+.PN MappingNotify 
+event.
+.LP
+There is no requirement that the X server interpret this mapping. 
+It is merely stored for reading and writing by clients.
+.LP
+.ds fd .PN XChangeKeyboardMapping
+.so ./Xsrc/errsent1.com
+.PN BadValue
+and
+.PN BadAlloc .
+.LP
+The next two functions make use of the following data structure.
+.LP
+.DS 0
+.TA .5i 1.5i
+typedef struct {
+     int max_keypermod;      /* This server's max number of keys per modifier */
+     KeyCode *modifiermap;   /* An 8 by max_keypermod array of the modifiers */
+} XModifierKeymap;
+.DE
+.LP
+Use
+.PN XNewModifierMapping 
+to create one of these structures. 
+.IN "XNewModifierMapping"
+The definition for this function is:
+.IN "Definitions" "XNewModifierMapping"
+.FD 0
+.so ./Xsrc/XNewModMap.f
+.FN
+.so ./Xsrc/keyspermod.a
+.LP
+The
+.PN XNewModifierMapping
+function returns a 
+.PN XModifierKeymap
+structure.
+.sp
+Use
+.PN XFreeModifierMapping 
+to destroy one of these structures. 
+.IN "XFreeModifierMapping"
+The definition for this function is:
+.IN "Definitions" "XFreeModifierMapping"
+.FD 0
+.so ./Xsrc/XFreeModMap.f
+.FN
+.so ./Xsrc/mod_keys.a
+.LP
+The
+.PN XFreeModifierMapping
+function frees the specified
+.PN XModifierKeymap
+structure.
+.LP
+.sp
+Use
+.PN XSetModifierMapping 
+to set which keycodes are to be used as modifiers. 
+.IN "XSetModifierMapping"
+The definition for this function is:
+.IN "Definitions" "XSetModifierMapping"
+.FD 0
+.so ./Xsrc/XSetModMap.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/mod_keys.a
+.LP
+.so ./Xdescrip/XSetModMap.d
+A zero value means that no key should be used.  
+No two arguments can have the same nonzero keycode value. 
+Otherwise,
+a 
+.PN BadValue 
+error is generated.
+.LP
+There are eight modifiers, and the modifiermap member of the 
+.PN XModifierKeymap
+structure contains eight sets of max_keypermod keycodes, one for each modifier in the
+order Shift, Lock, Control, Mod1, Mod2, Mod3, Mod4, and Mod5.
+Only nonzero keycodes have meaning in each set, and nonzero keycodes
+are ignored.
+In addition, all of the nonzero keycodes must be in the range specified by 
+min_keycode and max_keycode in the 
+.PN Display 
+structure.
+Otherwise, a 
+.PN BadValue 
+error is generated.
+No keycode may appear twice in the entire map. 
+Otherwise, a
+.PN BadValue 
+error is generated.
+.LP
+A X server can impose restrictions on how modifiers can be changed, 
+for example,
+if certain keys do not generate up transitions in hardware or if multiple
+modifier keys are not supported.  
+If some such restriction is violated, 
+the status reply is
+.PN MappingFailed ,
+and none of the modifiers are changed.
+If the new keycodes specified for a modifier differ from those
+currently defined and any (current or new) keys for that modifier are
+in the down state, 
+the status reply is 
+.PN MappingBusy , 
+and none of the modifiers are changed.
+.PN XSetModifierMapping 
+generates a 
+.PN MappingNotify 
+event on a 
+.PN MappingSuccess 
+status.
+.LP
+.ds fd .PN XSetModifierMapping
+.so ./Xsrc/errsent1.com
+.PN BadAlloc
+and 
+.PN BadValue .
+.LP
+.sp
+Use
+.PN XGetModifierMapping 
+to obtain the keycodes that are to be used as modifiers. 
+.IN "XGetModifierMapping"
+The definition for this function is:
+.IN "Definitions" "XGetModifierMapping"
+.FD 0
+.so ./Xsrc/XGetModMap.f
+.FN
+.so ./Xsrc/display.a
+.LP
+.so ./Xdescrip/XGetModMap.d
+The structure should be freed after use with
+.PN XFreeModifierMapping .
+If only zero values appear in the set for any modifier,  that modifier is 
+disabled.
+.NH 2
+Manipulating the Screen Saver
+.LP
+Xlib provides functions with which you can set, force, activate, or reset
+the screen saver as well as obtain the current screen saver values.
+.LP
+.sp
+Use
+.PN XSetScreenSaver 
+to set the screen saver. 
+.IN "XSetScreenSaver"
+The definition for this function is:
+.IN "Definitions" "XSetScreenSaver"
+.FD 0
+.so ./Xsrc/XSetScrnSvr.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/timeout.a
+.so ./Xsrc/interval.a
+.so ./Xsrc/preferblank.a
+.so ./Xsrc/allowexp.a
+.LP
+Timeout and interval are specified in seconds. 
+A timeout of 0 disables the screen saver, 
+while a timeout of -1 restores the default.
+Other negative values generate a
+.PN BadValue
+error.
+If the timeout value is nonzero, the function enables the screen saver.
+An interval of 0 disables the random pattern motion.
+If no input from devices (keyboard, mouse, and so on) is generated 
+once the screen saver is enabled,
+for the 
+specified number of timeout seconds, 
+the screen saver is activated.  
+.LP
+For each screen, 
+if blanking is preferred and the hardware supports video blanking, 
+the screen will simply go blank.  
+Otherwise, if either exposures are allowed or the screen can be regenerated 
+without sending exposure events to clients, 
+the screen is tiled with the root window background tile at randomly 
+re-origined each interval minutes.
+Otherwise, the state of the screens do not change, and the screen saver is not
+activated.
+The screen saver is deactivated and all screen states are restored at the next
+keyboard or pointer input or at the next call to
+.PN XForceScreenSaver
+with mode
+.PN ScreenSaverReset .  
+.LP
+If the server-dependent screen saver method supports periodic change,
+the interval argument serves as a hint about how long the change period
+should be, and zero hints that no periodic change should be made.
+Examples of ways to change the screen include scrambling the color map
+periodically, moving an icon image about the screen periodically, or tiling
+the screen with the root window background tile, randomly reoriginated
+periodically.
+.LP
+.ds fd .PN XSetScreenSaver
+.so ./Xsrc/errsent2.com
+.PN BadValue .
+.LP
+.sp
+Use
+.PN XForceScreenSaver 
+to force the screen saver. 
+.IN "XForceScreenSaver"
+The definition for this function is:
+.IN "Definitions" "XForceScreenSaver"
+.FD 0
+.so ./Xsrc/XForScrnSvr.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/mode_svr.a
+.PN XForceScreenSaver
+applies the specified mode to the screen saver.
+The possible modes are
+.PN ScreenSaverActive
+or
+.PN ScreenSaverReset .
+.LP
+If the specified mode is 
+.PN ScreenSaverActive 
+and the screen saver currently
+is deactivated,
+the screen saver is activated, even if the screen saver had been disabled
+with a timeout of zero (0).
+If the specified mode is 
+.PN ScreenSaverReset 
+and the screen saver currently
+is enabled,
+the screen saver is deactivated (if it was activated), and the activation 
+timer is reset to its
+initial state (as if device input had been received).
+.LP
+.ds fd .PN XForceScreenSaver
+.so ./Xsrc/errsent4.com
+.PN BadValue .
+.LP
+.sp
+Use
+.PN XActivateScreenSaver 
+to activate the screen saver. 
+.IN "XActivateScreenSaver"
+The definition for this function is:
+.IN "Definitions" "XActivateScreenSaver"
+.FD 0
+.so ./Xsrc/XActScrnSvr.f
+.FN
+.so ./Xsrc/display.a
+.LP
+.sp
+Use
+.PN XResetScreenSaver 
+to reset the screen saver. 
+.IN "XResetScreenSaver"
+The definition for this function is:
+.IN "Definitions" "XResetScreenSaver"
+.FD 0
+.so ./Xsrc/XRstScrnSvr.f
+.FN
+.so ./Xsrc/display.a
+.LP
+.sp
+Use
+.PN XGetScreenSaver 
+to get the current screen saver values. 
+.IN "XGetScreenSaver"
+The definition for this function is:
+.IN "Definitions" "XGetScreenSaver"
+.FD 0
+.so ./Xsrc/XGetScrnSvr.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/timeoutret.a
+.so ./Xsrc/intervalret.a
+.so ./Xsrc/prefrblnkret.a
+.so ./Xsrc/allowexpret.a
+.NH 2
+Controlling Host Access
+.LP
+Xlib provides functions with which you can control host access.
+This section discusses how to:
+.IP \(bu 5
+Add, get, or remove hosts from the access control list
+.IP \(bu 5
+Change, enable, or disable access
+.LE
+.LP
+.IN "Access Control"
+.IN "Authentication"
+X does not provide any protection on a per-window basis.
+If you find out the resource ID of a resource, you can manipulate it.
+To provide some minimal level of protection, however,
+connections are only permitted from machines you trust.
+This is adequate on single user workstations, but obviously
+breaks down on timesharing machines.
+While provisions exist in the X protocol for proper connection
+authentication, the lack of a standard authentication server
+leaves us with only host level access control.
+Currently,
+you can use both DECnet and TCP domains.
+.IN "Internet Addresses"
+.IN "DECnet Addresses"
+.LP
+.IN "Default Protection"
+The initial set of hosts allowed to open connections consists
+of:
+.IP \(bu 5
+The host the window system is running on.
+.IP \(bu 5
+On UNIX-based systems, each host is listed in the
+.PN /etc/X?.hosts 
+file.
+The `?' indicates the number of the
+display.
+.IN "Files" "/etc/X?.hosts"
+This file should consist of host names separated by newlines.
+DECnet nodes must terminate in ``::'' to distinguish them from internet hosts.
+.LP
+If a host is not in the access control list when the access control 
+mechanism is enabled and if the host attempts to establish a connection,
+the server refuses the connection list or to change the access list.
+The client must reside on the same host as the server and/or must
+have been granted permission in the initial authorization at connection
+setup.
+The initial access control list can be specified by providing a file
+that the server can read at startup and reset time.
+.NT
+Servers also can implement other access control policies in addition to
+or in place of this hosts access facility.
+The name and format of the information in this file 
+is operating system specific.
+For further information about other access control implementations,
+see \fIX Window System Protocol, Version 11\fP. 
+.NE
+.NH 3
+Adding, Getting, or Removing Hosts
+.LP
+Xlib provides functions with which you can add, get, or remove hosts.
+All the host access control functions use the 
+.PN XHostAddress 
+structure.
+The elements in this structure are:
+.LP
+.DS 0
+.TA .5i 3i
+.ta .5i 3i
+typedef struct {
+	int family;	/* for example AF_DNET */
+	int length;	/* length of address, in bytes */
+	char *address;	/* pointer to where to find the bytes */
+} XHostAddress;
+.DE
+.IN "XHostAddress"
+.IN "Data Structures" "XHostAddress"
+.IP \fIfamily\fP 1i
+Specifies which protocol address family to use (for example, TCP/IP or DECnet).
+The family symbols are defined in 
+.PN <X11/X.h> .
+.IP \fIlength\fP 1i
+Specifies the length of the address in bytes.
+.IP \fIaddress\fP 1i
+Specifies a pointer to the address.
+.LP
+.sp
+Use
+.PN XAddHost 
+to add a single host. 
+.IN "XAddHost"
+The definition for this function is:
+.IN "Definitions" "XAddHost"
+.FD 0
+.so ./Xsrc/XAddHost.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/host.a
+.LP
+.so ./Xdescrip/XAddHost.d
+.LP
+.ds fd .PN XAddHost
+.so ./Xsrc/errsent.com
+.PN BadAlloc
+and
+.PN BadValue .
+.LP
+.sp
+Use
+.PN XAddHosts 
+to add multiple hosts at one time. 
+.IN "XAddHosts"
+The definition for this function is:
+.IN "Definitions" "XAddHosts"
+.FD 0
+.so ./Xsrc/XAddHosts.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/hosts.a
+.so ./Xsrc/num_hosts.a
+.LP
+.so ./Xdescrip/XAddHosts.d
+.LP
+.ds fd .PN XAddHosts
+.so ./Xsrc/errsent.com
+.PN BadAlloc
+and
+.PN BadValue .
+.LP
+.sp
+Use
+.PN XListHosts 
+to obtain a host list. 
+.IN "XListHosts"
+The definition for this function is:
+.IN "Definitions" "XListHosts"
+.IN "Files" "<sys/socket.h>"
+.FD 0
+.so ./Xsrc/XGetHosts.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/nhosts.a
+.so ./Xsrc/state.a
+.LP
+.so ./Xdescrip/XGetHosts.d
+.PN XListHosts
+allows a program to find out what machines can make connections.
+It also returns a pointer to a list of host structures that
+were allocated by the routine. 
+When it no longer is needed,
+this memory should be freed by calling
+.PN XFree .
+(See Section 2.4 for further information.)
+.LP
+.sp
+Use
+.PN XRemoveHost 
+to remove a single host. 
+.IN "XRemoveHost"
+The definition for this function is:
+.IN "Definitions" "XRemoveHost"
+.FD 0
+.so ./Xsrc/XRemoveHost.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/host.a
+.LP
+.so ./Xdescrip/XRemoveHost.d
+If you remove your machine from the access list, 
+you can no longer connect to that server,
+and this operation cannot be reversed short of resetting the server.
+.LP
+.ds fd .PN XRemoveHost
+.so ./Xsrc/errsent.com
+.PN BadAlloc
+and
+.PN BadValue .
+.LP
+.sp
+Use
+.PN XRemoveHosts 
+to remove multiple hosts at one time. 
+.IN "XRemoveHosts"
+The definition for this function is:
+.IN "Definitions" "XRemoveHosts"
+.FD 0
+.so ./Xsrc/XRemoveHosts.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/hosts.a
+.so ./Xsrc/num_hosts.a
+.LP
+.so ./Xdescrip/XRemoveHosts.d
+The
+.PN XRemoveHosts
+function removes each specified host from the access control list for that display.  
+The display hardware must be on the same host as the client process.
+If you remove your machine from the access list, 
+you can no longer connect to that server,
+and this operation cannot be reversed short of resetting the server.
+.LP
+.ds fd .PN XRemoveHosts
+.so ./Xsrc/errsent.com
+.PN BadAlloc
+and
+.PN BadValue .
+.NH 3
+Changing, Enabling, or Disabling Access Control
+.LP
+Xlib provides functions with which you can enable, disable, or change access control.
+.LP
+For these functions to execute successfully,
+the client application must reside on the same host as the X server, and/or have
+been given permission in the initial authorization
+at connection setup.
+.LP
+.sp
+Use
+.PN XSetAccessControl 
+to change access control. 
+.IN "XSetAccessControl"
+The definition for this function is:
+.IN "Definitions" "XSetAccessControl"
+.FD 0
+.so ./Xsrc/XChAccsCntrl.f
+.FN
+.so ./Xsrc/display.a
+.so ./Xsrc/chcntrlmode.a
+.LP
+.so ./Xdescrip/XChAccsCntrl.d
+.LP
+.ds fd .PN XSetAccessControl
+.so ./Xsrc/errsent.com
+.PN BadAlloc
+and
+.PN BadAccess .
+.LP
+.sp
+Use
+.PN XEnableAccessControl 
+to enable access control. 
+.IN "XEnableAccessControl"
+The definition for this function is:
+.IN "Definitions" "XEnableAccessControl"
+.FD 0
+.so ./Xsrc/XEnAccsCntrl.f
+.FN
+.so ./Xsrc/display.a
+.LP
+.so ./Xdescrip/XEnAccsCntrl.d
+.LP
+.ds fd .PN XEnableAccessControl
+.so ./Xsrc/errsent4.com
+.PN BadAccess .
+.LP
+.sp
+Use
+.PN XDisableAccessControl 
+to disable access control. 
+.IN "XDisableAccessControl"
+The definition for this function is:
+.IN "Definitions" "XDisableAccessControl"
+.FD 0
+.so ./Xsrc/XDisAcsCntrl.f
+.FN
+.so ./Xsrc/display.a
+.LP
+.so ./Xdescrip/XDisAcsCntrl.d
+.LP
+.ds fd .PN XDisableAccessControl
+.so ./Xsrc/errsent4.com
+.PN BadAccess .
+.bp

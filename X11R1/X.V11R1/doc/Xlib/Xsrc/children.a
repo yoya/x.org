@@ -1,0 +1,3 @@
+.\" $Header: children.a,v 11.9 87/09/10 12:23:51 mento Exp $
+.IP \fIchildren_return\fP 1i
+Returns a pointer to the list of children for the specified window.

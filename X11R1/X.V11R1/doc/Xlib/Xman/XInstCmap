@@ -1,0 +1,34 @@
+.TH XInstallColormap 3X 
+.SH NAME
+XInstallColormap, XUninstallColormap, XListInstalledColormaps \- install colormaps
+.SH SYNTAX
+.so ../Xsrc/XInsCmap.f
+.LP
+.so ../Xsrc/XUninsCmap.f
+.LP
+.so ../Xsrc/XLstInsCmaps.f
+.SH ARGUMENTS
+.so ../Xsrc/cmap.a
+.so ../Xsrc/display.a
+.so ../Xsrc/num.a
+.so ../Xsrc/w.a
+.SH DESCRIPTION
+.so ../Xdescrip/XInsCmap.d
+.ds fd .PN XInstallColormap
+.so ../Xsrc/errsent4.com
+.PN BadColor .
+.LP
+.so ../Xdescrip/XUninsCmap.d
+.ds fd .PN XUninstallColormap
+.so ../Xsrc/errsent4.com
+.PN BadColor .
+.LP
+.so ../Xdescrip/XLstInsCmaps.d
+.ds fd .PN XListInstalledColormaps
+.so ../Xsrc/errsent4.com
+.PN BadWindow .
+.SH DIAGNOSTICS
+.so ../Xerrors/badcolor.e
+.so ../Xerrors/badwindow.e
+.SH "SEE ALSO"
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

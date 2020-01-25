@@ -1,0 +1,33 @@
+*** X.V11R1/server/Imakefile	Mon Sep 14 14:18:33 1987
+--- update1/server/Imakefile	Wed Sep 16 13:24:32 1987
+***************
+*** 145,157 ****
+  		dirs="$$dirs \$$($${i}DIRS)"; \				@@\
+  	done; \								@@\
+  	$(MAKE) $(MFLAGS) Real/**/target \				@@\
+! 		"SERVERSUBDIRS=$$dirs"					@@\
+  									@@\
+  Real/**/target:								@@\
+  	@subdirs=`ls -d $(SERVERSUBDIRS) | sort -u`; \			@@\
+  	for i in $$subdirs; do \					@@\
+  		echo "target/**/ing $$i"; \				@@\
+! 		(cd $$i ; $(MAKE) $(MFLAGS) target ); \			@@\
+  	done
+  
+  DoServerSubdirList(depend)
+--- 145,159 ----
+  		dirs="$$dirs \$$($${i}DIRS)"; \				@@\
+  	done; \								@@\
+  	$(MAKE) $(MFLAGS) Real/**/target \				@@\
+! 		"SERVERSUBDIRS=$$dirs" \				@@\
+! 		LINT=$(LINT) DESTDIR=$(DESTDIR)				@@\
+  									@@\
+  Real/**/target:								@@\
+  	@subdirs=`ls -d $(SERVERSUBDIRS) | sort -u`; \			@@\
+  	for i in $$subdirs; do \					@@\
+  		echo "target/**/ing $$i"; \				@@\
+! 		(cd $$i ; $(MAKE) $(MFLAGS) target \			@@\
+! 			LINT=$(LINT) DESTDIR=$(DESTDIR) ); \		@@\
+  	done
+  
+  DoServerSubdirList(depend)

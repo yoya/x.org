@@ -1,0 +1,4 @@
+.\" $Header: plane.a,v 11.2 87/03/28 10:59:14 mento Exp $
+.IP \fIplane\fP 1i
+Specifies the bit-plane.
+You must set exactly one bit.

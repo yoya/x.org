@@ -1,0 +1,37 @@
+.TH XDrawArc 3X 
+.SH NAME
+XDrawArc, XDrawArcs \- draw arcs
+.SH SYNTAX
+.so ../Xsrc/XArc.f
+.LP
+.so ../Xsrc/XArcs.f
+.SH ARGUMENTS
+.so ../Xsrc/angle1.a
+.so ../Xsrc/angle2.a
+.so ../Xsrc/arcs.a
+.so ../Xsrc/d.a
+.so ../Xsrc/display.a
+.so ../Xsrc/gc.a
+.so ../Xsrc/narcs.a
+.so ../Xsrc/widtheight.a
+.so ../Xsrc/xy.a
+.SH DESCRIPTION
+.so ../Xdescrip/XArc.d
+.ds fd .PN XDrawArc
+.ds fe .PN XDrawArcs
+.so ../Xsrc/errsent3.com
+.PN BadDrawable ,
+.PN BadGC ,
+and
+.PN BadMatch .
+.SH DIAGNOSTICS
+.so ../Xerrors/baddrawable.e
+.so ../Xerrors/badgc.e
+.so ../Xerrors/badmatch1.e
+.so ../Xerrors/badmatch2.e
+.SH "SEE ALSO"
+XDrawLine(3X),
+XDrawPoint(3X),
+XDrawRectangle(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

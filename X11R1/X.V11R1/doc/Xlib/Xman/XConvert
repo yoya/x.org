@@ -1,0 +1,36 @@
+.TH XrmConvert 3X 
+.SH NAME
+XrmConvert, XrmRegisterTypeConverter, XrmParseCommand \- convert resources and parse command line
+.SH SYNTAX
+.so ../Xsrc/XrmConvert.f
+.LP
+.so ../Xsrc/XrmRegTConv.f
+.LP
+.so ../Xsrc/XrmParse.f
+.SH ARGUMENTS
+.so ../Xsrc/db.a
+.so ../Xsrc/dbtable.a
+.so ../Xsrc/dbtcount.a
+.so ../Xsrc/from2.a
+.so ../Xsrc/from_type3.a
+.so ../Xsrc/from_type2.a
+.so ../Xsrc/parname.a
+.so ../Xsrc/parseargc.a
+.so ../Xsrc/parseargv.a
+.so ../Xsrc/proc.a
+.so ../Xsrc/screen2.a
+.so ../Xsrc/to2.a
+.so ../Xsrc/to_type3.a
+.so ../Xsrc/to_type2.a
+.SH DESCRIPTION
+.so ../Xdescrip/XrmConvert.d
+.LP
+.so ../Xdescrip/XrmRegTConv.d
+.LP
+.so ../Xdescrip/XrmParse.d
+.SH "SEE ALSO"
+XrmGetDataBase(3X),
+XrmGetSearchList(3X),
+XrmPutResource(3X)
+.br
+\fIXlib \- C Language X Interface, Protocol Version 11\fP

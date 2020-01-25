@@ -1,0 +1,7 @@
+.\" $Header: bord_pixmap.a,v 1.4 87/09/11 16:43:39 mento Exp $
+.IP \fIborder_pixmap\fP 1i
+Specifies the border pixmap.
+If you specify a pixmap ID, the associated pixmap is used for the border.
+If
+.PN CopyFromParent
+is specified, a copy of the parent window's border pixmap is used. 
