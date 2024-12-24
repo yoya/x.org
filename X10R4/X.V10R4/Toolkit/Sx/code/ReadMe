@@ -1,0 +1,14 @@
+This directory contains the code for Sx, a library of supplemental
+routines for the X window system.  If you've just de-archived the
+library from the Berkeley distribution, type "make fixup" (this
+recreates subdirectories that ar can't handle, and may do other
+random fixups too, if they become necessary).
+
+To recompile the library, type "make":  this will produce an
+archive-format library file sx.a which can be installed, along with
+sx.h, in a convenient place for users to get at them.  There is
+also a demonstration program "sxDemo", which you can recompile by
+typing "make sxDemo".
+
+Send comments and suggestions about the Sx package to 
+John Ousterhout -- ouster@kim.berkeley.edu

@@ -1,0 +1,25 @@
+.TH Sx_Panic sx
+.BS
+.NA
+Sx_Panic \- display a fatal error message, then die
+.SY
+#include <sx.h>
+.sp
+int
+Sx_Panic(\fImessage\fP)
+.AR
+.AP char *message in
+Message to be displayed on screen.
+.BE
+
+.SH DESCRIPTION
+.PP
+Sx_Panic is a procedure to call when a fatal error has occurred in
+an application program.  It displays \fImessage\fP in a notifier,
+waits for the user to acknowledge the message, then calls exit(1).
+
+.SH "SEE ALSO"
+Sx_Notify
+
+.SH KEYWORDS
+fatal error, notifier, panic, window

@@ -1,0 +1,68 @@
+AllocateSpace	initial.c	/^caddr_t AllocateSpace (size)$/
+BitmapBitsPut	put.c	/^BitmapBitsPut (width, height, data, fore, back, xy/
+BitsPut	put.c	/^BitsPut (width, height, data, fore, back, xymask, /
+CharBitmap	bitpix.c	/^BITMAP *CharBitmap (c, font)$/
+CharWidth	textutil.c	/^int CharWidth(c, font)$/
+CheckCursor	cursor.c	/^CheckCursor(x, y, w, h)$/
+ClippedOp	text.c	/^#define ClippedOp(mask,op,revmask) \\$/
+ConstantFill	tile.c	/^ConstantFill(tile, xymask, dstx, dsty, width, heig/
+ConvertEvent	events.c	/^ConvertEvent(se, xe)$/
+CopyArea	copy.c	/^CopyArea (srcx, srcy, width, height, dstx, dsty, c/
+CopyText	textutil.c	/^CopyText (string, strlen, font, bm)$/
+DisplayCursor	cursor.c	/^DisplayCursor(cs)$/
+DisplayDead	initial.c	/^DisplayDead ()$/
+DrawCurve	draw.c	/^DrawCurve (verts, vertcount, xbase, ybase, srcpix,/
+DrawFilled	tile.c	/^DrawFilled (verts, vertcount, xbase, ybase, srcpix/
+Draw_Solid	draw.c	/^Draw_Solid(srcpix, xbase, ybase, op, vertcount, ve/
+FreeBitmap	bitpix.c	/^FreeBitmap (bitmap)$/
+FreeCursor	cursor.c	/^FreeCursor (cursor)$/
+FreeFont	font.c	/^FreeFont (font)$/
+FreePixmap	bitpix.c	/^FreePixmap (pixmap)$/
+GetFont	font.c	/^FONT *GetFont (name)$/
+InitDisplay	initial.c	/^InitDisplay (info)$/
+InitMouse	cursor.c	/^InitMouse ()$/
+InputReader	events.c	/^InputReader()$/
+InvertPixelOrder	util.c	/^InvertPixelOrder(p, n)$/
+LoadCursor	cursor.c	/^LoadCursor (cursor)$/
+MEMBATCH	text.c	/^#define MEMBATCH(IfClip, IfMask, op, IfReverse)			/
+MFALSE	text.c	/^#define MFALSE(a,b) b$/
+MTRUE	text.c	/^#define MTRUE(a,b) a$/
+MakePixmap	bitpix.c	/^PIXMAP *MakePixmap (xymask, fore, back)$/
+OpenDisplay	initial.c	/^OpenDisplay (devname)$/
+PixFill	fill.c	/^PixFill (srcpix, xymask, dstx, dsty, width, height/
+PixmapBitsPut	put.c	/^PixmapBitsPut (width, height, format, data, xymask/
+PixmapGet	bitpix.c	/^PixmapGet (srcx, srcy, width, height, client, form/
+PixmapPut	put.c	/^PixmapPut (src, srcx, srcy, width, height, dstx, d/
+PixmapSave	bitpix.c	/^PIXMAP *PixmapSave (srcx, srcy, width, height)$/
+PixrectFill	tile.c	/^PixrectFill(Tile, xymask, dstx, dsty, width, heigh/
+PrintText	text.c	/^PrintText(string, strlen, font, fore, back, charpa/
+PrintTextMask	text.c	/^PrintTextMask(string, strlen, font, srcpix, charpa/
+ProcessInput	events.c	/^ProcessInput(ev)$/
+QueryShape	util.c	/^QueryShape (shape, width, height)$/
+ResolveColor	util.c	/^ResolveColor (red, green, blue)$/
+RestoreCursor	cursor.c	/^RestoreCursor()$/
+ReverseBitsInShort	font.c	/^#define ReverseBitsInShort(s) ((ReverseBitsInByte[/
+SetAutoRepeat	util.c	/^SetAutoRepeat (onoff)$/
+SetCursorPosition	cursor.c	/^SetCursorPosition(pos)$/
+SetKeyClick	util.c	/^SetKeyClick (volume)$/
+SetLockLED	util.c	/^SetLockLED (onoff)$/
+SetMouseCharacteristics	cursor.c	/^SetMouseCharacteristics (threshold, accelaration)$/
+SetUpInvPix	initial.c	/^SetUpInvPix()$/
+SetVideo	util.c	/^int SetVideo(onoff)$/
+Setenv	initial.c	/^Setenv (var, value)$/
+SigChildHandler	initial.c	/^static SigChildHandler()$/
+SoundBell	util.c	/^SoundBell (volume)$/
+StartShell	initial.c	/^static StartShell()$/
+StoreBitmap	bitpix.c	/^BITMAP *StoreBitmap (width, height, data)$/
+StoreColors	util.c	/^StoreColors (count, entries)$/
+StoreCursor	cursor.c	/^CURSOR *StoreCursor (func, image, fore, back, mask/
+StorePixmap	bitpix.c	/^PIXMAP *StorePixmap (width, height, format, data)$/
+SunToXKeyCode	events.c	/^SunToXKeyCode(s)$/
+TextWidth	textutil.c	/^int TextWidth (string, strlen, spacepad, font)$/
+TileFill	tile.c	/^TileFill (tile, xoff, yoff, xymask, dstx, dsty, wi/
+ZtoXY	bitpix.c	/^static ZtoXY(w, h, d, old, new)$/
+cg2_batchrop	text.c	/^cg2_batchrop(dst, op, src, count)$/
+event_is_ascii	events.c	/^#define	event_is_ascii(e) (e->ie_code >= ASCII_FIR/
+event_is_meta	events.c	/^#define	event_is_meta(e) (e->ie_code >= META_FIRST/
+mem_batchrop	text.c	/^mem_batchrop(dst, op, src, count)$/
+striketopixfont	font.c	/^striketopixfont(fn)$/

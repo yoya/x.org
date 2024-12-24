@@ -1,0 +1,124 @@
+.TH Sx_ScrollbarCreate sx
+.BS
+.NA
+Sx_ScrollbarCreate, Sx_ScrollbarMake \- create a scrollbar subwindow
+.SY
+#include <X/Xlib.h>
+#include <sx.h>
+.sp
+Window
+Sx_ScrollbarCreate(\fIparent, side, foreground, background, elevatorColor,
+    proc, clientData\fP)
+.sp
+Sx_ScrollbarMake(\fIwindow, vertical, foreground, background, elevatorColor,
+    proc, clientData\fP)
+.AR
+.AS ClientData elevatorColor
+.AP Window parent in
+Window in which to create new scrollbar.
+.AP int side in
+Which side of the window the new scrollbar should be on:  SX_TOP,
+SX_BOTTOM, SX_LEFT, or SX_RIGHT.  For SX_TOP or SX_BOTTOM the scrollbar
+will be horizontal one;  for SX_LEFT or SX_RIGHT it will be a vertical
+one.
+.AP int foreground in
+Color (pixel value) to use for the dark parts of the scrollbar (borders, stipple
+highlights).  BlackPixel is typical.
+.AP int background in
+Color to use for the background of the scrollbar, typically WhitePixel.
+.AP int elevatorColor in
+Color to use for the elevator that displays the current viewing range;
+typically WhitePixel.
+.AP void (*proc)() in
+Procedure to invoke whenever a mouse button is released while
+the pointer is over the scrollbar window.
+.AP ClientData clientData in
+Arbitrary value, which is passed to \fIproc\fP.
+.AP Window window in
+Existing window to use for scrolllbar.
+.AP Boolean vertical in
+TRUE means the scrollbar should be displayed in vertical format;
+FALSE means horizontal format.
+.BE
+
+.SH DESCRIPTION
+.PP
+Sx_ScrollbarCreate creates a scrollbar subwindow along one edge of
+\fIparent\fP, and returns the X id for it.  The window's geometry
+will be managed by the Sx packer so that it stays along the given
+side of \fIparent\fP even if \fIparent\fP is resized.  The scrollbar
+window will be displayed with a rectangular ``elevator'' inside
+it, using the colors \fIforeground\fP, \fIbackground\fP, and
+\fIelevatorColor\fP.  The position and size of the elevator,
+relative to the scrollbar's
+length, indicate the portion of a document or object that is
+currently visible in some associated window (relative to the total size of the
+object).  If the user wishes to change the view in the associated window, he or
+she clicks a button with the pointer over the scrollbar.  When
+this happens, the scrollbar package will invoke \fIproc\fP.  \fIProc\fP
+should have the following structure:
+.nf
+.RS
+void
+proc(\fIclientData, distance, units, window\fP)
+.RS
+ClientData \fIclientData\fP;
+float \fIdistance\fP;
+int \fIunits\fP;
+Window \fIwindow\fP;
+.RE
+{
+}
+.RE
+.fi
+The \fIclientData\fP parameter is a copy of the \fIclientData\fP
+parameter passed to Sx_ScrollbarCreate;  it is typically used to
+point to a data structure of the client's associated with the
+scrollbar.  \fIDistance\fP and \fIunits\fP
+indicate the scroll action requested by the user, and
+\fIwindow\fP is the X id for the scrollbar window (i.e.
+the \fIwindow\fP parameter to Sx_ScrollbarMake or the result of
+Sx_ScrollbarCreate).
+If \fIunits\fP is SX_SCROLL_ABSOLUTE, then \fIdistance\fP gives
+a value in the range 0.0 to
+1.0  indicating the desired positioning of the window's view:  0.0
+means the user would like the view to be centered on the top or
+left edge of the object, for vertical and horizontal scrollbars
+respectively; 1.0 means the user would like the view centered on
+the right or bottom edge of the object.  Otherwise, \fIunits\fP
+is SX_SCROLL_PAGES, and \fIdistance\fP gives a value in the range
+\-1.0 to 1.0   where
+1.0 means the view should be changed so that what used
+to be at the very bottom (or right) of the window should now be
+at the very top (or left), and \-1.0 means the reverse.
+.PP
+Sx_ScrollbarMake is similar to Sx_ScrollbarCreate except that it
+uses an existing window provided by the caller, instead of creating
+a new one.  It doesn't use the packer, so if you want the geometry
+of the scrollbar window to be managed automatically you'll have to
+call the packer yourself.  If the \fIwindow\fP parameter
+passed to Sx_ScrollbarMake
+is already a scrollbar window, then Sx_ScrollbarMake will just change
+the parameters of the window (e.g. the colors for display and/or
+the callback procedure).  If \fIwindow\fP isn't already a scrollbar
+window, then Sx_ScrollbarMake doesn't redisplay the window (but the
+window will get displayed in the future whenever it's exposed).
+.PP
+Note:  the scrollbar routines do not automatically adjust the position
+of a scrollbar in response to button pushes;  they merely pass the
+request along to \fIproc\fP.  \fIProc\fP can adjust the request
+if it desires (for example, to round off to an even number of
+lines), or even return without taking any action at all.  If \fIproc\fP
+actually changes the position of the view, it should call
+Sx_ScrollbarSetRange to update the elevator position on the display.
+.PP
+Scrollbars may be deleted at any time by calling XDestroyWindow
+on the scrollbar window.  The scrollbar package will automatically
+clean up its internal data structures when this happens.
+.PP
+The implementation of scrollbars depends on the use of the Sx
+dispatcher (Sx_HandlerCreate, Sx_HandleEvent, etc.), and will
+not work if those routines are not used correctly.
+
+.SH KEYWORDS
+scrollbar, window

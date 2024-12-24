@@ -1,0 +1,27 @@
+.TH Sx_HandlerDelete sx
+.B1
+.NA
+Sx_HandlerDelete \- cancel a handler set up by Sx_HandlerCreate
+.SY
+#include <sx.h>
+.sp
+Sx_HandlerDelete(\fIhandler\fP)
+.AS Sx_EventHandler handler
+.AR
+.AP Sx_EventHandler handler in
+Token for the handler to delete.
+.B2
+
+.SH DESCRIPTION
+.PP
+This procedure destroys an association between a class of
+events and a procedure, which was previously established
+by a call to Sx_HandlerCreate.  After this call completes,
+\fIhandler\fP is defunct;  its procedure will not be invoked
+anymore, and the caller should not use \fIhandle\fP again.
+.PP
+Note:  when a window is destroyed, Sx automatically deletes all
+handlers associated with the window.
+
+.SH KEYWORDS
+event, handler, window

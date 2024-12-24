@@ -1,0 +1,78 @@
+.TH XRMESSAGEBOX 3X "Xrlib Version 10"
+.SH NAME
+XrMessageBox - the Xrlib Message Box Manager.
+.SH SYNOPSIS
+#include <X/Xlib.h>
+.br
+#include <Xr/Xrlib.h>
+.P
+.B XrMessageBox (msgInfo, message, data)
+.br
+xrMsgBoxInfo msgInfo;
+.br
+INT32 message;
+.br
+INT8 *  data;
+.P
+.SH DESCRIPTION
+XrMessageBox is the Xrlib Message Box manager.
+Many times an applications programmer needs to warn a user
+or ask a simple multiple choice question.
+Message boxes provide this capability, and are 
+easy to program.
+.P
+A message box is made up of an icon, some descriptive text,
+and buttons.
+Icon placement, text formatting, and button placement is
+handled by the message box manager automatically.
+.SH STRUCTURES
+The message box manager acquires all the information it needs
+about a message box in a message box information structure.
+This structure is shown below:
+.nf
+
+typedef struct
+{
+   POINT              messageOrigin;
+   Window             relativeTo;
+   xrPanelContext   * messageContext;
+
+   INT32              rasterHeight;
+   INT32              rasterWidth;
+   Pixmap             rasterId;
+
+   INT8             * messageText;
+
+   INT8            ** messageButtons;
+   INT32              numButtons;
+} xrMsgBoxInfo;
+
+.fi
+.SH "MESSAGES"
+XrMessageBox currently has only two messages: MSG_EDIT,
+and MSG_SIZE.
+MSG_SIZE returns the size a message box would be if it were created
+with the given parameters.
+MSG_EDIT display a message box window and makes it active.
+.SH "RETURN VALUE"
+XrMessage returns 
+.B TRUE
+if successful, and
+.B NULL 
+if on failure.
+.SH "ERROR CONDITIONS"
+Messages to the message box manager will fail, set the
+.I xrErrno 
+global and return a NULL value,
+under the following conditions:
+.P
+.IP MSG_EDIT
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP
+Memory cannot be allocated[XrOUTOFMEM].
+.IP
+Unknown message [XrINVALIDMSG].

@@ -1,0 +1,419 @@
+.TH XRINPUT 3X "Xrlib Version 10"
+.SH NAME
+XrInput - the input handling function.
+.SH SYNOPSIS
+#include <X/Xlib.h>
+.br
+#include <Xr/Xrlib.h>
+.br
+.PP
+.B XrInput (windowId, message, data)
+.br
+Window windowId;
+.br
+INT32 message;
+.br
+INT8 * data;
+.PP
+.SH DESCRIPTION
+XrInput() handles the requests for input by an application from a window
+or windows and the setting of window and input attributes necessary to  
+handle editors and panel managers.
+.PP
+Most of the messages will use the xrEvent structure which
+is defined as follows.
+.nf
+
+typedef struct
+{
+   UINT32 type;
+   INT32 source;
+   INT16 inputCode;
+   INT8 inputType;
+   INT8 value1;
+   INT16 value2;
+   INT16 value3;
+   POINT valuePt;
+   INT32 valuePtr;
+} xrEvent;
+
+.fi
+.PP
+When input occurs from a window, the
+.I type
+field of the structure will be set to one of X's input types or to the
+define
+.B XrXRAY
+for Xrlib input types.  Refer to the X documentation for a complete 
+description of X input.  An application can only generate Xrlib input,
+and thus use editors, panels, and menus, if the window is registered with
+XrInput.  The is accomplished through the MSG_ADDWINDOW message listed
+below.  If the
+.I type
+field of the xrEvent structure is set to
+.B XrXRAY,
+the
+.I source
+field will contain the id of the window in which the input occurred,
+and the
+.I inputType
+field will be set to one of the defines listed in the table below.
+.sp 1
+.TS
+center allbox;
+ll.
+Type	Meaning
+_
+XrEDITOR	Input from an editor
+XrPANEL	Input from a panel
+XrMENU	Input from a menu
+XrMESSAGEBOX	Input from a message box
+XrFILE	Input from a file descriptor
+.TE
+.sp 1
+.PP
+An application can also gather input from any file descriptor that has
+been opened.  Examples of this would be input from a pty or socket.
+If this type of input is pending, the
+.I source
+field in the xrEvent structure will be set to the file descriptor
+and the
+.I inputType
+field will be set to 
+.B XrFILE.
+It is then up to the application to get the input from the file descriptor.
+.sp
+.PP
+The messages which XrInput() provides are broken into several functional
+groupings.
+.PP
+.IP MSG_ADDWINDOW
+If an application wants to gather Xrlib type input or place editors
+within a window it has created, Xrlib needs to be told about the window.
+Issuing this message causes a window to be registered with XrInput(),
+which then sets up the other routines which need to know about the
+window.  To register a window,
+.I windowId
+should be set to the id of the window to be registered and
+.I data
+needs to point to an xrWindowData structure which is defined as follows:
+.nf
+
+typedef struct
+{
+   RECTANGLE windowRect;
+   Pixmap    foreTile;
+   Pixmap    backTile;
+} xrWindowData;
+
+.fi
+.IP MSG_REMOVEWINDOW
+When an application destroys a window, it should call XrInput() so
+that the window will be removed from XrInput()'s tables.  For this
+message,
+.I windowId
+should be set to the id of the window to be removed and
+.I data
+is unused and can be set to
+.B NULL.
+.IP MSG_SETWINDOWDATA
+If an application changes the size or tiles of a window, XrInput()
+needs to be given the data to modify its tables.  For this message,
+.I windowId
+should be set to the id of the window in which the data is to be set and
+.I data
+should be set to point to an xrWindowData structure which contains the needed
+information.
+.IP MSG_GETWINDOWDATA
+This messages returns the data for a window.  For this call,
+.I windowId
+should be set to the id of the window in which the data is contained and
+.I data
+is a pointer to an xrWindowData structure.  The members of this structure
+will be set to the data values for the window.
+.IP MSG_ADDWINDOWFUNCT
+Xrlib high-level manager functions have the ability to be called
+automatically
+upon a particular input or inputs.  An example of this is the menu
+manager displaying a menu upon a menu event input.  To accomplish this
+function, XrInput() maintains a set of information for each registered
+window.  This message is the means by which a particular window
+gets the capabilities described above.  For this message,
+.I data
+is a pointer to the following structure:
+.nf
+
+typedef struct
+{
+   INT8  processFlag;
+   xrPFI (*funct)();
+   INT32 instance;
+   INT32 message;
+   INT32 eventCount;
+   xrWindowEvent * eventList;
+} xrWindowFunct;
+
+.fi
+The
+.I funct
+field contains a pointer to the function that is to be invoked 
+when a particular event occurs.  The function must be of the form:
+.nf
+
+   (*funct)(instance, message, data)
+   INT32 instance;
+   int message;
+   INT8 * data;
+
+.fi
+.I instance
+is the instance of the type of element
+.I funct
+is to operate upon.
+.I message
+is the message that is to be sent to the function.
+.I data
+will be a pointer to the event which occurred to invoke this function.
+.IP
+The rest of the parameters contained within the xrWindowFunct structure
+are defined as follows.
+.I processFlag
+is a boolean which is set to 
+.B TRUE
+or
+.B FALSE
+by the application or manager adding the xrWindowFunct structure.  It
+is used to turn on and off the processing of the event list and
+the automatic calling of the function attached to the window.
+.I eventCount
+contains a count of that number of events.
+.I eventList
+contains a pointer to an array of window event structures which
+are defined as follows:
+.nf
+
+typedef struct
+{
+   UINT32 inputType;
+   INT16  inputCode;
+} xrWindowEvent;
+
+.fi
+The type field of this structure can be set to any combination of
+X event types.  The input code field is used for button or key
+events to further distingush the function.
+Each window can have as many xrWindowFunct structures attached to it as
+is needed.  When input occurs on the window
+the event lists contained within the xrWindowFunct structures that
+are attached to the window will be
+searched to see if a match can be found.  If the event matches one
+of the events listed for the window the function for the event
+is invoked.  If no match is found, the event is returned as normal input.
+.IP MSG_REMOVEWINDOWFUNCT
+This message removes an xrWindowFunct structure that was previously added
+to the window
+.I windowId.  data
+is a pointer to the function that matches the function supplied in the
+xrWindowFunct structure contained within the window.
+.IP MSG_SETPROCESSFLAG
+A manager of a window may, at times, want to turn on and off the
+event list checking and function calling provided through
+MSG_ADDWINDOWFUNCT.  This message sets the
+.I processFlag
+field of the xrWindowFunct structure to
+.B TRUE
+which turns on the processing function for the window identified by
+the parameter
+.I windowId.
+.I data
+is a pointer to the function whose
+.I processFlag
+is to be set.
+.IP MSG_CLEARPROCESSFLAG
+This message is used to turn off a processing function for a window.
+Issuing this message causes
+.I processFlag
+to be set to
+.B FALSE
+which turns off the processing function for the window identified by
+the parameter
+.I windowId.  data
+is a pointer to the function whose
+.I processFlag
+is to be cleared.
+.sp
+.P
+The following set of messages provide for the different forms of
+gathering input from Xrlib.
+.P
+Xrlib supports both blocked and non-blocked input.  Blocked input will 
+cause the input routine to wait for input to occur on one of the windows or
+the file descriptors before returning.  Blocked input will also return
+before input occurs is the application has supplied a timeout value.
+Non-blocked input will return immediately with either input or an 
+indicator that no input has occurred.
+.P
+Two modes of input are available within Xrlib.  They are regular 
+reads and hot reads.  The difference between the two types of read
+involve the activation of the event list processing of the events
+attached to the window.  For hot reads, when input occurs, the
+set of events attached to the window is scanned. If an event
+is found which matches the input, the cooresponding function is 
+called.  This is the means by which all of the editors and the
+menu system is invoked.
+.IP MSG_BLKREAD
+This message copies an input event into the XEvent structure
+pointed at by
+.I data
+if there is input pending.  If there is no input, the call will wait
+until input occurs and return the input.
+.IP MSG_NONBLKREAD
+This message copies an input event into the XEvent structure
+pointed at by
+.I data
+if there is input pending.  If there is no input,
+.I data
+is left unchanged and
+.B FALSE
+is returned.
+.IP MSG_BLKHOTREAD
+This message copies an input event into the XEvent structure
+pointed at by
+.I data
+if there is input pending.  If there is no input, the call will wait
+until input occurs and return the input.  If the input is select or
+menu input, the editors or menuing system will be invoked if appropriate.
+.IP MSG_NONBLKHOTREAD
+This message copies an input event into the XEvent structure
+pointed at by
+.I data
+if there is input pending.  If there is no input,
+.I data
+is left unchanged and
+.B FALSE
+is returned.  If the input is select or
+menu input, the editors or menuing system will be invoked if appropriate.
+.sp
+.P
+Xrlib provides a set of message for manipulating the input queue.
+The following list contains this set of messages.
+.IP MSG_PUSHEVENT
+This message places an event structure pointed to by
+.I data
+onto the front of the input queue.  The next read will return
+this event.
+.IP MSG_PEEKEVENT
+This messages fills out the event structure pointed to by
+.I data
+from the event on the front of the input queue.  The
+input queue is left unaffected by this call.  If the input queue
+is empty, this call will fail.
+.IP MSG_CLEAR
+This message clears the input queue of all pending input.
+.I data
+is unused for this call and can be set to 
+.B NULL.
+.sp
+.P
+The following list contains the set of messages to setup and
+change which sources XrInput() is to gather input.
+.IP MSG_ADDINPUT
+This message adds a file descriptor for which XrInput() is to gather
+input.
+.I data
+is a pointer to an xrFDInput structure which is defined as follows.
+.nf
+
+typedef struct
+{
+   INT32 fd;
+   INT8  type;
+} xrFDInput;
+
+.fi
+The
+.I fd
+field contains the file descriptor for the source of the input
+in which XrInput() is to gather input.  The
+.I type
+field tells XrInput() which forms of input should be gathered from
+the file descriptor.  It can be set to any combination of the defines
+.B XrREAD, XrWRITE,
+or
+.B XrEXCEPTION.
+These defines should be "Or'ed" together to define the value of this field.
+.IP MSG_REMOVEINPUT
+This message removes a previously added file descriptor from
+the input set.  
+.I data
+must be set to point to an xrFDInput structure discussed in 
+MSG_ADDINPUT.  The structure should contain the file descriptor
+and the conditions which are to be removed.
+.IP MSG_SETTIMEOUT
+This message sets a timeout value, in seconds, for XrInput() to wait
+for input to occur from the file descriptors it is selecting upon.
+.I data
+is a pointer to the following structure.
+.nf
+
+struct timeval
+{
+   unsigned long tv_sec;
+   long          tv_usec;
+};
+
+.fi
+The
+.I tv_sec
+field defines the number of seconds to wait before a timeout is
+to occur.  The
+.I tv_usec
+field defines the number of micro seconds to wait before a timeout
+is to occur.
+This structure is defined in <time.h>.
+.IP
+The timeout value will affect how blocked reads
+work.  Normally, the blocked read will wait indefinitely for input.  If
+an application sets a timeout value, the blocked read will wait
+only the number of seconds + the number of micro seconds given by the 
+value.  The value of the timeout will have no effect on non-blocked reads.
+.IP MSG_GETTIMEOUT
+This message returns the current timeout value.
+.I data
+is a pointer a timeval structure which will be filled
+out to the current values.
+.SH RETURNED VALUE
+For all of XrInput()'s messages, 
+.B TRUE
+is returned if the function succeeds and 
+.B FALSE
+is returned if it fails.
+.SH ERROR CONDITIONS
+If XrInput() fails, the
+.I xrErrno
+global will be set to one of the following values.
+.P
+.I xrErrno
+will be set to
+.B XrINVALIDID
+for all messages if the passed in window id is invalid.
+.P
+.I xrErrno
+will be set to 
+.B XrINVALIDMSG
+for any messages besides the messages listed above.
+.P
+.I xrErrno
+will be set to
+.B XrINVALIDPARM
+whenever the data parameter contains invalid information.
+.P
+.I xrErrno
+will be set to 
+.B XrOUTOFMEM
+if MSG_ADDWINDOW cannot allocate the needed space for a window.
+.P
+For reading messages, a return value of
+.B FALSE
+indicates that their was no input or a timeout occurred before input.
+There is no failure condition.

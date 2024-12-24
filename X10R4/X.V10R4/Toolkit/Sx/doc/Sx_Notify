@@ -1,0 +1,59 @@
+.TH Sx_Notify sx
+.BS
+.NA
+Sx_Notify \- display a notifier window and wait for the user to respond
+.SY
+#include <X/Xlib.h>
+#include <sx.h>
+.sp
+int
+Sx_Notify(\fIparent, x, y, width, message, fontPtr, center, option, option, ...,\fP NULL)
+.AR
+.AS FontInfo *message
+.AP Window parent in
+Window in whose coordinates \fIx\fP and \fIy\fP are given.
+.AP int "x, y" in
+Location of upper left corner of notifier, in coordinates of \fIparent\fP.
+If either coordinate is less than zero, it defaults to a value that
+will center the notifier in \fIparent\fP.
+.AP int width in
+Width of notifier, in pixels.  If less than or equal to 0, then
+a default width is chosen (based on the size of \fImessage\fP) to
+give the notifier a ``nice'' aspect ratio.
+.AP char *message in
+Text to be displayed in notifier.  It need not contain any newline
+characters;  in this case, Sx_Notify will automatically break \fImessage\fP
+into lines that fit in the notifier.  Newlines may be used in \fImessage\fP
+to force line breaks, leave blank lines, etc.
+.AP FontInfo *fontPtr in
+Describes font to use in the notifier.  If NULL, the Sx default font is used.
+.AP Boolean center in
+If TRUE, then each line will be centered in the notifier.  Otherwise,
+lines will be left-justified.
+.AP char *option in
+One or more options to be displayed at the top of the notifier window.
+The list of options must be terminated by a NULL value.
+.BE
+
+.SH DESCRIPTION
+.PP
+Sx_Notify is used to display a message and wait for the user 
+to select one of several options.  A window pops up on
+the screen to display \fImessage\fP and each of the \fIoption\fPs,
+then Sx_Notify waits for the user to press a mouse button 
+over one of the options.  The procedure will not
+return until the user selects an option.  When this happens, it
+returns the index of the selected option, where zero corresponds to the
+first option specified in the parameters to Sx_Notify.
+.PP
+The notifier is always created in RootWindow so that it will be visible.
+Sx_Notify grabs the X server, which prevents the user from doing
+anything on the screen until he or she responds to the notification.
+Notifiers are intended for usage in situations where a simple ``yes''
+or ``no'' answer can be given without much thought.  In situations
+where the user may need to look around and use other windows to decide
+what to do, a more permanent window should be created, in a way that
+doesn't lock up the server.
+
+.SH KEYWORDS
+notifier, window

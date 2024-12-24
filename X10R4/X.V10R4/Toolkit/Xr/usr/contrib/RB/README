@@ -1,0 +1,28 @@
+	This directory contains the source for two programs,
+        Raster Builder and Convert.
+
+
+        Raster Builder is an interactive program which allows
+        the editing of bitmaps or pixmaps.  It is intended more
+        to show X-ray functionality than as a comprehensive
+        application but still has enough functionality to allow
+        the creation of images and storage and retrival of the
+        images.  
+
+        To make Raster Builder run MakeRB.
+
+        To run Raster Builder execute "RB display".
+
+
+	Convert reads a raster image file created by the raster
+	builder and printf's a series of strings which are
+	suitable for using as an include file.
+
+        To make the file run MakeConvert.
+
+	To run convert execute "convert arg1, arg2" where arg1 is the
+        name of the raster image file, and arg2 is the name of
+        the structure which will contain the raster image.
+
+        The most useful way to run convert is to redirect the output
+        into a file which can then be compiled into a program.

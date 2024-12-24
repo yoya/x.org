@@ -1,0 +1,29 @@
+.TH Sx_MenuReplaceEntry sx
+.B1
+.NA
+Sx_MenuReplaceEntry \- replace a single entry in a pull-down menu
+.SY
+#include <X/Xlib.h>
+#include <sx.h>
+.sp
+Sx_MenuReplaceEntry(\fImenuWindow, entryIndex, newEntryPtr\fP)
+.AS Sx_MenuEntry *newEntryPtr
+.AR
+.AP Window menuWindow in
+X id for the title window for the menu to be modified (i.e. the
+value returned by Sx_MenuCreate).
+.AP int entryIndex in
+Index of the entry to be replaced (0 means the
+topmost entry in the menu associated with \fImenuWindow\fP).
+.AP Sx_MenuEntry *newEntryPtr in
+Pointer to information about the new menu entry.
+.B2
+
+.SH DESCRIPTION
+.PP
+This procedure replaces a single entry in a menu, resizing the
+menu if necessary.  See the Sx_MenuCreate documentation for
+information on the structure of an Sx_MenuEntry.
+
+.SH KEYWORDS
+menu, pull-down menu, replace entry, window

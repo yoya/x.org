@@ -1,0 +1,396 @@
+
+
+
+
+
+
+
+          _1.  _I_n_t_r_o_d_u_c_t_i_o_n
+
+               Welcome to xtrek.  Xtrek is the latest  in  a  line  of
+          games  based  on  empire  on  the plato system.  Most of the
+          ideas are based on the unix game _t_r_e_k_8_3 by David  Davis  and
+          Chris  Guthrie and on the VMS game _c_o_n_q_u_e_s_t by Jef Poskanzer
+          and Craig Leres.  Xtrek is a  multi-player,  real-time  game
+          which  runs  under  Ultrix 1.2 on X supporting workstations.
+          The daemon program must be run on on the Ultrix machine.  On
+          the  same machine, the player program _x_t_r_e_k is run, throwing
+          a  window  up   on   a   workstation.    Please   send   any
+          ideas/comments to chris@ic.
+
+
+          _2.  _T_h_e _B_a_s_i_c _I_d_e_a
+
+               When you enter the game, you enter a galaxy as  one  of
+          four  competing  races.  You have a warship at your command.
+          The galaxy  contains  forty  planets,  which  start  divided
+          evenly  between  the  four  teams.  The eventual goal of the
+          game is to conquer the other teams' planets and protect your
+          own.   Usually  this  will involve frequently having to kill
+          other players while avoiding their efforts to kill you.
+
+
+          _3.  _S_t_a_r_t_i_n_g _t_h_e _G_a_m_e
+
+               To enter the game type _x_t_r_e_k _m_o_n_i_t_o_r:_0 much like any  X
+          tool.   A  third argument, 0-3, allows you to choose a team.
+          Not choosing a team on the command line leads to having  one
+          randomly  assigned.   In terms of ship and planet abilities,
+          all teams are identical.   Assuming  everything  is  working
+          properly (including xhosts) you will be placed in the game.
+
+
+          _4.  _T_h_e _D_i_s_p_l_a_y
+
+               When you start the game, you  are  given  two  windows.
+          The  left  window is your local view.  You will see a number
+          of objects in it.  Your ship is always in the center of  the
+          window.   Other  ships will look like yours except that each
+          team has a different ship design.  The small  character  (in
+          hex)  is  used  for  differentiating  player  number.  Round
+          objects with names on the are planets.  Each team has a dif-
+          ferent  color  to  distinguish its planets and ships.  Small
+          dots on the screen are torpedoes.  You will come  to  recog-
+          nize these after they kill you a few times.  Enemy torps are
+          a different shape than your team's torps.  Small circles are
+          exploding  torps.   Lines  between  ships  are phaser shots.
+          They are never friendly.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+               The right window is a map of the  galaxy.   Only  ships
+          and  planets appear on it.  Ships are just a player name and
+          team number.
+
+
+          _5.  _U_s_e_r _I_n_t_e_r_f_a_c_e
+
+               The mouse is the most important interface.   When  ever
+          the  game needs a direction, to turn your ship for instance,
+          it will use the mouses position relative to  your  ship,  in
+          whatever  window the mouse currently located.  Torpedoes and
+          phasers will be fired toward the mouse, and your  ship  will
+          turn in the direction of the mouse when appropriate keys are
+          hit.  Most commands are  issued  through  the  keyboard  and
+          mouse buttons.
+
+
+          _6.  _S_t_a_t_u_s _L_i_n_e
+
+               The status line appears at the bottom of the local win-
+          dow and contains the following useful information:
+
+
+          _6._1.  _F_l_a_g_s -- _s_h_i_p _s_t_a_t_u_s _f_l_a_g_s
+
+               Various flags tell the player that about his ship.
+
+              S -- Shields up
+              R -- In Repair mode
+              B -- Bombing a planet
+              O -- Orbiting a planet
+              C -- Cloaked (not implemented)
+              W -- Weapons overheated
+              E -- Engines overheated
+              u -- Beaming up armies
+              d -- Beaming down armies
+
+
+
+          _6._2.  _x _b_y _y -- _c_u_r_r_e_n_t _g_a_l_a_c_t_i_c _p_o_s_i_t_i_o_n
+
+               The galaxy is 100,000 by 100,000.  This is your  ship's
+          current position in it.
+
+
+          _6._3.  _d_i_r -- _C_u_r_r_e_n_t _d_i_r_e_c_t_i_o_n
+
+               This is the direction your ship is pointing in.  256 of
+          these units represent a full circle.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          _6._4.  _s - _s_h_i_p'_s _s_p_e_e_d
+
+               This is the speed your ship  is  currently  travelling.
+          Ships move between warps 0 and 9.
+
+
+          _6._5.  _d_a_m - _c_u_r_r_e_n_t _d_a_m_a_g_e
+
+               This is how much damage your ship  has  taken.   If  it
+          gets  over  100,  you die.  Damage repairs slowly if shields
+          are down, faster if ship is in repair mode.
+
+
+          _6._6.  _s_h_d - _c_u_r_r_e_n_t _s_h_i_e_l_d_s
+
+               Shields start out at 100 and take damage when they  are
+          up.   When they hit 0, damage will come off your damage rat-
+          ing.  They repair faster than real damage.
+
+
+          _6._7.  _t -- _n_u_m_b_e_r _o_f _t_o_r_p_s _l_a_u_n_c_h_e_d
+
+               Each player is limited to twelve torps  flying  at  any
+          given time.  This is a count of the torps you currently have
+          in the air.
+
+
+          _6._8.  _a_r -- _a_r_m_i_e_s _o_n _b_o_a_r_d
+
+               This is a count of the number of  armies  you  have  on
+          your ship.  Your ship can carry two times the current number
+          of kills.  The maximum number of armies it can carry is ten.
+
+
+          _6._9.  _p_l -- _c_o_u_n_t _o_f _p_l_a_y_e_r_s _i_n _t_h_e _g_a_m_e
+
+               This number is a quick count of how many other  players
+          are in the game.
+
+
+          _6._1_0.  _f_u_e_l -- _h_o_w _m_u_c_h _f_u_e_l _y_o_u _h_a_v_e _l_e_f_t
+
+               Weapons and engines take fuel to run.  This is a  count
+          of  the  amount  of fuel left on the ship.  Fuel regenerates
+          slowly in space, but faster when orbiting a planet.
+
+
+          _6._1_1.  _w_t_p -- _w_e_a_p_o_n_s _t_e_m_p_e_r_a_t_u_r_e
+
+               Using weapons drives up this stat.   If  it  goes  over
+          100,  there is a good chance your weapons will freeze up for
+          a random amount of time.  The temperature drops over time.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          _6._1_2.  _e_t_p -- _e_n_g_i_n_e _t_e_m_p_e_r_a_t_u_r_e
+
+               Running your engines at speeds over five  cause  engine
+          temperature  to climb.  Over 100, engines can also freeze up
+          for a random amount of time.
+
+
+          _7.  _T_h_e _c_o_m_m_a_n_d_s
+
+               These are the various key and button  commands  in  the
+          game.   They are currently bound, but this will go away at a
+          later time.
+
+
+          _7._1.  _S_h_i_p'_s _s_p_e_e_d
+
+               The numbers zero through nine set  your  ship's  speed.
+          It  takes  time for your ship to accelerate or decelerate to
+          the desired speed.  Damaged ships can't use  higher  speeds.
+          When  engines  freeze,  you  can't set speed.  Setting speed
+          breaks you out of a planet's orbit.
+
+
+          _7._2.  _k - _s_e_t _c_o_u_r_s_e
+
+               The letter _k and the right mouse button set your course
+          towards  the  current  mouse  position.  Turning towards the
+          desired course can take  time,  depending  on  your  current
+          speed and damage.
+
+
+          _7._3.  _t - _l_a_u_n_c_h _t_o_r_p_e_d_o
+
+               The letter _t and the left mouse button launch a torpedo
+          towards the current mouse position if you have fuel and less
+          than twelve torps currently out.  Torpedoes travel  at  warp
+          twelve and do thirty points of damage when they hit someone.
+          You cannot be hurt by your own torps.
+
+
+          _7._4.  _p - _f_i_r_e _p_h_a_s_e_r
+
+               The letter _p and the  middle  mouse  button  fire  your
+          phasers towards the current mouse position if you have fuel.
+          You may only fire phasers once per second.  They cost a good
+          deal  of  fuel.   If  they  hit  someone, they will do 0-100
+          points depending on the range.
+
+
+          _7._5.  _d - _d_e_t_o_n_a_t_e _o_t_h_e_r _t_o_r_p_s
+
+               This command will detonate other torps near you,  doing
+          less than maximum damage to you.
+
+
+
+
+
+
+
+
+
+
+
+
+
+          _7._6.  _D - _d_e_t_o_n_a_t_e _y_o_u_r _o_w_n _t_o_r_p_s
+
+               This will turn your own torps off (if you've missed) so
+          that you can fire new ones.
+
+
+          _7._7.  + - _p_u_t _s_h_i_e_l_d_s _u_p
+
+               This key will put your shields up.  Raised shields will
+          take damage.
+
+
+          _7._8.  - - _p_u_t _s_h_i_e_l_d_s _d_o_w_n
+
+               This key will put your shields down.
+
+
+          _7._9.  _u - _t_o_g_g_l_e _s_h_i_e_l_d_s
+
+               This key will toggle your shields"
+
+
+          _7._1_0.  _R - _r_e_p_a_i_r _d_a_m_a_g_e
+
+               If your ship is moving at warp zero, this  will  repair
+          damage at a faster rate.
+
+
+          _7._1_1.  _o - _o_r_b_i_t _a _p_l_a_n_e_t
+
+               If you are near a planet and going  warp  two  or  less
+          this  will  put  in  orbit  around it.  You must be in orbit
+          around a planet to bomb it, beam armies up or down,  or  get
+          fuel from it.  Enemy planets will damage you if you get near
+          them.  Setting speed will break orbit.
+
+
+          _7._1_2.  _b - _b_o_m_b _a _p_l_a_n_e_t
+
+               If an enemy planet has more than four armies,  you  can
+          bomb  them.   With less than five armies, you must beam down
+          armies to defeat them.  Your shields will go down  to  bomb,
+          however,  and you will take damage from the planet.  You get
+          kills for the armies killed.
+
+
+          _7._1_3.  _z - _b_e_a_m _u_p _a_r_m_i_e_s
+
+               If your planet has more than four armies, you can  beam
+          them  to  your  ship to carry to other planets.  You must be
+          orbiting to beam up armies.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          _7._1_4.  _x - _b_e_a_m _d_o_w_n _a_r_m_i_e_s
+
+               This command will beam armies on your ship down to  any
+          planet you are orbiting.  If it is an enemy planet, you will
+          kill his armies.  If all are killed and you  land  an  army,
+          you take the planet for your team.
+
+
+          _7._1_5.  _L - _g_e_t _p_l_a_y_e_r _l_i_s_t
+
+               This gives you a quick list of other players.
+
+
+          _7._1_6.  _P - _g_e_t _p_l_a_n_e_t _l_i_s_t
+
+               This gives you a list of planets.  You get  information
+          only  on  planets  which  your  team  owns or has previously
+          orbited.
+
+
+          _7._1_7.  _i - _i_n_f_o _o_n _o_b_j_e_c_t
+
+               This will pop up a window near the mouse which contains
+          information about the nearest object (planet or ship).
+
+
+          _8.  _N_i_t_t_y _G_r_i_t_t_y
+
+               Eventually, there will be something to say  here  about
+          nifty  details,  but since they are not necessary to play, I
+          haven't done them yet.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

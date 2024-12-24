@@ -1,0 +1,9 @@
+#sort +2d $1 >/tmp/srt1.$$
+#sort +2df /tmp/srt1.$$ >/tmp/srt.$$
+sort +2df +0d -1d +1n -2n $1 >/tmp/srt.$$
+uniq </tmp/srt.$$ >/tmp/uniq.$$
+index </tmp/uniq.$$ >$1.out
+#rm /tmp/srt1.$$
+rm /tmp/srt.$$
+rm /tmp/uniq.$$
+

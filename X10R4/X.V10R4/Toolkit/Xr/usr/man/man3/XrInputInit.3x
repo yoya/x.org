@@ -1,0 +1,57 @@
+.TH XRINPUTINIT 3X "Xrlib Version 10"
+.SH NAME
+XrInputInit \- initialize the input mapping
+.SH SYNOPSIS
+.br
+#include <Xr/keycode.h>
+.sp 1
+.br
+unsigned char * 
+.br
+.B XrInputInit()
+.in
+.sp 1
+.SH DESCRIPTION
+This routine is called by 
+.B XrInit(3X),
+and normally is never called directly by an application.  Applications
+should not call this routine unless they are interested in using only the
+input mapping routines, and they do not call 
+.B XrInit.
+.br
+.sp 1
+This call initializes input structures which support the input
+mapping routines
+.B XrInputConf(), XrInputMap()
+and
+.B XrInputMute().
+These routines provide more general mapping services than
+.B XLookupMapping(3X),
+which take into account the differences between DEC, SUN, and HP
+keyboards, including the various international versions of the
+HP keyboard.
+.B XrInputMap(3X) performs the mapping.
+In special cases,
+.B XrInputConf
+and
+.B XrInputMute
+are used to control the mapping mode , or to access ISO 7 bit
+mapping directly on a character by character basis.
+.br
+.sp 1
+Memory is allocated to hold
+the input structures.  The type and language of the keyboard is determined
+by the display type field for the current display
+and the tables are set up for that language.  
+If the keyboard is a HP keyboard, the keyboard type is set to K_HP and the
+language is determined.  If it is not an HP keyboard,
+the keyboard type is set to K_DEFAULT and the language is set to K_HP_USASCII.
+A pointer to the ISO 7 bit
+to Roman 8 bit conversion table for that language is returned.  This
+table should be used to map your output if K_ASCII8 is not set (in 7 bit
+mode).  K_ASCII8 is set (1) on initialization.  K_MUTE, K_ALT_ENABLE and 
+K_16BITIO_ENABLE are set as 
+appropriate for the language.  K_ALT
+and K_16BITIO are read-only flags which are initially clear.
+.SH SEE ALSO
+XrInputConf(3X), XrInputMap(3X), XrInputMute(3X)

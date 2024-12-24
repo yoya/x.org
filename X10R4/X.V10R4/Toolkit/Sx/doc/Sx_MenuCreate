@@ -1,0 +1,129 @@
+.TH Sx_MenuCreate sx
+.BS
+.NA
+Sx_MenuCreate \- create a pull-down menu
+.SY
+#include <X/Xlib.h>
+#include <sx.h>
+.sp
+Window
+Sx_MenuCreate(\fIparent, name, numEntries, entries, fontPtr, foreground, background\fP)
+.AR
+.AS Sx_MenuEntry numEntries
+.AP Window parent in
+Parent window in which to create menu title.
+.AP char *name in
+Name of menu:  this string will be displayed in the menu's title.
+If there is already a menu in \fIparent\fP with this name, it is
+replaced with the information provided here.
+.AP int numEntries in
+Number of entries in the menu.  Must be no greater than SX_MAX_MENU_ENTRIES.
+.AP Sx_MenuEntry entries[] in
+Array containing \fInumEntries\fP elements, each describing one
+menu entry.  Element 0 will be displayed as the topmost selection
+in the menu.
+.AP FontInfo *fontPtr in
+Describes font to be used both for menu title and for menu itself.  If
+NULL, the Sx default font is used.
+.AP int foreground in
+Foreground color:  used for title text, menu text, and menu border.
+.AP int background in
+Background color:  used for title background, and as default background
+color for menu entries that don't specify their own backgrounds.
+.BE
+
+.SH DESCRIPTION
+.PP
+Sx_MenuCreate adds a new menu to those already present in
+\fIparent\fP, or replaces an existing menu if there is already
+one by the given name.  The menu consists of two windows.  The
+first is a child of \fIparent\fP;  it displays the menu's name,
+and can be buttoned by the user to pull down the menu.  The
+second window displays the menu entries.  It is displayed only
+when the user has ``pulled it down'' by buttoning the title
+window.  Sx_MenuCreate returns the X id for the title window,
+which can be used to destroy the menu or modify it with
+procedures like Sx_MenuGetMask and Sx_ReplaceEntry.
+.PP
+The menu is described by the array \fIentries\fP.  Each element
+of the array describes one selection in the pull-down menu, and
+has the following structure:
+.nf
+.RS
+typedef struct {
+.RS
+char *\fIleftText\fP, *\fIcenterText\fP, *\fIrightText\fP;
+int \fIbackground\fP;
+void (*\fIproc\fP)();
+ClientData \fIclientData\fP;
+.RE
+} Sx_MenuEntry;
+.RE
+.fi
+When the menu is displayed, the three character strings \fIleftText\fP,
+\fIcenterText\fP, and \fIrightText\fP will be displayed at the left edge,
+center, and right edge (respectively) of the line for this entry.  Any
+of the strings may be NULL.  The pull-down menu will be sized large
+enough to accomodate all the text from all of its entries.
+Normally, the \fIbackground\fP value passed to Sx_MenuCreate is used
+as the background color for each entry in the menu;  however, if the
+\fIbackground\fP field for any entry is not \-1, then that value is
+used as the background for that entry.
+\fIProc\fP is the address of a procedure that will be called whenever
+the user invokes the entry (the user ``invokes'' the entry by
+pressing a mouse button over the menu's title window
+moving the pointer over this
+entry in the pull-down menu, and releasing the button).  \fIProc\fP must
+have the following structure:
+.nf
+.sp .5
+.RS
+void
+proc(\fIclientData, entry, menuWindow\fP)
+.RS
+ClientData \fIclientData\fP;
+int \fIentry\fP;
+Window \fImenuWindow\fP;
+.RE
+{
+}
+.RE
+.sp .5
+.fi
+The \fIclientData\fP argument passed to \fIproc\fP is identical to
+the \fIclientData\fP value from the menu entry.  Typically, it
+points to a data structure of the client's that describes
+what command to execute in response to the menu selection.
+\fIEntry\fP is the index of the entry that was invoked, and
+\fImenuWindow\fP is the X id for the menu title window (which is
+the same as the value returned by Sx_MenuCreate).
+.PP
+In normal usage, \fIparent\fP is a window used only
+to hold menu titles.  It typically appears at the top of an application
+window, just underneath the window's title.  Its location and size
+are typically managed by the Sx packer so that it fills the application
+window's width and is just tall enough to contain the font used for
+menus.  The menu package allocates space within \fIparent\fP for the
+menu titles, packing the titles from left to right in order of creation.
+.PP
+When a menu is initially created, all of its entries are enabled.
+The Sx_MenuSetMask procedure may be used to disable some or all
+of the entries.
+.PP
+If \fIfontPtr\fP is non-NULL, the caller must make sure that the information
+it refers to remains valid as long as the menu exists.  On the other hand,
+\fIname\fP and the information associated with the menu entries are
+copied by the menu package, so they can be destroyed by the caller as
+soon as Sx_MenuCreate returns.
+.PP
+A menu may be deleted by calling XDestroyWindow on the window returned
+by Sx_MenuCreate (or any of its ancestors).  When the menu title window
+is destroyed, Sx will destroy the menu entry window and clean up all
+the internal structures associated with the menu.
+.PP
+The implementation of menus depends on the use of the Sx
+dispatcher (Sx_HandlerCreate, Sx_HandleEvent, etc.), and will
+not work if those routines are not used correctly.
+
+.SH KEYWORDS
+create, menu, pull-down menu, window

@@ -1,0 +1,4212 @@
+
+
+
+
+
+
+                         X Toolkit
+
+                  A Proposed Architecture
+
+
+                     Preliminary Draft
+
+                     December 17, 1986
+
+
+
+
+
+THE INFORMATION  IN  THIS  DOCUMENT  IS  SUBJECT  TO  CHANGE
+WITHOUT  NOTICE  AND SHOULD NOT BE CONSTRUED AS A COMMITMENT
+BY DIGITAL EQUIPMENT CORPORATION, HEWLETT-PACKARD COMPANY OR
+THE MASSACHUSETTS INSTITUTE OF TECHNOLOGY.
+
+
+
+The primary design goal of the XToolkit is  to  provide  the
+base  functionality  necessary  to  build  a wide variety of
+application environments.  It is important that  the  design
+be  fully  extensible  as well as supporting the independent
+development of new or extended components.  This  is  accom-
+plished by defining a few, easily used, interfaces that mask
+implementation details from both applications and  component
+implementors.  By  following  a  small set of conventions it
+should be possible for anyone to extend the XToolkit in  new
+and  as  yet unimagined ways and have them function smoothly
+with existing facilities.
+
+The XToolkit is a library package layered on top of  X  Ver-
+sion 11. It is the purpose of this layer to extend the basic
+abstractions provided by X thus providing the  "next  layer"
+of  functionality.  It  does  this  primarily  by  supplying
+mechanisms for both inter and  intra-component  interactions
+(Part  I)  as well as a reasonably complete and coherant set
+of sample widgets (Part II). In this discussion  a  "widget"
+is  the  combination  of  an X window (or subwindow) and its
+associated semantics.
+
+It is the job of the XToolkit  to  provide  flexibility  and
+extensibility  and  to  the  extent  possible  to be "policy
+free". It is the job of a specific  application  environment
+to  define,  implement  and  enforce policy, consistency and
+style. It should be noted that individual widget implementa-
+tions  do  in  fact implement policy, but if the XToolkit is
+successful it should allow  the  free  mixing  of  radically
+differing widget implementations.
+
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 2 -
+
+
+                  Digital Equipment Corp.
+
+                    Hewlett-Packard Co.
+
+                   M.I.T. Project Athena
+
+
+
+
+
+Comments to:
+          Ralph R. Swick
+          M.I.T. Project Athena
+          Swick@Athena.MIT.EDU
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 3 -
+
+
+_1.  _I_N_T_R_O_D_U_C_T_I_O_N
+
+The X toolkit library is intended to simplify the design  of
+application  user  interface purposes in the X window system
+programming environment.  Besides assisting application pro-
+grammers  by providing commonly used user-interface widgets,
+it is a goal to allow programmers to modify existing widgets
+or  add  their  own  new widgets.  In addition, applications
+using this library will have the  desirable  side-effect  of
+presenting  similar  user  interfaces across applications to
+workstation users.
+
+Our definition of _T_o_o_l_k_i_t is:
+
+o+    A set of intrinsic mechanisms  useful  for  the  widget
+     writer to build widgets.
+
+o+    An architecture for constructing and composing  widgets
+     from the intrinsics or from other widgets.
+
+o+    A consistent programmatic interface to the above  func-
+     tionality.
+
+Application interface layers built on top  of  this  toolkit
+include  a  coordinated set of widgets and composition poli-
+cies. Some of these widgets  and  policies  are  application
+domain  specific, while others are common across a number of
+application domains.
+
+Our first goal, then, is to specify an  architectural  model
+that  is flexible enough to accomodate a number of different
+kinds of application interface layers within  the  framework
+of  the  model. We must also provide a set of toolkit primi-
+tives that
+
+o+    provide a functionally complete and policy free set  of
+     tools for building and composing widgets
+
+o+    fit in both stylistically  and  functionally  with  the
+     other X windows primitives
+
+o+    are portable across a wide range of languages, computer
+     architectures, and operating systems
+
+Our second goal is to  implement  one  or  more  application
+interface  layers on top of this toolkit.  There are several
+reasons for doing this.  First, it will help  us  to  verify
+that  the  toolkit  architecture  we have provided meets the
+three criteria discussed earlier.  Second, it will provide a
+base  set  of  widgets  and composition policies that can be
+incorporated in other application interface layers.   Third,
+it will make the toolkit immediately usable by many applica-
+tion programmers who may find that the application interface
+layers we have provided meet their needs.
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 4 -
+
+
+While we believe that the form and design for  a  number  of
+widgets and composition policies will become standardized at
+some point, it would be premature to propose such  standards
+at  this early date.  Therefore, we intend that the applica-
+tion interface layers we may provide be taken as one of  may
+possible designs for discussion on the road towards eventual
+standardization of this layer.
+
+_1._1.  _D_e_f_i_n_i_t_i_o_n_s
+
+Object    A software data abstraction consisting of  private
+          data  and private and public routines that operate
+          on the private data.  Users of the abstraction can
+          interact with the object only through calls to the
+          object's public routines.
+
+Widget    An object providing a  user-interface  abstraction
+          (for example, a scroll-bar widget).
+
+Toolkit   Name used for the user-interface library  that  is
+          the subject of this document.
+
+User      Person interacting with a workstation.
+
+Application
+ProgrammerA programmer that uses the Toolkit to produce  the
+          application user interface.
+
+Widget
+ProgrammerA programmer who chooses to modify the Toolkit  or
+          add new widgets to it.
+
+Client    A routine that uses a widget in an application  or
+          for composing another widget.
+
+_1._2.  _U_n_d_e_r_l_y_i_n_g _M_o_d_e_l
+
+Listed below are some  principles  which  have  considerable
+influence on this design.
+
+Widgets are X windows
+          Every user-interface  widget  is  contained  in  a
+          unique  X window, with the X window handle serving
+          as the widget handle.  This allows  standard  Xlib
+          window manipulation procedures to operate on widg-
+          ets. Since  windows  in  X  are  inexpensive,  the
+          impact on performance is minimal.
+
+Information Hiding
+          The data  for  every  widget  is  private  to  the
+          widget:  it is neither accessible nor visible out-
+          side of the module implementing the  widget.   All
+          program  interaction  with the widget is performed
+          via a set of messages defined for the widget.  The
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 5 -
+
+
+          avoidance  of  public  data  structures  leads  to
+          better  maintainability  since  changes  to   data
+          structures have very local effects.
+
+Widget Semantics vs. Widget Layout Geometry
+          There is a clear separation  of  widget  semantics
+          from  widget  layout  geometry.   Widgets are con-
+          cerned with implementing specific  user  interface
+          semantics.  They  have little say over issues such
+          as their size or placement relative to other widg-
+          ets.   Mechanisms  are  provided  for  associating
+          geometric managers with widgets.
+
+_1._3.  _D_e_s_i_g_n _P_r_i_n_c_i_p_l_e_s _a_n_d _P_h_i_l_o_s_o_p_h_y
+
+
+_1._3._1.  _L_a_n_g_u_a_g_e_s _a_n_d _L_a_n_g_u_a_g_e _B_i_n_d_i_n_g_s
+
+The design of the X toolkit is intended to facilitate access
+from  objective languages.  However, it is our goal that the
+toolkit library be conveniently usable by  application  pro-
+grams  written  in  non-objective languages besides C.  This
+imposes some constraints on procedural interfaces which  are
+discussed  below.  We do not feel it is necessary to provide
+the same facility for writing  widgets  in  languages  other
+than C.
+
+Some guidelines that have been used in our procedural inter-
+faces are:
+
+o+    Strings are not passed as null-terminated ASCII arrays.
+     They are instead passed as an address and a length.
+
+o+    Structures as arguments are avoided,  unless  a  method
+     for  building  them  is  provided for languages without
+     pointers.
+
+o+    Pointers are never returned as return arguments  unless
+     they  will never have to be dereferenced by the caller.
+     If they need to  be  dereferenced,  the  caller  should
+     allocate  storage and pass the address to the procedure
+     to fill in as appropriate.
+
+_1._3._2.  _X _W_i_n_d_o_w_s _a_s _C_o_i_n _o_f _t_h_e _R_e_a_l_m
+
+In the Toolkit we have chosen to use X  window  IDs  as  the
+primary  datum.  This means that a widget's ID is its window
+ID. This has the convenient property that any widget can  be
+manipulated  (using  normal X functions) by simply using its
+ID directly. Geometry Managers rely  heavily  on  this  pro-
+perty.
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 6 -
+
+
+_1._3._3.  _A_s_s_o_c_i_a_t_i_n_g _D_a_t_a _w_i_t_h _W_i_d_g_e_t_s
+
+Most widgets will need to refer to their  own  private  data
+structures  when  they  are processing an event or a request
+from the application. We provide an extension of the associ-
+ative  facility provided by the X v10 library (XAssocTable).
+The extension is to provide a  "type"  field  for  all  data
+stored. This allows an open ended set of private data struc-
+tures to be associated with a given widget rather  that  the
+one per window scheme supplied by v10.
+
+_1._4.  _I_s_s_u_e_s
+
+It is our desire to handle strings in  a  manner  consistent
+with  version  11 Xlib.  We are requesting that the Xlib for
+version 11 avoid passing null-terminated ASCII strings.   If
+this  request  is not granted, we will adopt null-terminated
+ASCII strings.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 7 -
+
+
+_2.  _W_i_d_g_e_t _A_r_c_h_i_t_e_c_t_u_r_e
+
+This section will deal with the  architectural  philosophies
+of a widget.  It is probably of interest only to those users
+who wish to write their own widgets.  Those users which plan
+to  use  only the standard set of widgets may choose to skip
+this whole section, and proceed to the next chapter.
+
+Widgets serve as one of the primary  building  blocks  of  a
+user  interface  toolkit.   Few  applications  will  use the
+toolkit without taking  advantage  of  the  widget  set.   A
+widget  may be primitive (as in a single command button), or
+it may be composite (composed of 1 or more  primitive  widg-
+ets,  along  with a composer which controls the interactions
+between the primitive widgets, and a geometry manager  which
+controls the layout).  In either case, the underlying archi-
+tecture is the same.
+
+Generally, a widget is composed of some combination  of  the
+following three pieces:
+
+o+    Two entry points for creating a widget instance.
+
+o+    Event processing routine.
+
+o+    Geometry manager.
+
+All of these pieces play an integral role in  the  structure
+of  a  typical widget.  Although all widgets do not make use
+of the geometry manager facilities, all  widgets  will  have
+dual  entry points, which serve as the mechanism by which an
+application program may create a particular widget instance,
+and  an  event  processing routine.  Each of these architec-
+tural concepts will be discussed further in one of the  fol-
+lowing sections.
+
+One major architectural decision which was made  in  regards
+to  all  widgets was that each widget instance would be con-
+tained within its own subwindow.  In many cases,  this  sim-
+plifies  the  code  needed to implement a widget, and at the
+same time provides the application with a broad spectrum  of
+widget  manipulation abilities, since X provides a very rich
+set of  window  manipulation  facilities.   In  addition,  a
+widget  should  be capable of creating a new window and then
+building a widget in it, or taking an  existing  window  and
+placing a widget in it.
+
+A simplified view of how a widget is organized is  presented
+below:
+
+
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 8 -
+
+
+                 -----------------------------
+                 |       Application         |<-----------
+                 -----------------------------           |
+                         |     |          |              |
+                         |     |          | Messages     |
+                         |     |          |              |
+                         |     |   -------v-----------   |
+                         |     |   | Generic Widget  |   |
+                         |     |   | Message Handler |   |C
+                         |     |   -------------------   |a
+                         |     |          |              |l
+                         |     |--------->| Events       |l
+                         |                |              |B
+                         | ---------------v------------  |a
+                         | | Toolkit event dispatcher |  |c
+                         | ----------------------------  |k
+                         |                |              |
+  -------------    ------v----------------v--------      |
+  | Geometry  |<==>| Widget Create | Widget Event |------|
+  | Manager   |    |   Handlers    |  Processor   |
+  -------------    --------------------------------
+
+
+_2._1.  _E_n_t_r_y _P_o_i_n_t_s _F_o_r _C_r_e_a_t_i_n_g _A _W_i_d_g_e_t _I_n_s_t_a_n_c_e
+
+
+_2._1._1.  _O_v_e_r_v_i_e_w
+
+Each widget will provide the applications programmer with  a
+pair  of  entry  points for creating a widget instance.  The
+first of these entry points will have a common  syntax  over
+the full range of widgets within the toolkit.  This makes it
+easier for other pieces, such as a composite  panel  widget,
+to create widget instances in a generic fashion.  The second
+of these entry points will have a  widget  specific  calling
+syntax,  which will provide the applications programmer with
+a calling sequence which separates the  required  parameters
+from the optional parameters.
+
+_2._1._2.  _P_r_i_n_c_i_p_l_e_s
+
+The first entry point will accept only a  single  parameter:
+an argList structure which contains the complete description
+of the widget.  This provides a common calling syntax across
+the  full range of widgets.  An argList is a variable length
+list, composed of atom/value pairs.
+
+The second entry point will vary from widget to widget.   It
+will be organized in such a fashion that all required param-
+eters will be specified in-line, and  all  other  parameters
+can  be  specified  by means of the argList.  In the event a
+parameter is over-specified, the  explicit  (in-line)  value
+will  have precedence over the argList value.  This allows a
+programmer to quickly determine (and specify)  the  required
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 9 -
+
+
+options needed during a widget create request.
+
+One note of special interest: a widget should be capable  of
+creating  a  widget instance in a new window, and creating a
+new widget instance in an existing window that is passed  in
+by the application.  To accomplish this, all widgets must be
+capable of accepting a window Id as  an  optional  parameter
+within  the  argList  structure.  When  passed  an  existing
+window id, a widget is permitted to discard the window  con-
+tents  but   not   to   change  any  other  window  property
+unless directed by the contents of the argList.
+
+When an application attempts to create a widget instance, it
+will need to only specify those optional atom values it con-
+siders essential.  Widgets must provide reasonable  defaults
+for  all  optional parameters and are strongly encouraged to
+dictate as few required parameters as possible.
+
+When a widget instance is successfully created,  the  widget
+identifier (window ID) is returned to the application.  How-
+ever, if the request fails for  some  reason,  then  a  NULL
+widget identifier is returned.  In addition, the application
+will be notified by means of the X  Toolkit  error  handling
+facility.
+
+_2._1._3.  _I_n_t_e_r_f_a_c_e
+
+As an example of each of the  above  principles,  the  entry
+points for a sample widget will be provided:
+
+
+   Window
+   XtWidgetCommon (argList)
+
+   ArgList * argList;
+
+
+   Window
+   XtWidgetSpecial (RequiredArg1, RequredArg2, argList)
+
+
+
+
+_2._1._4.  _I_s_s_u_e_s
+
+The X Toolkit error handling facility allows the application
+to  supply  an  error  callback  routine.   A  default error
+handler will be provided but it  may  require  a  particular
+widget instance; e.g. a message box.
+
+_2._2.  _E_v_e_n_t _P_r_o_c_e_s_s_i_n_g
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 10 -
+
+
+_2._2._1.  _O_v_e_r_v_i_e_w
+
+Once a widget  has  been  created,  the  primary  means  for
+interacting  with that widget is by means of X events.  Each
+widget will provide a single event handling routine, to han-
+dle  these  incoming  X events.  In return, when a widget is
+modified in any fashion as the result  of  processing  an  X
+event,  it  will  notify  the application as appropriate, by
+means of a single callback function or  a  set  of  callback
+functions.
+
+_2._2._2.  _P_r_i_n_c_i_p_l_e_s
+
+Each widget must provide a single event processing  routine,
+which  it will make known to the toolkit's event dispatcher.
+This allows the widget to say: When an event is received for
+this  particular  widget  instance, call my event processing
+routine, and pass in the event to be processed, and an arbi-
+trary  data  pointer which I specified when I registered the
+event handler.  The reader is referred to the discussion  on
+input  and dispatching, which is presented in chapter 3, for
+an indepth discussion on event dispatching.  Once the  entry
+point has been registered, any events destined for a partic-
+ular widget instance will automatically  be  routed  to  the
+appropriate event handler.
+
+During the processing of an X event, a widget  may  find  it
+necessary  to  inform  the  application that some change has
+taken place.  This is accomplished using a  callback  facil-
+ity.   All  widgets  will allow an application to provide at
+least one callback procedure.  More may  be  provided  by  a
+widget,  if  it finds it to be necessary.  For each callback
+procedure supplied by the application, the application  must
+be  allowed  to  supply  a  unique  'tag' value.  The tag is
+passed as a parameter when the callback routine is  invoked,
+and  provides  the means by which the application may deter-
+mine which widget instance is generating the callback.   The
+calling  syntax  for a callback routine is widget dependent.
+However, it is guaranteed  that  the  first  parameter  will
+always be the tag value just discussed.
+
+Upon completion of handling an  event,  the  widget's  event
+handling   routine   must  return  some  indication  to  the
+toolkit's dispatcher as to  the  results  of  the  dispatch.
+This could be one of the following:
+
+
+   - PROCESSED
+   - NOTHANDLED
+   - ERROR
+
+
+In addition the event dispatcher could return an error indi-
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 11 -
+
+
+cating that no dispatch routine was found.
+
+                            Note
+
+     When ERROR  is  returned,  the  widget  must  have
+     attempted  to  notify  the  application  as to the
+     cause of the error,  using  the  X  toolkit  error
+     reporting facility.
+
+
+During the processing of an event, certain widgets may  feel
+that  they  would  like  to  read  another X event directly,
+rather than returning to the application, and allowing it to
+dispatch  the  next event.  A widget is strongly discouraged
+from doing any event reading directly; this would go against
+the  model  of allowing the application to always have first
+crack at an event, before it is dispatched.  We may, howver,
+be  able  to  describe  a  minimum  set  of  rules  for such
+instances.  This ruleset at least will  state  that  widgets
+must  `push  back' all events that they read but do not pro-
+cess.
+
+_2._2._3.  _I_n_t_e_r_f_a_c_e
+
+The syntax for a widget's event processing routine is  shown
+below:
+
+
+   int
+   XtWidgetEventProc (event, data)
+
+   XEvent * event;
+   caddr_t  data;
+
+
+The exact parameter list for a  callback  routine  may  vary
+from  widget  to widget, however, the general calling syntax
+is presented below:
+
+
+   int
+   callBackProc (tag, ...)
+
+   caddr_t tag;
+
+
+
+_2._2._4.  _I_s_s_u_e_s
+
+Discussion of generic message  handler/converter  is  needed
+somewhere.
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 12 -
+
+
+_2._3.  _G_e_o_m_e_t_r_y _M_a_n_a_g_e_m_e_n_t
+
+
+_2._3._1.  _O_v_e_r_v_i_e_w
+
+Geometry management is the process by which the layout rela-
+tionships between groups of widgets, and the dynamic altera-
+tion of these widgets is handled.  It is a primary  goal  of
+the toolkit to separate the internal semantics of a particu-
+lar  widget  implementation  from  the  management  of   its
+geometric properties.  By doing this, a single widget can be
+combined with different geometry managers to produce a  dif-
+ferent  view to the user.  In addition, neither piece knows,
+or should care, about the specifics of the other.
+
+_2._3._2.  _P_r_i_n_c_i_p_l_e_s
+
+A geometry manager should be implemented such that its  sole
+function  is  to  implement  a  style of layout and possibly
+dynamic alteration of a group of widgets.   In  many  cases,
+the  geometry  manager  will  have no idea as to what set of
+widgets it  is  manipulating.   A  set  of  common  geometry
+managers will be provided as part of the base toolkit.
+
+Geometry data specification falls into  two  distinct  cata-
+gories.   First, there is the initial positioning and sizing
+(layout) of  widgets,  and  second,  there  is  the  dynamic
+alteration  of  a  widget  being  managed.   The  individual
+geometry manager implementation is free to define and imple-
+ment  any appropriate method for specifying the initial lay-
+out data.  Using the size of the widget window is a  reason-
+able default.
+
+The means for associating a geometry manager with a  set  of
+widgets,  and  the  means by which a widget makes a geometry
+manager request are covered in chapter 3.
+
+Most geometry managers must be prepared to  accept  requests
+for  moving  a widget, resizing a widget, moving a widget to
+the top, and moving a widget to the bottom.   Most  geometry
+manager clients want to make simple "make me larger/smaller"
+requests, and they expect a simple  yes  or  no  reply.   In
+addition to a simple yes or no reply, a geometry manager has
+the flexibility of saying  "I  couldn't  quite  satisfy  the
+request you made, but I would be able to satisfy this lesser
+request".  This would allow the application to either  retry
+with the alternate request, or proceed without resizing.
+
+_2._3._3.  _I_s_s_u_e_s
+
+None
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 13 -
+
+
+_2._4.  _W_i_d_g_e_t _C_o_m_p_o_s_i_t_i_o_n
+
+
+_2._4._1.  _O_v_e_r_v_i_e_w
+
+Widget composition refers to the concept of  taking  several
+primitive  widgets,  and combining them to form a new compo-
+site widget.  This is a very powerful concept, which  allows
+widgets to be recursively grouped together to form new widg-
+ets.
+
+_2._4._2.  _P_r_i_n_c_i_p_l_e_s
+
+A widget composer is a very specialized piece  of  software.
+It  takes  a  group  of  composite and primitive widgets and
+joins them together to form a new composite widget.   It  is
+responsible  for  controlling the communications between its
+components, and, with the aid of a geometry manager, it also
+controls  the relationship between the locations of the com-
+ponents.
+
+Some widget composers may be fairly rigid in respect to what
+pieces  (primitive widgets) they are capable of controlling,
+while others, such as a panel widget, may be more flexible.
+
+There may be trade offs, though, between rigid and  flexible
+widget  composers.   Since  a rigid widget composer probably
+knows what components it may contain, it is easier  to  con-
+trol the communications between the primitive widget pieces.
+On the  other  hand,  a  panel  manager  will  probably  not
+automatically  handle  the communications between widgets it
+contains.  The burden is placed on the application, since it
+is  the  only  one who knows how the various pieces are tied
+together.
+
+Since a composite  widget  is  nothing  more  than  a  super
+widget,  it  provides  the same programatic interface to the
+application as a primitive widget.
+
+_2._4._3.  _I_s_s_u_e_s
+
+None
+
+_2._5.  _W_i_d_g_e_t _S_t_a_t_e _D_a_t_a
+
+
+_2._5._1.  _O_v_e_r_v_i_e_w
+
+The hiding of internal toolkit data structures is a philoso-
+phy  which must be supported by all pieces of the X toolkit.
+The use of public structures inevitably leads to maintenance
+problems, as there are almost always enhancements which need
+to be made at later times.  This section will deal with  the
+philosophy  behind  how  a  widget  stores  and accesses its
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 14 -
+
+
+private structures.
+
+_2._5._2.  _P_r_i_n_c_i_p_l_e_s
+
+Each widget instance will normally have some  internal  data
+structures  associated with it, which it uses to contain its
+state data.  These structures are private to the widget, and
+are never directly accessable to the application.
+
+Throughout the X toolkit,  the  window  Id  is  the  primary
+datum.   It is the only handle available to the application.
+When the widget is created, it needs to be able to associate
+the  widget's  Id  with  its data stuctures.  Likewise, at a
+later time when it has received a request  to  manipulate  a
+widget  instance,  it needs to take the window Id and map it
+into a pointer to its data structure.
+
+All of this is accomplished  using  the  context  management
+facilities  provided  with  the  X  toolkit.  This mechanism
+allows a widget to associate a widget Id with a data  struc-
+ture  and a type.  In general, each widget will generate its
+own type, for storing the data structure.
+
+_2._5._3.  _I_s_s_u_e_s
+
+None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 15 -
+
+
+_3.  _I_n_t_r_i_n_s_i_c_s
+
+
+_3._1.  _I_n_p_u_t _a_n_d _D_i_s_p_a_t_c_h
+
+The model an application follows to process input within the
+XToolkit is to have one processing control loop which reads,
+preprocesses and then dispatches input.  This  section  pro-
+vides  the  basis  for  an  application to read and dispatch
+input and has been broken into two  sets  of  functionality:
+gathering and dispatching input.
+
+_3._1._1.  _G_a_t_h_e_r_i_n_g _I_n_p_u_t
+
+This section describes the functions necessary to read input
+from  the toolkit.  These functions provide a similar set of
+capabilities as X in that normal X input can be read.   They
+also  add  the  capabilities necessary to allow gathering of
+input from alternate sources and  a  timeout  feature  which
+provides  regular  continuous  operations  (such  as  smooth
+incremental scrolling).
+
+The following three functions handle the toolkit equivalents
+of the X calls of _X_P_e_n_d_i_n_g, _X_N_e_x_t_E_v_e_n_t, and _X_P_e_e_k_E_v_e_n_t.
+
+
+   XtPending()
+
+
+_X_t_P_e_n_d_i_n_g flushes the X output buffer and returns the number
+of  X  events  pending added to the number of events pending
+from other input sources.
+
+
+   XtNextEvent(event)
+   XEvent * event;     /* Returned event */
+
+
+_X_t_N_e_x_t_E_v_e_n_t flushes the X output buffer, reads  and  returns
+the  X  event from the head of the input queue.  If no input
+is on the queue, XtNextEvent will look at  the  other  input
+sources  or  timeout  values  and  return input generated by
+them.
+
+
+   XtPeekEvent(event)
+   XEvent * event;      /* Returned event */
+
+
+_X_t_P_e_e_k_E_v_e_n_t flushes the X  output  buffer  and  returns  the
+event  from the head of the event queue without removing the
+input from the queue.  If  no  X  input  is  on  the  queue,
+XtPeekEvent  will look at any other input sources and return
+the first source which has input pending.  If  no  input  is
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 16 -
+
+
+pending on any of the sources, 0 is returned.
+
+The following two functions provide the capability to gather
+input from sources other than the X server.  The application
+registers with the read routine the new  sources  of  input.
+When input is pending on one of the sources, a message event
+is generated which contains the window which is  to  recieve
+the input.
+
+
+   XtAddInput(wId, source, condition)
+   Window wId;     /* The window to recieve the input */
+   int source;     /* The source of input. file descriptor for unix */
+   caddr_t condition;     /* The conditions in which to read,
+                                /* mask of { read write exception} for unix} */
+
+
+_X_t_A_d_d_I_n_p_u_t registers with the toolkit  read  routine  a  new
+source  of input and the conditions under which the input is
+to be gathered.  When input is pending  on  this  source,  a
+message  event is returned to the application which contains
+the window, source and condition.
+
+
+   XtRemoveInput(wId, source, condition)
+   Window wId;     /* The window to recieve the input */
+   int source;     /* The identifer of the inpt source */
+   caddr_t condition;     /* The conditions to be removed */
+
+
+_X_t_R_e_m_o_v_e_I_n_p_u_t causes the X read routine to no longer  gather
+input from the input source.  The condition parameter allows
+the disabling of input for only certain conditions.
+
+The timeout facility provides the capability for the  appli-
+cation  or  widget  writer  to be notified through a message
+event that a specified time interval has  elapsed.   Timeout
+values  are  set for a single window and uniquely identified
+by an atom.  This allows for more than one widget to specify
+a timeout and for a single widget to have multiple timeouts.
+The following three routines handle the timeout  functional-
+ity.
+
+
+   XtSetTimeOut(wId, atom, interval)
+   Window wId;     /* Window in which the timeout is to be set */
+   Atom atom;     /* Identifier for this interval */
+   int interval;     /* Timeout interval ?? milliseconds ?? */
+
+
+_X_t_S_e_t_T_i_m_e_O_u_t creates a timeout value for the window Id which
+will  be  identified by atom.  The timeout value will be set
+to interval.  The effect of this function will be to cause a
+message  event  to be generated for this window whenever the
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 17 -
+
+
+time interval elapses.
+
+
+   XtGetTimeOut(wId, atom)
+   Window wId;     /* Window in which the time is to be gathered  */
+   Atom atom;     /* Identifier for the timeout to be checked */
+
+
+_X_t_G_e_t_T_i_m_e_O_u_t returns the amount of time  remaining  for  the
+timeout identified by atom and belonging to the window wId.
+
+
+   XtClearTimeOut (wId, atom)
+   Window wId;     /* Window in which the timeout is to be cleared */
+   Atom atom;     /* Identifier for this timeout */
+
+
+_X_t_C_l_e_a_r_T_i_m_e_O_u_t removes a timeout value belonging to the win-
+dow wId and identified by atom.
+
+_3._1._2.  _I_n_p_u_t _D_i_s_p_a_t_c_h
+
+This section describes the functionality which  handles  the
+setup  and  dispatch  of input to widgets or other functions
+within the application.  This is handled through the  regis-
+tering  of  functions  to  be  called and a dispatch routine
+which automatically calls the registered functions.
+
+
+   XtSetXEventDispatch(wId, proc, mask, data)
+   Window wId;     /* Window in which to attach the procedure */
+   int (*proc)();     /* The procedure to be invoked by dispatch */
+   int mask;     /* The conditions which will invoke the procedure */
+   caddr_t data;     /* Additional data to be sent to the procedure */
+
+
+_X_t_S_e_t_X_E_v_e_n_t_D_i_s_p_a_t_c_h registers a procedure with the  dispatch
+routine which will be called when an event which matches the
+mask occurs on the window wId.  The procedure must have  the
+form of
+
+
+   Proc (event, data)
+   XEvent * event;     /* Event to be sent to the procedure */
+   caddr_t data;     /* Additional data to be sent to the procedure */
+
+
+The event to be sent is generated through XtNextEvent.   The
+data is supplied with the XtSetXEventDispatch call.
+
+
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 18 -
+
+
+
+   XtDeleteXEventDispatch(wId, proc)
+   Window wId;
+   int (*proc)();
+
+
+_X_t_D_e_l_e_t_e_X_E_v_e_n_t_D_i_s_p_a_t_c_h removes a previously added procedure.
+
+
+   XtDispatchXEvent(event)
+   XEvent * event;     /* Event the dispatcher is to dispatch */
+
+
+_X_t_D_i_s_p_a_t_c_h_X_E_v_e_n_t is the event dispatcher which the  applica-
+tion  calls to have events sent to the various functions and
+widgets which have been registered with  the  dispatch  rou-
+tine.
+
+
+   XtSetNotify(proc, mask, data)
+   int (*proc)();     /* The procedure to be called */
+   int  mask;         /* The event mask for the proc */
+   caddr_t data;      /* Data to be set to the proc */
+
+
+_X_t_S_e_t_N_o_t_i_f_y registers a function with the dispatch  routine.
+This  function will be called for all events (in any window)
+that are selected in the mask argument.  The  function  will
+be  called before the event is normally dispatched. The pro-
+cedure specified must have the same form  as  any  procedure
+registered with the XEvent dispatcher; namely,
+
+
+   Proc (event, data)
+   XEvent * event;     /* Event to be sent to the proc */
+   caddr_t data;       /* Data to be sent to the proc */
+
+
+For this procedure, event will be the event just  read,  and
+data  will  contain the data specified when the function was
+registered.
+
+The application can register any number of  procedures  with
+XtSetNotify.  This allows for multiple procedures to process
+the event before the  event  is  dispatched  in  the  normal
+manner. A common use of this function is to get control when
+a button up transition happens (no matter where) so that you
+can destroy a menu that was created on the button down tran-
+sition.
+
+If the same procedure is registered  more  than  once  (i.e.
+with  different event masks), the most recent call to XtSet-
+Notify will supercede all previous calls.
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 19 -
+
+
+
+   XtDeleteNotify(proc)
+   int (*proc)();
+
+
+_X_t_D_e_l_e_t_e_N_o_t_i_f_y removes a previously added procedure.
+
+
+_3._2.  _G_e_o_m_e_t_r_y _M_a_n_a_g_e_m_e_n_t
+
+
+_3._2._1.  _O_v_e_r_v_i_e_w
+
+Widgets are not in control of their size and location.  Size
+and  location are controlled by some ancestor of the widget.
+However, the widget often has the best idea of  its  optimal
+size,  and  may  also  have  preferred  locations.  Geometry
+management is the mechanism widgets use to  request  changes
+to their size or location.
+
+_3._2._2.  _P_r_i_n_c_i_p_l_e_s
+
+Each widget generally has a geometry manager associated with
+it.   Mechanisms are provided for a widget to make a request
+to its geometry manager.  The geometry manager then  decides
+whether to allow the request, to disallow it, or to disallow
+it and suggest a compromise.  If the geometry manager allows
+the  request,  it  then  makes  the  X  calls  to modify the
+widget's window.
+
+Although geometry requests are generally made by the  widget
+itself, they can also be made by some external agent.
+
+It is the geometry manager itself that defines the layout of
+a  group  of  widgets.   Geometry managers can (and will) be
+written that will stack widgets in rows and columns,  center
+them,  or  otherwise arrange them by arbitrarily complicated
+restraints.  When a widget requests a change in its  charac-
+teristics,  the  geometry manager (when possible) will rear-
+range and resize the other widgets it is managing as  neces-
+sary.   These  widgets  will  be informed of changes to them
+through the usual X event mechanism.
+
+Often, geometry managers will find that they can  satisfy  a
+request  only  if they can resize a widget that they are not
+in control of.  In this case, the geometry manager will have
+to  make  a  request  to  that  widget's  geometry  manager.
+Geometry requests can be nested this way to any depth.
+
+_3._2._3.  _I_n_t_e_r_f_a_c_e
+
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 20 -
+
+
+
+   XtSetGeometryHandler (w, geometryMgr)
+   Window w;
+   int    (*geometryMgr)();
+
+
+Associates a geometry  manager  with  a  widget.   A  single
+widget  instance  is  allowed  to  have  only  one  geometry
+manager; successive calls to XtSetGeometryHandler  with  the
+same window id will supercede previous calls.
+
+
+   XtClearGeometryHandler (w)
+   Window w;
+
+
+Breaks the association  made  above.   The  widget  will  no
+longer have a geometry manager.
+
+
+   int XtMakeGeometryRequest (w, request, requestBox, replyBox)
+   Window      w;
+   Atom        request;
+   Rectangle * requestBox;
+   Rectangle * replyBox;
+
+
+Makes a geometry manager request. The client  specifies  the
+widget  of interest, indicates which geometry manager action
+is being requested, passes in the window size that it wishes
+to  set  for  the  widget, and also passes in a pointer to a
+Rectangle structure, into which the  geometry  manager  will
+return the actual size the widget can be changed to.
+
+_X_t_M_a_k_e_G_e_o_m_e_t_r_y_R_e_q_u_e_s_t is actually a very simple routine.  It
+just  looks  up  the  geometry  manager procedure previously
+associated with the given widget, and passes its  parameters
+to that procedure.
+
+The request is one of:
+
+        RESIZE: Resize the widget to the given size.
+        MOVE:   Move the widget to the given location.
+        RAISE:  Put the widget above of any sibling widgets.
+        LOWER:  Put the widget below any sibling widgets.
+        (to be extended)
+
+
+Since the request is an atom, this list can be extended.
+
+If the geometry manager decides that the request  cannot  be
+satisified,   then  REQUESTNO  will  be  returned.   If  the
+geometry manager request succeeds, then REQUESTYES  will  be
+returned.  If the geometry manager request fails because the
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 21 -
+
+
+specified size could not be used, but the  geometry  manager
+is  able  to specify an alternative size, then REQUESTALMOST
+will be returned, and the replyBox parameter will be set  to
+the alternative rectangle size.
+
+_3._2._4.  _I_s_s_u_e_s
+
+It is important that widgets  cooperate  with  the  geometry
+management  mechanism.  Whenever they need to change size or
+location, they should do it through  the  geometry  manager,
+and be prepared to deal with a different size if the manager
+refuses to honor their request.
+
+The mechanism described here puts the  geometry  manager  in
+charge.   An  alternative  mechanism would be to simply have
+widgets move and  resize  themselves  as  desired,  and  the
+geometry manager could notice this and try to cope by moving
+or resizing other widgets.  In this case, the widgets are in
+charge of themselves, and the geometry manager is reduced to
+trying to make the best of the  situation.   This  mechanism
+has  the  disadvantage  that  if two widgets have conficting
+desires (e.g., the sizes they want to be will cause them  to
+overlap), there is no mechanism to arbitrate between them.
+
+_3._3.  _S_e_l_e_c_t_i_o_n_s _a_n_d _C_o_m_m_u_n_i_c_a_t_i_o_n
+
+
+_3._3._1.  _O_v_e_r_v_i_e_w
+
+X Version 11 provides a very general mechanism for  applica-
+tions or widgets to communicate with each other by using the
+server as an intermediary. In general  this  mechanism  uses
+"notifications"  to  signal  other  windows and "properties"
+that are stored on the server to pass values.
+
+For a precise definition we refer you  to  the  X  V11  Xlib
+documentation  sections  on Notification and Selections. For
+illustration purposes we present here a brief description of
+those facilities and their intended use.
+
+_3._3._2.  _P_r_i_n_c_i_p_l_e_s
+
+Many user interfaces support the concepts  of  a  global  or
+secondary  "selection".  Fundamentally  a  selection has the
+semantics that an "owner" advertises that he is  willing  to
+supply the value of the selection in a number of forms (e.g.
+string, file, number, etc.) A selection (of  a  given  type)
+also  has the property that there is only one owner that can
+be active at any point in time. Typically, when a user makes
+a new selection, in the same or another application, the old
+selection is unhighlighted, ownership is passed to  the  new
+selected item and the new selection is highlighted. In order
+to implement this user interface behaviour, applications (or
+widgets)   must   have   a   mechanism  for  requesting  and
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 22 -
+
+
+relinquishing ownership of a selection of a specific type.
+
+Xlib provides two functions:
+
+o+    _S_e_t_S_e_l_e_c_t_i_o_n (make me the owner of  a  specific  selec-
+     tion)
+
+o+    _C_o_n_v_e_r_t_S_e_l_e_c_t_i_o_n (convert the selection into  a  speci-
+     fied "type")
+
+X V11 defines three XEvents:
+
+o+    _S_e_l_e_c_t_i_o_n_C_l_e_a_r (you are no longer the owner of a selec-
+     tion)
+
+o+    _S_e_l_e_c_t_i_o_n_R_e_q_u_e_s_t (you own a selection, convert to  type
+     request)
+
+o+    _S_e_l_e_c_t_i_o_n_N_o_t_i_f_y (requested selection  is  stored  in  a
+     property)
+
+The ConvertSelection function will cause a  SelectionRequest
+XEvent  to  be  sent  to  the  owner  of the selection. This
+request contains a 'type' Atom that allows an open ended set
+of conversions. Note that the server does nothing to enforce
+this and specific semantics are implied by convention.   The
+'property'  Atom  is  where the requestor wants the owner to
+put the returned value.
+
+The following is an example of how a debugger might find out
+the  position  in  a  source file in order to place a source
+breakpoint.
+
+        requestor:      asks for the value of the selection as a "FileName"
+        owner:          "/udir/karlton/hacks/selection.c"
+        requestor:      asks for the value of the selection as a "LineNumber"
+        owner:          93.
+
+
+Given the filename and the position in the file the debugger
+can set the break point.
+
+Another more common example exists in the implementation  of
+a  "cut  buffer"  function.  To  implement  this function an
+application or widget would perform the "cut operation  sav-
+ing  the  data that was cut. It would then set itself as the
+owner of the "cut buffer" selection. When anyone  wishes  to
+use  the contents of the cut buffer they would call the Con-
+vertSelection function and ask for the contents of the  "cut
+buffer"  selection  as  an  ascii string. This would cause a
+SelectionRequest XEvent to be dispatched to the owner of the
+cut buffer text. The owner would then store the data as an X
+property on the requestors window and then send a Selection-
+Notify XEvent back to the requestor.
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 23 -
+
+
+_3._3._3.  _I_n_t_e_r_f_a_c_e
+
+None (see Issues).
+
+_3._3._4.  _I_s_s_u_e_s
+
+Given that X applications appearing on a display may be run-
+ning on a number of different machines, the selection owner-
+ship arbitration must be done by the server itself (the only
+common  element).  X V11 provides functions that we know are
+sufficient to perform this task. However,  we  may  need  to
+define  a  toolkit  interface that makes this process easier
+for the widget writer.
+
+_3._4.  _A_t_o_m _M_a_n_a_g_e_m_e_n_t
+
+
+_3._4._1.  _O_v_e_r_v_i_e_w
+
+The Toolkit avoids defining a closed sets  of  constants  to
+specify  options.   Ideally,  it uses a string for each con-
+stant.  Then, if it is decided that a new option is  needed,
+it  is easy to define a new string, and no old programs need
+be modified.  There will be no header files to change.
+
+_3._4._2.  _P_r_i_n_c_i_p_l_e_s
+
+Strings are  unwieldy,  and  string  comparisons  are  slow.
+Therefore,  the Toolkit implements an atom mechanism.  Atoms
+are opaque types which can only  be  compared  against  each
+other  for  equality.  Any given string has exactly one atom
+associated with it.  The Toolkit provides routines  to  con-
+vert  between  strings  and  atoms.  These routines parallel
+similar routines in the version 11 Xlib but are  implemented
+locally  in the X client to avoid unnecessary toolkit dialog
+with the server.
+
+The Toolkit uses atoms for specifying  options  to  widgets,
+for  message  ID's, as type fields in the context mechanism,
+and for many other purposes.
+
+_3._4._3.  _I_n_t_e_r_f_a_c_e
+
+
+   Atom XtMakeAtom(string, len)
+   char *string;              /* pointer to string data */
+   int length;                /* length of string */
+
+
+Takes a string and returns an atom.  If the  string  already
+exists  then the correspinding atom is returned, otherwise a
+new atom is created.
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 24 -
+
+
+
+   Atom XtAtomForName(string, len)
+   char *string;              /* pointer to string data */
+   int length;                /* length of string */
+
+
+If an atom exists for the string the atom is returned;  oth-
+erwise, the predefined atom NULLATOM is returned.
+
+
+   char *XtNameForAtom(atom, len)
+   Atom atom;
+   int *len;                  /* RETURN: length of string */
+
+
+Returns the string associated with the supplied  atom.   The
+string  pointer  is  the  return  value  and  the  length is
+returned through the argument len.  If no string is  defined
+for  the  given  atom  (the atom is not valid or it was gen-
+erated with XtUniqueAtom), then NULL is returned.
+
+
+   XtValidAtom(atom)
+   Atom atom;
+
+
+Returns a boolean indicating whether the supplied  atom  has
+been created.  In other words, this returns TRUE if and only
+if the given atom was the value returned from some  previous
+call to XtMakeAtom or XtUniqueAtom.
+
+
+   Atom XtUniqueAtom()
+
+
+Returns an atom that is guaranteed to be unique.
+
+
+   XtInitAtoms()
+
+
+Called only once at initialization  time.   In  addition  to
+other  necessary  initializations, this may create atoms for
+some common strings and assign the atom values  to  globally
+accessable  variables.   The  list of common strings has not
+yet been determined.
+
+_3._4._4.  _I_s_s_u_e_s
+
+Atoms are provided for efficiency.  Strings  could  be  used
+instead  of  atoms, but they take more memory, are unweildy,
+and are relatively difficult to compare for equality.
+
+Counted strings are used rather than null-terminated strings
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 25 -
+
+
+to make the Toolkit more language-independent.
+
+A complete list  of  pre-defined  atoms  needs  to  be  con-
+structed.
+
+_3._5.  _C_o_n_t_e_x_t _M_a_n_a_g_e_m_e_n_t
+
+
+_3._5._1.  _O_v_e_r_v_i_e_w
+
+The context manager provides a way of associating data  with
+a  widget.   Any  amount  of  data  can be associated with a
+widget, in any number of pieces.  Each piece of data  has  a
+type  associated  with  it.   It  requires  knowledge of the
+widget ID and the type to store or retreive  data  from  the
+context manager.
+
+_3._5._2.  _P_r_i_n_c_i_p_l_e_s
+
+The context manager can be viewed  as  implementing  a  two-
+dimensional  sparse  array.  One dimension is subscripted by
+window id, and the other by a type field (which is an atom).
+Each entry in the array contains a pointer to the data.
+
+_3._5._3.  _I_n_t_e_r_f_a_c_e
+
+
+   int XtSaveEntry(w, type, data)
+   Window w;
+   Atom type;
+   caddr_t data;
+
+
+Save the given data value to correspond with the keys window
+and  type.   If  an  entry  with  the  given window and type
+already exists, this one will override it.  However, such an
+override  has costs in time and space.  It is better to call
+XtDeleteEntry first if you know the  entry  already  exists.
+Returns nonzero error code if an error has occured, 0 other-
+wise.  Possible errors are Out-of-memory.
+
+
+   int XtFindEntry(w, type, data)
+   Window w;
+   Atom type;
+   caddr_t *data;  /* return value */
+
+
+Given a window and type, returns the associated data.   Note
+that  'data'  here  is a pointer since it is a return value.
+Returns nonzero error code if an error has occured, 0 other-
+wise.  Possible errors are Entry-not-found.
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 26 -
+
+
+
+   int XtDeleteEntry(w, type)
+   Window w;
+   Atom type;
+
+
+Deletes entry for the given window and type  from  the  data
+structure.  This returns the same error codes that XtFindEn-
+try would have returned if called with the same arguments.
+
+_3._5._4.  _I_s_s_u_e_s
+
+The context manager is heavily used.  It  is  vital  to  the
+performance  of  the  Toolkit that it be extremely fast.  If
+the implementation actually makes XtDeleteEntry followed  by
+XtSaveEntry  more  efficient,  then we should add a XtRepla-
+ceEntry routine that does both functions.
+
+_3._6.  _R_e_s_o_u_r_c_e _M_a_n_a_g_e_r
+
+
+_3._6._1.  _O_v_e_r_v_i_e_w
+
+Widget writers need a consistent, easy to use mechanism  for
+finding  out what resources (such as color, font, and border
+width) to use when creating widgets.
+
+Applications need a way to provide  meaningful  application-
+specific  default  values,  and to assign explicit values to
+those resources that are not under user control.  They  also
+need  some  mechanism for discovering and integrating global
+defaults and user preferences into the  defaults  that  they
+provide to their widgets.
+
+Users need a flexible method for specifying preferences  for
+various  resources.  A  system to specify defaults, and then
+refine and re-refine them seems  to  provide  the  necessary
+flexibility,  while  being  simple to understand and easy to
+use. For example, the user might normally want text to be in
+a sans-serif 10 point font, but would prefer a serif font in
+the mail tool, and would like  its  command  buttons  to  be
+bold.  It should be possible to specify these preferences in
+a natural, easy to use manner.
+
+_3._6._2.  _P_r_i_n_c_i_p_l_e_s
+
+The resource manager is  a  database  manager,  specifically
+tailored to the needs of widget creation.
+
+Consider an X based mail reading application called "xmail".
+At  the top level it might consist of a paned window widget,
+one pane of which is a button box widget  (named  "toc")  of
+command  buttons.   One  of these command buttons is used to
+include  (fetch)  new  mail.  This   widget   has   a   name
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 27 -
+
+
+"xmail.toc.buttons.include",        and        a       class
+"application.panelwindow.buttonbox.commandButton". Its  name
+is  the  name of its parent, "xmail.toc.buttons" followed by
+its name "include". Its class is the class  of  its  parent,
+"application.panelwindow.buttonbox", followed by its partic-
+ular class, "commandButton". The fully qualified name of  an
+attribute  is  its name appended to the widget name, and its
+class is its class appended to the widget class.
+
+Some of the resources this button needs are: a title string,
+a font, a foreground color, a background color, a foreground
+color for its active  state,  a  background  color  for  its
+active  state,  and  so  on. Each of the resources that this
+button needs are considered to be attributes of the  button,
+and  as such have a name and a class. For example, the fore-
+ground color for the button in its  active  state  might  be
+named "activeForeground" and its class would be "color".
+
+When a widget requests a  resource,  such  as  a  color,  it
+passes  the  complete  name and class of the resource, along
+with the desired representation type, to a  lookup  routine.
+The  representation  type  lets  a  widget request different
+representations for the same resource. A color, for example,
+might  be requested as a color structure, a pixel, a pixmap,
+or a name string.  Rather than require  the  application  to
+store  every  possible representation of a resource, we pro-
+vide a mechanism for converting between representations.
+
+The widget interface comes in  two  layers.  The  top  layer
+allows  applications  to store resources by name, class, and
+representation type, and retrieve them given a fully  quali-
+fied   name,  class,  and  destination  representation.  The
+resource manager automatically calls a conversion routine if
+necessary  (and if possible) to convert the stored represen-
+tation to the destination representation.
+
+This layer is built on top of a primitive manager that  sim-
+ply  provides the ability to store entries by name and class
+and a way of retrieving these values given a full  name  and
+class.  This  layer  stores  uninterpreted  variable  length
+values, and has no knowledge of resource representations.
+
+The algorithm for determining which resource name(s) match a
+given  query is the heart of the database.  The idea is that
+resources will be stored with only partially specified  name
+and  classes. The unspecified portions of the name match any
+part of a more completely specified name or class.  In  par-
+ticular,  all  queries will fully specify the name and class
+of the resource needed, and the  lookup  algorithm  searches
+the  database  for  the  name that most closely matches this
+full name and class.
+
+Slightly more rigorously, the definition of a  match  is  as
+follows:  For  a  query of name N = n1.n2.n3...nk, class C =
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 28 -
+
+
+c1.c2.c3...ck, a partial  name  P  =  p1.p2.p3...pm  matches
+(N,C)  iff  P matches the regular expression [n1|c1] [n2|c2]
+[n3|c3] ... [nk|ck]. (the regular expression  "a|b"  matches
+either  "a"  or  "b",  "[a]"  matches "a" or NULL (i.e. a is
+optional), and "a b" matches "a" followed by "b") Note  that
+the  name and the class have exactly the same number of com-
+ponents. This follows from their definition.
+
+Given two partial names P1 and P2 that both match (N,C), the
+definition  of  which is "most closely matching" is still an
+open issue. (See the issues section following.)
+
+A concrete example may make things clearer.  Assume the fol-
+lowing user preference specification:
+xmail.background:                       red
+button.font:                            Helv10
+button.background:                      blue
+button.color:                           green
+xmail.toc.button.activeForeground:      black
+xmail.toc.buttons.border                3
+
+
+A query for:  ("xmail.toc.buttons.include.activeForeground",
+"application.panelwindow.buttonbox.button.color")      would
+match  "xmail.toc.button.activeForeground"  and  so   return
+"black".  Note  that  it  also  matches  "button.color". The
+"xmail..." specification is clearly the correct one, but see
+the discussion under issues.
+
+_3._6._3.  _I_n_t_e_r_f_a_c_e
+typedef int     AddressableUnits;
+typedef byte    *UninterpretedMemoryPtr; /* on byte addressed machines */
+
+
+Database values consist of a size, and an address. The  size
+is  specified in machine dependent units, and the address is
+a machine dependent pointer to uninterpreted machine memory.
+
+
+typedef                        void (*ConvertTypeProc)();
+     /* fromType, fromSize, fromAddr, toType, tosize, toAddr */
+     /* Atom fromType, toType; */
+     /* AddressableUnits fromSize, *toSize; */
+     /* UninterpretedMemoryPtr fromAddr, *toAddr */
+
+
+The type conversion machinery calls conversion procedures to
+convert  between  differing  resource representations. There
+are some predefined conversions, but  clients  can  register
+new  conversions as appropriate. These registered conversion
+procedures have a  type  of  ConvertTypeProc.  They  take  a
+source type and value, and convert to a destination type and
+value. There is an Atom for each defined resource  represen-
+tation type, and the values are size, address pairs. See the
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 29 -
+
+
+procedures XtLookupConvertProc, XtRegisterTypeConverter, and
+XtConvert.
+typedef struct ResourceDataBaseStruct *ResourceDataBase; /* opaque */
+
+A resource database is  an  opaque  structure  used  by  the
+lookup  routines.  See  the procedures XtSetCurrentDataBase,
+XtGetCurrentDataBase,  XtGetDataBase,   XtPutDataBase,   and
+XtMerge.
+
+
+   void XtPutEntry(name, valSize, valAddr);
+   AtomList name;
+   AddressableUnits valSize;
+   UninterpretedMemoryPtr valAddr;
+
+   void XtGetEntry(name, class, valSize, valAddr);
+   AtomList name, class;
+   AddressableUnits *valSize;
+   UninterpretedMemoryPtr *valAddr;
+
+
+XtPutEntry stores a value with a (partial) name as a key. It
+copies  the  value into its own storage. This is a low level
+procedure used by the higher  level  resource  manager  pro-
+cedure XtPutResource.
+
+XtGetEntry retrieves a value given a full  name/class  pair.
+It  is  also  a low level procedure used by the higher level
+resource manager procedure XtGetResource. The value returned
+points  into  memory owned by the database manager, so to be
+perfectly safe clients should copy  it  out.  Currently  the
+database  only  frees or overwrites entries on XtPutEntry or
+XtMerge, so a client that is not doing any  XtPutEntries  or
+database  merges  should  be  safe  using the address passed
+back.
+
+
+   void XtPutResource(name, valType, valSize, valAddr);
+   AtomList name;
+   Atom valType;
+   AddressableUnits valSize;
+   UninterpretedMemoryPtr valAddr;
+
+   void XtGetResource(name, class, destType, valSize, valAddr);
+   AtomList name, class;
+   Atom destType;
+   AddressableUnits *valSize;
+   UninterpretedMemoryPtr *valAddr;
+
+
+XtPutResource stores a resource in the database. It takes  a
+(partial)  name,  a  representation  type,  and a value. The
+value is copied into storage owned by the database manager.
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 30 -
+
+
+XtGetResource retrieves a resource  from  the  database.  It
+takes   a  full  name/class  pair,  a  destination  resource
+representation and the  address  of  a  value  (size/address
+pair).  The  value  returned points into database memory, so
+the client should copy it to be safe.  However, see the dis-
+cussion of XtGetEntry above.
+
+
+   void XtGetResourceAndType(name, class, valType, valSize, valAddr);
+   AtomList name, class;
+   Atom *valType;
+   AddressableUnits *valSize;
+   UninterpretedMemoryPtr *valAddr;
+
+
+XtGetResourceAndType returns the resource and the  represen-
+tation  it  was stored as without doing any type conversion.
+This routine is used by the higher level resource manager to
+implement XtGetResource.
+
+
+   void XtRegisterTypeConverter(fromType, toType, convertProc);
+   Atom fromType, toType;
+   ConvertTypeProc convertProc;
+
+
+XtRegisterTypeConverter allows clients to extend the mechan-
+ism by which the resource manager converts between represen-
+tations.  This especially useful for those clients who  wish
+to extend the known representation types.
+
+
+   void XtConvert(fromType, fromSize, fromAddr, toType, toSize, toAddr);
+   Atom fromType, toType;
+   AddressableUnits fromSize, *toSize;
+   UninterpretedMemory fromAddr, *toAddr;
+
+
+XtConvert  converts  a  value  from  one  representation  to
+another.  If  there is no conversion from the source type to
+the destination type then NULLs are returned for the  desti-
+nation  size  and  address.  This  procedure  is used by the
+higher level resource manager to implement XtGetResource.
+
+
+   void XtLookupConvertProc(fromType, toType, convertProc);
+   Atom fromType, toType;
+   ConvertTypeProc *convertProc;
+
+
+XtLookupConvertProc  finds   a   procedure   that   converts
+representations  from  the  source  type  to the destination
+type. It returns NULL for the convertProc  if  there  is  no
+such  conversion  registered.  This procedure is used by the
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 31 -
+
+
+higher level resource manager to implement XtConvert.
+
+
+   void XtSetCurrentDataBase(db);
+   ResourceDataBase db;
+
+
+XtSetCurrentDataBase is used to set the  database  used  for
+resource  manager  calls. Applications should use this after
+building application specific resource databases.
+
+
+   void XtGetCurrentDataBase(db);
+   ResourceDataBase *db;
+
+
+XtGetCurrentDataBase  is  used  to  get  a  handle  for  the
+application's  copy  of the resource database. It is used by
+applications that want to make  incremental  changes  to  an
+existing  database.  Its  primary  use  will be merging user
+preferences with application specific defaults.
+
+
+   void XtGetDataBase(magicCookie, db);
+   unspecified                magicCookie; /* probably fd */
+   ResourceDataBase *db;
+
+   void XtPutDataBase(magicCookie, db);
+   unspecified                magicCookie; /* probably fd */
+   ResourceDataBase db;
+
+
+XtGetDataBase is used to retrieve a database from some  form
+of non-volatile storage. its primary use is to get a copy of
+the global user-preference database, but it  could  also  be
+used  to  retrieve stored copies of other resource databases
+(perhaps from earlier invocations of the program or a  data-
+base editor).
+
+XtPutDataBase  is  intended  to  store   a   copy   of   the
+application's  current database on some kind of non-volatile
+storage  medium.   This  functionality  is  not   completely
+defined, please see the issues section following.
+
+
+   void XtMerge(new, into);
+   ResourceDataBase new, *into;
+
+
+XtMerge merges one database into another, possibly overwrit-
+ing  entries  in the destination database. This procedure is
+used to combine databases, such as an  application  specific
+database of defaults and a database of user preferences.
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 32 -
+
+
+_3._6._4.  _E_x_a_m_p_l_e_s _o_f _u_s_a_g_e
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 33 -
+
+
+   void XtConvert(fromType, fromSize, fromAddr, toType, toSize, toAddr);
+   Atom fromType, toType;
+   AddressableUnits fromSize, *toSize;
+   UninterpretedMemoryPtr fromAddr, *toAddr;
+   {
+   ConvertTypeProc      proc;
+
+       if (from.type != toType) {
+           XtLookupConvertProc(fromType, toType, proc);
+           if (proc == NULL) { toAddr = NULL; toSize = NULL; return; }
+           proc(fromType, fromSize, fromAddr, toType, toSize, toAddr);
+       }
+   }
+
+   void XtGetResourceAndType(name, class, valType, valSize, valAddr);
+   AtomList name, class;
+   Atom *valType;
+   AddressableUnits *valSize, size;
+   UninterpretedMemoryPtr *valAddr, addr;
+   {
+      XtGetEntry(name, class, &size, &addr);
+      valType* = ((Atom *)addr)*;
+      /* size returns the size of a type in machine addressable units */
+      valAddr = addr+size(Atom);
+      valSize = size-size(Atom);
+
+   }
+
+   void XtGetResource(name, class, type, valSize, valAddr);
+   AtomList name, class;
+   Atom type;
+   AddressableUnits *valSize;
+   UninterpretedMemoryPtr *valAddr;
+   {
+   Atom fromType;
+   AddressableUnits fromSize;
+   UninterpretedMemoryPtr fromAddr;
+
+       XtGetResourceAndType(name, class, &fromType, &fromSize, &fromAddr);
+       XtConvert(fromType, fromSize, fromAddr, type, valSize, valAddr);
+   }
+
+   /* example of obtaining resources */
+   XtGetResource(name, class, Apixmap, &size, &((UninterpretedMemory *)bg));
+   XChangeBackground(w, bg*);
+   XtGetResource(name, class, Apixel, &size, &((UninterpretedMemory *)color);
+   XtGetResource(
+      name, class, Astring, &size, &((UninterpretedMemory *)colorname));
+   name[last] = atom("font");
+   class[last] = atom("font");
+   XtGetResource(
+      name, class, Afontinfo, &size, &((UninterpretedMemory *)fontinfo));
+   XtGetResource(
+      name, class, Afonthandle, &size, &((UninterpretedMemory *)font));
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 34 -
+
+
+   XtGetResource(
+      name, class, Astring, &size, &((UninterpretedMemory *)fontname));
+   XText(w, 0, 0, "Hello world", 11, font*, BlackPixel, color*);
+
+
+_3._6._5.  _I_s_s_u_e_s
+
+
+_3._6._5._1.   _R_e_p_r_e_s_e_n_t_a_t_i_o_n  _o_f  _t_h_e   _N_o_n_v_o_l_a_t_i_l_e   _F_o_r_m   _o_f
+_R_e_s_o_u_r_c_e_s
+
+The representation of  a  resource  database  in  some  non-
+volatile  form  has  not  been  specified.  Presumably, each
+representation type will have a procedure to turn the inter-
+nal representation into a canonical non-volatile representa-
+tion, and back again. How these  procedures  are  specified,
+and how they get called has not been defined.
+
+_3._6._5._2.  _O_r_d_e_r _o_f _M_a_t_c_h_i_n_g _P_a_r_t_i_a_l _N_a_m_e_s
+
+The order in which partial names are matched with full names
+and classes is not well defined. For simple cases the defin-
+ition is clear, you would like  partial  names  with  longer
+name  prefixes  to match before those with shorter name pre-
+fixes. (I.e  you  would  like  "xmail.toc.buttons.color"  to
+match  a  request for "xmail.toc.buttons.include.foreground"
+"application.panelwindow.buttonbox.button.color"      before
+"xmail.toc.buttonbox.button.color".  (buttons is the NAME of
+a particular instance of a toc buttonbox,  and  so  is  more
+specific))  however, if a partial name contains a mixture of
+name and class atoms, rather than a prefix  of  name  atoms,
+with  no  gaps,  followed by an arbitrary selection of class
+atoms, then the ordering is not so clear.
+
+In general, we recommend only  storing  partial  names  with
+contiguous  name  prefixes  (possibly  empty) followed by an
+arbitrary class definition. The ordering in that case is:
+
+1.   String with the longer name prefix
+
+2.   String with the "more specific" class definition
+
+Given     a      complete      class      definition      of
+mailreaders.panelwindow.buttonbox.button.color,   then   the
+order of class definitions matches is (for example):
+
+
+
+
+
+
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 35 -
+
+
+
+        mailreaders.panelwindow.buttonbox.button.color
+        mailreaders.panelwindow.buttonbox.color
+        mailreaders.panelwindow.button.color
+        mailreaders.panelwindow.color
+        mailreaders.buttonbox.button.color
+        mailreaders.buttonbox.color
+        mailreaders.button.color
+        mailreaders.color
+        panelwindow.buttonbox.button.color
+        panelwindow.buttonbox.color
+        panelwindow.button.color
+        panelwindow.color
+        buttonbox.button.color
+        buttonbox.color
+        button.color
+        color
+
+
+_3._6._5._3.  _W_i_d_g_e_t _S_u_b_c_l_a_s_s_i_n_g
+
+Ugly issues of subclassing of  widgets  can  be  raised.   I
+don't  know  how  to  completely  solve  them.  For example,
+include is really a "command button", which could reasonably
+be  considered  a  subclass  of  the  class "button". Naming
+include a "commandButton" solves  this  particular  problem,
+but  not  the  subclassing  problem in general. On the other
+hand, unless we have some way of adding functionality to  an
+existing  widget  without  creating  a  complete  new widget
+class, we don't really  have  a  subclassing  problem.  Each
+widget  is  entire unto itself, without inheriting semantics
+from anywhere else, so stricly speaking there is  no  widget
+subclassing.
+
+_3._6._5._4.  _H_o_w _D_o_e_s _a _W_i_d_g_e_t _K_n_o_w _I_t_s _N_a_m_e _a_n_d _C_l_a_s_s?
+
+The method by which a widget  determines  its  name  is  not
+specified in this interface. A reasonable method would be to
+put the specific name and class of a widget as attributes on
+its  window. Another possibility is to pass the parents name
+and class to each sub-widget as part of the  creation  data.
+In  any case this problem should not pose any serious diffi-
+culties.
+
+_3._7.  _T_r_a_n_s_l_a_t_i_o_n _m_a_n_a_g_e_m_e_n_t
+
+Translation management provides a facility for  transforming
+events  into  a  sequence  of items. The translation is per-
+formed according to a set of rules specified by  a  transla-
+tion  table.   This facility will allow the widget writer to
+delay the binding of an event  to  its  associated  semantic
+action.
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 36 -
+
+
+_3._7._1.  _F_u_n_c_t_i_o_n_a_l_i_t_y
+
+The functionality of translation management is  embodied  in
+the  translation table.  A translation table is a production
+system with an event or sequence of events (lhs)  that  pro-
+duces a list of items (rhs).
+
+                     lhs                      rhs
+          (event sequence)  ->  {atom1, "string", 17}
+          (event sequence)  ->  {"Hello World"}
+                                 .
+                                 .
+                                 .
+
+          rhs items: atoms, strings, numbers, CHAR token
+
+Translation tables are linked together in a  tree  structure
+with  the  root  of the tree provided by default.  This tree
+structure allows for inheritance of translations in order to
+avoid specifying a translation table in most cases.
+
+When an event is received by a widget, it may choose to have
+that  event translated.  The translation manager will return
+a translated event (the same as passed in if  there  was  no
+translation).   When  the  transalation request is made, the
+translation manager will find the translation table  associ-
+ated  with the widget, and look through the table tree until
+it either finds a lhs that matches the event, or returns the
+event  untranslated.  If the event is found, the translation
+manager creates an _R_H_S event to return to the widget.   This
+RHS  event  allows  the  widget access to the rhs items.  It
+then processes these items.
+
+                            Note
+
+     If a widget associates atoms with  functions,  the
+     widget  may  be  extended  by passing atoms in the
+     rhs.  The widget will process these atoms just  as
+     if they were its own.
+
+
+_3._7._2.  _I_n_t_e_r_f_a_c_e
+
+To be defined (see issues).
+
+_3._7._3.
+
+The entry points for translation management are not defined.
+
+In designing the translation facility, you  must  decide  if
+translation  will  be  done  before or after the widget gets
+control. We have decided to have all widgets process XEvents
+not  translated events. This means that an individual widget
+may chose to use this interface or not.
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 37 -
+
+
+_3._8.  _E_r_r_o_r _H_a_n_d_l_i_n_g
+
+The Xtoolkit will provide an Error interface. This  facility
+will  allow  a  client  to register a procedure to be called
+when ever an error occurs. This  facility  is  intended  for
+error  logging or punt type errors only. That is this facil-
+ity is not intended for error correction  or  recovery  pur-
+poses.
+
+_3._8._1.  _F_u_n_c_t_i_o_n_a_l_i_t_y
+
+To be determined.
+
+_3._8._2.  _I_n_t_e_r_f_a_c_e
+
+To be determined.
+
+_3._8._3.  _I_s_s_u_e_s
+
+None.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 38 -
+
+
+_4.  _P_a_r_t _I_I - _D_e_f_a_u_l_t _T_o_o_l_k_i_t
+
+Widgets serve as one of the primary  building  blocks  of  a
+user  interface or application environment.  A widget may be
+primitive (as in a single command button), or it may be com-
+plex  (composed of multiple widgets).  Primitive widgets are
+in general limited in  their  functionality.   Most  widgets
+that  are of interest to the application programmer are com-
+posite.
+
+The  following  chapters  document  a  set  of  widgets  and
+geometry  managers which work together as a group to provide
+a coherent and reasonably complete  set  of  user  interface
+components.   They  are  provided  with  the  X Toolbox as a
+default toolkit and are refered to as _T_h_e _X _T_o_o_l_k_i_t.
+
+As such, they serve as a default application  interface  for
+the programmer who does not wish to implement his or her own
+application interface on top of the X  Toolbox.   They  also
+serve  as examples or a starting point for those programmers
+who wish to  implement  alternative  application  interfaces
+using the underlying functionality of the X Toolbox.
+
+This chapter  documents  the  unifying  features  of  the  X
+Toolkit  widgets  in  terms  of  their  common message sets,
+arguments, and conventions.
+
+_4._1.  _C_o_m_m_u_n_i_c_a_t_i_n_g _W_i_t_h _X _T_o_o_l_k_i_t _W_i_d_g_e_t_s
+
+A widget provides an application with a variety of means for
+communicating  with a particular widget instance.  Typically
+at least the following two methods are  provided  by  all  X
+Toolkit widgets:
+
+Messages  Widgets themselves do not know how to handle  mes-
+          sages.  Rather, a general message handling routine
+          is provided, which converts message requests to  X
+          events, which are then dispatched to the widget.
+
+X Events  All widgets  are  interested  in  some  set  of  X
+          events, normally including exposure events, window
+          entering events, window exiting events,  and  Mes-
+          sage events.
+
+Each of these methods will be discussed in one of  the  fol-
+lowing sections.
+
+_4._1._1.  _W_i_d_g_e_t _M_e_s_s_a_g_e_s
+
+The toolkit provides the application writer with  a  generic
+message  handling  routine,  which takes the message and its
+data, converts it to an X event,  and  then  dispatches  the
+event  to  the  appropriate  widget.   Upon  completion, the
+return value generated by the  widget  is  returned  to  the
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 39 -
+
+
+application.   Most  communications with the toolkit widgets
+are made using the base set of widget messages listed below.
+Information  for any additional messages (which some widgets
+may require in order to get their work done) is contained in
+the  section  describing  the individual widgets.  As is the
+case for many parameters used within the  toolkit,  messages
+are passed as atoms.
+
+o+    MSG_GETVALUE
+
+o+    MSG_SETVALUE
+
+o+    MSG_REDRAW
+
+o+    MSG_FREE
+
+The calling syntax for the generic widget  message  handling
+routine is as follows:
+
+
+   int
+   XtSendMsg (w, message, argList)
+
+   Window     w;
+   Atom       message;
+   ArgList *  argList;
+
+
+
+A brief overview is presented for each of the common  widget
+messages:
+
+_M_S_G__G_E_T_V_A_L_U_E
+
+This message  provides  an  application  with  a  means  for
+obtaining   the  current  value  associated  with  a  widget
+instance.  The type of value returned  by  this  message  is
+dependent  upon  the  widget  being queried.  For example, a
+scrollbar might  return  an  integer  value  indicating  the
+current  position  of  the  slide  box, while a radio button
+widget might return the index of the active button.
+
+When requesting the value of a widget, the _a_r_g_L_i_s_t parameter
+must  contain  an  atom  of  type  _W_i_d_g_e_t_R_e_s_u_l_t,  which is a
+pointer to whatever type of data structure the widget  needs
+to return its value.  Refer to the discussion of each of the
+widgets for a description of this data structure.
+
+
+
+
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 40 -
+
+
+
+{
+        int     slideValue;
+     Window  widget;
+        ArgList params[2];
+
+     /* Create the widget instance */
+        SetArg (params[0], WidgetOrientation, HORIZONTAL);
+        SetArg (params[1], 0, 0);
+     widget = XtScrollBar (params);
+
+     /* Get the current widget value */
+        SetArg (params[0], WidgetResult, &slideValue);
+        SetArg (params[1], 0, 0);
+     XtSendMsg (widget, MSG_GETVALUE, params);
+}
+
+
+
+_M_S_G__S_E_T_V_A_L_U_E
+
+This message provides an application with a means for  modi-
+fying  the  current value associated with a widget instance.
+The type of value passed with this message is dependent upon
+the  widget  being modified.  For example, a scrollbar might
+accept an integer value representing the new position of the
+slide  box,  while  a  radio  button  widget might accept an
+integer value indicating the index of the active button.
+
+When modifying the value of a widget, the _a_r_g_L_i_s_t  parameter
+must  contain an atom of type _W_i_d_g_e_t_V_a_l_u_e, which is either a
+pointer to whatever type of data structure the widget  needs
+to  modify its value, or is a simple scalar value.  Refer to
+the discussion of each of the widgets for a  description  of
+the type of data structure needed for this request.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 41 -
+
+
+
+{
+        int     slideValue;
+     Window  widget;
+        ArgList params[2];
+
+     /* Create the widget instance */
+        SetArg (params[0], WidgetOrientation, HORIZONTAL);
+        SetArg (params[1], 0, 0);
+     widget = XtScrollBar (params);
+
+     /* Get the current widget value */
+        SetArg (params[0], WidgetResult, &slideValue);
+        SetArg (params[1], 0, 0);
+     XtSendMsg (widget, MSG_GETVALUE, params);
+
+        /* Incrementally move the slide box */
+        slideValue += 10;
+        SetArg (params[0], WidgetValue, slideValue);
+        SetArg (params[1], 0, 0);
+     XtSendMsg (widget, MSG_SETVALUE, params);
+}
+
+
+
+_M_S_G__R_E_D_R_A_W
+
+There may arise the situation where an application finds the
+need  to  redraw  a widget instance.  This occurs most often
+when the application  has  modified  the  state  information
+associated  with a widget, and it wants the widget to redraw
+itself to match the new state.
+
+There are several types of redraw modes available.  However,
+not  all widgets support all of the modes.  Fortunately, all
+widgets support the _R_E_D_R_A_W__A_L_L  mode.   When  this  mode  is
+specified, the complete widget instance will be redrawn.
+
+When a redraw  request  is  issued,  the  _a_r_g_L_i_s_t  parameter
+should  contain an atom of type _R_e_d_r_a_w_M_o_d_e.  The value asso-
+ciated with this atom is the type of redraw which is  to  be
+performed.   If  an empty ArgList is supplied, then the com-
+plete widget will be redrawn.
+
+The following block of code will outline  how  this  message
+may be used:
+
+
+
+
+
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 42 -
+
+
+
+{
+     Point   newOrigin;
+     Window  widget;
+        ArgList params[2];
+
+     /* Create the widget instance */
+        SetArg (params[0], WidgetOrientation, HORIZONTAL);
+        SetArg (params[1], 0, 0);
+     widget = XtScrollBar (params);
+
+     /* Redraw the complete instance */
+        SetArg (params[0], RedrawMode, REDRAW_ALL);
+        SetArg (params[1], 0, 0);
+     XtSendMsg (widget, MSG_REDRAW, params);
+}
+
+
+
+_M_S_G__F_R_E_E
+
+When an application no  longer  needs  a  particular  widget
+instance,  it  should  destroy it.  When an instance is des-
+troyed, it is automatically removed  from  the  display,  it
+will no longer process input events, and no further messages
+should be issued using that widget indentifier.
+
+A second method for destroying a widget  is  to  use  the  X
+facilities  provided for destroying a window.  When the win-
+dow  is  destroyed,  an  X  event  will   automatically   be
+dispatched  to  the  widget,  telling it that its window was
+destroyed. This gives the widget the  opportunity  to  clean
+itself up.
+
+The following block of code will outline how an instance  is
+destroyed:
+
+
+{
+     Point   newOrigin;
+     Window  widget;
+        ArgList params[2];
+
+     /* Create the widget instance */
+        SetArg (params[0], WidgetOrientation, HORIZONTAL);
+        SetArg (params[1], 0, 0);
+     widget = XtScrollBar (params);
+
+     /* Destroy the widget instance */
+     XtSendMsg (widget, MSG_FREE, NULL);
+}
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 43 -
+
+
+_R_e_t_u_r_n _V_a_l_u_e
+
+Upon successful completion of any of the above  messages,  a
+non-NULL value will be returned.
+
+If any message request fails, a NULL value is returned,  and
+the  application  will  be  notified by means of the X error
+handler facility.
+
+_4._1._2.  _U_s_i_n_g _X _E_v_e_n_t_s
+
+Most widgets are interested in at least several types  of  X
+events:  exposure  events and message events.  However, some
+widgets are interested in many more.  The reader is referred
+to  the  sections  describing  the individual widgets, for a
+discussion of which events are of interest to  a  particular
+widget.   [In  fact,  the user may be directed to the source
+code itself?!]
+
+Under normal circumstances, applications programs  will  use
+the generic message facilities, discussed above, to communi-
+cate with a widget.  They will seldom need to  manipulate  a
+widget  directly  by means of X events.  Rather, it is the X
+system itself, and the generic message handler,  which  will
+use  the  event  processing facilities.  For example, many X
+library requests results in a X event being generated for  a
+particular  widget  (window).   Examples  of  these would be
+exposure events (which may occur because the user  moved  or
+resized  some windows on his display), mouse movement events
+(generated because the user moved his mouse), and button/key
+pressed/released    events    (generated   when   the   user
+presses/releases certain keyboard/mouse buttons).
+
+_4._2.  _C_o_m_m_o_n _A_r_g_u_m_e_n_t_s
+
+While all widgets may have unique arguments that they under-
+stand, some regularity of operation allows arbitrary widgets
+to be managed in a general way  by  higher-level  components
+that  may  be  devised.  The following list of arguments are
+honored in some intelligent way by each  of  the  X  Toolkit
+widgets.
+
+As a general policy, a widget will ignore an  argument  that
+it cannot understand.
+
+8________________________________________________________________________________
+9Name            Type            Default      Description
+98________________________________________________________________________________
+9WidgetFGColor   int             BlackPixel   Foreground color
+WidgetBGColor   int             WhitePixel   Background color
+WidgetOrigin    Point *         (0,0)        Placement within parent (read-only)
+WidgetHeight    int             ????         Height of widget window.
+WidgetWidth     int             ????         Width of widget window.
+WidgetFont      FontInfo *      ????         Primary font, if text used
+
+
+9                     December 19, 1986
+
+
+
+
+
+                           - 44 -
+
+
+BorderWidth     int             1            Width of border, if used.
+CallBack1       int (*proc)()   NULL         Callback on each X-event, if used.
+CallBackTag1    caddr_t         NULL         Argument to callback proc
+98________________________________________________________________________________
+
+
+_4._3.  _I_s_s_u_e_s
+
+The exact set of widget-specific messages and arguments  has
+not been decided.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 45 -
+
+
+_5.  _P_r_i_m_i_t_i_v_e _W_i_d_g_e_t_s
+
+This chapter describes each of the primitive widgets in some
+detail.  The standard widget composers and standard geometry
+managers will be discussed in the next chapter.
+
+_5._1.  _C_o_m_m_a_n_d _B_u_t_t_o_n
+
+The command button is an oval or rectangle  containing  text
+or  a  pixmap.   When  the cursor is placed over the command
+button, highlighting will occur, to indicate that the button
+is  available for selection.  When the cursor is placed over
+the command button and the  mouse  button  is  clicked,  the
+application's callback routine will be invoked.
+
+When creating a command button widget instance, the  follow-
+ing argList values (atoms) are available to the application.
+The table is organized such that the atom name, the type  of
+the  value  associated  with  the  atom name and the default
+value are listed:
+
+8________________________________________________________________________
+9Name            Type            Default      Description
+98________________________________________________________________________
+9LabelType       int             Text         Text or Pixmap label flag
+WidgetLabel     XtString        NULL         Button label
+WidgetFont      FontInfo *      ????         Label font
+LabelColor      int             BlackPixel   Label color (unselected)
+WidgetPixmap    Pixmap *        NULL         Pixmap label
+CallBack1       int (*proc)()   NULL         Callback for button select
+CallBackTag1    caddr_t         NULL         Argument to callback proc
+BorderWidth     int             1            Width of button border.
+WidgetFGColor   int             BlackPixel   Border color (unselected)
+WidgetBGColor   int             WhitePixel   Interior color (unselected)
+WidgetOrigin    Point *         (0,0)        Where to place widget.
+WidgetHeight    int             ????         Height of widget window.
+WidgetWidth     int             ????         Width of widget window.
+98________________________________________________________________________
+
+
+_5._2.  _B_o_o_l_e_a_n _B_u_t_t_o_n
+
+This circular or rectangular button  will  have  two  visual
+states  corresponding  to set and clear. A label is not sup-
+ported by this primitive widget.  To display a boolean  but-
+ton  with  a label, the radiobutton/checkbox widget composer
+should be used.  When the cursor is placed over the  boolean
+button,  highlighting  occurs to indicate that the button is
+available for selection.  For boolean buttons,  highlighting
+refers  to  the  enlarging of the button's border.  When the
+cursor is placed over the boolean button, and the mouse but-
+ton is clicked, the state of the boolean button will toggle,
+and  the  application  supplied  callback  routine  will  be
+invoked.
+
+
+9                     December 19, 1986
+
+
+
+
+
+                           - 46 -
+
+
+When creating a boolean button widget instance, the  follow-
+ing argList values (atoms) are available to the application.
+The table is organized such that the atom name, the type  of
+the  value  associated  with  the  atom name and the default
+value are listed:
+
+8________________________________________________________________________
+9Name            Type            Default      Description
+98________________________________________________________________________
+9CallBack1       int (*proc)()   NULL         Callback for button select
+CallBackTag1    caddr_t         NULL         Argument to callback proc
+WidgetState     int             inactive     State of boolean button
+BorderWidth     int             1            Width of button border
+WidgetFGColor   int             BlackPixel   Border color (unselected)
+WidgetBGColor   int             WhitePixel   Interior color (unselected)
+WidgetOrigin    Point *         (0,0)        Where to place widget
+WidgetHeight    int             ????         Height of widget window
+WidgetWidth     int             ????         Width of widget window
+98________________________________________________________________________
+
+
+_5._3.  _V_a_l_u_a_t_o_r
+
+A valuator is a rectangular  region  (either  horizontal  or
+vertical)  containing  a  slidebox  used for positioning.  A
+valuator can be manipulated in one of several  manners.   By
+moving  the  cursor  over the slidebox and then pressing the
+mouse button, the user can interactively move the  slidebox.
+Each  time  the  slidebox  moves  a  specified  amount,  the
+application's callback routine will be  invoked.   A  second
+way  to manipulate a valuator is to move the cursor over the
+valuator (but not on the slidebox) and select a position  in
+the valuator slide area.  A second application callback rou-
+tine will be invoked, and  passed  the  position  where  the
+select occurred.
+
+The position of the slidebox is returned in integer units in
+the range of _M_i_n_V_a_l_u_e and _M_a_x_V_a_l_u_e.
+
+When creating a  valuator  widget  instance,  the  following
+argList  values  (atoms)  are  available to the application.
+The table is organized such that the atom name, the type  of
+the  value  associated  with  the  atom name and the default
+value are listed:
+
+8____________________________________________________________________________
+9Name                Type            Default       Description
+98____________________________________________________________________________
+9CallBack1           int (*proc)()   NULL          Callback during
+                                                  interactive slides
+CallBackTag1        caddr_t         NULL          Argument to callback proc
+CallBack2           int (*proc)()   NULL          Callback for non-slidebox
+                                                  selects
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 47 -
+
+
+CallBackTag2        caddr_t         NULL          Argument to callback proc
+WidgetOrientation   int             HORIZONTAL    Valuator orientation
+MinValue            int             0             Minimum slide value
+MaxValue            int             100           Maximum slide value
+SlideSize           int             10            Size of slide box
+BorderWidth         int             1             Width of valuator border
+WidgetFGColor       int             BlackPixel    Border & slide color
+WidgetBGColor       int             WhitePixel    Interior color
+WidgetOrigin        Point *         (0,0)         Where to place widget
+WidgetHeight        int             ????          Height of widget window
+WidgetWidth         int             ????          Width of widget window
+Granularity         int             0(disabled)   Callback granularity
+98____________________________________________________________________________
+
+
+_5._4.  _L_a_b_e_l
+
+A label allows an application to place an uneditable  string
+or pixmap within a window.  If a string is used, then it may
+be multiple lines long, and it may be optionally aligned  to
+the  left,  right  or  center  of  its  window.   A label is
+unselectable, and cannot be edited by the user.
+
+When creating a label widget instance, the following argList
+values  (atoms) are available to the application.  The table
+is organized such that the atom name, the type of the  value
+associated  with  the  atom  name  and the default value are
+listed:
+
+8_______________________________________________________________________
+9Name            Type            Default      Description
+98_______________________________________________________________________
+9CallBack1       int (*proc)()   NULL         Callback
+CallBackTag1    caddr_t         NULL         Argument to callback proc
+LabelType       int             Text         Text or Pixmap label flag
+WidgetLabel     XtString        NULL         Label value
+WidgetPixmap    Pixmap *        NULL         Pixmap label
+WidgetFont      FontInfo *      ????         Label font
+WidgetFGColor   int             BlackPixel   Color used to draw label
+WidgetBGColor   int             WhitePixel   Color used to paint label
+                                             background
+WidgetOrigin    Point *         (0,0)        Where to place widget
+WidgetHeight    int             ????         Height of widget window
+WidgetWidth     int             ????         Width of widget window
+Alignment       int             None         Type of text alignment
+98_______________________________________________________________________
+
+
+_5._5.  _T_e_x_t _S_u_b_w_i_n_d_o_w
+
+This provides an application with the means  for  collecting
+multiple lines of editable input from the user.  A text cur-
+sor is visible within the field while  editing  is  in  pro-
+gress.   The  text cursor position can be modified by either
+
+
+9                     December 19, 1986
+
+
+
+
+
+                           - 48 -
+
+
+using the cursor keys, or by using the mouse to select a new
+position.   This  widget  is  capable  of  operating in both
+insert and character replace modes.  All  standard  keyboard
+editing  facilities  are supported.  The application's call-
+back routine is invoked anytime  the  field  becomes  empty,
+anytime the first character is typed into the field, anytime
+the field becomes full, and anytime an  application  defined
+character is received.
+
+When creating a text subwindow widget instance, the  follow-
+ing argList values (atoms) are available to the application.
+The table is organized such that the atom name, the type  of
+the  value  associated  with  the  atom name and the default
+value are listed:
+
+8______________________________________________________________________
+9Name            Type            Default      Description
+98______________________________________________________________________
+9Source          TextSource *    ????         Editing source
+Sink            TextSink *      ????         Editing sink
+WidgetFont      FontInfo *      ????         Editing font
+CursorLoc       int             0            Text cursor position
+CallBack1       int (*proc)()   NULL         Callback during editing
+CallBackTag1    caddr_t         NULL         Argument to callback proc
+WidgetFGColor   int             BlackPixel   Text and border color
+WidgetBGColor   int             WhitePixel   Text background color
+BreakChars      XtString        NULL         Special break characters
+WidgetOrigin    Point *         (0,0)        Where to place widget
+WidgetHeight    int             ????         Height of widget window
+WidgetWidth     int             ????         Width of widget window
+98______________________________________________________________________
+
+
+_5._6.  _N_u_m_e_r_i_c _S_u_b_w_i_n_d_o_w
+
+This widget is  identical  to  the  text  subwindow  widget,
+except  that  it  only  allows numeric values to be entered.
+The application is able to  specify  the  base  to  be  used
+(binary,   octal,   hexidecimal  and  decimal),  along  with
+optional upper and lower value limits.
+
+When creating a numeric subwindow widget instance, the  fol-
+lowing  argList values (atoms) are available to the applica-
+tion.  The table is organized such that the atom  name,  the
+type  of  the  value  associated  with the atom name and the
+default value are listed:
+
+8______________________________________________________________________
+9Name            Type            Default      Description
+98______________________________________________________________________
+9Source          TextSource *    ????         Editing source
+Sink            TextSink *      ????         Editing sink
+WidgetFont      FontInfo *      ????         Editing font
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 49 -
+
+
+CursorLoc       int             0            Text cursor position
+CallBack1       int (*proc)()   NULL         Callback during editing
+CallBackTag1    caddr_t         NULL         Argument to callback proc
+MinValue        float           Disabled     Minimum range check value
+MaxValue        float           Disabled     Maximum range check value
+WidgetFGColor   int             BlackPixel   Text and border color
+WidgetBGColor   int             WhitePixel   text background color
+BreakChars      XtString        NULL         Special break characters
+WidgetOrigin    Point *         (0,0)        Where to place widget
+WidgetHeight    int             ????         Height of widget window
+WidgetWidth     int             ????         Width of widget window
+98______________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 50 -
+
+
+_6.  _C_o_m_p_o_s_i_t_e _W_i_d_g_e_t_s
+
+The following composite widgets are provided as part of  the
+X Tookit:
+
+o+    Titlebar widget
+
+o+    Scrollbar widget
+
+o+    Radio Button widget
+
+o+    Checkbox widget
+
+o+    Push Button widget
+
+o+    Text Edit widget
+
+o+    Raster Select widget
+
+o+    Cascading Menu widget
+
+o+    Control Panel widget
+
+o+    Dialog Box widget
+
+o+    Menu Bar/Pull-down Menu widget
+
+_6._1.  _T_i_t_l_e_b_a_r _W_i_d_g_e_t
+
+The titlebar is a composite widget made up of a  label,  two
+buttons,  and  a geometry manager.  It allows an application
+to create and display a rectangular titlebar.  The  titlebar
+size  and  location  are arbitrary, and are specified by the
+application.  However, a titlebar is normally  placed  along
+the  top of the window, and runs the full length of the win-
+dow.
+
+When an application creates a titlebar, it is  allowed  some
+freedom  in  customizing the instance to meet its particular
+needs.  Besides the size and location of the titlebar, which
+were  covered earlier, an application may also specify which
+components should be used when the titlebar is constructed.
+
+A titlebar instance can be composed of anywhere from 1 to  3
+components.  The component pieces of a titlebar are:
+
+title string   The most common use  for  a  titlebar  is  to
+               display a string, which provides some indica-
+               tion to the user as to what a window is being
+               used  for.   When  specified,  a title string
+               will  be  displayed  in  the  center  of  the
+               titlebar,  using  the  font  specified by the
+               application program.
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 51 -
+
+
+gadget buttons Sometimes an application will wish to provide
+               a  means  for  allowing  a user to easily and
+               quickly request some frequently-used  action.
+               Two gadget buttons are provided for just this
+               purpose (one in the left corner, and  one  in
+               the   right  corner).   The  application  may
+               specify any pair of  valid  command  buttons,
+               which will serve to describe what action will
+               occur when the  gadget  button  is  selected.
+               For  example,  if a program wanted to set one
+               of the buttons up to produce help information
+               when  it is selected, then it might choose to
+               define the button with  a  label  of  'HELP'.
+               When  a  user selects one of the gadget boxes
+               with the mouse, notification will  be  passed
+               on  to the application by means of a callback
+               procedure.
+
+When creating a  titlebar  widget  instance,  the  following
+argList  values  (atoms)  are  available to the application.
+The table is organized such that the atom name, the type  of
+the  value  associated  with  the atom name, and the default
+value are listed:
+
+8________________________________________________
+9Name                Type   Default   Description
+98________________________________________________
+9[To be completed]
+98________________________________________________
+
+
+The syntax for creating a titlebar widget is:
+
+
+[To be completed]
+
+
+
+_6._2.  _S_c_r_o_l_l_b_a_r _W_i_d_g_e_t
+
+The scrollbar widget is composite widget made up of a valua-
+tor,  two command buttons and a geometry manager.  It allows
+an application to create a vertical or horizontal  scrollbar
+instance.   The  size and location of the scrollbar instance
+is controlled by the application, but the normal  convention
+followed  when displaying a scrollbar is to display a verti-
+cal scrollbar along the right edge of the window, and a hor-
+izontal scrollbar along the bottom edge.
+
+When  an  application  creates  a  scrollbar  instance,  the
+instance  editor allows as much control as possible over how
+the instance will appear and behave by allowing the applica-
+tion to specify the instance configuration.  This includes:
+9
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 52 -
+
+
+o+    Height and width of the scrollbar
+
+o+    Orientation (vertical or horizontal) of the scrollbar
+
+o+    Location of the scrollbar
+
+o+    Size of the slide box
+
+o+    Components displayed within the scrollbar
+
+When a scrollbar is created, it is drawn  as  a  rectangular
+box,  with  a  scroll arrow at either end.  The region which
+occupies the area between the two scroll arrows is known  as
+the scroll region.  The scroll box resides within the scroll
+region and serves as a form of visual  feedback.   It  indi-
+cates the current value associated with the scrollbar.
+
+A  user  is  provided  several  means  for  manipulating   a
+scrollbar, each of which is explained below:
+
+1.   By selecting one of the scroll arrows, a user may cause
+     an  application  to  scroll  the information within its
+     window.  The direction of the scroll is dependent  upon
+     which  scroll  arrow was selected, while the amount the
+     information is scrolled is controlled by  the  applica-
+     tion.   When  a scroll arrow is selected, the scrollbar
+     editor  does  not  modify   the   scrollbar   instance.
+     Instead,  it  notifies  the  application, by means of a
+     callback procedure, that the scroll arrow was selected.
+     It is then up to the application to modify the informa-
+     tion within its window, and reposition  the  slide  box
+     for the scrollbar.
+
+2.   By selecting the slide box, a  user  may  interactively
+     move the slide box.  While the interactive slide opera-
+     tion is  in  progress,  the  application  will  receive
+     notification  by  means  of a callback procedure.  When
+     the select key is released by the user, the interactive
+     slide  operation  will  complete.   At  that  time, the
+     widget will again notify the application  by  means  of
+     another callback procedure.
+
+3.   When the user selects a point within the slide  region,
+     but  not  within  the  slide box, the editor will again
+     notify the application by means of a callback  routine;
+     the  position  at  which  the  select  occurred will be
+     passed to the callback routine.   The  application  can
+     choose  to  ignore  this, or it can update its display,
+     and then reposition the slide box for the scrollbar.
+
+When creating a scrollbar  widget  instance,  the  following
+argList  values  (atoms)  are  available to the application.
+The table is organized such that the atom name, the type  of
+the  value  associated  with  the atom name, and the default
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 53 -
+
+
+value are listed:
+
+8________________________________________________
+9Name                Type   Default   Description
+98________________________________________________
+9[To be completed]
+98________________________________________________
+
+
+The syntax for creating a scrollbar widget is:
+
+
+[To be completed]
+
+
+
+_6._3.  _R_a_d_i_o_b_u_t_t_o_n _W_i_d_g_e_t
+
+The radiobutton widget is a  composite  widget  made  up  of
+boolean  buttons,  labels and a geometry manager.  It allows
+an application to create and display a collection of related
+buttons in a series of rows and columns.
+
+When an application creates a radiobutton  instance,  it  is
+allowed  as much flexibility as possible for customizing how
+the instance will be displayed.  Among the options which may
+be specified by the application are:
+
+o+    Number of rows and columns into which the  buttons  are
+     to  be displayed, along with a choice of which geometry
+     manager will be used.
+
+o+    Font to be used when displaying the button labels (also
+     determines the size of the buttons).
+
+o+    Button labels themselves.  These are optional,  and  an
+     application  is  free to supply labels for some, or for
+     all, of the buttons.
+
+o+    Foreground and background pens to be used each time the
+     instance is displayed.
+
+A radiobutton is drawn as a circle, with an  optional  label
+to  its  right.  Refer to the section discussing the boolean
+primitive  widget  for  a  complete  discussion  on   button
+behavior.   When a button has been selected, the circle will
+be drawn and filled with the  instance's  foreground  color.
+All  non-selected  buttons  are drawn as circles filled with
+the instance's  background  color.   When  the  instance  is
+drawn,  it  will be laid out according to the rules enforced
+by the specified geometry manager.
+
+Radiobuttons operate  in  a  fashion  very  similar  to  the
+channel-select  buttons on your radio.  Only a single button
+
+
+9                     December 19, 1986
+
+
+
+
+
+                           - 54 -
+
+
+may be selected at any time.  Each  time  a  new  button  is
+selected, the previously active button is made inactive.
+
+A user can use the mouse to  select  a  button.   When  this
+occurs,  the editor will redraw the instance, to reflect the
+new active button, and will then notify the application,  by
+means  of a callback routine.  An indication of which button
+was selected will be passed in.  An application is then free
+to perform any action which might be implied by the button.
+
+Radiobuttons are most often used when an application  wishes
+to  supply  a  set of options to the user, only one of which
+may be selected.  For example, if an application allows  the
+user  to  change the pen color to one of four choices, radio
+buttons would be an ideal means for allowing the user to  do
+this.
+
+When creating a radiobutton widget instance,  the  following
+argList  values  (atoms)  are  available to the application.
+The table is organized such that the atom name, the type  of
+the  value  associated  with  the atom name, and the default
+value are listed:
+
+8________________________________________________
+9Name                Type   Default   Description
+98________________________________________________
+9[To be completed]
+98________________________________________________
+
+
+The syntax for creating a radiobutton widget is:
+
+
+[To be completed]
+
+
+
+_6._4.  _C_h_e_c_k_B_o_x _W_i_d_g_e_t
+
+The checkbox widget is a composite widget made up of boolean
+buttons, labels and a geometry manager.  It allows an appli-
+cation to create and display a collection of related  check-
+box items in a series of rows and columns.
+
+When an application creates a checkbox instance, the  widget
+allows  it  as  much flexibility as possible for customizing
+how the instance will be displayed.  The options  which  may
+be specified by the application are:
+
+o+    Number of rows and columns into which the boxes are  to
+     be displayed, along with the geometry manager to use.
+
+o+    Font to be used when displaying the box labels.
+9
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 55 -
+
+
+o+    Box labels  themselves;  these  are  optional,  and  an
+     application  is  free to supply labels for some, or for
+     all of the boxes.
+
+o+    Foreground and background pens used  when  drawing  the
+     instance.
+
+An individual  checkbox  is  drawn  as  a  square,  with  an
+optional  label  to  its  right. Refer to the section on the
+boolean primitive widget for further  discussion  on  how  a
+checkbox  would  be manipulated.  When a particular checkbox
+has been selected, the square will be drawn and filled  with
+the  foreground  color; the state of the other checkboxes in
+the instance will not be  altered.   When  the  instance  is
+drawn,  it  will be laid out according to the rules enforced
+by the specified geometry manager.
+
+Checkboxes differ from radio buttons in at least two ways:
+
+1.   Checkboxes are square; radio buttons are round.
+
+2.   Checkboxes place no restrictions upon how many items in
+     an  instance  may  be  active at any given time.  Radio
+     buttons allow only one item to be active at a time.
+
+When a checkbox item is drawn, if it has been  selected,  it
+will  be  drawn  as a filled square.  If it is not currently
+selected, then it will  be  drawn  as  an  unfilled  square.
+Whenever  a  checkbox  is selected, its value toggles.  This
+means that when an active box is selected,  it  will  become
+inactive, and vice-versa.
+
+A user can select a  checkbox  using  a  mouse.   When  this
+occurs,  the  widget will redraw the instance to reflect the
+new checkbox value, and will then notify the application  by
+means  of a callback routine.  An indication of which check-
+box was modified will be passed in.  An application is  then
+free  to  perform  any  action which might be implied by the
+checkbox.
+
+Under normal circumstances, modifying the state of a  check-
+box does not cause any immediate action.  What normally hap-
+pens is that a user will modify several checkboxes, and when
+he  is ready for some action to occur regarding the checkbox
+values, he will notify the application.
+
+Checkboxes are most often used when an application wishes to
+supply a set of options to the user, of which any number may
+be selected.  For example, let's assume we have an  applica-
+tion which allows a user to draw polygons, and to specify if
+the polygons should be filled, surrounded with a border,  or
+patterned.   The  user  may  choose  one  or  more  of these
+options.
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 56 -
+
+
+When creating a  checkbox  widget  instance,  the  following
+argList  values  (atoms)  are  available to the application.
+The table is organized such that the atom name, the type  of
+the  value  associated  with  the atom name, and the default
+value are listed:
+
+8________________________________________________
+9Name                Type   Default   Description
+98________________________________________________
+99[To be completed]
+8________________________________________________
+
+
+The syntax for creating a checkbox widget is:
+
+
+[To be completed]
+
+
+
+_6._5.  _P_u_s_h_b_u_t_t_o_n _W_i_d_g_e_t
+
+The pushbutton widget is a composite widget made up of  com-
+mand  buttons and a geometry manager.  It allows an applica-
+tion to create and display a collection of  related  buttons
+in a series of rows and columns.
+
+When an  application  creates  a  pushbutton  instance,  the
+widget  allows the application as much flexibility as possi-
+ble for customizing how the instance will be displayed.  The
+options which may be specified by the application are:
+
+o+    Number of rows and columns into which the  buttons  are
+     to  be displayed, along with the geometry manager to be
+     used.
+
+o+    Font to be used when displaying the button labels.
+
+o+    Button labels themselves.  These are optional,  and  an
+     application  is free to supply labels/pixmaps for some,
+     or for all of the buttons.
+
+o+    Foreground and background pens to be used each time the
+     instance is displayed.
+
+A pushbutton is drawn as an oval,  with  an  optional  label
+placed  in  the center.  The label may be empty, a pixmap, a
+single line of text, or  contain  multiple  lines  of  text.
+When  a  select  occurs within a pushbutton, the application
+will be notified by means of a callback procedure.  An indi-
+cation  as  to  which pushbutton was selected will be passed
+in.  When the instance is drawn, it will be laid out accord-
+ing to the rules enforced by the specified geometry manager.
+9
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 57 -
+
+
+Pushbuttons are most often used to bring about an  immediate
+action.   For  instance,  a  panel  usually has at least two
+pushbuttons defined, giving a user the option of exiting and
+saving  the  panel information, or of exiting and discarding
+the information.  When a user selects one  of  the  pushbut-
+tons,  the  panel  is  immediately  exited,  and the current
+operation is ended.
+
+Pushbuttons are also useful when an  application  wishes  to
+provide  a means for a user to signal that an action is com-
+plete, or that it is safe to  continue  with  an  operation.
+For  example, let's assume that we have an application which
+can encounter error conditions to which the user must supply
+some  indication  of how they should be handled.  The user's
+choices are to abort the operation, to ignore the error  and
+continue  the  operation,  or  to  retry the operation which
+failed.  As soon as the  user  has  selected  a  button,  an
+action  will  occur  and  the program will remove the button
+instance.
+
+When creating a pushbutton widget  instance,  the  following
+argList  values  (atoms)  are  available to the application.
+The table is organized such that the atom name, the type  of
+the  value  associated  with  the atom name, and the default
+value are listed:
+
+8________________________________________________
+9Name                Type   Default   Description
+98________________________________________________
+9[To be completed]
+98________________________________________________
+
+
+The syntax for creating a pushbutton widget is:
+
+
+[To be completed]
+
+
+
+_6._6.  _T_e_x_t_e_d_i_t _W_i_d_g_e_t
+
+The textedit widget is a composite widget made up of a  text
+subwindow, a label and a geometry manager.  It is a special-
+ized text subwindow, which is limited to one line containing
+a  fixed number of characters.  It provides application pro-
+grams with a powerful line-editing facility.
+
+When an application creates a texteditor  instance,  it  can
+define  many  of  the instance's characteristics.  This pro-
+vides flexibility over how the instance will  be  displayed.
+The features which an application may control are:
+
+9
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 58 -
+
+
+o+    Location of the widget instance
+
+o+    Font to be used when displaying the editing string
+
+o+    Colors to be used when drawing the instance
+
+o+    Optional label to display next to the editing string
+
+o+    Position of the optional label
+
+o+    Character cell width
+
+o+    Type of character insertion mode to use
+
+When a text edit instance is displayed, the  editing  string
+is  displayed with a rectangular border drawn around it.  If
+an optional field label was specified, it will be  displayed
+either  to the left or to the right of the border, depending
+upon what  was  specified  by  the  application.   When  the
+instance  is  available  for  editing, a text cursor will be
+displayed within the editing string.  The text cursor  indi-
+cates  where the string is currently being edited.  The text
+cursor will be displayed as either a vertical bar or as or a
+filled  rectangle,  depending  upon  the  insertion mode the
+instance is currently configured for.
+
+This widget supports most of the standard  keyboard  editing
+functions:
+
+Text Insertion The text edit widget is capable of  operating
+               in  both  the normal and the insert-character
+               modes.  When operating in  normal  mode,  the
+               text  cursor is displayed as a filled rectan-
+               gle.  Typing  a  character  will  cause  that
+               character to be displayed at the cursor posi-
+               tion.  If a character is already displayed at
+               the  cursor  position, it will be overwritten
+               by the  new  character.   When  operating  in
+               insert-character  mode,  the  text  cursor is
+               displayed as a vertical bar  located  between
+               two  character positions.  Typing a character
+               causes all characters to  the  right  of  the
+               insertion  bar  to  be  shifted one character
+               position to the right, and the new  character
+               to  be  inserted.  The widget toggles between
+               normal and insert-character  mode  each  time
+               the user presses the "insert character" key.
+
+Backspace      Causes the character to the left of the  text
+               cursor  to  be  deleted and all characters to
+               its right to be shifted one  character  posi-
+               tion  to the left. The text cursor also moves
+               one position to the left.
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 59 -
+
+
+Delete CharacterCauses the  character  at  the  text  cursor
+               position to be deleted, and all characters to
+               the right of the cursor  to  be  shifted  one
+               character  position to the left. The position
+               of the text cursor does not change.
+
+Clear Line     Causes the character at the text cursor posi-
+               tion  and  all characters to the right of the
+               text cursor to be deleted.  The  position  of
+               the text cursor does not change.
+
+Delete Line    Causes all characters in the  editing  string
+               to be deleted and the text cursor to be moved
+               back to the start of the editing string area.
+
+Cursor Left    Moves the text cursor one character  position
+               to the left.
+
+Cursor Right   Moves the text cursor one character  position
+               to the right.
+
+Refer to the section dealing with the primitive text subwin-
+dow widget, for a discussion on when and how the application
+is notified of the goings on within a text subwindow widget.
+
+Text edit instances are most often used when an  application
+needs to obtain a name (such as a filename) from a user.
+
+When creating a text subwindow widget instance, the  follow-
+ing argList values (atoms) are available to the application.
+The table is organized such that the atom name, the type  of
+the  value  associated  with  the atom name, and the default
+value are listed:
+
+8________________________________________________
+9Name                Type   Default   Description
+98________________________________________________
+9[To be completed]
+98________________________________________________
+
+
+The syntax for creating a text subwindow widget is:
+
+
+[To be completed]
+
+
+
+_6._7.  _R_a_s_t_e_r_S_e_l_e_c_t _W_i_d_g_e_t
+
+The rasterselect widget is a composite  widget  made  up  of
+pixmap  command buttons and a geometry manager.  It provides
+an application with the means for displaying a group of  'n'
+x 'm' pixel raster images.
+
+
+9                     December 19, 1986
+
+
+
+
+
+                           - 60 -
+
+
+When an application creates a raster-select instance, it has
+some  control over how the instance will be laid out.  It is
+also allowed to specify which geometry manager will be used.
+
+At any given time, only one raster box may  be  selected  as
+the  active  choice.   The  active  choice is indicated by a
+solid border surrounding the  box.   The  user  is  able  to
+interactively  change  the  active box by using the mouse to
+select a new one.  Whenever a new active  box  is  selected,
+the  solid  indicator  will  be moved to the new box and the
+application will be notified of the change, by  means  of  a
+callback routine.
+
+The individual raster boxes are specified in the same manner
+that a pixmap command button is specified.
+
+More often than not, it will be  a  graphics  program  which
+uses  this  type  of widget, because this widget provides an
+ideal mechanism for allowing a user to select such things as
+an area-fill pattern or a line-drawing pattern.
+
+When creating a raster select widget instance, the following
+argList  values  (atoms)  are  available to the application.
+The table is organized such that the atom name, the type  of
+the  value  associated  with  the atom name, and the default
+value are listed:
+
+8________________________________________________
+9Name                Type   Default   Description
+98________________________________________________
+9[To be completed]
+98________________________________________________
+
+
+The syntax for creating a rasterselect widget is:
+
+
+[To be completed]
+
+
+
+_6._8.  _R_a_s_t_e_r_E_d_i_t _W_i_d_g_e_t
+
+The description of this widget will be provided in the  next
+release of this document.
+
+_6._9.  _C_a_s_c_a_d_i_n_g _M_e_n_u _W_i_d_g_e_t
+
+The cascading menu widget provides one view of a  menu  tree
+for  the toolkit. It is a pop-up style menu with pop-up sub-
+menus that appear when the cursor is moved to a location  in
+the  right  side of a menu item.  The programmatic interface
+and parameters will be provided in the next release of  this
+document.
+
+
+9                     December 19, 1986
+
+
+
+
+
+                           - 61 -
+
+
+_6._1_0.  _C_o_n_t_r_o_l _P_a_n_e_l _W_i_d_g_e_t
+
+The control panel widget provides a structure  for  creating
+panels.  This structure will give programmers a common basis
+for creating complex widgets that are  not  defined  in  the
+toolkit.   The programmatic interface and parameters will be
+provided in the next release of this document.
+
+_6._1_1.  _D_i_a_l_o_g _B_o_x _W_i_d_g_e_t
+
+The dialog box widget is a complex widget  made  up  of  any
+combination  of  a  pixmap,  some descriptive text, and some
+command buttons.  The widgets that make up a dialog box  are
+arranged  automatically  by  the dialog box.  The purpose of
+this widget is to make this commonly used item easy to  pro-
+gram.   The  programmatic  interface  and parameters will be
+provided in the next release of this document.
+
+_6._1_2.  _M_e_n_u _B_a_r/_P_u_l_l-_d_o_w_n _M_e_n_u _W_i_d_g_e_t
+
+The description of this widget will be provided in the  next
+release of this document.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 62 -
+
+
+_7.  _G_e_o_m_e_t_r_y _M_a_n_a_g_e_r_s
+
+The following geometry managers are provided as part of  the
+X Tookit:
+
+o+    Columned manager
+
+o+    Rowed manager
+
+o+    Centered manager
+
+o+    Constrained manager
+
+o+    Scrolled manager
+
+o+    Fixed manager
+
+o+    Paned manager
+
+_7._1.  _C_o_l_u_m_n_e_d _M_a_n_a_g_e_r
+
+The columned geometry manager provides  a  widget  with  the
+means  for  managing  sub-widgets  laid  out  in  a columnar
+fashion.
+
+
+   int
+   XtColumnedMgr (parent, w, request, requestBox, replyBox)
+
+   Window      parent;
+   Window      w;
+   atom        request;
+   Rectangle * requestBox;
+   Rectangle * replyBox;
+
+
+
+_7._2.  _R_o_w_e_d _M_a_n_a_g_e_r
+
+The rowed geometry manager provides a widget with the  means
+for managing sub-widgets laid out in a row fashion.
+
+
+   int
+   XtRowedMgr (parent, w, request, requestBox, replyBox)
+
+   Window      parent;
+   Window      w;
+   atom        request;
+   Rectangle * requestBox;
+   Rectangle * replyBox;
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 63 -
+
+
+_7._3.  _C_e_n_t_e_r_e_d _M_a_n_a_g_e_r
+
+The centered geometry manager provides  a  widget  with  the
+means  for  managing  sub-widgets  laid  out  in  a centered
+fashion.
+
+
+   int
+   XtCenteredMgr (parent, w, request, requestBox, replyBox)
+
+   Window      parent;
+   Window      w;
+   atom        request;
+   Rectangle * requestBox;
+   Rectangle * replyBox;
+
+
+
+_7._4.  _C_o_n_s_t_r_a_i_n_e_d _M_a_n_a_g_e_r
+
+The constrained geometry manager provides a widget with  the
+means  for  managing  sub-widgets laid out according to some
+constrained layout language.
+
+
+   int
+   XtConstrainedMgr (parent, w, request, requestBox, replyBox)
+
+   Window      parent;
+   Window      w;
+   atom        request;
+   Rectangle * requestBox;
+   Rectangle * replyBox;
+
+
+
+_7._5.  _S_c_r_o_l_l_e_d _M_a_n_a_g_e_r
+
+The scrolled geometry manager provides  a  widget  with  the
+means  for  managing  sub-widgets  laid  out in a scrollable
+fashion.
+
+
+   int
+   XtScrolledMgr (parent, w, request, requestBox, replyBox)
+
+   Window      parent;
+   Window      w;
+   atom        request;
+   Rectangle * requestBox;
+   Rectangle * replyBox;
+
+
+
+
+
+
+                     December 19, 1986
+
+
+
+
+
+                           - 64 -
+
+
+_7._6.  _F_i_x_e_d _M_a_n_a_g_e_r
+
+The Fixed geometry manager provides a widget with the  means
+for  managing  sub-widgets  laid  out in a fixed fashion; no
+dynamic resizing or moving of widgets is provided.
+
+
+   int
+   XtFixedMgr (parent, w, request, requestBox, replyBox)
+
+   Window      parent;
+   Window      w;
+   atom        request;
+   Rectangle * requestBox;
+   Rectangle * replyBox;
+
+
+
+_7._7.  _P_a_n_e_d _M_a_n_a_g_e_r
+
+The paned geometry manager provides a widget with the  means
+for managing sub-widgets in a tiled fashion.
+
+
+   int
+   XtPanedMgr (parent, w, request, requestBox, replyBox)
+
+   Window      parent;
+   Window      w;
+   atom        request;
+   Rectangle * requestBox;
+   Rectangle * replyBox;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                     December 19, 1986
+
+

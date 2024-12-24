@@ -1,0 +1,126 @@
+.TH XRINPUTCONF 3X "Xrlib Version 10"
+.SH NAME
+XrInputConf \- configure the input mapping
+.SH SYNOPSIS
+#include <Xr/keycode.h>
+.br
+.sp 1
+int 
+.br
+.B XrInputConf (param, value)
+.br
+int param;
+.br
+int value;
+.SH DESCRIPTION
+This routine changes the configuration of the input mapping
+provided by 
+.B XrInputMap(3X).
+.B param
+indicates which configuration
+parameter is to be changed or queried, while 
+.B value
+contains the value to which the
+parameter is to be set to, or, if set to -1, indicates
+that the value is being queried.
+.br
+.sp 1
+.B param
+can be set to one of the following values:
+.TP
+.B K_TYPE
+If 
+.B value
+is -1, the current keyboard type is returned.  If 
+\fBvalue\fR
+is K_HP or K_DEFAULT, the keyboard type will be changed.
+.TP
+\fBK_LANGUAGE\fR
+If
+\fBvalue\fR
+is -1, the current keyboard language is returned.  If
+\fBvalue\fR
+is a legal keyboard language (K_HP_USASCII to K_HP_KANJI), the
+keyboard language is changed.  If 
+\fBvalue\fR
+is not a legal language, the language will be reset to the power-on
+language as determined by 
+\fBXrInputInit(3Xr)\fR.
+.TP
+\fBK_ASCII8\fR
+If
+\fBvalue\fR
+is -1, the current state is returned.  If 
+\fBvalue\fR
+is 1, 8 bit mode is in effect.  If
+\fBvalue\fR
+is 0, ISO 7 bit mode is in effect. 
+.TP
+\fBK_MUTE\fR
+If
+\fBvalue\fR
+is -1, the current state is returned.  If 
+\fBvalue\fR
+is 1, muting is in effect.  If
+\fBvalue\fR
+is 0, muting is in turned off.  When muting is enabled, the diacriticals
+are collapsed with the characters they are modifying and the new code is
+returned.  For example, if R_TILTA (tilta accent) is received, 
+it is saved and no
+code is returned.  Then an N is received.  The code R_N_TILTA is returned.
+Muting will not be done if K_ASCII8 is not set regardless of the value 
+of K_MUTE.
+.TP
+\fBK_16BITIO_ENABLE\fR
+If
+\fBvalue\fR
+is -1, the current state is returned.  
+If
+\fBvalue\fR
+is 1, the right extend char key will cause K_16BITIO to be set and the left
+extend char key will cause K_16BITIO to be cleared.  If 
+\fBvalue\fR
+is 2, the left extend char key will cause K_16BITIO to be set and the right
+extend char key will cause K_16BITIO to be cleared.  If 
+\fBvalue\fR
+is 3, the right extend char key will cause K_16BITIO to be toggled.  If
+\fBvalue\fR
+is 4, the left extend char key will cause K_16BITIO to be toggled.
+If K_16BITIO is set, the 16 bit input routines will be called.  
+If
+\fBvalue\fR
+is 0, 16 bit input is disabled and K_16BITIO will not be set.
+K_HP_KANJI will default to 4 and all other current languages will default to 0.
+NOTE: 16 bit input is not currently supported but is planned.
+.TP
+\fBK_ALT_ENABLE\fR
+If
+\fBvalue\fR
+is -1, the current state is returned.  If
+\fBvalue\fR
+is 1, the right extend char key will cause K_ALT to be set and the left
+extend char key will cause K_ALT to be cleared.  If 
+\fBvalue\fR
+is 2, the left extend char key will cause K_ALT to be set and the right
+extend char key will cause K_ALT to be cleared.  If 
+\fBvalue\fR
+is 3, the right extend char key will cause K_ALT to be toggled.  If
+\fBvalue\fR
+is 4, the left extend char key will cause K_ALT to be toggled.
+If K_ALT is set, an alternate language-dependent key mapping will be used.
+If
+\fBvalue\fR
+is 0, the extend char keys will behave like shift keys (ie. the alternate
+map will be used when the extend char key is down at the same time as the
+key being mapped.  The meta modifier is set when the extend char keys are
+pressed).  K_HP_KATAKANA will default to 1, K_HP_KANJI will default
+to 3 and all other current languages will default to 0.
+.TP
+\fBK_ALT\fR
+.TP
+\fBK_16BITIO\fR
+These flags are read-only.  See K_ALT_ENABLE and K_16BITIO_ENABLE for
+descriptions.  Alternate keyboard maps will not be used if K_ASCII8 is not
+set regardless of the value of K_ALT or the meta modifier.
+.SH SEE ALSO
+XrInputInit(3X),XrInputMap(3X),XrInputMute(3X)

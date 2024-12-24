@@ -1,0 +1,20 @@
+.TH Sx_SelectionClear sx
+.B1
+.NA
+Sx_SelectionClear \- clear the selection
+.SY
+#include <sx.h>
+.sp
+Sx_SelectionClear()
+.B2
+
+.SH DESCRIPTION
+.PP
+This procedure clears the current selection.  If there is
+a current selection owner, then the owner is notified.  From now on,
+until the next time Sx_SelectionSet is called, calls to
+Sx_SelectionGet will return with an indication that there
+is no selection.
+
+.SH KEYWORDS
+clear, selection, window

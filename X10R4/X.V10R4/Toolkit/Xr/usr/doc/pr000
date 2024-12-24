@@ -1,0 +1,57 @@
+.PH ""
+.PF ""
+.nf
+\0
+.SP 18
+.ce
+\fB\s20Programming With the
+.SP
+.ce
+X Window System
+.SP 18
+.ce
+\s12November 1986
+.SK
+\0
+.SP 24
+.fi
+\fB\s14\&Notice\fR\s10
+.P
+The information contained in this manual is subject to change without
+notice.
+.P
+.VL 2
+.LI \s+4\(co\s0
+Copyright 1986, Hewlett-Packard Company.
+.LI \s+4\(co\s0
+Copyright 1985, 1986, Massachusetts Institute of Technology.
+.LE
+.SP
+Permission to use, copy, modify, and distribute this software
+and its documentation for any purpose and without fee is
+hereby granted, provided that the above copyright notices appear
+in all copies and that those copyright notices and this permission
+notice appear in supporting documentation, and that the names of
+Hewlett-Packard and M.I.T. not be used in advertising or
+publicity pertaining to distribution of the software without
+specific, written prior permission. Hewlett-Packard and M.I.T.
+make no representations about the suitability of this software for
+any purpose. It is provided ``as is'' without express or implied
+warranty.
+.P
+This software is not subject to any license of the American
+Telephone and Telegraph Company or of the Regents of the
+University of California.
+.SP
+\fR\s10\&UNIX is a U.S. registered trademark of AT&T in the USA and
+other countries.
+.nf
+.SK
+.OF "'''\\\\fBContents\0\0\\\\nP\\\\fP'"
+.EF "'\\\\fB\\\\nP\0\0Contents\\\\fP'''"
+.ce 1
+\fB\s20Contents\fR\s10
+.SP 2
+.TS
+tab(#);
+lw(.5i)0 lw(5.1i)0 rw(.35i).

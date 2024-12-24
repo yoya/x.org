@@ -1,0 +1,46 @@
+.nr H1 -1
+.ds HP 20 14 12 10
+.ds HF 3 3 3 3
+.PH ""
+.PF ""
+.OF "'''\\\\fB\\\\*(Ch\0\0\\\\n(H1-\\\\nP\\\\fP'"
+.EF "'\\\\fB\\\\n(H1-\\\\nP\0\0\\\\*(Ch\\\\fP'''"
+.SA 0
+.nr Hu 4
+.nr Hb 3
+.nr Hs 3
+.nr N 5 \" section numbering for figures
+.de PP \" Xlib paragraph
+.P
+..
+.de HX \" space above heading
+.if \\$1=2 .ne 2i
+.if \\$1=3 .ne 1i
+.if \\$1=4 \{.ds }0 "
+.ds }2 .\ \ \}
+.if \\$1=1 .sy echo '.SP' >>con.con
+.if \\$1=1 .sy echo '\\\\\fB\\\\s12\\n(H1.#\\$3\\\\\fP\\\\s0\\\\\0\\\\a#\\n(H1-\\nP' >>con.con
+.if \\$1=2 .sy echo '\\n(H1.\\n(H2#\\$3\\\\\0\\\\a#\\n(H1-\\nP' >>con.con
+.if \\$1=3 .sy echo '\\n(H1.\\n(H2.\\n(H3#\\\\\0\\\\\0\\$3\\\\\0\\\\a#\\n(H1-\\nP' >>con.con
+.if \\n(;0=0 .ds }2 .\ \ 
+.SP
+..
+.de CO
+.br
+.DS
+.in +.5i
+.vs -2
+\s8\f(LP
+..
+.de CE
+.br
+\s0\fR
+.vs +2
+.in -.5i
+.DE
+..
+.de IN
+.sy echo "\\n(H1\\t\\nP\\t\\$1\\t\\$2" >>idx.idx
+..
+.H 1 "\\*(Ch"
+.SP 2

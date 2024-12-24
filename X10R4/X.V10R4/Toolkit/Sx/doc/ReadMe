@@ -1,0 +1,15 @@
+This directory contains all of the man pages for all of
+the Sx documentation.  The man pages can be printed with
+the nroff/troff/ditroff family of typesetting programs,
+but require a special set of macros, which are in the file
+"macros".  To print the man page for foo, type
+"troff macros foo".
+
+The file Sx contains an overview of the Sx facilities, and
+most of the other files describe individual Sx procedures.
+The files sxDemo.c and sxButton.c contain sample programs.
+Unfortunately, if you recieved this file in an "ar" distribution
+then all of the file names will have been truncated to 15
+characters.  This means that the names of some of the files
+won't match the names of the procedures documented in the
+files.

@@ -1,0 +1,87 @@
+.TH XRERRNO 3X "Xrlib Version 10"
+.SH NAME
+xrErrno \- error indicator for Xrlib toolbox calls
+.SH SYNOPSIS
+.br
+#include <Xr/Xrlib.h>
+.br
+extern INT32 xrErrno
+.sp 1
+.SH DESCRIPTION
+.sp
+.I xrErrno
+is an external variable whose value is set whenever an error occurs
+within an Xrlib toolbox procedure.
+This value can be used to obtain a more detailed description as to
+why a toolbox request failed.
+Most Xrlib toolbox procedures will return either a
+.B NULL
+value, or a value of zero, when they fail; the individual descriptions
+for each of the toolbox facilities specify the details.
+.I xrErrno
+is not cleared on successful toolbox calls, so its value should
+be checked only when an error has been indicated.
+.sp
+Each toolbox procedure's manual page attempts to list all possible
+error numbers which could occur as a result of issuing that request.
+The following is a complete list of the error names.
+The numeric values can be found in
+.B <Xr/defs.h>
+but should not be used.
+.sp 2
+.IP "XrOUTOFMEM Out of memory"
+This error is normally returned as a result of the called function
+being unable to allocate enough memory to perform the specified task.
+.sp
+.IP "XrINVALIDID Invalid Id"
+This error implies that an invalid Id (window Id, font Id, editor instance
+pointer, etc) was specified.
+.sp
+.IP "XrINVALIDOPTION Invalid option"
+This error will occur if a parameter is set to a value which is
+not among a fixed set of supported values for that particular parameter.
+.sp
+.IP "XrINVALIDRECT Invalid rectangle specification"
+This error will normally occur when a function is passed a rectangle
+definition, which for one reason or another is invalid.
+.sp
+.IP "XrINVALIDPTR Invalid (NULL) pointer specified"
+This error will occur when a required pointer parameter has been set to
+.B NULL,
+instead of to a valid pointer value.
+.sp
+.IP "XrPARMOUTOFRANGE Parameter is out of range"
+This error will normally occur when a parameter has been set to
+value which does not fall within the range of values allowed for
+that parameter.
+.sp
+.IP "XrINVALIDDEPTH Invalid raster depth"
+This error will occur when an invalid raster depth is specified.
+.sp
+.IP "XrINVALIDMSG Invalid message"
+This error will occur when an unknown message is passed to one
+of the Xrlib toolbox functions.
+.sp
+.IP "XrXCALLFAILED A call to the 'X' server failed"
+This error may occur anytime one of the Xrlib functions
+issues a call to the 'X' server, which subsequently fails
+for some reason.
+.sp
+.IP "XrINVALIDEVENT Invalid event"
+This error will occur when an event be used by one
+of the Xrlib toolbox functions is invalid or not the correct type.
+.sp
+.IP "XrFILEERROR File error"
+This error will occur when an Xrlib function fails when it attempts
+to access a disc file.
+.sp
+.IP "XrINVALIDPARM Invalid parameter"
+This error serves as a catch all for all other error condition.
+.sp
+.IP "XrINVALIDTYPE Invalid type"
+This error is used by the resource manager when an invalid resource
+type is referenced.
+.sp
+.IP "XrINVALIDSTATE Invalid state"
+This error is used by the resource manager to indicate that a
+state setting has prevented a message from succeeding.

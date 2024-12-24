@@ -1,0 +1,49 @@
+.TH Sx_MenuGetInfo sx
+.B1
+.NA
+Sx_MenuGetInfo \- return information about a menu
+.SY
+#include <X/Xlib.h>
+#include <sx.h>
+.sp
+int
+Sx_MenuGetInfo(\fIwindow, entries, fontPtrPtr, foregroundPtr, backgroundPtr\fP)
+.sp
+.AR
+.AS Sx_MenuEntry backgroundPtr
+.AP Window window in
+X identifier for the window displaying the menu's name (i.e. the
+return value from a previous Sx_MenuCreate call).
+.AP Sx_MenuEntry entries[] out
+Array of menu entries to fill in with information about the menu in
+\fIwindow\fP, or NULL if no detailed menu information is to be returned.
+If non-NULL, must point to an array with at least SX_MAX_MENU_ENTRIES
+entries.
+.AP FontInfo **fontPtrPtr out
+Pointer to location to fill in with pointer to font information for
+menu.  If NULL, no font information is returned.
+.AP int foregroundPtr out
+Pointer to location to fill in with foreground color used for menu, or
+NULL if no foreground color information is to be returned.
+.AP int backgroundPtr out
+Pointer to location to fill in with background color used for menu, or
+NULL if no background color information is to be returned.
+.B2
+
+.SH DESCRIPTION
+.PP
+Sx_MenuGetInfo returns detailed information about a menu, given the
+window containing its name.  The return value is a count of the number
+of entries in the menu, or -1 if \fIwindow\fP isn't a menu window
+at all.  In addition, the locations referred to by \fIentries\fP,
+\fIfontPtrPtr\fP, \fIforegroundPtr\fP, and \fIbackgroundPtr\fP get
+filled in with information about the menu's entries, font, and colors.
+All of this information is identical in structure and meaning to the
+information passed to Sx_MenuCreate.
+The string pointers stored in \fIentries\fP all refer to strings stored
+in the menu manager as part of the menu;  they should not be modified
+by the caller, nor should they be used at all after any future actions
+that could have caused the menu to be destroyed.
+
+.SH KEYWORDS
+color, entry, pull-down menu, window

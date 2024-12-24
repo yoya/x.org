@@ -1,0 +1,754 @@
+.TH XRPUSHBUTTON 3X "Xrlib Version 10"
+.fi
+.ad 1
+.SH NAME
+XrPushButton - an editor that controls a set of pushbuttons.
+.SH SYNOPSIS
+#include <X/Xlib.h>
+.br
+#include <Xr/Xrlib.h>
+.sp 1
+xrEditor *
+.br
+.B XrPushButton (instance, message, data)
+.in 7
+.nf
+xrEditor * instance;
+INT32      message;
+INT8     * data;
+.fi
+.in
+.sp 1
+.SH DESCRIPTION
+.sp
+.P
+The push button editor is used to create and process a
+group of related push buttons within a given window.  
+The number of push buttons, and how they are displayed,
+is completely controlled by the application.
+Each push button may include an optional text label, which will 
+be displayed in the center of the oval representing
+the button.
+This label may be a single line of text, or it may
+be multiple lines of text.
+.P
+The size of the push buttons are proportional to the
+size of the font being used to display the text labels.
+By allowing an application to specify this font,
+the size of the push buttons can be adjusted for individual displays.
+.P
+An application may specify one of the push buttons
+to be treated as a default selection.
+This implies that that button will be drawn with a double wide
+border around it.
+This feature may be disabled, if not needed.
+.sp
+.P
+This field editor supports two distinct sets of state flags:
+those associated with the whole instance (which are modified using
+.B MSG_GETSTATE
+and
+.B MSG_SETSTATE),
+and those which are assigned to the individual pushbuttons (which
+are modified using
+.B MSG_GETITEMSTATES
+and
+.B MSG_SETITEMSTATES).
+The state flags which are associated with the instance as a whole
+have precedence over the individual state flags.
+For example, if the
+.B XrVISIBLE
+flags is cleared for the instance, then none of the pushbuttons
+will be displayed, regardless of their individual state flag settings.
+But, if the
+.B XrVISIBLE
+flag is set for the instance, then the field editor will look at the
+state of the
+.B XrVISIBLE
+flag associated with each pushbutton, to determine if the
+entity should be displayed.
+.P
+Using the cursor and the mouse, a user is able to interactively
+select a push button, by moving the cursor over one
+of the buttons, and 'clicking' the mouse button.
+When the mouse button is depressed, the selected push button
+will be drawn as active (solid filled); when the user releases
+the mouse button, the selected push button will be redrawn as
+inactive (not filled), and an event will be returned to the
+application, notifying it that a push button was selected.
+.P
+When the editor draws the specified push button instance,
+it will attempt to space out the individual buttons, to take
+full advantage of the specified 
+.I editorRect.
+If the rectangle is larger than needed, then the extra
+space will be divided equally as blank space between the
+rows and columns.
+If the rectangle is too small, then the request will fail.
+.P
+When displaying a push button editor instance, the button
+sizes may vary between the various rows and columns.
+However, to help prevent the instance from looking disorganized,
+the following steps will be taken:
+.sp
+.in 8
+Each button within a particular horizontal row, will
+be the same height.
+.sp
+Each button within a particular vertical column, will
+be the same width.
+.in
+
+.SH EDITOR MESSAGES
+.IP MSG_NEW
+This message will be the means by which an application program
+can create a push button editor instance in a window.  It will
+expect the 
+.I instance
+parameter to be set to
+.B NULL,
+and the
+.I data 
+parameter to point to a filled out instance of the following structure:
+.sp
+.nf
+     typedef struct {
+          Window       editorWindowId;
+          RECTANGLE    editorRect;
+          INT8         editorState;
+          INT32        editorFGColor;
+          INT32        editorBGColor;
+          FontInfo   * editorFont;
+          INT16        numFields;
+          INT16        numCols;
+          INT16        defaultButton;
+          INT16        borderWidth;
+          INT8      ** labels;
+          INT8       * stateFlags;
+      } xrPushButtonInfo;
+.fi
+.sp
+.in 7
+.ul 1
+editorWindowId
+.br
+.in
+.in 9
+This field indicates the window to which the editor instance
+is to be attached.
+Anytime the instance is redrawn, it will be redrawn in this window.
+.in
+.sp
+.in 7
+.ul 1
+editorRect
+.br
+.in
+.in 9
+This describes the location and size of the region 
+into which the push button instance is to be located.
+If the rectangle is larger than is needed to hold the specified
+instance, then the extra space will be used as padding
+between the individual push buttons.
+If the rectangle is too small, then the request will fail.
+.in
+.sp
+.in 7
+.ul 1
+editorState
+.br
+.in
+.in 9
+This field contains the initial value of the state flags
+for this editor instance.
+It can be composed of any combination of the
+.B XrSENSITIVE
+and
+.B XrVISIBLE
+flags.
+.in
+.sp
+.in 7
+.ul 1
+editorFGColor
+.br
+.in
+.in 9
+This field specifies the foreground color
+to be used when drawing the editor instance.
+This is used when displaying the button labels,
+and for filling an active button.
+If this is set to -1, the default foreground color (see
+.B XrInit(3X)
+) will be used.
+.in
+.sp
+.in 7
+.ul 1
+editorBGColor
+.br
+.in
+.in 9
+This field specifies the background color
+to be used when drawing the editor instance.
+This is used for filling the interior of an inactive button.
+If this is set to -1, the default background color (see
+.B XrInit(3X)
+) will be used.
+.in
+.sp
+.in 7
+.ul 1
+editorFont
+.br
+.in
+.in 9
+This is a pointer to a structure which describes the font
+to be used when creating this editor instance.
+If the pointer has been set to 
+.B NULL, 
+then the editor will use the default system base font.
+The font is important not only because it determines how
+the labels will look, but it is also used to determine
+how large the buttons should be.
+.in
+.sp
+.in 7
+.ul 1
+numFields
+.br
+.in
+.in 9
+This value indicates the total number of push buttons which are
+included in this instance.
+Once specified, this value cannot be changed.
+.in
+.sp
+.in 7
+.ul 1
+numCols
+.br
+.in
+.in 9
+This value indicates the number of columns into which the
+push buttons are to be displayed.
+Using this value, and 
+.I numFields, 
+the editor will automatically calculate the number of rows.
+If this value is greater than 
+.I numFields,
+then the create request will fail.
+.in
+.sp
+.in 7
+.ul 1
+defaultButton
+.br
+.in
+.in 9
+This value indicates which push button should be displayed
+as the default selection; this involves drawing the button
+with a double wide border.
+This value must be in the range 
+.I 0 - (numFields - 1);
+any value outside this range will disable this feature.
+Setting this field to -1 is the standard way to disable
+this feature.
+.in
+.sp
+.in 7
+.ul 1
+borderWidth
+.br
+.in
+.in 9
+This value describes the width
+of the border surrounding each of the push buttons.
+This value must be greater than zero.
+.in
+.sp
+.in 7
+.ul 1
+labels
+.br
+.in
+.in 9
+This is a pointer to an array of 
+.B NULL 
+terminated
+character strings, representing the labels associated with each push button.
+If this pointer is set to 
+.B NULL, 
+then none of the buttons will have labels.
+If any of the pointers within the array are 
+.B NULL, 
+or if a label has a length of zero, then those buttons will not have labels.
+The first entry in the array will correspond to push button 0,
+the second to push button 1, etc.
+The editor will not keep a copy of each of these strings;
+instead, it will only keep a copy of the pointer to
+the string array.
+It will rely on the application to NOT modify these strings,
+once the instance has been created.
+.sp
+As was stated earlier, a label may be a single line of text,
+or multiple lines of text.
+To create multiple lines, insert a NEWLINE character (octal 012)
+at the end of each line of the label.
+.in
+.sp
+.in 7
+.ul 1
+stateFlags
+.br
+.in
+.in 9
+This is a pointer to an array of 8 bit integer values, each containing the
+initial state flag settings to be associated with each pushbutton
+in the instance.
+If this pointer has been set to
+.B NULL,
+then the state flags for each entity will be set to
+.B XrSENSITIVE
+and
+.B XrVISIBLE.
+The first entry in the array corresponds to pushbutton 0, etc.
+.in
+.sp
+.IP
+The editor will then draw the push button editor instance in the 
+specified window.
+.IP
+Upon successful completion, a pointer to the newly created
+editor structure will be returned to the application.
+This value must be used there after, whenever the application
+wishes to refer to this particular editor instance.
+
+.IP MSG_FREE
+This message is the mechanism by which an editor instance can be destroyed.
+The only parameter of importance is the
+.I instance
+parameter, which is a pointer to the
+editor structure, returned by the 
+.B MSG_NEW 
+message; this parameter specifies which instance is to be destroyed.
+.IP
+When a push button instance is destroyed, it will be internally
+disconnected from the window to which it was attached, it
+will no longer handle mouse selects, and it will be removed from the
+window, if the instance is visible.
+.IP
+After an editor instance has been destroyed, no further
+messages should be issued in regard to that instance.
+
+.IP MSG_GETSTATE
+This message returns the current state of the 
+.B XrVISIBLE 
+and 
+.B XrSENSITIVE
+flags for the specified push button instance.  The
+.I instance
+parameter specifies which instance to use. 
+The 
+.I data 
+parameter should be a pointer to an 8 bit integer value,
+into which the current state flags will be placed.
+REMEMBER: these are the state flags for the whole instance;
+not the state flags for the individual buttons.
+
+.IP MSG_SETSTATE
+This message allows an application program to modify the setting of
+the 
+.B XrSENSITIVE 
+and 
+.B XrVISIBLE 
+flags, for a given push button editor instance.
+The 
+.I data 
+parameter is interpreted as an 8 bit integer value,
+containing the new state flag values.
+After saving the new state flags, the editor instance will be redrawn,
+to reflect the new state.
+If an instance is not visible, then the
+rectangle which it occupies will be drawn using the background tile
+for the window, thus making it invisible. 
+If an instance is visible, but not sensitive, 
+then each push button will be drawn and filled with a 50% pattern.
+
+.IP MSG_GETITEMSTATES
+This message allows an application to obtain a copy of the individual
+state flags associated with each of the pushbuttons contained within
+the specified editor instance.
+These state flags differ from the state flags obtained using
+.B MSG_GETSTATE.
+The
+.I instance
+parameter must specify the editor instance to be queried, while the
+.I data
+parameter should point to an array of 8 bit integer values.
+The state flags will be returned by means of this array.
+The flags associated with pushbutton 0 will be returned in the first slot
+in the array, etc.
+
+.IP MSG_SETITEMSTATES
+This message allows an application to modify the individual state flags
+associated with each of the pushbuttons contained within the
+specified editor instance.
+Presently, only the
+.B XrVISIBLE
+and
+.B XrSENSITIVE
+flags are supported.
+The
+.I instance
+parameter must specify the editor instance which is to be modified, while the
+.I data
+parameter should point to an array of 8 bit integer values.
+The new state flags which are to be assigned to each entity within
+the instance will be obtained from this array.
+The value in the first slot of the array will be assigned to
+pushbutton 0, etc.
+After the new state flags have been saved, only those pushbuttons
+whose state flags changed will be redrawn.
+
+.IP MSG_GETITEMCOUNT
+This message allows an application to obtain a count, which
+indicates the number of individual push buttons in the specified instance.
+The editor will assume that the 
+.I instance
+parameter specifies the editor instance to query, and the
+.I data 
+parameter points
+to a 32 bit integer value; the item count value will be
+returned by means of this integer.
+.IP
+This message is useful when used in conjunction with the
+.B MSG_GETITEMRECTS 
+message.
+It allows an application to obtain the number of items in the
+instance, so that the application can then allocate enough
+memory to hold the rectangle information returned by
+.B MSG_GETITEMRECTS.
+
+.IP MSG_GETITEMRECTS
+This message returns the coordinates for the rectangle which
+describes each of the individual push buttons.
+The message will expect the
+.I instance
+parameter to specify the editor instance to query, and the
+.I data 
+parameter to point to a structure of the following format:
+.sp
+.nf
+	RECTANGLE   itemRects[x];
+.fi
+.sp
+This array will then be filled with the rectangle information, and
+returned to the application.
+.IP
+Before an application can make this call, it needs to know
+the number of items in the specified instance, so that it can
+allocate a structure large enough to hold all of the rectangle
+information.
+The application should use the 
+.B MSG_GETITEMCOUNT 
+message to
+obtain this information; the application can then allocate
+an array large enough to hold all of the rectangle entries.
+.IP
+The order of the rectangle items returned in the array directly
+correlates to the order the items were originally created in.
+The first element in the array will describe button 0, the
+second button 1, etc.
+.IP
+This message is useful to those applications which have a need
+of knowing where the individual items in a push button instance are located.
+The most common use would be by a forms controller, which would
+use the information to place an 'active field' indicator by a
+given item.
+
+.IP MSG_REDRAW
+This editor provides an application with the means for
+requesting that an instance of push buttons be redrawn.
+The current values, labels and font information will be used.
+.IP
+When this message is issued, the
+.I instance 
+parameter must be
+a pointer to the editor structure associated with the instance
+to be redrawn.
+The
+.I data
+parameter must be a 32 bit integer 
+which specifies the type of redraw to perform.
+.IP
+This message is useful for when an application wishes to modify
+the value or the state flags for a particular button.
+The application need only modify the appropriate values in
+the shared arrays, and then issue a
+.B MSG_REDRAW 
+request; the editor instance will automatically be drawn to match
+the new data.
+.IP
+The push button editor supports the following redraw mode:
+.sp
+.in 8
+.nf
+.B - XrREDRAW_ALL
+.fi
+.in
+.IP
+When the 
+.B XrREDRAW_ALL 
+option is specified, the complete editor instance will be redrawn.
+.IP
+If any other redraw mode is specified, then the request will fail.
+
+.IP MSG_SIZE
+This message allows an application to obtain the rectangle needed to
+contain a push button editor instance.
+The push button editor expects the 
+.I instance
+parameter to be set to
+.B NULL,
+and the
+.I data 
+parameter to point to an instance of the following structure:
+.sp
+.nf
+     typedef struct {
+          Window       editorWindowId;
+          RECTANGLE    editorRect;
+          INT8         editorState;
+          INT32        editorFGColor;
+          INT32        editorBGColor;
+          FontInfo   * editorFont;
+          INT16        numFields;
+          INT16        numCols;
+          INT16        defaultButton;
+          INT16        borderWidth;
+          INT8      ** labels;
+          INT8       * stateFlags;
+ } xrPushButtonInfo;
+.fi
+.sp
+.IP
+The only fields which must be filled out by the application program BEFORE
+issuing this call, are the 
+.I numFields, numCols, labels, borderWidth, defaultButton
+and 
+.I editorFont 
+fields; all other fields are ignored.
+.IP
+In return, the
+.I editorRect
+field will be filled in with the coordinates for the 0
+based rectangle needed to contain the instance; an
+application can then offset and stretch this rectangle,
+to position it where ever it likes, within its window.
+.IP
+If 
+.I numCols > numFields, 
+then the request will fail.
+
+.IP MSG_MOVE
+This message provides an application with a means for quickly relocating 
+a particular editor instance within a window.
+The size of the 
+.I editorRect 
+associated with the instance is not changed.
+To relocate an editor instance, a new origin point for the instance's
+.I editorRect 
+must be specified; the top left corner of the editor rectangle 
+will then be translated such that it now coincides with the new origin.
+The origin point is interpreted as an absolute position within the window.
+.IP
+When this message is issued, the
+.I instance
+parameter must point to the editor structure associated with the
+instance which is to be moved, while the
+.I data
+parameter must point to a 
+.I POINT 
+structure, containing the new
+.I editorRect 
+origin.
+.IP
+When an editor instance is relocated, the field editor will automatically
+remove the visual image of the instance from the window, and will then redraw
+the instance at its new location; this occurs only if the instance is
+visible.
+
+.IP MSG_RESIZE
+This message provides an application with a means for both changing the
+size of the 
+.I editorRect
+associated with a particular editor instance, and also the location of
+the new
+.I editorRect.
+All restrictions regarding the
+.I editorRect
+size which applied when the instance was first created using
+.B MSG_NEW,
+still apply.
+If an invalid 
+.I editorRect
+is specified, then the resize request will fail.
+.IP
+When this message is issued, the
+.I instance
+parameter must point to the editor structure associated with the instance
+which is to be resized, while the
+.I data
+parameter must point to a 
+.I RECTANGLE 
+structure containing the
+new size and origin for the 
+.I editorRect.
+.IP
+When an editor instance is resized, the field editor will automatically
+remove the visual image of the instance from the window, and will then
+redraw the instance using the new size and location information; this
+occurs only if the instance is visible.
+
+.IP MSG_EDIT
+Normally, an application will not issue this message;
+it is usually issued by the Xrlib input routines,
+when an input event occurs within a push button instance.
+.IP
+When such an event occurs, a
+.B MSG_EDIT 
+message will be issued to the editor, with
+the first parameter,
+.I instance,
+indicating which push button instance to process, and
+the third parameter,
+.I data,
+pointing to an 
+.I XEvent
+structure.
+.IP
+The push button editor only handles an event if 
+event maps to an
+.B XrSELECT
+event, as described by
+.B XrMapButton(3X)
+and
+.B XrInit(3X);
+all others are ignored.  When a select event
+occurs within a push button instance, the first thing done is to determine
+if one of the individual push buttons was selected.
+.IP
+If one of the push buttons was selected, then that button
+will be drawn as active (filled), and the editor will then
+wait for the user to release the select button.
+When the user releases the select button, the push button
+will again be drawn as inactive (not filled).
+Afterwards, an input event will be added to the front of the
+application's input queue, informing it that one
+of the push buttons has been selected. 
+The returned 
+.I xrEvent
+structure is set to the following value:
+.sp
+.in 8
+.nf
+type      = XrXRAY
+source    = the window id
+inputType = XrEDITOR
+inputCode = XrPUSHBUTTON
+value1    = XrSELECT
+value2    = index of button which was selected.
+valuePtr  = pointer to instance's editor structure
+.fi
+.in
+.IP
+If a select occurs within a push button instance, but not within
+the boundary of a button, then the editor will do
+nothing but push an input event onto the front of the application's
+input queue.
+The event will notify the application that the editor was selected,
+but no action took place.
+It will also include the cursor position at the time the select
+event occurred.
+The returned 
+.I xrEvent
+structure is set to the following value:
+.sp
+.in 8
+.nf
+type      = XrXRAY
+source    = the window id
+inputType = XrEDITOR
+inputCode = XrPUSHBUTTON
+value1    = NULL
+valuePt   = cursor position
+valuePtr  = pointer to instance's editor structure
+.fi
+.in
+
+.SH RETURN VALUE
+Upon successful completion of any of the messages, a non-NULL
+value will be returned.
+In the case of 
+.B MSG_NEW,
+this non-NULL value will be the pointer to the newly created
+editor instance structure.
+.P
+If a message request fails, then a NULL value is returned.
+
+.SH ERROR CONDITIONS
+Messages to the push button editor will fail, set the
+.I xrErrno
+global and return a NULL
+value, under the following conditions:
+.sp
+.IP MSG_NEW
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I editorWindowId
+is an invalid Id [XrINVALIDID].
+.IP
+.I numCols > numFields [XrINVALIDPARM].
+.IP
+The width specified in
+.I borderWidth
+is zero [XrINVALIDPARM].
+.IP
+An invalid editor rectangle is specified [XrINVALIDRECT].
+.IP
+A call to 'X' failed { XMakePixmap() } [XrXCALLFAILED].
+.IP
+Memory cannot be allocated [XrOUTOFMEM].
+.sp
+.IP MSG_REDRAW
+A redraw mode other than
+.B XrREDRAW_ALL
+is specified [XrINVALIDOPTION].
+.sp
+.IP MSG_SIZE
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I numCols > numFields [XrINVALIDPARM].
+.IP
+The width specified in
+.I borderWidth
+is zero [XrINVALIDPARM].
+.sp
+.IP MSG_RESIZE
+An invalid editor rectangle is specified [XrINVALIDRECT].
+.sp
+.IP "MSG_GETSTATE, MSG_MOVE, MSG_RESIZE, MSG_GETITEMRECTS,"
+.IP "MSG_GETITEMSTATES, MSG_SETITEMSTATES and MSG_GETITEMCOUNT"
+.I data
+is set to NULL [XrINVALIDPTR].
+.sp
+.IP "All messages, except MSG_NEW and MSG_SIZE"
+The
+.I instance
+parameter is set to NULL [XrINVALIDID].
+
+.SH "SEE ALSO"
+XrInput(3X), XrInit(3X)

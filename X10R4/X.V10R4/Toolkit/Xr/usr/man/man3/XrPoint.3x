@@ -1,0 +1,92 @@
+.TH XRPOINT 3X "Xrlib Version 10"
+.SH NAME
+XrAddPt, XrSubPt, XrSetPt, XrCopyPt, XrEqualPt - calculations with points.
+.SH SYNOPSIS
+#include <X/Xlib.h>
+.br
+#include <Xr/Xrlib.h>
+.br
+.PP
+.B XrAddPt (srcPt, dstPt)
+.br
+POINT * srcPt;
+.br
+POINT * dstPt;
+.br
+.sp 1
+.B XrSubPt (srcPt, dstPt)
+.br
+POINT * srcPt;
+.br
+POINT * dstPt;
+.br
+.sp 1
+.B XrSetPt (pt, x, y)
+.br
+POINT * pt;
+.br
+INT16 x;
+.br
+INT16 y;
+.br
+.sp 1
+.B XrOffsetPt (pt, x, y)
+.br
+POINT * pt;
+.br
+INT16 x;
+.br
+INT16 y;
+.br
+.sp 1
+.B XrCopyPt (srcPt, dstPt)
+.br
+POINT * srcPt;
+.br
+POINT * dstPt;
+.br
+.sp 1
+.B XrEqualPt (ptA, ptB)
+.br
+POINT * ptA;
+.br
+POINT * ptB;
+.sp 1
+.SH DESCRIPTION
+.sp 1
+.IP XrAddPt
+Add the coordinates of 
+.I srcPt
+to the coordinates of
+.I dstPt,
+and return the result in
+.I dstPt.
+.IP XrSubPt
+Subtract the coordinates of 
+.I srcPt
+from the coordinates of 
+.I dstPt,
+and return the result in 
+.I dstPt.
+.IP XrSetPt
+Assign the two coordinates to a variable of type POINT.
+.IP XrOffsetPt
+Change the values of the point structure
+.I pt
+by adding the
+.I x
+and
+.I y
+offsets to the members of
+.I pt.
+.IP XrCopyPt
+Copy 
+.I srcPt
+into 
+.I dstPt.
+.IP XrEqualPt
+Compare the two points and return 
+.B TRUE
+if they are equal or 
+.B FALSE
+if not.

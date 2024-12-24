@@ -1,0 +1,27 @@
+.TH Sx_DefaultHeight sx
+.BS
+.NA
+Sx_DefaultHeight \- return normal window height for font
+.SY
+#include <X/Xlib.h>
+#include <sx.h>
+.sp
+Sx_DefaultHeight(\fIfontPtr\fP)
+.AR
+.AS FontInfo *fontPtr
+.AP FontInfo *fontPtr in
+Information about font to be displayed in a window.  If NULL, then
+the Sx default font is used.
+.BE
+
+.SH DESCRIPTION
+.PP
+Given a font to be displayed in a window, this procedure returns
+a ``reasonable'' height for the window.  This is the height that
+Sx procedures like Sx_ButtonCreate would use.  Sx_DefaultHeight
+is provided as a convenience so that all windows displaying
+text use the same height for the same font, producing a cleaner
+display.
+
+.SH KEYWORDS
+default, height, font, window

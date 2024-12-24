@@ -1,0 +1,802 @@
+.TH XRRADIOBUTTON 3X "Xrlib Version 10"
+.fi
+.ad 1
+.SH NAME
+XrRadioButton - an editor for controlling radio buttons
+.SH SYNOPSIS
+#include <X/Xlib.h>
+.br
+#include <Xr/Xrlib.h>
+.br
+.sp 1
+xrEditor *
+.br
+.B XrRadioButton (instance, message, data)
+.in 7
+.br
+xrEditor * instance;
+.br
+INT32      message;
+.br
+INT8     * data;
+.br
+.in
+.sp 1
+.SH DESCRIPTION
+.sp
+.P
+The radio button editor is used to create and process a
+group of related radio buttons within a given window.  
+The number of radio buttons, and how they are displayed,
+is completely controlled by the application.
+Each radio button may also include an optional text
+label, which will be displayed to the right
+of the button.
+.P
+The size of the radio buttons are proportional to the size
+of the font being used to display the text labels.
+By allowing an application to specify this font,
+the size of the radio buttons can be adjusted for individual displays.
+.P
+Radio buttons are very similar to checkboxes.
+There are, however, at least two very distinct differences,
+which is why two different editors are provided:
+.sp
+.in 8
+Checkboxes are square, while radio buttons are round.
+.sp
+Checkboxes allow more than 1 item to be active
+at a time, while radio buttons allow only a
+single item to be active at any time.
+.in
+.P
+When a new radio button is made active, the previously
+active button is made inactive.
+The editor will not allow the situation to occur where
+no button is active.
+.P
+This field editor supports two distinct sets of state flags:
+those associated with the whole instance (which are modified using
+.B MSG_GETSTATE
+and
+.B MSG_SETSTATE),
+and those which are assigned to the individual radio buttons (which
+are modified using
+.B MSG_GETITEMSTATES
+and
+.B MSG_SETITEMSTATES).
+The state flags which are associated with the instance as a whole have
+precedence over the individual state flags.
+For example, if the
+.B XrVISIBLE
+flag is cleared for the instance, then none of the radio buttons
+will be displayed, regardless of their individual state flag settings.
+But, if the
+.B XrVISIBLE
+flag is set for the instance, then the field editor will look at the
+state of the
+.B XrVISIBLE
+flag associated with each radio button, to determine if the entity
+should be displayed.
+.P
+Using the cursor and the mouse, a user will be able to interactively
+select a radio button, by moving the cursor over one
+of the buttons, and 'clicking' the mouse button.
+This will cause the chosen button to become 'active' (filled);
+the previously active button will now become 'inactive' (not filled).
+An application will then be notified of the change, and
+may handle it accordingly.
+.P
+A radio button editor instance is composed of 3 components:
+.sp
+.in 8
+.nf
+- The editor instance's background area.
+- The individual buttons.
+- The button labels.
+.in
+.fi
+.sp
+Of these 'selectable' regions, only select events which occur
+in one of the individual radio buttons will affect the instance.
+When a radio button is selected,
+the editor will set the state of the button to 'active', and then
+the application program will be notified that the 
+state of the radio button instance has changed.
+If a select event occurs in any
+of the other components, the application will be notified
+that a select occurred, but the editor instance was not
+modified.
+.P
+When an editor instance is created, the index of the initially
+active radio button, and
+the label strings for each radio button will be specified by 
+the application program.
+For the active index, a pointer to a 16 bit value must be passed in.
+For the label strings, a pointer to an array of
+.B NULL
+terminated character strings may be passed in.
+The radio button editor will not save copies of these pieces 
+of data.
+Instead, it will save a copy of the pointers only.
+This will allow an application program to have immediate access
+to the index of the active radio button, since the value resides in the
+application's domain.
+.P
+This editor will rely on the fact that when an application
+modifies this piece of shared data, the
+application will tell the editor to redraw;
+this allows the editor to remain in sync with the current
+radio button data.
+Modifying the data, without doing a redraw, will cause
+the editor to behave in an unfriendly fashion.
+.P
+This editor allows an application program to obtain information
+about an instance in two ways:
+.sp
+.in 8
+By means of an input event returned when 
+the active radio button is changed.
+.sp
+By means of the shared variable mentioned above.
+This refers to the value containing the index
+of the active radio button.
+.in
+.P
+When the editor draws the specified radio button instance,
+it will attempt to space out the individual buttons, to take
+full advantage of the specified 
+.I editorRect.
+If the rectangle is larger than needed, then the extra
+space will be divided equally as blank space between the
+rows and columns of buttons.
+If the rectangle is too small, then the request will fail.
+
+.SH EDITOR MESSAGES
+.IP MSG_NEW
+This message is the means by which an application program
+can create a radio button editor instance in a window.  It will
+expect the 
+.I instance
+parameter to be set to
+.B NULL,
+and the
+.I data 
+parameter to point to a filled out instance of the following structure:
+.sp
+.nf
+     typedef struct {
+          Window       editorWindowId;
+          RECTANGLE    editorRect;
+          INT8         editorState;
+          INT32        editorFGColor;
+          INT32        editorBGColor;
+          FontInto   * editorFont;
+          INT16        numFields;
+          INT16        numCols;
+          INT8      ** labels;
+          INT16      * value;
+          INT8       * stateFlags;
+      } xrRadioButtonInfo;
+.fi
+.sp
+.in 7
+.ul 1
+editorWindowId
+.br
+.in
+.in 9
+This field indicates the window to which the editor instance
+is to be attached.
+Anytime the instance is redrawn, it will be redrawn in this window.
+.in
+.sp
+.in 7
+.ul 1
+editorRect
+.br
+.in
+.in 9
+This describes the location and size of the region 
+into which the radio button instance is to be located.
+If the rectangle is larger than is needed to hold the specified
+instance, then the extra space will be used as padding
+between the individual radio buttons.
+If the rectangle is too small, then the request will fail.
+.in
+.sp
+.in 7
+.ul 1
+editorState
+.br
+.in
+.in 9
+This field contains the initial value of the state flags
+for this editor instance.
+It can be composed of any combination of the
+.B XrSENSITIVE
+and
+.B XrVISIBLE
+flags.
+.in
+.sp
+.in 7
+.ul 1
+editorFGColor
+.br
+.in
+.in 9
+This field specifies the foreground color
+to be used when drawing the editor instance.
+This is used to display the button label,
+and to fill the interior of an active button.
+If this is set to -1, the default foreground color (see
+.B XrInit(3X)
+) will be used.
+.in
+.sp
+.in 7
+.ul 1
+editorBGColor
+.br
+.in
+.in 9
+This field specifies the background color
+to be used when drawing the editor instance.
+This is used to fill the interior of an inactive button.
+If this is set to -1, the default background color (see
+.B XrInit(3X)
+) will be used.
+.in
+.sp
+.in 7
+.ul 1
+editorFont
+.br
+.in
+.in 9
+This is a pointer to a structure which describes the font
+to be used when creating this editor instance.
+If the pointer has been set to 
+.B NULL, 
+then the editor will use the default system base font.
+The font is important not only because it describes how
+the labels will look, but it will also be used to determine
+how large the buttons should be.
+.in
+.sp
+.in 7
+.ul 1
+numFields
+.br
+.in
+.in 9
+This value indicates the total number of radio buttons which are
+included in this instance.
+Once specified, this value cannot be changed.
+.in
+.sp
+.in 7
+.ul 1
+numCols
+.br
+.in
+.in 9
+This value indicates the number of columns into which the
+radio buttons are to be displayed.
+Using this value, and 
+.I numFields, 
+the editor will automatically calculate the number of rows.
+If this value is greater than 
+.I numFields,
+then the create request will fail.
+.in
+.sp
+.in 7
+.ul 1
+labels
+.br
+.in
+.in 9
+This is a pointer to an array of 
+.B NULL 
+terminated
+character strings, representing the labels associated with each radio button.
+If this pointer is 
+.B NULL, 
+then none of the radio buttons will have labels.
+The first entry in the array will correspond to radio button 0,
+the second to radio button 1, etc.
+If an entry in this array is 
+.B NULL, 
+then the corresponding radio button will have no label.
+The editor will not keep a copy of each of these strings;
+instead, it will only keep a copy of the pointer to
+the string array.
+It will rely on the application to NOT modify these strings,
+once the instance has been created.
+.in
+.sp
+.in 7
+.ul 1
+value
+.br
+.in
+.in 9
+This is a pointer to a 16 bit integer value,
+representing the index of the active radio button.
+If this pointer is 
+.B NULL, 
+or if the value it points to is
+out of range, then the create request will fail.
+The valid range of values for this field is 0 to (numFields - 1).
+The editor will not keep a copy of this value.
+Instead, it will only keep a copy of the pointer to this value.
+Anytime the active radio button is changed, the editor
+will update this value , and then notify the application.
+The application will then have immediate access to the 
+index of the active radio button,
+since the value resides in its data area.
+.in
+.sp
+.in 7
+.ul 1
+stateFlags
+.br
+.in
+.in 9
+This is a pointer to an array of values, each containing the
+initial state flag values to be associated with each radio button
+in the instance.
+If this pointer has been set to
+.B NULL,
+then the state flags for each entity will be set to
+.B XrSENSITIVE
+and
+.B XrVISIBLE.
+The first entry in this array corresponds to radio button 0, etc.
+.in
+.sp
+.IP
+The editor will then draw the radio button editor instance in the 
+specified window.
+.IP
+Upon successful completion, a pointer to the newly created
+editor structure will be returned to the application.
+This value must be used there after, whenever the application
+wishes to refer to this particular editor instance.
+
+.IP MSG_FREE
+This message is the mechanism by which an editor instance can be destroyed.
+The only parameter of importance is the 
+.I instance
+parameter, which is a pointer to the
+editor structure which was returned by the 
+.B MSG_NEW 
+message; this parameter specifies which instance is to be destroyed.
+.IP
+When a radio button instance is destroyed, it will be internally
+disconnected from the window to which it was attached, it will
+no longer handle mouse selects, and it will be removed from the
+window, if the instance is visible.
+.IP
+After an editor instance has been destroyed, no further
+messages should be issued in regard to that instance.
+
+.IP MSG_GETSTATE
+This message returns the current state of the 
+.B XrVISIBLE 
+and 
+.B XrSENSITIVE
+flags for the specified radio button editor instance.  
+The 
+.I instance
+parameter specifies which instance to use. 
+The 
+.I data 
+parameter should be a pointer to an 8 bit integer value,
+into which the current state flags will be placed.
+
+.IP MSG_SETSTATE
+This message allows an application program to modify the setting of
+the 
+.B XrSENSITIVE 
+and 
+.B XrVISIBLE 
+flags, for a given radio button editor instance.
+The 
+.I data 
+parameter is interpreted as an 8 bit integer value, containing
+the new state flag values.
+After saving the new state flags, the editor instance will be redrawn,
+to reflect the new state.
+If an instance is not visible, then the
+rectangle which it occupies will be drawn using the background tile
+for the window, thus making it invisible. 
+If an instance is visible, but not sensitive, then 
+each radio button will be drawn and filled with a 50% pattern.
+
+.IP MSG_GETITEMSTATES
+This message allows an application to obtain a copy of the individual
+state flags associated with each of the radio buttons contained
+within the specified editor instance.
+These state flags differ from the state flags obtained using
+.B MSG_GETSTATE.
+The
+.I instance
+parameter
+must specify the editor instance to be queried, while the
+.I data
+parameter should point to an array of 8 bit integer values.
+The state flags will be returned by means of this array.
+The flags associated with radio button 0 will be returned in the first
+slot in the array, etc.
+
+.IP MSG_SETITEMSTATES
+This message allows an application to modify the individual state
+flags associated with each of the radio buttons contained within
+the specified editor instance.
+Presently, only the
+.B XrVISIBLE
+and
+.B XrSENSITIVE
+flags are supported.
+The
+.I instance
+parameter must specify the editor instance which is to be modified,
+while the
+.I data
+parameter should point to an array of 8 bit integer values.
+The new state flags which are to be assigned to each
+entity within the instance will be obtained from this array.
+The value in the first slot of the array will be assigned to
+radio button 0, etc.
+After the new state flags have been saved, only those
+radio buttons whose state flags changed will be redrawn.
+
+.IP MSG_GETITEMCOUNT
+This message allows an application to obtain a count, which
+indicates the number of individual radio buttons in the specified instance.
+The editor will assume that the
+.I instance
+parameter specifies the editor instance to query, and the
+.I data 
+parameter points
+to a 32 bit integer value; the item count value will be
+returned by means of this integer.
+.IP
+This message is useful when used in conjunction with the
+.B MSG_GETITEMRECTS 
+message.
+It allows an application to obtain the number of items in the
+instance, so that the application can then allocate enough
+memory to hold the rectangle information returned by
+.B MSG_GETITEMRECTS.
+
+.IP MSG_GETITEMRECTS
+This message returns the coordinates for the rectangle which
+describes each of the individual radio buttons; 
+these rectangles describe only the
+individual radio buttons - it does not include the labels.
+The message will expect the 
+.I instance
+parameter to specify the editor instance to query, and the
+.I data 
+parameter to point to a structure of the following format:
+.sp
+.nf
+	RECTANGLE   itemRects[x];
+.fi
+.sp
+This array will then be filled with the rectangle information, and
+returned to the application.
+.IP
+Before an application can make this call, it needs to know
+the number of items in the specified instance, so that it can
+allocate a structure large enough to hold all of the rectangle
+information.
+The application should use the 
+.B MSG_GETITEMCOUNT 
+message to
+obtain this information; the application can then allocate
+an array large enough to hold all of the rectangle entries.
+.IP
+The order of the rectangle items returned in the array directly
+correlates to the order the items were originally created in.
+The first element in the array will describe button 0, the
+second button 1, etc.
+.IP
+This message is useful to those applications which have a need
+of knowing where the individual items in a radio button instance are located.
+The most common use would be by a forms controller, which would
+use the information to place an 'active field' indicator by a
+given item.
+
+.IP MSG_REDRAW
+This editor provides an application with the means for
+requesting that an instance of radio buttons be redrawn.
+It will also allow an application program to set up a new active
+radio button index, and then request that only the new
+active button and the previous active button be redrawn.
+The current value, labels and font information will be used.
+.IP
+When this message is issued, the
+.I instance
+parameter must be
+a pointer to the editor structure associated with the instance
+to be redrawn.
+The
+.I data
+parameter must be a 32 bit integer
+which specifies the type of redraw to perform.
+.IP
+The radio button editor supports the following redraw modes:
+.sp
+.in 8
+.nf
+.B - XrREDRAW_ALL
+.sp
+.B - XrREDRAW_ACTIVE
+.fi
+.in
+.IP
+When the 
+.B XrREDRAW_ALL 
+option is specified, the complete editor instance will be redrawn.
+When the 
+.B XrREDRAW_ACTIVE 
+option is specified, only the
+previous and current active radio buttons will be redrawn.
+.IP
+If any other redraw mode is specified, then the request will fail.
+
+.IP MSG_SIZE
+This message allows an application to obtain the rectangle needed to
+contain a radio button editor instance.
+The radio button editor expects the 
+.I instance
+parameter to be set to
+.B NULL,
+and the
+.I data 
+parameter to point to an instance of the following structure:
+.sp
+.nf
+     typedef struct {
+          Window       editorWindowId;
+          RECTANGLE    editorRect;
+          INT8         editorState;
+          INT32        editorFGColor;
+          INT32        editorBGColor;
+          FontInfo   * editorFont;
+          INT16        numFields;
+          INT16        numCols;
+          INT8      ** labels;
+          INT16      * value;
+          INT8       * stateFlags;
+      } xrRadioButtonInfo;
+.fi
+.sp
+.IP
+The only fields which must be filled out by the application program BEFORE
+issuing this call, are the 
+.I numFields, numCols, labels 
+and 
+.I editorFont 
+fields; all other fields are ignored.
+.IP
+Using the supplied information, the editor will
+determine the size of the rectangle needed to contain this instance.
+In return, the
+.I editorRect
+field will be filled in with the coordinates for the 0
+based rectangle needed to contain the instance;
+an application program can then offset this rectangle, to
+position it where ever it likes, within its window.
+.IP
+If 
+.I numCols > numFields, 
+then the request will fail.
+
+.IP MSG_MOVE
+This message provides an application with a means for quickly relocating 
+a particular editor instance within a window.
+The size of the 
+.I editorRect 
+associated with the instance is not changed.
+To relocate an editor instance, a new origin point for the instance's
+.I editorRect 
+must be specified; the top left corner of the editor rectangle 
+will then be translated such that it now coincides with the new origin.
+The origin point is interpreted as an absolute position within the window.
+.IP
+When this message is issued, the
+.I instance
+parameter must point to the editor structure associated with the
+instance which is to be moved, while the
+.I data
+parameter must point to a 
+.I POINT 
+structure, containing the new
+.I editorRect 
+origin.
+.IP
+When an editor instance is relocated, the field editor will automatically
+remove the visual image of the instance from the window, and will then redraw
+the instance at its new location; this occurs only if the instance is visible.
+
+.IP MSG_RESIZE
+This message provides an application with a means for both changing the
+size of the 
+.I editorRect
+associated with a particular editor instance, and also the location of
+the new
+.I editorRect.
+All restrictions regarding the
+.I editorRect
+size which applied when the instance was first created using
+.B MSG_NEW,
+still apply.
+If an invalid 
+.I editorRect
+is specified, then the resize request will fail.
+.IP
+When this message is issued, the
+.I instance
+parameter must point to the editor structure associated with the instance
+which is to be resized, while the
+.I data
+parameter must point to a 
+.I RECTANGLE 
+structure containing the
+new size and origin for the 
+.I editorRect.
+.IP
+When an editor instance is resized, the field editor will automatically
+remove the visual image of the instance from the window, and will then
+redraw the instance using the new size and location information; this
+occurs only if the instance is visible.
+
+.IP MSG_EDIT
+Normally, an application will not issue this message;
+it is usually issued by the Xrlib input routines,
+when an input event occurs within a radio button instance,
+.IP
+When such an event occurs, a
+.B MSG_EDIT
+message will be issued to the editor, with the
+.I instance
+parameter indicating which radio button instance to process, and the
+.I data
+parameter pointing to an 
+.I XEvent
+structure.
+.IP
+The radio button editor only handles an event if 
+it maps to an
+.B XrSELECT
+event, as described by
+.B XrMapButton(3X)
+and
+.B XrInit(3X);
+all others are ignored.  When a select event
+occurs within a radio button instance, the first thing done is to determine
+if one of the individual radio buttons was selected.
+.IP
+If one of the radio buttons was selected, then that button
+will become the 'active' choice, and the previous active
+choice will be made inactive; both buttons will be redrawn.
+Afterwards, an input event will be added to the front of the
+application's input queue, informing it that a new active
+radio button was selected.
+The returned 
+.I xrEvent
+structure is set to the following value:
+.sp
+.nf
+   type      = XrXRAY
+   source    = the window Id
+   inputType = XrEDITOR
+   inputCode = XrRADIOBUTTON
+   value1    = XrSELECT
+   value2    = index of new active radio button
+   value3    = index of previously active radio button
+   valuePtr  = pointer to instance's editor structure
+.fi
+.IP
+The editor will update the value of the active radio
+button in the location shared with the application program.
+This value is then directly available to the application program.
+.IP
+If a select occurs within a radio button instance, but not within
+the boundary of a button, then the editor will do
+nothing but push an input event onto the front of the application's
+input queue.
+The event will notify the application that the editor was selected,
+but no action took place.
+It will also contain the cursor position at the time the
+select event occurred.
+The returned 
+.I xrEvent
+structure is set to the following value:
+.sp
+.nf
+   type      = XrXRAY
+   source    = the window Id
+   inputType = XrEDITOR
+   inputCode = XrRADIOBUTTON
+   value1    = NULL
+   valuePt   = cursor position
+   valuePtr  = pointer to instance's editor structure
+.fi
+
+.SH RETURN VALUE
+Upon successful completion of any of the messages, a non-NULL
+value will be returned.
+In the case of
+.B MSG_NEW,
+this non-NULL value will be the pointer to the
+newly created editor instance structure.
+.P
+If a message request fails, then a NULL value is returned.
+
+.SH ERROR CONDITIONS
+Messages to the radio button editor will fail, set the
+.I xrErrno
+global and return a NULL
+value, under the following conditions:
+.sp
+.IP MSG_NEW
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I editorWindowId
+is an invalid Id [XrINVALIDID].
+.IP
+.I numCols > numFields [XrINVALIDPARM].
+.IP
+.I value
+is set to NULL [XrINVALIDPTR].
+.IP
+The radio button index, pointed to by the
+.I value
+field is out of range [XrPARMOUTOFRANGE].
+.IP
+An invalid editor rectangle is specified [XrINVALIDRECT].
+.IP
+A call to 'X' failed { XMakePixmap() } [XrXCALLFAILED].
+.IP
+Memory cannot be allocated [XrOUTOFMEM].
+.sp
+.IP MSG_REDRAW
+The radio button index, pointed to by the
+.I value
+field is out of range [XrPARMOUTOFRANGE].
+.IP
+A redraw mode other than
+.B XrREDRAW_ALL
+or
+.B XrREDRAW_ACTIVE
+is specified [XrINVALIDOPTION].
+.sp
+.IP MSG_SIZE
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I numCols > numFields [XrINVALIDPARM].
+.sp
+.IP MSG_RESIZE
+An invalid editor rectangle is specified [XrINVALIDRECT].
+.sp
+.IP "MSG_GETSTATE, MSG_MOVE, MSG_RESIZE, MSG_GETITEMRECTS,"
+.IP "MSG_GETITEMSTATES, MSG_SETITEMSTATES and MSG_GETITEMCOUNT"
+.I data
+is set to NULL [XrINVALIDPTR].
+.sp
+.IP "All messages, except MSG_NEW and MSG_SIZE"
+The
+.I instance
+parameter is set to NULL [XrINVALIDID].
+
+.SH "SEE ALSO"
+XrInput(3X), XrInit(3X)

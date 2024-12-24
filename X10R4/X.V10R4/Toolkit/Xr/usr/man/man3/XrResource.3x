@@ -1,0 +1,169 @@
+.TH XRRESOURCE 3X "Xrlib Version 10"
+.fi
+.ad 1
+.SH NAME
+XrResource - the resource manager
+.SH SYNOPSIS
+#include <X/Xlib.h>
+.br
+#include <Xr/Xrlib.h>
+.br
+.sp 1
+.B XrResource (message, data)
+.br
+INT32 message;
+.br
+INT8 * data;
+.br
+.sp 1
+.SH DESCRIPTION
+The resource manager is used to add, find, or remove resource objects
+from an internally managed list.  A resource object is identified
+by its functional type and a user-supplied resource number within 
+that type.
+.P
+Several of messages use the following structure for passing or returning
+data.
+.nf
+
+typedef struct
+{
+   UINT16 resourceType;
+   INT32  resourceId;
+   INT8 resourceState;
+   INT32 resourceFile;
+   INT8 * resourceObject;
+} xrResourceInfo;
+
+.fi
+.IP MSG_ADD
+This message adds to the resource manager the resource identified by the 
+.I  data
+parameter, which points to an xrResourceInfo structure.  If the
+.I resourceObject
+field contains a valid pointer, the
+.I resourceFile
+field will be set to
+.B XrMEMORY
+to indicate the resource is from application memory.
+.IP
+If the resource type and id fields in
+.I data
+match a resource already within the resource list, the resource in
+the list will be replaced with the new resource.  If the
+location of the old resource is from application memory the
+.I resourceObject
+field within
+.I data
+will be set to point at the object being replaced.  This allows an
+application to maintain control of an object being replaced in the
+resource list.
+.IP MSG_REMOVE
+This message removes from the resource list the object identified by the
+.I data
+parameter, which points to a filled out instance of a xrResourceInfo
+structure.  Only the
+.I resourceType
+and
+.I resourceId
+fields need to be set by the application.  When the resource is
+located in the resource managers lists, the
+.I resourceFile
+field is checked and if it is set to
+.B XrMEMORY,
+the
+.I resourceObject
+field in
+.I data
+will be set to point to the object.  If the object is not found
+in the resource list this message will fail.
+.IP MSG_FIND
+This message locates the requested resource within the resource list.
+.I data
+is a pointer to an xrResourceInfo structure.  The
+.I resourceType
+and
+.I resourceId
+fields of the structure identify the resource to be found.  When the
+resource is located, the rest of the fields of the structure will
+be filled out.
+.IP MSG_SETSTATE
+This messages is used to set the state of a resource contained within
+the resource manager.  For this message,
+.I data
+is a pointer to an xrResourceInfo structure which has the
+.I resourceType, resourceId,
+and
+.I resourceState
+fields filled out.  This message will search for the resource, and
+when it is found, set its
+.I resourceState
+to the new state.
+.sp
+.P
+The following two messages provide for the creation or destruction of
+application defined resource types.
+.IP MSG_NEWTYPE
+This message allows an application to create a new resource type.
+.I data
+is a pointer to the following structure.
+.nf
+
+typedef struct
+{
+   UINT16  resourceType;
+   INT32  (*resourceHandler)();
+} xrResourceTypeInfo;
+
+.fi
+.IP MSG_FREETYPE
+This message destroys and removes a resource type from the resource
+type list.
+.I data
+contains the resource type identifier.  This message will fail
+if the identifier is not in the range of 1 - 63999 or if the
+resource type is not defined or if the there are any resources
+still attached to the resource type.
+.SH RETURN VALUE
+XrResource() returns
+.B TRUE
+when successful,
+.B FALSE
+otherwise.
+.SH ERROR CONDITIONS
+If XrError() returns
+.B FALSE
+the 
+.I xrErrno
+global will be set to one of the following values.
+.P
+.I xrErrno
+will be set to 
+.B XrINVALIDMSG
+for any messages besides the messages listed above.
+.P
+.I xrErrno
+will be set to
+.B XrINVALIDID
+anytime a resource id is invalid or cannot be found.
+.P
+.I xrErrno
+will be set to
+.B XrINVALIDTYPE
+anytime a resource type is invalid.
+.P
+.I xrErrno
+will be set to
+.B XrINVALIDSTATE
+anytime a resource is to be modified and a state flag setting
+prevents it.
+.P
+.I xrErrno
+will be set to
+.B XrINVALIDPARM
+whenever the data parameter contains invalid information.
+.P
+.I xrErrno
+will be set to 
+.B XrOUTOFMEM
+if MSG_ADD cannot allocate the needed space for a resource.

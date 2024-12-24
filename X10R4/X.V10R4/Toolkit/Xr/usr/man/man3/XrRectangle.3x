@@ -1,0 +1,188 @@
+.TH XRRECTANGLE 3X "Xrlib Version 10"
+.SH NAME
+XrSetRect, XrSetPtRect, XrCopyRect, XrOffsetRect, XrInsetRect, XrSectRect,
+XrUnionRect, XrPtInRect, XrPt2Rect, XrEqualRect - 
+calculations with rectangles.
+.SH SYNOPSIS
+#include <X/Xlib.h>
+.br
+#include <Xr/Xrlib.h>
+.br
+.PP 
+.B XrSetRect (rect, x, y, width, height)
+.br
+RECTANGLE * rect;
+.br
+INT16 x;
+.br
+INT16 y;
+.br
+INT16 width;
+.br
+INT16 height;
+.br
+.sp 1
+.B XrSetPtRect (rect, topLeft, botRight)
+.br
+RECTANGLE * rect;
+.br
+POINT * topLeft;
+.br
+POINT * botRight;
+.br
+.sp 1
+.B XrCopyRect (srcRect, dstRect)
+.br
+RECTANGLE * srcRect;
+.br
+RECTANGLE * dstRect;
+.br
+.sp 1
+.B XrOffsetRect (rect, dx, dy)
+.br
+RECTANGLE * rect;
+.br
+INT16 dx;
+.br
+INT16 dy;
+.br
+.sp 1
+.B XrInsetRect (rect, dx, dy)
+.br
+RECTANGLE * rect;
+.br
+INT16 dx;
+.br
+INT16 dy;
+.br
+.sp 1
+.B XrSectRect (srcRectA, srcRectB, dstRect)
+.br
+RECTANGLE * srcRectA;
+.br
+RECTANGLE * srcRectB;
+.br
+RECTANGLE * dstRect;
+.br
+.sp 1
+.B XrUnionRect (srcRectA, srcRectB, dstRect)
+.br
+RECTANGLE * srcRectA;
+.br
+RECTANGLE * srcRectB;
+.br
+RECTANGLE * dstRect;
+.br
+.sp 1
+.B XrPtInRect (pt, rect)
+.br
+POINT * pt;
+.br
+RECTANGLE * rect;
+.br
+.sp 1
+.B XrPt2Rect (ptA, ptB, dstRect)
+.br
+POINT * ptA;
+.br
+POINT * ptB;
+.br
+RECTANGLE * dstRect;
+.br
+.sp 1
+.B XrEqualRect (rectA, rectB)
+.br
+RECTANGLE * rectA;
+.br
+RECTANGLE * rectB;
+.br
+.sp 1
+.B XrEmptyRect (rect);
+.br
+RECTANGLE * rect;
+.br
+.sp 1
+.SH DESCRIPTION
+.IP XrSetRect
+Assign the four members of a rectangle.  The result is
+a rectangle with values of
+.I x, y, width, height.
+.IP XrSetPtRect
+Assign the two boundary points to the rectangle.  The result is a 
+rectangle with the 
+.I x
+and
+.I y
+fields set to the fields of the
+.I topLeft,
+parameter and the
+.I width
+and
+.I height
+fields set to the difference of the 
+.I topLeft
+and
+.I botRight
+point parameters.
+.IP XrCopyRect
+Assign the coordinates of the source rectangle 
+.I srcRect
+into the
+destination rectangle
+.I dstRect.
+.IP XrOffsetRect
+Move the rectangle 
+.I rect
+by adding
+.I dx
+to each horizontal coordinate and 
+.I dy
+to each vertical coordinate.
+.IP XrInsetRect
+Shrink or expand the rectangle
+.I rect.
+The left and right sides are moved in by the amount specified by
+.I dx;
+the top and bottom are moved towards the center
+by the amount specified by
+.I dy.
+If the resulting width or height becomes 
+less than 1, the rectangle is set to the empty rectangle (0, 0, 0, 0).
+.IP XrSectRect
+Calculate the rectangle that is the intersection of the two source 
+rectangles
+.I srcRectA
+and
+.I srcRectB,
+place the result into the rectangle
+.I dstRect
+and return
+.B TRUE
+if they intersect or
+.B FALSE
+if they do not.
+.IP XrUnionRect
+Calculate the smallest rectangle which encloses both input rectangles
+and return the resulting rectangle in
+.I dstRect.
+.IP XrPtInRect
+Determine whether the point is in the rectangle.  Return
+.B TRUE
+if it is and 
+.B FALSE
+if it isn't.
+.IP XrPt2Rect
+Return the smallest rectangle which encloses the two input points.
+.IP XrEqualRect
+Compare the two rectangles and return 
+.B TRUE
+if they are equal or 
+.B FALSE
+if not.
+.IP XrEmptyRect
+Return 
+.B TRUE
+if the given rectangle is an empty rectangle or 
+.B FALSE
+if not.  A rectangle is considered empty if the width or height fields of the
+rectangle are less than or equal to 0.

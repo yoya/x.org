@@ -1,0 +1,53 @@
+.TH Sx_ScrollbarGetRange sx
+.BS
+.NA
+Sx_ScrollbarGetRange, Sx_ScrollbarSetRange \- read and write the range of a scrollbar
+.SY
+#include <X/Xlib.h>
+#include <sx.h>
+.sp
+Sx_ScrollbarGetRange(\fIscrollbar, topPtr, bottomPtr\fP)
+.sp
+Sx_ScrollbarSetRange(\fIwindow, top, bottom\fP)
+.AR
+.AS Window *bottomPtr
+.AP Window window in
+Window whose associated scrollbar's range is to be queried or set.
+Should have been either the return value from a prior Sx_ScrollbarCreate
+call or the \fIwindow\fP parameter to a prior Sx_ScrollbarMake call.
+.AP float *topPtr out
+Location in which to store location of top (or left) edge of view
+relative to overall object size.
+.AP float *bottomPtr out
+Location in which to store location of bottom (or right) edge of view
+relative to overall document size.
+.AP float top in
+New value for top (left) edge of scrollbar range.
+.AP float bottom in
+New value for bottom (right) edge of scrollbar range.
+.BE
+
+.SH DESCRIPTION
+.PP
+These two procedures allow callers to query and change the range
+displayed in the ``elevator'' of the scrollbar associated with
+\fIwindow\fP.  The range
+of a scrollbar is indicated by two values, \fItop\fP and \fIbottom\fP,
+both between 0.0 and 1.0 inclusive.  
+For example, if \fItop\fP was 0.0 and \fIbottom\fP
+was 0.5, it would mean that the top half of the object is visible in
+the window.  For a horizontal scrollbar, it would mean that the left
+half of the object is visible in the window.  The elevator displayed
+in the scrollbar has its top (or left) edge \fItop\fP of the way along
+the length of the scrollbar, and its bottom (or right) edge \fIbottom\fP
+of the way along the length of the scrollbar.
+.PP
+Sx_ScrollbarSetRange does not affect in any way the view in the
+window associated with the scrollbar;  all it does is update the
+range of the elevator drawn in the scrollbar to reflect the new
+values of \fItop\fP and \fIbottom\fP.  It is up to the caller to
+make sure that the range of the scrollbar and the view in the
+associated window remain consistent.
+
+.SH KEYWORDS
+range, scrollbar, window

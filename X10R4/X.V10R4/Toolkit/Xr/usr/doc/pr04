@@ -1,0 +1,1901 @@
+.ds Ch Field Editors
+.nr H1 4
+.so format
+``Field editors'' is a collection of tools that aids applications writers by
+providing them with a common user interface across a wide variety of programs.
+.H 2 "Introduction"
+Editors are most often used as building blocks in higher level user
+interface constructs, (panels and dialog managers) but they are not limited
+to such use.  Applications writers should feel free to incorporate these
+tools into their programs in whatever manner they wish.
+.P
+Each editor provides and manages a specific piece of the user interface.
+When an editor instance is created, it takes over a rectangular region of a
+window and fields all input events occurring within that region.
+.P
+Many of the Xr library field editors allow applications to specify the font to be
+used when an instance is created.  If a font is not specified, the editor will
+use the default system base font.  Refer to the manual page for 
+.B
+XrInit()
+.R
+in appendix A for information about the system base font.
+.H 3 "Editor Calling Sequence"
+.P
+All editors provide the same calling sequence for accessing editor messages.
+The calling sequence format is as follows:
+.sp
+.nf
+	xrEditor *
+	XrEditorName (instance, message, data)
+
+	    xrEditor * instance;
+	    INT32      message;
+	    INT8     * data;
+
+.fi
+.P
+The
+.I
+instance
+.R
+parameter specifies which editor instance is being referenced.  This value
+is returned when the instance is created, and must then be specified in all
+future references to that instance.
+.P
+The
+.I
+message
+.R
+parameter specifies what action an editor should take regarding a specified
+editor instance.  Refer to the manual page(s) for the individual editors for
+an overview of how each editor handles messages.
+.P
+The
+.I
+data
+.R
+parameter is an arbitrary value (a pointer or a scalar) which is coerced to
+a specific data type by an editor.  Refer to the manual page(s) in appendix A
+for the individual editors to see the type of data that each message expects.
+.H 3 "Creating An Editor Instance"
+.P
+Before an application can use an editor, it must create an instance of that
+editor.  This is normally a three-step process:
+.AL
+.LI
+The application makes a call to the editor and obtains the coordinates of
+the 0-based rectangle into which the instance will fit.  This normally
+involves supplying information describing the instance to be created.
+.LI
+The application will then offset this rectangle to position the instance in
+the desired location within a window.
+.LI
+The application now asks the editor to create an instance occupying the
+region of the window specified by the rectangle.
+.LE
+.P
+Upon completion of this three-step process, the editor will return a unique
+pointer to the instance structure associated with the newly-created editor
+instance; this is referred to as the
+.B
+instance pointer.
+.R
+This pointer should be saved by the application program because it will be
+needed whenever the application communicates with the editor regarding this
+particular instance.
+.IN "Editor Messages"
+.H 3 "Editor Messages"
+.P
+Most communications with the Xrlib editors are made using the base set of
+editor messages listed below.  Information for any additional messages
+(which some editors may require in order to get their work done) is contained
+in the manual pages for those individual editors.
+.BL
+.LI
+MSG_NEW
+.LI
+MSG_SIZE
+.LI
+MSG_SETSTATE
+.LI
+MSG_GETSTATE
+.LI
+MSG_MOVE
+.LI
+MSG_RESIZE
+.LI
+MSG_REDRAW
+.LI
+MSG_FREE
+.LI
+MSG_EDIT
+.LE
+.P
+The calling sequence, and a brief overview is presented for each of the common editor messages:
+.BL
+.LI MSG_NEW
+.br
+This message is the means by which an application may request
+that an editor instance be created.
+Each editor has a structure which it will expect the
+application to have filled out with the information
+describing the instance to be created.
+.P
+If the create request succeeds, then the editor will return
+a pointer to the instance structure; this must be used for
+all future calls made in reference to this particular instance.
+If the create request fails, then a 
+.B NULL 
+value is returned.
+.P
+The following block of code gives an example of the steps
+needed to create an instance of the scrollbar editor:
+.sp
+.nf
+{
+	xrEditor      * SBinstance;
+	xrScrollBarInfo SBinfo;
+
+	/* Fill out the structure defining the instance */
+
+
+	/* Create the instance */
+	SBinstance = XrScrollBar (NULL, MSG_NEW, &SBinfo);
+}
+.fi
+.LI MSG_SIZE
+.br
+This message is used primarily by an application to obtain
+the minimal 0-based rectangle, which would completely contain
+the described editor instance.
+Once an application has obtained this information, it can
+offset the rectangle, to relocate it to the desired portion
+of the window.
+.P
+This message will expect the application to pass in a pointer
+to the same type of structure used by the
+.B MSG_NEW
+message.
+However, for this message, the whole structure will not need
+to be filled out prior to calling the editor.
+Each editor will require a different amount of data to be
+specified, before this call is made.
+Refer to the individual manual pages for more details.
+.P
+The bounds rectangle which is returned by this message,
+is important, because
+it describes the region of the window which is to be occupied by the 
+particular editor instance.
+Any input events which occur within this region,
+will be passed along to the editor, to be processed relative
+to the particular editor instance.
+.P
+In return for making a
+.B MSG_SIZE 
+request, the editor will fill in the
+.I editorRect
+portion of the passed in structure, with the coordinates
+of the 0-based rectangle.
+.P
+The following block of code outlines how to issue this message:
+.sp
+.nf
+{
+	xrScrollBarInfo SBinfo;
+
+	/* Fill out the structure defining the instance */
+	   
+
+	/* Ask for the bounds rectangle */
+	XrScrollBar (NULL, MSG_SIZE, &SBinfo);
+}
+.fi
+.LI MSG_SETSTATE
+.br
+Each editor instance has a series of state flags associated
+with it, which determine both its behavior, and its appearance.
+These are initially specified when the instance is created,
+but may be modified at any time.
+.P
+Although an editor may support many different state flags,
+each editor is required to support at least the following two flags:
+.sp
+.nf
+   - XrVISIBLE
+   - XrSENSITIVE
+.fi
+.sp
+.P
+.B XrVISIBLE
+defines the appearance of a particular editor instance.
+When this state is set, the instance will be drawn in the
+specified window.
+When this state is cleared, the area occupied by the instance
+will be filled with the background tile for the window, thus
+making the instance invisible.
+.P
+.B XrSENSITIVE
+defines the behavior of a particular editor instance; it
+only comes into play when an instance is visible.
+This state defines how an editor instance will behave when any
+mouse events occur within its rectangular region.
+When this state is set, the editor will process any input that
+occurs within its region.
+When cleared, all input events will be ignored for that instance.
+When ever possible, an editor instance will use some form of visual feedback
+to indicate whether or not it is sensitive.
+Refer to the individual editor manual pages, for a description
+of this visual feedback.
+.P
+The following block of code will outline the calling
+sequence for this message:
+.sp
+.nf
+{
+	INT8       stateFlags;
+	xrEditor * SBinstance;
+
+
+	/* Create the editor instance */
+		 
+
+	/* Make the instance invisible */
+	stateFlags = XrSENSITIVE;
+	XrScrollBar (SBinstance, MSG_SETSTATE, stateFlags);
+}
+.fi
+.LI MSG_GETSTATE
+.br
+As was mentioned in the previous section, each editor instance
+has a series of state flags associated with it.
+Sometimes, it is useful for an application to inquire as to
+the current settings of these state flags.
+This message provides this capability.
+It will return the current settings of the state flags,
+to which an application may modify, and then reset for
+a particular editor instance.
+.P
+The following block of code will show how this message may be used:
+.sp
+.nf
+{
+	INT8       stateFlags;
+	xrEditor * SBinstance;
+
+	/* Create the editor instance */
+		 
+
+	/* Get the current state flags */
+	XrScrollBar (SBinstance, MSG_GETSTATE, &stateFlags);
+}
+.fi
+.LI MSG_MOVE
+.br
+This message provides an application with a means for quickly relocating
+a particular editor instance within a window.
+The size of the
+.I editorRect
+associated with the instance is not changed.
+To relocate an editor instance, a new origin point for the instance's
+.I editorRect
+must be specified; the top left corner of the
+.I editorRect
+will then be translated such that it now coincides with the new origin.
+The origin point is interpreted as an absolute position within the window;
+i.e., relative to the window's origin.
+.P
+When this message is issued, the
+.I instance
+parameter must point to the editor structure associated with the
+instance which is to be moved, while the
+.I data
+parameter must point to a
+.I POINT 
+structure containing the new 
+.I editorRect
+origin.
+.P
+When an editor instance is relocated, the field editor will automatically
+remove the visual image of the instance from the window, and will then redraw
+the instance at its new location; this occurs only if the instance is visible.
+.sp
+.nf
+{
+	POINT   newOrigin;
+	xrEditor * SBinstance;
+ 
+	/* Create the editor instance */
+
+
+	/* Move the scrollbar origin to (50,50) */
+	XrSetPoint(&newOrigin,50,50);
+	XrScrollBar(SBinstance,MSG_MOVE,&newOrigin);
+}
+.fi
+.LI MSG_RESIZE 
+.br
+This message provides an application with a means for both changing the
+size of the 
+.I editorRect
+associated with a particular editor instance, and also the location of
+the new
+.I editorRect.
+All restrictions regarding the
+.I editorRect
+size which applied when the instance was first created using
+.B MSG_NEW,
+still apply.
+If an invalid 
+.I editorRect
+is specified, then the resize request will fail.
+.P
+When this message is issued, the
+.I instance
+parameter must point to the editor structure associated with the instance
+which is to be resized, while the
+.I data
+parameter must point to a 
+.I RECTANGLE 
+structure containing the
+new size and origin for the 
+.I editorRect.
+.P
+When an editor instance is resized, the field editor will automatically
+remove the visual image of the instance from the window, and will then
+redraw the instance using the new size and location information; this
+occurs only if the instance is visible.
+.sp
+.nf
+{
+	RECTANGLE   newSize;
+	xrEditor * SBinstance;
+
+	/* Create the editor instance */
+
+	/* 
+	 * Resize the scrollbar instance by increasing its
+	 * length. Also move the origin of the instance
+	 * to (50,50).
+	/*
+
+
+	newSize.X=50;
+	newSize.Y=50'
+	newSize.height=SBinstance->editorRect.height;
+	newSize.width=SBinstance->editorRect.width + 40;
+	XrScrollBar (SBinstance, MSG_RESIZE, & newSize);
+}
+.fi 
+.LI MSG_REDRAW
+.br
+There may arise the situation where an application finds the need
+to redraw an editor instance.
+This can occur for several reasons:
+.BL
+.LI
+An instance was obscured by something, but is now
+no longer obscured.
+.LI
+The application has changed some aspect of the instance,
+and the editor needs to redraw, to bring the instance in line
+with the changes.
+.LE
+.P
+This message is provided precisely with this in mind.
+.P
+There are several types of redraw modes available.
+However, not all editors support all of the modes.
+Fortunately, all editors support the
+.B XrREDRAW_ALL
+mode.
+When this mode is specified, the complete editor instance
+will be redrawn.
+.P
+The following block of code will outline how this message may be used:
+.sp
+.nf
+{
+       	xrEditor * SBinstance;
+
+	/* Create the editor instance */
+		 
+
+	/* Redraw the complete instance */
+	XrScrollBar (SBinstance, MSG_REDRAW, XrREDRAW_ALL);
+}
+.fi
+.LI MSG_FREE
+.br
+When an application no longer needs a particular editor instance,
+it should destroy it.
+When an instance is destroyed, it is automatically removed from
+the window, if the instance is visible, it will no longer process input
+events, and no further editor messages should be issued 
+using that instance pointer.
+.P
+The following block of code will outline how an instance is destroyed:
+.sp
+.nf
+{
+	xrEditor * SBinstance;
+
+	/* Destroy the instance */
+	XrScrollBar (SBinstance, MSG_FREE, NULL);
+}
+.fi
+.LI MSG_EDIT
+.br
+This message provides the means by which 
+input events may be processed in regard to a particular editor instance.
+.P
+Under normal circumstances, an application will not need to
+issue this message.
+If the application uses the
+.B MSG_NONBLKHOTREAD
+or
+.B MSG_BLKHOTREAD
+messages to obtain its input from the
+.B XrInput()
+routine, then
+.B XrInput()
+will automatically catch all mouse events, and redirect
+them to the editors, when possible.
+.P
+However, if the application uses either
+.B MSG_BLKREAD
+or
+.B MSG_NONBLKREAD
+when collecting its input from the
+.B XrInput()
+routine, then the application will be responsible for
+determining which editor instance should receive a mouse
+event, and then issuing the
+.B MSG_EDIT 
+message to the appropriate editor.
+Refer to the manual page for
+.B XrEditor(),
+in appendix B for a discussion on how this is done.
+.P
+For all editors, the
+.B MSG_EDIT
+message will expect a pointer to an 
+.I XEvent
+structure to be passed in.
+.P
+After the editor has processed the event, it will
+normally return some information, by means of the input
+queue, to the application, indicating what the editor did.
+.P
+Most field editor instances are activated upon a select event occurring
+within the rectangular region occupied by the instance.
+Upon completion of their work, most, but not all, editors will 
+wait for the user to release the select button, before returning.
+An application should, however, be prepared to receive and
+handle 'select up' events; in most cases, the application will just
+ignore these.
+.P
+A sample call for this message would be:
+.sp
+.nf
+{
+	xrEditor  * SBinstance;
+	XEvent      eventInfo;
+
+	XrScrollBar (SBinstance, MSG_EDIT, &eventInfo);
+}
+.fi
+.LE
+.SP
+.H 3 "Return Value"
+.P
+Upon successful completion of any of the above messages, a non-NULL value
+will be returned.  In the case of
+.B
+MSG_NEW,
+.R
+this non-NULL value is the pointer to the newly-created editor instance
+structure.
+.P
+If any message request fails, a NULL value is returned.
+.H 2 "Description"
+
+The following field editors are provided:
+.BL
+.LI
+A titlebar editor
+.LI
+A scrollbar editor
+.LI
+A radio button editor  (*)
+.LI
+A checkbox editor  (*)
+.LI
+A push button editor  (*)
+.LI
+A text edit editor
+.LI
+A static text editor
+.LI
+A raster select editor
+.LI
+A raster editor
+.LI
+A static raster editor  (*)
+.LI
+A page editor
+.LE
+.SP
+
+.P
+Before discussing individual field editors, we will differentiate between
+the two types of field editors that are included in the Xr library toolbox.
+Editors generally fall into one of the following groupings:
+.SP
+.IN "Single-entity instances"
+.IN "Multiple-entity instances"
+.BL
+.in
+.LI
+SINGLE-ENTITY INSTANCES
+.br
+All of the editors listed above, except those whose
+name is followed by an (*) symbol fall into this category.
+When an application creates an instance of one of these editors,
+the instance will contain only one entity.
+For example, when a scrollbar editor instance is created, it contains
+only one scrollbar, not two or three.
+The majority of Xrlib field editors follow this model.
+.LI
+MULTIPLE-ENTITY INSTANCES
+.br
+The field editors whose names are followed by the (*) symbol fall into this
+group.  These editors are special, because the instances they create may
+contain one or more editor entities.
+For example, when an application creates a checkbox editor instance, it may
+contain one checkbox or even ten checkboxes.  Each checkbox is referred to as 
+an entity, and since these entities were created by a single request, they
+will be treated as a group.  One advantage to this method is that the editor
+automatically takes care of calculating the size and position of each of the
+entities; the application need only supply the rectangle dimensions to
+contain the instance, and the field and column counts.
+A second advantage is that the application need only make a single
+request to create a group of related buttons or checkboxes;
+applications rarely create just a single radio button or checkbox.
+.LE
+.P
+Multiple entity field editors differ from single entity field editors
+in two other ways:
+.SP
+.BL
+.LI
+INDIVIDUAL STATE FLAGS
+.br
+For a multiple-entity instance, each of the individual entities may
+have a set of state flags associated with it, in addition to the
+state flags associated with the instance as a whole.
+This feature provides an application program with increased flexibility for
+controlling the behavior and appearance of the instance.
+Each editor instance has a set of state flags associated with it
+(XrSENSITIVE and XrVISIBLE), which are queried and modified using the
+MSG_GETSTATE and MSG_SETSTATE messages.  A multiple entity editor may also
+keep a second set of state flags for each entity, which are modified using
+the MSG_GETITEMSTATES and MSG_SETITEMSTATES messages.
+The state flags associated with the whole instance have precedence over the
+entity's state flags; this implies that if the XrVISIBLE flags is cleared
+for the whole instance, then none of the entities will be drawn, regardless
+of their individual state flag values.  Conversely, if the XrVISIBLE
+flag is set for the whole instance, then the editor will use each entity's
+state flag setting to determine whether or not an entity should be drawn.
+.LI
+ENHANCED SET OF FIELD EDITOR MESSAGES
+.br
+In addition to the standard set of field editor messages, multiple entity
+editors may also choose to support several new messages; two of these
+(MSG_GETITEMSTATES and MSG_SETITEMSTATES) were covered in the preceding
+paragraph.  The additional messages are provided to allow an application to
+obtain more information describing how the individual entities within an
+instance are organized.  When an application creates an instance, it
+specifies the editor rectangle into which the instance is to reside, but
+since the field editor automatically calculates the size and position of the
+individual entities within the instance, the application has no idea where
+each entity will be displayed within the editor rectangle.
+This presents no problem for most applications, but for a panel controller
+which needs to know where each entity in the panel is located, (so that field
+traversal may be performed) this is vital information.  This problem is
+solved by the addition of two field editor messages: MSG_GETITEMCOUNT and
+MSG_GETITEMRECTS.  These two messages, when used together, provide an
+application with the tools necessary to determine the size and position of
+each entity within an editor instance.
+.LE
+.SP
+.P
+The following sections present a brief discussion of each of the field
+editors provided in the Xr library Toolbox.  In addition to describing how each
+editor works, an example showing how the editor can be used and a picture of
+an instance of the editor will be provided.
+.P
+All requests issued by an application regarding a particular editor instance,
+are accomplished by means of a set of predefined editor
+messages.  These messages (or commands) provide the means by which an
+application creates, modifies, and destroys an instance of an editor.
+For further information about messages,  the reader is referred to the
+section entitled "Editor Messages" below.
+.SK
+
+.IN "Titlebar Editor"
+.H 2 "A Titlebar Editor"
+.P
+The titlebar editor allows an application to create and display a 
+rectangular titlebar within a window.
+The titlebar size and location are arbitrary, and are specified by 
+the application; however, a titlebar is normally placed along the
+top of the window, and runs the full length of the window.
+.P
+When an application creates a titlebar, it is allowed some freedom
+in customizing the instance, to meet its particular needs.
+Besides the size and location of the titlebar, which were covered
+earlier, an application may also specify which components should
+be used when the titlebar is constructed, along with describing
+how the instance should handle mouse events.
+.P
+A titlebar instance can be composed of anywhere from 1 to 3 components.
+The component pieces of a titlebar are:
+.SP
+.VL 15
+.IN "title string"
+.LI "title string"
+The most common use for a titlebar is to display a string, which
+provides some indication to the user as to what a window is being used for.
+When specified, a title string will be displayed in the center of the
+titlebar, using the font specified by the application program.
+On either side of the title string will be displayed the title string
+border; this serves as a visual indicator for the state of the window.
+.IN "gadget boxes"
+.LI "gadget boxes"
+Sometimes an application will wish to provide a means for allowing a user
+to easily and quickly request some frequently-used action, so two gadget
+boxes are provided for just this purpose.
+As part of a title bar, two boxes (one in the left corner, and one
+in the right corner) are available for application-specific use.
+The application may specify a single character to be displayed within
+the box, which serves as an icon to the user, to describe what action
+will occur when the box is selected.
+For example, if a program wanted to set one of the boxes up to produce
+help information when it is selected, then it might choose to define
+the gadget character as the '?' character.
+When a user selects one of the gadget boxes with the mouse, notification will
+be passed on to the application; the application can then perform whatever
+action is appropriate.
+.LE
+.P
+Other characteristics of a titlebar which may be controlled by a program
+include how the instance is displayed (if it is visible) and how the
+instance responds to mouse selects (if it is sensitive). 
+These pieces of state information are specified when the instance is
+first created, and can be modified anytime thereafter.
+.P
+An example showing how to create a titlebar instance is presented below:
+.SP
+.DS 1
+{
+   xrTitleBarInfo  tbInfo;
+   xrEditor      * tbInstance;
+
+   /*
+    * Create a titlebar instance, which is located at the top of the window,
+    * extends from the left to the right edge of the window, and is composed
+    * of:
+    *
+    *      1) A title string  
+    *      2) Gadget box 1 (icon = 'X')   
+    *      3) Gadget box 2 (icon = '?')
+    *
+    */
+   tbInfo.editorWindowId = applic_window;
+   XrSetRect (&tbInfo.editorRect, 0, 0, 0, 0);
+   tbInfo.editorState = (XrVISIBLE | XrSENSITIVE);
+   tbInfo.editorFGColor = Black Pixel;
+   tbInfo.editorBGColor = White Pixel;
+   tbInfo.editorFont = NULL;
+   tbInfo.titleName = "DATACOMM";
+   tbInfo.gadgetIcon1 = "X";
+   tbInfo.gadgetIcon2 = "?";
+
+   /* Call the titlebar editor and create the instance */
+   tbInstance = XrTitleBar (NULL, MSG_NEW, &tbInfo);
+
+}
+
+
+
+
+
+
+
+
+
+
+.FG "Sample Titlebar Instance"
+.DE
+.SK
+
+.IN "Scrollbar Editor"
+.H 2 "A Scrollbar Editor"
+.P
+The scrollbar editor allows an application to create a vertical or
+horizontal scrollbar instance within a specified window.
+The size and location of the scrollbar instance is controlled by
+the application, but the normal convention followed when displaying a
+scrollbar is to display a vertical scrollbar along the right edge of the
+window, and a horizontal scrollbar along the bottom edge.
+.P
+When an application creates a scrollbar instance, the instance editor allows
+as much control as possible over how the instance will appear and behave by
+allowing the application to specify the instance configuration.
+This includes:
+.SP
+.BL
+.LI
+The height and width of the scrollbar.
+.LI
+The orientation (vertical or horizontal) of the scrollbar.
+.LI
+The location of the scrollbar.
+.LI
+The size of the slide box.
+.LI
+The components displayed within the scrollbar.
+.LE
+.P
+When a scrollbar is created, it is drawn as a rectangular box, with
+a scroll arrow at either end.  The region which occupies the area between
+the two scroll arrows is known as the scroll region.  The scroll box resides
+within the scroll region and serves as a form of visual feedback; it
+indicates the current value associated with the scrollbar.
+.P
+A user is provided several means for manipulating a scrollbar, each of
+which is explained below:
+.SP
+.BL
+.LI
+By selecting one of the scroll arrows, a user may cause an application
+to scroll the information within its window.  The direction of the scroll
+is dependent upon which scroll arrow was selected, while the amount the
+information is scrolled is controlled by the application.
+When a scroll arrow is selected, the scrollbar editor does not modify
+the scrollbar instance; instead, it sends an input event notifying the
+application that the scroll arrow was selected.
+It is then up to the application to modify the information within its
+window, and reposition the slide box for the scrollbar.
+.LI
+By selecting the slide box, a user may interactively move the slide box.
+When the select key is released by the user, the interactive slide operation
+will complete.  At that time, the editor will notify the application
+that the slide box has changed position and will pass along the new
+position. The application should then update its display to match the
+new value.
+.LI
+When the user selects a point within the slide region, but not within 
+the slide box, the editor will pass an input event to the application
+notifying it of the position where the select occurred.
+The application can choose to ignore this, or it can update its display,
+and then reposition the slide box for the scrollbar.
+.LE
+.P
+An example showing how to create a scrollbar instance is presented below:
+.SP
+.DS 1
+{
+   xrScrollBarInfo  sbInfo;
+   xrEditor       * sbInstance;
+
+   /*
+    * Create a vertical scrollbar instance, located along
+    * the right edge of the window, and extending from the top to the
+    * bottom of the window.
+    */
+   sbInfo.editorWindowId = applic_window;
+   sbInfo.editorState = (XrVISIBLE | XrSENSITIVE);
+   sbInfo.editorFGColor = Black Pixel;
+   sbInfo.editorBGColor = White Pixel;
+   sbInfo.orientation = XrVERTICAL;
+   XrScrollBar (NULL, MSG_GETPARAMETERS, &sbInfo.configuration);
+
+   /*
+    * Obtain the coordinates of the rectangle needed to contain the
+    * vertical scrollbar of width 11.
+    */
+   sbInfo.editorRect.width = 11;
+   XrScrollBar (NULL, MSG_SIZE, &sbInfo);
+
+   /* 
+    * Stretch and offset the editorRect so that the instance will
+    * be located at the left edge of the window.
+    * Assume that the application has saved the window dimensions
+    * in a variable named window_size.
+    */
+   sbInfo.editorRect.height = window_size.height-2;
+   XrOffsetRect (&sbInfo.editorRect, window_size.width -1 -11,
+                 1);
+
+   /* We are now ready to create the scrollbar instance. */
+   sbInstance = XrScrollBar (NULL, MSG_NEW, &sbInfo);
+
+}
+
+
+
+
+
+
+
+
+
+
+.FG "Sample Scrollbar Instance"
+.DE
+.SK
+
+.IN "Radiobutton Editor"
+.H 2 "A Radiobutton Editor"
+.P
+The radiobutton editor allows an application to create and display
+a collection of related buttons in a series of rows and columns.
+The size of the buttons are dependent upon how the buttons are
+defined, and upon the font used to display them.
+.P
+When an application creates a radiobutton instance, it is allowed
+as much flexibility as possible for customizing how the instance
+will be displayed.
+Among the options which may be specified by the application are:
+.SP
+.BL
+.LI
+The number of rows and columns into which the buttons are to
+be displayed.
+.LI
+The font to be used when displaying the button labels; this
+also determines the size of the buttons.
+.LI
+The button labels themselves; these are optional, and an application
+is free to supply labels for some, or for all of the buttons.
+.LI
+The foreground and background pens to be used each time the
+instance is displayed.
+.LI
+The action the editor should take each time a mouse select occurs
+within the button instance.
+.LE
+.P
+A radiobutton is drawn as a circle, with an optional label to its right.
+When a button has been selected, the circle will be drawn and filled with
+the instance's foreground color; all non-selected buttons are drawn as
+circles filled with the instance's background color.  When the instance is
+drawn, it will be laid out so that all items in a row and column line up;
+this sometimes involves placing some extra padding between buttons, if their
+labels are of different lengths.
+.P
+Radiobuttons operate in a fashion very similar to the channel-
+select buttons on your radio.
+Only a single button may be selected at any time.
+Each time a new button is selected, the previously active
+button is made inactive.
+.P
+A user can use the mouse to select a button.
+When this occurs, the editor will redraw the instance, to 
+reflect the new active button, and will then send some
+event information to the application, informing it of
+the new active button.
+An application is then free to perform any action which might
+be implied by the button.
+.P
+Radiobuttons are most often used when an application wishes to
+supply a set of options to the user, only one of which may be selected.
+For example, if an application allows the user to change the pen
+color to one of four choices, radio buttons would be an ideal means
+for allowing the user to do this.
+.P
+The example below will demonstrate the steps required to create a
+radiobutton instance.  For this demonstration, we will use the
+example of the pen color, mentioned above:
+.SP
+.DS 1
+{
+   xrRadioButtonInfo  rbInfo;
+   xrEditor         * rbInstance;
+   INT16              active_rb_button = 1;
+   INT8             * rbLabels[] = {"BLACK", "WHITE", "BLUE", "GREEN"};
+
+   /*
+    * Create a radio button instance composed of four buttons and
+    * laid out in two columns.  Each of the buttons will have a label
+    * associated with it.
+    */
+
+   /*
+    * Ask the editor to supply the editorRect which
+    * is to contain the radio button instance.
+    */
+   rbInfo.editorFont = NULL;
+   rbInfo.numFields = 4;
+   rbInfo.numCols = 2;
+   rbInfo.labels = rbLabels;
+   XrRadioButton (NULL, MSG_SIZE, &rbInfo);
+
+   /*
+    * Offset the editorRect so that the instance will be located
+    * in the middle of the window.  Assume that the application has
+    * saved a copy of the window dimensions in a variable named window_size.
+    */
+   xOffset = window_size.width/2 - rbInfo.editorRect.width/2;
+   yOffset = window_size.height/2 - rbInfo.editorRect.height/2;
+   XrOffsetRect (&rbInfo.editorRect, xOffset, yOffset);
+
+   /* Now, ask the editor to create the desired instance. */
+   rbInfo.editorWindowId = applic_window;
+   rbInfo.editorFGColor = black Pixel;
+   rbInfo.editorBGColor = White Pixel;
+   rbInfo.editorState = (XrVISIBLE | XrSENSITIVE);
+   rbInfo.stateFlags = NULL;
+   rbInfo.value = &active_rb_button;
+   rbInstance = XrRadioButton (NULL, MSG_NEW, &rbInfo);
+}
+
+
+
+
+
+
+
+
+
+.FG "Sample Radiobutton Instance"
+.DE
+.SK
+
+.IN "Checkbox Editor"
+.H 2 "A CheckBox Editor"
+.P
+The checkbox editor allows an application to create and display
+a collection of related checkbox items in a series of rows and columns.
+The size of the boxes are dependent upon how the boxes are
+defined, and upon the font used to display them.
+.P
+When an application creates a checkbox instance, the editor allows
+it as much flexibility as possible for customizing how the instance
+will be displayed.
+The options which may be specified by the application are:
+.SP
+.BL
+.LI
+The number of rows and columns into which the boxes are to
+be displayed.
+.LI
+The font to be used when displaying the box labels.
+.LI
+The box labels themselves; these are optional, and an application
+is free to supply labels for some, or for all of the boxes.
+.LI
+The foreground and background pens used when drawing the instance.
+.LI
+The action to be taken each time a mouse select occurs within a checkbox.
+.LE
+.P
+An individual checkbox is drawn as a square, with an optional label to its
+right.  When a particular checkbox has been selected, the square will be
+drawn and filled with the foreground color; the state of the other checkboxes
+in the instance will not be altered.  When the instance is drawn, it will be
+laid out so that all items in a row and column line up. This sometimes
+involves placing padding between checkboxes, if the labels are of different
+lengths.
+.P
+Checkboxes differ from radio buttons in at least two ways:
+.SP
+.BL
+.LI
+Checkboxes are square; radio buttons are round.
+.LI
+Checkboxes place no restrictions upon how many items in an instance may be
+active at any given time; radio buttons allow only one item to be active at
+a time.
+.LE
+.P
+When a checkbox item is drawn, if it has been selected, it will be drawn as
+a filled square; if it is not currently selected, then it will be drawn as an
+unfilled square.  Whenever a checkbox is selected, its value toggles; this
+means that when an active box is selected, it will become inactive, and
+vice-versa.
+.P
+A user can select a checkbox using a mouse.  When this occurs, the editor
+will redraw the instance to reflect the new checkbox value, and will then
+send an Xrlib input event to the application, informing it that the
+instance has changed.  The Xrlib input event contains the index of the
+checkbox which changed.  An application is then free to perform any action
+which might be implied by the checkbox.
+.P
+Under normal circumstances, modifying the state of a checkbox does not cause
+any immediate action.  What normally happens is that a user will modify
+several checkboxes, and when he is ready for some action to occur regarding
+the checkbox values, he will notify the application. This is sometimes
+accomplished by using the PushButton editor to create a button which says
+"I am done."
+.P
+Checkboxes are most often used when an application wishes to supply a set of
+options to the user, of which any number may be selected.  For example, let's
+assume we have an application which allows a user to draw polygons, and to
+specify if the polygons should be filled, surrounded with a border, or
+patterned.  The user may choose one or more of these options.
+.P
+The example below demonstrates the steps required to create a checkbox
+instance using the above polygon example.
+.SP
+.DS 1
+{
+   xrCheckBoxInfo   cbInfo;
+   xrEditor       * cbInstance;
+   INT8             cb_values[3] = {TRUE, FALSE, TRUE};
+   INT8           * cbLabels[] = {"BORDERED", "FILLED", "PATTERNED"};
+
+   /*
+    * Create a checkbox instance composed of three boxes, and laid
+    * out in a single column.  
+    */
+
+   /*
+    * Ask the editor to supply the editorRect which
+    * is to contain the checkbox instance.
+    */
+   cbInfo.editorFont = NULL;
+   cbInfo.numFields = 3;
+   cbInfo.numCols = 1;
+   cbInfo.labels = cbLabels;
+   XrCheckBox (NULL, MSG_SIZE, &cbInfo);
+
+   /*
+    * Offset the editorRect, so that the instance will be located
+    * in the middle of the window.  Assume that the application has
+    * saved a copy of the window dimensions in a variable named window_size.
+    */
+   xOffset = window_size.width/2 - cbInfo.editorRect.width/2;
+   yOffset = window_size.height/2 - cbInfo.editorRect.height/2;
+   XrOffsetRect (&cbInfo.editorRect, xOffset, yOffset);
+
+   /* Now, ask the editor to create the desired instance. */
+   cbInfo.editorWindowId = applic_window;
+   cbInfo.editorFGColor = Black Pixel;
+   cbInfo.editorBGColor = White Pixel;
+   cbInfo.editorState = (XrVISIBLE | XrSENSITIVE);
+   cbInfo.stateFlags = NULL;
+   cbInfo.values = cb_values;
+   cbInstance = XrCheckBox (NULL, MSG_NEW, &cbInfo);
+}
+
+
+
+
+
+
+
+
+
+
+.FG "Sample Checkbox Instance"
+.DE
+.SK
+
+.IN "Pushbutton Editor"
+.H 2 "A Pushbutton Editor"
+.P
+The pushbutton editor allows an application to create and display
+a collection of related buttons in a series of rows and columns.
+The size of the buttons are dependent upon how the buttons are
+defined, and upon the font used to display them.
+.P
+When an application creates a push-button instance, the editor allows
+the application as much flexibility as possible for customizing how the
+instance will be displayed.  The options which may be specified by the
+application are:
+.SP
+.BL
+.LI
+The number of rows and columns into which the buttons are to
+be displayed.
+.LI
+The font to be used when displaying the button labels; this
+also determines the size of the buttons.
+.LI
+The button labels themselves; these are optional, and an application
+is free to supply labels for some, or for all of the buttons.
+.LI
+The foreground and background pens to be used each time the
+instance is displayed.
+.LE
+.P
+A pushbutton is drawn as an oval, with an optional label placed in the center.
+The label may be empty, be a single line of text, or contain multiple lines
+of text.  When a select occurs within a pushbutton, the pushbutton will be
+redrawn as active (the oval will be filled with the foreground color).  When
+the user releases the select button, the pushbutton will be redrawn as
+inactive (the oval will be filled with the background color).  After the user
+has released the select button, an input event will be returned to the
+application informing it which button was selected.  When the instance
+is drawn, it will be laid out so that all items in a row and column line up;
+this sometimes involves placing padding between buttons if the button
+labels are of different lengths.
+.P
+Pushbuttons are most often used to bring about an immediate action.
+For instance, a panel usually has at least two pushbuttons
+defined, giving a user the option of exiting and saving the
+panel information, or of exiting and discarding the information.
+When a user selects one of the pushbuttons, the panel is immediately
+exited, and the current operation is ended.
+.P
+Pushbuttons are also useful when an application wishes to
+provide a means for a user to signal that an action is complete,
+or that it is safe to continue with an operation.
+For example, let's assume that we have an application which can encounter
+error conditions to which the user must supply some indication of how they
+should be handled.  The user's choices are to abort the operation, to ignore
+the error and continue the operation, or to retry the operation which failed.
+As soon as the user has selected a button, an action will occur and the
+program will remove the button instance.
+.P
+The following example shows the steps for creating a pushbutton instance
+using the example discussed above, and also using multi-lined labels:
+.SP
+.nf
+.in 3
+{
+   xrPushButtonInfo  pbInfo;
+   xrEditor        * pbInstance;
+.eo
+   INT8              pbLabels[] = {"ABORT\nOPERATION",
+                                   "CONTINUE\nOPERATION",
+                                   "RETRY\nOPERATION"};
+.ec
+
+   /* Create a push button instance, with three buttons in a single column */
+
+   /* Ask the editor for the rectangle which contains the instance */
+   pbInfo.editorFont = NULL;
+   pbInfo.numFields = 3;
+   pbInfo.numCols = 1;
+   pbInfo.defaultButton = -1;
+   pbInfo.borderWidth = 2;
+   pbInfo.labels = pbLabels;
+   XrPushButton (NULL, MSG_SIZE, &pbInfo);
+
+   /*
+    * Offset the editorRect, so that the instance will be located
+    * in the center of the window.  Assume that the application has saved
+    * a copy of the window dimensions in a variable named window_size.
+    */
+   xOffset = window_size.width/2 - pbInfo.editorRect.width/2;
+   yOffset = window_size.height/2 - pbInfo.editorRect.height/2;
+   XrOffsetRect (&pbInfo.editorRect, xOffset, yOffset);
+
+   /* Now, ask the editor to create the desired instance. */
+   pbInfo.editorWindowId = applic_window;
+   pbInfo.editorFGColor = Black Pixel;
+   pbInfo.editorBGColor = White Pixel;
+   pbInfo.editorState = (XrVISIBLE | XrSENSITIVE);
+   pbInfo.stateFlags = NULL;
+   pbInstance = XrPushButton (NULL, MSG_NEW, &pbInfo);
+}
+.in
+
+
+
+
+
+
+
+
+
+.FG "Sample Pushbutton Instance"
+.fi
+.SK
+
+.IN "Text-edit Editor"
+.H 2 "A Text-edit Editor"
+.P
+The text-edit editor provides application programs with a powerful
+line-editing facility.  It allows applications to create and display
+single lines of editable text within a rectangular region of a window.
+.P
+When an application creates a text-editor instance, it can define many of
+the instance's characteristics.  This provides flexibility over how the
+instance will be displayed.  The features which an application may
+control are:
+.SP
+.BL
+.LI
+The location of the editor instance.
+.LI
+The font to be used when displaying the editing string.
+.LI
+The colors to be used when drawing the instance.
+.LI
+The optional label to display next to the editing string.
+.LI
+The position of the optional label.
+.LI
+The character cell width.
+.LI
+The type of character insertion mode to use.
+.LE
+.P
+When a text edit instance is displayed, the editing string is displayed with
+a rectangular border drawn around it.  If an optional field label was
+specified, it will be displayed either to the left or to the right of the
+border, depending upon what was specified by the application.  When the
+instance is available for editing, a text cursor will be displayed within the
+editing string.  The text cursor indicates where the string is currently being
+edited.  The text cursor will be displayed as either a vertical bar or as or a
+filled rectangle, depending upon the insertion mode the instance is currently
+configured for.
+.P
+.IN "Keyboard Editing functions, standard"
+This editor supports most of the standard keyboard editing functions:
+.SP
+.P
+Text Insertion
+.br
+.in 5
+The text edit editor is capable of operating in both the normal and the
+insert-character modes.  When operating in normal mode, the text cursor is
+displayed as a filled rectangle; typing a character will cause that character
+to be displayed at the cursor position.  If a character is already displayed
+at the cursor position, it will be overwritten by the new character.
+When operating in insert-character mode, the text cursor is displayed
+as a vertical bar located between two character positions.
+Typing a character causes all characters to the right of the insertion
+bar to be shifted one character position to the right, and the new
+character to be inserted.  The editor toggles between normal and
+insert-character mode each time the user presses the "insert character" key.
+.in
+.P
+Backspace
+.br
+.in 5
+Causes the character to the left of the text cursor to be deleted and
+all characters to its right to be shifted one character position to the left;
+the text cursor also moves one position to the left.
+.in
+.P
+Delete Character
+.br
+.in 5
+This causes the character at the text cursor position to be deleted, and all
+characters to the right of the cursor to be shifted one character position
+to the left. The position of the text cursor does not change.
+.in
+.P
+Clear Line
+.br
+.in 5
+causes the character at the text cursor position and all characters to
+the right of the text cursor to be deleted; the position of the text cursor
+does not change.
+.in
+.P
+Delete Line
+.br
+.in 5
+causes all characters in the editing string to be deleted and the text
+cursor to be moved back to the start of the editing string area.
+.in
+.P
+Cursor Left
+.br
+.in 5
+moves the text cursor one character position to the left.
+.in
+.P
+Cursor Right
+.br
+.in 5
+moves the text cursor one character position to the right.
+.in
+.P
+.IN "Break condition"
+The text edit editor does not notify the application every time the user
+modifies a text string; it notifies the program only after a major event has
+occurred.  These are referred to as break conditions and improve performance
+by not forcing the editor to 'handshake' with the application every time the
+user modifies the string.  When an application does receive notification, it
+should perform  whatever action is required under the circumstances of the
+notification.  The following break conditions are supported by this editor:
+.SP
+.IN "Unknown X event"
+.BL
+.LI
+The input field is empty.  This may occur when the last character
+in the editing string is deleted, or when the user deletes or clears
+the line.
+.LI
+The first character was typed.  This will occur when the user has
+typed a character into a previously empty editing string.
+.LI
+An unknown X event is received, such as an exposure event.
+.LI
+The field is exited.  This occurs when the user specifies that he has 
+finished editing the string.  This can be done by pressing
+the TAB, BACKTAB, or RETURN keys.
+.LE
+.P
+Text edit instances are most often used when an application needs to
+obtain a name (such as a filename) from a user.
+Applications rarely use text edit instances directly; an application
+will normally create a panel containing a text edit instance and some
+pushbuttons. The pushbuttons are provided to allow the user to indicate
+that he is done.
+.P
+The following example demonstrates the steps required for an application
+to create its own text editing instance, without the benefit of a panel:
+.SP
+.DS 1
+{
+   xrTextEditInfo  teInfo;
+   xrEditor      * teInstance;
+   INT8            filename[21];
+   INT8          * label = "File Name";
+
+   /*
+    * Create a text edit instance which allows a user to enter a filename.
+    */
+   
+   /*
+    * Obtain the coordinates of the rectangle needed to contain
+    * the text editor instance.
+    */
+   teInfo.Font = NULL;
+   teInfo.label = label;
+   teInfo.maxChars = 20;
+   teInfo.cellWidth = XrAVGWIDTH;
+   XrTextEdit (NULL, MSG_SIZE, &teInfo);
+
+   /*
+    * Offset the editorRect so that the instance will be located
+    * in the middle of the window.  Assume that the application has
+    * saved a copy of the window dimensions in a variable named window_size.
+    */
+   xOffset = window_size.width/2 - teInfo.editorRect.width/2;
+   yOffset = window_size.height/2 - teInfo.editorRect.height/2;
+   XrOffsetRect (&teInfo.editorRect, xOffset, yOffset);
+
+   /* Now, ask the editor to create the desired instance. */
+   teInfo.editorWindowId = applic_window;
+   teInfo.editorFGColor = Black Pixel;
+   teInfo.editorBGColor = White Pixel;
+   teInfo.editorState = (XrVISIBLE | XrSENSITIVE);
+   teInfo.insertPos = 0;
+   teInfo.insertMode = XrINTERACTIVE;
+   teInfo.labelPosition = XrLEFT_ALIGNED;
+   teInfo.string = filename;
+   filename[0]='\0';
+   teInstance = XrTextEdit (NULL, MSG_NEW, &teInfo);
+
+}
+
+
+
+
+
+
+
+
+
+
+.FG "Sample Text Edit Instance"
+.DE
+.SK
+
+.IN "Static Text Editor"
+.H 2 "A Static Text Editor"
+.P
+The static text editor provides an application with a simple
+means for displaying a block of static strings within a window.
+No editing features are provided for the strings, and once the
+instance has been created, its contents cannot be changed.
+.P
+As with all of the previous editors, the static text editor
+provides ample flexibility for an application when defining an instance.
+The instance characteristics which an application may control are as follows:
+.SP
+.BL
+.LI
+The font to be used when displaying the string.
+.LI
+The alignment to use when displaying each line.
+.LI
+The pen colors to use when drawing the instance.
+.LI
+The width of the region in which the text is to be displayed.
+.LE
+.P
+When an application creates a static text instance, it provides the
+definition of a rectangle into which the text will be drawn.
+The editor will parse each word of the text string and will generate lines
+which fit within the rectangle.  If the bottom of the rectangle is reached
+before all of the text has been displayed, that portion of the text which
+remains will not be displayed.  The editor does not draw a border around the
+text; this is left for the application to perform.
+.P
+As each line of text is parsed, it will be aligned and then displayed.
+The editor allows text to be center, left, or right aligned.
+.P
+An application most often uses static text for displaying feedback to the
+user.  For instance, when an application creates a message box, it normally
+includes a message telling the user why the message box was displayed;
+static text would be used here.
+.Ptt
+In the following example, the application displays a block of static
+text in the center of its window.
+.SP
+.DS 1
+{
+   xrStaticTextInfo   stInfo;
+   xrEditor         * stInstance;
+
+   /*
+    * Create a static text instance which displays several lines of text in
+    * the center of the window and which left justifies each line of text.
+    */
+
+   /*
+    * Ask the editor to supply an editorRect which will contain the
+    * static text instance.  Specify 130 pixels as the width of the region
+    * in which the text will be displayed.
+    */
+   stInfo.editorRect.width = 155;
+   stInfo.string = "Unable to read the disk; Select new action";
+   stInfo.editorFont = NULL;
+   stInfo.alignment = XrLEFT_ALIGNED;
+   XrStaticText (NULL, MSG_SIZE, &stInfo);
+
+   /*
+    * Offset the editorRect so that the instance will be located
+    * in the center of the window.  Assume that the application has
+    * saved a copy of the window dimensions in a variable named window_size.
+    */
+   xOffset = window_size.width/2 - stInfo.editorRect.width/2;
+   yOffset = window_size.height/2 - stInfo.editorRect.height/2;
+   XrOffsetRect (&stInfo.editorRect, xOffset, yOffset);
+
+   /* Now, ask the editor to create the desired instance. */
+   stInfo.editorWindowId = applic_window;
+   stInfo.editorState = (XrVISIBLE | XrSENSITIVE);
+   stInfo.editorFGColor = Black Pixel;
+   stInfo.editorBGColor = White Pixel;
+   stInstance = XrStaticText (NULL, MSG_NEW, &stInfo);
+
+}
+
+
+
+
+
+
+
+
+
+
+.FG "Sample Static Text Instance"
+.DE
+.SK
+
+.IN "Raster-select Editor"
+.H 2 "A Raster-select Editor"
+.P
+The raster-select editor provides an application with the means
+for displaying a group of 'n' x 'm' pixel raster images.
+.P
+When an application creates a raster-select instance, it has
+some control over how the instance will be laid out.
+It specifies the number of raster boxes to display,
+the number of rows and columns into which the boxes are to be
+divided, and the dimensions of the raster images.
+.P
+At any given time, only one raster box may be selected as the active choice.
+The active choice is indicated by a solid border surrounding the box.
+The user is able to interactively change the active box by using the mouse
+to select a new one.  Whenever a new active box is selected, the patterned
+indicator will be moved to the new box and the application will be notified
+of the change.
+.P
+Each raster box is specified by a pixmap Id which is obtained by registering
+the raster data with the appropriate "X" server.  Once an instance has been
+created, an application is free to modify any of the patterns in the raster
+boxes.  To do this, the application need only pass in the new pixmap Id
+for a particular raster box.
+.P
+More often than not, it will be a graphics program which uses this
+type of editor, because this editor provides an ideal mechanism for allowing
+a user to select such things as an area-fill pattern or a line-drawing
+pattern.
+.P
+The following example displays a series  of 4 raster boxes.  The boxes
+represent area-fill patterns which could be selected by a user.
+For this example, assume that the pixmap Id's have been obtained elsewhere,
+(see "XMakePixmap" in chapter 2) and are stored in a variable named "rasterIds."
+.SP
+.DS 1
+{
+   xrRasterSelectInfo   rsInfo;
+   xrEditor           * rsInstance;
+   INT16                activeRaster = 1;
+   extern Pixmap        rasterIds[];
+
+   /* Create a raster select instance composed of 4 selectable boxes */
+
+   /* Ask the editor for the editorRect containing the instance */
+   rsInfo.rasterCount = 4;
+   rsInfo.colCount = 2;
+   rsInfo.rasterHeight = 16;
+   rsInfo.rasterWidth = 16;
+   XrRasterSelect (NULL, MSG_SIZE, &rsInfo);
+
+   /*
+    * Now, move the editorRect box so that it is located
+    * in the center of the window.  Assume that the application has
+    * saved a copy of the window dimensions in a variable named window_size.
+    */
+   xOffset = window_size.width/2 - rsInfo.editorRect.width/2;
+   yOffset = window_size.height/2 - rsInfo.editorRect.height/2;
+   XrOffsetRect (&rsInfo.editorRect, xOffset, yOffset);
+
+   /* Ask the editor to create the desired instance. */
+   rsInfo.editorWindowId = applic_window;
+   rsInfo.editorState = (XrVISIBLE | XrSENSITIVE);
+   rsInfo.editorFGColor = Black Pixel;
+   rsInfo.editorBGColor = White Pixel;
+   rsInfo.rasterIds = &rasterIds[0];
+   rsInfo.activeRaster = &activeRaster;
+   rsInstance = XrRasterSelect (NULL, MSG_NEW, &rsInfo);
+
+}
+
+
+
+
+
+
+
+
+
+
+.FG "Sample Raster-select Instance"
+.DE
+.SK
+.IN "Raster Editor'
+.H 2 "A Raster Editor"
+.P
+The raster editor provides an application with the means
+for displaying a raster image, and then allowing a user to
+interactively modify (or edit) the image.
+This editor supports the concept of color within the raster image,
+and will allow the image to assume a pixel depth of one bit, or of 
+one, two, three, or four bytes.
+.P
+A raster editor is a useful tool for helping a user to design or modify
+custom raster images and icons.  It can also be used by a graphics program
+to allow a user to define his own area fill pattern, or a new pen shape.
+.P
+The editor is fairly flexible concerning the size of the raster images
+it can handle in that it allows an application to specify an image as
+small as 16 by 16 pixels.  The image need not be square.
+.P
+.IN "View region"
+When a raster editor instance is created, the application can specify
+how much of the raster image is to be displayed; this is referred to as the
+"view region."  The view region can be from 16 x 16 pixels up to the size of
+the raster image.  Only that portion of the raster image which lies within the
+view region will be visible and available for editing.  If the image is larger
+than the view region, the user needs a mechanism for making the hidden
+portions of the image visible.  When this situation arises, the editor will
+display two scrollbars; one to the right of the image for vertical scrolling,
+and one below the image for horizontal scrolling.  These scrollbars provide
+the user with an easy mechanism for viewing and modifying the complete raster
+image.
+.P
+.IN "Pixel size"
+The raster editor also allows an application to specify a pixel size
+value which will be used to expand each of the visible pixels within
+the image.  This allows an application to shrink or enlarge the image,
+depending upon the display it is running on.  For example, if an application
+requests a pixel size of 8, then each of the visible pixels will be drawn as
+an 8 by 8 square of pixels.  This makes it easy for a user to modify
+individual pixels.
+.P
+The editor provides a command, which allows the application to specify the
+pixel pattern to be used whenever the user selects a pixel within the raster
+image.  It is up to the application to provide a user with the means for
+selecting the pixel pattern to be used.
+.P
+The user can modify a raster-select instance in two ways:
+.SP
+.BL
+.LI
+The user may select a pixel by moving the cursor over it and then pressing
+and releasing the "select" button.  This causes the editor to change the
+selected pixel to whatever pixel pattern the application has set up.
+After the pixel has been modified, the editor will pass an input event to
+the application, informing it that the raster image has changed.
+.LI
+The user may also modify a whole region of the image at once.  This is
+accomplished by moving the cursor over a pixel, pressing the select button,
+and then moving the cursor. Each pixel that the cursor passes over will be
+changed to the pixel pattern specified by the application.  When the user
+releases the select button, or upon receipt of any other X event, the
+operation completes and the editor passes an input event to the application,
+informing it that the raster image has changed.
+.LE
+.P
+The following example shows how an application could implement a simple
+icon editor.  The raster image to be displayed will be 16 by 16 pixels with
+a pixel depth of one bit. The view region will also be defined as 16 by 16
+pixels.  This example also includes a set of radio buttons displayed above
+the raster editor instance. These radio buttons allow the user to select
+whether the edited bits in the raster image change to black, or to white.
+Assume that the raster data has been defined by a variable named rasterImage.
+.SP
+.DS 1
+{
+   xrRasterEditInfo  reInfo;
+   xrRadioButtonInfo rbInfo;
+   xrEditor        * reInstance;
+   xrEditor        * rbInstance;
+
+   /* Variables describing the raster editor instance */
+   INT16         active_rb_button = 0;
+   INT8         *rbLabels[] = {"BLACK", "WHITE"};
+   extern UINT16 rasterImage[];
+
+   /* 
+    * Create a raster-select instance in the center of the window.
+    * Also display a two-button radio button instance which will
+    * allow the user to select the editing color.
+    */
+
+   /* 
+    * Ask the radio button editor for the editorRect required to
+    * contain the desired radio button instance.
+    */
+   rbInfo.editorFont = NULL;
+   rbInfo.numFields = 2;
+   rbInfo.numCols = 2;
+   rbInfo.labels = rbLabels;
+   XrRadioButton (NULL, MSG_SIZE, &rbInfo);
+
+   /*
+    * Ask the raster editor for the editorRect required to contain the
+    * desired instance.
+    */
+   reInfo.rasterData.width = 16;
+   reInfo.rasterData.height = 16;
+   reInfo.rasterData.depth = XrBIT1;
+   reInfo.pixelSize = 8;
+   reInfo.viewRegion.width = 16;
+   reInfo.viewRegion.height = 16;
+   XrRasterEdit (NULL, MSG_SIZE, &reInfo);
+
+   /*
+    * Offset the two editorRects so that the radio buttons are stacked
+    * above the raster editor instance in the center of the window.
+    * Be sure to add some padding between the two instances.
+    * (we'll use 8 pixels).
+    */
+   xOffset1 = window_size.width/2 - rbInfo.editorRect.width/2;
+   xOffset2 = window_size.width/2 - reInfo.editorRect.width/2;
+   yOffset1 = window_size.height/2 -
+              (rbInfo.editorRect.height + reInfo.editorRect.height + 8) / 2;
+   yOffset2 = yOffset1 + rbInfo.editorRect.height + 8;
+   XrOffsetRect (&rbInfo.editorRect, xOffset1, yOffset1);
+   XrOffsetRect (&reInfo.editorRect, xOffset2, yOffset2);
+
+   /* Now, ask the editors to create the desired instances. */
+   rbInfo.editorWindowId = applic_window;
+   rbInfo.editorState = (XrVISIBLE | XrSENSITIVE);
+   rbInfo.editorFGColor = Black Pixel;
+   rbInfo.editorBGColor = White Pixel;
+   rbInfo.labels = rbLabels;
+   rbInfo.value = &active_rb_button;
+   rbInstance = XrRadioButton (NULL, MSG_NEW, &rbInfo);
+
+   reInfo.editorWindowId = applic_window;
+   reInfo.editorState = (XrVISIBLE | XrSENSITIVE);
+   reInfo.editorFGColor = Black Pixel;
+   reInfo.editorBGColor = White Pixel;
+   reInfo.pixelColor = 0;
+   reInfo.rasterData.raster = rasterImage;
+   reInstance = XrRasterEdit  (NULL, MSG_NEW, &reInfo);
+
+}
+
+
+
+
+
+
+
+
+
+
+.FG "Sample Raster-editor Instance"
+.DE
+.SK
+
+.IN "Static-raster Editor"
+.H 2 "A Static-raster Editor"
+.P
+.IN "Uneditable raster image"
+The static-raster editor allows applications to display an uneditable
+raster image within a window.  Once the image has been displayed, neither
+the application nor the user can change it.
+.P
+Static-raster images are useful because they allow programs to display icons
+which help a user to understand what is happening.  One common use for a
+static-raster image is in a message box.  A message box is normally
+constructed from three parts:
+.SP
+.BL
+.LI
+A series of buttons.
+.LI
+A static-text string informing the user of some condition.
+.LI
+A static-raster image indicating to the user why the message box is
+present. Sometimes the static-raster image is a STOP sign or a YIELD sign.
+.LE
+.P
+As with the raster-select editor, the static-raster editor does not expect
+an application to supply raster data.  Instead, the application passes in
+a pixmap Id obtained by registering the raster data with the appropriate
+'X' server.
+.P
+For our example, we will display a simple 16 x 16 pixel icon, in the center
+of our window.  We will assume that the raster image data is already
+registered with the server, and that the pixmap Id has been saved
+in a variable named rasterId.
+.SP
+.in 3
+.nf
+{
+   xrStaticRasterInfo   srInfo;
+   xrEditor           * srInstance;
+   extern Pixmap        rasterId;
+
+   /* Create a 16 by 16 static raster image */
+   
+   /*
+    * Ask the editor for the editorRect to contain our static raster image
+    */
+   srInfo.rasterHeight = 16;
+   srInfo.rasterWidth = 16;
+   XrStaticRaster (NULL, MSG_SIZE, &srInfo);
+
+   /*
+    * Offset the editorRect so that it is located in the center
+    * of our window.  Assume that the application has saved a
+    * copy of the window dimensions in a variable named window_size.
+    */
+   xOffset = window_size.width/2 - srInfo.editorRect.width/2;
+   yOffset = window_size.height/2 - srInfo.editorRect.height/2;
+   XrOffsetRect (&srInfo.editorRect, xOffset, yOffset);
+
+   /*
+    * Now, ask the editor to create the desired instance.
+    */
+   srInfo.editorWindowId = applic_window;
+   srInfo.editorState = (XrVISIBLE | XrSENSITIVE);
+   srInfo.editorFGColor = Black Pixel;
+   srInfo.editorBGColor = White Pixel;
+   srInfo.rasterId = rasterId;
+   srInstance = XrStaticRaster (NULL, MSG_NEW, &srInfo);
+
+} 
+.SP 12
+.FG "Sample Static-raster Instance"
+.fi
+.in
+
+.IN "Page Editor"
+.H 2 "A Page Editor"
+.P
+.IN "Keyboard editing facilities, standard"
+The page editor provides an application with the means for allowing a
+user to enter and modify multiple lines of text data.  A user can easily
+create both small and large documents using the cursor keys and the
+standard keyboard editing facilities.
+.P
+The page editor operates in insert mode.  This means that whenever a user
+presses a key, that key's character will be entered into the editing
+buffer at the position indicated by the cursor, and all characters to its
+right in the buffer will be shifted one character position to the right.
+.P
+The application is responsible for specifying the size of the visible
+editing region which is itself specified in terms of lines of text and of
+character columns.  When a user is entering text, the cursor automatically
+wraps to the next line when a line becomes full.  If this line is the last
+visible line, the text will be scrolled up one line.
+.P
+The page editor works with fixed-space fonts only;
+.I
+proportional fonts are not supported.
+.R
+.P
+When a page editor instance is created, the application passes a pointer
+to the editing buffer and an indication of the buffer's size.  If the
+buffer becomes full while the editing session is taking place, the editor
+will attempt to expand the buffer unless the application has disabled
+this feature.
+.P
+When a page editor instance is activated by issuing a select within the
+editing region or by issuing a MSG_ACTIVATE, the editor retains control
+of the input channel until one of the following conditions arise:
+.IN "Unknown X event"
+.BL
+.LI
+A select occurs outside of the editing region.
+.LI
+An unknown X event is received.
+.LI
+The buffer becomes full and buffer expansion is disabled.
+.LI
+The buffer becomes full and the buffer expansion fails.
+.LI
+The buffer becomes full and has then been expanded.
+.LE
+.P
+.IN "Break condition"
+The first of the above conditions is called a break condition.  When this
+condition occurs, the page editor instance is deactivated and control is
+returned to the application.  The editor will not expect to be invoked
+again until the next time it becomes active.
+.P
+.IN "Status events"
+The other four conditions are referred to as status events wherein the editor
+temporarily returns control to the application.  The application is expected
+to process the event and then to either re-invoke the editor using
+MSG_ACTIVATE or to make the page editor instance inactive using
+MSG_DEACTIVATE.
+.P
+The following example shows how a page editor instance can be created:
+.SP
+.nf
+{
+.in 3
+   xrPageEditInfo    peInfo;
+   INT8 * buffer;
+   xrEditor * peInstance;
+   
+   /*
+    *Create an instance of the page editor using a
+    * 1K buffer and disabling buffer expansion.
+    * The editing region is 24 lines by 80 columns.
+    * Get the editor rectangle definitions */
+   /*
+    
+    peInfo.rowCount = 24;
+    peInfo.colCount = 80;
+    peInfo.editorFont = XOpenFont ("corfx");
+    XrPageEdit (NULL, MSG_SIZE, & peInfo);
+    
+    /* Ask the editor to create the instance */
+    peInfo.editorWindowId = applic_window;
+    peInfo.editorFGColor = Black Pixel;
+    peInfo.editorBGColor = White Pixel;
+    peInfo.editorState = XrVISIBLE | XrSENSITIVE;
+    peInfo.buffer = (char*) malloc(1024);
+    peInfo.bufferCount = 0;
+    peInfo.bufferSize = 1024;
+    peInfo.maxCharCount = 1024;
+    peInfo.tabWidth = 5;
+    peInstance = XrPageEdit (NULL, MSG_NEW, & peInfo); 
+    
+    /* Activate the instance */
+    XrPageEdit (peInstance, MSG_ACTIVATE,NULL);
+    
+}

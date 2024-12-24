@@ -1,0 +1,1576 @@
+.ds Ch Overview
+.nr H1 1
+.so format
+.H 2 "How To Use This Manual"
+.P
+This manual is for programmers who intend to use the 
+X window system and development tools to 
+create application programs.
+The manual contains the following types
+of information:
+.BL
+.LI
+An introduction to the capabilities of the X\ window system 
+and the Xrlib user interface library (chapter 1).
+.LI
+Descriptions of each level of functionality and how to incorporate them
+into your programs (chapters 2 through 5).
+.LI
+Reference information (appendixes A and B).
+.LE
+.P
+You should read the rest of this chapter to become familiar with the
+relationships among
+the levels of functionality provided by 
+the these libraries and to realize that
+you'll need to build your understanding starting at the lowest levels.
+.H 2 "Using the Libraries"
+Using X is a matter of using the functionality of 
+the Xlib library (libx.a) 
+which is described in chapter 2.  (Also included in Xlib are three
+sets of routines described in appendix A under ``XMenu,'' 
+``Xtext,'' and ``Xtty.'')
+.IN "Xlib"
+.H 2 "The Xlib Library"
+.P
+The X library is the low-level interface to the X server protocol.
+It contains more than 150
+subroutines that control and manipulate windows. The X library
+provides the foundation for the higher-level functionality
+of the Xrlib library and provides low-level control of the
+user interface.  The advantage of X over many other windowing systems
+is its ability to control windows over a network.
+.P
+The following paragraphs describe some of the operations provided
+by the X library.
+.H 4 "Accessing the Display"
+.P
+The application program can control which display it
+uses for output and can terminate that connection when necessary.
+.H 4 "Creating Windows"
+.P
+Windows can be created and destroyed 
+as required by the program.  A program can have several windows active
+at one time. In addition, the program can define the cursor associated
+with each window.
+.H 4 "Changing Windows"
+.P
+The characteristics of a window can be controlled by the program. For example,
+a window can be moved, resized, moved to the top or bottom of a ``stack''
+of windows, and have its background pattern changed.
+.H 4 "Performing Graphics Operations"
+.P
+Graphics operations provided by the X library enable the program to
+draw lines and polygons, fill areas with patterns, copy and move
+regions of the window, and perform raster graphics operations.
+In addition, the program can control the colors of
+the graphic elements and background.
+.H 4 "Working With Text"
+.P
+The program can place text in a window using
+desired fonts. The fonts aren't restricted to alphanumeric characters.
+.H 4 "Using the Cut Buffers"
+.P
+Eight cut buffers enable the program to save and retrieve data from
+a window, allowing cut-and-paste operations.
+.H 4 "Accepting User Input"
+.P
+User input can take several forms, such as keyboard input, mouse movement,
+and mouse button input.
+The program can define the types of input events that it cares about
+so that it can respond in the appropriate manner.
+.H 4 "Customizing the Operation"
+.P
+Certain user features can be set by the program, including cursor speed in
+relation to mouse movement,
+the keyboard's auto-repeat operation, the keyboard's
+caps-lock operation, and the display behavior after a period of inactivity.
+.P
+The X library is described in detail in chapter 2 and appendix A.
+.H 2 "The Xrlib Library"
+.P
+The Xlib user interface library is a set of 
+powerful programming tools 
+that enables you to create
+a graphical user interface for your application programs. 
+The user interface becomes much more than prompts and keyboard input.
+It becomes a more natural ``point-and-select'' interaction that can make
+your programs easier to use. It's also a
+tool that can make your programs compatible with virtually any
+system that implements the X window system.
+.P
+Several naming conventions are used in the Xrlib library descriptions to 
+help you keep track of the functions, structures, and data types
+you use.  
+.IN "Naming conventions"
+The following table describes those conventions using the 
+sample name of FOO:
+.TS 
+center box;
+ll.
+Name	Description
+_
+XFoo	An X function or routine.
+XrFoo	An Xrlib function or routine.
+XrFOO	An Xrlib define.
+xrFoo	An Xrlib function or data type.
+.TE
+You can think of the X and Xrlib libraries
+as providing four levels of programming functionality, each building
+upon the capabilities of the lower levels:
+.BL
+.LI
+Dialogs (the highest level).
+.LI
+Field Editors.
+.LI
+Intrinsics.
+.LI
+X library primitives (the lowest level).
+.LE
+.IN "Dialogs"
+.IN "Field Editors"
+.IN "Instrinsics"
+.P
+Dialogs, field editors, and intrinsics are provided in the Xrlib
+library\(emsometimes called a \fItoolbox\fP. The X library primitives are
+provided by the X library.
+.P
+In the following sections of this chapter, each of these levels is
+described briefly, starting with the highest, most powerful level.
+This should give you an overview of the capabilities of these
+levels of functionality, highlighting the most powerful capabilities first.
+.P
+When you actually begin learning the details of programming with
+the X\ window system (after you finish this chapter),
+you'll have to start learning at the lower levels and build
+upon that knowledge in order to program at the higher levels.
+For this reason,
+the remainder of this manual describes the X\ window system 
+and Xrlib starting at the lowest levels
+of functionality and proceeding to the highest.
+.H 3 "Dialog Level"
+.P
+Dialogs provide the highest level of communication with the end-user.
+Xrlib provides three types of dialogs:
+.BL
+.IN "Menu"
+.LI
+Menu. For presenting and selecting one user choice out of many
+that may be available.
+.IN "Message Box"
+.LI
+Message box. For presenting a message or simple choice to the user.
+.IN "Panel"
+.LI
+Panel. For presenting several types of information in 
+interactive forms and fields and collecting
+user input.
+.LE
+.P
+Each type of dialog presents to the user a separate window that's dedicated to
+communication with the user. Each of these dialog types are summarized below.
+.H 4 "Menus"
+.P
+Menus allow users to view the choices available to them
+at any one time without having to remember command words
+or special keys or even select an option. 
+In Xrlib,  menus are lists of items (text strings, 
+icons, etc.) displayed in a pop-up window.
+A menu is displayed with selectable items in bold and unselectable
+items in gray.
+.IN "Selectable Items"
+Selecting a menu item involves pointing at an item, 
+which highlights it, and then selecting it.
+The selection process depends upon the human interface model.
+This process and others are configurable by the user. 
+(For more information about configurations, refer to chapter 5,
+``Dialogs.'')
+.P
+The selection information is returned to the application through the
+input 
+.I
+XrInput()
+.R
+model, which is described in chapter 3.
+.IN "XrInput"
+.P
+You can view the information base of an Xrlib menu as a tree.
+The leaves of the tree represent commands or options.
+The branches of the tree are paths to sub-menus.
+A sample menu is shown in figure \n(H1-1.
+.DS
+.sp 20
+.FG "Sample Menu"
+.DE
+.H 4 "Message Boxes"
+.P
+Many times a program must warn the user
+or ask a simple multiple choice question.
+.IN "Message Boxes"
+Message boxes provide this capability in an
+easy-to-use format.
+When a message window appears on the display, the user must respond
+to the question or statement displayed by selecting one of the choices.
+.P
+A message box is made up of an icon (a symbol), some descriptive text,
+and buttons.
+Icon placement, text formatting, and button placement is
+performed automatically by the message box manager.
+If you need to perform a more complex interaction and
+have more control over the appearance of the message box, 
+you should use a panel.
+A sample message box is shown in figure \n(H1-2.
+.DS
+.sp 20
+.FG "Sample Message Box"
+.DE
+.H 4 "Panels"
+.P
+Panels are generally used to display the state of an application
+and allow the user to change that state.
+A panel is a collection of \fIfield editors\fP, which can manipulate the state
+of an application, contained in a single window.
+.IN "Field Editors"
+Field editors provide communication with the user in
+particular ``formats''\(emthey're described below.
+.P
+When a program displays a particular panel, the panel manager
+sends messages to the field editors in the panel instructing them to
+.IN "Panel Manager"
+create \fIinstances\fP of themselves, to display themselves, to
+make themselves active, and so on.
+.P
+When the user must make changes to the panel, such as entering text
+or checking a check box, 
+.IN "Check Box"
+the panel manager passes control to the appropriate field editor.
+When the desired changes have been made, there is often a button
+labeled ``OK'' that signals the panel manager to return control
+to the application.
+The changes made are noted by the application, which makes
+appropriate changes to its own data structures.
+.P
+The Xrlib concept of what
+can be in a panel is not limited to just
+letters and numbers.
+Because panels use editors to manage their fields, a field
+can contain almost any kind of information.
+(Refer to ``Field Editor Level'' below.)
+This concept increases your programming ease
+since many more difficult-to-program user interactions
+are easily expressed by a panel.
+.P
+Many applications can be designed easily as panels
+because Xrlib provides a robust panel structure and an extensible
+collection of editors to manage its fields.
+Two sample panels are shown in figure \n(H1-3.
+(For more information about dialogs, refer to chapter 5 and appendix B.)
+.DS
+.sp 35
+.FG "Sample Panels"
+.DE
+.H 3 "Field Editor Level"
+.P
+Field editors provide several formats for user input.
+.IN "Field Editors"
+Each of the following field editors supports one format of user input:
+.BL
+.LI
+The titlebar editor creates a ``title bar'' (with a title and gadget boxes)
+.IN "Titlebar Editor"
+.IN "Editor" "Titlebar"
+at the top of a window. See figure \n(H1-4 below.
+.LI
+The scrollbar editor manages a ``scroll bar'' that controls scrolling within
+.IN "Scrollbar Editor"
+.IN "Editor" "Scrollbar"
+the window.
+.LI
+The checkbox editor manages an array of labeled checkboxes with predefined
+meanings\(emseveral
+can be active at one time. See figure \n(H1-5 below.
+.LI
+The radio-button editor manages an array of labeled buttons with predefined
+meanings\(emonly
+.IN "Radiobutton Editor"
+.IN "Editor" "Radiobutton"
+one can be active at one time.
+.LI
+The push-button editor manages an array of labeled bars that
+.IN "Pushbutton Editor"
+.IN "Editor" "Pushbutton"
+perform predefined actions when selected. See figure \n(H1-6 below.
+.LI
+The text editor manages a text-input field in which the user
+.IN "Text Editor"
+.IN "Editor" "Text"
+may enter or revise a single line of text.
+.LI
+The static-text editor displays a block of predefined text.
+.IN "Statictext Editor"
+.IN "Editor" "Statictext"
+.LI
+The raster-select editor manages an array of raster samples\(emonly
+.IN "Rasterselect Editor"
+.IN "Editor" "Rasterselect"
+one can be active at one time. See figure \n(H1-7 below.
+.LI
+The raster editor manages a raster-image field in which the user
+.IN "Raster Editor"
+.IN "Editor" "Raster"
+may revise a raster pattern.
+.LI
+The static-raster editor displays a predefined raster pattern, often
+.IN "Staticraster Editor"
+.IN "Editor" "Staticraster"
+designed as a symbol.
+.LE
+.DS
+.sp 10
+.FG "Sample Titlebar Editor"
+.DE
+.DS
+.sp 10
+.FG "Sample Checkbox Editor"
+.DE
+.DS
+.sp 10
+.FG "Sample Push-Button Editor"
+.DE
+.DS
+.sp 10
+.FG "Sample Raster-Select Editor"
+.DE
+.P
+Each of these editors provides and manages a specific format
+of user interface.
+When a field editor instance is created by an application program,
+the editor takes over a rectangular region of a window and
+displays the instance therein.
+The editor then processes all keyboard and mouse events that occur
+within this region.
+.P
+Whenever an editor instance is modified by a user's action, such as
+altering the slide box position in a scrollbar instance, the editor
+returns a block of information to the application program,
+notifying it of the change.
+This allows an application to then take any actions it might require
+regarding the new value of the field editor instance.
+.P
+An application can also modify
+the view and behavior of a field editor instance as a whole.
+.P
+Editors are most often used as the building blocks for creating
+higher-level user-interface constructs, such as dialogs
+(panels and message boxes).
+However, the use of editors is in no way limited to just this.
+You may incorporate field editors
+into an application in whatever way you need.
+In addition, if no editor provides
+the functionality needed by a program, you can
+design your own editor, which you can then integrate into
+the Xrlib library.
+.P
+(For more information about field editors, refer to chapter 4 and
+appendix B)
+.H 3 "Intrinsics Level"
+.P
+The Xrlib intrinsics 
+provide an intermediate level of control of the system by
+.IN "Intrinsics"
+combining and enhancing the X library primitives.  The intrinsics
+provide the base level of tools needed to build a very usable human
+interface.
+.P
+The intrinsics provide four main areas of functionality:
+.BL
+.LI
+\fBInput Abstractions.\fR
+The intrinsics take control of processing all 
+input and place it into one input stream.  The types of input
+include normal keyboard input, mouse and
+window input, and special types of input provided by the
+higher-level functions.  By providing this method of input,
+the application gathers input from one source only,
+and Xrlib provides the control routines needed to handle
+the higher levels.  The intrinsics can handle any type
+of input passed by X.
+.LI
+\fBResource Management.\fR
+The intrinsics provide an extensible resource manager that allows
+an application to maintain and access resources.
+Many types of resources are defined by Xrlib, and the
+application can create its own special types.
+.LI
+\fBEditor Interaction.\fR
+Each window can have a set of field editors logically attached to it.
+This pairing of a window to its editors is needed to allow the
+``transparent'' transfer of control to the editors.
+The intrinsics provide for this capability through two entry points
+that can handle individual editors or groups of editors.
+.LI
+\fBGeometric Utility Routines.\fR
+The intrinsics provide a large set of routines to handle
+the structures that describe drawn figures.  The
+routines can manipulate points and rectangles, performing operations
+such as the
+union and intersection of rectangles,
+.LE
+.P
+(For more information about intrinsics, refer to chapter 3 and appendix B.)
+.H 2 "Including the X Window System in an Application"
+.P
+The X and Xrlib libraries reside in the /usr/lib directory.
+Each has an associated include file which
+normally is included by any application that uses the libraries.
+.IN "Include Files"
+.IN "Files" "Include"
+.P
+.nf
+    /usr/include/X/Xlib.h
+    /usr/include/Xr/Xrlib.h
+.fi
+.P
+Before you can compile an application, you must include the following
+lines at the beginning of each source module that
+uses any of the the X\ window system structures or defines:
+.P
+.nf
+    #include <X/Xlib.h>
+    #include <Xr/Xrlib.h>
+.fi
+.P
+After each module of the application has been successfully compiled,
+you must link the modules with both the X and Xrlib libraries.
+This involves adding the following options to the 
+\fIcc\fR or \fIld\fR commands, which
+is the mechanism for linking modules:
+.P
+.nf
+    -lXr -lX 
+.fi
+.P
+This option instructs the loader to use the routines present in the
+.IN "Linking modules"
+library files /usr/lib/libXr.a and /usr/lib/libX.a
+to resolve any undefined globals and procedures.
+.P
+Note that if an application does not use the Xrlib library, the ``Xr''
+lines and options aren't required above.
+.H 2 "Building A Program Using Xrlib"
+.P
+To conclude this overview of X and Xrlib, it might be helpful to 
+look at some simple \fIHello World\fP programs.  The programs demonstrate
+.IN "Hello World"
+the steps necessary to open a window for input and display subwindows.
+.IN "Subwindows"
+The first program shows how to open a window and display a message in it.
+The following two programs build upon the first using the Xrlib library.
+The last program is an entirely different one that displays a panel and
+accepts input from either the keyboard or mouse.  With these four examples,
+you should be able to get an idea of the capabilities and uses of
+both the X and Xrlib libraries.
+.H 3 "Sample 1"
+This first sample program uses only the X window library\(emno
+it doesn't use the Xrlib library.  This simple output-only program
+creates a window and prints a message in that window.
+The program does not repaint the message if the message is covered 
+by another window and 
+then exposed.
+The numbered paragraphs below correspond to the numbered comments and their
+corresponding lines of code in the program.
+.P
+.AL
+.LI
+\fBOpen the Display\fR.
+Using the Xlib function \fIXOpenDisplay()\fR, you establish a connection
+to the X server for an accessible display.
+.IN "X Server"
+You need to do this because the X window system is a network service.
+Since your program is initially independent of a display, it 
+must establish a connection to a display.
+Using the zero argument to \fIXOpenDisplay()\fR indicates
+that the default display
+should be determined from the environment variable DISPLAY.
+.IN "Environment"
+The DISPLAY environment variable should be in the format "hostname:number",
+.IN "DISPLAY variable"
+where hostname is the name of the machine where the window is to be created,
+and number determines the display to be used on that machine.
+\fIXOpenDisplay()\fR returns a zero if it is unable to establish a connection.
+(Refer to chapter 2 under
+``Opening and Closing the Display''
+for more information about the \fIXOpenDisplay()\fR function.)
+.LI
+\fBCreate a window.\fR
+Now that a connection is established to the target display, the example
+creates a child window of the \fIRootWindow\fR.  
+.IN "Creating Windows"
+.IN "Windows" "Creating"
+Many window attributes are set
+through this function, 
+including the window's dimensions, location with respect
+to the \fIRootWindow\fR, border width, and colors.
+Windows are not displayed upon window creation, 
+(that is, they are not ``mapped'').
+.IN "Mapping Windows"
+.IN "Windows" "Mapping"
+Any information sent to the window while it is not mapped will not be
+displayed.
+.P
+\fIXCreateWindow()\fR returns the window id
+of the created window on success, or zero on failure.
+.IN "Window ID"
+The window id is used in most calls to identify a particular window.
+(Refer to chapter 2 under
+``Creating and Destroying Windows''
+for more information about the \fIXCreateWindow()\fR function.)
+.P
+The call to \fIXMapWindow()\fR requests that the X server display ("map")
+the window identified by the window id argument.
+It is interesting to note that the example program does not try to test
+\fIXMapWindow()\fR for a returned failure condition.
+This is indicative of network window calls that return after the X client has
+queued the function request, but possibly before the server has fulfilled the
+request.
+(Refer ``Manipulating Windows'' in chapter 2
+for more information about the \fIXMapWindow()\fR function.)
+.P
+The window server may be on a remote machine.  If the server fails to fulfill
+an X window request, then the failure condition may not be detected until a
+.IN "Function Call" "Blocked"
+future blocked ("synchronous") function call.
+.LI
+\fBLoad a font.\fR
+\fIXGetFont()\fR loads a font of the specified name.  This example loads a
+.IN "Font" "Loading"
+times roman bold font.
+\fIXGetFont()\fR returns a font id, or a zero on failure.
+.LI
+\fBDisplay a string.\fR
+The call to \fIXText()\fR requests that a string be displayed in the
+.IN "XText"
+window at a particular location with a particular font.
+.LI
+\fBFlush the output to the window.\fR
+The call to \fIXFlush()\fR sends all output requests to the appropriate
+X server.
+(Refer ``Event Handling'' in chapter 2
+for more information.)
+.LI
+\fBSleep and then terminate.\fR
+The call to \fIsleep()\fR is made in order to keep the window visible on the
+screen for a short while.
+All cleanup activities occur automatically during your program exit.
+.LE
+.CO
+/*
+ *    Hello World using X
+ */
+#include <X/Xlib.h>
+
+main()
+{
+    Window windowId;
+    Font f;
+
+									/* 
+1.  Open the display specified by the environment variable DISPLAY.
+									*/
+
+.IN "XOpenDisplay"
+    if (XOpenDisplay (0) == 0)
+	{
+	printf ("cannot create a window on %s\en", getenv ("DISPLAY"));
+	exit (1);
+        }
+.CE
+.CO
+									/*
+2.  Create a window and put it on the display.
+									*/
+.IN "windowId"
+    windowId = XCreateWindow (RootWindow, 50, 50, 400, 200, 3, 
+					BlackPixmap, WhitePixmap);
+.IN "XMapWindow"
+    XMapWindow (windowId);
+
+.CE
+.CO
+									/*
+3.  Open a times roman bold font.
+									*/
+.IN "XGetFont"
+    if ((f = XGetFont ("timrom12b")) == 0)
+	{
+	printf ("font timrom12b does not exits\en");
+	exit (1);
+        }
+.CE
+.CO
+									/*
+4.  Send ``hello world'' to the window.
+									*/
+.IN "XText"
+    XText (windowId, 100, 80, "Hello World", 11, f, BlackPixel, WhitePixel);
+.CE
+.CO
+
+									/*
+5.  Send all those instructions to the X window server to process.
+									*/
+.IN "XFlush"
+    XFlush ();
+.CE
+.CO
+									/*
+6.  Sleep and exit.  Everything is automatically cleaned up on exit.
+									*/									/*
+    sleep (10);
+}									
+.CE
+.H 3 "Sample 2"
+This example adds a simple title bar to the first ``Hello World'' example.
+The numbered paragraphs below
+correspond to the numbered comments in the example code.
+Only the code that has been added to the first example is described.
+.P
+Note that title bars are an Xrlib library facility.  Thus we now need to
+.IN "Title bars"
+begin using the Xrlib library.  
+In general the Xrlib functions are layered upon
+the X window library.  
+Xrlib provides a set of routines that can greatly
+enhance the user interface of your programs.
+.P
+This example displays a window with a title bar and then writes a simple
+message in that window.  
+Again this example simply outputs information to a window.
+.AL
+.LI
+\fBInitialize the Xrlib Library.\fR
+Initialize the Xrlib library using the \fIXrInit()\fR routine.
+\fIXrInit()\fR returns FALSE upon failure.
+.IN "XrInit"
+(Refer to chapter 3 for more information 
+about initializing Xrlib.)
+.LI
+\fBRegister Your Window With Xrlib.\fR
+Windows to be used with the Xrlib library need to be ``registered''
+with the Xrlib library.
+A window becomes registered through the \fIXrInput()\fR using the
+MSG_ADDWINDOW message.
+(MSG_ADDWINDOW is described in chapter 3 under ``Input Messages.'')
+.P
+This call illustrates how a programmer
+interacts with the Xrlib library.
+Generally the function of a library call is determined
+by the Xrlib function called and the message sent as an argument.
+Additionally, Xrlib functions most often use 
+pointers to structures to communicate
+other details to the calling program.
+.P
+Notice that it is no longer necessary to explicitly get a font for this window.
+The Xrlib library establishes a default font for you.
+.IN "Font" "Default"
+Also notice that this default font is accessed by the \fIXText()\fR call, as
+\fIxrBaseFontInfo->id\fR.
+Of course, you can choose your own font and then refer to it
+.IN "Font" "ID"
+through its appropriate font id.
+.LI
+\fBDraw a Title Bar.\fR
+The call to \fIXrTitleBar()\fR draws a title bar in the window.
+.IN "XrTitleBar"
+A title bar is typically a rectangular banner across the top of a window
+displaying the name associated with the window.
+When \fIXrTitleBar()\fR is called with the MSG_NEW message, it also expects the
+first argument to be NULL.
+The third argument, a pointer to a titleBarInfo structure, conveys other
+details to Xrlib about the requested title bar attributes.
+(Refer to the \fIXRTITLEBAR()\fR manual page in appendix B
+and to chapter 5 for more information about
+the Titlebar Editor.)
+.LE
+.CO
+/*
+ *  add a Title Bar to Hello World
+ */
+
+#include <X/Xlib.h>
+#include <Xr/Xrlib.h>
+
+/*
+ * fill a structure to define a Title Bar
+ */
+.IN "xrTitleBarInfo"
+xrTitleBarInfo titleBarInfo =
+{
+    0,                       /* windowId */
+    {0,0,0,0},               /* editor rectangle */
+    XrVISIBLE | XrSENSITIVE, /* editor state */
+    -1, -1,                  /* editor colors - use defaults */
+    NULL,                    /* editor font - use defaults */
+    "Hello World",           /* Title name */
+    NULL,                    /* gadget1 - unused */
+    NULL                     /* gadget2 - unused */
+};
+
+xrWindowData windowData;
+.CE
+.CO
+
+main()
+{
+    Window windowId;
+
+/* Open the display specified by the environment variable DISPLAY */
+
+    if (XOpenDisplay (0) == NULL)
+	{
+	printf ("cannot create a window on %s\en", getenv ("DISPLAY"));
+	exit (1);
+        }
+
+/* Create a window and put it on the display */
+
+    windowId = XCreateWindow (RootWindow, 50, 50, 400, 200, 3,
+		BlackPixmap, WhitePixmap);
+    XMapWindow (windowId);
+.CE
+.CO
+									/*
+1.  Initilize Xrlib 
+									*/
+.IN "Xrlib" "Initializing"
+.IN "XrInit"
+    if (XrInit (NULL) == FALSE)
+	 {
+	 printf ("Could not initialize Xrlib\en");
+	 exit (1);
+	 }
+.CE
+.CO
+
+									/*
+2.  Register this window with Xrlib functionality 
+									*/
+.IN "Window" "Registering with Xrlib"
+    XrInput (windowId, MSG_ADDWINDOW, &windowData);
+.CE
+.CO
+
+									/*
+3.  Draw the Title Bar 
+									*/
+.IN "Title Bar"
+    titleBarInfo.editorWindowId = windowId;
+    XrTitleBar (NULL, MSG_NEW, &titleBarInfo);
+
+.CE
+.CO
+/* write the hello world string into the window */
+
+.IN "XText"
+    XText (windowId, 100, 80, "Hello World", 11, xrBaseFontInfo->id,
+		   BlackPixel, WhitePixel);
+
+/* Send all those instructions to the X window server to process */
+
+.IN "XFlush"
+    XFlush ();
+
+/* Sleep and exit.  Everything is automatically cleaned up on exit */
+
+.IN "Sleep"
+    sleep (5);
+}
+.CE
+.H 3 "Example 3"
+This third example adds a simple message box to our 
+growing ``Hello World'' program.
+A message box is a simple type of dialog that a user may have with an
+application.
+This example adds the use of message boxes and user input upon the previous
+examples.
+Once again, the numbered comments and their associated code correspond to the
+numbered paragraphs below.
+Only new code sections are described.
+.AL
+.LI
+\fBSelect the type of input for the window.\fR
+In order to receive input from the window, you must specify the types of
+input you want.
+For this example we are going to respond to presses and releases of mouse
+buttons or keystrokes.
+We call \fIXSelectInput()\fR with a window id and a mask describing the desired
+events.
+.IN "XSelectInput"
+(For more information about \fIXSelectInput()\fR, refer to 
+``Event Handling'' in chapter 2.)
+.LI
+\fBCreate and display a message box.\fR
+The message box is created and placed on the display with the call to
+\fIXrMessageBox()\fR with  the MSG_EDIT message.
+.IN "XrMessageBox"
+The \fIxrMsgBoxInfo\fR structure, \fImsgInfo\fR, describes the attributes of
+the requested message box.  For example this box displays the string, "Are
+you ready?", along with two buttons, "Ready" and "Not Ready".
+.IN "xrEvent Structure"
+The \fIxrEvent\fR structure, \fImessageEvent\fR, will contain the values
+returned by the dialog with the message box.
+In this example we examine the field \fImessageEvent.value1\fR to determine
+what response the user provided to the message box.
+(Refer to chapter 5 for more information about \fIMessage Boxes.\fR)
+.LI
+\fBRedraw the title bar.\fR
+Note that we need to redraw the title bar that had been occluded by the message
+box.
+.IN "XrTitleBar"
+To redraw the title bar we need to call the \fIXrTitleBar()\fR routine using
+the MSG_REDRAW message.
+.IN "MSG_REDRAW"
+The pointer, \fItbar\fR, was obtained as the return value to the call to
+\fIXrTitleBar()\fR when the MSG_NEW message was used to create the title bar.
+(Refer to the XRTITLEBAR() manual page 
+in appendix B for more information about the MSG_REDRAW
+message.)
+.LE
+.CO
+/*
+ *  add a Message Box to Hello World
+ */
+#include <X/Xlib.h>
+#include <Xr/defs.h>
+#include <Xr/types.h>
+#include <time.h>
+
+/*
+ * fill a structure to define a Title Bar
+ */
+xrTitleBarInfo titleBarInfo =
+{
+    0,                       /* windowId */
+    {0,0,0,0},               /* editor rectangle */
+    XrVISIBLE | XrSENSITIVE, /* editor state */
+    -1, -1,                  /* editor colors, use defaults */
+    NULL,                    /* editor font - use defaults */
+    "Hello World",           /* Title name */
+    NULL,                    /* gadget1 - unused */
+    NULL                     /* gadget2 - unused */
+};
+
+.CE
+.CO
+xrWindowData windowData;
+
+xrEditor *t_bar;
+
+xrEvent messageEvent;
+
+xrMsgBoxInfo msgInfo;
+
+INT8  *myButtons[] = {"Ready", "Not Ready"};
+
+.CE
+.CO
+main()
+{
+    Window windowId;
+
+/* Open the display specified by the environment variable DISPLAY */
+
+    if (XOpenDisplay (0) == NULL)
+	{
+	printf ("cannot create a window on %s\en", getenv ("DISPLAY"));
+	exit (1);
+        }
+
+.CE
+.CO
+/* Create a window and put it on the display */
+
+    windowId = XCreateWindow (RootWindow, 50, 50, 400, 200, 3,
+		BlackPixmap, WhitePixmap);
+    XMapWindow (windowId);
+
+.CE
+.CO
+/* Initilize Xrlib */
+
+    if (XrInit (NULL) == FALSE)
+	 {
+	 printf ("Could not initialize Xrlib\en");
+	 exit (1);
+	 }
+
+.CE
+.CO
+/* Associate this window with Xrlib functionality */
+
+    XrInput (windowId, MSG_ADDWINDOW, &windowData);
+
+/* Draw the Title Bar */
+
+    titleBarInfo.editorWindowId = windowId;
+    t_bar = XrTitleBar (NULL, MSG_NEW, &titleBarInfo);
+									/*
+.CE
+.CO
+1.  Select the type of input for the window.
+									*/
+.IN "XSelectInput"
+    XSelectInput (windowId, ButtonPressed | ButtonReleased | KeyPressed);
+
+.CE
+.CO
+									/*
+2.  Put up a message box.
+									*/
+    msgInfo.messageOrigin.x = 50;
+    msgInfo.messageOrigin.y = 50;
+    msgInfo.relativeTo = windowId;
+    msgInfo.messageText = "Are you ready?";
+    msgInfo.messageButtons = myButtons;
+    msgInfo.numButtons = 2;
+    /*
+     * put up a message box - upon return, examine value1
+     * value1 == 1 if and only if the user selected the not ready button
+     * value1 == 0 if the user hit a key or selected the ready button
+     * value1 == -1 if the message box times out
+     */
+    do
+    {
+.IN "XrMessageBox"
+        XrMessageBox (&msgInfo, MSG_EDIT, &messageEvent);
+    }   while (messageEvent.value1 != 0);
+.CE
+.CO
+									/*
+3.  Redraw the TitleBar.
+									*/
+.IN "XrTitleBar"
+    XrTitleBar (t_bar, MSG_REDRAW, XrREDRAW_ALL);
+
+/* write hello world message to window */
+
+    XText (windowId, 100, 80, "Hello World", 11, xrBaseFontInfo->id,
+                     BlackPixel, WhitePixel);
+
+.CE
+.CO
+/* Send all those instructions to the X window server to process */
+
+    XFlush ();
+
+/* Sleep and exit.  Everything is automatically cleaned up on exit */
+
+    sleep (5);
+}
+.CE
+.H 2 "Another Sample Program"
+.P
+As you have seen, 
+the initial setup of an Xrlib program requires the use of
+Xlib functions and Xrlib intrinsics.  Once some low-level tasks
+.IN "Intrinsics"
+.IN "Xrlib" "Intrinsics"
+are performed, you can operate at the field editor and dialog levels
+of the Xrlib model.
+.P
+To take advantage  of the capabilities of Xrlib, you must perform
+several steps in your program.  
+After setting up, you are ready to use the window.  
+The following is a description of
+the steps involved in writing the sample Xrlib program.
+(The program at the end of the chapter contains numbered comments
+corresponding to the numbered paragraphs below.)
+.AL
+.LI
+\fBOpen the display. \fR
+Using the Xlib function \fIXOpenDisplay()\fP, 
+establish a connection to the server for the specified display. 
+In the 
+example the display name is passed to the program as a command line 
+argument.  
+The function returns a pointer to the display structure.  It is 
+important to open the display before you initialize Xrlib because
+Xrlib sets up the \fIcurrent\fP display only.
+.LI
+\fBInitialize Xrlib. \fR
+Remember that \fIXrInit()\fP must be called before any of the 
+functionality of Xrlib is used.  In fact, you must call
+.IN "XrInit"
+(only once) \fIXrInit()\fP after opening the display.
+This establishes the allocation
+functions that Xrlib routines should use for storage allocation.  
+In most cases  you will want to use the default allocation
+functions.  To do this,  pass NULL to \fIXrInit()\fP.  
+Remember that if Xrlib 
+can't be initialized, \fIXrInit()\fP returns FALSE.
+.LI
+\fBCreate the window.  \fR
+This part of the program creates the \fIHello World\fP
+window as a child of the \fIRootWindow.\fP 
+.IN "RootWindow"
+.IN "Window" "Root"
+Although the window is officially created, it
+doesn't yet appear on the display.  So we need to display the window. 
+.LI
+\fBMap the window.  \fR
+To make the newly created window appear on the display
+we must \fImap\fP it.  
+.IN "Mapping Windows"
+.IN "Window" "Mapping"
+Subsequent mappings have no effect.
+.LI
+\fBSet up the window's input.  \fR
+You can modify the data in the window's 
+structure at this point, but before you actually use the window, you
+need to establish its input parameters and register it with \fIXrInput()\fP.
+Issuing the add window message to Xrlib causes the window to be registered,
+which then sets up other routines that need to know about the window.
+.LI 
+\fBSelect the types of input for the window.  \fR
+Even though \fIXrInput()\fP knows 
+about your window now, it won't receive any input until
+you specify what types of input you would like to receive.
+For this example, we simply want to know when the user has
+pressed or released a mouse button, pressed a key, or exposed 
+this window (for which we must redraw the window). 
+To select the types of input we want, we 
+.IN "XSelectInput"
+give to \fIXSelectInput()\fP a mask defining those
+input types.
+.LI
+\fBDraw the Window.  \fR
+Now that our window is ready to receive input, 
+let's draw it.  To do this, we'll use the redraw routine that 
+is typically used whenever a window is exposed.  
+.LI
+\fBDefine the Cursor for the Window.\fR
+When the cursor enters the window, we want it to be customized for
+our application.
+.LI
+\fBSet up and create the menu.  \fR
+With our window now displayed, we 
+set up a menu and display it.  We will shortly be prepared to 
+handle input from the user.
+.LI
+\fBSet up the rasters for the message boxes.  \fR
+In this example, we have
+two raster images\(ema friendly face and a frowning face.  The information
+for these raster images is stored in the files frown.h and smile.h.
+.IN "Raster Images"
+These raster files were created using a utility that enables a user
+to draw an image with a mouse and then store that image. 
+.LI
+\fBExecute the input loop.  \fR
+We are now ready to enter the input loop,
+performing our user-directed tasks.
+.P
+The input loop accepts its input from Xrlib. 
+The function \fIXrInput()\fR funnels all input through Xrlib.
+.IN "MSG_BLKHOTREAD"
+The specific type of input (MSG_BLKHOTREAD) specifies blocked, 
+hot input.  Blocked input waits until an input occurs, and then
+copies the input event into the specified input structure.
+Non-blocked input will return immediately with either an input
+or an indication that no input has occurred.
+Hot input occurs when one of the events attached to the window 
+is scanned.
+.P
+After getting an input event, the main loop simply tests 
+for the inputs it wants and acts accordingly. 
+.LE
+.P
+One of the advantages of using Xrlib is that all input is routed
+through a single entry point.  Additionally, a structure containing
+pointers to routines can be used to automatically perform specified
+.IN "Window Exposure"
+operations whenever a window is exposed.  This frees the programmer
+from having to test for an exposure by specifying the flow
+of control when an exposure event occurs.
+.H 4 "The Draw Window Routine"
+The function \fIDrawWindow()\fP defined in this program 
+uses Xrlib intrinsics. 
+This function is not part of Xlib or Xrlib\(emit's a function
+the programmer creates.
+(While going through
+this part of the example, you might want to refer to chapter 3, 
+"Intrinsics," for more information about the functions described here.)
+This function does two things: it sets up a new window and 
+provides information about how to redraw a window whenever an
+exposure event occurs, and then draws the window using the redraw routine.
+.P
+The main program explicitly calls \fIDrawWindow()\fP once
+\(emwhen it first draws the window.  Subsequently, \fIDrawWindow()\fP 
+is invoked automatically when an exposure event occurs. 
+.IN "MSG_NEW"
+.IN "MSG_REDRAW"
+Therefore, the function responds to two messages: MSG_NEW and
+MSG_REDRAW.  
+.P 
+When the program calls this function, it passes the MSG_NEW message
+to it.  When drawing the new window, the function creates the title
+bar editor and then sets up the structure necessary to have this 
+function invoked automatically when an exposure event occurs.
+The function then draws the window and title bar.
+.P 
+The structure for the titlebar editor is declared and 
+initialized in the
+\fIHelloWorld.h\fP include file.  
+.IN "Titlebar Editor"
+.IN "Editor" "Titlebar"
+(For more information, refer to "XRTITLEBAR()"
+in appendix B.)
+The include file uses Xrlib field editor functions to set
+up the title bar editor.
+.P
+The MSG_NEW is the vehicle for creating a titlebar editor
+instance in a window.  It expects the \fIinstance\fP parameter
+to be set to NULL, and the \fIdata\fP parameter to point to a filled-out
+instance of the \fIxrTitleBarInfo\fP structure. 
+In the function \fIDrawWindow()\fP we first supply the titlebar
+information structure the ID of the window.  Then we call
+\fIXrTitleBar()\fR to create the title bar.  
+.P
+The next step is to initialize the structure that provides
+control information when an exposure event occurs.  
+An array called \fIexposeEvent[]\fP contains a set of
+pointers to structures that provide information about each event
+that we want to see.  This array is attached to the
+window.  For each input type you can specify one or more event
+types.
+In this case, we are interested only in the window exposure event,
+so our array has only one structure.  However, if we wanted to
+add, for instance, an event for a keypress of the ``A'' key, we would
+initialize the array for two elements, and assign the keycode of the 
+``A'' key as an inputCode. 
+.P
+Now that we have defined the events we want a response for, we define
+the response.  We do this by adding information to the structure
+\fIexposeFunct.\fP 
+.P
+The process flag set to set to TRUE indicates that we want the 
+automatic calling of the function pointed to by \fIfunct\fP.
+The instance is the globally defined \fIwindowid\fP.
+Although not required, the \fIfunct\fP and \fIinstance\fP values
+are cast as a precaution.
+.P
+The message we want to pass to the function is MSG_REDRAW.  
+The \fIeventCount\fR field indicates the number of events 
+that cause the function for this window to be invoked, which
+in this case is one.  This number should match the number 
+of events in the \fIeventList\fR.
+The \fIeventList\fR is a pointer to the set of events that
+cause the function for this window to be invoked.
+Each window can have as many \fIxrWindowFunct\fR structures attached
+to it as you want.  When an event occurs, Xrlib searches this
+set of structures to see if a match can be found.
+If a match occurs, the function for the event is executed.
+If no match is found, the event is returned as normal input.
+.P
+After attaching the function to the event, we want to pass it
+to Xrlib using the \fIXrInput()\fP function.  Now, every time
+the window is exposed, the \fIdrawWindow()\fP function executes.
+.P
+.IN "Window" "Redrawing"
+Redrawing the window involves three steps:
+.P
+.AL
+.LI
+\fBWriting the text to the window.  \fR
+In this case the Xlib function \fIXtext()\fP is used.  
+We supply this function with the window ID, the coordinates of the
+upper left corner of the first character, a non-null-terminated string
+followed by the string length, the font to use, and then the colors to use.
+.P
+The foreground and background colors and 
+.IN "Colors"
+.IN "Foreground Colors"
+.IN "Background Colors"
+font are defined in the XDefaults file, 
+which is scanned when Xrlib is initialized (using \fIXrInit()\fP).
+.LI
+\fBRedrawing the title bar. \fR
+Using the field editor function \fIXrTitleBar()\fP the specified
+title bar is redrawn with the only valid option in this case
+of redraw all.
+.LI
+\fBPushing a null event onto the event queue.\fR
+The calling routine needs to know that an event happened, 
+even if, in this case, no response is required.  
+Pushing this event on the queue ensures that this
+event will be detected by the calling program.
+The event pushed is an Xrlib event, indicated by the define XrXRAY.
+With the input type set to null (and therefore not equal to XrMENU)
+the calling program identifies this as an Xrlib input with 
+an input type that doesn't match what it's looking for, so it
+throws the input away. 
+.LE
+.P
+The sample program is useful as a prototype as you become
+familiar with Xrlib.  You might find it helpful to review
+this program, looking up the functions used in the manual, 
+and adding your own functionality to the program.  
+.H 3 "Sample Program"
+.CO
+#include <X/Xlib.h>       /*  X library include file          */ 
+#include <Xr/Xrlib.h>
+#include "HelloWorld.h"
+#include "smile.h"
+#include "frown.h"
+ 
+main (argc, argv)
+int argc;
+char * argv[];
+{
+   Display    * displayPtr;     /*  Ptr to the opened display structure   */
+   xrWindowData windowData;     /*  Structure used to set the window data  */
+   xrEvent      input;          /*  Structure used to gather input         */
+   extern xrPFI DrawWindow();   /*  The redraw routine for the main window */
+   Bitmap       bitmap;         /*  Used to create the raster bitmap id's  */
+   Pixmap       pixmap;         /*  Used to create the raster pixmap id's  */
+ 
+.CE
+.CO
+							   		/*
+1.   Open the display.
+ 									*/
+   if ((displayPtr = XOpenDisplay (argv[1])) == NULL)
+   {
+      printf ("Could not open the display\en");
+      exit();
+   }
+ 
+ 									/*
+2.  Initialize Xrlib.
+									*/
+ 
+   if (XrInit (NULL) == FALSE)
+   {
+      printf ("Could not initialize Xrlib\en");
+      exit();
+   }
+ 
+ 
+.CE
+.CO
+									/*
+3.  Create the root window and map it.           
+									*/
+ 
+   if ((windowId = 
+          XCreateWindow (RootWindow, 10, 10, 330, 120, xrBorderWidth,
+                         xrWindowForeground, xrWindowBackground)) == 0)
+   {
+      printf ("The window create failed\en");
+      exit();
+   }
+ 
+ 
+.CE
+.CO
+									/*
+4.  Make the window appear on the display.       
+									*/
+ 
+   XMapWindow (windowId);
+ 
+ 
+.CE
+.CO
+									/*
+5.  Set the window's input.                      
+									*/
+ 
+   XrSetRect (&windowData.windowRect, 10, 10, 100, 100);
+   windowData.foreTile = xrWindowForeground;
+   windowData.backTile = xrWindowBackground;
+ 
+   XrInput (windowId, MSG_ADDWINDOW, &windowData);
+ 
+ 
+.CE
+.CO
+									/*
+6.  Select the types of input to your window.    
+									*/
+ 
+   XSelectInput (windowId, ButtonPressed | ButtonReleased |
+                           KeyPressed | ExposeWindow);
+ 
+ 
+.CE
+.CO
+									/*
+7.  Draw the window.                             
+									*/
+ 
+   DrawWindow (windowId, MSG_NEW, NULL);
+ 
+ 
+.CE
+.CO
+									/*
+8.  Define the cursor for the window.            
+									*/
+ 
+   XDefineCursor (windowId, xrDefaultCursor);
+ 
+ 
+.CE
+.CO
+									/*
+9.  Set up and create the menu.                  
+									*/
+ 
+   menu = XrMenu (NULL, MSG_NEW, &menuInfo);
+   XrMenu (menu, MSG_ACTIVATEMENU, windowId);
+ 
+ 
+.CE
+.CO
+									/*
+10. Set up the rasters for the two message boxes.
+									*/
+ 
+   bitmap = XStoreBitmap (smile.width, smile.height, smile.raster); 
+   pixmap = XMakePixmap (bitmap, xrBackgroundColor, xrForegroundColor);
+   niceMsgInfo.rasterId = pixmap;
+   niceMsgInfo.rasterWidth = smile.width;       /* This raster from smile.h */
+   niceMsgInfo.rasterHeight = smile.height;
+ 
+   bitmap = XStoreBitmap (frown.width, frown.height, frown.raster);
+   pixmap = XMakePixmap (bitmap, xrBackgroundColor, xrForegroundColor);
+   sadMsgInfo.rasterId = pixmap;
+   sadMsgInfo.rasterWidth = frown.width;       /* This raster from frown.h */
+   sadMsgInfo.rasterHeight = frown.height;
+ 
+ 
+.CE
+.CO
+									/*
+11. Input loop.                       
+									*/
+   while (1)
+   {
+      if (XrInput (0, MSG_BLKHOTREAD, &input) != FALSE)
+      {
+         if (input.type & XrXRAY && input.inputType == XrMENU)
+         {
+            switch (input.value2)
+            {
+               case 0:          /*  Show the Nice Message Box  */
+                  XrMessageBox (&niceMsgInfo, MSG_EDIT, &input);
+               break;
+ 
+               case 1:          /*  Show the sad Message Box  */
+                  XrMessageBox (&sadMsgInfo, MSG_EDIT, &input);
+               break;
+ 
+               case 3:          /*  Exit  */
+                  exit();
+               break;
+            }
+         }
+      }
+   }
+}
+ 
+ 
+.CE
+.CO
+/************************************************************************
+ *
+ *  DrawWindow (window, message, data)
+ *      This function handles the initial drawing of the window.
+ *      which occurs if the message is set to MSG_DRAW.
+ *      It also handles the redrawing of the window when an exposure
+ *      event occurs.  Message will contain MSG_REDRAW.
+ *
+ ************************************************************************/
+ 
+xrPFI
+DrawWindow (window, message, data)
+Window         window;
+INT32          message;
+XExposeEvent * data;
+ 
+{
+   xrWindowEvent exposeEvent[1];
+   xrWindowFunctInfo exposeFunct;
+   xrEvent nullEvent;
+   
+ 
+.CE
+.CO
+   /*
+    *  Set up a switch to handle the two possible messages.
+    */
+ 
+   switch (message)
+   {
+      case MSG_NEW:
+ 
+.IN "MSG_NEW"
+         /*
+          *  Create the title bar editor.
+          */
+ 
+         titleBarInfo.editorWindowId = windowId;
+         titleBar = XrTitleBar (NULL, MSG_NEW, &titleBarInfo);
+ 
+ 
+.CE
+.CO
+         /*
+          *  Set up the structure necessary to have this function
+          *  called automatically upon an exposure event.
+          */
+ 
+         exposeEvent[0].inputType = ExposeWindow;
+         exposeEvent[0].inputCode = 0;
+ 
+         exposeFunct.processFlag = TRUE;
+         exposeFunct.funct = (xrPFI) DrawWindow;
+         exposeFunct.instance = (INT32) windowId;
+         exposeFunct.message = MSG_REDRAW;
+         exposeFunct.eventCount = 1;
+         exposeFunct.eventList = &exposeEvent[0];
+ 
+         XrInput (windowId, MSG_ADDWINDOWFUNCT, &exposeFunct);
+ 
+ 
+.CE
+.CO
+      case MSG_REDRAW:
+ 
+.IN "MSG_REDRAW"
+         /*
+          *  Write the text into the window.
+          */
+ 
+         XText (window, 20, 50, "Press the Menu Button to display the menu.",
+                42, xrBaseFontInfo->id, xrForegroundColor, xrBackgroundColor);
+         XText (window, 50, 50 + xrBaseFontInfo -> height + 5,
+                "(Default: Right Button Down)", 28, xrBaseFontInfo->id,
+                xrForegroundColor, xrBackgroundColor);
+ 
+ 
+.CE
+.CO
+         /*
+          *  Redraw the title bar.
+          */
+ 
+         XrTitleBar (titleBar, MSG_REDRAW, XrREDRAW_ALL);
+ 
+ 
+         /*
+          *  Push a null event to be returned to the application.
+          */
+ 
+         nullEvent.type = XrXRAY;
+         nullEvent.inputType = NULL;
+         XrInput (0, MSG_PUSHEVENT, &nullEvent);
+      break;
+   }
+}
+.CE
+.H 3 "The HelloWorld.h Include File"
+.CO
+Window windowId;           /*  The window identifier for the main window  */
+
+
+/*
+ *  The declarations for the title bar and the info structure 
+ *  needed to create the title bar.
+ */
+.IN "xrEditor"
+.IN "xrTitleBarInfo"
+xrEditor * titleBar;
+xrTitleBarInfo titleBarInfo =
+{
+   0,                           /* windowId                      */
+   {0, 0, 0, 0},                /* editor rectangle              */
+   XrVISIBLE | XrSENSITIVE,     /* editor state                  */
+   -1, -1,                      /* editor colors - use defaults  */
+   NULL,                        /* editor font - use defaults    */
+   "Hello World",               /* title name                    */
+   NULL,                        /* gadget 1 - unused             */
+   NULL                         /* gadget 2 - unused             */
+};
+.CE
+.CO
+
+
+/*
+ *  The declarations for the menu instance, items contained 
+ *  in the menu, and the menu info structure.
+ */
+
+.IN "xrMenu"
+xrMenu * menu;  
+INT8 * menuItems [9] =
+{
+   "\e\eKENNice Message",         /*  item with a keyboad equiv of ^N  */
+   "\e\eKEMMean  Message",        /*  item with a keyboad equiv of ^M  */
+   "\e\e=",                       /*  double line separate item       */
+   "Quit"
+};
+
+.IN "xrMenuInfo"
+xrMenuInfo menuInfo = 
+{
+   "Hello World",               /*  Menu title bar string        */
+   menuItems,                   /*  item array declared above    */
+   4,                           /*  item count                   */
+   NULL,                        /*  menu context - unused        */
+   0                            /*  id returned with menu input  */
+};
+.CE
+.CO
+
+
+/*
+ *  The declarations for the two message box info structures.
+ */
+
+INT8 * niceButton[1] = { "Okey Dokey" };
+
+.IN "xrMsgBoxInfo"
+xrMsgBoxInfo niceMsgInfo =
+{
+   { 40, 45 },                  /*  message box origin  */
+   NULL,                        /*  relative to the RootWindow  */
+   NULL,                        /*  use default panel context   */
+   0,                           /*  raster height               */
+   0,                           /*  raster width                */
+   0,                           /*  raster id                   */
+   "Hello World!",              /*  Text message                */
+   niceButton,                  /*  button strings              */
+   1                            /*  button count                */
+};
+.CE
+.CO
+
+
+
+INT8 * meanButton[1] = { "So There" };
+
+xrMsgBoxInfo meanMsgInfo =
+{
+   { 40, 45 },                  /*  message box origin  */
+   NULL,                        /*  relative to the RootWindow  */
+   NULL,                        /*  use default panel context   */
+   0,                           /*  raster height               */
+   0,                           /*  raster width                */
+   0,                           /*  raster id                   */
+   "Goodbye World!",            /*  Text message                */
+   meanButton,                  /*  button strings              */
+   1                            /*  button count                */
+};
+.CE 

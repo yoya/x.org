@@ -1,0 +1,1 @@
+cc -o HelloWorld HelloWorld.c -lXr -lX

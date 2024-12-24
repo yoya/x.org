@@ -1,0 +1,53 @@
+.TH Sx_GrabMouse sx
+.B1
+.NA
+Sx_GrabMouse, Sx_UngrabMouse \- direct all future mouse events to one window
+.SY
+#include <X/Xlib.h>
+#include <sx.h>
+.sp
+Sx_GrabMouse(\fIwindow, cursor, mask\fP)
+Sx_UngrabMouse()
+.AS Window window
+.AR
+.AP Window window in
+Window that is to receive all future mouse events.
+.AP Cursor cursor in
+New cursor to be displayed for the duration of the grab.
+.AP int mask in
+ORed-together combination of X event types, such as ButtonPressed.
+Only these events will be processed during the grab.
+.B2
+
+.SH DESCRIPTION
+.PP
+Sx_GrabMouse is functionally almost identical to the XGrabMouse
+routine, except that it grabs the mouse for a particular window
+instead of a particular client.  After Sx_GrabMouse is called,
+all future mouse events will only go to \fIwindow\fP.  The
+ButtonPressed, ButtonReleased, EnterWindow, LeaveWindow, MouseMoved,
+LeftDownMotion, MiddleDownMotion, and RightDownMotion bits of
+\fImask\fP temporarily override the corresponding bits in any mask
+previously passed to XSelectInput or Sx_HandlerCreate;  other bits
+in \fImask\fP are ignored.
+.PP
+If one of the above-mentioned events occurs then Sx_HandleEvent
+will send the event to \fIwindow\fP instead of the window that
+would otherwise have received the event.  The difference between
+Sx_GrabMouse and XGrabMouse is that XGrabMouse will only redirect
+events for windows that don't have handlers declared by this
+client through XSelectInput or Sx_HandlerCreate;  for other windows
+in the same client the events are not redirected.  Sx_GrabMouse provides
+the additional functionality of redirecting events from this client's
+windows.
+.PP
+Sx_UngrabMouse undoes the effect of a previous call to Sx_GrabMouse,
+restoring the mouse to normal operation.  Sx_UngrabMouse is invoked
+automatically if a previous grab is still in effect when Sx_GrabMouse
+is invoked.
+.PP
+These procedures call XGrabMouse and XUngrabMouse;  the caller should
+not call XGrabMouse or XUngrabMouse directly if it is using Sx_GrabMouse.
+
+.SH KEYWORDS
+event, grab, handler, mouse, window

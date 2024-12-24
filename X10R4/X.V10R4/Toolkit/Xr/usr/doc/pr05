@@ -1,0 +1,2429 @@
+.ds Ch Dialogs
+.nr H1 5
+.so format
+This section describes the dialog level of
+Xrlib.
+It explains how to create and use panels, menus, and message boxes
+-the major tools used to communicate with users.
+.P
+This chapter assumes that you're familiar with:
+.BL 
+.LI
+The Xlib library.
+.LI
+Xrlib intrinsics.
+.LI
+Xrlib field editors.
+.LE
+.P
+Dialogs provide the highest level of communication with the user.
+Xrlib provides three types of dialogs:
+.BL
+.LI
+.B
+Menu. 
+.R
+For presenting and selecting one user choice out of many
+that may be available.
+.LI
+.B
+Message box. 
+.R
+For presenting a message or simple choice to the user.
+.LI
+.B
+Panel. 
+.R
+For presenting several types of information and collecting
+appropriate user input.
+.LE
+.P
+Each type of dialog presents to the user 
+a separate window that's dedicated to
+a particular type of communication with the user. 
+.P
+Menus allow users to view the choices available to them
+at any one time without having to remember command words
+or special keys or even select an option. 
+In Xrlib,  menus are lists of items (text strings, 
+lines, etc.) displayed in a pop-up window.
+A menu is displayed with selectable items in bold and unselectable
+items in gray.
+.P
+To select a menu item, move the pointer to the item
+and press a select button or key.
+(The selection process depends upon the human interface model.)
+This process and others are configurable.
+.P
+Many times a program must warn the user
+or ask a simple multiple choice question.
+Message boxes provide this capability in an
+easy-to-use format.
+When a message window appears on the display, the user must respond
+to the question or statement displayed by selecting one of the choices.
+.P
+A message box is made up of an icon (a symbol), some descriptive text,
+and buttons.
+Icon placement, text formatting, and button placement is
+performed automatically by the message box manager.
+If you need to perform a more complex interaction, you should use a
+panel.
+.P
+Panels are generally used to display the state of an application
+and allow the user to change that state.
+A panel is a collection of \fIfield editors\fP, which can manipulate the state
+of an application, contained in a single window.
+.H 2 "Menus"
+.H 3 "About Menus"
+Selecting a menu item involves pointing at an item, 
+which highlights it, and then selecting it.
+.IN "Menu"
+The selection information is returned to the application through
+XrInput().
+.IN "XrInput()"
+.P
+An Xrlib menu can be thought of as a tree.
+The leaves of the tree are the menu items,
+which represent commands or options.
+The branches of the tree are paths to 
+.I
+submenus.
+.R
+Submenus are menus that have been linked to higher level menus.
+.IN "Submenus"
+.IN "Menus" "Submenus"
+.P
+The user's view and interactions with the Xrlib
+menuing system are configurable.
+Configuring menus is described under
+``Initializing Xrlib'' below.
+.H 4 "Using Xrlib Menus"
+A user brings up a menu by performing a
+.I
+MenuPost
+.R
+action (described under ``Initializing Xrlib,'' in chapter 3).
+The default method for performing this action is pressing the right button
+on a pointing device.
+.IN "Menu" "Post"
+When this is done, the menu associated with the window 
+under the cursor is posted.
+The menu is posted as near the cursor as possible while
+keeping the entire menu on the display.
+When the menu is posted, moving the cursor within the menu
+highlights the menu item the cursor is over.
+The user may select one of the items in the posted menu by
+pressing the
+.I
+MenuSelect
+.R
+button on the pointing device. 
+(MenuSelect is also configurable.)
+.IN "MenuSelect"
+.P
+If the posted menu contains submenus, they will appear when the user
+moves the cursor into the right quarter of the item the
+submenu is associated with.
+.P
+The menu disappears when the user does one of two things:
+.BL 6
+.LI
+Selects (using the MenuSelect button) an item.
+.LI
+Selects outside the menu or over an unselectable area.
+.LE
+.H 3 "Menu Messages and Structures"
+To communicate with the menu manager, your program
+.IN "Menu Manager"
+.IN "Menu" "Messages"
+uses menu messages and structures.
+This section describes the calling sequences,
+messages, and structures used with menus.
+.P
+The menu manager is called with the following 
+syntax:
+.CO
+    XrMenu * XrMenu(menuInstance, message, data)
+       xrMenu   * menuInstance;
+       INT32      message;
+       INT8     * data;
+.CE
+.I
+menuInstance
+.R
+is a pointer to the menu of interest that is returned when
+the menu is created.
+.I
+message
+.R
+is the command to be performed by the menu manager.
+.I
+data
+.R
+is a pointer to a structure
+or scalar value containing the information needed by the
+message given.
+The type of structure pointed to by 
+.I
+data
+.R
+varies depending on the message sent.
+.H 4 "Menu Messages"
+Your program controls menus using messages, which are 
+menu manager commands.
+.IN "Menu Messages"
+The messages XrMenu() understands are described in the following
+list.
+.BL 6
+.LI
+MSG_NEW
+.P
+MSG_NEW creates the xrMenu structure described earlier.
+The 
+.I
+menuInstance
+.R
+parameter should be set to NULL, because it is not used.
+The
+.I
+data
+.R
+parameter is a pointer to an
+.I
+xrMenuInfo
+.R
+structure.
+.IN "xrMenuInfo"
+This structure is set totally by the programmer.
+Its contents will determine the appearance of the menu to be
+created.
+This structure is:
+.CO
+
+   typedef struct
+   {
+       INT8             * menuTitle;
+       INT8            ** menuItems;
+       INT32              numItems;
+
+       xrPanelContext   * menuContext;
+       INT16              menuId;
+       INT32              menuStyle;
+   } xrMenuInfo;
+
+.CE
+.P
+.VL 15
+.LI menuTitle
+.I
+menuTitle
+.R
+is a NULL-
+terminated string that will be used as the title of the menu
+in an XrTitleBar editor.
+If this value is NULL, no title will be displayed.
+If an empty string is given, no title will be displayed.
+.LI menuItems
+.I
+menuItems
+.R
+is an array of NULL-
+terminated strings that specify the strings displayed in a menu.
+These strings may also contain commands to the menu manager. 
+These commands are described under ``Menu Item Language,'' below.
+.LI numItems
+.I
+numItems
+.R
+is the number of strings in the menuItems array.
+.LI menuContext
+.I 
+menuContext
+.R
+points to a panel context structure described in the panel chapter.
+Setting this pointer to NULL
+gives defaults for all its values.
+The winBackground, winForeground, borderWidth, foregroundColor,
+backgroundColor, fontInfo, and cursor fields of the menuContext
+structure are used by the menu manager.
+.in +5
+.P
+.B
+NOTE:
+.R
+If colors other than the defaults are to be used, the background
+and foreground pixmaps will normally need to be created to match these
+colors.
+Failure to do this will produce strange effects for some color combinations.
+.in -5
+.R
+.P
+.LI menuId
+.I
+menuId
+.R
+is returned in the xrEvent structure when a menu item is selected
+along with the menu instance pointer and item selected.
+This value basically gives the programmer a scalar value
+to identify the menu.
+.LI menuStyle
+.I
+menuStyle
+.R
+is not currently used but is reserved for future use.
+.LE
+.P
+Filling out an \fIxrMenuInfo\fR structure is described
+under ``Using Menus,'' below.
+.P
+MSG_NEW returns a pointer to the menu created if successful, 
+or a NULL
+on failure.
+.LI
+MSG_FREE
+.P
+MSG_FREE destroys a menu with its associated menu editor and
+frees all resources allocated to the menu by the menu manager.
+.I
+menuInstance
+.R
+is a pointer to the menu to be freed.
+.I
+data
+.R
+should be set to NULL.
+Care should be taken 
+.I
+not
+.R
+to refer to a menu after it has been freed.
+Xrlib doesn't check for a valid menu pointer.
+MSG_FREE returns TRUE on success, NULL on failure.
+.LI
+MSG_EDIT
+.P
+MSG_EDIT displays the currently active menu for a given
+window.
+This message usually made transparent to the application
+by 
+.I
+XrInput(),
+.R
+but may be called
+directly if desired.
+.I
+data
+.R
+should point to an 
+.I
+xrEvent
+.R
+structure.
+The point member of the event structure should be set to a valid
+point on the display.
+This is where the menu will be posted.
+The menu item selected will be returned in this structure.
+.P
+The values returned in an \fIXrMenu\fR event are described
+under ``Using Menus,'' below.
+.LI
+MSG_ACTIVATEMENU
+.P
+MSG_ACTIVATEMENU makes the specified menu the current menu
+for the given window.
+A menu may be active for several windows at the same time.
+When the user requests a menu be displayed for a window, the
+active menu will be displayed.
+.I
+data
+.R
+is an X window id.
+.in +5
+.P
+.B
+Note: 
+.R
+.P
+The window to which a menu is attached MUST have been
+registered with Xrlib with the MSG_ADDWINDOW command BEFORE
+adding the menu.
+.in -5
+.R
+.LI
+MSG_DEACTIVATEMENU
+.P
+MSG_DEACTIVATEMENU deactivates the given menu for the given window.
+If a menu is active on a window, you \fImust\fR deactivate it
+before activating a new one.  This is true even if re-activating
+the same menu on a window.
+.I
+data
+.R
+is an X window id.
+.LI
+MSG_ADDSUBMENU
+.P
+MSG_ADDSUBMENU allows you to add one menu to another as a submenu.
+The submenu is created in the same way as the parent menu\(emthis message
+simply allows you to link menus into a tree structure.
+.I
+menuInstance
+.R
+is a pointer to the parent menu.
+.I
+data
+.R
+points to an
+.I
+xrMenuIndex
+.R
+structure that specifies the location in the menu tree.
+.CO
+
+   typedef struct
+   {
+      struct _xrMenu    *  menuInstance;
+      INT32                itemIndex;
+      INT32                itemData;
+   } xrMenuIndex;
+
+.CE
+.P
+This structure is used when setting the attributes of menu items.
+The value passed in the itemData parameter will vary depending on the message.
+.P
+Set the \fImenuInstance\fR pointer to the submenu instance pointer.
+Set the \fIitemIndex\fR portion of the 
+structure to the item in question, and the
+\fIitemData\fR member to NULL.
+.P
+.in +5
+.B
+NOTE:
+.R
+A menu should not appear more than once in a menu path.
+This will cause unexpected results in screen repainting.
+The details of using submenus is given in the section on 
+Using Menus.
+.in -5
+.P
+.R
+.LI
+MSG_REMOVESUBMENU
+.P
+MSG_REMOVESUBMENU removes a link between two menus. Neither
+of the menus are destroyed, there is simply not a path between
+them any longer.
+.I
+menuInstance
+.R
+is a pointer to the parent menu.
+.I
+data
+.R
+points to an
+.I
+xrMenuIndex
+.R
+structure that specifies the location in the menu tree.
+Set the 
+.I
+menuInstance
+.R
+pointer to the submenu instance pointer.
+Set the 
+.I
+itemIndex
+.R
+portion of the structure to the item in question, and the
+.I
+itemData
+.R
+member to NULL.
+.LI
+MSG_ACTIVATEITEM
+.P
+MSG_ACTIVATEITEM  allows you to make an item in
+a menu selectable (default).
+Unselectable text items are shown in grey and are not selectable
+by the user.
+.I
+data
+.R
+is an
+integer indicating the item to be made selectable.
+.LI
+MSG_DEACTIVATEITEM
+.P
+MSG_DEACTIVATEITEM  allows you to make a text item in
+a menu unselectable.
+Unselectable text items are shown grey and are not selectable
+by the user.
+.I
+data
+.R
+is an integer indicating the item to be made unselectable.
+.LI
+MSG_SETITEMFUNCT
+.P
+MSG_SETITEMFUNCT sets a function to be executed when a menu item
+is selected by the user.
+.I
+data
+.R
+points to an
+.I
+xrMenuIndex
+.R
+structure.
+The
+.I 
+itemIndex
+.R
+ 
+member determines which item is associated with the function,
+and the 
+.I itemData
+member contains the pointer to the function.
+The function should be type INT32 and expect no parameters.
+Parameters may be passed by using an item function in conjunction
+with an item event (described below.)
+.in +5
+.P
+.B
+NOTE:
+.R
+If your function reads an event from the event queue, or calls functions
+that do (i.e. \fIXrPanel()\fR, \fIXrMessageBox()\fR), 
+it \fImust\fR push an event back on
+the queue before exiting.
+.in -5
+.P
+.R
+.LI
+MSG_SETITEMEVENT
+.P
+MSG_SETITEMEVENT sets an event to be returned when a menu item
+is selected by the user.
+.I
+data
+.R
+points to an
+.I
+xrMenuIndex
+.R
+structure.
+The
+.I 
+itemIndex 
+.R
+member determines which item is associated with the event,
+and the 
+.I 
+itemData
+.R
+member contains the pointer to the event.
+When an item event is defined in a menu, only that event is pushed on the
+input queue by the menu manager. 
+The normal menu event is not pushed.
+This feature allows the programmer to receive events of their own creation
+from the menu manager as this event will be returned instead of a
+menu event when the item is selected.  
+It is also useful to use in conjunction with item functions to pass them
+parameters.
+.LE
+.H 4 "Menu Item Language"
+Menus usually consist of text strings, and in many cases when
+creating menus this is all you will have to know about
+creating the items of a menu.
+The Xrlib toolbox also provides messages that are passed
+in with menu item strings to inform the menu manager that
+a particular item is special.
+Commands used in conjunction with text must precede the text
+in the string.
+The following table describes the messages allowed.
+.TS 
+center allbox;
+ll.
+Command Action
+_
+\e\eDA	Item is disabled.
+\e\eKEc	Item has keyboard equivalent c.
+\e\e-	Single line (unselectable).
+\e\e=	Double line (unselectable).
+.TE
+.BL 6
+.LI
+\e\eDA
+.P
+The item in this string is disabled when the menu is created.
+.LI
+\e\eKEc
+.P
+The item has keyboard equivalent
+.I
+c.
+.R
+If 
+control
+.I
+c
+.R
+is typed from the keyboard by the user, you will receive 
+a \fIxrEvent\fR of type 
+.I
+XrMENU,
+.R
+just as if the user had selected the item normally.
+This is basically a simple macro if you wish to provide
+.I
+power user
+.R
+facilities in your program.
+.LI
+\e\e-
+.P
+A dash will cause an unselectable line to be drawn in the menu.
+This is useful for dividing groups of menu items.
+Any text after this command is ignored.
+.LI
+\e\e=
+.P
+An equals sign will cause an unselectable double line to be drawn
+in the menu.
+Any text after this command is ignored.
+.H 3 "Using Menus"
+This section
+will concentrate on relatively simple use of the Xrlib menuing system.
+This section describes how to create and maintain menus and 
+submenus that display text.
+(More advanced features are described
+under ``Advanced Use of Menus,'' below.)
+.H 4 "Creating a Menu"
+Creating a menu consists of the following steps:
+.AL 1 6
+.LI
+Filling out an 
+.I
+xrMenuInfo
+.R
+structure by
+creating an array of menu items and a menu title.
+.LI
+Sending MSG_NEW to the menu manager with the info structure
+created in step 1.
+.LI
+Adding any submenus to your menu.
+.LI
+Sending MSG_ACTIVATEMENU to the menu manager with the window id of
+the menu the window is associated with.
+.in +5
+.P
+.B
+Note: 
+.R
+The window to which a menu is attached must be
+registered with Xrlib using the MSG_ADDWINDOW command before
+adding the menu.
+.in -5
+.LE
+.P
+Each of these steps will now be discussed in detail.
+.P
+The first step in creating a menu is to fill out
+an 
+.I 
+xrMenuInfo
+.R
+structure.
+This is a simple matter of setting a title string and an array of
+item strings to appropriate values.
+A typical example might be:
+.CO
+   xrMenu     * myMenu;
+   xrMenuInfo   myMenuInfo;
+   INT8       * myMenuTitle = "myMenu";
+   INT8       * myMenuItems[7] = {  "Item1", 
+                                  "\e\eDAItem2",
+                                  "Item3",
+                                  "Item4",      /* Step 1 */
+                                  "submenuname",
+                                  "\e\e=",
+                                  "Item7"
+                               };
+.CE
+With these values set at initialization, the code to fill out 
+the info structure and create the
+menu is:
+.CO
+
+   myMenuInfo.title = myMenuTitle;      
+   myMenuInfo.menuItems = myMenuItems;
+   myMenuInfo.numItems = 7;
+   myMenuInfo.menuId = 1;
+   
+   myMenu = XrMenu(NULL, MSG_NEW, &myMenuInfo); /* Step 2 */
+
+.CE
+The fifth item in this menu is a link to a submenu.
+This submenu is created in the same fashion as above.
+Assume you have filled out:
+.CO
+
+   xrMenu     * mySubMenu;
+   xrMenuInfo   mySubMenuInfo;
+   xrMenuIndex  subMenuPosition;
+
+.CE
+Create the submenu as above with a
+MSG_NEW.
+.P
+.in +5
+.B
+NOTE: 
+.R
+Set the menuId value to a different number
+than the other menu.  This will give you an easy way to
+distinguish between the menus when receiving input.
+.in -5
+.P
+.R
+Now add the submenu with the following code:
+.CO
+
+   subMenuPosition.menuInstance = mySubMenu;
+   subMenuPosition.itemIndex = 5;             /* Step 3 */
+   XrMenu(myMenu, MSG_ADDSUBMENU, &subMenuPosition);
+
+.CE
+The menu is ready to add to a window.
+Assuming you created a window
+.I
+myWindow.
+.R
+The menu is added to the myWindow as follows:
+.CO
+
+   XrMenu(myMenu, MSG_ACTIVATEMENU, myWindow);   /* Step 4  */
+
+.CE
+.I
+myMenu 
+.R
+will now be posted for the user when a 
+.I
+MenuPost
+.R
+occurs for the given window.
+.P
+.in +5
+.B
+NOTE:
+.R
+If you wish to add and remove submenus dynamically from a menu tree,
+you must reactivate the main menu after changing the submenus.
+.in -5
+.H 4 "Getting Input From a Menu"
+Getting input from a menu is a simple matter of responding
+to xrEvents of inputType
+\fIXrMENU()\fR.
+For example, an event of this type will place 
+the following values in the
+event variable 
+.I
+myInput.
+.R
+.CO
+
+   myInput.type     => XrXRAY
+   myInput.source    => Window id (window menu was posted for)
+   myInput.inputType => XrMENU
+   myInput.value2    => myMenu.menuId
+   myInput.value3    => selected item index
+   myInput.valuePtr  => menu instance pointer
+
+.CE
+.P
+The following code fragment shows a typical application
+receiving input from the menu manager.
+.CO
+   XrInput(NULL, MSG_BLKHOTREAD, &myInput);
+   
+   switch(myInput.InputType)  { /*  what kind of event?  */
+            .
+            .
+            .
+   case XrMENU:
+      switch (myInput.value2) { /*  Which menu?        */
+
+      case MAINMENU:
+        switch(myInput.value3) {
+
+        case ITEM1:
+           process first item of main menu  
+           break;             /* process item selections */
+
+        case ITEM2:
+           process second item of main menu
+           .
+           .
+           .
+        case ITEMN:
+           process nth item of main menu
+           break;
+        }
+      case SUBMENU1:           /*  Selected sub menu    */
+        switch(myInput.value3)
+           .
+           .                   /* process submenu items */
+           .
+      }
+   }
+
+.CE
+.H 4 "Removing a Menu"
+Removing a menu is a simple matter of sending this message to
+the menu manager:
+.CO
+
+   XrMenu(myMenu, MSG_FREE, NULL);
+
+.CE
+where \fImyMenu\fR is your menu.
+This action frees all resources associated with the given menu
+that were allocated by the menu manager.
+Be careful
+.I
+not
+.R
+to reference a menu after it has been freed.
+(If the menu being freed is a submenu, be sure to 
+remove it from the menu tree before it is freed.)
+.H 3 "Advanced Use of Menus"
+The previous section concentrated on the basic use of menus.
+This section discusses advanced topics, such as
+keyboard equivalents, item
+function execution, and item events.
+.H 4 "Menu Keyboard Equivalents"
+If you are developing a program and expect some of the
+users to executed commands from the keyboard, you might want to use
+.I
+keyboard equivalents.
+.R
+The following declaration shows a possible menu using
+keyboard equivalents.
+.CO
+
+   INT8     * myMenuItems[3] = {  "\e\eKEXCut", 
+                                  "\e\eKEPPaste",
+                                  "\e\eKECCopy",
+                               };
+
+.CE
+A user typing control C (case independent), will cause you to
+receive an xrEvent of type XrMENU, with the proper indices
+to show you the Copy command was selected.
+The keyboard equivalent will be shown in the menu to the right
+of the menu item.
+.P
+Keyboard equivalents are updated only when the main menu for a
+window is made active or is deactivated.  
+To add and remove submenus dynamically, deactivate then reactivate
+the main menu to update the keyboard equivalents.
+\"
+.H 4 "Menu Item Functions"
+The Xrlib menu manager allows you to specify a function to be
+executed directly when a user selects a menu item.
+A menu item event can be used to pass parameters to the
+function.  The following example demonstrates how to define a menu item 
+function without parameters.  (Passing a parameter to the function is 
+described under ``Advanced Use of Menus'' below.)
+.P
+In the following example, assume you have a function
+called ``Beeper'' that turns a beeper on and off.
+.CO
+   xrMenu     * myMenu;
+   xrMenuInfo   myMenuInfo;
+   xrMenuIndex  functionIndex;
+   INT8       * myMenuTitle = "myMenu";
+   INT8       * myMenuItems[7] = {  "BEEPON", 
+                                  "\e\eDABEEPOFF",
+                                  "Item3",
+                                  "Item4",
+                                  "submenuname",
+                                  "\e\e=",
+                                  "Item7"
+                               };
+
+   myMenuInfo.title = myMenuTitle;      
+   myMenuInfo.menuItems = myMenuItems;
+   myMenuInfo.numItems = 7;
+   myMenuInfo.menuId = 1;
+   
+   myMenu = XrMenu(NULL, MSG_NEW, &myMainMenu); 
+   
+   functionIndex.itemIndex = 0;
+   functionIndex.data = (INT32) &Beeper;
+
+   XrMenu(myMainMenu, MSG_SETITEMFUNCT, &functionIndex);
+
+   functionIndex.itemIndex = 1;
+
+   XrMenu(myMainMenu, MSG_SETITEMFUNCT, &functionIndex);
+
+
+.CE
+This menu allows a user to turn beeping on and off
+in the program.
+.P
+When the user selects BeepOff, for example, 
+Beeper is called directly by the menu manager.
+.in +5
+.P
+.B
+NOTE:
+.R
+If your function reads an event from the event queue, or calls functions
+that do (i.e. \fIXrPanel()\fR, \fIXrMessageBox()\fR), 
+it MUST push an event back on
+the queue before exiting.
+.in -5
+.H 4 "Menu Item Events"
+The Xrlib menu manager allows you to specify an event to be
+returned by the menu manager when an item is selected.
+In the following example, assume you have a function
+that turns a beeper on and off called Beeper.
+Since the same function was used before, assume it has
+been set up the same way in this example.
+.P
+The function now needs parameters for the duration and tone
+of the beep.
+These values have been saved in an event called 
+.I
+beepEvent.
+.R
+The following code fragment shows how to attach this event to
+the proper menu items.
+.CO
+   xrMenu     * myMenu;
+   xrEvent      beepEvent;
+   xrMenuInfo   myMenuInfo;
+   xrMenuIndex  eventIndex;
+   INT8       * myMenuTitle = "myMenu";
+   INT8       * myMenuItems[7] = {  "BEEPON", 
+                                  "\e\eDABEEPOFF",
+                                  "Item3",
+                                  "Item4",
+                                  "submenuname",
+                                  "\e\e=",
+                                  "Item7"
+                               };
+
+   myMenuInfo.title = myMenuTitle;      
+   myMenuInfo.menuItems = myMenuItems;
+   myMenuInfo.numItems = 7;
+   myMenuInfo.menuId = 1;
+   
+   myMenu = XrMenu(NULL, MSG_NEW, &myMainMenu); 
+   
+   eventIndex.itemIndex = 0;
+   eventIndex.data = (INT32) &beepEvent;
+
+   XrMenu(myMainMenu, MSG_SETITEMEVENT, &eventIndex);
+
+   eventIndex.itemIndex = 1;
+
+   XrMenu(myMainMenu, MSG_SETITEMFUNCT, &eventIndex);
+
+
+.CE
+.P
+Be sure that the beeper function pushes an event back on the
+input queue after looking at the beep parameters.
+.P
+Item events do not have to be used in conjunction with item functions.
+Each item in a menu could have its own event to return when selected.
+The values in the event could change along with the program state as the
+event is owned by the programmer.
+When an item event is defined in a menu, only that event is pushed on the
+input queue by the menu manager. 
+The normal menu event is not pushed.
+.SK
+.H 4 "Menu Structures"
+The menu manager keeps all the information it needs for its operations
+on a particular menu in a 
+menu structure.  The programmer doesn't need to access this;
+however, when designing a program, it is helpful to know what
+is in this structure.
+These structures are shown below:
+.CO
+
+   typedef struct 
+   {
+      xrMenuEditor      * menuEditor;
+      Window              menuWindow;
+      Cursor              menuCursor;
+      INT32               totalWidth;
+      INT32               totalHeight;
+      INT16               menuId;
+      INT32               borderWidth;
+      INT32               menuStyle;
+      POINT               menuOrigin;
+      Window            * currentWindows;
+      INT32               numWindows;
+      xrMenuIndex       * currentPath;
+      INT32               pathLength;
+      Pixmap              menuPixmap;
+   } xrMenu;
+
+.CE
+.P
+The xrMenu structure is used internally by the menu manager.
+Its structures are accessed through the the messages described earlier.
+You will not normally deal with the members of this structure directly,
+the XrMenu structure is created for you by the menu manager when you
+create a menu.
+.VL 20
+.LI menuEditor
+.I
+menuEditor
+.R
+is the menu editor instance for this menu.
+You will not need to deal with this editor directly, but rather through
+the menu item language and menu messages.
+.LI menuWindow
+.I
+menuWindow
+.R
+is the window identifier for the given menus' window.
+.LI menuCursor
+.I
+menuCursor
+.R
+is the cursor identifier for the cursor to be used with the menu.  
+This value is given by the programmer when the menu is created.
+.LI totalWidth, totalHeight
+.I
+totalWidth and  totalHeight
+.R
+are the size of the given menu including its window borders.
+.LI menuId
+.I
+menuId
+.R
+is set by the programmer when creating 
+a menu.
+This value is returned in the xrEvent structure when a menu item is selected
+along with the menu instance pointer and item selected.
+This value basically gives the programmer a scalar value
+to identify the menu.
+.LI menuStyle
+.I
+menuStyle
+.R
+is not used at this time but is reserved for future use.
+.LI menuOrigin
+.I
+menuOrigin
+.R
+is set to the origin of the menu window while the menu is displayed.
+.LI currentWindows
+.I
+currentWindows
+.R
+is an array of windows to which this menu belongs.
+Each window may have its own menu, and a menu may be shared
+among windows.
+The MSG_ACTIVATEMENU message adds an existing menu to a window.
+.LI numWindows
+.I
+numWindows
+.R
+gives the length of the previous array.
+.LI currentPath
+.I
+currentPath
+.R
+is a pointer to an array of menu indices indicating the last path
+taken through this menu to select an item.
+This value is useful if the path taken to select an item is needed
+by the application.
+This value is set dynamically by the menu manager as the menu is used.
+.LI pathLength
+.I
+pathLength
+.R
+gives the length of the previous array.
+.LI menuPixmap
+.I
+menuPixmap
+.R
+is used internally by the menu manager while a menu is displayed.
+.LE
+.H 2 "Message Boxes"
+Many times  an application needs to warn a user or ask a simple
+multiple choice question.
+Message boxes provide this capability and are easy to program.
+.P
+A message box is made up of any combination of an icon, some descriptive text,
+and push buttons.
+Icon placement, text formatting, and button placement is
+handled by the message box manager automatically.
+.P
+Message boxes are inherently transitory\(emthey exist only
+while their window is showing on the display.
+A message box is removed from the display when
+a user presses one of the push buttons, a keyboard key (when the
+cursor is over the window), or the message box
+times out.
+More complex interactions are handled by panels.
+.P
+Message boxes also show a way to program panels easily.
+If you are designing a panel 
+needed by many people, consider making it
+a dialog manager for ease of programming.
+.H 3 "Message Box Structures and Messages"
+Message Box structures and messages allow a programmer to communicate
+with the Message Box manager.
+This section describes the structures, calling sequences, and 
+messages used with message boxes.
+.P
+Communication with the message box manager takes the following form:
+.CO
+  
+  XrMessageBox(msgInfo, message, data)
+     xrMsgBoxInfo  * msgInfo;
+     INT32           message;
+     INT8          * data;
+
+.CE
+.BL
+.LI
+.I
+msgInfo
+.R
+contains the data used to create the message box.
+.LI
+.I
+message
+.R
+is the message sent to the message box manager. (Currently only MSG_EDIT and
+MSG_SIZE.)
+.LI
+.I
+data
+.R
+is a pointer to an xrEvent structure in the case of MSG_EDIT, to a RECTANGLE
+structure in the case of MSG_SIZE. 
+The result of the dialog with the
+user will be returned in the event structure with MSG_EDIT.
+The size of the message box when it is displayed will be returned in the
+rectangle passed with MSG_SIZE.
+.LE
+.H 4 "Message Box Structure"
+The message box manager acquires all the information it needs
+about a message box in a message box information structure.
+.IN "Message Box Manager"
+This structure is shown below:
+.CO
+
+typedef struct
+{
+   POINT              messageOrigin;
+   Window             relativeTo;
+   xrPanelContext   * messageContext;
+
+   INT32              rasterHeight;
+   INT32              rasterWidth;
+   Pixmap             rasterId;
+
+   INT8             * messageText;
+
+   INT8            ** messageButtons;
+   INT32              numButtons;
+} xrMsgBoxInfo;
+
+.CE
+.VL 20
+.LI messageOrigin
+.I
+messageOrigin
+.R
+is the origin of the window that contains the message box.
+.LI relativeTo
+.I
+relativeTo
+.R
+is a window the message box should be created relative to.
+If this field is NULL, the message box will be created relative to
+the root window.
+.LI messageContext
+.I
+messageContext
+.R
+is a structure of parameters for the panel used to create the message box.
+This structure is described in the section on panels.
+.LI rasterHeight
+.I
+rasterHeight
+.R
+is the height of the pixmap to be used in the message box.
+.LI rasterWidth
+.I
+rasterWidth
+.R
+is the width of the pixmap to be used in the message box.
+.LI rasterId
+.I
+rasterId
+.R
+is an X Pixmap id that identifies the raster image to be placed in
+the message box.
+.LI messageText
+.I 
+messageText
+.R
+is an unformatted, NULL-terminated, text string.
+This string is shown (formatted by the static text editor),
+in the middle of a message box window.
+No text will be shown if messageText is NULL.
+Refer to \fIXrStaticText()\fR for the rules on formatting text.
+.LI messageButtons
+.I
+messageButtons
+.R
+is an array of strings used as labels 
+in the buttons of a message box.
+The buttons are formatted by the 
+.I
+XrPushButton
+.R
+editor described under
+.I
+``XrPushButton().''
+.R
+The creation of a message box will not fail if this parameter is NULL,
+but if there are no buttons, the user will need to 
+press a keyboard key,  or the timer (in \fImessageContext\fR)
+should be set to remove
+the dialog after a specified time.
+Using the timer is described under ``Panels,'' below. 
+.LI numButtons
+.I
+numButtons 
+.R
+indicates the number of strings held
+within 
+.I
+buttonStrings.
+.R
+.LE
+.H 4 "Message Box Messages"
+Message Box currently has only two messages: MSG_EDIT, and MSG_SIZE.
+MSG_SIZE returns the size a message box would be if it were created
+with the given parameters.
+.IN "MSG_SIZE"
+.IN "MSG_EDIT"
+MSG_EDIT together with an xrMsgBoxInfo
+structure displays a message box window and makes it active.
+.IN "xrMsgBoxInfo"
+The output from a message box is returned through the
+event passed to the message box manager with MSG_EDIT.
+MSG_EDIT returns TRUE if the message box was created and used
+successfully, FALSE if not.
+.H 3 "Using Message Boxes"
+Use of message boxes is very simple, involving these steps:
+.AL 1 6
+.LI
+Creating any combination of an icon, text string, and an array of
+button labels.
+.LI
+Filling out a message box info structure.
+.LI
+Sending a MSG_EDIT (or MSG_SIZE) to the message box manager.
+.LI
+Inspecting the event passed to the message box manager
+to determine the results of the dialog with the user.
+.LE
+.IN "XrMESSABEBOX Event"
+.P
+The values returned in a \fIXrMESSAGEBOX\fR event are shown below:
+.CO
+
+   type      => XrXRAY
+   inputType => XrMESSAGEBOX
+   inputCode => XrPUSHBUTTON or XrPANELTIMER
+   value1    => Button index (-1 if no button selected)
+
+
+.CE
+If a user presses a keyboard key, the index of the first button in the
+panel (index 0) will be returned in value1. 
+.P
+The following code segment demonstrates the steps
+to create and use a message box.
+.CO
+   Window      myWindow
+   xrEvent     messageEvent;
+   xrMsgBoxInfo  myMessageBox;    /* message box declarations */
+   Pixmap      myPixmap = /* pixmap */
+   INT8     * myMessage = " Way to go, Ed, Fred, Rick, Tom!";
+   INT8     * myButtons[] = {"East", "West"};
+               .
+               .
+               .
+   XrCopyPt(myMessagePt, myMessageBox.messageOrigin);
+   myMessageBox.relativeTo = myWindow;
+   myMessageBox.messageContext = NULL;  /* uses default message context */
+
+   myMessageBox.rasterId = myPixmap;
+   myMessageBox.rasterHeight = height;
+   myMessageBox.rasterWidth = width;
+   myMessageBox.messageText = myMessage;
+   myMessageBox.messageButtons = myButtons;     
+   myMessageBox.numButtons = 2;       /* (step 2)     */
+               .
+               .
+               .
+               /* Message Box call (3) */
+      XrMessageBox(&myMessageBox, MSG_EDIT, &messageEvent)) 
+
+                  /* get results (4) */
+
+     /* Check value1 to see which button was selected */
+
+.CE
+.SK
+.H 2 "Panels"
+.H 3 "About Panels"
+Panels are one of the most powerful tools
+provided by Xrlib. 
+They are generally used to display the state of an application
+and allow the user to change that state.  For example,
+the message box manager uses a panel.
+.P
+A panel is a collection of field editors
+displayed in a window and
+controlled by the
+.I
+panel manager.
+.R
+The panel manager is in charge of the following functions:
+.BL 6
+.LI 
+Panel display
+.LI
+Passing control to a field editor selected by a user.
+.LI
+Routing editor activity to the application.
+.LI
+Activating multiple panels per process.
+.LI
+Managing subpanels.
+.LE
+.P
+When the panel manager is asked by the application to create a panel,
+it sends messages to the field editors in the panel instructing them to
+create instances of themselves, display themselves,
+make themselves active, and so on.
+.P
+When the user makes any change to a panel, such as entering
+text or checking a check box, the panel manager passes
+control to the appropriate editor.
+The editor displays any changes and then returns control to the panel
+manager.
+The panel manager then routes the output from the editor back
+to the application.
+The changes made are noted by the application, which makes
+appropriate changes to its own data structures.
+.P
+Notice especially that the Xrlib concept of what
+can be in a panel is not limited to the usual
+letters and numbers of forms on alpha terminals.
+Because panels use editors to manage their fields, a field
+can contain almost any kind of information.
+This aids the programmer in that
+many more difficult-to-program user interactions
+are easily expressed by a panel.
+.H 3 "Panel Messages and Structures"
+The panel structures and messages allow a programmer to communicate
+with the panel manager.
+This section describes the structures, calling sequences, and messages
+used with panels.
+.P
+All communication with panels are achieved with the following
+syntax:
+.CO
+    xrPanel * XrPanel(panelInstance, message, data)
+       xrPanel  * panelInstance;
+       INT32      message;
+       INT8     * data;
+.CE
+.I
+panelInstance
+.R
+is a pointer to the panel of interest, and is returned
+when a panel is created.
+.I
+message
+.R
+is the message sent to the panel manager, and
+.I
+data
+.R
+is a pointer to a structure or a scalar, containing information needed by
+the panel manager and associated with the message.
+The type of structure
+.I
+data
+.R
+points to varies depending on the message sent.
+.H 4 "Panel messages"
+Panels are controlled with a set of messages.
+The messages XrPanel() understands are described in the
+following list.
+Remember, all messages to the panel manager are given with
+the following syntax.
+.CO
+
+   xrPanel * XrPanel(panelInstance, message, data)
+      xrPanel  * panelInstance;
+      INT32      message;
+      INT8     * data;
+
+.CE
+.BL 6
+.LI
+MSG_NEW
+.P
+MSG_NEW creates the panel structure discussed earlier.
+The 
+.I
+panelInstance
+.R
+parameter may be set to NULL,
+since it is not used.
+The 
+.I
+data
+.R
+parameter should be set to a structure of type
+.I
+xrPanelInfo
+.R
+(shown below).
+The panel information structure is shown below.
+This structure must be filled out by the application
+before sending a MSG_NEW to the panel manager.
+.P
+MSG_NEW returns a pointer to a panel, failure is indicated
+by a return value of NULL.
+MSG_NEW is discussed in-depth in the section on
+.I
+Using Panels.
+.R
+.CO
+
+typedef struct
+{
+   POINT             panelOrigin;
+   SIZE              panelSize;
+   Window            relativeTo;
+   Window            childOf;
+   xrPanelContext  * panelContext;
+
+   xrPanelField    * fieldList;
+   INT32             numFields;
+   INT32             panelId;
+} xrPanelInfo;
+
+.CE
+.VL 20
+.LI panelOrigin
+.I
+panelOrigin
+.R
+is set by the programmer to define the origin of a panels window.
+.LI panelSize
+.I
+panelSize
+.R
+is a size structure that determines the size of the window
+the panel resides in.
+Setting the height and width of the panelSize structure to 0
+causes the panel manager to determine the windows size. 
+.LI relativeTo
+.I
+relativeTo
+.R
+is a window id.
+The programmer should set this value if the panel is to be
+created relative to a particular window, otherwise the value
+should be set to NULL.
+If it is set to NULL, the panel will be created relative to
+the display origin.
+.LI childOf
+.I
+childOf
+.R
+is not used at this time but is reserved for future use.
+.LI panelContext
+.I
+panelContext
+.R
+is the structure described earlier that determines the
+physical and semantic aspects of a panel.
+If this member is NULL, default values will be used.
+There is a message (MSG_GETPANELCONTEXT) to fill out one of these structures
+if you wish to modify a few of the default values.
+.P
+The following structure determines the physical and semantic
+aspects of a given panel.
+.CO
+
+typedef struct 
+{
+   Pixmap          winBackground;
+   Pixmap          winForeground;
+   INT16           borderWidth;
+   INT32           foregroundColor;
+   INT32           backgroundColor;
+   FontInfo      * fontInfo;
+   Cursor          cursor;
+
+   INT32           showFlag;
+   xrEditor      * currentEditor;
+   INT32           timer;
+   INT32           (* initFunct)();
+} xrPanelContext;
+
+.CE
+.P
+.VL 18
+.LI winBackground
+.I
+winBackground 
+.R
+is the Pixmap that will be used for the background
+of the given panel. 
+This value defaults to the pixmap id returned
+by the X macro 
+.I
+WhitePixmap(),
+.R
+or the value set in the X defaults file for the foreground pixmap.
+.LI winForeground
+.I
+winForeground
+.R
+is the Pixmap used to draw the Panels window border.
+This value defaults to the pixmap id returned
+by the X macro 
+.I
+BlackPixmap(),
+.R
+or the value set in the X defaults file for the background pixmap.
+.LI borderWidth
+.I
+borderWidth
+.R
+is the width of the X window border for the given panel.
+This value defaults to 1, or as set by the user in the
+X defaults file.
+.LI foregroundColor
+.I
+foregroundColor
+.R
+is the color used to draw in the foreground
+of the panel. 
+This value defaults to the color returned
+by the X macro 
+.I
+WhitePixel(),
+.R
+or the value set in the X defaults file for the foreground color.
+(This value is not used by the panel manager currently, but is
+used by other dialog managers that make use of the
+panel context structure.)
+.LI backgroundColor
+.I
+backgroundColor
+.R
+is the color used to draw in the background of the panel.
+This value defaults to the color returned
+by the X macro 
+.I
+BlackPixel(),
+.R
+or the value set in the X defaults file for the background color.
+(This value is not used by the panel manager currently, but is
+used by other dialog managers that make use of the
+panel context structure.)
+.LI fontInfo
+.I
+fontInfo
+.R
+is the font used for drawing text in the panel.
+It defaults to the value specified in the user's X defaults file.
+(This value is not used by the panel manager currently, but is
+used by other dialog managers that make use of the
+panel context structure.)
+.LI cursor
+.I
+cursor
+.R
+is the cursor to be used with the panel.
+It defaults to xrDefaultCursor.
+.LI showFlag
+.I
+showFlag
+.R
+determines whether the panel is shown when it is sent a MSG_NEW.
+This value defaults to TRUE.
+.LI currentEditor
+.I currentEditor
+indicates that a field editor should be activated upon receipt of a MSG_EDIT
+by the panel manager.  
+This value defaults to NULL indicating no editor is current.
+.LI timer
+.I timer
+is a value in seconds. 
+This feature of the panel manager enables you to receive an event
+with an inputCode of XrPANELTIMER if the number of seconds you set elapses
+before the user edits the panel in question. (The timer starts after
+you send the panel a MSG_EDIT).
+The panel is not removed after the timer elapses, and the value of
+.I
+timer
+.R
+is not changed.
+It is up to the application to 
+determine what should happen when the timer goes off.
+This value defaults to -1.  (Not set)
+.LI initFunct
+.I initFunct 
+is called each time a panel is displayed.
+The applicatio supplies this function.
+This value defaults to NULL.
+.LI fieldList
+.I
+fieldList
+.R
+is a pointer to an array of editor information structures.
+The editors in this array will make up the panel seen by the
+user.
+The 
+.I xrPanelField
+structure is shown below:
+.CO
+typedef struct
+{
+   xrEditor          * (* editorFunct)();
+   INT8              * editorData;
+   xrEditor          * editorInstance;  
+} xrPanelField;
+.CE
+The use of this structure and its members are described in 
+under ``Using Panels,'' below.
+.LI numFields
+.I
+numFields
+.R
+is the number of fields specified in the fieldList member.
+This number must be greater than 0.
+.LI panelId
+.I panelId
+is an integer set by the programmer when creating a panel
+or adding a subpanel.
+This value is returned by the panel manager when a panel
+has been edited to help identify the panel.
+.LE
+.LI MSG_SIZE
+.P
+MSG_SIZE returns the size of a panel given a panelInfo structure.
+.I
+data
+.R
+should point to a 
+.I
+panelInfo
+.R
+structure.
+The instance parameter is not used and should be set to NULL.
+The size is returned in the 
+.I
+panelSize
+.R
+member of the panel information structure.
+.LI MSG_FREE
+.P
+MSG_FREE destroys a panel and frees the memory allocated by
+the panel manager.  MSG_FREE also reclaims any space
+used by subpanels associated with the panel being freed.
+.I
+data
+.R
+should be set to NULL in most cases, but if you wish to retain the
+window and editors set it to 1. This destroys the panel manager's
+knowledge of the panel, but allow you to continue using it.
+This is useful if you want to control a window you have set up to be
+a panel without wasting any space in the panel manager.
+A main application window could be built in this manner.
+.P
+Care should be taken not to refer to a panel
+after it has been freed.
+.LI MSG_EDIT
+.P
+MSG_EDIT causes the panel manager to begin looking
+for input to a particular panel.
+MSG_EDIT should be sent to the panel manager when an application
+expects input from a panel. 
+.I
+data
+.R
+should point to an 
+.I
+xrEvent
+.R
+structure.
+The event will have the following values when MSG_EDIT succeeds.
+.CO
+   
+type      = XrXRAY
+source    = Window id
+inputType = XrPANEL
+inputCode = XrPANELEDITOR (if editor), 
+            XrPANELTIMER (if timer went off)
+            XrPANELINPUT (on other events)
+value2    = panelId (Set by you when creating the panel
+            or adding a subpanel.)
+value3    = editor index 
+valuePtr  = editor group instance
+
+.CE
+.P
+If the inputCode is XrPANELEDITOR, the next XrEvent() read 
+from the input queue will
+give the output of that editor.
+If the inputCode is XrPANELINPUT, the next XrEvent() read 
+from the input queue will
+give some other type of input (i.e. various window events, keyboard
+events...).
+The important field to key from when looking at a panel event is
+the inputCode field.  This field tells you what happened in the panel.
+Unless you push the event on the event 	queue, 
+the type and inputType fields will always
+be the same for panels.
+The use of MSG_EDIT is described under
+.I
+Using Panels.
+.R
+.LI MSG_CURRENTEDITOR
+.P
+MSG_CURRENTEDITOR instructs the panel manager to invoke a specific editor
+when it receives MSG_EDIT.  This allows a panel to 
+have an active field (such as a TextEdit field) without an input
+from the user.
+It is often used to restart a TextEdit field when it exited
+because of a break condition.
+.I
+data
+.R
+is a pointer to the
+editor instance
+to be activated when MSG_EDIT is received.
+This editor remains current until the value is changed.
+A NULL in the data parameter indicates no
+editor is current.
+.LI MSG_MOVE
+.P
+MSG_MOVE allows a panel to be moved about the display.
+.I
+data
+.R
+is a pointer to a point structure.
+The panel is moved relative to the window specified
+in the 
+.I
+relativeTo
+.R
+member of the panel structure.
+.LI MSG_RESIZE
+.P
+MSG_RESIZE allows a panels window to be resized.
+.I
+data
+.R
+is a pointer to a rectangle structure.
+The panel is moved to the x,y location of the rectangle,
+and the panels window size is changed to the height and width
+values of the rectangle.
+.LI MSG_SHOW
+.P
+MSG_SHOW shows a panel and allows editing of that panel.
+A panel MUST be showing in order to honor a MSG_EDIT.
+.I
+data
+.R
+is not used and may be set to NULL.
+A panel will be shown automatically upon creation if the
+.I
+showFlag
+.R
+field of the panelInfo structure is set to TRUE.
+.LI MSG_HIDE
+.P
+MSG_HIDE hides a panel.
+.I
+data
+.R
+is not used and may be set to NULL.
+.LI MSG_REDRAW
+.P
+MSG_REDRAW causes the editors of a panel to be redrawn.
+.I
+data
+.R
+is not used and may be set to NULL.
+.LI MSG_GETPANELCONTEXT
+.P
+MSG_GETPANELCONTEXT fills out an xrPanelContext structure with the
+panel defaults.  This structure may then be modified
+by the programmer before a panel is created.
+.I data
+is a pointer to an xrPanelContext structure.
+.LI MSG_NEWSUBPANEL
+.P
+MSG_NEWSUBPANEL adds a group of editors to a previously created panel.
+.I
+panelInstance
+.R
+should be the pointer to the parent panel, and
+.I
+data
+.R
+is a pointer to an 
+.I
+xrPanelInfo
+.R
+structure.
+The 
+.I
+editorInstance, numFields, and panelId, 
+.R
+members of the xrPanelInfo structure are the only ones that need
+be filled out to generate the subpanel.
+.P
+The SUBPANEL messages are an interface to the editor group facilities
+provided by the Xrlib intrinsics. 
+It is suggested you read the section titled
+.I
+Editor Groups
+.R
+if you intend to use subpanels.
+A full discussion of subpanels is given in the section
+.I
+advanced use of panels.
+.R
+.LI MSG_FREESUBPANEL
+.P
+MSG_FREESUBPANEL frees all resources allocated by the panel manager
+connected with the subpanel in question.
+.I
+data
+.R
+is a subpanel instance pointer.
+.LI MSG_SHOWSUBPANEL
+.P
+MSG_SHOWSUBPANEL causes the editors of a 
+subpanel to be shown by the panel manager.
+.I
+data
+.R
+is the subpanel instance pointer.
+.LI MSG_HIDESUBPANEL
+.P
+MSG_HIDESUBPANEL deactivates the editor group in question.
+.I
+data
+.R
+is the subpanel instance pointer.
+.LE
+.H 3 "Using Panels"
+Working with panels may be simple or complex depending
+on the sophistication of the panel needed.
+The first portion of this section will concentrate on 
+relatively simple, yet powerful means of using panels.
+More complex interactions will be discussed in the next section,
+``Advanced use of Panels.''
+.P
+The topics covered in this section are:
+.BL 6
+.LI
+Creating a panel.
+.LI
+Manipulating a Panels Window.
+.LI
+Getting input from the fields of a panel.
+.LI
+Removing a panel when finished.
+.LE
+.H 4 "Creating a Panel"
+Creating a panel has the following steps:
+.AL 1  6 
+.LI
+Create info structures for all editors in the panel.
+.LI
+Fill out an xrPanelField array with the locations of the structures 
+and the editors associated with them.
+.LI
+Fill out an 
+.I
+xrPanelInfo 
+.R
+structure with the information gathered above,
+and other information such as location and size.
+If the height or width of panelSize is 0, the panel manager
+will determine a default size for the panel giving some white
+space padding on the bottom and right of the panel.
+The
+.I
+panelContext
+.R
+member of the 
+.I
+panelInfo
+.R
+structure can be set to NULL in most cases, causing
+all default values in the context to be used.
+.LI
+Send a MSG_NEW message to the panel manager with the xrPanelInfo
+structure created above.
+.LE
+.P
+Each of these steps will now be discussed in detail.
+.H 4 "Creating a Panel: Step 1"
+Creating editor information structures is covered in
+the chapter on Field Editors. 
+.H 4 "Creating a Panel: Step 2"
+The next step in creating a panel is to fill out a xrPanelField
+array structure (shown below):
+.CO
+   typedef struct
+   {
+      xrEditor          * (* editorFunct)();
+      INT8              * editorInfo;
+      xrEditor          * editorInstance;       /*  return value   */
+   } xrPanelField;
+.CE
+For example, to define a panel with ten editors, declare:
+.CO
+   xrPanelField  myPanelFields[10];
+.CE
+If in step 1 you filled out a button editor information structure
+called:
+.I
+buttonEditInfo,
+.R
+then you need to fill out 
+.I myPanelFields[0] 
+.R
+like so:
+.CO
+   myPanelFields[0].editorFunct = XrPushButton;
+   myPanelFields[0].editorInfo = (INT8 *) & buttonEditInfo;
+.CE
+The
+.I
+editorFunct 
+.R
+field is a pointer to the editor function in question.
+The
+.I 
+editorInfo
+.R
+field is a pointer to the editor information structure 
+filled out in step 1.
+The 
+.I
+editorInstance
+.R
+field will be filled out by the panel manager when the panel is created.
+.P
+The process outlined above needs to be done for all ten fields
+in the panel.
+.H 4 "Creating a Panel: Steps 3 and 4"
+All the information you will typically need for a panel has been
+assembled.  The task now at hand is to fill out a
+panel information structure with this data.
+You will normally declare a xrPanelInfo and a panel structure
+at the beginning of your program i.e.
+.CO
+  xrPanelInfo   myPanelInfo;
+  xrPanel     * myPanel;
+  xrEvent       panelEvent;
+.CE
+For example, 
+.I
+myPanelInfo
+.R
+might look something like this:
+.CO
+   myPanelInfo.fieldList = & myPanelFields;
+   myPanelInfo.numFields = 10;
+   myPanelInfo.relativeTo = myWindow;
+   XrCopyPt(&myPanelOrigin, &myPanelInfo.panelOrigin);
+   myPanelInfo.panelSize.height = 0;  /* use default size */
+
+   /* Use default panelContext  */
+   myPanelInfo.panelContext = NULL;
+   
+   /* Create the panel    */
+   myPanel = XrPanel(NULL, MSG_NEW, &myPanelInfo) 
+   
+.CE
+This code creates
+.I
+myPanel.
+.R
+In the remaining sections, myPanel will be manipulated.
+.H 4 "Manipulating a Panels Window"
+The panel manager provides several commands for dealing with 
+a panels window.
+.P
+The MOVE message takes a point and relocates the panel relative
+to the origin of the 
+.I
+relativeTo
+.R
+window in the panel structure.
+If you set the 
+.I
+relativeTo
+.R
+member of the panel structure to NULL, the panel will be 
+relocated relative to the origin of the screen.
+.P
+The RESIZE message moves the panel to an absolute position on
+the display, and changes the size of the panels window.
+.P
+The SHOW and HIDE messages simply display and remove the panel
+from the screen respectively.  
+A panel will not receive input if it is hidden, hence if you send
+a MSG_EDIT to a hidden panel, XrPanel() returns NULL.
+.P
+The MSG_REDRAW will cause all components to redraw themselves.
+So far, we have discussed editors as components of a panel.
+.P
+The following list gives examples of using these messages:
+.BL 6 
+.LI
+MSG_MOVE
+.P
+.CO
+   XrPanel(myPanel, MSG_MOVE, &newPoint);
+.CE
+.LI
+MSG_RESIZE
+.P
+.CO
+   XrPanel(myPanel, MSG_RESIZE, &newRectangle);
+.CE
+.LI
+MSG_SHOW
+.P
+.CO
+   XrPanel(myPanel, MSG_SHOW, NULL);
+.CE
+.LI
+MSG_HIDE
+.P
+.CO
+   XrPanel(myPanel, MSG_HIDE, NULL);
+.CE
+.LI
+MSG_REDRAW
+.P
+.CO
+   XrPanel(myPanel, MSG_REDRAW, NULL);
+.CE
+.LE
+.P
+
+.H 4 "Getting Input from a Panel"
+The goal of creating a panel is to get input from the user.
+Receiving this input is achieved through the use of 
+.B
+MSG_EDIT
+.R
+and the 
+.I
+XrInput()
+.R
+function described in the Xrlib intrinsics chapter.
+When calling the panel manager with a MSG_EDIT, an xrEvent structure
+is passed in to be filled out according to the following rules:
+.CO
+   
+type      = XrXRAY
+source    = Window id
+inputType = XrPANEL
+inputCode = XrPANELEDITOR (if editor), 
+            XrPANELTIMER (if timer went off),
+            XrPANELINPUT (on some other event).
+value2    = panelId (Set by you when creating the panel
+                     or adding a subpanel.)
+value3    = editor index 
+valuePtr  = editor group instance
+
+.CE
+.P
+If the inputCode is XrPANELEDITOR, the next XrEvent() read 
+from the input queue will
+give the output of that editor.
+If the inputCode is XrPANELINPUT, the next XrEvent() read 
+from the input queue will
+give some other type of input (such as window events and 
+keyboard events).
+The important field to key from when looking at a panel event is
+the inputCode field.  This field tells you what happened in the panel.
+Unless you push the event, the type, and inputType fields will always
+be the same for panels.
+.P
+The following code fragment shows a common way to obtain
+input from a panel.
+.CO
+   myPanel = XrPanel(NULL, MSG_NEW, &myPanelInfo);
+
+   /* showFlag defaults to true upon creation, so we don't need MSG_SHOW */
+
+   if (XrPanel(myPanel, MSG_EDIT, &panelEvent) != NULL)
+
+	/* Read the editor event.            */
+	XrInput(NULL, MSG_NONBLKREAD, &myInput);
+
+   else
+      /* panel call failed, check xrErrno and proceed */
+
+
+   /* panelEvent.value3 is set to a field index, this indicates */
+   /* which field in the panel was edited.                      */
+
+   processPanel = 1;
+   while (processPanel) {
+   
+   switch(panelEvent.inputCode)
+   {
+    case XrPANELEDITOR:
+
+      switch (panelEvent.value3) {
+
+      case 0:
+         /* Get data from myInput for field 0.
+            process that data.			*/
+         break;
+
+      case 1:
+         /*  Get data from myInput for field 1.
+              process that data. 		*/
+         break;
+           .
+           .
+      case 9:
+         /* End condition.
+            Send MSG_FREE to panel if you are done with it.  */
+         processPanel = 0;
+         break;
+     
+     switch XrPANELINPUT:
+          .
+          .
+      }
+
+      If (XrPanel(myPanel, MSG_EDIT, &panelEvent) != NULL)
+         XrInput(NULL, MSG_NONBLKREAD, &myInput);
+      else
+         /* MSG_EDIT failed check xrErrno and proceed    */
+
+      }
+   }
+.CE
+The MSG_EDIT does not have to come immediately after a MSG_NEW.
+You may display a panel and wait until the user accesses
+its window to send it a MSG_EDIT.
+This feature enables you to display multiple panels and keep
+them active for the duration of an application.
+.P
+One condition that requires an example is a break condition. 
+Its not obvious how to do this.   The following code fragment
+is an example of how to use Xrlib to test for a break condition.
+.CO
+
+  XrPanel (panelInstance, MSG_EDIT, &event);
+  if (event.inputCode == XrPANELEDITOR)
+  {
+     if ((editorEvent.inputType == XrEDITOR) &&   /* Are we in a text edit  */
+         (editorEvent.inputCode == XrTEXTEDIT))   /* field?
+         {
+            if (editorEvent.value1 == XrTEDIT_BREAK)  /* Check for Break */
+            {
+               XrPanel (panelInstance, MSG_CURRENTEDITOR, NULL);
+            }
+            else
+            {
+               XrPanel (panelInstance, MSG_CURRENTEDITOR, EditorEvent.valuePtr);
+            }  /*
+                *  Else force text editor to be recalled when a break occurs. 
+         .      *  This is called for status event breaks, such as            
+         .      *    moving the cursor to an empty field or typing the first  
+         .      *    character in the field.
+         }      */
+  .
+  .
+  .
+  }
+
+.CE
+.H 4 "Removing a Panel"
+Removing a panel is a simple matter of sending this
+message to the panel manager:
+.CO
+   XrPanel(myPanel, MSG_FREE, NULL);
+.CE
+This action frees all memory associated with a panel
+that was allocated by the panel manager.
+.H 3 "Advanced Use of Panels"
+The previous section concentrated on basic use of
+panels.
+This section discusses advanced topics, such as dealing
+with panel editors directly, and working with subpanels.
+.H 4 "Communicating Directly with the Fields of a Panel"
+There are times when you will need to communicate directly
+with the editors of a panel as the result of some action
+by a user.
+For example, the input of one editor is the output of another,
+or a change in an editor value cause other editors to change status.
+.P
+Direct communication with editors is through the 
+.I
+xrPanelField
+.R
+structure you filled out to create the panel.
+This structure is shown again below:
+.CO
+   typedef struct
+   {
+      xrEditor          * (* editorFunct)();
+      INT8              * editorInfo
+      xrEditor          * editorInstance;
+   } xrPanelField;
+.CE
+In previous examples, 
+when you created the panel, you filled out the editorFunct
+and editorInfo members for 
+each editor in the panel, but did not fill out the editorInstance
+member.
+This member is filled out by the panel manager when the panel
+is created.
+This pointer gives you direct access to each editor in the panel.
+The following code fragment exemplifies the procedure:
+.CO
+ /*  Editor 1, (a check box) changed status    */
+ /*  As a result, editor 6 (a TextEdit field)  */
+ /*  needs to be made sensitive.               */
+
+ XrTextEdit(myPnlFields[6].edtrInstance, MSG_SETSTATE, XrSENSITIVE);
+
+.CE
+Only inquiry and state setting messages should be sent directly
+to an editor in a panel.
+Unexpected results will occur if you delete field editors from
+a panel directly, or send XrTextEdit editors MSG_EDIT
+directly.
+.H 4 "Subpanels"
+Many times a group of panels are very similar, with perhaps only
+one or two sets of editors changing between panels.
+It might be more convenient in this situation for  an
+application to deal with just one panel and change the
+set of editors according to the state of the panel
+or application.
+This task is accomplished with
+.I
+subpanels.
+.R
+The SUBPANEL messages are an interface to the editor group facilities
+provided by the Xrlib intrinsics. 
+For more information about using subpanels, refer to ``Editor Groups.''
+.P*****
+Subpanels have many of the same characteristics as a panel,
+but have a special set of messages.
+There are a few special rules governing subpanels.
+.BL 6
+.LI
+A panel may contain an unlimited number of subpanels, any or all of
+which may be active, but caution should be taken not to overlap
+the editors of panels and subpanels.
+.LI
+subpanels share the window of their parent.
+Changes made to the parent panels window will also affect the subpanel.
+.LI 
+Messages are not sent to subpanels, they are sent directly
+to the parent of the subpanel.
+.LE
+.P
+As mentioned earlier, panels have a special set of messages
+that pertain specifically  to subpanels:
+.BL 6
+.LI
+MSG_NEWSUBPANEL
+.LI
+MSG_FREESUBPANEL
+.LI
+MSG_SHOWSUBPANEL
+.LI
+MSG_HIDESUBPANEL
+.LE
+.P
+These messages allow you to add a subpanel to a panel, remove a
+subpanel, make a subpanel active, and make a subpanel inactive
+respectively.
+Activating a subpanel adds its editors 
+to the window of the parent panel.
+Deactivating a subpanel removes its editors and clears the
+rectangle the subpanel covered.
+.H 4 "Using Subpanels"
+If you have already created a panel, adding a subpanel is 
+a simple matter of filling out a new panelInfo structure with
+the contents of the subpanel and sending this information
+with a MSG_NEWSUBPANEL to the panel.
+The following code fragment shows the process.
+.CO
+   XrPanelInfo      myPanelInfo     /* parent panel details    */
+   XrPanel        * myPanel         /* parent panel handle     */
+   XrPanelInfo      subPanel1Info   /* 1st subpanel details   */
+   XrPanel        * subPanel1       /* 1st panel handle        */
+   XrPanelInfo      subPanel2Info   /* 2nd subpanel details   */
+   XrPanel          subPanel2       /* 2nd subpanel handle    */
+            .
+            .
+            .
+   /*  Fill out the structures as shown in the             */
+   /*  section on using panels.  After creating the        */
+   /*  parent panel, the subpanels may be added as shown.  */
+
+   subPanel1Info.panelId = 1;
+   subPanel2Info.panelId = 2;
+   subPanel1 = XrPanel(myPanel, MSG_NEWSUBPANEL, &subPanel1Info); 
+   subPanel2 = XrPanel(myPanel, MSG_NEWSUBPANEL, &subPanel2Info); 
+
+
+   XrPanel(myPanel, MSG_SHOWSUBPANEL, subPanel1);
+
+   /* This message activates subpanel #1.  Activation     */
+   /* causes the subpanels editors to be added to myPanels */
+   /* window.                                              */
+
+.CE
+Obtaining input from a panel containing subpanels is virtually
+the same process described under ``Using Panels.''
+The major difference is in using either the panelId you set
+or the editorGroup instance pointer to determine which
+subpanel the input came from.
+.SK
+.H 4 "Panel structures"
+The panel manager keeps all the information it needs for its operations
+on a particular panel in a panel structure.
+The main panel structure is described below.
+Other structures are used with messages to communicate with
+the panel manager.
+They are described with their respective messages.
+.CO
+
+typedef struct _xrPanel {
+        RECTANGLE            panelRect;
+        RECTANGLE            panelZeroRect;
+        Window               relativeTo;
+        Window               childOf;
+        xrPanelContext     * panelContext;
+
+        xrEditor           * editorInstance;
+        INT32                numFields;
+        INT32                panelId;
+
+        Window               panelWindow;
+        xrEditorGroup      * editorGroup;
+        struct _xrPanel   ** subPanel;
+        INT32                numSubPanels;
+}xrPanel;
+
+
+.CE
+.P
+.VL 18
+.LI panelRect
+.I
+panelRect
+.R
+contains the location and size of the panel.
+.LI panelZeroRect
+.I
+panelZeroRect
+.R
+contains the location and size of the panel in a zero-based rectangle.
+.LI relativeTo
+.I
+relativeTo
+.R
+is a window the panel should be created and moved relative to.
+.LI childOf
+.I
+childOf
+.R
+is not used.
+.LI panelContext
+.I
+panelContext
+.R
+is a structure (described above) that provides the physical
+and semantic parameters to be used with a particular panel.
+.LI editorInstance
+.I
+editorInstance
+.R
+is a pointer to an array of the editor instances that make up the panel. 
+.LI numFields
+.I
+numFields
+.R
+is the number of instances contained in the preceding array.
+.LI panelId
+.I
+panelId 
+.R
+is set by the application when creating the panel.
+It helps identify the panel when receiving input
+from a panel that contains subpanels.
+.LI panelWindow
+.I
+panelWindow
+.R
+is set to the panels X window id when the panel is showing on the display.
+.LI editorGroup
+.I
+editorGroup
+.R
+is the editor group pointer for this panel.
+This is used when subpanels are added to a panel.
+.LI subPanel
+.I
+subPanel 
+.R
+is an array of pointers to subpanels.
+The use of subpanels is described in the section on advanced
+use of panels.
+.LI numSubPanels
+.I
+numSubPanels
+.R
+is the number of subPanels associated with this panel.
+.LE

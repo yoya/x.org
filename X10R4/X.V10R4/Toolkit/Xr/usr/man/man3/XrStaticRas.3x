@@ -1,0 +1,428 @@
+.TH XRSTATICRASTER 3X "Xrlib Version 10"
+.SH NAME
+XrStaticRaster \- an editor which displays a static raster image
+.SH SYNOPSIS
+.br
+#include <X/Xlib.h>
+.br
+#include <Xr/Xrlib.h>
+.sp 1
+.br
+xrEditor *
+.br
+.B XrStaticRaster (instance, message, data);
+.in 7
+.nf
+xrEditor * instance;
+INT32      message;
+INT8     * data;
+.fi
+.in
+.sp 1
+.SH DESCRIPTION
+.sp
+.P
+The static raster editor provides an application with the means
+for placing uneditable raster images anywhere within the
+bounds of a window.
+.P
+The application must specify a rectangular region, into
+which the raster image will be drawn.
+If the raster image will not fit exactly within the rectangle,
+then the create request will fail.
+.P
+The actual raster data is not supplied to the editor.
+Instead, the application must pass in the pixmap Id associated
+with the raster image.
+The pixmap Id is obtained by registering the raster data with the
+appropriate server, using the
+.I XStorePixmapZ()
+routine.
+Refer to the
+.B `Xlib'
+documentation for a further discussion on this subject.
+It is up to the application to guarantee that it does not pass in
+an invalid pixmap Id.
+.P
+Once a static raster image has been displayed, the only attributes
+which may be modified are the 
+.B XrVISIBLE 
+and 
+.B XrSENSITIVE 
+state flags.
+The actual raster data cannot be modified.
+
+.SH EDITOR MESSAGES
+.IP MSG_NEW
+This message will be the means by which an application program
+can create a static raster image within a window.  It will
+expect the 
+.I instance
+parameter to be set to
+.B NULL,
+and the
+.I data 
+parameter to point to a filled out instance of the following structure:
+.sp
+.nf
+     typedef struct {
+          Window       editorWindowId;
+          RECTANGLE    editorRect;
+          INT8         editorState;
+          INT32        editorFGColor;
+          INT32        editorBGColor;
+          INT32        rasterHeight;
+          INT32        rasterWidth;
+          Pixmap       rasterId;
+      } xrStaticRasterInfo;
+.fi
+.sp
+.in 7
+.ul 1
+editorWindowId
+.br
+.in
+.in 9
+This field indicates the window to which the editor instance
+is to be attached.
+Anytime the instance is redrawn, it will be redrawn in this window.
+.in
+.sp
+.in 7
+.ul 1
+editorRect
+.br
+.in
+.in 9
+This describes the location and size of the region 
+into which  the static raster image is to be displayed.
+If the raster image will not fit exactly within
+this rectangle, then the create request will fail.
+.in
+.sp
+.in 7
+.ul 1
+editorState
+.br
+.in
+.in 9
+This field contains the initial value of the state flags
+for this editor instance.
+If can be composed of any combination of the
+.B XrSENSITIVE
+and
+.B XrVISIBLE
+flags.
+.in
+.sp
+.in 7
+.ul 1
+editorFGColor
+.br
+.in
+.in 9
+This field specifies the foreground color
+to be used when drawing the editor instance.
+This value is unused by this field editor.
+If this is set to -1, the default foreground color (see
+.B XrInit(3X)
+) will be used.
+.in
+.sp
+.in 7
+.ul 1
+editorBGColor
+.br
+.in
+.in 9
+This field specifies the background color
+to be used when drawing the editor instance.
+This value is unused by this field editor.
+If this is set to -1, the default background color (see
+.B XrInit(3X)
+) will be used.
+.in
+.sp
+.in 7
+.ul 1
+rasterHeight
+.br
+.in
+.in 9
+This specifies the height of the raster image, in pixels.
+.in
+.sp
+.in 7
+.ul 1
+rasterWidth
+.br
+.in
+.in 9
+This specifies the width of the raster image, in pixels.
+.in
+.sp
+.in 7
+.ul 1
+rasterId
+.br
+.in
+.in 9
+This contains the pixmap Id associated with the static raster data.
+The pixmap Id is obtained by registering the raster data with appropriate
+server.
+.in
+.sp
+.IP
+The editor will then draw the static raster image in the 
+specified window.
+.IP
+Upon successful completion, a pointer to the newly created
+editor structure will be returned to the application.
+This value must be used there after, whenever the application
+wishes to refer to this particular editor instance.
+
+.IP MSG_FREE
+This message is the mechanism by which an editor instance can be destroyed.
+The only parameter of importance is the 
+.I instance
+parameter, which is a pointer to the
+editor structure returned by
+.B MSG_NEW;
+this parameter specifies which instance is to be destroyed.
+.IP
+When a static raster instance is destroyed, it will be internally
+disconnected from the window to which it was attached, it 
+will no longer handle mouse selects, and it will be removed from
+the window, if the instance is visible.
+.IP
+After an editor instance has been destroyed, no further 
+messages should be issued in regard to that instance.
+
+.IP MSG_GETSTATE
+This message returns the current state of the 
+.B XrVISIBLE 
+and 
+.B XrSENSITIVE
+flags for the static raster instance indicated by the
+.I instance
+parameter.
+The 
+.I data 
+parameter should be a pointer to an 8 bit integer value,
+into which the current state flags will be placed.
+
+.IP MSG_SETSTATE
+This message allows an application program to modify the setting of
+the 
+.B XrSENSITIVE 
+and 
+.B XrVISIBLE 
+flags, for the static raster instance indicated by the
+.I instance
+parameter.
+The 
+.I data 
+parameter is interpreted as an 8 bit integer value, containing the
+new state flag value.
+After saving the new state flags, the editor instance will be redrawn,
+to reflect the new state.
+If an instance is not visible, then the
+rectangle which it occupies will be drawn using the background tile
+for the window, thus making it invisible. 
+
+.IP MSG_REDRAW
+This message will provide an application with the means
+for requesting that a static raster image be redrawn.
+.IP
+When this message is issued, the
+.I instance
+parameter must be a pointer to the editor structure associated
+with the instance to be redrawn.
+The
+.I data
+parameter must be a 32 bit integer
+which specifies the type of redraw to perform.
+.IP
+The static raster editor supports the following redraw mode:
+.sp
+.in 8
+.nf
+.B - XrREDRAW_ALL
+.fi
+.in
+.IP
+If any other redraw mode is specified, then the request will fail.
+
+.IP MSG_SIZE
+This message allows an application to obtain the 
+height and width of the rectangle needed to contain a given
+static raster image.
+.IP
+The static raster editor expects the 
+.I instance
+parameter to be set to
+.B NULL,
+and the
+.I data 
+parameter to point to an instance of the following structure:
+.sp
+.nf
+     typedef struct {
+          Window       editorWindowId;
+          RECTANGLE    editorRect;
+          INT8         editorState;
+          INT32        editorFGColor;
+          INT32        editorBGColor;
+          INT32        rasterHeight;
+          INT32        rasterWidth;
+          Pixmap       rasterId;
+      } xrStaticRasterInfo;
+.fi
+.sp
+.IP
+The fields which must be filled out by the application program BEFORE
+issuing this call, are the 
+.I rasterHeight
+and
+.I rasterWidth 
+fields. 
+.IP
+In return, the
+.I editorRect
+field will be filled in with the coordinates for the
+0 based rectangle needed to contain the instance;
+an application program can then offset this rectangle, to
+position it where ever it likes, within it's window.
+
+.IP MSG_MOVE
+This message provides an application with a means for quickly relocating 
+a particular editor instance within a window.
+The size of the 
+.I editorRect 
+associated with the instance is not changed.
+To relocate an editor instance, a new origin point for the instance's
+.I editorRect 
+must be specified; the top left corner of the editor rectangle 
+will then be translated such that it now coincides with the new origin.
+The origin point is interpreted as an absolute position within the window.
+.IP
+When this message is issued, the
+.I instance
+parameter must point to the editor structure associated with the
+instance which is to be moved, while the
+.I data
+parameter must point to a 
+.I POINT 
+structure, containing the new
+.I editorRect 
+origin.
+.IP
+When an editor instance is relocated, the field editor will automatically
+remove the visual image of the instance from the window, and will then redraw
+the instance at its new location; this occurs only if the instance is visible.
+
+.IP MSG_EDIT
+Normally, an application will not issue this message;
+it is usually issued by the Xrlib input routines,
+when an input event occurs within a static raster instance.
+.IP
+When such an event occurs, a
+.B MSG_EDIT 
+message will be issued to the editor, with
+the
+.I instance
+parameter indicating which static raster image to process, and
+the
+.I data
+parameter pointing to an 
+.I XEvent
+structure.
+.IP
+The static raster editor only handles an event if 
+it maps to an
+.B XrSELECT
+event, as described by
+.B XrMapButton(3X)
+and
+.B XrInit(3X);
+all others are ignored.  
+.IP
+When a select event occurs within a static raster image, 
+the editor will do nothing but add 
+an input event to the front of the
+application's input queue, informing it that 
+a static raster image was selected.
+The returned 
+.I xrEvent
+structure is set to the following value:
+.sp
+.nf
+   type      = XrXRAY
+   source    = the window Id
+   inputType = XrEDITOR
+   inputCode = XrSTATICRASTER
+   value1    = XrSELECT
+   valuePtr  = pointer to instance's editor structure
+.fi
+
+.SH RETURN VALUE
+Upon successful completion of any of the messages, a non-NULL
+value will be returned.
+In the case of
+.B MSG_NEW,
+this non-NULL value will be the pointer to the
+newly created editor instance structure.
+.P
+If a message request fails, then a NULL value is returned.
+
+.SH ERROR CONDITIONS
+Messages to the static raster editor will fail, set the
+.I xrErrno
+global and return a NULL
+value, under the following conditions:
+.sp
+.IP MSG_NEW
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I editorWindowId
+is an invalid Id [XrINVALIDID].
+.IP
+.I rasterId
+is an invalid Id [XrINVALIDID].
+.IP
+.I editorRect
+is an invalid size [XrINVALIDRECT].
+.IP
+.I rasterHeight
+or
+.I rasterWidth
+is less than or equal to zero [XrINVALIDPARM].
+.IP
+Memory cannot be allocated [XrOUTOFMEM].
+.sp
+.IP MSG_REDRAW
+A redraw mode other than
+.B XrREDRAW_ALL
+is specified [XrINVALIDOPTION].
+.sp
+.IP MSG_SIZE
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I rasterHeight
+or
+.I rasterWidth
+is less than or equal to zero [XrINVALIDPARM].
+.sp
+.IP "MSG_GETSTATE and MSG_MOVE"
+.I data
+is set to NULL [XrINVALIDPTR].
+.sp
+.IP "All messages, except MSG_NEW and MSG_SIZE"
+The
+.I instance
+parameter is set to NULL [XrINVALIDID].
+
+.SH "SEE ALSO"
+XrInput(3X), XrInit(3X)

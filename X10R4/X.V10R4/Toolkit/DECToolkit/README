@@ -1,0 +1,61 @@
+
+ 
+ 
+ 
+	Digital offers the tool kit package as an example of the 
+	capability of a standard X toolkit. The value of this particular
+	package is the model upon which it is based: namely the isomorphic
+	relationship between tool instances and "X" windows, the
+	extensibility, and the aspect of geometry management for
+	sub-window based forms.
+ 	
+	Digital does not intend to support this tool kit package as a
+	standard product, and cautions users and developers not to base
+	product quality software on it.
+	
+	At present, Digital is working with Hewlett-Packard and others to
+	define a standard "X" toolkit specification, and with HP, plan to
+	propose that specification as a standard. The impementation of
+	this standard toolkit is to be placed in the public domain.
+	Digital does intend to provide a toolkit package (based on an
+	agreed upon standard) in the X version 11 based workstation product.
+ 
+	Some of the functionality in the submitted specification is not
+	present in the software.  The major examples are menus and the
+	integration of scroll bars and text sub-windows. The specification
+	has more detail on this.  Furthermore, we would deeply
+	appreciate comments on this specification. The result would
+	be a better standards proposal from Digital. Please send comments:
+ 
+		Ram Rao
+		Digital Equipment Corporation
+		MK02-1/H10
+		Continental Blvd.
+		Merrimack, NH 03054
+		(603) 884-0516
+		ARPA: ram@decwrl.dec.com
+		uucp decvax!ram
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 

@@ -1,0 +1,640 @@
+.TH XRSTATICTEXT 3X "Xrlib Version 10"
+.SH NAME
+XrStaticText \- an editor which displays a block of static text
+.SH SYNOPSIS
+.br
+#include <X/Xlib.h>
+.br
+#include <Xr/Xrlib.h>
+.br
+.sp
+xrEditor *
+.br
+.B XrStaticText (instance, message, data);
+.in 7
+.br
+xrEditor * instance;
+.br
+INT32      message;
+.br
+INT8     * data;
+.br
+.in
+.sp 1
+.SH DESCRIPTION
+.sp
+.P
+The static text editor provides an application with the means
+for placing uneditable blocks of text anywhere within the
+bounds of a window.
+In addition, the font to be used when displaying the text,
+and the type of alignment to use, can also be specified.
+The application must specify a rectangular region into
+which the text will be drawn.
+If the text will not fit completely within the rectangle,
+then only that portion which fits will be displayed.
+.P
+Once a block of static text has been displayed, the only attributes
+which may be modified are the 
+.B XrVISIBLE 
+and 
+.B XrSENSITIVE 
+state flags.
+The actual textual data cannot be modified.
+.P
+Four forms of text alignment will be provided by the editor:
+.sp
+.in 8
+.nf
+- None
+- Centered
+- Left
+- Right
+.fi
+.in
+.P
+Alignment will be done in relation to the rectangle passed in
+at the time the text request is made.
+The rules governing alignment are:
+.sp
+.in 6
+Centered
+.br
+.in
+.in 9
+The text will be displayed such that the center of each line of text
+is positioned at the center of the specified rectangle.
+Before the text is displayed, all leading and trailing spaces
+in the line will be stripped.
+.in
+.sp
+.in 6
+Left
+.br
+.in
+.in 9
+Each line of text will be displayed such that the first
+character of the line is positioned at the left most
+edge of the specified rectangle.
+Before the text is displayed, all leading and trailing spaces
+in the line will be stripped.
+.in
+.sp
+.in 6
+Right
+.br
+.in
+.in 9
+Each line of text will be displayed such that the last character
+in each line ends at the right most edge of the 
+specified rectangle.
+Before the text is displayed, all leading and trailing spaces
+in the line will be stripped.
+.in
+.sp
+.in 6
+None
+.br
+.in
+.in 9
+Each line of text will be displayed such that the first character of the
+line is positioned at the left most edge of the specified rectangle.
+Leading and trailing spaces in a line of text are not stripped.
+.in
+.sp
+.P
+When the editor displays a block of static text, the initial pen
+position will be in the upper left hand corner of the 
+.I editorRect.
+The bounds used when displaying the text are the right hand
+edge of the rectangle, and the bottom edge.
+.P
+Each time the pen position goes beyond the right edge
+of the
+.I editorRect,
+or each time one of the following
+characters is encountered in the string, a new line will be started:
+.sp
+.nf
+.in 5
+Newline         (octal 012)
+Vertical tab    (octal 013)
+Form feed       (octal 014)
+Carriage return (octal 015)
+.fi
+.in
+.sp
+If, at some point, the pen's y position goes below the
+bottom edge of the
+.I editorRect,
+then no more lines of text will be displayed.
+
+.SH EDITOR MESSAGES
+.IP MSG_NEW
+This message will be the means by which an application program
+can create a block of static text within a window.  It will
+expect the 
+.I instance
+parameter to be set to
+.B NULL,
+and the
+.I data 
+parameter to point to a filled out instance of the following structure:
+.sp
+.nf
+     typedef struct {
+          Window       editorWindowId;
+          RECTANGLE    editorRect;
+          INT8         editorState;
+          INT32        editorFGColor;
+          INT32        editorBGColor;
+          FontInfo   * editorFont;
+          INT8       * string;
+          INT32        alignment;
+      } xrStaticTextInfo;
+.fi
+.sp
+.in 7
+.ul 1
+editorWindowId
+.br
+.in
+.in 9
+This field indicates the window to which the editor instance
+is to be attached.
+Anytime the instance is redrawn, it will be redrawn in this window.
+.in
+.sp
+.in 7
+.ul 1
+editorRect
+.br
+.in
+.in 9
+This describes the location and size of the region 
+into which  the block of static text is to be
+formated and displayed.
+If the text will not fit completely within
+this rectangle, then the text will be clipped,
+until it does fit.
+However, if a rectangle with a width of 0 is
+specified, then the editor will refuse to
+handle the request, and it will fail.
+.in
+.sp
+.in 7
+.ul 1
+editorState
+.br
+.in
+.in 9
+This field contains the initial value of the state flags
+for this editor instance.
+It can be composed of any combination of the
+.B XrSENSITIVE
+and
+.B XrVISIBLE
+flags.
+.in
+.sp
+.in 7
+.ul 1
+editorFGColor
+.br
+.in
+.in 9
+This field specifies the foreground color
+to be used when drawing the editor instance.
+The foreground color is used to display the text.
+If this is set to -1, the default foreground color (see
+.B XrInit(3X)
+) will be used.
+.in
+.sp
+.in 7
+.ul 1
+editorBGColor
+.br
+.in
+.in 9
+This field specifies the background color
+to be used when drawing the editor instance.
+The background color is used to paint the area
+upon which the text is displayed.
+If this is set to -1, the default background color (see
+.B XrInit(3X)
+) will be used.
+.in
+.sp
+.in 7
+.ul 1
+editorFont
+.br
+.in
+.in 9
+This points to the structure which contains all of the information
+necessary to describe the font to be used when displaying
+the block of static text.
+If this pointer is 
+.B NULL, 
+then the default system base font will be used.
+.in
+.sp
+.in 7
+.ul 1
+string
+.br
+.in
+.in 9
+This should be a pointer to the 
+.B NULL 
+terminated block of text.
+If the pointer is 
+.B NULL, 
+or if the string has a length of 0,
+then the create request will fail; a string must be specified!
+A block of text can be composed of just about any characters;
+however, the editor will expect words to be separated by spaces,
+in order for it to properly parse the block.
+Unpredictable results will occur if words are not separated
+by spaces.
+Forced newline characters (Carriage return, Newline, Vertical tab and
+Form feed) can be included in the
+block of text; these will force the pen to the next line, even though
+the right edge of the 
+.I editorRect
+was not reached.
+.in
+.sp
+.in 7
+.ul 1
+alignment
+.br
+.in
+.in 9
+This value will specify to the editor what form of
+text alignment should be used when displaying
+each line of text.  The following values will be
+accepted:
+.sp
+.in
+.in 11
+.nf
+- XrNO_ALIGNMENT
+- XrCENTER_ALIGNED
+- XrLEFT_ALIGNED
+- XrRIGHT_ALIGNED
+.fi
+.in
+.in 9
+.sp
+Any value other than one of those outlined above, will cause
+the create request to fail.
+Each line of static text will use this alignment.
+.sp
+.IP
+The editor will then draw the block of static text in the 
+specified window.
+.IP
+Upon successful completion, a pointer to the newly created
+editor structure will be returned to the application.
+This value must be used there after, whenever the application
+wishes to refer to this particular editor instance.
+
+.IP MSG_FREE
+This message is the mechanism by which an editor instance can be destroyed.
+The only parameter of importance is the 
+.I instance
+parameter, which is a pointer to the
+editor structure, which was returned by
+.B MSG_NEW;
+this parameter specifies which instance is to be destroyed.
+.IP
+When a static text instance is destroyed, it will be internally
+disconnected from the window to which it was attached, it will
+no longer handler mouse selects, and it will be removed from the
+window, if the instance is visible.
+.IP
+After an editor instance has been destroyed, no further
+messages should be issued in regard to that instance.
+
+.IP MSG_GETSTATE
+This message returns the current state of the 
+.B XrVISIBLE 
+and 
+.B XrSENSITIVE
+flags for the specified block of static text .  The
+.I instance
+parameter specifies which instance to use. 
+The 
+.I data 
+parameter should be a pointer to an 8 bit integer value,
+into which the current state flags will be placed.
+
+.IP MSG_SETSTATE
+This message allows an application program to modify the setting of
+the 
+.B XrSENSITIVE 
+and 
+.B XrVISIBLE 
+flags, for a given block of static text.
+The 
+.I data 
+parameter is interpreted as an 8 bit integer value, containing
+the new state flag values.
+After saving the new state flags, the editor instance will be redrawn,
+to reflect the new state.
+If an instance is not visible, then the
+rectangle which it occupies will be drawn using the background tile
+for the window, thus making it invisible. 
+
+.IP MSG_REDRAW
+This editor provides an application with the means
+for requesting that a block of static text be redrawn.
+The text string data, font information, and the alignment
+which were specified when the instance was created, will be used.
+.IP
+When this message is issued, the
+.I instance
+parameter must be a pointer to the editor structure associated
+with the instance to be redrawn.
+The
+.I data
+parameter must be a 32 bit integer
+which specifies the type of redraw to perform.
+.IP
+The static text editor supports the following redraw mode:
+.sp
+.in 8
+.nf
+.B - XrREDRAW_ALL
+.fi
+.in
+.IP
+If any other redraw mode is specified, then the request will fail.
+
+.IP MSG_SIZE
+This message allows an application to obtain the 
+height of the rectangle needed to contain a given block
+of static text.
+The width of the rectangle MUST have been specified by
+the application program, via the
+.I width
+field within
+.I editorRect,
+BEFORE it issued this message.
+If the rectangle is specified with a width of 0,
+or the length of the string is 0, or the string
+pointer is 
+.B NULL, 
+then the request will fail.
+.IP
+The static text editor expects the 
+.I instance
+parameter to be set to
+.B NULL,
+and the
+.I data 
+parameter to point to an instance of the following structure:
+.sp
+.nf
+     typedef struct {
+          Window       editorWindowId;
+          RECTANGLE    editorRect;
+          INT8         editorState;
+          INT32        editorFGColor;
+          INT32        editorBGColor;
+          FontInfo   * editorFont;
+          INT8       * string;
+          INT32        alignment;
+      } xrStaticTextInfo;
+.fi
+.sp
+.IP
+The fields which must be filled out by the application program BEFORE
+issuing this call, are the 
+.I string, alignment,
+and 
+.I editorFont 
+fields. 
+In addition, the width of the rectangle into which the block of
+static text is to be fit, must also be filled out.
+This involves setting the following field of the 
+.I editorRect:
+.sp
+.in 8
+.nf
+editorRect.width
+.fi
+.in
+.IP
+The editor will set the origin (top and left) of the
+rectangle to (0,0).
+.IP
+If 
+.I editorFont 
+has been set to 
+.B NULL, 
+then the default system base font will be used when calculating
+the rectangle size; if a particular font is
+requested, then it will be used.
+.IP
+The rectangle calculated will be the smallest 0 based
+rectangle of the specified width, into which the
+specified block of static text will fit, using the
+specified font and text alignment mode.
+Only the height of the rectangle needs to be calculated, since the width
+was supplied by the application, and the origin (top and left) of
+the rectangle is forced to (0,0).
+.IP
+Since the width of the rectangle is fixed by the calling
+application, it is possible for a single word to be too
+long to fit on a line.
+If this occurs, then the editor will
+return with an error;
+the editor will not break up a word.
+.IP
+An application can then take this rectangle, and offset it,
+so that the origin of the block of text can be set.
+
+.IP MSG_MOVE
+This message provides an application with a means for quickly relocating 
+a particular editor instance within a window.
+The size of the 
+.I editorRect 
+associated with the instance is not changed.
+To relocate an editor instance, a new origin point for the instance's
+.I editorRect 
+must be specified; the top left corner of the editor rectangle 
+will then be translated such that it now coincides with the new origin.
+The origin point is interpreted as an absolute position within the window.
+.IP
+When this message is issued, the
+.I instance
+parameter must point to the editor structure associated with the
+instance which is to be moved, while the
+.I data
+parameter must point to a 
+.I POINT 
+structure, containing the new
+.I editorRect 
+origin.
+.IP
+When an editor instance is relocated, the field editor will automatically
+remove the visual image of the instance from the window, and will then redraw
+the instance at its new location; this occurs only if the instance is visible.
+
+.IP MSG_RESIZE
+This message provides an application with a means for both changing the
+size of the 
+.I editorRect
+associated with a particular editor instance, and also the location of
+the new
+.I editorRect.
+All restrictions regarding the
+.I editorRect
+size which applied when the instance was first created using
+.B MSG_NEW,
+still apply.
+If an invalid 
+.I editorRect
+is specified, then the resize request will fail.
+.IP
+When this message is issued, the
+.I instance
+parameter must point to the editor structure associated with the instance
+which is to be resized, while the
+.I data
+parameter must point to a 
+.I RECTANGLE 
+structure containing the
+new size and origin for the 
+.I editorRect.
+.IP
+When an editor instance is resized, the field editor will automatically
+remove the visual image of the instance from the window, and will then
+redraw the instance using the new size and location information; this
+occurs only if the instance is visible.
+
+.IP MSG_EDIT
+Normally, an application will not issue this message;
+it is usually issued by the toolbox input routines,
+when an input event occurs within a static text instance.
+.IP
+When such an event occurs, a
+.B MSG_EDIT 
+message will be issued to the editor, with
+the
+.I instance
+parameter indicating which block of static text to process, and the
+.I data
+parameter pointing to an 
+.I XEvent
+structure.
+.IP
+The static text editor only handles an event if 
+it maps to an
+.B XrSELECT
+event, as described by
+.B XrMapButton(3X)
+and
+.B XrInit(3X);
+all others are ignored.  
+.IP
+When a select event occurs within a block of static text, 
+the editor will do nothing but add 
+an input event to the front of the
+application's input queue, informing it that 
+a block of static text was selected.
+The returned 
+.I xrEvent
+structure is set to the following value:
+.sp
+.nf
+   type      = XrXRAY
+   source    = the window Id
+   inputType = XrEDITOR
+   inputCode = XrSTATICTEXT
+   value1    = XrSELECT
+   valuePt   = cursor position
+   valuePtr  = pointer to instance's editor structure
+.fi
+
+.SH RETURN VALUE
+Upon successful completion of any of the messages, a non-NULL
+value will be returned.
+In the case of
+.B MSG_NEW,
+this non-NULL value will be the pointer to the newly
+created editor instance structure.
+.P
+If a message request fails, then a NULL value is returned.
+
+.SH ERROR CONDITIONS
+Messages to the static text editor will fail, set the
+.I xrErrno
+global and return a NULL
+value, under the following conditions:
+.sp
+.IP MSG_NEW
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I editorWindowId
+is an invalid Id [XrINVALIDID].
+.IP
+.I editorRect
+is specified with a height or width of zero [XrINVALIDRECT].
+.IP
+The
+.I editorRect
+width is too small [XrINVALIDRECT].
+.IP
+.I string
+is set to NULL [XrINVALIDPTR].
+.IP
+.I string
+points to an empty string [XrINVALIDPARM].
+.IP
+.I alignment
+is set to an unknown value [XrINVALIDOPTION].
+.IP
+Memory cannot be allocated [XrOUTOFMEM].
+.sp
+.IP MSG_REDRAW
+A redraw mode other than
+.B XrREDRAW_ALL
+is specified [XrINVALIDOPTION].
+.sp
+.IP MSG_RESIZE
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I editorRect
+is specified with a height or width of zero [XrINVALIDRECT].
+.sp
+.IP MSG_SIZE
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+The width of the rectangle has been set to zero [XrINVALIDRECT].
+.IP
+The width of the rectangle is too small [XrINVALIDRECT].
+.IP
+.I string
+is set to NULL [XrINVALIDPTR].
+.IP
+.I string
+points to an empty string [XrINVALIDPARM].
+.sp
+.IP "MSG_GETSTATE and MSG_MOVE"
+.I data
+is set to NULL [XrINVALIDPTR].
+.sp
+.IP "All messages, except MSG_NEW and MSG_SIZE"
+The
+.I instance
+parameter is set to NULL [XrINVALIDID].
+
+.SH SEE ALSO
+XrInput(3X), XrInit(3X)

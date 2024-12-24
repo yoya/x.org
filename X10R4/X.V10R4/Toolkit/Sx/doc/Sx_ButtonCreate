@@ -1,0 +1,104 @@
+.TH Sx_ButtonCreate sx
+.BS
+.NA
+Sx_ButtonCreate, Sx_ButtonMake \- create a button subwindow
+.SY
+#include <X/Xlib.h>
+#include <sx.h>
+.sp
+Window
+Sx_ButtonCreate(\fIparent, x, y, width, height, border, text, fontPtr, foreground,
+    background, proc, clientData\fP)
+.sp
+Sx_ButtonMake(\fIwindow, text, fontPtr, foreground, background, proc, clientData)
+.AR
+.AS ClientData clientData
+.AP Window parent in
+Window in which to create new button subwindow.
+.AP int "x, y" in
+Location (in \fIparent\fP) of upper left outside corner of button
+subwindow.
+.AP int "width, height" in
+Inside dimensions of new button (not including border).  If either
+value is less than or equal to zero, the corresponding dimension of
+the button is chosen to just barely contain \fItext\fP.
+.AP int border in
+Border width for new button subwindow.
+.AP char *text in
+Text to display inside button.  If NULL, then no text is displayed.
+.AP FontInfo *fontPtr in
+Information about font to use in displaying text.  If NULL, then
+the Sx default font is used.
+.AP int foreground in
+Color in which to display text (also used for borders in Sx_ButtonCreate).
+Typically BlackPixel.
+.AP int background in
+Background color for button window (typically WhitePixel).
+.AP void (*proc)() in
+Procedure to invoke whenever a mouse button is pressed while
+the pointer is over the button window.
+.AP ClientData clientData in
+Arbitrary value, which is passed to \fIproc\fP.
+.AP Window window in
+Existing window to turn into button subwindow.
+.BE
+
+.SH DESCRIPTION
+.PP
+Sx_ButtonCreate creates a subwindow of \fIparent\fP called
+a ``button'', and returns the X window identifier for the new
+window.  The new window will have the location given by \fIx\fP,
+\fIy\fP, \fIwidth\fP, and \fIheight\fP.  It will display \fItext\fP
+(centered) and reverse colors when the pointer passes over
+it.  If a mouse button is pressed while the pointer is over the button,
+then \fIproc\fP will be invoked.  \fIProc\fP should have the following
+structure:
+.nf
+.RS
+void
+proc(\fIclientData, buttonPressed, window\fP)
+.RS
+ClientData \fIclientData\fP;
+int \fIbuttonPressed\fP;
+Window \fIwindow\fP;
+.RE
+{
+}
+.RE
+.fi
+The \fIclientData\fP parameter is a
+copy of the \fIclientData\fP argument given to Sx_ButtonCreate
+or Sx_ButtonMake; typically, it points to a data structure of
+the client's that describes what to do when the button procedure
+is invoked.  \fIButtonPressed\fP indicates which button was
+pressed, and is one of the values defined by X: RightButton,
+MiddleButton, or LeftButton.
+\fIWindow\fP is the X id for the button subwindow, which is
+identical to the return value from the Sx_ButtonCreate call that
+created the button or the \fIwindow\fP parameter to Sx_ButtonMake.
+.PP
+Sx_ButtonMake is similar to Sx_ButtonCreate except that
+the caller supplies the window to make into a button.  If \fIwindow\fP
+is already a button subwindow, the call just changes the parameters
+of the button and redisplays the button.  If \fIwindow\fP is not
+already a button subwindow, Sx_ButtonCreate will not
+redisplay the button;  it assumes that the caller will arrange for the
+button to be mapped at a later time, at which point the button will
+be redisplayed.
+.PP
+If \fIfontPtr\fP is non-NULL, the caller must make sure that the
+information it refers to does not change as long as the button
+exists.  On the other hand, \fItext\fP may be modified as soon
+as Sx_ButtonCreate returns, since a copy of it is saved
+internally for the button.
+.PP
+Buttons may be deleted at any time by calling XDestroyWindow on
+the button window.  When the window is destroyed, Sx will deallocate
+its internal data structures associated with the window.
+.PP
+The implementation of buttons depends on the use of the Sx
+dispatcher (Sx_HandlerCreate, Sx_HandleEvent, etc.), and will
+not work if those routines are not used correctly.
+
+.SH KEYWORDS
+button, window

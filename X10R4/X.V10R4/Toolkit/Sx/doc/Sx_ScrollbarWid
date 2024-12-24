@@ -1,0 +1,24 @@
+.TH Sx_ScrollbarWidth sx
+.B1
+.NA
+Sx_ScrollbarWidth \- return the width of a scrollbar
+.SY
+#include <sx.h>
+.sp
+int
+Sx_ScrollbarWidth()
+.B2
+
+.SH DESCRIPTION
+.PP
+This procedure returns a recommended size for the narrow
+dimension of scrollbars, in pixels not including border.
+For vertical scrollbars this will
+be the width, and for horizontal scrollbars it will be the
+height.  All scrollbars created by Sx_ScrollbarCreate have
+this dimension.
+Sx_ScrollbarWidth is typically used by clients that are
+creating their own scrollbar windows prior to calling Sx_ScrollbarMake.
+
+.SH KEYWORDS
+scrollbar, width, window

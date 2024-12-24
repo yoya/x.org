@@ -1,0 +1,93 @@
+.TH Sx_HandlerCreate sx
+.BS
+.NA
+Sx_HandlerCreate \- establish a handler for window-related events
+.SY
+#include <X/Xlib.h>
+#include <sx.h>
+.sp
+Sx_EventHandler
+Sx_HandlerCreate(\fIwindow, mask, proc, clientData\fP)
+.AR
+.AS ClientData clientData
+.AP Window window in
+Window whose events are to be processed by \fIproc\fP.
+.AP int mask in
+Mask indicating which events on \fIwindow\fP are to be processed by \fIproc\fP.
+May contain any of the X event types, plus SX_DESTROYED.
+.AP void (*proc)() in
+Procedure to invoke when any event in \fImask\fP occurs in \fIwindow\fP.
+.AP ClientData clientData in
+Arbitrary value, which is saved by the dispatcher and passed to
+\fIproc\fP when it is invoked.
+.BE
+
+.SH DESCRIPTION
+.PP
+Sx_HandlerCreate arranges for a particular procedure to be
+invoked whenever one of the events in \fImask\fP occurs in
+\fIwindow\fP.  It returns a token identifying the handler,
+which may be passed to Sx_HandlerDelete in order to stop the
+procedure from being called anymore.  Once the handler is
+declared, \fIproc\fP will be invoked 
+when Sx_HandleEvent receives an event that matches \fIwindow\fP
+and \fImask\fP.  \fIProc\fP must have the following structure:
+.nf
+.sp .5
+.RS
+void
+proc(\fIclientData, eventPtr\fP)
+.RS
+ClientData \fIclientData\fP;
+XEvent \fI*eventPtr\fP;
+.RE
+{
+}
+.RE
+.sp .5
+.fi
+The \fIclientData\fP parameter is identical to the \fIclientData\fP
+value passed to Sx_HandlerCreate when the handler was created.
+It provides a mechanism for passing data to \fIproc\fP, and
+typically points to the client's data structure for the window or event.
+\fIEventPtr\fP refers to the XEvent passed to Sx_HandleEvent, and
+should not be modified by \fIproc\fP.
+.PP
+In most interactive programs, almost all of the work of the
+program is done by event handlers.  Typically, a program operates
+by declaring one or more handlers, then entering a loop
+reading events and passing them
+to Sx_HandleEvent, which will in turn call the relevant
+handlers.  Additional handlers may be created, and old
+handlers may be deleted, at any time.  There may be several
+handlers declared for the same window, or even for the same event(s)
+in the same window.  When this occurs, each of the handlers
+will be invoked in turn, in the order in which they were created.
+.PP
+The \fImask\fP parameter consists of an ORed-together combination of
+any of the X event types, such as ExposeWindow.  In addition,
+the event type SX_DESTROYED may be used.  Sx
+keeps track of when windows are created and destroyed, and generates
+notifications upon destruction of a window for which
+an SX_DESTROYED
+event handler has been declared.  When a parent window is destroyed,
+SX_DESTROYED events will be generated on its children and all lower
+descendants (the events on the children will be generated after
+those on the parents).  SX_DESTROYED events have a \fItype\fP field of
+SX_DESTROYED and a \fIwindow\fP field that indicates which window
+was destroyed.  Their other fields are undefined.  SX_DESTROYED
+events are generated just \fIbefore\fP windows are destroyed.
+Note:  SX_DESTROYED
+events are only generated properly if the client requesting SX_DESTROYED
+notification is also the client that created and destroyed the window.
+.PP
+Once created, a handler remains in effect until either deleted by
+calling Sx_HandlerDelete, or until the window is destroyed (at which
+point Sx automatically deletes all handlers associated with it).
+.PP
+Sx_HandlerCreate calls XSelectInput to arrange for events to be
+reported.  Clients of Sx_HandlerCreate should never call
+XSelectInput on \fIwindow\fP.
+
+.SH KEYWORDS
+destroyed, event, handler, window

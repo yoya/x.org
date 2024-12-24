@@ -1,0 +1,44 @@
+#
+#  This XDefaults file contains the set of defaults available
+#  for use by an X-ray application.
+#
+#
+#  X-ray select and menu buttons.  (LeftButtonDown, LeftButtonUp,
+#                                   RightButtonDown, RightButtonUp,
+#                                   MiddleButtonDown, MiddleButtonUp)
+#
+X-ray.Select:		LeftButtonDown
+X-ray.SelectUp:		LeftButtonUp
+X-ray.MenuPost:		RightButtonDown
+X-ray.MenuItemSelect:	RightButtonUp
+#
+#
+#  Additional button modifiers.  (None, Control, Meta, Shift)
+#
+#  AllButtonModifier overrides all of the other modifiers.
+#
+X-ray.AllButtonModifier:	None
+X-ray.LeftButtonDownModifier:	None
+X-ray.LeftButtonUpModifier:	None
+X-ray.MiddleButtonDownModifier:	None
+X-ray.MiddleButtonUpModifier:	None
+X-ray.RightButtonDownModifier:	None
+X-ray.RightButtonUpModifier:	None
+#
+#
+#  X-ray window, color, font, and cursor defaults.
+#
+X-ray.WindowForeground:		black
+X-ray.WindowBackground:		white
+X-ray.BorderWidth:		1
+X-ray.ForegroundColor:		black
+X-ray.BackgroundColor:		white
+X-ray.DefaultFont:		helv10b
+X-ray.CursorForeground:		black
+X-ray.CursorBackground:		white
+#
+#
+#  Menu manager default:
+#       MenuSticky (On, Off)
+#
+X-ray.MenuSticky:	Off

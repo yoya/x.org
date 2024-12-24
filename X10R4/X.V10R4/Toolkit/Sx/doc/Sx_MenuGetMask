@@ -1,0 +1,45 @@
+.TH Sx_MenuGetMask sx
+.B1
+.NA
+Sx_MenuGetMask, Sx_MenuSetMask \- control which menu entries are enabled
+.SY
+#include <X/Xlib.h>
+#include <sx.h>
+.sp
+int
+Sx_MenuGetMask(\fImenuWindow\fP)
+.sp
+int
+Sx_MenuSetMask(\fImenuWindow, mask\fP)
+.AR
+.AS Window menuWindow
+.AP Window menuWindow in
+X identifier for the window displaying the menu's name (i.e. the
+return value from a previous Sx_MenuCreate call).
+.AP int mask in
+New value for the mask of enabled entries for \fImenuWindow\fP.  If
+bit 1<<\fIi\fP is 1, then entry \fIi\fP in the menu will be
+enabled (if it exists).  \-1 will enable all entries in the menu
+and 0 will disable all entries in the menu.
+.B2
+
+.SH DESCRIPTION
+.PP
+At any given time, some of the entries in a pull-down menu may
+be disabled.  When the menu is displayed, disabled entries are
+drawn with a slash through them and may not be selected;  the
+menu action procedure for an entry will not be invoked as long
+as the entry is disabled.  If every entry in a menu is disabled,
+then the title for the menu is drawn with a slash through it.
+Applications typically disable entries when the
+functions of that entry do not make sense given the current
+state of the application.
+.PP
+Sx_MenuGetMask returns a mask indicating which entries in
+the given menu are currently selected.
+The Sx_MenuSetMask procedure is used to disable or re-enable some or all
+of the entries in a menu.  It returns a mask indicating
+which entries were enabled before the call.
+
+.SH KEYWORDS
+disable, enable, mask, menu, pull-down menu, window

@@ -1,0 +1,8 @@
+cc  -c enter.c
+cc  -c redraw.c
+redraw.c: 5: Can't find include file defs.h
+redraw.c: 7: Can't find include file data.h
+redraw.c: 8: Can't find include file bitmaps.h
+*** Error code 1
+
+Stop.

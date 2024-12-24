@@ -1,0 +1,72 @@
+.ds Ch Reference Information
+.nr H1 1
+.so aformat
+.P
+This appendix contains the manual pages for all libraries provided
+with the X window system. The following list shows the page reference
+for each topic. When using the \fIman\fR utility, use the MAN reference with
+the indicated uppercase and lowercase characters (except that \fIxtext\fR
+and \fIxtty\fR are lowercase).
+.SP
+.2C
+.TS H
+center, tab(#);
+cb cb
+l l.
+Topic#MAN Page
+_
+.TH
+Xlib#Xlib(3X)
+XMenu#XMenu(3X)
+XrAddPt#XrPoint(3X)
+XrCheckBox#XrCheckBox(3X)
+XrCopyPt#XrPoint(3X)
+XrCopyRect#XrRectangle(3X)
+XrEditor#XrEditor(3X)
+XrEditorGroup#XrEditorGroup(3X)
+XrEmptyRect#XrRectangle(3X)
+XrEqualPt#XrPoint(3X)
+XrEqualRect#XrRectangle(3X)
+XrErrno#XrErrno(3X)
+XrGetWindowEvent#XrUtilities(3X)
+XrGlobals#XrGlobals(3X)
+XrInit#XrInit(3X)
+XrInput#XrInput(3X)
+XrInputConf#XrInputConf(3X)
+XrInputInit#XrInputInit(3X)
+XrInputMap#XrInputMap(3X)
+XrInputMute#XrInputMute(3X)
+XrInsetRect#XrRectangle(3X)
+XrMapButton#XrUtilities(3X)
+XrMenu#XrMenu(3X)
+XrMessageBox#XrMessageBox(3X)
+XrOffsetPt#XrPoint(3X)
+XrOffsetRect#XrRectangle(3X)
+XrPageEdit#XrPageEdit(3X)
+XrPanel#XrPanel(3X)
+XrPoint#XrPoint(3X)
+XrPtInRect#XrRectangle(3X)
+XrPt2Rect#XrRectangle(3X)
+XrPushButton#XrPushButton(3X)
+XrRadioButton#XrRadioButton(3X)
+XrRasterEdit#XrRasterEdit(3X)
+XrRasterSelect#XrRasterSelect(3X)
+XrRectangle#XrRectangle(3X)
+XrResource#XrResource(3X)
+XrScrollBar#XrScrollBar(3X)
+XrSectRect#XrRectangle(3X)
+XrSetPt#XrPoint(3X)
+XrSetPtRect#XrRectangle(3X)
+XrSetRect#XrRectangle(3X)
+XrStaticRaster#XrStaticRaster(3X)
+XrStaticText#XrStaticText(3X)
+XrStringWidth#XrUtilities(3X)
+XrSubPt#XrPoint(3X)
+XrTextEdit#XrTextEdit(3X)
+XrTitleBar#XrTitleBar(3X)
+XrUnionRect#XrRectangle(3X)
+XrUtilities#XrUtilities(3X)
+XrVersion#XrUtilities(3X)
+Xtext#Xtext(3X)
+Xtty#Xtty(3X)
+.TE

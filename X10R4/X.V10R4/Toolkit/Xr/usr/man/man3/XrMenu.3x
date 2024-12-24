@@ -1,0 +1,274 @@
+.TH XRMENU 3X "Xrlib Version 10"
+.SH NAME
+XrMenu - the Xrlib Menu Manager.
+.SH SYNOPSIS
+#include <X/Xlib.h>
+.br
+#include <Xr/Xrlib.h>
+.P
+xrMenu *
+.br
+.B XrMenu (menuInstance, message, data)
+.br
+xrMenu   * menuInstance;
+.br
+INT32    message;
+.br
+INT8    * data;
+.P
+.SH DESCRIPTION
+XrMenu is the Xrlib menu manager.
+This man page gives a brief summary of the menu manager structures,
+messages, and item language.
+For a more complete description, refer to the ``Dialogs'' chapter
+in the programmer's manual.
+.SH STRUCTURES
+The following structures are used to communicate with the menu manager.
+The menu structures shown below are described in the
+programmer's manual.
+.nf
+
+   typedef struct
+   {
+      INT8            * menuTitle;
+      INT8           ** menuItems;
+      INT32             numItems;
+      xrPanelContext  * menuContext;
+      INT16             menuId;
+      INT32             menuStyle;
+   } xrMenuInfo;
+
+   typedef struct _xrMenuIndex
+   {
+      struct _xrMenu    * menuInstance;
+      INT32               itemIndex;
+      INT32               itemData;
+   } xrMenuIndex;
+
+   
+.fi
+.SH MESSAGES
+The following messages allow the programmer to communicate with
+the Xrlib menu manager.
+.IP MSG_NEW
+MSG_NEW creates a menu structure.
+The 
+.I menuInstance
+parameter should be set to NULL, as it is not used.
+The
+.I data
+parameter is a pointer to a
+.I menuInfo
+structure.
+.IP MSG_FREE
+MSG_FREE destroys a menu, its associated menu editor, and
+frees all resources allocated by the menu manager.
+.I menuInstance
+is a pointer to the menu to be freed.
+.I data
+should be set to NULL.
+Care should be taken 
+.B not
+to refer to a menu after it has been freed.
+.IP MSG_EDIT
+MSG_EDIT posts the currently active menu for a given
+window.
+This command will be made transparently to the application
+by the input model most of the time, but may be called
+by you if necesssary.
+.IP MSG_ACTIVATEMENU
+MSG_ACTIVATEMENU makes the given menu the current menu
+for the given window.
+A menu may be current for several windows at the same time.
+When the input model gets a 
+.I post menu
+input from the user, it will post the current menu for the window
+the input came from.
+.I data
+is a window id.
+.IP MSG_DEACTIVATEMENU
+MSG_DEACTIVATEMENU makes the given menu inactive
+for the given window.
+.I data
+is a window id.
+.IP MSG_ADDSUBMENU
+MSG_ADDSUBMENU allows you to add one menu to another as a sub-menu.
+The sub-menu is created in the same way as the parent menu, this message
+simply allows you to link menus into a tree structure.
+.I menuInstance
+is a pointer to the sub-menu.
+.I data
+points to an
+.I xrMenuIndex
+structure that specifies the location in the menu tree.
+Set the 
+.I menuInstance
+pointer to the parent menu instance pointer.
+Set the 
+.I itemIndex
+portion of the structure to the item in question, and the
+.I itemData
+member to NULL.
+.IP MSG_REMOVESUBMENU
+MSG_REMOVESUBMENU removes a link between two menus. Neither
+of the menus are destroyed, there is simply not a path between
+them any longer.
+.I menuInstance
+is a pointer to the sub-menu.
+.I data
+points to an
+.I xrMenuIndex
+structure that specifies the location in the menu tree.
+Set the 
+.I menuInstance
+pointer to the parent menu instance pointer.
+Set the 
+.I itemIndex
+portion of the structure to the item in question, and the
+.I itemData
+member to NULL.
+.IP MSG_ACTIVATEITEM
+MSG_ACTIVATEITEM allows you to make an item in
+a menu selctable.
+Unselectable items are shown greyed and are not selectable
+by the user.
+.I data
+is an integer index to the item to be made active.
+.I menuInstance
+is the menu instance in question.
+.IP MSG_DEACTIVATEITEM
+MSG_DEACTIVATEITEM allows you to make an item in
+a menu unselectable.
+Unselectable items are shown greyed and are not selectable
+by the user.
+.I data
+is an integer index to the item to be made active.
+.I menuInstance
+is the menu instance in question.
+.IP MSG_SETITEMFUNCTION
+MSG_SETITEMFUNCTION sets a function to be executed when an item
+is selected by the user.
+.I data
+points to an
+.I xrMenuIndex
+structure.
+The 
+.I menuInstance
+member of this structure points to the menu in question.
+The
+.I itemIndex 
+member determines which item is associated with the function,
+and the 
+.I itemData
+member contains the pointer to the function.
+.IP MSG_SETITEMEVENT
+MSG_SETITEMEVENT sets an event to be returned when a menu item
+is selected by the user.
+.I data
+points to an
+.I xrMenuIndex
+structure.
+The 
+.I menuInstance
+member of this structure points to the menu in question.
+The
+.I itemIndex 
+member determines which item is associated with the event,
+and the 
+.I itemData
+member contains the pointer to the event created by the programmer.
+.SH ITEM LANGUAGE
+The XRMENU item language allows the programmer to 
+send special commands on a per-item basis to the
+Xrlib menu manager.
+These commands are described in the following table.
+.sp 2
+.TS
+center allbox;
+ll.
+Command	Action
+_
+\eDA	Item is disabled
+\eKEc	Item has keyboard equivalent c
+\e-	Single line (unselectable)
+\e=	double line (unselectable)
+.TE
+.sp 2
+.SH "RETURN VALUE"
+Unless otherwise specified, XrMenu() returns
+.I menuInstance
+if it is successful and
+.B NULL
+on failure.
+.SH "ERROR CONDITIONS"
+Messages to XrMenu will fail, set the 
+.I xrErrno
+global and return a NULL value, under the following conditions:
+.IP MSG_NEW
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP
+Memory cannot be allocated [XrOUTOFMEM].
+.IP MSG_FREE
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP MSG_EDIT
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP MSG_ACTIVATEMENU
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP MSG_DEACTIVATEMENU
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP MSG_ADDSUBMENU
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP
+Memory cannot be allocated [XrOUTOFMEM].
+.IP MSG_REMOVESUBMENU
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP MSG_ACTIVATEITEM
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP MSG_DEACTIVATEITEM
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP MSG_SETITEMFUNCTION
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP MSG_SETITEMEVENT
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+

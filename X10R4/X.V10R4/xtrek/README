@@ -1,0 +1,32 @@
+This is quickly how to run xtrek on a ultrix system.
+
+Create an appropriate directory for it.  The defs.h
+file contains the paths to this directory.  If you
+don't want it in /usr/games/lib/xtrek, change this
+file.
+
+Before running make, look for random.o.  I found
+that the ultrix library version wasn't very random,
+so I substituted the 4.3 one which worked better.
+If you don't have/want the 4.3 random.o, just delete
+the reference in the make file and it will compile
+with the one in libc.a.
+
+Run make.  Install xtrek in /usr/games.  Robot and
+daemon must be in /usr/games/lib/xtrek.  Copilot can
+go anywhere.  Create the files .motd, .scores, and
+.planets in /usr/games/lib/xtrek.
+
+Xtrek, copilot, and the daemon must all be setuid
+to someone who has write permission on these files.
+Root is fine.  There are no real security holes in
+the game.  If you want to avoid this, take out the
+shared memory chmoding and make the dot files writable.
+
+If you want to change constants in the game, it is
+pretty well set up to allow tweaking.  Most of the
+constants are in defs.h.  Player constants were defined
+in getship.c in plans for a future custom designed ship
+option.
+
+nroff -me the document and put it somewhere useful

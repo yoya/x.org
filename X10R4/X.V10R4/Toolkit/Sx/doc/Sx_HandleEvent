@@ -1,0 +1,26 @@
+.TH Sx_HandleEvent sx
+.BS
+.NA
+Sx_HandleEvent \- process X event by calling relevant handlers
+.SY
+#include <X/Xlib.h>
+#include <sx.h>
+.sp
+Sx_HandleEvent(\fIeventPtr\fP)
+.AR
+.AS XEvent *eventPtr
+.AP XEvent *eventPtr in
+Pointer to event received from the X window package.
+.BE
+
+.SH DESCRIPTION
+.PP
+This procedure examines the information in \fIeventPtr\fP
+and calls all the handlers (established by prior calls
+to Sx_HandlerCreate) that have expressed an interest
+in the event.  If more than one handler has been declared
+for the event, each is called in turn, in the order in which
+they were created.
+
+.SH KEYWORDS
+event, handler, window

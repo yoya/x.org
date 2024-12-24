@@ -1,0 +1,5 @@
+#define caretMask_width 12
+#define caretMask_height 8
+static short caretMask_bits[] = {
+   0x00f0, 0x0198, 0x030c, 0x0606,
+   0x0c63, 0x08f1, 0x0d9b, 0x070e};

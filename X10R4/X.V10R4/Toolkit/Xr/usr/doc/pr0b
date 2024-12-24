@@ -1,0 +1,2386 @@
+.IN "Building a Field Editor"
+.ds Ch Building a Field Editor
+.nr H1 2
+.so aformat
+.P
+The following sections contain the guidelines a programmer should follow
+when developing a new field editor. Some of the details describing how an
+editor works are also included.
+.P
+Under normal circumstances, the underlying structure of field editors is
+fairly constant, regardless of what specific actions the editor may perform.
+Knowing this, it can be an easy task to take an existing editor,
+change the editor specific portion of it, and thus easily create
+a new field editor.
+Adhering to the guidelines presented in this chapter will help
+to make this possible in the future also.
+
+.IN "Naming conventions"
+.H 2 "Naming Conventions"
+.P
+Each editor must supply a single 
+entry point, through which all action and status requests are received.
+A unique name needs to be assigned to this entry point;
+preferably one which describes the function of the editor.
+By convention, the name must be at least 2 words,
+which will be compressed together, with the first letter
+of each word capitalized, and the prefix 'Xr' added to the front.  For example:
+.BL
+.LI
+The raster editor is called XrRasterEdit()
+.LI
+The raster select editor is called XrRasterSelect()
+.LI
+The titlebar editor is called XrTitleBar()
+.LE
+.P
+Throughout this document, the notation "XrEditorName" will be used;
+it refers to the name assigned to this primary editor entry point.
+.P
+.IN "Editor entry-point naming"
+Besides a convention regarding the naming of the editor entry point,
+there is also a convention regarding how the editor entry point is
+defined.
+All editors MUST adhere to this convention, else they will not
+work correctly!
+The proper syntax for defining an editor's entry point is:
+.sp
+.nf
+.in 8
+xrEditor * XrEditorName (editorName, message, data)
+.sp
+where:
+.in
+.in 10
+"editorName" is a pointer to an editor structure; 
+the name of this structure should be the same as
+the editor's name, except that the 'Xr' prefix is dropped, 
+and the first letter is in the lower case.
+
+"message" is an integer value, which specifies
+the action to be performed by the editor.
+
+"data" is a pointer to something; the editor can
+coerce this pointer to point to whatever it likes,
+depending upon the requested action.
+.in
+.fi
+.SP
+.P
+Some examples of editor entry point declarations are:
+.in 8
+.SP
+xrEditor * XrRasterEdit (rasterEdit, message, data)
+.SP
+xrEditor * XrScrollBar (scrollBar, message, data)
+.in
+.P
+.in 17
+.nf
+xrEditor * rasterEdit, *scrollBar;
+INT32      message;
+INT8     * data;
+.fi
+.in
+
+.H 3 "Data Structure Naming"
+.SP
+Almost every editor has a need to define several data structures;
+some are strictly internal, and thus used only by the editor,
+while others define structures which are used by application
+programs to pass data to the editor.
+There are two structures in particular, for which a naming
+convention has been defined;
+one of these also has a portion of it's structural organization
+defined.
+.P
+The first structure of interest is the structure by which
+an editor is first initialized.
+This structure will normally contain all of the information
+needed by the editor, to create a single instance of itself.
+To indicate that this structure contains initialization data for 
+a particular editor, the name of the structure will be constructed
+by taking the editor name [XrEditorName], 
+changing the first character to lower case, and then appending the word
+"Info" to the end of it. 
+For example, the initialization structure used by the XrScrollBar() editor
+is called "xrScrollBarInfo".  
+The actual organization of this structure is partially fixed,
+to make it easier for code to access information in these structures,
+without forcing them to know the complete layout of the structure.
+For instance, a non-editor related code module may want to know what 
+window the requested editor instance is to be tied to, without
+knowing what the actual type of editor it is.
+For this reason, the first five fields of an "Info" structure
+must be organized in the following fashion, and must use the
+field names shown:
+.SP
+.CO
+     typedef struct {
+          Window    editorWindowId;
+          RECTANGLE editorRect;
+          INT8      editorState;
+          INT32     editorFGColor;
+          INT32     editorBGColor;
+           .
+           .
+      } xrEditorNameInfo;
+.CE
+.SP
+After the first five fields, the editor writer is free to add any
+fields he desires, which might be required to initialize the editor.
+.P
+The second structure of interest is the internal structure
+used by the editor to keep track of data and state information for a given
+editor instance.  
+Although the information in this structure is directly available to
+an application program, they should be discouraged from accessing
+it directly; instead, they should use the mechanism provided by
+the editor, to access this data.
+The convention for naming this structure involves taking the
+name of the editor [XrEditorName], 
+changing the first character to lower case, and then appending the word "Data"
+to the end of it.  The actual organization of this structure
+is left entirely up to the editor writer, since the editor should
+be the only one interested in accessing this data directly.
+A sample declaration would be:
+.SP
+.CO
+     typedef struct {
+           .
+           .
+           .
+     } xrEditorNameData;
+.CE
+.P
+Any other data structures needed by an editor should, if possible,
+follow the naming convention of appending a descriptive word to
+the end of the editor name.
+
+
+.H 3 "Define Naming"
+.SP
+Since the Xr library toolbox facilities will be used by a large selection
+of programs, it is a good idea to make all possible attempts to avoid
+naming collisions between toolbox defines and the defines declared
+by the program using toolbox.
+To aid in meeting this goal, all defines declared by an Xrlib components,
+whether it be an intrinsic or a field editor, must have the following
+format:
+.sp
+.nf
+.in 5
+#define XrDEFINENAME    <value>
+.in
+.fi
+.sp
+Following this guideline should help avoid naming conflicts.
+
+
+.H 3 "Variable Naming"
+.SP
+For the most part, editor writers are free to use their own judgement
+when naming local variables within their editor modules.
+However, as all good software developers know, using a name which
+in one fashion or another describes how the variable is used,
+greatly increases the readability of a program.
+There will be several local variable naming conventions, which
+will be used throughout the field editors. 
+These include the following rules:
+.SP
+.BL
+.LI
+When a pointer to an editor's "Info" structure [xrEditorNameInfo] is used,
+it's name should be constructed by taking the lower case initials of
+the editor name, and appending the word "InfoPtr" to it. 
+For example, when the XrScrollBar() editor needs a pointer 
+to an "Info" structure, it will  define a local variable as follows:
+.SP
+      xrScrollBarInfo *sbInfoPtr
+.LI
+When a pointer to an editor's "Data" structure [xrEditorNameData] is used,
+it's name should be constructed by taking the lower case initials of the
+editor's name, and appending the work "DataPtr" to it.
+For example, when the XrScrollBar() editor needs a pointer to it's
+data structure, it will define a local variable as follows:
+.SP
+      xrScrollBarData *sbDataPtr
+.LI
+Most editors allow event information to be passed into it's
+main editing routine.  In reality, it's a pointer to the event
+information which is received by the editor.
+By convention, a variable with the following declaration is used
+to save this pointer: 'xrEvent *input'.
+The local variable named 'input' is then used by all editors when
+referring to the event information.
+.LE
+
+.IN "Coding conventions"
+.H 2 "Coding Conventions"
+.P
+When defining a structure needed by an editor, the convention is to 'typedef' 
+the structure, thus making it easier to create an instance
+of that structure.  As an example, the "Info" structure needed by an
+editor will have the following declaration:
+.SP
+.CO
+     typedef struct {
+          Window      editorWindowId;
+          RECTANGLE   editorRect;
+          INT8        editorState;
+          INT32       editorFGColor;
+          INT32       editorBGColor;
+           .
+           .
+     } xrEditorNameInfo;
+.CE
+.P
+Then, to create an instance of this structure, the following line of 
+code will suffice:
+.SP
+.nf
+.in 8
+xrEditorNameInfo editorNameInfo;
+.in
+.fi
+
+.IN "Memory management"
+.H 2 "Memory Management"
+.P
+The Xr library toolbox intrinsics provide an application with the means
+for supplying its own memory management facilities.
+If an application does not choose to supply these routines, then the
+standard ones (malloc(), realloc(), calloc() and free()) will be used.
+.P
+If an application does choose to supply its own memory management facilities,
+then it must provide four new entry points, which perform the identical
+functions as malloc(), realloc(), calloc() and free().
+.P
+The redefining of these functions is allowed only once; this is at
+the time the application initializes the Xrlib toolbox code, by means
+of the XrInit() intrinsic.
+.P
+What all of this means to a field editor is that they MUST NEVER
+invoke malloc(), realloc(), calloc() or free() directly!
+Instead, they MUST use the four global function pointers supplied
+by the Xrlib intrinsics.
+By following this rule, the field editor should continue to function
+correctly, regardless of which memory management scheme is being used.
+.P
+The four global function pointers are outlined below:
+.SP
+.nf
+.in 5
+char * (*xrMalloc)();
+int    (*xrFree)();
+char * (*xrRealloc)();
+char * (*xrCalloc)();
+.in
+.fi
+.P
+As an example, to use the xrMalloc() function pointer, the
+following code will work:
+.SP
+.CO
+.in 5
+{
+   char * buffer;
+
+   buffer = (*xrMalloc)(1024);
+}
+.in
+.CE
+
+.H 2 "Drawing and Buffer Flushing"
+.P
+Field editors should refrain from issuing XFlush() requests,
+if possible.
+This call can slow done the performance of an application,
+if issued too often.
+We have taken the strategy that when an editor draws an
+instance, it will not automatically flush the output
+buffer afterwards.
+Rather, it will be up to the application to issue the XFlush()
+request, when it wants; this allows the application to create
+several editors, before flushing the output buffer.
+As a side, when an application calls the XrInput() routine, to
+obtain an input event, the output buffer is automatically flushed.
+
+.IN "Messages, field editor"
+.H 2 "Field Editor Messages"
+.P
+As was mentioned in an earlier section of this document,
+each editor provides only a single entry point,
+by which all work requests must be received. 
+Since an editor must be capable of processing a relatively
+large number of requests, a parameter is provided by each
+editor's entry point, which allows a program to specify
+the action it would like performed.
+.P
+There are several messages which are required to be understood by
+all editors.
+All editors
+MUST accept these messages, and respond in the described fashion.
+.P
+The sub-sections which follows will give a detailed description
+of each of these required messages.  As a quick reference,
+the required messages are:
+.SP
+.in 8
+.nf
+MSG_NEW
+MSG_SIZE
+MSG_MOVE
+MSG_GETSTATE
+MSG_SETSTATE
+MSG_REDRAW
+MSG_EDIT
+MSG_FREE
+.fi
+.in
+.P
+MSG_SIZE can be called at any time, 
+even before an editor instance has been created.
+However, before any of the other messages can be invoked,
+you must first create the editor instance, using the MSG_NEW message.
+This is because the MSG_NEW message returns the pointer to the
+editor structure, which is required by all of the other messages,
+except for MSG_SIZE.  All editors must enforce this rule, by verifying
+that the pointer to an editor structure, which is passed in as the
+first parameter, is not NULL.
+.P
+The discussion which follows will also include one non-required
+message: MSG_RESIZE.
+.SP
+.DS 1
+The entry point into the editor is defined as follows:
+
+   xrEditor * XrEditorName (editorName, message, data)
+
+            xrEditor * editorName;
+            INT32      message;
+            INT8     * data;
+
+.DE
+Each of the messages is responsible for converting the 'data'
+parameter into a pointer to the desired structure.
+Unless noted, all messages return a non-NULL pointer,
+if the message was successfully handled.
+If the message failed, then a NULL pointer is returned.
+
+.H 3 "MSG_NEW"
+.SP
+The MSG_NEW message is the mechanism by which an application program
+can request an instance of an editor be created.  Internally, the
+steps involved in creating an instance of an editor are as follows:
+.BL_.LI
+Allocate a block of memory to hold the data required by the
+editor to process the instance; this memory will stay around
+for the duration of the instance's lifetime.
+.LI
+Determine the size of the rectangle needed to contain the
+instance, and fill the data structure with the information.
+.LI
+Attach the editor instance to the specified editor window;
+this is the call which creates the editor structure, whose pointer
+is returned to the application program when a successful
+status is returned.
+.LI
+Draw the editor instance in the specified window.
+.LE
+.P
+Before this message is issued, the application must first fill out
+an 'Info' structure, which will be used by the editor to
+construct the new instance.
+Each editor is free to determine what data it requires with this call;
+however, the first five fields of the 'Info' structure are fixed
+for all editors, and are laid out as follows:
+.SP
+.CO
+        typedef struct {
+             Window     editorWindowId;
+             RECTANGLE  editorRect;
+             INT8       editorState;
+             INT32      editorFGColor;
+             INT32      editorBGColor;
+                   .
+                   .
+        } xrEditorNameInfo;
+.CE
+.SP
+.VL 15
+.LI editorWindowId:
+This is the window which is used for displaying the editor instance.
+.LI editorRect:
+This defines the rectangle into which the editor instance will
+be drawn.  Any time an input event occurs within this region,
+the editor associated with this rectangle will be notified.
+.LI editorState:
+Allows an application program to define the initial
+state of an editor instance.  
+At the present time, only two state characteristics are defined. They
+are XrVISIBLE and XrSENSITIVE.  XrVISIBLE signals to the editor
+that the instance should be drawn within the window; when cleared,
+the instance will not be drawn. 
+XrSENSITIVE, when set along with XrVISIBLE, indicates that the editor
+should be notified anytime an input event occurs within the
+instance's rectangle; if either XrSENSITIVE or XrVISIBLE is cleared, the
+editor will not be notified of input events.
+.LI editorFGColor
+Allows an application program to specify the foreground color
+to be used when drawing the editor instance.  If the application has set
+this value to -1, the default foreground color should be used. This can be
+referenced using the Xrlib global xrForegroundColor.
+.LI editorBGColor
+Allows an application program to specify the background color to
+be used when drawing the editor instance.  If the application has set this
+value to -1, the default background color should be used. This can be
+referenced using the Xrlib global xrBackgroundColor.
+  
+.LE
+.P
+Upon successful completion of this message, a pointer to the newly
+created editor structure associated with this instance will be
+returned.  This value should be saved by the calling program,
+since this pointer is a required parameter for all future calls
+to the editor, when in regard to this instance.
+.P
+A sample of the proper calling sequence is outlined below:
+.SP
+.nf
+.in 8
+xrEditor *enEditorPtr;
+xrEditorNameInfo enInfo;
+
+enEditorPtr = XrEditorName (NULL, MSG_NEW, &enInfo);
+.in
+.fi
+
+.H 3 "MSG_FREE"
+.SP
+When an editor instance is no longer needed by an application program,
+the MSG_FREE message is used to notify the editor.
+The 'data' parameter is not used by this message, so the calling program
+should set this to NULL.
+The important parameter is the pointer to the 
+editor structure [editorName], which was returned when the
+instance was first created.  This structure is used by the editor
+to determine what instance is no longer needed.
+Internally, the following steps are involved:
+.BL
+.LI
+If the instance is visible, then the area occupied by the instance
+should be filled with the window's background tile, thus making
+the instance invisible.
+.LI
+The block of memory which was allocated at create time, and
+used to hold the data describing this instance, is freed up.
+.LI
+The editor structure is removed from the list of editors attached
+to the specified window, and the editor structure is destroyed.
+.LE
+.P
+NOTE: After issuing a MSG_FREE message, the editor pointer is no
+longer valid, and should not be used; it is up to the application
+program, not the editor however, to enforce this.
+
+.H 3 "MSG_SIZE"
+.SP
+All editors must allow this message to be issued at anytime,
+even if an instance has not been created. 
+This message is used primarily by programs to determine the size
+of the rectangular region needed to enclose the specified
+editor instance.  The program will normally fill out a copy of
+the editor's 'Info' structure with information describing a
+hypothetical editor instance.  The editor will use this information
+to calculate the size of the rectangle, and will return the rectangle
+size (in 0 based format) in the 'editorRect' portion of the 'Info'
+structure.  This allows an application program to then offset the
+rectangle to whatever location is desired, and to then issues a
+MSG_NEW message to create the real editor instance.
+.P
+When this message is issued, an editor should not allocate any 
+permanent data structures, nor should it return a pointer to an 
+editor structure.
+It's only job is to return the size of the rectangle!
+.P
+The amount and type of information required by an editor to determine
+the size of the rectangle is very editor specific.  This information
+will be covered in later sections, when each editor is discussed.
+.P
+For this request, the first parameter (the instance pointer) is not
+used, and should be set to NULL.
+
+.H 3 "MSG_REDRAW"
+.SP
+Most editors will allow an application to modify the
+current value of the editor.
+When an application does modify the value of an editor
+instance, the editor will need to be notified, so that
+the instance can be redrawn to match the new value.
+Just what is performed when a redraw request is
+received, is very editor specific.
+.P
+All editors will require an additional piece of information,
+describing what type of redraw to perform; this will be interpreted as a
+32 bit integer value.
+Again, this value is editor specific.
+It may include such options as redrawing the whole instance,
+or just redrawing a particular portion of an instance.
+.P
+At the present time, the following redraw modes are defined:
+.VL 25
+.LI XrREDRAW_ALL
+This will tell the editor to completely redraw the specified
+editor instance.  The action performed should be very similar
+to what was done when the editor was first displayed.
+.LI XrREDRAW_ACTIVE
+This will tell the editor to that a new active selection has
+been specified for the instance.  The editor must then redraw
+only those portions which are necessary, to reflect this.
+.LI XrREDRAW_SLIDE
+For those editors which have some form of a slide mechanism,
+this message will tell the editor that a new slide position
+has been specified.
+The editor must then redraw only those portions which are
+necessary, to show the new slide position.
+.LE
+.DS 0
+A sample of the proper calling sequence is outlined below:
+
+     xrEditor   *enEditorPtr;
+
+     XrEditorName (enEditorPtr, MSG_REDRAW, XrREDRAW_ALL);
+.DE
+
+.H 3 "MSG_GETSTATE"
+.SP
+Each editor maintains a copy of the current state for each of it's 
+instances; this refers to the setting of the XrVISIBLE and XrSENSITIVE
+characteristics.  Upon request, this information will be returned to an
+application program.  A pointer to an 8 bit integer should be 
+passed as a parameter when making this call; the current state flags,
+which are saved in a field within the editor structure, will be
+returned in the pointed to 8 bit value.
+The editor structure pointer, passed in as the first parameter,
+is used to determine which instance to return state
+information about.
+.P
+A sample of the proper calling sequence is outlined below:
+.SP
+.DS 1
+     INT8       state_flags;
+     xrEditor * enEditorPtr;
+
+     XrEditorName (enEditorPtr, MSG_GETSTATE, &state_flags);
+.DE
+
+.H 3 "MSG_SETSTATE"
+.SP
+This message allows an application to modify the state flags (XrSENSITIVE 
+and XrVISIBLE) for an editor instance.  The first parameter,
+the pointer to the editor structure, will indicate which instance to
+modify.  The third parameter should contain the new state flags for the
+instance.  Under normal circumstances, when an editor receives one of
+these messages, it will save the new state flags in the instance's
+editor structure, and will then redraw the editor using the new 
+state information.
+.P
+A sample of the proper calling sequence is outlined below:
+.SP
+.DS 1
+     INT8       state_flags = (XrSENSITIVE | XrVISIBLE);
+     xrEditor * enEditorPtr;
+
+     XrEditorName (enEditorPtr, MSG_SETSTATE, state_flags);
+.DE
+
+.H 3 "MSG_MOVE"
+.SP
+This message provides an application with a means for quickly relocating
+a particular editor instance within a window.
+The size of the editor rectangle associated with the instance is not
+changed.
+To relocate an editor instance, a new origin point for the editor instance's
+rectangle must be specified; the top left corner of the editor
+rectangle will then be translated such that it now coincides with the
+new origin.  The origin point is interpreted as an absolute position within
+the window; i.e. relative to the window's origin.
+.P
+When this message is issued, the 'instance' parameter must point to the
+editor structure associated with the instance which is to be moved,
+while the 'data' parameter must point to a 'POINT' structure
+containing the new editor rectangle origin.
+.P
+When an editor instance is relocated, the field editor will
+automatically remove the visual image of the instance from the window,
+and will then redraw the instance at it's new location; this occurs
+only if the instance is visible.
+At the same time, the editor will automatically force the editor group's
+rectangle to be recalculated.
+If an application plans to relocate several editor instances all at once,
+its best bet would be to first make all of them invisible, then
+relocate all of them, and then make them all visible again.
+
+.H 3 "MSG_RESIZE"
+.SP
+This message provides an application with a means for both changing the
+size of the editor rectangle associated with a particular editor
+instance, and changing the location of the new editor rectangle.
+All restrictions regarding the editor rectangle size which applied
+when the instance was first created using MSG_NEW, still apply.
+If an invalid editor rectangle is specified, then the resize request
+will fail.
+.P
+When this message is issued, the 'instance' parameter must point to
+the editor structure associated with the instance which is to be
+resized, while the 'data' parameter must point to a 'rectangle' 
+structure containing the new size and origin for the editor rectangle.
+.P
+When an editor instance is resized, the field editor will
+automatically remove the visual image of the instance from the window,
+and will then redraw the instance using the new size and location information;
+this occurs only if the instance is visible.
+At the same time, the editor will automatically force the editor group's
+rectangle to be recalculated.
+
+
+.H 3 "MSG_EDIT"
+.SP
+This message is a signal to the editor that an input event
+occurred within one of it's editor instances.
+The particular instance is specified by the passed in editor structure
+pointer.  A pointer to the input event is also passed in; the pointer
+refers to a structure of type 'XEvent'.
+The editor should verify that the event occurred within
+one of its editor rectangles, an also that the event is one which
+is supported by the editor; if it is not, then the editor should
+return with a 'failed' status.  
+Since most field editors are triggered by an
+XrSELECT event, the editor can use the utility
+routine XrMapButton() to determine if the event
+maps into sn XrSELECT event.
+If the event is one which the editor
+knows how to handle, then it should perform whatever action is implied
+by the event, and should then give some notification to the
+application program that the editor instance has been modified;
+this is accomplished by generating another input event, and pushing
+it back onto the front of the application's input queue.
+The information contained within the returned 'xrEvent' structure will
+include an indication of which editor did the work, the instance which
+was modified, and any other editor specific information.
+.P
+If the event caused the editor to modify the value
+associated with the instance, then it should redraw the instance,
+to reflect the new value.
+.P
+After processing the select event, a field editor should monitor
+the input queue, and swallow the corresponding select up event;
+if any other X event is received before the select up, then it 
+should be pushed back onto
+the input queue, followed by the xrEvent event, and the editor
+should return.
+
+.H 2 "Returning Field Editor Status"
+.P
+Each time an action request is received by an editor, it needs to
+have a mechanism for returning some status information,
+indicating whether or not the message was successfully handled.
+This is accomplished by returning a pointer to the
+appropriate editor structure.  If the NULL pointer is returned,
+then the message request failed; any other value implies
+that the message completed successfully.
+.SP
+.nf
+.DS 1
+An example would be:
+
+   xrEditor * 
+   XrEditorName (editorName, message, data)
+
+      xrEditor * editorName;
+      INT32      message;
+      INT8     * data;
+
+   {
+          .
+          .
+      if (failed)
+          return ((xrEditor *)NULL);
+      else
+          return (editorName);
+   }
+.DE
+.fi
+.P 
+An example of how a program would use this value would be:
+.SP
+.nf
+.DS 1
+   {
+      xrEditor *enEditorPtr;
+
+      if (XrEditorName (enEditorPtr, MSG_REDRAW, XrREDRAW_ALL) == NULL)
+           /* Request failed */
+      else
+           /* Request succeeded */
+   }
+.DE
+.fi
+
+.H 2 "Returning Editor Information"
+.P
+Many times, after an editor has been modified by some input event,
+it would like to notify the application program to which it is attached
+that some change has taken place.  Fortunately, a mechanism to accomplish
+this has been provided.  The general rule for returning notification
+information, is through the application's input queue.  
+To do this, you need to take a structure of type 'xrEvent', and 
+fill it in with the information you would like returned to the
+application program.  
+Once the structure has been filled, you make a call to XrInput(),
+using the MSG_PUSHEVENT message,
+which will add the input event to the front of the application's
+input queue.
+The next time the application issues a read request,
+your information will be passed to it.
+.P
+The following fields in the 'xrEvent' structure are available
+for use by an editor:
+.SP
+.VL 15
+.LI type
+Must be set to XrXRAY.
+.LI source
+Must be set to the window id associated with the field editor.
+.LI inputType
+When an editor returns an event, this field should be set to 'XrEDITOR'.
+.LI inputCode
+This field is used to uniquely identify the editor which generated
+the event.
+For example, the scrollbar editor will set this to 'XrSCROLLBAR'.
+.LI valuePtr
+This field is used by an editor to uniquely identify the editor
+instance which generated the event.
+The pointer to the instance's editor structure must be returned here.
+.LI valuePt
+This field is used by an editor to return the cursor position
+at which an event had occurred.
+.LI value1
+This is an optional field, which allows an editor to return some
+sort of indication as to what action the editor last took.
+For example, when the 'up arrow' portion of a scrollbar is selected,
+the scrollbar editor will set this field to 'XrSCROLL_UP'.
+.LI value2
+Sometimes an editor will want to return a value as part of the
+event information.
+That is the purpose of this field.
+If an editor has no value to return, then this field does
+not need to be set.
+Each editor is free to use this field in whatever fashion is
+reasonable, to return the editor's value.
+.LE
+.P
+Some field editors, such as the scrollbar and
+raster edit editors, have an interactive mode of operation.
+This mode is entered when a user issues a select within
+a certain region of the editor, and normally continues
+until the user releases the select button.
+When the select up occurs, the editor will push the xrEvent
+event onto the front of the application's input queue, and return.
+However, there is a second way in which this interactive mode
+may be terminated.
+Upon receipt of any X event other than the select up, the
+field editor should terminate and push two events.
+The first event pushed should be the X event which cause the
+operation to terminate, while the second event should be the
+xrEvent generated by the editor.
+These must be pushed in this order!
+
+.IN "Layout and template, field editor"
+.H 2 "Field Editor Layout and Template 1"
+.P
+Now that most of the conventions for building an editor have been
+discussed, lets take a look at how an editor should be organized.
+Even though a set of editors may perform radically different functions,
+their underlying structure should all be the same.  
+The example given below is very general, however, it should be
+very easy to understand what it is trying to do, and to then use
+it as a template when developing a new editor.
+.P
+Since the underlying structure of most field editors is identical,
+it only makes sense to extract as much of the common code as possible,
+into utility routines, which can then be shared by all field editors.
+This not only reduces code size, but also makes it easier to fix problems
+when they occur.
+The template presented below does not take advantage of the common
+utility routines.
+The reason being that we wanted to demonstrate what
+is involved in handling each of the messages understood by our sample
+field editor.
+The section which follows, will discuss these
+common utilities, and will also present a second template, showing
+what our sample field editor would look like if we
+had used the common utilities.
+.SP
+.nf
+xrEditor *
+XrEditorName (editorName, message, data)
+
+   xrEditor * editorName;
+   INT32      message;
+   INT8     * data;
+
+{
+   /* Determine the action being requested */
+   switch (message)
+   {
+      case MSG_NEW:
+      {
+           /* Create a new instance of this editor */
+           xrEditorNameInfo * enInfoPtr = (xrEditorNameInfo *)data;
+           xrEditorNameData * enDataPtr;
+
+           /*
+            * Get a pointer to the information describing the editor
+            * instance and make sure the pointer is valid.
+            */
+           if (enInfoPtr == NULL)
+           {
+              xrErrno = XrINVALIDPTR;
+	      return ((xrEditor *) NULL);
+           }
+           else if (enInfoPtr->editorWindowId == 0)
+           {
+              xrErrno = XrINVALIDID;
+	      return ((xrEditor *) NULL);
+           }
+
+           /* Allocate some data area for this instance */
+           if ((enDataPtr = (xrEditorNameData *)
+               (*xrMalloc)(sizeof (xrEditorNameData))) == NULL)
+           {
+              xrErrno = XrOUTOFMEM;
+              return ((xrEditor *)NULL);
+           }
+
+           /* Call the routine responsible for creating the instance */
+           if (createEditorName (enDataPtr, enInfoPtr, MSG_NEW) == FALSE)
+           {
+              /* Create failed; xrErrno was set by createEditorName() */
+              (*xrFree)(enDataPtr);
+              return ((xrEditor *)NULL);
+           }
+
+           /* Allocate and initialize the editor structure for the instance */
+           if (editorName = (xrEditor *)(*xrMalloc)(sizeof(xrEditor)) == NULL)
+           {
+              (*xrFree)(enDataPtr->extraData);
+              (*xrFree)(enDataPtr);
+              xrErrno = XrOUTOFMEM;
+              return ((xrEditor *)NULL);
+           }
+           _XrInitEditorStruct (editorName, enInfoPtr, enDataPtr,
+                                XrEditorName);
+
+           /* Attempt to attach the editor to the specified window */
+           if (XrEditor (enInfoPtr->editorWindowId, MSG_ADD, editorName) == FALSE)
+           {
+              /* The attach request failed; xrErrno set by XrEditor() */
+              (*xrFree)(enDataPtr->extraData);
+              (*xrFree) (enDataPtr);
+              (*xrFree) (editorName);
+              return ((xrEditor *) NULL);
+           }
+
+           /* Lastly, draw the editor instance */
+           if (editorName->editorState & XrVISIBLE)
+              drawEditorName(editorName, NULL);
+
+           /* Create request was successful */
+           return (editorName);
+      }
+.DS 0
+      case MSG_FREE:
+      {
+           /* Destroy the specified editor instance */
+           xrEditorNameData * enDataPtr;
+
+           if (editorName == NULL)
+           {
+              xrErrno = XrINVALIDID;
+              return ((xrEditor *)NULL);
+           }
+
+           /*
+            * Remove the visible instance from the window,
+            * free up the memory used to hold the data describing
+            * this instance, and disconnect the instance from
+            * the window to which it was attached.
+            */
+           if (editorName->editorState & XrVISIBLE)
+           {
+              _XrMakeInvisible (editorName->editorWindowId,
+                                &editorName->editorRect, TRUE);
+           }
+           enDataPtr = (xrEditorNameData *) editorName->editorData;
+           (*xrFree)(enDataPtr->extraData);
+           (*xrFree)(enDataPtr);
+	   XrEditor (editorName->editorWindowId, MSG_REMOVE, editorName);
+	   (*xrFree)(editorName);
+           return (editorName);
+      }
+.DE
+.DS 0
+      case MSG_GETSTATE:
+      {
+           /* Return the current state flags for an editor instance */
+           if (editorName == NULL)
+           {
+              xrErrno = XrINVALIDID;
+              return ((xrEditor *)NULL);
+           }
+           else if (data == NULL)
+           {
+              xrErrno = XrINVALIDPTR;
+              return ((xrEditor *)NULL);
+           }
+
+           *data = editorName->editorState;
+           return (editorName);
+      }
+.DE
+.DS 0
+      case MSG_SIZE:
+      {
+           /*
+            * Return the size of the rectangle needed to enclose 
+            * an instance of this editor, using the specifications
+            * passed in by the application program.
+            */
+
+           xrEditorNameInfo *enInfoPtr;
+
+           enInfoPtr = (xrEditorNameInfo *)data;
+
+           if (enInfoPtr == NULL)
+           {
+              xrErrno = XrINVALIDPTR;
+              return ((xrEditor *) NULL);
+           }
+           if (sizeEditorName (enInfoPtr, &enInfoPtr->editorRect) == FALSE)
+           {
+              /* Size request failed; xrErrno set by sizeEditorName() */
+              return ((xrEditor *)NULL);
+           }
+
+           return (editorName);
+      }
+.DE
+.DS 0
+      case MSG_SETSTATE:
+      {
+           /* Change the state flags for a particular editor instance */
+           INT8 oldState;
+           INT8 newState;
+
+           if (editorName == NULL)
+           {
+              xrErrno = XrINVALIDID;
+              return ((xrEditor *)NULL);
+           }
+
+           oldState = editorName->editorState;
+           newState = (INT8) data;
+           editorName->editorState = (INT8) data;
+
+           /* Redraw the editor, using the new state flags */
+           if (((oldState & XrVISIBLE) != (newState & XrVISIBLE)) ||
+              ((newState & XrVISIBLE) &&
+              ((oldState & XrSENSITIVE) != (newState & XrSENSITIVE))))
+           {
+              drawEditorName (editorName, NULL);
+           }
+           return (editorName);
+      }
+.DE
+.DS 0
+      case MSG_MOVE:
+      {
+         /* Move the origin for the specified editorRect */
+         POINT     * ptPtr (POINT *)data;
+         RECTANGLE   oldRect;
+
+         if (editorName == NULL)
+         {
+            xrErrno = XrINVALIDID;
+            return ((xrEditor *) NULL);
+         }
+         else if (ptPtr == NULL)
+         {
+            xrErrno = XrINVALIDPTR;
+            return ((xrEditor *) NULL);
+         }
+
+         /* Reset the origin of the editor rectangle */
+         XrCopyRect (&editorName->editorRect, &oldRect);
+         editorName->editorRect.x = ptPtr->x;
+         editorName->editorRect.y = ptPtr->y;
+
+         if (editorName->editorState & XrVISIBLE)
+         {
+            /* Make the instance invisible, if necessary */
+            _XrMakeInvisible (editorName->editorWindowId, &oldRect, TRUE);
+
+            /* Redraw the relocated instance */
+            drawEditorName (editorName, NULL);
+         }
+
+         /* Force recalculation of editor group rectangle */
+         XrEditorGroup (NULL, MSG_ADJUSTGROUPRECT, editorName);
+         return (editorName);
+      }
+.DE
+.DS 0
+      case MSG_REDRAW:
+      {
+         /* Redraw the specified editor instance */
+         INT32 redrawMode = (INT32)data;
+
+         if (editorName == NULL)
+         {
+            xrErrno = XrINVALIDID;
+            return ((xrEditor *) NULL)
+         }
+         else if (redrawMode != XrREDRAW_ALL)
+         {
+            xrErrno = XrINVALIDOPTION;
+            return ((xrEditor *) NULL)
+         }
+ 
+         if (editorName->editorState & XrVISIBLE)
+            drawEditorName (editorName, NULL);
+         return (editorName);
+      }
+.DE
+.DS 0
+      case MSG_EDIT:
+      {
+         /*
+          * Process the incoming event, and generate a return
+          * event, to indicate to the application program how
+          * the editor instance was modified.
+          */
+         
+         XButtonEvent *eventPtr = (XButtonEvent *) data;
+         xrEvent       returnEvent;
+         xrEvent       exitEvent;
+
+         if ((!_XrCatchableKey (editorName, eventPtr) ||
+             (XrMapButton (XeSELECT,eventPtr) != XrSELECT))
+         {
+            /*
+             * Don't set xrErrno, since receiving a event we don't
+             * know how to handle is not really an error.
+             */
+            return ((xrEditor *)NULL);
+         }
+
+         /* Initially fill out the return event */
+         returnEvent.type = XrXRAY;
+         returnEvent.source = eventPtr->window;
+         returnEvent.inputType = XrEDITOR;
+         returnEvent.inputCode = XrEDITORNAME;
+         returnEvent.valuePtr =  (INT32) editorName;
+         returnEvent.valuePt.x = eventPtr->x;
+         returnEvent.valuePt.y = eventPtr->y;
+
+         /* Process the input event */
+         processEditorName (editorName, eventPtr, &returnEvent);
+         
+         /* Swallow the select up event */
+         while (XrInput (NULL, MSG_BLKREAD, &exitEvent) == FALSE);
+         if (XrMapButton (XrSELECTUP, &exitEvent) != XrSELECTUP)
+         {
+            /* Not a select up, so push back onto the input queue */
+            XrInput (NULL, MSG_PUSHEVENT, &exitEvent);
+         }
+
+         /* Push the editor event onto the input queue */
+         XrInput (NULL,MSG_PUSHEVENT, &returnEvent);
+
+         return (editorName);
+      }
+.DE
+.DS 0
+      default:
+         /* All other messages are invalid */
+         xrErrno = XrINVALIDMSG;
+         return ((xrEditor *)NULL);
+
+   }  /* end of switch */
+.DE
+}  /* end of XrEditorName() */
+.fi
+
+.IN "Utility functions, field editor"
+.H 2 "Field Editor Utility Functions"
+.P
+Included as part of the Xr library toolbox library is a set of 
+utility functions which provide some actions commonly used by field editors.
+Included among these utilities are functions which allow a combination
+of solid filled, tile filled and/or bordered shapes (rectangles, ovals,
+ellipses and polygons) to be easily drawn, routines for initializing
+a graphics context structure (this will be discussed further, in the
+sections which follow), routines for displaying 
+8 bit text strings and for obtaining further information about a 
+particular font, and a routine which can be used to initialize an
+editor structure.
+.P
+A field editor writer is not required to use the facilities discussed
+in the following sections; in fact, there is no guarantee that these
+functions will always be available.
+However, they are provided to hopefully make it easier to port field
+editor source code to future releases of "X".
+They are only provided as programming aids, so that editor writers
+need not waste their time duplicating functionality which already
+exists.
+Also, since these are included in the library, they will be included
+only once within a given application, thus preventing duplication of
+code, and thus leading to smaller application programs.
+
+.IN "Common message handlers, field editor"
+.H 3 "Common Field Editor Message Handlers"
+.P
+As was stated in the previous section, the underlying
+structure of all field editors is basically the same;
+only the routines for creating, drawing and processing the field
+editor tend to differ.
+With this in mind, it is only logical to extract as much
+of this common code as possible, into some shared utility
+routines, accessible by all field editors.
+This not only helps to reduce the size of a field editor,
+but it also helps to reduce the chance of a stray error
+finding its way into one of the field editors.
+.P
+Field editor writers are not required to use these utilities; if the
+field editor needs some functionality which cannot be handled
+by a particular utility routine, then it should use its own
+handler routine.
+.P
+The following is a list of each of the common message handling
+utility routines, along with a brief explanation of how they get
+their work done.
+.SP
+.nf
+xrEditor *
+_MsgNew (instance, infoPtr, dataStructSize, createFunct, drawFunct,
+              freeFunct, editorHandler, drawOption)
+
+   xrEditor         * instance;
+   xrEditorTemplate * infoPtr;
+   INT32              dataStructSize;
+   INT32              (*createFunct)();
+   INT32              (*drawFunct)();
+   INT32              (*freeFunct)();
+   INT32              (*editorHandler)();
+   INT32              drawOption;
+.fi
+.SP
+.in 4
+This routine, if it does not encounter any errors, will take care
+of everything needed to create a new editor instance.
+If it succeeds, then it will return the instance pointer for the new
+editor instance; if it fails, then it will return NULL.
+After having validated the pointer contained in 'infoPtr', and the
+window id, this routine will first allocate a block of memory to
+hold the data which will describe this particular instance; this
+structure is different for each field editor, however,
+the 'dataStructSize' parameter tells us how large the structure needs to be.
+Then it will invoke the specified 'createFunct()', to allow the
+field editor to initialize the data structure.
+Next, it will allocate some memory for the editor structure, it will
+initialize it, and then attach it to the specified window.
+The last step is to tell the field editor to draw the instance,
+using the specified 'drawOption'.
+The 'editorHandler' parameter should be a pointer to the handler
+function for the field editor [XrScrollBar() for the scrollbar editor].
+If this create process fails for some reason, then it will invoke the function
+specified by the 'freeFunct' parameter, before returning; this is done
+so that if a field editor has allocated any additional memory in its
+create function, it would have the opportunity to free it up.
+A field editor can disable this, by setting the 'freeFunct'
+parameter to NULL.
+The 'freeFunct' routine will be passed a single parameter: a pointer to
+the editor data structure.
+.in
+.SP
+.nf
+xrEditor *
+_MsgFree (instance, freeFunct)
+
+   xrEditor * instance;
+   INT32      (*freeFunct)();
+.fi
+.SP
+.in 4
+This routine will free up all memory used by a particular field editor
+instance, and will remove its image from the window.
+It will fail, and return NULL, only if the 'instance' parameter
+is set to NULL; otherwise, it will return the instance pointer.
+Deleting an editor instance involves removing its image from the
+window, freeing up all memory used by the instance, and
+disconnecting the instance from the window to which it was attached.
+In addition, if the field editor had allocated some memory itself, then
+it can specify a function to release this memory; this is done by means
+of the 'freeFunct' parameter.
+If 'freeFunct' is set to NULL, then this feature is disabled.
+The 'freeFunct' routine will be invoked with a single parameter: a pointer
+to the editor data structure.
+.in
+.SP
+.nf
+xrEditor *
+_MsgGetState (instance, stateFlags)
+
+   xrEditor * instance;
+   INT8     * stateFlags;
+.fi
+.SP
+.in 4
+This routine will take a copy of the current state flags associated with
+the specified editor instance, and return them in the variable
+pointed to by the 'stateFlags' parameter.
+Upon successful completion, the
+editor instance pointer will be returned.
+This routine will fail, and return NULL, if either of the parameters has
+been set to NULL.
+.in
+.SP
+.nf
+xrEditor *
+_MsgSetState (instance, stateFlags, drawFunct, drawOption)
+
+   xrEditor * instance;
+   INT8       stateFlags;
+   INT32      (*drawFunct)();
+   INT32      drawOption;
+.fi
+.SP
+.in 4
+This routine will assign the new state flag values, specified by
+the 'stateFlags' parameter, to the specified editor instance, and
+will then redraw the instance.
+the editor's drawing routine, specified by the 'drawFunct'
+parameter, will be invoked and passed the editor instance pointer
+and the 'drawOption' value.
+Upon successful completion, the instance pointer will be returned.
+This routine will fail, and return a NULL value, if 
+the 'instance' parameter is set to NULL.
+.in
+.SP
+.nf
+xrEditor *
+_MsgRedraw (instance, redrawMode, drawFunct, drawOption)
+
+   xrEditor * instance;
+   INT32      redrawMode;
+   INT32      (*drawFunct)();
+   INT32      drawOption;
+.fi
+.SP
+.in 4
+This routine will handle a redraw request, only if the XrREDRAW_ALL
+option is specified; if your field editor needs to handle other
+redraw options, then you will need to write your own MSG_REDRAW handler.
+After verifying the 'instance' and 'redrawMode' parameter,
+the editor's drawing function, specified by the 'drawFunct'
+parameter, will be invoked and passed the editor instance pointer
+and the 'drawOption' value.
+This routine will fail, and return NULL, if the 'instance' parameter is
+set to NULL, or the 'redrawMode' is set to something other than
+XrREDRAW_ALL.
+.in
+.SP
+.nf
+xrEditor *
+_MsgEdit (instance, event, processFunct, inputCode)
+
+   xrEditor      * instance;
+   XButtonEvent  * event;
+   INT32           (*processFunct)();
+   INT16           inputCode;
+.fi
+.SP
+.in 4
+This routine serves as a MSG_EDIT handler for those editors
+which only accept 
+XrSELECT events.
+This routine will check to see if the instance is capable of handling
+an event (by checking the state flags, to see if the instance
+is both visible and sensitive), it will verify that the select fell
+within the bounds of the editor instance, and it will verify that
+the event is a select request.
+If all of these conditions are met, then the event processing
+routine for the field editor, specified by the 'processFunct'
+parameter, will be invoked, and passed as parameters the
+editor instance pointer, a pointer to the XButtonEvent event structure,
+and a pointer to an xrEvent structure (this is the event which
+will be pushed onto the input queue later).
+Before calling the 'processFunct', this routine will first fill out
+the type, source, inputType, inputCode, valuePtr and valuePt fields
+in the xrEvent structure; the processing routine must fill in the 'value1'
+field itself, however, it should feel free to place values
+into any of the other fields it wants so.
+Upon completion, this routine will strip out the select up event
+matching the select event which cause the editor to
+be invoked; this means that the processing routine should not attempt
+to strip out the select up event itself!
+If a select up event is received, then it is removed from the input
+queue; if any other event is received, then it will be pushed
+back onto the front of the input queue, and _MsgEdit() will no longer
+wait for the select up event.
+The return event will then be placed on the front of the
+application's input queue, to indicate what action was taken by the editor.
+The event will be filled out as follows:
+.in
+.in 9
+.SP
+.nf
+type = XrXRAY
+source = window id
+inputType = XrEDITOR
+inputCode = 'inputCode' parameter
+value1 = Editor specific value
+value2 = Editor specific value
+value3 = Editor specific value
+valuePtr = 'instance' parameter
+valuePt = location of the select event
+.fi
+.in
+.SP
+.in 4
+The processing routine can set any other fields it might need, since a
+pointer to the return event is passed to it.
+.in
+
+.IN "Graphics context structure"
+.H 3 "The Graphics Context Structure"
+.P
+Each of the drawing routines which are provided as part of these utilities,
+use a structure called the "graphics context" to obtain all of the
+drawing characterists needed when drawing a particular shape.
+A graphics context can be thought of as a drawing environment; a field
+editor can have up to 8 distinct drawing environments.
+Included as part of this structure are:
+.SP
+.BL
+.LI
+The foreground color. (default = black)
+.LI
+The background color. (default = white)
+.LI
+The text font id.     (default = none)
+.LI
+The line width.       (default = 1)
+.LI
+The tile id.          (default = none)
+.LI
+The fill style.       (default = Solid)
+.LI
+The replacement rule used during drawing.  (default = GXcopy)
+.LE
+.P
+The Xrlib toolbox maintains an array of 8 graphics context structures, which
+a field editor is free to use in any fashion it chooses; in addition,
+it maintains a single graphics context, which contains all of the default
+settings.
+To use a particular graphics context, the default values should first be
+copied into one of the 8 available graphics context structures, and then
+the editor should change any fields which need to be set to non-default
+values.
+The steps for doing this will be covered in the section which deals with
+the functions which manipulate a graphics context structure.
+.P
+A discussion of each of the fields in this structure are discussed below:
+.P
+The foreground color
+.br
+.in 5
+This field describes the color which will be used whenever one of drawing
+utilities uses the foreground color.
+.in
+.P
+The background color
+.br
+.in 5
+This field describes the color which will be used whenever one of drawing
+utilities uses the background color.
+.in
+.P
+The text font id
+.br
+.in 5
+This field contains the id for the font which will be used whenever text
+is displayed.
+.in
+.P
+The line width
+.br
+.in 5
+This field contains a value describing the height and width to be
+used whenever a line segment is drawn.
+.in
+.P
+The tile id
+.br
+.in 5
+This field contains the pixmap id for a tile which will be used anytime
+one of the shapes is filled with a tile.
+.in
+.P
+The fill style
+.br
+.in 5
+This field specifies whether an object should be filled with a solid (Solid)
+color, or a tile (Tiled).
+.in
+.P
+The replacement rule used during drawing
+.br
+.in 5
+This describes the replacement rule to be used anytime drawing is performed.
+It can assume any of the standard X replacement rule values, as outlined
+in the include file <X/X.h>.
+.in
+.P
+Since frequently changing the values associated with a particular graphics
+context may be expensive (performance wise), if a field editor need to
+draw using several different drawing environments, then it should set up
+several graphics contexts.
+
+.IN "Graphics context functions"
+.H 3 "Graphics Context Functions"
+.P
+Included in this section is a discussion of three utility routines, which
+deal with the manipulation of a graphics context.
+This includes a function for copying between two graphics 
+contexts ( _XrCopyGC() ),
+a general routine for modifying the contents of a graphics 
+context ( _XrChangeGC() )
+and a routine for setting up two commonly used graphics 
+contexts ( _XrInitEditorGCs() ).
+Toolbox defines a set of constants, which are used by each of the routines
+to access a particular graphics context.
+All of these defines take the form: xrEditorGC1 - xrEditorGC8.
+In addition, there is one special graphics context lying around, which
+contains the default settings; this MUST never be modified!
+It is referred to by using the define: xrDefaultGC.
+Any of the functions below, which expect a graphics context identifier
+to be passed in, will expect the value to correspond to one of these defines.
+.SP
+.nf
+_XrCopyGC (srcGC, dstGC)
+
+   INT32 srcGC;
+   INT32 dstGC;
+.fi
+.SP
+.in 4
+This function will copy the contents of the graphics context indicated
+by srcGC to the graphics context indicated by dstGC.
+Most frequently, this is used to initialize a graphics context to the
+default state; this is done by setting srcGC to 'xrDefaultGC' and
+dstGC to the graphics context which needs to be initialized.
+.in
+.SP
+.nf
+_XrChangeGC (GC, changeMask, changeList)
+
+   INT32   GC;
+   UINT32  changeMask;
+   INT32 * changeList;
+.fi
+.SP
+.in 4
+To modify the values currently defined within a graphics context, a
+program must first construct an array of 21 INT32 values (INT32 array[21]),
+and then modify the desired fields within this array.
+As was specified earlier, only the foreground color, background color,
+pen height, the font, the tile id, the fill type and the replacement rule
+may be modified.
+A series of defines are provided, which aid in setting up this array.
+The defines are:
+.SP
+.in
+.BL 10
+.LI
+XrFOREGROUNDVAL
+.LI
+XrBACKGROUNDVAL
+.LI
+XrLINEWIDTHVAL
+.LI
+XrFONTVAL
+.LI
+XrTILEVAL
+.LI
+XrFILLSTYLEVAL
+.LI
+XrALUVAL (the replacement rule)
+.LE
+.in 4
+.P
+By using these defines to offset into the array, the desired values may
+be modified.
+In addition, before the graphics context can be changed, a mask must
+be constructed, which indicates which fields are to be modified.
+This is accomplished by declaring a 32 bit integer value, and then or'ing
+in the appropriate bit flags.
+The list of valid bit flags is shown below:
+.SP
+.in
+.BL 10
+.LI
+XrFOREGROUND
+.LI
+XrBACKGROUND
+.LI
+XrLINEWIDTH
+.LI
+XrFONT
+.LI
+XrTILE
+.LI
+XrFILLSTYLE
+.LI
+XrALU
+.LE
+.in 4
+.P
+At this point you are ready to invoke this function, and thus set up
+a new graphics context.
+.in
+.SP
+.nf
+_XrInitEditorGCs (foreColor, backColor, fontId)
+
+   INT32   foreColor;
+   INT32   backColor;
+   Font    fontId;
+.fi
+.SP
+.in 4
+Almost every field editor needs to perform some drawing function using its
+foreground and background colors.
+Since most of the drawing functions use the foreground color field within
+the graphics context, it is necessary to set up two graphics contexts, one
+which has the desired foreground color set as the foreground color in the
+graphics context, and one which has the desired background color set as the
+foreground color in the graphics context; this will then allow us to draw
+using both our foreground and background colors.
+In addition, the fontId field within both of these graphics contexts will
+be initialized to the specified font; if you do not plan on using a
+particular font, then you may set the fontId to -1.
+Upon completion of this call, the graphics context referred to by
+xrEditorGC1 will have the foreground color field set to the value
+specified by the foreColor parameter, the background color field set to
+the value specified by the backColor parameter, and the fontId set to
+the specified font.
+Also, the graphics context referred to by xrEditorGC2 will have the
+foreground color field set to the value specified by the backColor
+parameter, the background color field set to the value specified by
+the foreColor parameter, and the fontId set to the specified font.
+.in
+
+.IN "Shape-drawing functions"
+.H 3 "Shape-dawing Functions"
+.P
+The utility routines include a series of functions which allow a
+field editor to draw solid/tiled filled shapes, with an optional
+border around the object.
+The types of objects provided here are rectangles, ovals, ellipses
+and polygons.
+Each of the drawing functions will use one of the graphics context
+structure, which were explained earlier.
+Each of the utility functions is explained below:
+.SP
+.nf
+_XrLine (windowId, gc, x1, y1, x2, y2)
+
+   Window windowId;
+   INT32  gc;
+   INT16  x1;
+   INT16  y1;
+   INT16  x2;
+   INT16  y2;
+.fi
+.SP
+.in 4
+This procedure will draw a line between the two points designated
+as (x1,y1) and (x2,y2), using the drawing environment specified within
+the graphics context 'gc'.
+The foreground color will be used when drawing the line, the line width
+will be used to determine the height and width of the line, and the
+specified replacement rule will be used.
+.in
+.SP
+.nf
+_XrRectangle (windowId, gc, drawRect)
+
+   Window      windowId;
+   INT32       gc;
+   RECTANGLE * drawRect;
+.fi
+.SP
+.in 4
+Using the foreground color within the graphics context, this routine
+will draw a border around the specified rectangle.
+The height and width of the border line is determined by the line width
+field within the graphics context; the replacement rule is also obtained
+from the graphics context.
+The interior of the rectangle is not affected.
+.in
+.SP
+.nf
+_XrFillRectangle (windowId, gc, drawRect)
+
+   Window      windowId;
+   INT32       gc;
+   RECTANGLE * drawRect;
+.fi
+.SP
+.in 4
+If the current fill style is set to 'Solid", then this routine will
+fill the region defined by the passed-in rectangle definition using the
+foreground color specified within the graphics context.
+If the current fill style is set to 'Tiled", then this routine will
+fill the region defined by the passed-in rectangle definition using the
+tile specified within the graphics context.
+.in
+.SP
+.nf
+_XrBorderFillRectangle (windowId, borderGC, fillGC, drawRect)
+
+   Window      windowId;
+   INT32       borderGC;
+   INT32       fillGC;
+   RECTANGLE * drawRect;
+.fi
+.SP
+.in 4
+This routine will first draw a border around the specified rectangle,
+using the foreground color, line width, and replacement rule specified
+within the graphics context designated by the 'borderGC' parameter.
+Then, if the current fill style is set to 'Solid", then this routine will
+fill the interior of the region defined by the passed-in rectangle 
+definition using the foreground color specified within the 'fillGC'
+graphics context.
+If the current fill style is set to 'Tiled", then this routine will
+fill the interior of the region defined by the passed-in rectangle 
+definition using the tile specified within the 'fillGC' graphics context.
+.SP
+.nf
+_XrPoly (windowId, gc, count, pointList)
+
+   Window   windowId;
+   INT32    gc;
+   INT32    count;
+   Vertex * pointList;
+.fi
+.SP
+.in 4
+Using the foreground color, the line width, and the replacement
+rule specified within the graphics context, this routine will draw
+the series of lines which define the polygon specified by the
+count and pointList parameters.
+Each element within the pointList is composed of a draw mode flag,
+and and (x,y) pair; the standard "X" draw mode flags, which are
+listed below, are supported:
+.SP
+.in
+.in 8
+.nf
+VertexRelative      (else absolute)
+VertexDontDraw      (else draw)
+VertexCurved        (else straight)
+VertexStartClosed   (else not)
+VertexEndClosed     (else not)
+VertexDrawLastPoint (else don't)
+.fi
+.in
+.in 4
+.SP
+The draw mode flags are constructed by or'ing together the desired set
+of these flags, for each point in the polygon.
+The interior of the polygon is not affected.
+.in
+.SP
+.nf
+_XrFillPoly (windowId, gc, count, pointList)
+
+   Window   windowId;
+   INT32    gc;
+   INT32    count;
+   Vertex * pointList;
+.fi
+.SP
+.in 4
+This function behaves similarly to _XrPoly(), except that instead of
+drawing the lines defined by the polygon definition, it instead fills
+the polygon with the foreground color (if the fill mode is 'Solid') or
+with the specified tile (if the fill mode is 'Tiled').
+.in
+
+.IN "Text facilities, additional"
+.H 3 "Additional Text Facilities"
+.SP
+The procedures which will be discussed here allow a field editor
+writer to easily place text anywhere within the bounds of a window,
+and to also obtain further information about a particular font.
+Each of these routines will be discussed below:
+.SP
+.nf
+_XrImageText8 (windowId, gc, len, x, y, string)
+
+   Window   windowId;
+   INT32    gc;
+   INT32    len;
+   INT16    x;
+   INT16    y;
+   STRING8  string;
+.fi
+.SP
+.in 4
+This routine will display the specified text string , using the
+foreground color, background color, replacement rule and font 
+specified within the graphics context.
+The area to be occupied by the text will be first painted with
+the background color, and then the text will be drawn using the
+foreground color.
+The length of the string must be specified; if the string is NULL
+terminated, then the 'len' parameter should be set to the 
+define 'XrNULLTERMINATED'.
+.in
+.SP
+.nf
+_XrTextInfo (fontInfo, textInfo)
+
+   FontInfo   * fontInfo;
+   xrTextInfo * textInfo;
+.fi
+.SP
+.in 4
+This function allows a program to obtain some additional information
+describing a particular font.
+This additional information includes the ascent, descent, maximum
+character width, average character width, and the leading for the font.
+The information is returned in the structure pointed to by
+the 'textInfo' parameter.
+.in
+
+.IN "Editor functions, common"
+.H 3 "Common Editor Functions"
+.SP
+This section will outline some general purpose field editor
+routines, which are useful, but do not fall under any of the
+previously discussed sections.
+.SP
+.nf
+_XrInitEditorStruct (editorPtr, infoPtr, dataPtr, function)
+
+   xrEditor         * editorPtr;
+   xrEditorTemplate * infoPtr;
+   char             * dataPtr;
+   xrEditor         * (*function)();
+.fi
+.SP
+.in 4
+Whenever a field editor creates a new instance, it must allocate an
+editor structure, which will then be attached to the specified window.
+The editor structure must be initialized to contain the following
+information:
+.in
+.SP
+.BL 4 
+.LI
+The window Id.
+.LI
+The editor function.
+.LI
+The editor state.
+.LI
+The editor rectangle.
+.LI
+A pointer to the instance specific data.
+.LE
+.in 4
+.SP
+Using the passed-in parameters, this routine will fill in each of
+these five field within the editor structure pointed to by the 'editorPtr'
+parameter.
+.in
+.SP
+.nf
+_XrCatchableKey (editorPtr, eventPtr)
+
+   xrEditor         * editorPtr;
+   xrEvent          * eventPtr;
+.fi
+.SP
+.in 4
+Whenever a field editor receives a MSG_EDIT request, it must first check
+to see if it is an event which it should handle.  This involves making
+the following set of checks:
+.in
+.SP
+.BL 4
+.LI
+Verify that the instance pointer is not NULL.
+.LI
+Verify that the event pointer is not NULL.
+.LI
+Verify that the instance is both SENSITIVE and VISIBLE.
+.LI
+Verify that the event occurred within the instance's editor rectangle.
+.LE
+.SP
+This routine will take care of making all of these checks.
+If all of the above conditions are met, then a value of 'TRUE'
+will be returned; otherwise, a value of 'FALSE' is returned.
+.SP
+.nf
+_XrMakeInvisible (windowId, rectPtr, makeGCFlag)
+
+   Window      windowId;
+   RECTANGLE * rectPtr;
+   INT8        makeGCFlag;
+.fi
+.SP
+.in 4
+All field editors need to be able to make a particular editor instance
+become invisible; such as when an application clears the VISIBLE state
+flag.
+Normally, this involves filling the region defined by the instance's
+editor rectangle with the background tile for the window to which the
+instance is attached.
+This is exactly what this routine will do.
+If the 'makeGCFlag' is set to TRUE, then this routine will inquire
+the toolbox intrinsics,
+so as to get the pixmap id for the background tile, and will then
+use the graphics context specified by 'xrEditorGC8' to do the filling.
+If the 'makeGCFlag' is set to FALSE, then this routine will assume
+that the graphics context specified by 'xrEditorGC8' is already
+set to the desired state.
+.in
+
+.IN "Template, field editor"
+.H 2 "Field Editor Template 2"
+.P
+Now that we have discussed each of the utility
+routines available to field editor writers, we will take
+our original field editor template, and rewrite it using
+these utilities.
+If you are still unclear as to the exact functions performed by
+these common utilites, look back at the first editor template
+presented earlier; these do not use the common routines, and
+instead have all their functionally inline.
+.SP
+.nf
+xrEditor *
+XrEditorName (editorName, message, data)
+
+   xrEditor * editorName;
+   INT32      message;
+   INT8     * data;
+
+{
+   /* Determine the action being requested */
+   switch (message)
+   {
+.DS 0
+      case MSG_NEW:
+      {
+         /* Create a new instance of this editor */
+         return ((xrEditor *)_MsgNew(editorName, data, sizeof(xrEditorNameData),
+                                       createEditorName, drawEditorName,
+                                       enFreeMemory, XrEditorName, NULL));
+      }
+.DE
+.DS 0
+      case MSG_FREE:
+      {
+         /* Destroy the specified editor instance */
+         return ((xrEditor *) _MsgFree (editorName, enFreeMemory));
+      }
+.DE
+.DS 0
+      case MSG_GETSTATE:
+      {
+         /* Return the current state flags for an editor instance */
+         return ((xrEditor *) _MsgGetState (editorName, data));
+      }
+.DE
+.DS 0
+      case MSG_SETSTATE:
+      {
+         /* Change the state flags for a particular editor instance */
+         return ((xrEditor *) _MsgSetState (editorName, data,
+                                            drawEditorName, NULL));
+      }
+.DE
+.DS 0
+      case MSG_REDRAW:
+      {
+         /* Redraw the specified editor instance */
+         return ((xrEditor *) _MsgRedraw (editorName, data,
+                                          drawEditorName, NULL));
+      }
+.DE
+.DS 0
+      case MSG_SIZE:
+      {
+           /*
+            * Return the size of the rectangle needed to enclose 
+            * an instance of this editor, using the specifications
+            * passed in by the application program.
+            */
+           xrEditorNameInfo *enInfoPtr;
+
+           enInfoPtr = (xrEditorNameInfo *)data;
+
+           if (enInfoPtr == NULL)
+           {
+              xrErrno = XrINVALIDPTR;
+              return ((xrEditor *) NULL);
+           }
+           if (sizeEditorName (enInfoPtr, &enInfoPtr->editorRect) == FALSE)
+              /* Size request failed; xrErrno set by sizeEditorName() */
+              return ((xrEditor *)NULL);
+
+           return (editorName);
+      }
+.DE
+.DS 0
+      case MSG_MOVE:
+      {
+         /* Move the origin for the specified editorRect */
+         POINT     * ptPtr (POINT *)data;
+         RECTANGLE   oldRect;
+
+         if (editorName == NULL)
+         {
+            xrErrno = XrINVALIDID;
+            return ((xrEditor *) NULL);
+         }
+         else if (ptPtr == NULL)
+         {
+            xrErrno = XrINVALIDPTR;
+            return ((xrEditor *) NULL);
+         }
+
+         /* Reset the origin of the editor rectangle */
+         XrCopyRect (&editorName->editorRect, &oldRect);
+         editorName->editorRect.x = ptPtr->x;
+         editorName->editorRect.y = ptPtr->y;
+
+         if (editorName->editorState & XrVISIBLE)
+         {
+            /* Make the instance invisible, if necessary */
+            _XrMakeInvisible (editorName->editorWindowId, &oldRect, TRUE);
+
+            /* Redraw the relocated instance */
+            drawEditorName (editorName, NULL);
+         }
+
+         /* Force recalculation of editor group rectangle */
+         XrEditorGroup (NULL, MSG_ADJUSTGROUPRECT, editorName);
+         return (editorName);
+      }
+.DE
+.DS 0
+      case MSG_EDIT:
+      {
+         /*
+          * Process the incoming event, and generate a return
+          * event, to indicate to the application program how
+          * the editor instance was modified.
+          */
+         return ((xrEditor *) _MsgEdit (editorName, data,
+                                        processEditorName, XrEDITORNAME));
+      }
+.DE
+      default:
+      {
+         /* All other messages are invalid */
+         xrErrno = XrINVALIDMSG;
+         return ((xrEditor *) NULL);
+      }
+   }   /* end of switch */
+}   /* end of XrEditorName() */
+
+
+.DS 0
+/*
+ * Free up the block of memory which our create routine
+ * allocated at the time we first created the instance.
+ */
+
+INT32
+enFreeMemory (enDataPtr)
+
+   xrEditorNameData * enDataPtr;
+
+{
+   (*xrFree) (enDataPtr->extraData);
+}
+.DE
+.fi
+
+.H 2 "Sample Field Editors"
+.P
+This section will attempt to provide some insight into the organization of
+an Xrlib field editor.  You should refer to the actual source code for the indicated field editors to see how they perform certain tasks.
+Each of the field editors presented here follows the template which was
+presented in the previous section.
+.P
+In particular, there are three concepts which we will attempt to cover
+in this section:
+.SP
+.BL
+.LI
+Provide an example of a simple field editor (XrStaticRaster), which
+demonstrates the general organization of a typical field editor.
+.LI
+Provide an example of a multiple entity field editor (XrCheckBox),
+which demonstrates a sample algorithm for laying out one type of
+multiple entity field editor.
+It also demonstrates how input handling is performed for this type of editor.
+.LI
+Provide an example of how an editor has been constructed by combining
+an existing field editor together with some new software, to form a
+new editor.
+This concept is useful, for example, when an editor needs to be
+created which contains a scrollbar, along with some raster
+data (XrRasterEdit).
+.LE
+.P
+Each of the sub-sections which follow will explain one of the above concepts.
+
+.IN "Simple field editor"
+.H 3 "Simple Field Editor
+.P
+The static raster editor is a good example of a short and simple field
+editor.
+When a new instance is created, there is little work which needs to be done,
+other than displaying the raster data itself.
+It also demonstrates some of the steps taken by a field editor, in order
+to process incoming input events.  (Refer to the source listing for the
+Static Raster field editor.) 
+
+.IN "Multiple-entity field editors"
+.H 3 "Multiple Entity Field Editors
+.P
+Some field editors, such as the checkbox and pushbutton editors,
+find it convenient to allow an application to create multiple entities
+of the editor with a single request.
+More often than not, these types of editors are created as a group
+of related items anyways.
+It's a rare occurrence to create a single checkbox or a single pushbutton.
+.P
+Designing an editor to handle this can be a real challenge.
+In particular, the algorithm used to determine the placement of the
+individual items is not always easy to derive.
+The example which follows will demonstrate one algorithm which may be used
+to do this placement.
+However, it should be noted that this is not the only algorithm
+available.
+In fact, depending upon how the items are to be laid out,
+this algorithm may not fit your needs.
+But, it is at least an example, which may be enough to help you
+customize your own layout routines.
+.P
+The algorithm used by the checkbox field editor to calculate the location 
+of each of the individual checkboxes makes the following assumptions:
+.SP
+.BL
+.LI
+Each checkbox is composed of a square box, with an optional
+label located to the right, and separated by some white space.
+.LI
+The checkboxes will be laid out in rows and columns, and must
+fit within the specified editorRect.
+.LI
+Each checkbox in a given column will line up.
+.LI
+If the editorRect is larger than is needed to contain the checkboxes,
+then the extra space will be equally distributed as white space
+between the rows and columns.
+.LE
+.P
+Before covering the algorithm, it would first be helpful to picture how
+a sample checkbox editor instance might look.
+The outline for the editorRect is provided only to show the
+relationship between the checkbox location and the borders of the
+editorRect.
+.SP 2
+.DS
+\f(CW
+           ----....................----............
+           |  |   button 1         |  |   button 2.
+           ----                    ----           .
+           .                                      .
+           .                                      .
+           ----                    ----           .
+           |  |   button 3         |  |   button 4.
+           ----                    ----           .
+           .                                      .
+           .                                      .
+           ----                                   .
+           |  |   button 5                        .
+           ----....................................
+\fR
+.DE
+.P
+The algorithm used by the checkbox editor works in the following manner:
+.SP
+.BL
+.LI
+Determine the number of rows in the instance, and the width (in pixels)
+of each column of checkboxes.
+Use these two pieces of information to determine if the editorRect is
+larger than is needed.
+If it is, then this extra space can be used as padding between the
+rows and columns; the padding values will then be calculated and
+saved.
+.LI
+Set the initial checkbox location (the upper left hand corner of
+the editorRect); this is where the first checkbox will be placed.
+Afterwards, this location will be updated to indicate the location
+of the next checkbox.
+.LI
+At this point, we are ready to start the layout calculations.
+This is done one column at a time, starting with column 1 (the
+leftmost one).
+As each element in this column is laid out, a check is made to
+see if it is the widest element in the column; this information
+is used later, when we need to offset to the next column.
+After calculating the checkbox location, the location for the optional
+label will be calculated.
+.LI
+Once a column has been laid out, the algorithm will calculate the
+position for the first checkbox in the next column, and will then
+repeat the process for the next column.
+.LI
+At this point, all of the entities have been laid out in equally
+spaced rows and columns.
+.LE
+
+.IN "Creating from existing editors"
+.H 3 "Creating From Existing Editors"
+.P
+Sometimes a field editor may find it advantageous to incorporate
+an instance of another editor, rather than attempting to write new code
+to re-create the desired piece.
+As an example of this, the raster editor has the capability of displaying a scrollbar as part of one of its instances.  It doesn't attempt to duplicate the
+scrollbar code.  Instead, it simply creates a scrollbar instance, and attaches it to its editor instance.
+.P
+The major advantages of allowing an editor to do this are:
+.SP
+.BL
+.LI
+The field editor writer need not waste time trying to re-create
+portions of an existing field editor.
+.LI
+The software which controls the incorporated editor is already debugged
+and running.
+.LI
+The encorporated component looks and behaves the same as any other
+instance of that field editor.
+.LE
+.P
+.IN "Main editor"
+.IN "Sub editor"
+Before discussing the means for doing this, there are two terms we need to
+define.
+The term 'main editor' refers to the new field editor being designed, while
+the term 'sub-editor' refers to those existing editors being incorporated
+into the main editor.
+.P
+The mechanism for incorporating other field editors is very simple to
+use.  However, there are several rules which must be followed at all
+times, if you expect your new field editor to function:
+.SP
+.BL
+.LI
+Any sub-editors which are to be included within an instance of the
+main editor, must reside COMPLETELY within the editorRect associated with
+the main editor instance.
+Since a field editor knows what components it plans to include when it is
+created, it can make sure the application supplied editorRect is large
+enough to hold all components; its MSG_SIZE routine must also take
+these sub-editors into consideration.
+This normally involves having the main editor do a MSG_SIZE for each
+sub-editor it will be using, and then using this information to
+help determine its size.
+.P
+The reason such strong emphasis is placed upon the fact that the
+main editor must completely contain the sub-editors is the following:
+.P
+.in 4
+Sub-editors do not reside in the editor list maintained by the window;
+therefore, they are unable to receive input events by means of the normal
+XrInput() dispatching.
+This is resolved by having the main editor check its input events to see
+if they were really meant for a sub-editor; remember - the main editor
+created the sub-editor instances, so it knows exactly where their
+editorRects are located.
+The catch is that the main editor only receives events which occur
+within its editorRect.
+If a sub-editor does not lie completely within the main editor's
+rectangle, then that portion of the sub-editor outside the rectangle
+will never receive input events.
+.in
+.LI
+When a main editor instance is created, it will normally create and display
+its components, before calling the sub-editors to create their
+components; this helps to guarantee that all the components
+overlap in the proper fashion.
+Once the sub-editors have been created, they need to be removed from the
+window's editor list.
+If this is not done, then the main editor instance may behave in an 
+unfriendly fashion, since it will not have absolute control over its
+sub-editors.
+The means for removing the sub-editors from the editor list is by using
+the XrEditor() intrinsic, with the MSG_REMOVE message.
+You simply pass in the instance pointer for the editor instance to be
+removed, along with a pointer to the window to which it is currently attached.
+.LI
+Under normal circumstances, when an application creates an instance of
+a field editor, it is returned a pointer to the editor structure
+associated with that new instance; this then serves to act as a
+unique identifier for all future references to that instance.
+This also holds true for when a main editor creates sub-editors; each
+sub-editor will return its editor instance pointer.
+The main editor must define space within its own data structures to
+hold these values; without these, the sub-editors cannot be communicated
+with.
+The following should be added to the main editor's data structure (one
+of these for each sub-editor it plans to include in one of its instances):
+.SP
+.in 5
+.CO
+xrEditor * subEditor1;
+.CE
+.in
+.LI
+Since the sub editors no longer reside in the editor list, it is the
+responsibility of the main editor to make sure they are kept up-to-date.
+Since these editors have been grouped together into a single entity, they
+must behave as a single entity.
+This implies that anytime the main editor receives a MSG_REDRAW, MSG_FREE,
+MSG_MOVE or MSG_SETSTATE message, these commands should also be performed
+for the sub editors.
+.IN "Route input events, sub editors"
+.LI
+As was mentioned a little earlier, it is the responsibility of the main
+editor to route input events to the sub-editors, as needed.
+The means for doing this are straightforward.
+Each time the main editor receives an input event, it first checks to see
+if it belonged to one of the sub-editors; this is done by
+seeing if the event location fell within the bounds of one of the
+sub-editor's editorRect.
+If it does not belong to a sub-editor, then the main editor can process the
+event.
+However, if it did belong to a sub-editor, then the main editor must invoke
+the sub-editor's input handling routine; this is done by issuing a MSG_EDIT
+message to the sub-editor, and then passing the event information with it.
+When the sub-editor is done processing the event, it will in turn push some
+event information onto the front of the input queue, and then return.
+The main editor can then remove the event from the front of the
+queue, and perform the desired action. 
+Before the main editor can return, however, it needs to first push
+a fake 'select up' event on the front of the input queue, followed by
+a second event, containing its own result information; the reason for
+doing this is discussed in a paragraph which follows.
+This mechanism allows the information generated by the sub-editors to be
+kept and processed within the main editor.
+.LI
+The last guideline which needs to be mentioned concerns what happens when
+the main editor instance is freed up.
+The main editor MUST issue a MSG_FREE to each of its sub-editors,
+otherwise the space occupied by their data structures will become 'lost'
+and irrecoverable until the application terminates.
+.LE
+.P
+.IN "Select-up event"
+One rule which is to be followed by all field editors, is that they
+should swallow the select up event which occurs after the select event
+which caused their processing routine to be called.
+This is done to prevent an application from being inundated with select
+up events.
+If an editor uses the _MsgEdit() edit routine to invoke its processing
+routine, then this will be automatically taken care of; _MsgEdit()
+automatically wait for the select up event, and swallows it.
+Unfortunately, this can create a problem, when one editor's processing
+routine issues a MSG_EDIT to another editor.
+Take for instance the example of the raster editor calling the scrollbar
+editor.
+When the raster editor receives a select event, the following sequence
+of events occurs:
+.sp
+.BL
+.LI
+XrInput() will pass the event to XrRasterEdit() for processing.
+.LI
+XrRasterEdit() invokes _MsgEdit(), passing the event, and a pointer
+to the raster edit event processing routine [processREdit()].
+.LI
+_MsgEdit() verifies the event, and then passes it to processREdit().
+.LI
+processREdit() determines that the event was in one of the scrollbars,
+and issues a MSG_EDIT to XrScrollBar(), passing it the event.
+.LI
+XrScrollBar() invokes _MsgEdit(), passing the event, and a pointer
+to the scrollbar event processing routine [processScrollBar()].
+.LI
+_MsgEdit() verifies the event, and then passes it to processScrollBar().
+.LI
+processScrollBar() processes the event, and returns to _MsgEdit().
+.LI
+_MsgEdit() waits for the select up to occur, swallows it,
+pushes the return event generated by processScrollBar(), and
+then returns to XrScrollBar().
+.LI
+XrScrollBar() returns to processREdit().
+.LI
+processREdit() pops the scrollbar event off the input queue,
+processes it, and then returns to _MsgEdit().
+.LI
+_MsgEdit() waits for the select up to occur, so that it can swallow it.
+Unfortunately, the first call to _MsgEdit, by the scrollbar editor,
+already swallowed the select up event. 
+.LE
+.P
+.IN "Select-up event"
+Thus, _MsgEdit() proceeds to 'hang', until some X event occurs. 
+This is undesirable!
+The solution is for processREdit() to push a fake select up
+event onto the front of the input queue, after processing
+the event returned by XrScrollBar().
+If this is done, then everything works fine.
+The following code sample shows how this can be done, using
+a utility routine provided by the Xrlib intrinsics:
+.SP
+.in 5
+.nf
+XButtonEvent   selectUp;
+xrWindowEvent  windowEvent;
+
+XrGetWindowEvent (XrSELECTUP, &windowEvent);
+selectUp.type = windowEvent.inputType;
+selectUp.detail = windowEvent.inputCode;
+XrInput (NULL, MSG_PUSHEVENT, &selectUp);
+.fi
+.in
+

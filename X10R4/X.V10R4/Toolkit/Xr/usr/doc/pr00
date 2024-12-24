@@ -1,0 +1,218 @@
+.PH ""
+.PF ""
+.nf
+\0
+.SP 18
+.ce
+\fB\s20Programming With the
+.SP
+.ce
+X Window System
+.SP 18
+.ce
+\s12November 1986
+.SK
+\0
+.SP 24
+.fi
+\fB\s14\&Notice\fR\s10
+.P
+The information contained in this manual is subject to change without
+notice.
+.P
+.VL 2
+.LI \s+4\(co\s0
+Copyright 1986, Hewlett-Packard Company.
+.LI \s+4\(co\s0
+Copyright 1985, 1986, Massachusetts Institute of Technology.
+.LE
+.SP
+Permission to use, copy, modify, and distribute this software
+and its documentation for any purpose and without fee is
+hereby granted, provided that the above copyright notices appear
+in all copies and that those copyright notices and this permission
+notice appear in supporting documentation, and that the names of
+Hewlett-Packard and M.I.T. not be used in advertising or
+publicity pertaining to distribution of the software without
+specific, written prior permission. Hewlett-Packard and M.I.T.
+make no representations about the suitability of this software for
+any purpose. It is provided ``as is'' without express or implied
+warranty.
+.P
+This software is not subject to any license of the American
+Telephone and Telegraph Company or of the Regents of the
+University of California.
+.SP
+\fR\s10\&UNIX is a U.S. registered trademark of AT&T in the USA and
+other countries.
+.nf
+.SK
+.OF "'''\\\\fBContents\0\0\\\\nP\\\\fP'"
+.EF "'\\\\fB\\\\nP\0\0Contents\\\\fP'''"
+.ce 1
+\fB\s20Contents\fR\s10
+.SP 2
+.TS
+tab(#);
+lw(.5i)0 lw(5.1i)0 rw(.35i).
+.SP
+\fB\s121.#Overview\fP\s0\0\a#1-1
+1.1#How To Use This Manual\0\a#1-1
+1.2#Using the Libraries\0\a#1-1
+1.3#The Xlib Library\0\a#1-1
+1.4#The Xrlib Library\0\a#1-2
+1.4.1#\0\0Dialog Level\0\a#1-2
+1.4.2#\0\0Field Editor Level\0\a#1-5
+1.4.3#\0\0Intrinsics Level\0\a#1-7
+1.5#Including the X Window System in an Application\0\a#1-8
+1.6#Building A Program Using Xrlib\0\a#1-8
+1.6.1#\0\0Sample 1\0\a#1-8
+1.6.2#\0\0Sample 2\0\a#1-10
+1.6.3#\0\0Example 3\0\a#1-12
+1.7#Another Sample Program\0\a#1-15
+1.7.1#\0\0Sample Program\0\a#1-18
+1.7.2#\0\0The HelloWorld.h Include File\0\a#1-23
+.SP
+\fB\s122.#X Fundamentals and the X Library\fP\s0\0\a#2-1
+.SP
+\fB\s123.#Intrinsics\fP\s0\0\a#3-1
+3.1#Graphic Structures and Data Types\0\a#3-1
+3.2#Initializing the Xr Library\0\a#3-2
+3.3#Input\0\a#3-5
+3.3.1#\0\0The XEvent Structure\0\a#3-5
+3.3.2#\0\0Xr Library Input Sources\0\a#3-6
+3.3.3#\0\0Xr Library Input\0\a#3-7
+3.3.4#\0\0Input Messages\0\a#3-8
+3.4#The Resource Manager\0\a#3-12
+3.4.1#\0\0What is a Resource?\0\a#3-12
+3.4.2#\0\0Xr Library Resource Types\0\a#3-13
+3.4.3#\0\0Resource Manager Messages\0\a#3-16
+3.5#Creating New Resource Types\0\a#3-17
+3.6#The Editor List Manager\0\a#3-18
+3.7#The Editor List Structure\0\a#3-19
+3.8#Editor List Messages\0\a#3-20
+3.9#Editor Groups\0\a#3-22
+3.9.1#\0\0The Editor Group Structure\0\a#3-22
+3.9.2#\0\0Editor Group Messages\0\a#3-23
+3.10#Window/Editor Relationship\0\a#3-24
+3.11#Geometric Functions\0\a#3-26
+3.11.1#\0\0Point Routines\0\a#3-26
+3.11.2#\0\0Rectangle Routines\0\a#3-27
+3.12#Utility Routines\0\a#3-29
+3.12.1#\0\0StringWidth\0\a#3-29
+3.12.2#\0\0MapButton\0\a#3-29
+3.12.3#\0\0GetWindowEvent\0\a#3-30
+3.12.4#\0\0XrVersion\0\a#3-30
+.SP
+\fB\s124.#Field Editors\fP\s0\0\a#4-1
+4.1#Introduction\0\a#4-1
+4.1.1#\0\0Editor Calling Sequence\0\a#4-1
+4.1.2#\0\0Creating An Editor Instance\0\a#4-1
+4.1.3#\0\0Editor Messages\0\a#4-2
+4.1.4#\0\0Return Value\0\a#4-6
+4.2#Description\0\a#4-7
+4.3#A Titlebar Editor\0\a#4-9
+4.4#A Scrollbar Editor\0\a#4-11
+4.5#A Radiobutton Editor\0\a#4-13
+4.6#A CheckBox Editor\0\a#4-15
+4.7#A Pushbutton Editor\0\a#4-17
+4.8#A Text-Edit Editor\0\a#4-19
+4.9#A Static Text Editor\0\a#4-22
+4.10#A Raster-select Editor\0\a#4-24
+4.11#A Raster Editor\0\a#4-26
+4.12#A Static-Raster Editor\0\a#4-29
+4.13#A Page Editor\0\a#4-30
+.SP
+\fB\s125.#Dialogs\fP\s0\0\a#5-1
+5.1#Menus\0\a#5-1
+5.1.1#\0\0About Menus\0\a#5-1
+5.1.2#\0\0Menu Messages and Structures\0\a#5-2
+5.1.3#\0\0Using Menus\0\a#5-5
+5.1.4#\0\0Advanced Use of Menus\0\a#5-8
+5.2#Message Boxes\0\a#5-12
+5.2.1#\0\0Message Box Structures and Messages\0\a#5-12
+5.2.2#\0\0Using Message Boxes\0\a#5-14
+5.3#Panels\0\a#5-15
+5.3.1#\0\0About Panels\0\a#5-15
+5.3.2#\0\0Panel Messages and Structures\0\a#5-15
+5.3.3#\0\0Using Panels\0\a#5-21
+5.3.4#\0\0Advanced Use of Panels\0\a#5-25
+.SP
+\fB\s12A.#Reference Information\fP\s0\0\a#A-1
+.SP
+\fB\s12B.#Building a Field Editor\fP\s0\0\a#B-1
+B.1#Naming Conventions\0\a#B-1
+B.2#Coding Conventions\0\a#B-3
+B.3#Memory Management\0\a#B-4
+B.4#Drawing and Buffer Flushing\0\a#B-5
+B.5#Field Editor Messages\0\a#B-5
+B.6#Returning Field Editor Status\0\a#B-10
+B.7#Returning Editor Information\0\a#B-11
+B.8#Field Editor Layout and Template 1\0\a#B-12
+B.9#Field Editor Utility Functions\0\a#B-19
+B.10#Field Editor Template 2\0\a#B-28
+B.11#Sample Field Editors\0\a#B-31
+.TE
+.fi
+.ie e .SK 0
+.el .SK 1
+.OF "'''\\\\fBPreface\0\0\\\\nP\\\\fP'"
+.EF "'\\\\fB\\\\nP\0\0Preface\\\\fP'''"
+.SA 0
+.ce 1
+\fB\s20Preface\fR\s10
+.SP 2
+The X window system is a network-transparent, portable window system
+developed by Project Athena at the Massachusetts Institute of Technology,
+with funding and participation by Digital Equipment Corporation and
+International Business Machines, Inc. Because MIT distributes the
+X source publicly without license fee, X is now appearing on
+computers made by an increasing number of companies. This enables
+network-transparent X applications to operate seamlessly across increasingly
+diverse network topologies.
+.P
+The low-level programmatic interface to the X window system is contained
+in the Xlib library, also called the X library, and is documented in
+chapter 2 of this manual. Three additional sets of routines are included with
+the standard Xlib as minimal program development tools: XMenu, Xtext, and
+Xtty, documented as part of appendix A in this manual.
+.P
+However, Xlib by itself is not sufficient for a programmer to easily
+develop applications that have advanced user interface features such as
+pop-up walking menus or panels filled either with standard interactive
+gadgetry (such as push buttons or scroll bars) or with custom gadgetry
+(such as thermometers or gauges) that the programmer might care to
+develop in a prescribed, facilitated way.
+.P
+To fill this need, Hewlett-Packard's X-ray User Interface Project
+developed the Xrlib user interface library, which is documented in
+the remainder of this manual. Xrlib provides a message-based
+programmatic interface to user-interface components. This facilitates
+access from object-oriented languages as well as from standard C.
+Hewlett-Packard has contributed Xrlib to
+Project Athena to increase the usability of X and thereby
+to assist the acceptance of X as an industry standard.
+.SP
+.in +5
+.ll -5
+\fBNote:\fR Although it is generally acknowledged
+that the standard X distribution
+needs a user interface library that is well-matched to X, the definition
+of a standard X user interface library has only just begun. The relation
+between the eventual standard and Xrlib (or any other publicly available
+user interface library) hasn't been determined. Therefore, it can't be
+guaranteed that an easy porting path will exist between Xrlib and the
+eventual standard. Xrlib is not provided to dictate a \fIde\ facto\fR
+standard, but rather to prompt discussion in the X community about what is
+needed in a standard and to assist those whose current needs require immediate
+availability of a user interface library, even if it isn't a standard.
+.ll +5
+.in -5
+.SP 2
+.in +25
+.nf
+Dr. Steve Lerman, Director
+Project Athena
+Massachusetts Institute of Technology
+Cambridge, Massachusetts
+.in -25

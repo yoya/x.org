@@ -1,0 +1,341 @@
+.TH Sx sx
+.BS
+.NA
+Sx \- overview of supplemental library routines for X window system
+.BE
+
+.SH INTRODUCTION
+.PP
+Sx is a collection of routines that supplement the facilities
+of the X window system.  Before reading any more about Sx,
+you should already be familiar with the basic facilities of
+X.  Overall, the Sx routines provide two general things.
+First, they implement a number of general-purpose tools for
+you to use in windows, including titles, pull-down menus, scrollbars,
+buttons, entries, and notifiers.  Second, and perhaps
+more important, they provide a framework for building window
+applications.  The framework is built around three things:  a
+general-purpose \fIevent dispatcher\fP;  a \fIpacker\fP that
+automatically manages the layout of subwindows;  and a \fIselection\fP
+manager that provides a consistent interface for dealing with
+information that the user has selected.
+Pull-down menus and the other Sx tools are built using these
+three sets of facilities, so if you want to use the tools in a
+consistent fashion you'll have to structure your programs in the
+way described below.
+
+.SH "THE SX DISPATCHER AND CALLBACKS"
+.PP
+The reason for the Sx dispatcher's existence is that the interactions between
+a user and a window application can be very complex:  there will often be
+many different ways that a user can invoke the application (e.g.
+by typing, pulling down menus, moving the mouse, etc.), and keeping
+track of what to do for each user action is potentially messy.
+When you use Sx, it keeps track of this information for you.  Even
+more important, complex tools like pull-down menus can deal
+directly with the Sx dispatcher, so that, for example, you don't
+have to worry about calling a menu routine when it's time to
+pull a menu down.
+.PP
+When you use Sx, you structure your program as a set of \fIhandlers\fP
+for X events.  You use the procedure Sx_HandlerCreate to indicate that
+a particular procedure should handle a particular event, such as
+a button press in a window.  Then, when your program receives input
+events from X it doesn't process them directly.  Instead, it passes
+them to the procedure Sx_HandleEvent, which in turns calls all the
+handlers that have been declared for the event.  Thus, a typical
+application program will have a structure that looks like the
+following:
+.RS
+.nf
+handler1(...)
+{
+}
+
+ ...
+
+handlerN(...)
+{
+}
+
+main()
+{
+.RS
+XOpenDisplay(...);
+
+ ... application-specific initialization ...
+
+Sx_HandlerCreate(..., handler1, ...);
+ ...
+Sx_HandlerCreate(..., handlerN, ...);
+while (1) {
+.RS
+XEvent event;
+
+XNextEvent(&event);
+Sx_HandleEvent(&event);
+.RE
+}
+.RE
+}
+.RE
+.fi
+All of the real work of the application is done in the handler
+routines.The application terminates when one of the handlers
+calls \fIexit\fP.  The handlers are also called \fIcallback\fP
+procedures, because the application arranges for the dispatcher
+to call back to those procedures when it receives particular
+events.
+.PP
+The main advantage of the callback approach is that it allows tools
+like scrollbars and menus to be constructed transparently.  When
+you call Sx_ScrollbarCreate to create a scrollbar, the scrollbar
+routines invoke Sx_HandlerCreate so that they'll be called back
+when things happen that concern scrollbars.  When scrollbar-related
+events arrive, your code doesn't have to worry about how to deal with
+them:  you just pass the events to Sx_HandleEvent, which in turn
+passes them to the scrollbar package (and/or the menu package, and/or
+any other package that's interested in them).
+.PP
+Sx tools like scrollbars and menus also make callbacks to your
+procedures.  For example, when you create a menu, you give for
+each entry the address of a procedure to call when that menu
+entry is selected.  When the selection occurs, the menu package
+will call your procedure.  In this case, there are actually
+multi-level callbacks in progress:  initially, your code passed
+an XEvent to Sx_HandleEvent, which called back the menu package;
+the menu package noticed that the menu selection was complete, so it
+called back your procedure to perform the menu operation.
+
+.SH "CLIENTDATA"
+.PP
+When you arrange for a callback by calling Sx_HandlerCreate,
+Sx_MenuCreate, or similar procedures, you pass in two pieces
+of information about the callback.  The first is the address
+of the callback procedure.  The second piece of information is
+an arbitrary one-word piece of data called \fIclientData\fP:
+it will be saved by Sx and passed to the callback procedure
+as a parameter when it is invoked.  By convention, the clientData
+parameter will be the first parameter to your callback procedure.
+The other parameters differ for different kinds of callbacks, but
+generally include the X identifier for the tool's window and other information
+about the event that resulted in the callback.  The clientData has no
+significance to the Sx routines and is not used by them.
+Typically, it is a pointer to a data structure that contains
+application-specific information for the callback procedure.
+The type of clientData parameters is ClientData, so
+you'll need to cast the ``real'' argument into this type
+when calling procedures like Sx_HandlerCreate.  Similarly,
+your callback procedure will need to cast its clientData
+parameter back into the appropriate type for its own use.
+
+.SH "THE PACKER"
+.PP
+The second part of the Sx framework is the packer.  The packer
+is a set of procedures that manage subwindow sizes and locations.
+You give instructions to the packer of the form:
+.IP
+``Place window A (a title
+window, perhaps) across the top of window X, so that it covers the
+top of X and is 13 pixels high.  Then place window B (a scrollbar,
+perhaps) across the right side of the remaining cavity in X, covering
+the right side and 15 pixels wide.  Finally, size window C to fill
+the remaining space in X.''
+.PP
+When the size of the parent window changes, the packer adjusts the
+sizes and locations of all the children according to the instructions
+you've given.  If the children have their own children packed inside
+of them, the packer will adjust those windows in the same fashion.
+See the manual page for Sx_Pack for more information.
+Although you need not necessarily use the packer, several of the Sx
+tools use it to help manage the internal layouts of their windows.
+
+.SH "THE SELECTION"
+.PP
+The third general-purpose facility provided by Sx is a set of routines
+to deal with the \fIselection\fP.  The selection is something that the
+user has pointed to on the screen;  it is shared between windows as
+a way of moving information between applications.  At any
+given time there is at most one selection.  Information
+about the selection has two parts: a format and a value.  The format is
+a short string (at most SX_FORMAT_SIZE characters) indicating how the
+selection is represented, and the
+value is an arbitrary-length collection of bytes.  The
+most common format is ``text'', which means that the selection value is just
+a group of ASCII characters.  The format mechanism allows for different
+kinds of selections to be defined later, such as graphics or
+list structures or images;  applications need not understand all formats,
+and can ignore the selection when it has a format that they don't know how
+to deal with.
+.PP
+The selection facilities act as a broker between the various clients
+that supply selection information and/or access the selection's
+current value.  The selection is managed using callback procedures.
+When an application wishes to ``take over'' the selection, it calls
+Sx_SelectionSet and passes it the name of a procedure that will
+supply the selected information on demand.  The application will
+presumably display the selection in some highlighted fashion to indicate
+the fact that it is selected.  Sx_SelectionGet can be called by
+any application to retrieve part or all of the current value of the
+selection;  the selection facilities will invoke the callback procedure
+of the current selection owner.  When a new application calls
+Sx_SelectionSet, the previous selection owner is notified (via another
+callback procedure that it supplied to Sx_SelectionSet) so that it
+can unhighlight the selection on the screen.
+.PP
+Not only can different selections have different formats, but the same
+selection may have multiple formats, which correspond to different
+ways of interpreting the same information.  For example, when a user
+selects a range of bytes in a file, there are actually two formats for the
+selection:  ``text'', where the selection value consists of the
+characters selected;  and ``location'', where the selection value
+identifies the file containing the selection and the position of
+the selected characters within the file.  This allows different
+applications to access different information about the selection.
+In the above example, most applications would probably prefer to access
+the selection by its textual content;  but a debugger might prefer
+to have the location information, so that it could set a breakpoint at
+the selected line.  When calling Sx_SelectionGet to request
+the value of the selection, an application may request a particular
+format.  The selection owner will return the selection in
+the closest format it can provide to what was requested.
+
+.SH "TOOL PHILOSOPHY \(em HANDLES AND CLEANUP"
+.PP
+The sections after this one give brief overviews of the various
+tools implemented by the Sx library.  This section discusses
+a few features that are common to all of the tools.
+.PP
+First, each tool is typically implemented as a separate subwindow,
+and all the tools use X window ids as ``handles''.  For example,
+to refer to a scrollbar, you use the X id for the window in which
+the scrollbar is displayed;  to refer to a menu, you use the X id
+for the window displaying the menu's name.  Each of the tool packages
+maintains its own internal information about the window, which it
+associates with the X id for the window.
+.PP
+Second, for most tools there are two procedures that can be called
+to generate the tool.  One of the procedures will create a new window
+and arrange for that window to behave like a tool of the desired type
+(e.g. Sx_TitleCreate or Sx_ScrollbarCreate).  The other one is
+called a \fImake procedure\fP;  instead of creating a new window
+it uses a caller-supplied window, making it into a tool of the
+given type (e.g. Sx_TitleMake or Sx_ScrollbarMake).  If you've already
+got a tool of a given type, you can generally call the make procedure
+again to change its internal parameters, such as color or font.
+.PP
+Third, you delete a tool by destroying its X window.  The Sx
+tools arrange to be notified whenever a relevant window is destroyed
+(using the dispatcher) and they automatically clean up their
+internal structures.
+
+.SH "TITLES"
+.PP
+The simplest Sx tool is the title.  It is just a subwindow in which
+three strings can be displayed:  one on the left, one centered, and
+one on the right.  The procedures Sx_TitleCreate and Sx_TitleMake
+can be used to create a title.  Typically, each application window
+contains a title in reverse video at its top.
+
+.SH "PULL-DOWN MENUS"
+.PP
+Pull-down menus are created captions using Sx_MenuCreate.
+Typically you'll create a small window, called a \fImenu bar\fP,
+across the top of your application window and create menus within the
+menu bar.  The name of the menu is displayed in the menu bar, and
+can be buttoned by the user to pull the menu down.  Each menu
+consists of a collection of entries.  Each entry contains up to
+three strings that are displayed when the menu is pulled down, plus
+a callback procedure that is invoked (with a clientData parameter)
+when the entry is selected.  The procedures Sx_MenuSetMask and
+Sx_MenuGetMask can be used to temporarily disable some of the entries
+in a menu so that they cannot be selected.  Sx_MenuReplaceEntry can
+be used to modify a single entry within an existing menu.
+
+.SH "SCROLLBARS"
+.PP
+A scrollbar is a tool that is displayed along one side of a window
+and is used for adjusting the window's view on an associated object,
+which presumably is displayed in another window next to the scrollbar.
+The current range of view is displayed in the form of an
+``elevator'' inside the scrollbar.  Users click mouse buttons
+inside the scrollbar to request that the view be adjusted.  For vertical
+scrollbars, the mouse buttons have the following meanings:
+.IP Left 15
+Requests that the view be adjusted so that what used to be visible at
+the vertical position of the pointer be visible instead at the top
+of the window.
+.IP Right 15
+Inverse of left:  requests that the view be adjusted so that what
+used to be visible at the top of the window be visible instead at
+the vertical position of the pointer.
+.IP Middle 15
+Requests that the view be adjusted so that if the pointer position
+is N% of the way down the scrollbar, the portion of the object
+N% of the way from its top to its bottom be visible at the center
+of the window.
+.LP
+For horizontal scrollbars the buttons mean the same thing except
+that motion is left-to-right instead of top-to-bottom.
+.PP
+Scrollbars are created with Sx_ScrollbarCreate or Sx_ScrollbarMake.
+When the user requests a view change as
+indicated above, the scrollbar package calls back one of your routines
+with the request.  It is up to your routine to actually change the
+view in the window, and to update the position of the elevator in
+the scrollbar by calling Sx_ScrollbarSetRange.
+
+.SH "BUTTONS"
+.PP
+A button is a subwindow that displays a piece of text, lights
+up when the the pointer passes over it, and causes a callback
+procedure to be invoked when a mouse button is pressed over the
+subwindow.  Sx_ButtonCreate and Sx_ButtonMake are used to create
+buttons, and Sx_ButtonMake may be called again to change the text
+inside an existing button.
+
+.SH "ENTRIES"
+.PP
+An entry is a subwindow in which the user can type and edit a
+one-line text string.  Entries are created by calling Sx_EntryCreate
+or Sx_EntryMake and passing in a label and a text area in which
+to store the entered text.  The label is displayed at the left
+of the entry window to identify what the user should type.  When
+the user types characters, they are displayed next to the label
+and are also stored in the text area provided by the Sx_EntryCreate
+caller.  The user can use standard line-editing and selection
+facilities to edit the text in the entry.
+
+.SH "NOTIFIERS"
+.PP
+The procedure Sx_Notify provides a simple way for your application
+to pass information to the user:  it displays a window containing
+a piece of text supplied by you, then waits for the user to select
+one of several options (whose names are also supplied by you).
+Once the user has selected an option by clicking a mouse button on it,
+Sx_Notify returns to you with information about which option
+was selected.
+
+.SH "EXAMPLES"
+.PP
+The best way to get a feel for how to use Sx is to look at a simple
+example.  The program sxDemo.c illustrates how to use many
+of the features of Sx.  You can also run it to see what the Sx
+tools look like on the screen.  If you are thinking about
+building additional Sx-like tools, it might be useful for you to
+look at the code for sxButton.c, which implements buttons for Sx.
+Both of these programs should be available on your machine.
+
+.SH "COMING ATTRACTIONS"
+.PP
+The Sx facilities are still under development, and a number of new
+tools should become available in the next several months.  The most
+important of these are edit subwindows, which provide mouse-based
+editing facilities for files, and typescript subwindows, which
+provide stream-style input and output.  If you have other suggestions
+for tools, or would like to contribute tools that you've written, or
+if you find bugs or unpleasant features in the current Sx library,
+please contact ouster@arpa.berkeley.edu.
+
+.SH AUTHOR
+John Ousterhout

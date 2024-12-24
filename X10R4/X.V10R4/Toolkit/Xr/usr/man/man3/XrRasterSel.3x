@@ -1,0 +1,733 @@
+.TH XRRASTERSELECT 3X "Xrlib Version 10"
+.fi
+.ad 1
+.SH NAME
+XrRasterSelect - an editor that displays and allows selection of
+'n' X 'm' raster images.
+.SH SYNOPSIS
+#include <X/Xlib.h>
+.br
+#include <Xr/Xrlib.h>
+.br
+.sp 1
+xrEditor *
+.br
+.B XrRasterSelect (instance, message, data)
+.in 7
+.nf
+xrEditor * instance;
+INT32      message;
+INT8     * data;
+.fi
+.in
+.sp 1
+.SH DESCRIPTION
+.sp
+.P
+The raster select editor is used to create and process an instance
+of a raster selector within a given window.  
+It will allow an application program to specify an arbitrary number
+of 'n' X 'm' pixel rasters, of which one will be highlighted as the
+active selection. 
+.P
+The actual raster data is not supplied to the editor.
+Instead, the application must pass in the pixmap Id's
+associated with each of the raster images.
+A pixmap Id is obtained by registering the raster data
+with the appropriate server, using the 
+.I XStorePixmapZ()
+routine.
+Refer to the
+.B `Xlib'
+documentation for a further discussion on this subject.
+It is up to the application to guarantee that it does
+not pass in an invalid pixmap Id.
+.P
+Using the cursor and the mouse, a user will be able to interactively
+select a new active raster box, by moving the cursor over one
+of the raster boxes, and 'clicking' the mouse button.
+This will cause the 'active selection' highlight to be moved
+to the selected raster box.
+An application will then be notified of the change, and
+may handle it accordingly.
+.P
+A raster select editor instance is composed of 4 components:
+.sp
+.in 8
+.nf
+- The editor instance's border box.
+- The editor instance's background area.
+- The 'active selection' highlight.
+- The individual raster boxes.
+.fi
+.in
+.sp
+When one of the individual raster boxes is selected,
+the application program will be notified as to which raster
+box is now the active one.  If a select event occurs in any
+of the other components, the application will be notified
+that a select occurred, but the editor instance was not
+modified.
+.sp
+.P
+The index of the active raster box is not saved locally by the editor.
+Instead, it will save a pointer to the 16 bit integer value
+which was specified by the application program at the time
+the instance was created.
+This allows the application to have immediate access
+to the index of the active raster box, since the information also resides
+in it's own data area.
+This editor will rely on the fact that when an application
+modifies this piece of shared data, it will tell the editor to redraw;
+this allows the editor to remain in sync with the current raster data.
+Modifying the data, without doing a redraw, will cause
+the editor to behave in an unfriendly fashion.
+
+.SH EDITOR MESSAGES
+.IP MSG_NEW
+This message will be the means by which an application program
+can create a raster select editor instance in a window.  It will
+expect the 
+.I instance
+parameter to be set to
+.B NULL,
+and the
+.I data 
+parameter to point to a filled out instance of the following structure:
+.sp
+.nf
+     typedef struct {
+          Window       editorWindowId;
+          RECTANGLE    editorRect;
+          INT8         editorState;
+          INT32        editorFGColor;
+          INT32        editorBGColor;
+          Pixmap     * rasterIds;
+          INT32        rasterHeight;
+          INT32        rasterWidth;
+          INT16        rasterCount;
+          INT16        colCount;
+          INT16      * activeRaster;
+      } xrRasterSelectInfo;
+.fi
+.sp
+.in 7
+.ul 1
+editorWindowId
+.br
+.in
+.in 9
+This field indicates the window to which the editor instance
+is to be attached.
+Anytime the instance is redrawn, it will be redrawn in this window.
+.in
+.sp
+.in 7
+.ul 1
+editorRect
+.br
+.in
+.in 9
+This field describes the location and size of the region 
+into which the raster select editor is to be located.
+If the region is not large enough to hold the described
+instance, then the create request will fail.
+If the rectangle is larger than is needed, then the extra
+space will be used as padding between the boxes.
+.in
+.sp
+.in 7
+.ul 1
+editorState
+.br
+.in
+.in 9
+This field contains the initial value of the state flags
+for this editor instance.
+It can be composed of any combination of the
+.B XrSENSITIVE
+and
+.B XrVISIBLE
+flags.
+.in
+.sp
+.in 7
+.ul 1
+editorFGColor
+.br
+.in 9
+This field specifies the foreground color
+to be used when drawing the editor instance.
+This is uses to draw all borders, and the
+active indicator.
+If this is set to -1, the default foreground color (see
+.B XrInit(3X)
+) will be used.
+.in
+.sp
+.in 7
+.ul 1
+editorBGColor
+.br
+.in 9
+This field specifies the background color
+to be used when drawing the editor instance.
+This is uses to fill the background area
+within the
+If this is set to -1, the default background color (see
+.B XrInit(3X)
+) will be used.
+.I editorRect.
+.in
+.sp
+.in 7
+.ul 1
+rasterIds
+.br
+.in
+.in 9
+This is a pointer to an array of pixmap Ids,
+which identify each of the rasters to be displayed in this
+instance.
+.in
+.sp
+.in 7
+.ul 1
+rasterHeight
+.br
+.in
+.in 9
+This value describes the height of each of the raster images,
+in pixels.
+.in
+.sp
+.in 7
+.ul 1
+rasterWidth
+.br
+.in
+.in 9
+This value describes the width of each of the raster images,
+in pixels.
+.in
+.sp
+.in 7
+.ul 1
+rasterCount
+.br
+.in
+.in 9
+This indicates to the editor the total number of raster boxes
+to display, as part of this editor instance.
+There is no limit imposed on this value by the editor.
+.in
+.sp
+.in 7
+.ul 1
+colCount
+.br
+.in
+.in 9
+This specifies the number of columns to be used when displaying
+the raster editor instance.  The row count will be
+calculated by the editor, using the 
+.I rasterCount 
+and 
+.I colCount
+values.
+.in
+.sp
+.in 7
+.ul 1
+activeRaster
+.br
+.in
+.in 9
+This is a pointer to a 16 bit integer value, which
+indicates to the editor which of the raster boxes is
+to be highlighted as the active raster.
+The range of valid values for this field are:
+.sp
+.nf
+   [ 0 : rasterCount - 1 ]
+.sp
+.fi
+where 0 indicates the first raster box, and (rasterCount - 1)
+indicates the last raster box.
+Specifying a value outside this range will cause the
+.B MSG_NEW 
+request to fail.
+.sp
+The editor will save this pointer, and will update
+the value it points to
+anytime a change occurs within the editor instance.
+.in
+.sp
+.IP
+A check is made to make sure the 
+.I editorRect 
+specified is large enough to contain the specified instance.
+If the 
+.I editorRect 
+is not large enough, then the request will fail.
+To prevent this message from failing for this reason,
+the 
+.B MSG_SIZE 
+message should be used to create the 
+.I editorRect.
+The application can then increase the height or width of the
+rectangle, if desired.
+.IP
+The editor will then
+draw the raster select editor instance in the 
+specified window.
+.IP
+Upon successful completion, a pointer to the newly created
+editor structure will be returned to the application.
+This value must be used there after, whenever the application
+wishes to refer to this particular editor instance.
+
+.IP MSG_FREE
+This message is the mechanism by which an editor instance can be destroyed.
+The only parameter of importance is the 
+.I instance
+parameter, which is a pointer to the
+editor structure returned by
+.B MSG_NEW;
+this parameter specifies which instance is to be destroyed.
+.IP
+When a raster select instance is destroyed, it will be internally
+disconnected from the window to which it was attached, it will
+no longer handle mouse selects, and it will be removed from the
+window, if the instance is visible.
+.IP
+After an editor instance has been destroyed, no further 
+messages should be issued in regard to that instance.
+
+.IP MSG_GETSTATE
+This message returns the current state of the 
+.B XrVISIBLE 
+and 
+.B XrSENSITIVE
+flags for the specified raster select editor instance.  
+The
+.I instance
+parameter specifies which instance to use. 
+The 
+.I data
+parameter should be a pointer to an 8 bit integer value,
+into which the current state flags will be placed.
+
+.IP MSG_SETSTATE
+This message allows an application program to modify the setting of
+the 
+.B XrSENSITIVE 
+and 
+.B XrVISIBLE 
+flags, for a given raster select editor instance.
+The 
+.I data 
+parameter is interpreted as an 8 bit integer value, containing the
+new state flags.
+After saving the new state flags, the editor instance will be redrawn,
+to reflect the new state.
+If an instance is not visible, 
+then the rectangle which it occupies will be drawn using the background tile
+for the window, thus making it invisible. 
+
+.IP MSG_GETITEMCOUNT
+This message allows an application to obtain a count, which
+indicates the number of raster select boxes in the specified instance.
+The editor will assume that the 
+.I data 
+parameter points
+to a 32 bit integer value; the item count value will be
+returned by means of this integer value.
+The
+.I instance
+parameter indicates the editor instance to query.
+.IP
+This message is useful when used in conjunction with the
+.B MSG_GETITEMRECTS 
+message.
+It allows an application to obtain the number of items in the
+instance, so that the application can then allocate enough
+memory to hold the rectangle information returned by
+.B MSG_GETITEMRECTS.
+
+.IP MSG_GETITEMRECTS
+This message returns the coordinates for the rectangle which
+describes each of the raster select boxes.
+The
+.I instance
+parameter will indicate the editor instance to be queried.
+The message will expect the 
+.I data 
+parameter to point to a structure of the following format:
+.sp
+.nf
+	RECTANGLE   itemRects[x];
+.fi
+.sp
+This array will then be filled with the rectangle information, and
+returned to the application.
+.IP
+Before an application can make this call, it needs to know
+the number of items in the specified instance, so that it can
+allocate a structure large enough to hold all of the rectangle
+information.
+The application should use the 
+.B MSG_GETITEMCOUNT 
+message to
+obtain this information; the application can then allocate
+an array large enough to hold all of the rectangle entries.
+.IP
+The order of the rectangle items returned in the array directly
+correlates to the order the items were originally created in.
+The first element in the array will describe raster box 0, the
+second raster box 1, etc.
+.IP
+This message is useful to those applications which have a need
+of knowing where the individual items in a raster select instance are located.
+The most common use would be by a panel controller, which would
+use the information to place an 'active field' indicator by a
+given item.
+
+.IP MSG_REDRAW
+This editor provides an application with a means to change the
+active raster box.
+.IP
+To select a different raster box as the active one,
+an application can simply place a new value in the 
+integer value it set up to hold the active index,
+and then tell the editor to redraw, hi-lighting the new
+active box.
+This will force the editor to redraw the original active
+box, with the hi-light no longer around it, and then
+redraw the new active raster box, with the hi-light around it.
+If the new index is out of range, then the redraw will
+not take place, and the request will fail;
+the editor will restore the active index value to it's
+previous valid setting.
+.IP
+If an application would like the complete editor instance redrawn,
+then it could issue the redraw request, and specify that all of
+the raster boxes should be redrawn.
+.IP
+The
+.I data
+parameter must be a 32 bit integer value, which specifies the type of
+redraw to be performed.
+.IP
+The 2 redraw modes supported by this editor are:
+.sp
+.in 8
+.nf
+.B - XrREDRAW_ALL
+.sp
+.B - XrREDRAW_ACTIVE
+.fi
+.in
+
+.IP MSG_SIZE
+This message allows an application to obtain the rectangle needed to
+contain a raster select editor instance.
+The raster select editor expects the 
+.I instance
+parameter to be set to
+.B NULL,
+and the
+.I data 
+parameter to point to an instance of the following structure:
+.sp
+.nf
+     typedef struct {
+          Window       editorWindowId;
+          RECTANGLE    editorRect;
+          INT8         editorState;
+          INT32        editorFGColor;
+          INT32        editorBGColor;
+          Pixmap     * rasterIds;
+          INT32        rasterHeight;
+          INT32        rasterWidth;
+          INT16        rasterCount;
+          INT16        colCount;
+          INT16      * activeRaster;
+      } xrRasterSelectInfo;
+.fi
+.sp
+.IP
+The fields which must be filled out by the application program BEFORE
+issuing this call, are the 
+.I rasterHeight, rasterWidth, rasterCount 
+and 
+.I colCount 
+fields; all other fields are ignored.
+.IP
+Using the supplied values, the editor will
+determine the size of the smallest rectangle needed to contain this instance.
+In return, the 
+.I editorRect 
+field will be filled in with the coordinates
+for the 0 based rectangle needed to contain the instance;
+an application program can then offset or enlarge this rectangle, to
+position and size it however it likes, within it's window.
+
+.IP MSG_MOVE
+This message provides an application with a means for quickly relocating 
+a particular editor instance within a window.
+The size of the 
+.I editorRect 
+associated with the instance is not changed.
+To relocate an editor instance, a new origin point for the instance's
+.I editorRect 
+must be specified; the top left corner of the editor rectangle 
+will then be translated such that it now coincides with the new origin.
+The origin point is interpreted as an absolute position within the window.
+.IP
+When this message is issued, the
+.I instance
+parameter must point to the editor structure associated with the
+instance which is to be moved, while the
+.I data
+parameter must point to a 
+.I POINT 
+structure, containing the new
+.I editorRect 
+origin.
+.IP
+When an editor instance is relocated, the field editor will automatically
+remove the visual image of the instance from the window, and will then redraw
+the instance at its new location; this occurs only if the instance is visible.
+
+.IP MSG_RESIZE
+This message provides an application with a means for both
+changing the size of the
+.I editorRect
+associated with a particular editor instance, and also
+the location of the new
+.I editorRect.
+All restrictions regarding the
+.I editorRect
+size which applied when the instance was first created using
+.B MSG_NEW,
+still apply.
+If an invalid
+.I editorRect
+is specified, then the resize request will fail.
+.IP
+When this message is issued, the
+.I instance
+parameter must point to the editor structure associated with the
+instance which is to be resized, while the
+.I data
+parameter must point to a RECTANGLE structure containing the
+new size and origin for the
+.I editorRect.
+.IP
+When an editor instance is resized, the field editor will 
+automatically remove the visual image of the instance from 
+the window, and will then redraw the instance using the
+new size and location information; this occurs only if the
+instance is visible.
+
+.IP MSG_CHANGERASTER
+This message provides the means for an application to change the
+raster image displayed in one of the raster select boxes.
+To replace the contents of an existing raster box, the application
+must specify both the index of the box to be modified, and a new
+pixmap Id for the image.
+It will be up to the application to free the old pixmap id on the server,
+using
+.I XFreePixmap(),
+if desired; refer to the
+.B `Xlib'
+documentation for a further discussion on how this is done.
+.sp
+This message will expect the
+.I instance
+parameter to specify which raster select instance is to be
+modified, and the
+.I data
+parameter to point to an instance of the following structure:
+.sp
+.in 12
+.nf
+typedef struct {
+   INT16   rasterIndex;
+   Pixmap  pixmapId;
+} newRaster;
+.fi
+.in
+.sp
+The 
+.I rasterIndex
+field should be set to the index of the raster box which is to be
+changed.
+The
+.I pixmapId
+field should be set to the pixmap Id associated with the new
+raster image.
+
+.IP MSG_EDIT
+Normally, an application will not issue this message;
+it is usually issued by the Xrlib input routines,
+when an input event occurs within a raster select instance.
+.IP
+When such an event occurs, a
+.B MSG_EDIT 
+message will be issued to the editor, with
+the
+.I instance
+parameter indicating which raster select editor to process, and the
+.I data
+parameter pointing to an 
+.I XEvent
+structure.
+.IP
+The raster select editor only handles an event if 
+it maps to an
+.B XrSELECT
+event, as described in
+.B XrMapButton(3X)
+and
+.B XrInit(3X);
+all others are ignored.  When a select event
+occurs within the raster select editor, the first thing done is to determine
+if one of the raster boxes was selected.
+.IP
+If one of the raster boxes was selected, then the visible 'active
+highlight' will be erased, and moved to the selected raster box.
+Afterwards, an input event will be added to the front of the
+application's input queue, informing it that one of the
+raster boxes was selected.
+The returned 
+.I xrEvent
+structure is set to the following value:
+.sp
+.nf
+   type      = XrXRAY
+   source    = the window Id
+   inputType = XrEDITOR
+   inputCode = XrRASTERSELECT
+   value1    = XrSELECT
+   value2    = index of active raster box
+   value3    = index of previously active raster box
+   valuePtr  = pointer to instance's editor structure
+.fi
+.IP
+The editor will update the active index memory location
+to contain the index of the new active raster box.
+This value is then directly available to the application program.
+.IP
+If a select occurs within a raster editor instance, but not within
+the boundary of a raster select box, then the editor will do
+nothing but push an input event onto the front of the application's
+input queue.
+The event will notify the application that the editor was selected,
+but no action took place.
+It will also include the cursor position at the time the select occurred.
+The returned 
+.I xrEvent
+structure is set to the following value:
+.sp
+.nf
+   type      = XrXRAY
+   source    = the window Id
+   inputType = XrEDITOR
+   inputCode = XrRASTERSELECT
+   value1    = NULL
+   valuePt   = cursor position
+   valuePtr  = pointer to instance's editor structure
+.fi
+
+.SH RETURN VALUE
+Upon successful completion of any of the messages, a non-NULL
+value will be returned.
+In the case of
+.B MSG_NEW,
+this non-NULL value will be the pointer to the
+newly created editor instance structure.
+.P
+If a message request fails, then a NULL value is returned.
+
+.SH ERROR CONDITIONS
+Messages to the raster select editor will fail, set the
+.I xrErrno
+global and return a NULL
+value, under the following conditions:
+.sp
+.IP MSG_NEW
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I editorWindowId
+is an invalid Id [XrINVALIDID].
+.IP
+.I editorRect
+is an invalid size [XrINVALIDRECT].
+.IP
+.I rasterIds
+is set to NULL [XrINVALIDPTR].
+.IP
+.I rasterHeight
+or
+.I rasterWidth
+is less than or equal to zero [XrINVALIDPARM].
+.IP
+.I rasterCount
+is set to zero [XrINVALIDPARM].
+.IP
+.I colCount > rasterCount [XrINVALIDPARM].
+.IP
+.I activeRaster
+is set to NULL [XrINVALIDPTR].
+.IP
+.I activeRaster 
+indicates an out of range index value [XrPARMOUTOFRANGE].
+.IP
+Memory cannot be allocated [XrOUTOFMEM].
+.sp
+.IP MSG_REDRAW
+The
+.I data
+parameter has been set to an unknown redraw mode [XrINVALIDOPTION].
+.IP
+An invalid active raster box index is specified [XrPARMOUTOFRANGE].
+.sp
+.IP MSG_SIZE
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I rasterCount
+is set to zero [XrINVALIDPARM].
+.IP
+.I colCount > rasterCount [XrINVALIDPARM].
+.IP
+.I rasterHeight
+or
+.I rasterWidth
+is less than or equal to zero [XrINVALIDPARM].
+.sp
+.IP MSG_RESIZE
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I editorRect 
+is an invalid size [XrINVALIDRECT].
+.sp
+.IP MSG_CHANGERASTER
+.I rasterIndex
+is out of range [XrPARMOUTOFRANGE].
+.sp
+.IP "MSG_GETSTATE and MSG_MOVE"
+.I data
+is set to NULL [XrINVALIDPTR].
+.sp
+.IP "All messages, except MSG_NEW and MSG_SIZE"
+The
+.I instance
+parameter is set to NULL [XrINVALIDID].
+
+.SH "SEE ALSO"
+XrInput(3X), XrInit(3X)

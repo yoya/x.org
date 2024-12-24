@@ -1,0 +1,8 @@
+.ds Ch X Fundamentals and the X Library
+.nr H1 2
+.so format
+.P
+For information about X and the X library, refer to the
+\fIXlib\(emC Language X Interface\fR manual from the MIT
+Project Athena.
+(That manual can be inserted here.)

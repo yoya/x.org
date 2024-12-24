@@ -1,0 +1,732 @@
+.TH XRRASTEREDIT 3X "Xrlib Version 10"
+.fi
+.ad 1
+.SH NAME
+XrRasterEdit - an editor that creates and controls a raster editor.
+.SH SYNOPSIS
+#include <X/Xlib.h>
+.br
+#include <Xr/Xrlib.h>
+.br
+.sp 1
+xrEditor *
+.br
+.B XrRasterEdit (instance, message, data)
+.in 7
+.br
+xrEditor * instance;
+.br
+INT32      message;
+.br
+INT8     * data;
+.br
+.in
+.sp 1
+.SH DESCRIPTION
+.sp
+.P
+The raster editor is used to create and process an instance of
+a raster editor within a given window.
+It will allow an application program to specify a raster image from
+as small as 16x16 pixels; the specified raster image need not be square.
+.P
+The number of bits making up each pixel (referred to
+as the 'depth' of the pixel) is definable by the application,
+but can assume only one of the following values:
+.sp
+.in 7
+.nf
+- 1 bit/pixel    [XrBIT1]
+- 1 byte/pixel   [XrBYTE1]
+- 2 bytes/pixel  [XrBYTE2]
+- 3 bytes/pixel  [XrBYTE3]
+- 4 bytes/pixel  [XrBYTE4]
+.fi
+.in
+.P
+When a raster editor instance is created, the application can
+specify how much of the raster image is to be displayed
+at any given time; this is referred to as the 'view region'.
+The view region can be from as small as 16 x 16, up to
+the size of the raster image.
+Each pixel within this view region will be expanded
+and displayed as a 'pixelSize'x'pixelSize' bit area, thus allowing a user to
+easily select and modify a pixel within the region.
+Each pixel will be surrounded by a one bit wide border.
+.P
+The 'pixelSize' value is specified at the time the instance is created.
+It allows an application to size the raster editor instance, so that it
+will be usable in any sized display.
+Any value greater than or equal to 4 may be specified as the pixel
+expansion factor.
+.P
+Using the cursor and the mouse, a user will be able to select a pixel to
+be changed in one of several ways:
+.sp
+.BL 8
+.LI
+By 'clicking' the mouse, the pixel over which the cursor is located
+will be changed to whatever color the application has specified.
+.LI
+By pressing the mouse button, and then dragging the cursor,
+any pixels over which the cursor passes will be changed to
+whatever color the application has specified; releasing the mouse
+button will cause the action to stop, as will the receipt of
+any other X event.
+.LE
+.P
+If the raster image is larger than the view region, in either direction,
+then the editor will display and manage either/both a vertical
+and/or a horizontal scrollbar.
+The horizontal scrollbar will be located beneath the raster edit display,
+while the vertical scrollbar will be located to the right of the raster edit
+display.
+The raster editor will take sole responsibility for processing the
+scrollbars; however, anytime the raster image is scrolled, an event
+will be returned to an application program, informing it of the
+new view origin.
+.P
+These scrollbars provide the means by which a user can scroll through
+the complete raster area. 
+There are currently 4 ways in which a scroll operation may be requested:
+.sp
+.in 8
+.nf
+- The 'UP' (LEFT) arrow is selected.
+- The 'DOWN' (RIGHT) arrow is selected.
+- A position within the scroll area is selected.
+- The slide box is interactively moved.
+.fi
+.in
+.P
+Depending upon which of the above methods is used, a different
+amount of scrolling may take place:
+.IP
+When either of the scroll arrows is selected, the view region will
+pan 1 pixel in the requested direction.
+.IP
+When a select occurs within the scroll area,
+the requested portion of the raster image will then be displayed.
+.IP
+When the slide box is selected, the raster image will not be
+updated, until the user has finished moving the slide box.
+When slide box movement has completed, the editor will redraw
+the instance, and display the requested
+portion of the raster area.
+.P
+For each of the above events, the raster editor will return an
+input event, informing the application that the raster image
+has been scrolled, along with the new view origin.
+
+.SH EDITOR MESSAGES
+.IP MSG_NEW
+This message will be the means by which an application program
+can create a raster editor instance in a window.  It will
+expect the 
+.I instance
+parameter to be set to
+.B NULL,
+and the
+.I data 
+parameter to point to a filled out instance of the following structure:
+.sp
+.nf
+     typedef struct {
+          Window      editorWindowId;
+          RECTANGLE   editorRect;
+          INT8        editorState;
+          INT32       editorFGColor;
+          INT32       editorBGColor;
+          INT32       pixelColor;
+          INT32       pixelSize;
+          SIZE        viewRegion;
+          xrPixmap    rasterData;
+      } xrRasterEditInfo;
+.fi
+.sp
+.in 7
+.ul 1
+editorWindowId
+.br
+.in
+.in 9
+This field indicates the window to which the editor instance
+is to be attached.
+Anytime the instance is redrawn, it will be redrawn in this window.
+.in
+.sp
+.in 7
+.ul 1
+editorRect
+.br
+.in
+.in 9
+This describes the location and size of the region into which
+into which the raster editor is to be located.  This must include
+space for the view region, and scrollbars, if needed.
+When the instance is laid out, the view region
+will be positioned starting at the upper left
+of the
+.I editorRect,
+the horizontal scrollbar will be positioned at the lower left,
+and the vertical scrollbar will be positioned at the upper
+right of the
+.I editorRect.
+.in
+.sp
+.in 7
+.ul 1
+editorState
+.br
+.in
+.in 9
+This field contains the initial value of the state flags
+for this editor instance.
+It can be composed of any combination of the
+.B XrSENSITIVE
+and
+.B XrVISIBLE
+flags.
+.in
+.sp
+.in 7
+.ul 1
+editorFGColor
+.br
+.in
+.in 9
+This field specifies the foreground color
+to be used when drawing the editor instance.
+The foreground color is used to draw the border around each pixel
+in the raster image, and by the scrollbars.
+If this is set to -1, the default foreground color (see
+.B XrInit(3X)
+) will be used.
+.in
+.sp
+.in 7
+.ul 1
+editorBGColor
+.br
+.in
+.in 9
+This field specifies the background color
+to be used when drawing the editor instance.
+The background color is used only by the scrollbars.
+If this is set to -1, the default background color (see
+.B XrInit(3X)
+) will be used.
+.in
+.sp
+.in 7
+.ul 1
+pixelColor
+.br
+.in
+.in 9
+This field specifies the color to which a pixel should be
+set, when it is 'selected' by the user.
+.in
+.sp
+.in 7
+.ul 1
+pixelSize
+.br
+.in
+.in 9
+This describes the height and width into which each displayed
+pixel is to be expanded.
+This must be a value greater than or equal to 4.
+Any other value will cause the create request to fail.
+.in
+.sp
+.in 7
+.ul 1
+viewRegion
+.br
+.in
+.in 9
+This describes the height and width of the view region for the instance.
+The dimensions for these values may be in the range from 16 up to the
+corresponding dimension of the raster image.
+If a view region is specified which is larger than the raster image,
+then the request will fail.
+.in
+.sp
+.in 7
+.ul 1
+rasterData
+.br
+.in
+.in 9
+This field contains all of the information describing the raster
+image which is to be edited.
+This includes the size of the raster (height and width), the depth
+of each pixel within the raster, and a pointer to the actual raster
+data.
+The size can assume any value greater than or equal to 16.
+The depth can assume a value of 1 bit, or 1, 2, 3 or 4 bytes.
+.in
+.sp
+.IP
+The editor will then
+draw the raster editor instance in the 
+specified window.
+The initial location of the view region is the upper right
+corner of the raster area.
+.IP
+Upon successful completion, a pointer to the newly created
+editor structure will be returned to the application.
+This value must be used there after, whenever the application
+wishes to refer to this particular editor instance.
+
+.IP MSG_FREE
+This message is the mechanism by which an editor instance can be destroyed.
+The only parameter of importance is the 
+.I instance
+parameter, which is a pointer to the
+editor structure returned by
+.B MSG_NEW;
+this parameter specifies which instance is to be destroyed.
+.IP
+When a raster editor instance is destroyed, it will be internally
+disconnected from the window to which it was attached, it will
+no longer handle mouse selects, and it will be removed from the
+window, if the instance is visible.
+.IP
+After an editor instance has been destroyed, no further
+messages should be issued in regard to that instance.
+
+.IP MSG_GETSTATE
+This message returns the current state of the 
+.B XrVISIBLE 
+and 
+.B XrSENSITIVE
+flags for the raster editor instance indicated by the
+.I instance
+parameter.
+The
+.I instance
+parameter specifies which instance to use. 
+The 
+.I data 
+parameter should be a pointer to an 8 bit integer value,
+into which the current state flags will be placed.
+If any scrollbars are being used by this instance, then their state will
+be identical to that of the raster editor instance.
+
+.IP MSG_SETSTATE
+This message allows an application program to modify the setting of
+the 
+.B XrSENSITIVE 
+and 
+.B XrVISIBLE 
+flags, for a given raster editor instance,
+along with any scrollbars which may be in use by this instance.
+The
+.I instance
+parameter specifies which editor instance is to be affected.
+The 
+.I data 
+parameter is interpreted as an 8 bit integer value, containing the new
+state flag values.
+After saving the new state flags, the editor instance will be redrawn,
+to reflect the new state.
+The scrollbar editor will also be invoked, if necessary,
+to cause the scrollbars associated with this instance to
+be redrawn using the new state information.
+If an instance is not visible, then the
+rectangle which it occupies will be drawn using the background tile
+for the window, thus making it invisible. 
+
+.IP MSG_SETCOLOR
+This message allows an application to specify the color to which a
+pixel should be set, when it is 'selected' by the user.
+The 
+.I data 
+parameter will be interpreted as a 32 bit integer value,
+containing the color information.
+The
+.I instance
+parameter specifies the editor instance to be affected.
+
+.IP MSG_REDRAW
+Since the buffer containing the data describing the raster
+area resides in the application's domain, a means is
+provided to allow the application to change the data,
+and then tell the editor about it; the editor will then
+update the visible portion of the instance, to match the
+new data.
+.IP
+Using the 
+.B MSG_REDRAW 
+message, an application can force the editor to redraw a raster editor 
+instance.
+The editor will use the data in the array pointed to by the
+.I rasterData,
+structure, as the new raster information.
+The complete editor instance will be redrawn.
+.IP
+When this message is invoked, the 
+.I instance
+parameter must point to the editor structure for the instance to be redrawn, and
+the
+.I data
+parameter must be a 32 bit integer which specifies the type of redraw which 
+is to occur.
+.IP
+The raster editor supports only a single redraw mode: 
+.sp
+.in 8
+.nf
+.B - XrREDRAW_ALL.
+.fi
+.in
+.IP
+If any other redraw mode is specified, then the request will fail.
+
+.IP MSG_SIZE
+This message allows an application to obtain the rectangle needed to
+contain a raster editor instance.
+Depending upon the description supplied by the application program,
+this rectangle may hold only a raster editor instance, or it may also
+include up to 2 scrollbars.
+The raster editor expects the 
+.I instance
+parameter to be set to 
+.B NULL,
+and the
+.I data 
+parameter to point to an instance of the following structure:
+.sp
+.nf
+     typedef struct {
+          Window      editorWindowId;
+          RECTANGLE   editorRect;
+          INT8        editorState;
+          INT32       editorFGColor;
+          INT32       editorBGColor;
+          INT32       pixelColor;
+          INT32       pixelSize;
+          SIZE        viewRegion;
+          xrPixmap    rasterData;
+      } xrRasterEditInfo;
+.fi
+.sp
+.IP
+The only fields which must be filled out by the application program BEFORE
+issuing this call, are the 
+.I height
+and
+.I width
+fields in the 
+.I rasterData
+structure
+and  the
+.I pixelSize 
+and
+.I viewRegion
+fields; all other fields are ignored.
+.IP
+Using the supplied raster image height, width sizes, the view region height
+and width sizes, and the pixel size values, the editor will
+determine the size of the rectangle needed to contain this instance.
+If either the height or width of the raster image is greater than 
+the corresponding view region dimension, then this rectangle will also
+take into account the scrollbars.
+In return, the 
+.I editorRect 
+field will be filled in with the coordinates
+for the 0 based rectangle needed to contain the instance;
+an application program can then offset this rectangle, to
+position it where ever it likes, within it's window.
+.IP
+Specifying a raster height or width or a view region height or width 
+less than 16 will cause this request to fail.
+
+.IP MSG_POSITION
+This message provides an application with the means for positioning 
+the view region within the raster image.
+The
+.I instance
+parameter must point to the editor structure associated with
+the instance to be modified, while the
+.I data
+parameter must point to a POINT structure, containing the new
+origin of the view region; the top left corner of the view
+region will be positioned at the specified (x,y) position
+within the raster image.
+
+.IP MSG_MOVE
+This message provides an application with a means for quickly relocating 
+a particular editor instance within a window.
+The size of the 
+.I editorRect 
+associated with the instance is not changed.
+To relocate an editor instance, a new origin point for the instance's
+.I editorRect 
+must be specified; the top left corner of the editor rectangle 
+will then be translated such that it now coincides with the new origin.
+The origin point is interpreted as an absolute position within the window.
+.IP
+When this message is issued, the
+.I instance
+parameter must point to the editor structure associated with the
+instance which is to be moved, while the
+.I data
+parameter must point to a 
+.I POINT 
+structure, containing the new
+.I editorRect 
+origin.
+.IP
+When an editor instance is relocated, the field editor will automatically
+remove the visual image of the instance from the window, and will then redraw
+the instance at its new location; this occurs only if the instance is visible.
+
+.IP MSG_RESIZE
+This message provides an application with a means for both changing
+the size of the
+.I editorRect
+associated with a particular editor instance, and also the location
+of the new
+.I editorRect.
+All restrictions regarding the
+.I editorRect
+size which applied when the instance was first created using
+.B MSG_NEW,
+still apply.
+If an invalid
+.I editorRect 
+is specified, then the resize request will fail.
+.IP
+When this message is issued, the
+.I instance
+parameter must point to the editor structure associated with the
+instance which is to be resized, while the
+.I data
+parameter must point to a RECTANGLE structure containing the new
+size and origin for the
+.I editorRect.
+.IP
+When an editor instance is resized, the field editor will
+automatically remove the visual image of the instance from the
+window, and will then redraw the instance using the new size and location
+information; this occurs only if the instance is visible.
+
+.IP MSG_EDIT
+Normally, an application will not issue this message;
+it is usually issued by the Xrlib input routines,
+when an input event occurs within a raster editor instance.
+.IP
+When such an event occurs, a
+.B MSG_EDIT 
+message will be issued to the editor, with
+the
+.I instance
+parameter indicating which raster editor to process, and the
+.I data
+parameter pointing to an 
+.I XEvent
+structure.
+.IP
+The raster editor only handles an event if 
+it maps to an
+.B XrSELECT
+event, as described by
+.B XrMapButton(3X)
+and
+.B XrInit(3X);
+all others are ignored.  When a select event
+occurs within the raster editor, the first thing done is to determine
+which of the following regions was selected:
+.sp
+.in 8
+.nf
+- The raster editor region.
+- The vertical scrollbar.
+- The horizontal scrollbar.
+- The background area.
+.in
+.fi
+.IP
+Depending upon the region selected, a different action is taken:
+.sp
+.in 7
+.ul 1
+Vertical scrollbar
+.br
+.in
+.in 9
+The view box will be scrolled vertically within the raster area.
+Upon completion of the scroll operation, the following event will
+be pushed onto the front of the application's input queue:
+.sp
+.nf
+    type      = XrXRAY
+    source    = the window Id
+    inputType = XrEDITOR
+    inputCode = XrRASTEREDIT
+    value1    = XrSCROLLBAR
+    valuePt   = new view origin
+    valuePtr  = pointer to instance's editor structure
+.fi
+.in
+.sp
+.in 7
+.ul 1
+Horizontal scrollbar
+.br
+.in
+.in 9
+The view box will be scrolled horizontally within the raster area.
+Upon completion of the scroll operation, the following event will
+be pushed onto the front of the application's input queue:
+.sp
+.nf
+    type      = XrXRAY
+    source    = the window Id
+    inputType = XrEDITOR
+    inputCode = XrRASTEREDIT
+    value1    = XrSCROLLBAR
+    valuePt   = new view origin
+    valuePtr  = pointer to instance's editor structure
+.fi
+.in
+.sp
+.in 7
+.ul 1
+Raster edit region
+.br
+.in
+.in 9
+The selected pixel(s) will be modified, and an input event will
+be added to the front of the application's input queue, informing
+it that the raster area has been modified.  
+The returned 
+.I xrEvent
+structure is set to the following value:
+.sp
+.nf
+    type      = XrXRAY
+    source    = the window Id
+    inputType = XrEDITOR
+    inputCode = XrRASTEREDIT
+    value1    = XrSELECT
+    valuePtr  = pointer to instance's editor structure
+.fi
+.sp
+If the raster was modified by the user dragging the
+cursor, and the draw operation was terminated by the
+receipt of an X event other than a select up event, 
+then the X event which caused the drag operation
+to terminate will also be pushed on the front of the input
+queue, BEFORE the xrEvent discussed above is pushed.
+If the terminating event was a select up event, then the
+field editor will swallow it.
+.sp
+Since the actual raster data resides in the application's
+domain, it can have immediate access to the data.
+.in
+.sp
+.in 7
+.ul 1
+Background region
+.br
+.in
+.in 9
+This implies that the select occurred within the
+.I editorRect,
+but not within any of the previously mentioned components.
+The following input event will be returned; it includes the cursor position
+at the time the select event occurred:
+.sp
+.nf
+    type      = XrXRAY
+    source    = the window Id
+    inputType = XrEDITOR
+    inputCode = XrRASTEREDIT
+    value1    = NULL
+    valuePt   = cursor position
+    valuePtr  = pointer to instance's editor structure
+.fi
+.in
+
+.SH "RETURN VALUE"
+Upon successful completion of any of the messages, a non-NULL
+value will be returned.  In the case of
+.B MSG_NEW,
+this non-NULL value will be the pointer to the 
+newly created editor instance structure.
+.P
+If a message request fails, then a NULL value is returned.
+
+.SH "ERROR CONDITIONS"
+Messages to the raster editor will fail, set the
+.I xrErrno
+global and return a NULL value, under the following conditions:
+.sp
+.IP MSG_NEW
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I editorWindowId
+is an invalid Id [XrINVALIDID].
+.IP
+.I editorRect
+is an invalid size [XrINVALIDRECT].
+.IP
+A dimension of the raster image size or the view region size is less 
+than 16 [XrINVALIDPARM].
+.IP
+A dimension of the view region is greater than the
+corresponding dimension of the raster image [XrINVALIDPARM].
+.IP
+The raster depth is not 1 bit, or 1, 2, 3 or 4 bytes [XrINVALIDDEPTH].
+.IP
+.I pixelSize
+is an invalid value [XrPARMOUTOFRANGE].
+.IP
+The pointer to the raster data has been set to NULL [XrINVALIDPTR].
+.IP
+Memory cannot be allocated [XrOUTOFMEM].
+.sp
+.IP MSG_REDRAW
+A redraw option other than
+.B XrREDRAW_ALL
+is specified [XrINVALIDOPTION].
+.sp
+.IP MSG_SIZE
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+A dimension of the raster image size or the view region size
+is less than 16 [XrINVALIDPARM].
+.IP
+A dimension of the view region is greater than the
+corresponding dimension of the raster image [XrINVALIDPARM].
+.IP
+.I pixelSize
+is an invalid value [XrPARMOUTOFRANGE].
+.sp
+.IP MSG_RESIZE
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I editorRect
+is an invalid size [XrINVALIDRECT].
+.sp
+.IP MSG_POSITION
+An invalid view region origin is specified [XrINVALIDPARM].
+.sp
+.IP "MSG_GETSTATE and MSG_MOVE"
+.I data
+is set to NULL [XrINVALIDPTR].
+.sp
+.IP "All messages, except MSG_NEW and MSG_SIZE"
+The
+.I instance
+parameter is set to NULL [XrINVALIDID].
+
+.SH "SEE ALSO"
+XrInput(3X), XrInit(3X)

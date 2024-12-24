@@ -1,0 +1,96 @@
+.TH Sx_Pack sx
+.BS
+.NA
+Sx_Pack, Sx_CreatePacked \- manage a window's location and size automatically
+.SY
+#include <X/Xlib.h>
+#include <sx.h>
+.sp
+Sx_Pack(\fIchild, parent, side, size, border, before, after\fP)
+.sp
+Window
+Sx_CreatePacked(\fIparent, side, size, border, before, after, borderPixmap,
+    backgroundPixmap\fP)
+.AR
+.AS Window backgroundPixmap
+.AP Window child in
+Window whose location and size are to be managed automatically.
+.AP Window parent in
+Parent of \fIchild\fP (or parent in which to create new child).
+.AP Sx_Side side in
+Where to place the child window, relative to the unfilled cavity
+in \fIparent\fP:  one of SX_TOP, SX_BOTTOM, SX_LEFT, or SX_RIGHT.
+.AP int size in
+Size of child window in direction perpendicular to \fIside\fP, not
+including border.  For
+example, if \fIside\fP is SX_TOP or SX_BOTTOM, \fIsize\fP is the
+height of the child window.  If less than or equal to zero, this
+window will fill the entire remaining area of \fIparent\fP,
+independently of \fIside\fP.
+.AP int border in
+Thickness of child's border, in pixels.
+.AP Window before in
+If non-NULL, must be another child of \fIparent\fP: insert the child
+in the packing order just before this window.
+.AP Window after in
+If non-NULL, must be another child of \fIparent\fP;  in this
+case \fIbefore\fP must be NULL.  The child will be inserted in the
+packing order just after this window.
+.AP Pixmap borderPixmap in
+What to use for border for new child window.
+.AP Pixmap backgroundPixmap in
+What to use for background for new child window.
+.BE
+
+.SH DESCRIPTION
+.PP
+Sx_Pack arranges for a window's geometry to be managed
+automatically by the Sx packer.
+\fIChild\fP's location and size in \fIparent\fP
+will be managed by the Sx packer from now on (until Sx_Unpack
+is called, or the parent or child is destroyed).  The child will
+span the entire width or height
+of \fIparent\fP along \fIside\fP, and will be \fIsize\fP pixels
+large in the other dimension.  Whenever \fIparent\fP's size
+changes, the child's size will be adjusted so that it always
+just covers the given side of \fIparent\fP.
+.PP
+Sx_CreatePacked is similar to Sx_Pack except that it creates
+a new window in \fIparent\fP instead of using an existing
+child.  It returns the X identifier for the new window.
+.PP
+If several calls to Sx_Pack or Sx_CreatePacked are made for the
+same \fIparent\fP with different children, then the children will
+be packed in order, with each child occupying one side of the
+unused space left in parent after the previous child has been
+packed.  The packing order is determined by the order of calls
+to Sx_Pack or Sx_CreatePacked:  the first child mentioned in
+an Sx_Pack or Sx_CreatePacked call gets highest priority in
+space allocation.  The \fIbefore\fP or \fIafter\fP parameters
+can be used to insert a child at a particular point in
+the packing order instead of the end.  If there is not enough
+space to accomodate all the windows that
+are supposed to be packed inside a parent then
+the low-priority windows will be unmapped until the parent's
+size becomes large enough to accomodate them.  It does not
+make sense to pack additional children after one whose \fIsize\fP
+was specified as zero, since there will never be space for
+them on the screen.
+.PP
+The Sx packer automatically takes care of mapping and unmapping
+child windows.  In calls to Sx_Pack, \fIchild\fP should not already
+be mapped;  Sx_Pack will map it either as part of the call or later,
+when its parent becomes mapped.  Similarly Sx_CreatePack arranges
+for the child window to be mapped, either during the call or later
+when its parent becomes mapped;  the caller need not ever map it.
+.PP
+When a packed window is destroyed, the packer will automatically
+remove it from the packing order for its parent and adjust the
+sizes of its siblings.
+.PP
+The implementation of the packer depends on the use of the Sx
+dispatcher (Sx_HandlerCreate, Sx_HandleEvent, etc.), and will
+not work if those routines are not used correctly.
+
+.SH KEYWORDS
+geometry, map, packer, side, window

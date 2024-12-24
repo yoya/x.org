@@ -1,0 +1,54 @@
+rm con.con idx.idx 2>/dev/null
+
+tbl pr01 | eroff -mm -Tlj+
+mv con.con pr01.con
+mv idx.idx pr01.idx 2>/dev/null
+
+tbl pr02 | eroff -mm -Tlj+
+mv con.con pr02.con
+mv idx.idx pr02.idx 2>/dev/null
+
+tbl pr03 | eroff -mm -Tlj+
+mv con.con pr03.con
+mv idx.idx pr03.idx 2>/dev/null
+
+tbl pr04 | eroff -mm -Tlj+
+mv con.con pr04.con
+mv idx.idx pr04.idx 2>/dev/null
+
+tbl pr05 | eroff -mm -Tlj+
+mv con.con pr05.con
+mv idx.idx pr05.idx 2>/dev/null
+
+tbl pr0a | eroff -mm -Tlj+
+mv con.con pr0a.con
+mv idx.idx pr0a.idx 2>/dev/null
+
+tbl pr0b | eroff -mm -Tlj+
+mv con.con pr0b.con
+mv idx.idx pr0b.idx 2>/dev/null
+
+cp pr000 pr00
+cat pr01.con >>pr00
+cat pr02.con >>pr00
+cat pr03.con >>pr00
+cat pr04.con >>pr00
+cat pr05.con >>pr00
+cat pr0a.con >>pr00
+cat pr0b.con >>pr00
+cat pr0000 >>pr00
+
+tbl pr00 | eroff -mm -Tlj+
+
+cp priii prii
+cat pr01.idx >>prii
+cat pr02.idx >>prii
+cat pr03.idx >>prii
+cat pr04.idx >>prii
+cat pr05.idx >>prii
+cat pr0a.idx >>prii
+cat pr0b.idx >>prii
+
+makeindex prii
+
+eroff -mm -Tlj+ prii.out

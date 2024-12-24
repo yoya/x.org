@@ -1,0 +1,152 @@
+.TH XRINPUTMAP 3X "Xrlib Version 10"
+.SH NAME
+XrInputMap \- map the input
+.SH SYNOPSIS
+#include <Xr/keycode.h>
+.sp 1
+unsigned char * 
+.br
+.B XrInputMap(kptr, nbytes)
+.br
+XKeyPressedEvent *kptr;
+int * nbytes;
+.SH DESCRIPTION
+This call maps the keycode returned from X into 8 bit character codes,
+16 bit character codes and function codes,
+taking into account the language of the keyboard if the keyboard type is K_HP
+(a HP keyboard).  If the keyboard type is K_DEFAULT or if the user has 
+a .Xkeymap in his home directory,
+\fBXLookupMapping(3X)\fR 
+will first be used.  If 
+\fBXLookupMapping()\fR 
+returns one or more characters, that string will be returned.  If 
+\fBXLookupMapping()\fR 
+returns
+either no characters, it will be ignored and the key will be
+mapped as follows.  If the
+key is a character key, the appropriate table is used based on the modifiers
+and the language of the keyboard.  Muting will be done if appropriate for
+the language.  Conversion from 8 bit to ISO 7 bit will be done if the K_ASCII8
+is not set.  
+If the key is a function key, two bytes will be returned.  The first 
+byte will be 0x80 and the second byte will be the function code.
+If the key has a different function when shifted, a different code will be
+returned. 
+\fBXr/keycode.h\fR 
+contains the defines for the function codes.  
+The following table lists codes that will be generated for the 
+various function keys.
+.sp 1
+The
+.B kptr
+parameter is a pointer to a key pressed event returned
+by issuing a read request to either the Xlib or Xrlib input
+routines.
+.sp1
+The
+.B nbytes
+parameter is a pointer to an integer.  It contains the number of bytes 
+in the string which is returned.  A pointer to a static counted character
+string which must not be touched by a client is returned by 
+.B XrInputMap().
+If 
+.B nbytes
+contains a 1, the string consists of one 8 bit character.
+If
+.B nbytes
+contains a 2 and the first byte is 0x80, then the second byte is a function
+code.  If
+.B nbytes
+contains a 2 and the first byte is not 0x80 or 
+.B *nbytes
+is larger than 2, a string of characters is returned.
+
+.TS
+center;
+c 1 l 1 l 1 l 1 l
+c ^ ^ ^ ^
+_____
+cllll.
+LK201	Return Code	Shifted Code	HP key label	DEC key label
+Code
+
+ 0126	F1_KEY	F9_KEY	f1	F1
+ 0127	F2_KEY	F10_KEY	f2	F2
+ 0130	F3_KEY	F11_KEY	f3	F3
+ 0131	F4_KEY	F12_KEY	f4	F4
+ 0132	F5_KEY	F13_KEY	f5	F5
+ 0133	BREAK_KEY	RESET_KEY	Reset/Break	***
+ 0134	STOP_KEY	SH_STOP_KEY	Stop	***
+ 0135	MENU_KEY	MENU_KEY	Menu	**
+ 0136	SYS_KEY	USER_KEY	User/System	**
+ 0137	ENTER_KEY	PRINT_KEY	Print/Enter	***
+ 0140	CLR_LINE_KEY	CLR_ALL_LINE_KEY	Clear line	**
+ 0141	DEL_LINE_KEY	DEL_LINE_KEY	Delete line	**
+ 0142	INSERT_LINE_KEY	INSERT_LINE_KEY	Insert line	**
+ 0143	CLR_DISP_KEY	CLR_ALL_DISP_KEY	Clear display	**
+ 0144	F6_KEY	F14_KEY	f6	F6
+ 0145	F7_KEY	F15_KEY	f7	F7
+ 0146	F8_KEY	F16_KEY	f8	F8
+ 0147	MENU_KEY	MENU_KEY	**	F9
+ 0150	SYS_KEY	USER_KEY	**	F10
+ 0161	'\\\\033'	'\\\\033'	***	F11
+ 0162	BS_KEY	BS_KEY	**	F12
+ 0163	'\\\\n'	'\\\\n'	***	F13
+ 0164	HOME_UP_KEY	HOME_DN_KEY	**	F14
+ 0174	HELP_KEY	HELP_KEY	***	Help
+ 0175	DO_KEY	DO_KEY	***	Do
+ 0200	CLR_LINE_KEY	CLR_ALL_LINE_KEY	**	F17
+ 0201	CLR_DISP_KEY	CLR_ALL_DISP_KEY	**	F18
+ 0202	INSERT_LINE_KEY	INSERT_LINE_KEY	**	F19
+ 0203	DEL_LINE_KEY	DEL_LINE_KEY	**	F20
+ 0204	BS_KEY	BS_KEY	Back space	**
+ 0210	TAB_KEY	BACKTAB_KEY	Tab (keypad)	**
+ 0211	'\\\\033'	'\\\\177'	DEL/ESC	***
+ 0212	FIND_KEY	FIND_KEY	***	Find
+ 0213	INSERT_CHAR_KEY	INSERT_CHAR_KEY	Insert char	Insert Here
+ 0214	DEL_CHAR_KEY	DEL_CHAR_KEY	Delete char	Remove
+ 0215	SELECT_KEY	SH_SELECT_KEY	Select	Select
+ 0216	PREV_KEY	PREV_KEY	Prev	Prev Screen
+ 0217	NEXT_KEY	NEXT_KEY	Next	Next Screen
+ 0225	ENTER_KEY	ENTER_KEY	Enter	Enter
+ 0241	BLANK_1_KEY	BLANK_5_KEY	(Blank 1)	PF1
+ 0242	BLANK_2_KEY	BLANK_6_KEY	(Blank 2)	PF2
+ 0243	BLANK_3_KEY	BLANK_7_KEY	(Blank 3)	PF3
+ 0244	BLANK_4_KEY	BLANK_8_KEY	(Blank 4)	PF4
+ 0247	CURS_LF_KEY	ROLL_LT_KEY	(left arrow)	(left arrow)
+ 0250	CURS_RT_KEY	ROLL_RT_KEY	(right arrow)	(right arrow)
+ 0251	CURS_DN_KEY	ROLL_DN_KEY	(down arrow)	(down arrow)
+ 0252	CURS_UP_KEY	ROLL_UP_KEY	(up arrow)	(up arrow)
+ 0253	HOME_UP_KEY	HOME_DN_KEY	(up-left arrow)	**
+ 0260	CAPS_KEY	CAPS_KEY	Caps	Lock
+*0261	TO_ROMAN_KEY	TO_ROMAN_KEY	Ext char(left)	Compose Character
+*0262	TO_ALT_KEY	TO_ALT_KEY	Ext char(right)	***
+*0263	KANJI_LF_KEY	KANJI_LF_KEY	(left Kanji)	***
+*0264	KANJI_RT_KEY	KANJI_RT_KEY	(right Kanji)	***
+ 0274	'\\\\177'	'\\\\177'	***	(backspace)
+ 0275	RETURN_KEY('\\\\r')	RETURN_KEY('\\\\r')	Return	Return
+ 0276	TAB_KEY('\\\\t')	BACKTAB_KEY('\\\\t')	Tab	Tab
+.TE
+
+The Return and Tab keys will return the characters in the parentheses
+from non-HP keyboards since 
+\fBXLookupMapping()\fR 
+will return those values.
+
+* - The Extend char keys generate these codes only if K_ALT_ENABLE is 1.  See
+.B XrInputConf()
+for alternate setting of K_ALT_ENABLE.  When K_ALT is set, TO_ALT_KEY
+is generated and when it is cleared, T0_ROMAN_KEY is generated.
+If K_ALT_ENABLE is 0, no code will be generated and
+.B nbytes
+will be set to zero.
+The Kanji keys are only on the Kanji keyboard.
+
+** - This function is generated by different keys (LK201 codes) on the HP
+keyboard and the DEC keyboard. 
+
+*** - This function exists only on one of the keyboards, either HP only or 
+DEC only.  Avoid using these functions if you wish your application to run
+on both machines.
+.SH SEE ALSO
+XrInputConf(3X), XrInputInit(3X), XrInputMute(3X)

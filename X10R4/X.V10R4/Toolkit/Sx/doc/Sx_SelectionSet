@@ -1,0 +1,79 @@
+.TH Sx_SelectionSet sx
+.BS
+.NA
+Sx_SelectionSet \- become current owner of the selection
+.SY
+#include <X/Xlib.h>
+#include <sx.h>
+.sp
+Sx_SelectionSet(\fIfetchProc, changeProc, clientData\fP)
+.AR
+.AS ClientData (*changeProc)()
+.AP int (*fetchProc)() in
+Procedure for Sx_SelectionFetch to invoke to find out what's in
+the selection.
+.AP void (*changeProc)() in
+Procedure to invoke when the selection is cleared or when someone
+else takes over ownership of the selection.
+.AP ClientData clientData in
+Arbitrary value, which is passed to \fIfetchProc\fP and \fIchangeProc\fP.
+.BE
+
+.SH DESCRIPTION
+.PP
+This procedure is called by an application to gain
+control of the selection.  From now on, until the next call to
+Sx_SelectionSet or Sx_SelectionClear, any calls to Sx_SelectionGet
+will be passed through to \fIfetchProc\fP, which must have the
+following structure:
+.nf
+.sp .5
+.RS
+int
+fetchProc(\fIclientData, desiredFormat, firstByte, numBytes, valuePtr,
+	formatPtr\fP)
+.RS
+ClientData \fIclientData\fP;
+char *\fIdesiredFormat\fP;
+int \fIfirstByte\fP;
+int \fInumBytes\fP;
+char *\fIvaluePtr\fP;
+char *\fIformatPtr\fP;
+.RE
+{
+}
+.RE
+.sp .5
+.fi
+All of the parameters are identical in type and meaning to the parameters
+to Sx_SelectionGet, except for \fIclientData\fP, which is a copy of
+the \fIclientData\fP parameter passed to Sx_SelectionSet.  \fIClientData\fP
+is typically a pointer to a data structure that helps \fIfetchProc\fP to
+location the selection information.  See the documentation for
+Sx_SelectionGet for details on what \fIfetchProc\fP must do.  \fIFetchProc\fP
+must return either \-1 or a count of the number of bytes stored at
+\fI*valuePtr\fP.
+.PP
+The next time that Sx_SelectionSet or Sx_SelectionClear is called,
+\fIchangeProc\fP will be called to notify the previous owner that
+it has lost control of the selection.
+\fIChangeProc\fP should have the following structure:
+.RS
+.sp .5
+.nf
+void
+changeProc(\fIclientData\fP)
+.RS
+ClientData \fIclientData\fP;
+.RE
+{
+}
+.RE
+.sp .5
+.fi
+Once again, \fIclientData\fP is a copy of the \fIclientData\fP value
+passed to Sx_SelectionSet.  Typically, \fIchangeProc\fP will unhighlight
+the selection on the display and take any other clean-up actions
+required by its application.
+.SH KEYWORDS
+selection, window

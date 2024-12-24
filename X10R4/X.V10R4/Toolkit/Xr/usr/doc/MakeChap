@@ -1,0 +1,5 @@
+rm con.con idx.idx 2>/dev/null
+echo "Processing file pr0$1"
+tbl pr0$1 | eroff -mm -Tlj+
+mv con.con pr0$1.con
+mv idx.idx pr0$1.idx 2>/dev/null

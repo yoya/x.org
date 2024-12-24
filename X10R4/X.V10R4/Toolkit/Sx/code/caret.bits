@@ -1,0 +1,7 @@
+#define caret_width 12
+#define caret_height 8
+#define caret_x_hot 5
+#define caret_y_hot 0
+static short caret_bits[] = {
+   0x0000, 0x0060, 0x00f0, 0x01f8,
+   0x039c, 0x070e, 0x0204, 0x0000};

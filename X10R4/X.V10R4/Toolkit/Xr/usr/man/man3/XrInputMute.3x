@@ -1,0 +1,26 @@
+.TH XRINPUTMUTE 3X "Xrlib Version 10"
+.SH NAME
+XrInputMute \- map the input
+.SH SYNOPSIS
+#include <Xr/keycode.h>
+.br
+.sp 1
+unsigned char 
+.br
+.B XrInputMute(c)
+.br
+unsigned char c;
+.SH DESCRIPTION
+Normally, 
+\fBXrInputMap()\fR
+would be used to map the keys.  It calls 
+\fBXrInputMute()\fR
+as part of its mapping process.  However, if you have a character for which
+you would like the 8 bit to ISO 7 bit conversion done or the muting done,
+this routine can be used.
+The
+.B c
+parameter represents the character which is to be converted.
+.sp 1
+.SH SEE ALSO
+XrInputConf(3X), XrInputInit(3X), XrInputMap(3X)

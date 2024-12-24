@@ -1,0 +1,2756 @@
+.ds Ch Intrinsics
+.nr H1 3
+.so format
+The intrinsics provide the application and higher layers of the Xr library
+with the group of functions which expand X's input model, handle
+resource management, set up and control a window's editors, and
+provide a large set of utility functions.  The
+following sections contain descriptions of all of the intrinsic
+functions.  Included in these sections is the syntax, structures,
+and messages for each of the functions.
+.H 2 "Graphic Structures and Data Types"
+Before the functionality of the Xrlib intrinsic level can be described,
+a few defined types and
+structures which are used throughout the Xr library need to be defined.
+.P
+Xrlib uses a set of typedefs which ensure exact element sizes on
+various architectures:
+.CO
+.IN "INT8"
+   INT8  - 8 bit signed integer.
+.IN "INT16"
+   INT16 - 16 bit signed integer.
+.in
+
+.IN "INT32"
+   INT32 - A32 bit signed integer.
+
+.IN "UINT8"
+   UINT8  - 8 bit unsigned integer. 
+.IN "UINT16"
+   UINT16 - 16 bit unsigned integer.
+.IN "UINT32"
+   UINT32 - 32 bit unsigned integer.
+
+.IN "STRING8"
+   STRING8  - array of 8 bit characters
+.CE
+These typedefs are used in Xrlib whenever the size of the storage
+space could cause portability problems.  They should also be used
+by applications which want to easily port to other systems.
+.P
+The Xr library uses several structures which represent geometric types:
+.CO
+   typedef struct
+   {
+      INT16 x;
+      INT16 y;
+.IN "POINT"
+   } POINT;
+.CE
+The POINT structure defines a location in coordinate space. It is used
+for positioning graphical objects, such as editors.
+.CO
+
+   typedef struct
+   {
+      INT16 width;
+      INT16 height;
+.IN "SIZE"
+   } SIZE;
+.CE
+The SIZE structure defines the horizontal and vertical size of an object.
+.CO
+
+   typedef struct
+   {
+      INT16 x;
+      INT16 y;
+      INT16 width;
+      INT16 height;
+.IN "RECTANGLE"
+   } RECTANGLE;
+.CE
+The RECTANGLE structure defines a rectangular region. It is used by many
+of the functions within Xrlib to define both the size and location an object
+is to be placed or moved.
+.P
+Also defined are a set of constants which are used throughout the Xr library:
+.CO
+.IN "TRUE" "defined"
+   #define TRUE	1
+.IN "FALSE" "defined"
+   #define FALSE	0
+.IN "NULL" "defined"
+   #define NULL	0
+.CE
+.H 2 "Initializing the Xr Library"
+Xrlib must be initialized before it can be used by an application. This
+initialization is provided to the application through one call which has
+the following syntax:
+.CO
+.IN "XrINIT"
+   XrInit(allocFuncts);
+   xrAllocFuncts * allocFuncts;
+.CE
+XrInit() sets up the global information needed by both the Xrlib routines
+and the application. The types of information initialized include a base
+font and the resource manager with a set of default resources.
+XrInit() will return
+.B
+TRUE
+.R
+to the application when finished with the initialization.  XrInit() can
+only be called once.  Subsequent calls will return 
+.B
+FALSE.
+.R
+.P
+The
+.I
+allocFuncts
+.R
+parameter is a pointer to the following xrAllocFuncts structure:
+.CO
+   typedef struct
+   {
+      char * (*newMalloc)();
+      int    (*newFree)();
+      char * (*newRealloc)();
+      char * (*newCalloc)();
+.IN "xrAllocFuncts"
+   } xrAllocFuncts;
+.CE
+.P
+.VL 15
+.LI newMalloc
+contains a pointer to a memory allocation function
+which Xrlib is to use for allocating memory in place of malloc().
+.LI newFree
+contains a pointer to a memory free function
+which Xrlib is to use for freeing allocated memory and will
+be used in place of free().
+.LI newRealloc
+contains a pointer to a memory reallocation function
+which Xrlib is to use for reallocating memory in place of realloc().
+.LI newCalloc
+contains a pointer to a calloc function
+which Xrlib is to use for allocating memory in place of calloc().
+.LE
+.P
+These functions are supplied to Xrlib by the application so that Xrlib can
+use this alternate set of allocation functions for applications which need to
+handle special forms of memory management. These new allocation functions must
+have the same return values as the system-supplied functions.
+.P
+Applications which use the normal UNIX-supplied allocation functions
+have the
+.I
+allocFuncts
+.R
+parameter set to
+.B
+NULL.
+.R
+.sp 2
+.P
+Events used by Xrlib for editor selecting, menu posting and menu item
+selecting are set up by the first call to XrInit().
+.P
+.IN "X Defaults" "used by Xrlib"
+Xrlib uses X Defaults to set up four default conditions:
+.sp 1
+.TS
+center allbox;
+ll.
+Define	Meaning
+_
+XrSELECT	The entry condition for an editor.
+XrSELECTUP	The exit condition for an editor.
+XrMENUPOST	The condition which displays a menu.
+XrMENUITEMSELECT	The condition which selects an item.
+.TE
+.IN "XrSELECT"
+.IN "XrSELECTUP"
+.IN "XrMENUPOST"
+.IN "XrMENUITEMSELECT"
+.sp 1
+XrInit() accesses these four defaults by:
+.CO
+   string = XGetDefault ("Xrlib", "define");
+.CE
+where the
+.I
+define
+.R
+parameter is a string spelled the same as one of the "defines"
+in the above table.  The
+.I
+string
+.R
+parameter will be set to point to one of the following strings:
+.sp 1
+.TS
+center allbox;
+ll.
+X Default	Meaning
+_
+LeftButtonDown	The left button was pressed.
+LeftButtonUp	The left button was released.
+MiddleButtonDown	The middle button was pressed.
+MiddleButtonUp	The middle button was released.
+RightButtonDown	The right button was pressed.
+RightButtonUp	The right button was released.
+.TE
+.sp 1
+If there is no default file, XrInit() will default 
+.B
+XrSELECT
+.R
+to 
+LeftButtonDown, 
+.B
+XrSELECTUP
+.R
+will default to LeftButtonUp, 
+.B
+XrMENUPOST
+.R
+defaults to RightButtonDown, and 
+.B
+XrMENUITEMSELECT
+.R
+defaults to RightButtonUp.
+.P
+.IN "Modifier"
+An additional modifier can be attached to any or all of the buttons.
+The valid modifiers are Control, Shift, Meta, or None. These modifiers are
+set through the X defaults file and are as follows:
+.sp 1
+.TS
+center allbox;
+ll.
+X Default	Meaning
+_
+AllButtonModifier	Sets all of the buttons to one modifier.
+LeftButtonDown	Modifier for the left button down.
+LeftButtonUpModifier	Modifier for the left button up.
+MiddleButtonDownModifier	Modifier for the middle button down.
+MiddleButtonUpModifier	Modifier for the middle button up.
+RightButtonDownModifier	Modifier for the right button down.
+RightButtonUpModifier	Modifier for the right button up.
+.TE
+.sp 1
+The default condition for all of the above (seven) modifiers is
+.B
+None.
+.R
+.P
+When a modifier is given for a button it affects the use of that button.
+For example, if LeftButtonDown is tied to 
+.B
+XrSELECT
+.R
+and LeftButtonDown is
+also modified by Control, an editor will be called only when the left
+button is pressed while the Control key is being held down.
+.P
+The xr library sets up several other default values which are used by editors,
+panels, and the menu manager.  These defaults can also be used by the
+application through the corresponding Xrlib global variable.
+.IN "Global variables" "initialized by Xrlib"
+
+.sp 1
+.TS
+center allbox;
+lll.
+X Default	Xrlib Global	Meaning
+_
+WindowForeground	xrWindowForeground	Foreground window tile
+WindowBackground	xrWindowBackground	Background window tile
+BorderWidth	xrBorderWidth	Window border width
+ForegroundColor	xrForegroundColor	Foreground color
+BackgroundColor	xrBackgroundColor	Background color
+DefaultFont	xrBaseFontInfo	Default system font
+CursorForeground		Cursor foreground color
+CursorBackground		Cursor background color
+.TE
+.sp 1
+The cursor foreground and background colors are used only in XrInit() to set
+up the default cursor which is used by the menu and panel managers.  
+The cursor can
+also be used by the application and is contained in the global variable 
+xrDefaultCursor.
+.sp 1
+The user can change any of these defaults by providing an X defaults file.
+Refer to the X documentation and the X(1) man page for a description of
+the defaults file.
+.sp 2
+.P
+XrInit() sets up the resource manager and adds a number of resources.
+These resources are, in some cases, used internally by Xrlib functions, and
+they can also be used by the application.  Because some of the resources
+are used internally, the application should not remove them from the
+resource manager.  However, an application can replace these resources
+with resources of its own.  This will have the effect of changing the
+appearance of graphical output from Xrlib routines which use the resource.
+.P
+The following paragraphs detail the set of resources that Xrlib adds to the
+resource manager.  Refer to the "Resource Manager" section below for a descripion the structure and how to use each of the resources.
+.IN "Resources" "added by Xrlib"
+.P
+A set of bitmaps and a set of bitmap ids are added to the resource manager. 
+Bitmaps are used, for example, by editors to make colored pixmaps. Pixmaps
+are used for drawing editor instances.  The resource type definitions for
+these two types of resources are 
+.B
+XrTYPE_BITMAP
+.R
+and
+.B
+XrTYPE_BITMAPID.
+.R
+The following table lists a set of defines which can be used as the 
+resource ids to access either of these sets of resources.
+.sp 1
+.TS
+center allbox;
+ll.
+Define	Style
+_
+XrWHITE	100% foreground
+XrBLACK	100% background
+XrPERCENT25	25% foreground - 75% background
+XrPERCENT50	50% foreground - 50% background
+XrPERCENT75	75% foreground - 25% background
+XrVERTICAL	Alternating vertical colors
+XrHORIZONTAL	Alternating horizontal colors
+XrSLANTLEFT	Alternating 45 degree colors
+XrSLANTRIGHT	Alternating 45 degree colors
+.TE
+.sp 1
+.P
+.IN "Global variables" "initialized by Xrlib"
+XrInit() initializes a set of global variables which are used by the Xrlib
+functions and can also be used by the application.  None of these variables
+should be reset by the application.
+.nf
+
+   xrZeroPt	A POINT structure set to {0, 0}.
+   xrZeroRect	A RECTANGLE structure set to {0, 0, 0, 0}.
+   xrMalloc	The pointer to the malloc() function.
+   xrFree	The pointer to the free() function.
+   xrCalloc	The pointer to the calloc() function.
+   xrRealloc	The pointer to the realloc() function.
+   xrErrno	Error code set when a function fails.
+
+.fi
+.H 2 "Input"
+The XrInput() routine handles all requests for input by an application from
+one or more windows.  All input is routed through a single entry point
+within Xrlib, providing a one-routine interface to all of the types of input
+an application will need.  The input routine also provides the mechanism for
+routines that handle the higher level Xrlib functions such as editors, menus,
+and panels to route the results of their actions through the same input
+stream to the application.  The syntax for calling XrInput() is as follows:
+.CO
+.IN "XrInput"
+   XrInput (windowId, message, data);
+   Window   windowId;
+   INT32    message;
+   INT8   * data;
+.CE
+.I
+windowId
+.R
+contains the identification number of the window and is used to set some of 
+the input settings.
+.I
+message
+.R
+is the command XrInput() uses to perform the function, and
+.I
+data
+.R
+is the information needed to complete the function or will contain
+any return information generated by XrInput().
+.P
+The following sections define the structures used by XrInput(),
+the types of input that XrInput() can generate, and the messages that
+XrInput() provides.
+.H 3 "The XEvent Structure"
+Xrlib uses the X
+.B
+XEvent
+.R
+structure to return input to the application. This structure is defined
+as follows:
+.CO
+   typedef struct _XEvent {
+           unsigned long type;
+           Window window;
+           long pad_l1, pad_l2;
+           Window subwindow;
+           long pad_l4;
+.IN "XEvent"
+   } XEvent;
+.CE
+.P
+.VL 15
+.LI type
+contains the type of event which has occurred.  The event types that can be
+generated by X are defined in <X/Xlib.h> and are as follows:
+.sp 1
+.TS
+center allbox;
+ll.
+Request	Circumstances
+_
+KeyPressed	keyboard key pressed
+KeyReleased	keyboard key released
+ButtonPressed	mouse button pressed
+ButtonReleased	mouse button released
+EnterWindow	mouse entering window
+LeaveWindow	mouse leaving window
+MouseMoved	mouse moves within window
+ExposeWindow	full window changed and/or exposed
+ExposeRegion	region of window exposed
+ExposeCopy	region exposed by XCopyArea
+RightDownMotion	mouse moves with right button down
+MiddleDownMotion	mouse moves with middle button down
+LeftDownMotion	mouse moves with left button down
+UnmapWindow	window is unmapped
+FocusChange	keyboard focus changed
+.TE
+.sp 1
+Each of these event types is described by a different structure.
+To extract the results of the events, the XEvent structure
+needs to be coerced to the proper type.  Refer to the Xlib
+documentation for a description of the various event structures.
+.sp 1
+.LI window
+contains the window identifier of the window which has 
+generated the event.
+.LI pad_l1
+is padding space which is defined by the specific event types.
+.LI pad_l2
+is also padding space which is defined by the specific event types.
+.LI subwindow
+contains the child window (if any) in which the event 
+actually occurred.
+.LI pad_l4
+is also padding space which is defined by the specific event types.
+.LE
+.H 3 "Xr Library Input Sources"
+The input model supplied by the XrInput() routine can handle the
+gathering of input from three types of sources:
+.BL
+.LI
+An X window registered with XrInput()
+.LI
+Other X windows
+.LI
+Application-supplied file descriptors
+.LE
+.P
+.IN "Registering a window"
+An X window is registered with XrInput() through a message to
+XrInput().  This message will be discussed in the section containing
+XrInput()'s messages.  Registering a window with XrInput() gives
+the window the capability to generate Xrlib's special types
+of input.  For input that occurs in a registered window, the XEvent 
+structure is coerced into an Xrlib input structure so that the data can be 
+accessed to extract the Xrlib generated input.  The Xrlib input structure
+will be defined in the next section.
+.P
+Applications can also use Xrlib's input model to gather input from
+a window which the application has created but has not registered
+with XrInput().  Input of this form will be returned to the application
+through XrInput() as normal XEvent input.
+.P
+.IN "Input" "from file descriptor"
+Applications can gather input from a file descriptor by providing the
+file descriptor to XrInput().  The file descriptor will tell Xrlib where
+to look for input.  Input of the types 
+.B
+read, write,
+.R
+and
+.B
+exception 
+.R
+can be gathered.  When input is pending on a file descriptor, XrInput()
+will return an Xrlib input structure containing the file descriptor
+and an indicator of whether the type of input pending is
+.B
+read, write,
+.R
+or
+.B
+exception.
+.R
+It is then up to the application to service the input request
+on the file descriptor.
+.H 3 "Xr Library Input"
+Xrlib adds an input-event type to the list of input types defined by
+X.  The new type is indicated by the high bit of the
+.I
+type
+.R
+field of the XEvent structure being set.  This can be checked by
+the application by "ANDing" the field to the define
+.B 
+XrXRAY. X and Xrlib input types can be generated from a registered window.
+All of the forms of X input can be gathered.  The data is extracted
+from the XEvent structure by looking at the type of input and coercing
+the structure properly.  Data is accessed for Xrlib input in the same
+manner.  When Xrlib input occurs the high bit of the 
+.I
+type
+.R
+field of the XEvent structure will be set.  When this occurs,
+the data contained in the XEvent structure can be extracted by
+coercing it into Xrlib's input structure.  This structure is
+defined as follows.
+.CO
+   typedef struct
+   {
+      UINT32 type;
+      INT32  source;
+      INT16  inputCode; 
+      INT8   inputType;
+      INT8   value1;
+      INT16  value2;
+      INT16  value3;
+      POINT  valuePt;
+      INT32  valuePtr;
+.IN "xrEvent"
+   } xrEvent;
+.CE
+.P
+.VL 15
+.LI type
+contains a value indicating whether input is being returned
+from a registered window, or an ordinary X window.  If the input is 
+from a registered window, the high bit of the field will be set, 
+and can be tested by "ANDing" it with the define
+.B
+XrXRAY.
+.R
+.IN "XrXRAY" "data extract structure"
+If any of the lower bits are set, the input is an X event type
+and the structure to be used to extract data for the event
+is defined in the Xlib documentation.
+.LI source
+contains the source of the input.  Its value is dependent
+on the
+.I
+inputType
+.R
+field of the xrEvent structure and will be set to either the window id of
+the window in which the input occurred or to a file descriptor of an input
+source which the application has defined.  This feature will be discussed
+in a later section.
+.LI inputType
+contains the type of input that was generated.  The set of
+input types that Xrlib can generate are defined as follows.
+.sp 1
+.TS
+center allbox;
+ll.
+Type	Meaning
+_
+XrEDITOR	Input from an editor
+XrMENU	Input from a menu
+XrPANEL	Input from a panel
+XrMESSAGEBOX	Input from a message box
+XrFILE	Input from a file descriptor
+.TE
+.sp 1
+.LE
+.P
+The rest of the fields are used in different ways by the various types
+of input.  Refer to the input-generating functions to see how these fields
+are defined.
+.H 3 "Input Messages"
+The XrInput() functions are broken into four sets of messages, each
+of which handle a different aspect of the XrInput() routine.
+.sp
+.P
+The following messages initialize and set up windows for processing Xrlib
+input:
+.BL
+.LI
+MSG_ADDWINDOW
+.P
+.IN "Registering a window" 
+If an application wants to gather Xrlib type input or place editors
+within a field it has created, Xrlib needs to be told about the window.
+Issuing this message causes a window to be registered with XrInput()
+which then sets up the other routines that need to know about the
+window.  To register a window,
+.I
+windowId
+.R
+should be set to the id of the window to be registered and
+.I
+data
+.R
+should point to an xrWindowData structure which is defined as follows:
+.CO
+   typedef struct
+   {
+      RECTANGLE windowRect;
+      Pixmap    foreTile;
+      Pixmap    backTile;
+.IN "xrWindowData"
+   } xrWindowData;
+.CE
+.VL 15
+.LI windowRect
+contains the size and location of the window on the display.
+.LI foreTile
+contains the foreground tile of the window.  It should be
+set to the same tile as the border tile used to create the window.
+.LI backTile
+contains the background tile of the window and should be
+set to the same tile as the background tile used to create the window.
+.LE
+.LI
+MSG_REMOVEWINDOW
+.P
+When an application destroys a window, it should call XrInput() so
+that the window will be removed from XrInput()'s tables.  For this
+message,
+.I
+windowId
+.R
+should be set to the id of the window to be removed.  
+.I
+data
+.R
+is unused and can be set to
+.B
+NULL.
+.R
+.LI
+MSG_SETWINDOWDATA
+.P
+If an application changes the size or tiles of a window, XrInput()
+needs to be given the data to modify its tables.  For this message,
+.I
+windowId
+.R
+should be set to the id of the window in which the data is to be set and
+.I
+data
+.R
+should be set to point to an xrWindowData structure which contains the
+needed information.
+.LI
+MSG_GETWINDOWDATA
+.P
+This messages returns the data for a window.  For this message,
+.I
+windowId
+.R
+should be set to the id of the window in which the data is contained and
+.I
+data
+.R
+should be set to point to an xrWindowData structure.  The members of this
+structure will be set to the data values for the window.
+.LI
+MSG_ADDWINDOWFUNCT
+.P
+The Xr library's editors and managers can be called automatically
+upon a particular input or inputs.  An example of this is the menu
+manager displaying a menu upon an XrMENUPOST event input.  To accomplish this
+function, XrInput() maintains a set of information for each registered 
+window.  This message is the means by which a particular window
+gets the capabilities described above.  For this message,
+.I
+data
+.R
+is a pointer to the following structure:
+.CO
+   typedef struct
+   {
+      INT8  processFlag;
+      xrPFI (*funct)();
+      INT32 instance;
+      INT32 message;
+      INT32 eventCount;
+      xrWindowEvent * eventList;
+.IN "xrWindowFunctInfo"
+   } xrWindowFunctInfo;
+.CE
+.VL 15
+.LI funct
+contains a pointer to the function that is to be invoked 
+when a particular event occurs.  The function must be of the form:
+.CO
+   (*funct)(instance, message, data)
+   INT32   instance;
+   INT32   message;
+   INT8  * data;
+.CE
+.I
+instance
+.R
+is the instance of the type of element
+.I
+funct
+.R
+is to operate upon and is defined as a pointer to a function returning
+an integer.
+.I
+message
+.R
+is the message that is to be sent to the function.
+.I
+data
+.R
+points to the event which occurred to invoke this function.
+.LI instance
+contains the object the function is to operate upon.
+.LI message
+contains the message to the function.
+.LI processFlag
+is a boolean which is set to
+.B
+TRUE
+.R
+or 
+.B
+FALSE
+.R
+by the application or manager adding the xrWindowFunctInfo structure.  It
+is used to turn the processing of the event list on and off, and for 
+automatically calling the function attached to the window.
+.LI eventCount
+A window can be set up so that more than one event will invoke a function.
+This field contains a count of that number of events.
+.LI eventList
+contains a pointer to the set of events which will 
+cause the function for this window to be invoked.  The structure
+is defined as follows.
+.CO
+typedef struct
+{
+   UINT32 inputType;
+   INT16  inputCode;
+.IN "xrWindowEvent"
+} xrWindowEvent;
+.CE
+.LI inputType
+contains a single or a group of "OR-ed" X event masks defining
+the event types which can cause the function to be called.
+.LI inputCode
+contains an additional values used to further distinguish the 
+conditions necessary to invoke the function.  This field is only
+used for the X 
+.B
+KeyPressed, KeyReleased, ButtonPressed, and ButtonReleased
+.R
+events.  For the key events, the field should be set to the character
+code of the key that is to bring up the window.  For button events,
+the field should be set to one of the X defines of
+.B
+LeftButton, MiddleButton,
+.R
+or
+.B
+RightButton.
+.R
+.LE
+.P
+Each window can have as many xrWindowFunct structures attached to it as is
+needed.  When an input occurs on the window, the event lists contained in
+the xrWindowFunct structures attached to the window are searched to see if
+a match can be found. If the event matches one of the events listed for the
+window, the function for the event is invoked.  If no match is found, the
+event is returned as normal input.
+.LI
+MSG_REMOVEWINDOWFUNCT
+.P
+This message removes an xrWindowFunct structure that was previously added
+to the window
+.I
+windowId.  data
+.R
+is a pointer to the function that matches the function supplied in the
+xrWindowFunct structure contained within the window.
+.R
+.LI
+MSG_SETPROCESSFLAG
+.P
+A manager of a window may sometimes want to turn on and off the
+event list checking and function calling routines provided through
+MSG_ADDWINDOWFUNCT.  This message sets the
+.I
+processFlag
+.R
+field of the xrWindowFunct structure to 
+.B
+TRUE
+.R
+which turns on the processing function for the window identified by the
+parameter
+.I
+windowId.  data
+.R
+is a pointer to the function whose
+.I
+processFlag
+.R
+is to be set.
+.LI
+MSG_CLEARPROCESSFLAG
+.P
+This message clears the
+.I
+processFlag
+.R
+field of the xrWindowFunct structure by setting it to  
+.B
+FALSE
+.R
+which turns off the processing function for the window identified by the
+parameter
+.I
+windowId.  data
+.R
+is a pointer to the function whose
+.I
+processFlag
+.R
+is to be cleared.
+.LE
+.sp
+.P
+The following messages provide for the various forms of input-gathering
+from Xrlib:
+.P
+.IN "Input" "blocked and non-blocked"
+Xrlib supports both blocked and non-blocked input.  Blocked input will 
+cause the input routine to wait for input on one of windows or file
+descriptors of the application before returning, or to return (before
+input occurs) if the application sets a timeout.  Non-blocked input will
+return immediately when an input occurs or when there is an indicator that
+no input has occurred.
+.P
+.IN "Reads" "regular and hot"
+Regular reads and hot reads are the two modes of input available in Xrlib.
+When input occurs during a hot read, the set of functions attached to the
+window will be scanned to see if the input matches any of the events in the
+function's event list.  If a match is found, the function will be called.
+Thus, hot read is the method by which an application calls the editors in a
+window, posts the menu, or performs any other function which has been added
+to the called window. Regular reads perform no scanning of the function list.
+.P
+The following messages cause inputs to be returned to the application:
+.BL
+.LI
+MSG_BLKREAD
+.P
+This message copies an input event into the XEvent structure pointed to by
+.I
+data
+.R
+if there is an input pending.  If no input is pending, the call waits until
+input occurs and then returns that input.
+.LI
+MSG_NONBLKREAD
+.P
+This message copies an input event into the XEvent structure pointed to by
+.I
+data
+.R
+if there is an input pending.  If no input is pending,
+.I
+data
+.R
+is left unchanged and
+.B
+NULL
+.R
+is returned.
+.LI
+MSG_BLKHOTREAD
+.P
+This message copies an input event into the XEvent structure pointed to by
+.I
+data
+.R
+if there is an input pending.  If no input is pending, the call waits until
+an input occurs and returns that input.  If the input is a select input, the
+editors will be invoked; if the input is a menu input, the menuing system
+will be invoked.
+.LI
+MSG_NONBLKHOTREAD
+.P
+This message copies an input event into the XEvent structure pointed to by
+.I
+data
+.R
+if there is an input pending.  If no input is pending,
+.I
+data
+.R
+is left unchanged and
+.B
+NULL
+.R
+is returned.  If the input is a select input, the editors will be invoked;
+if the input is a menu input, the menuing system will be invoked.
+.LE
+.sp
+.P
+The following messages manipulate the Xr library input queue:
+.BL
+.LI
+MSG_PUSHEVENT
+.P
+This message adds an event structure pointed to by
+.I
+data
+.R
+to the front of the input queue.  The next "read" returns this event.
+.LI
+MSG_PEEKEVENT
+.P
+This messages fills out the event structure pointed to by
+.I
+data
+.R
+with a copy of the event at the front of the input queue.  The input queue
+is unaffected by this call.  If the input queue is empty, this call will fail.
+.LI
+MSG_CLEAR
+.P
+This message clears the input queue of all pending input.
+.I
+data
+.R
+is unused for this call and should be set to 
+.B
+NULL.
+.R
+.LE
+.sp
+.P
+The following messages are used to set up and change the input sources
+from which XrInput() is to gather input.
+.BL
+.LI
+MSG_ADDINPUT
+.P
+This message adds a file descriptor from which XrInput() is to gather
+input.
+.I
+data
+.R
+points to an xrFDInput structure which is defined as follows.
+.CO
+   typedef struct
+   {
+      INT32 fd;
+      INT8  type;
+.IN "xrFDInput"
+   } xrFDInput;
+.CE
+.VL 10
+.LI fd
+contains the file descriptor for the source from which XrInput()
+is to gather input.
+.LI type
+tells XrInput() which forms of input should be gathered from
+the file descriptor.  The field can be set to any combination of the defines
+.B
+XrREAD, XrWRITE,
+.R
+or
+.B
+XrEXCEPTION.
+.R
+These defines should be "OR-ed" together to define the value of this field.
+.LI
+MSG_REMOVEINPUT
+.P
+This message removes a previously added file descriptor from
+the input set.  
+.I
+data
+.R
+is a pointer to an xrFDInput structure defined by MSG_ADDINPUT and contains
+the file descriptor and the conditions under which the file descriptor is to
+be removed.
+.LI
+MSG_SETTIMEOUT
+.P
+This message sets a timeout value in seconds for XrInput() to wait
+for input to occur from the file descriptors it is selecting upon.
+.I
+data
+.R
+is a pointer to the following structure:
+.CO
+.IN "Timeval"
+   struct timeval
+   {
+      unsigned long tv_sec;
+      long          tv_usec;
+   };
+.CE
+.sp
+.VL 15
+.LI tv_sec
+defines the number of seconds before a timeout occurs.
+.LI tv_usec
+defines the number of microseconds before a timeout occurs.
+.LE
+.sp
+This structure is defined in <time.h>.
+.P
+The timeout value affects how blocked reads work.  Normally, the blocked
+read will wait indefinitely for an input. This is accomplished by setting
+the "timeval" structure to the define
+.B
+XrMAX_ALARM.
+.R
+If an application sets a timeout value, the blocked read will wait only the
+number of seconds plus the number of microseconds given by the value.
+Values of timeouts have no effect on non-blocked reads.
+
+.LI
+MSG_GETTIMEOUT
+.P
+This message returns the current timeout value.
+.I
+data
+.R
+is a pointer to a timeval structure which will be filled out to the current
+values.
+.LE
+.H 2 "The Resource Manager"
+The resource manager facilitates the control and access of resource objects by
+allowing resources to be added, retrieved, or removed from an internally-
+managed list.  Resources can take the form of bitmaps, pixmaps, menus, or
+panels, and Xrlib defines a large set of these resource types.  Applications
+can also define their own resource types and have them managed by the
+resource manager.  Refer to "Creating New Resource Types" below for a
+description of what is needed to create new resource types.
+.P
+The syntax for calling the resource manager is as follows:
+.CO
+.IN "XrResource"
+   XrResource (message, data)
+   INT32   message;
+   INT8  * data;
+.CE
+.I
+message
+.R
+is the command XrResource() is to perform, and
+.I
+data
+.R
+contains the information needed by
+.I
+message
+.R
+or will contain the return information requested by the application.
+The type of structure
+.I
+data
+.R
+points to depends upon the message and is described in the "Resource Manager
+Messages" section below.
+.H 3 "What is a Resource?"
+A resource is built from identification, data, and state information.
+.P
+.IN "Resource types"
+.IN "Resource type id"
+Resources are ordered and accessed in groups separated by the resource data
+types.  These groupings of resources are referred to as
+.B
+resource types.
+.R
+The data for each resource type is represented by a data type
+and identified by an integer called the 
+.B
+resource type id.
+.R
+These ids are 16-bit unsigned quantities which allow up to 65000 unique 
+resource types.  Xrlib reserves the type ids 64000 - 65000.  The type ids
+of 1 - 63999 are available to the application for the creation of its 
+own types.
+.I
+Note that a resource type id of "0" is invalid.
+.R
+.P
+.IN "Resource id"
+Within a resource type, resources are ordered and identified by a
+32 bit signed value called the
+.B
+resource id.
+.R
+Xrlib reserves the negative values for resource id's.  The application
+is free to use all of the positive values.
+.I
+Note that a resource id of "0" is invalid.
+.R
+.P
+The combination of the resource
+.I
+type
+.R
+id and the resource id create the unique identifier needed to define and
+access the data and state information that make up a resource.
+.P
+Each resource contains a pointer to a block of memory which contains the
+data for the resource.  The data for each resource
+.I
+type
+.R
+is defined by a particular data type.  Xrlib defines a set of resource types
+which can be used by the application.  The "Xr Library Resource Types" section
+below describes these resource types and the data structure which represents
+each resource.
+.P
+Data and state information for a resource come from a block of memory
+allocated by an application.  A resource whose data is allocated
+by the application will be referred to as a
+.B
+memory-based resource.
+.R
+For memory-based resources, the application must make sure that the
+resource space is deallocated when the resource is removed from the
+resource manager.
+.P
+A resource has several state flags associated with it.
+Each resource maintains a state field which contains the current state
+flags.  This field is represented by an 8-bit integer with
+each of its bits defining part of the resource state.  The following
+table lists the bit within the field which contains the flag,
+the state flag, the define which can be used to access the bit,
+and a brief description of what the flag means.
+.sp 1
+.TS
+center allbox;
+clll.
+Bit	State Flag	Define	Description
+_
+0	Lock	XrLOCK	Can the resource be replaced?
+.TE
+.VL 15
+.LI Lock
+A resource within the resource manager will be replaced by a new resource
+if the new resource has the same type and id.  Resources can also
+be removed from the resource manager by a function other than the one
+which added the resource.  If the lock flag is set,
+replacement or removal of a resource is inhibited.
+.LE
+.H 3 "Xr Library Resource Types"
+The following table lists the resources that Xrlib predefines and the 
+structure or variable type that is used to define each resource.
+.sp 1
+.TS
+center allbox;
+ll.
+Resource Define	Object Structure
+_
+XrTYPE_STRING8	STRING8
+XrTYPE_PIXMAP	xrPixmap
+XrTYPE_PIXMAPID	xrPixmapId
+XrTYPE_BITMAP	xrPixmap
+XrTYPE_BITMAPID	xrBitmapId
+XrTYPE_CURSOR	xrCursor
+XrTYPE_CURSORID	Cursor
+XrTYPE_FONTINFO	FontInfo
+XrTYPE_FONTID	Font
+XrTYPE_FUNCTION	xrFunction
+.TE
+.sp
+The follow list describes each of these resource types:
+.BL
+.LI
+XrTYPE_STRING8
+.P
+This resource type contains a null-terminated character string.
+.LI
+XrTYPE_PIXMAP
+.P
+This resource type contains the structure and data information needed
+to define a pixmap.  The structure used for this type is defined as
+follows:
+.CO
+   typedef struct
+   {
+      INT16 width;
+      INT16 height;
+      INT8  depth;
+      UINT16 * raster;
+.IN "xrPixmap"
+   } xrPixmap;
+.CE
+.VL 8
+.LI width
+defines the width of the pixmap in pixels.
+.LI height
+defines the height of the pixmap in pixels.
+.LI depth
+defines the number of bits needed to define each pixel and
+can only be set to one of the following defines,
+.B
+XrBIT1, XrBYTE1, XrBYTE2, XrBYTE3,
+.R
+and
+.B
+XrBYTE4.
+.R
+.LI raster
+contains a pointer to the block of memory which contains
+the pixel image for the pixmap.
+.LE
+.LI
+XrTYPE_PIXMAPID
+.P
+This resource type contains the size of a pixmap resource and the 
+identifier for the pixmap which has been installed on an X server.
+Refer to the X documentation for a discussion on how to install a
+pixmap.  The structure used to represent this resource type is defined
+as follows:
+.CO
+   typedef struct
+   {
+      INT16 width;
+      INT16 height;
+      Pixmap pixmapId;
+.IN "xrPixmapId"
+   } xrPixmapId;
+.CE
+.VL 11
+.LI width
+contains the width (in pixels) of the installed pixmap.
+.LI height
+contains the height (in pixels) of the installed pixmap.
+.LI pixmapId
+contains the id of the installed pixmap.
+.LE
+.LI
+XrTYPE_BITMAP
+.P
+This resource type contains the structure and data information needed
+to define a bitmap.  The structure for this resource type is the same
+as for TYPE_PIXMAP but the
+.I
+depth
+.R
+field must be set to the define
+.B
+XrBIT1.
+.R
+.LI
+XrTYPE_BITMAPID
+.P
+This resource type contains the size of a bitmap resource and the 
+identifier for the bitmap which has been installed on an X server.
+Refer to the X documentation for a discussion on how to install
+a bitmap.  The structure used to represent this resource type is 
+defined as follows:
+.CO
+   typedef struct
+   {
+      INT16 width;
+      INT16 height;
+      Bitmap bitmapId;
+.IN "xrBitmapId"
+   } xrBitmapId;
+.CE
+.VL 11
+.LI width
+contains the width (in pixels) of the installed bitmap.
+.LI height
+contains the height (in pixels) of the installed bitmap.
+.LI bitmapId
+contains the id of the installed bitmap.
+.LE
+.LI 
+XrTYPE_CURSOR
+.P
+This resource type contains the structure and data information needed
+to define a cursor.  The structure used for this type is defined as
+follow:
+.CO
+   typedef struct
+   {
+      xrPixmap cursor;
+      xrPixmap mask;
+      INT16 xoff;
+      INT16 yoff;
+      INT32 foreground;
+      INT32 background;
+      INT32 func;
+.IN "xrCursor"
+   } xrCursor;
+.CE
+.VL 13
+.LI cursor
+contains the bitmap which defines the cursor image.  The cursor
+image is defined by an xrPixmap structure which must contain a bitmap image.
+.LI mask
+contains the bitmap which contains the cursor mask.
+The mask, which defines which pixels of the cursor bitmap won't be displayed
+is defined by an xrPixmap structure that must also contain a bitmap image.
+If the structure has the
+.I
+raster
+.R
+field set to
+.B
+NULL,
+.R
+the mask is undefined and all of the pixels of
+the cursor will be displayed.
+.LI xoff
+contains the x offset which defines what x coordinate,
+relative to the location of the cursor, will
+be returned by the mouse when an event occurs.
+.LI yoff
+contains the y offset which defines what y coordinate,
+relative to the location of the cursor, will
+be returned by the mouse when an event occurs.
+.LI foreground
+contains the foreground color in which the cursor is 
+to be displayed.  Any bits in the cursor bitmap which
+are set to 1 will be displayed in foreground color.
+.LI background
+contains the background color in which the cursor is to 
+be displayed.  Any bits in the cursor bitmap which
+are set to 0 will be displayed in background color.
+.LI func
+contains the combination rule to be used for moving the
+cursor about the display.  Refer to the list of defines which can be used
+for the combination rule.
+.LE
+.LI
+XrTYPE_CURSORID
+.P
+This resource type contains the identifier for a cursor which has been
+installed on an X server.  Refer to chapter 2  for a discussion on how to
+install a cursor.
+.LI
+XrTYPE_FONTINFO
+.P
+This resource type contains the FontInfo structure for a font which
+has been installed on an X server.  Refer to chapter 2 for a discussion
+of the FontInfo structure and how to load a font.
+.LI
+XrTYPE_FONTID
+.P
+This resource type contains the identifier for a font which has been
+installed on an X server.  Refer to chapter 2 for a discussion
+on how to install a font.
+.LI
+XrTYPE_FUNCTION
+.P
+This resource type contains a pointer to a function.  The structure which
+contains the function is defined as follows:
+.CO
+   typedef INT32 (*xrFunction)();
+.CE
+.LE
+.H 3 "Resource Manager Messages"
+This section lists and describes each of the messages that XrResource
+understands.
+.P
+Several of these messages use the following structure for passing or returning
+data:
+.CO
+   typedef struct
+   {
+      UINT16   resourceType;
+      INT32    resourceId;
+      INT8     resourceState;
+      INT32    resourceFile;
+      INT8   * resourceObject;
+.IN "xrResourceInfo"
+   } xrResourceInfo;
+.CE
+.P
+.VL 15
+.LI resourceType
+contains the resource type id.
+.LI resourceId
+contains the resource id.
+.LI resourceState
+contains the state flags for the resource.
+.LI resourceFile
+is set to the define
+.B
+XrMEMORY
+.R
+for memory-based resources.
+.LI resourceObject
+contains a pointer to the memory containing the resource.
+.LE
+.sp
+.P
+The following messages provide for the main-line accessing of
+the resources contained in the resource lists.
+.BL
+.LI 
+MSG_ADD
+.P
+This message adds to the resource list the resource identified by the 
+.I 
+data
+.R
+parameter, which points to an xrResourceInfo structure.  If the
+.I
+resourceObject
+.R
+field contains a valid pointer, the
+.I
+resourceFile
+.R
+field will be set to
+.B
+XrMEMORY
+.R
+to indicate the resource is from application memory.
+.P
+If the resource type and id fields in
+.I
+data
+.R
+match a resource already within the resource list, the resource in
+the list will be replaced with the new resource.  If the
+location of the old resource is from application memory the
+.I
+resourceObject
+.R
+field within
+.I 
+data
+.R
+will be set to point at the object being replaced.  This allows an
+application to maintain control of an object being replaced in the
+resource list.
+.LI
+MSG_REMOVE
+.P
+This message removes from the resource list the object identified by the
+.I
+data
+.R
+parameter, which points to a filled-out instance of an xrResourceInfo
+structure.  Only the
+.I
+resourceType
+.R
+and
+.I
+resourceId
+.R
+fields need to be set by the application.  When the resource is
+located in the resource manager's lists, the
+.I
+resourceFile
+.R
+field is checked and if it is set to
+.B
+XrMEMORY,
+.R
+the
+.I
+resourceObject
+.R
+field in
+.I
+data
+.R
+will be set to point to the object.  If the object is not found
+in the resource list this message will fail.
+.LI
+MSG_FIND
+.P
+This message locates the requested resource within the resource list.
+.I 
+data
+.R
+is a pointer to an xrResourceInfo structure.  The
+.I 
+resourceType
+.R
+and
+.I 
+resourceId
+.R
+fields of the structure identify the resource to be found.  When the
+resource is located, the rest of the fields of the structure will
+be filled out.
+.LI
+MSG_SETSTATE
+.P
+This message is used to set the state of a resource contained in
+the resource manager.  For this message,
+.I
+data
+.R
+is a pointer to an xrResourceInfo structure which has the
+.I
+resourceType, resourceId,
+.R
+and
+.I
+resourceState
+.R
+fields filled out.  This message will search for the resource, and
+when it is found, set its
+.I
+resourceState
+.R
+to the new state.
+.P
+.I
+Note that for memory based resources, only the lock flag of the 
+resource state is used.
+.R
+.LE
+.sp
+.P
+The following two messages provide for the creation or destruction of
+application-defined resource types.  Refer to the "Creating New REsource
+Types" section below for detailed instructions about how to create a resource.
+.BL
+.LI
+MSG_NEWTYPE
+.P
+This message allows an application to create a new resource type.
+.I
+data
+.R
+is a pointer to the following structure.
+.CO
+   typedef struct
+   {
+      UINT16 resourceType;
+      INT32  (*resourceHandler)();
+.IN "xrResourceTypeInfo"
+   } xrResourceTypeInfo;
+.CE
+.VL 18
+.LI resourceType
+contains the integer identifier number for the resource type.
+The number must be between 1 - 63999.  High identifier number values
+for the resource type require more space for the resource type list,
+therefore, sequential definition of resource types is highly recommended.
+.LI resourceHandler
+is reserved and should be set to
+.B
+NULL.
+.R
+.LE
+.LI
+MSG_FREETYPE
+.P
+This message destroys and removes a resource type from the resource
+type list.
+.I
+data
+.R
+contains the resource type identifier.  This message will fail
+if the identifier is not in the range of 1 - 63999, if the
+resource type is not defined, or if there are any resources
+still attached to the resource type.
+.LE
+.H 2 "Creating New Resource Types"
+Besides using the Xr library's predefined resource types, the resource manager
+enables the application writer to create his own resource types.
+The following paragraphs describe what is required for an application to
+create a resource type.
+.P
+Resource types are managed as two ordered arrays of resource type
+structures.  One of the arrays is used for the Xr library's predefined 
+resource types.  The other contains the set of types the application
+has defined.  Even though 63999 types can be defined, the 
+application should define the resource types
+.B
+sequentially
+.R
+from a type id of 1, or system memory will be wasted.
+.P
+The structure used for all resource types is as follows.
+.CO
+   typedef struct
+   {
+      xrResource * resourcePtr;
+      INT32 (*resourceHandler)();
+   } xrResourceType;
+.CE
+.P
+.VL 18
+.LI resourcePtr
+contains a pointer to the list of resources of this type.
+.LI resourceHandler
+is reserved and should be set to
+.B
+NULL.
+.R
+.LE
+.sp
+.P
+One of the members of the resource type structure is the
+.I
+resourcePtr
+.R
+field.  This field points to the head of the set of resources attached
+to the resource type.  The resources 
+are added and accessed through a binary tree which is ordered by the
+resource id.  Every resource in the 
+resource tree is defined by the following xrResource structure: 
+follows:
+.CO
+   typedef struct _xrResource
+   {
+      INT32   resourceId;
+      UINT8   resourceState;
+      INT8  * resourceObject;
+      INT32   resourceFile;
+      struct _xrResource left;
+      struct _xrResource right;
+   } xrResource;
+.CE
+.P
+.VL 16
+.LI resourceId
+is the resource identifier which uniquely distinguishes
+the resource object within its type.
+.LI resourceState
+contains the state of the resource.
+.LI resourceObject
+points to the resource object itself.
+.LI resourceFile
+is set to the define XrMEMORY for memory-based resources.
+.LI left
+points at the left child resource in the resource tree.
+.LI right
+points at the right child resource in the resource tree.
+.LE
+.H 2 "The Editor List Manager"
+.P
+When an application attempts to create an instance of a field editor,
+it will always specify the window in which the instance is to be
+attached and displayed.
+The field editor code is then responsible for creating the editor
+instance, and attaching it to the specified window.
+.P
+Each window has a linked list associated with it, made up of
+the editor structures for each field editor attached to that window.
+This linked list plays a very important part when determining how
+input within a window is handled.
+When an input event occurs within a window, only those editors which
+reside in this list will be able to accept input from the window.
+.P
+For each process using the Xrlib facilities, the intrinsics
+maintain an array of window Id's and pointers to the editor list
+associated with each of the windows.
+However, an application's windows are not automatically added to
+this list.
+An application must first 'register' a window with the Xrlib
+intrinsics, before it will be added to this list, and thus be
+capable of having field editors attached to it.  This registering
+is accomplished through the XrInput() routine using MSG_ADDWINDOW.
+.P
+When a field editor attempts to attach a new editor instance to
+a window, the editor structure for that instance will be added to
+the end of the linked list.
+The input-dispatching routine searches the entire list;
+so that if two editor instances overlap, the instance which was 
+created first has priority. This may be confusing to a user, so
+.I
+application writers are encouraged not to overlap field editor instances.
+.R
+.P
+When an application requests that a particular editor instance be
+destroyed, the editor called removes the associated editor instance
+from the editor list.  Failure to do this will cause unpredictable 
+results, and would most likely result in a memory fault error 
+occurring at some time.
+.P
+The following intrinsic is provided, to allow field editors and
+applications to perform some editor-specific functions:
+.CO
+.IN "XrEditor"
+   XrEditor (windowId, message, data)
+   Window   windowId;
+   INT32    message;
+   INT8   * data;
+.CE
+.I
+windowId
+.R
+contains the identifier of the window to which the editor list is attached,
+the
+.I
+message
+.R
+specifies the type of action which is to be taken, and
+.I
+data
+.R
+contains the information needed to complete the function.
+.P
+The structure used in the editor list is discussed in
+the next section.  The messages that XrEditor() supports are
+discussed in the "Editor List Messages" section below.
+.H 2 "The Editor List Structure"
+An array of window Ids which have been registered with XrInput() is
+contained in XrEditor().  The groups of editors belonging to these windows are
+also attached to this array.  The editor structure itself is simple and
+straightforward, and contains some of the global information for the instance.
+The structure also contains a pointer which the field editor can use to point
+to instance-specific data.
+The format for the editor structure is as follows:
+.CO
+   typedef struct _xrEditor {
+      struct _xrEditor * (*editorFunct)();
+      Window             editorWindowId;
+      RECTANGLE          editorRect;
+      INT8               editorState;
+      INT8             * editorData;
+      struct _xrEditor * nextEditor;
+   } xrEditor;
+.CE
+.VL 18
+.LI editorFunct
+is a pointer to the field editor routine associated with the instance. 
+For example, if this were a scrollbar editor instance, this
+would be set to the address of XrScrollBar().
+.LI editorWindowId
+is the window Id associated with the window to which this 
+instance is attached.  The field editor can use this information 
+whenever it needs to redraw the instance.
+.LI editorRect
+is a copy of the rectangle definition which is specified
+by the application when it creates an editor.
+.LI editorState
+is the current state of the flags associated with this editor instance.
+These flag states  are originally obtained by copying the 'editorState'
+field from the 'Info' structure.
+.LI editorData
+serves as a pointer to the editor-specific data.  The data pointed
+to by this element is different for each editor type, and has no fixed
+format.  If an editor requires no additional information, this pointer
+should be set to
+.B
+NULL.
+.R
+.LI nextEditor
+is the one field which
+.B
+MUST NOT
+.R
+be touched by a field editor.  This field links this instance into the
+window's field editor list.
+.LE
+.P
+When an editor routine is called to create a new editor instance,
+the editor allocates the space required for an xrEditor~hen an edit structure 
+and initializes each field.  The editor then calls to XrEditor
+to add the editor instance to the window's editor list.
+.H 2 "Editor List Messages"
+The messages that XrEditor() understands are divided into several
+functional sets.  These functional sets include messages which the
+application can use to call XrEditor(), messages which should only be
+used by a field editor; and messages which are used internally
+and hence, should
+.B
+not
+.R
+be accessible to any application or field editor
+routine.  Each of these messages will be discussed below, along with an
+explanation of how the parameters
+.I
+windowId
+.R
+and
+.I
+data
+.R
+are interpreted by the message.
+.P
+The following set of messages should only be called by field editors.
+.BL
+.LI
+MSG_ADD
+.P
+Whenever a new field editor instance is created, it must be attached
+to a window.  This message attaches the instance to the end of the linked
+list associated with the window.
+The 
+.I
+windowId
+.R
+parameter is a 32-bit integer Id indicating the window to which the 
+field editor instance is to be attached.  The
+.I
+data
+.R
+parameter points to an initialized instance of the xrEditor
+structure.  This structure will be linked into the editor list.
+.P
+The following example shows how the scrollbar editor attaches an
+instance to a particular window:
+.CO
+{
+   xrEditor * scrollBar;
+
+   /* Allocate an xrEditor structure */
+   if ((scrollBar = (*xrMalloc)(sizeof (xrEditor))) == NULL)
+   {
+      xrErrno = XrOUTOFMEM;
+      return ((xrEditor *) NULL);
+
+   /* Fill in the required fields */
+   scrollBar->editorFunct = XrScrollBar;
+   scrollBar->editorWindow = editorWindowId;
+   scrollBar->editorState = editorState;
+   scrollBar->editorData = sbDataPtr;
+   XrCopyRect (&editorRect, &scrollBar->editorRect);
+
+   /* Attach the editor to the window */
+   if (XrEditor (editorWindowId, MSG_ADD, scrollBar) == NULL)
+   {
+      /* We failed; window must not have been registered */
+   }
+}
+.CE
+.LI
+MSG_REMOVE
+.P
+When an editor instance is destroyed, it must also be removed from the
+linked list maintained by the window to which it was attached.
+When removing an editor instance from the linked list, the field
+editor must supply an indication of which editor instance is to be
+removed, and which window it should be removed from.  The
+.I
+windowId
+.R
+parameter contains the window which contains the instance.  The
+.I
+data
+.R
+parameter points to the editor instance structure associated with the
+instance to be removed.
+.P
+The following example shows how the scrollbar editor removes one of its
+instances:
+.CO
+{
+   xrEditor * scrollBar;
+
+   (*xrFree)(scrollBar->editorData);
+   XrEditor (scrollBar->editorWindow, MSG_REMOVE, scrollBar);
+   (*xrFree)(scrollBar);
+}
+.CE
+.P
+The following messages can be used by application programs and by other
+functions within Xrlib.
+.BL
+.LI
+MSG_PROCESSKEY
+.P
+This messages takes an XEvent structure as input and calls the editor
+in which the event occurred with MSG_EDIT.  The event used to activate an
+editor must match the default conditions set up in XrInit().  The event
+structure contains the location at which the event occurred and XrEditor()
+uses this location to see which editor rectangle the point falls in.
+Normally, applications will not use MSG_PROCESSKEY since it is called
+directly from XrInput() each time an XrSELECT event occurs and the
+application is using hot reads.  However, if an application doesn't want to
+use hot reads, it can call XrEditor() directly.  The parameters to be sent
+to the function are the id of the window contained in
+.I
+windowId,
+.R
+the message, and a pointer to the XEvent structure which is passed
+through the
+.I
+data
+.R
+parameter.
+.P
+An example, showing how an application might use this feature, is shown below:
+.CO
+XrInput (NULL, MSG_BLKREAD, &inputEvent);
+
+if (XrMapButton (&inputEvent) == XrSELECT)
+   XrEditor (myWindow, MSG_PROCESSKEY, &inputEvent);
+.CE
+.LI
+MSG_REDRAW
+.P
+Sometimes, an application may wish to redraw those field editors
+which lie within a particular portion of its window.
+To indicate the portion of the window which is to be checked, the application
+must create an instance of the 'RECTANGLE' structure, and fill it in
+to describe the redraw region. The
+.I
+data
+.R
+parameter must then be set to point to this structure and the
+.I
+windowId
+.R
+parameter must be set to indicate the window to be redrawn.
+.P
+This message is most useful when a window which was partially
+or totally hidden is uncovered. When the window is uncovered, the
+application need only take the information describing the exposed region
+and pass it along to this message; the editors which lie within this
+region will then be redrawn automatically.
+.LI
+MSG_REDRAWALL
+.P
+This message is similar to MSG_REDRAW except that it redraws the entire
+set of editors attached to a window.  The
+.I
+data
+.R
+parameter is unused for this call and should be set to
+.B
+NULL.
+.R.
+The
+.I
+windowId
+.R
+parameter should be set to indicate the window to be redrawn.
+.LI MSG_SETSTATE
+.br
+Sometimes, an application may find it necessary to modify the state flags
+associated with all the editor instances in a particular window.
+If the new state flag values are the same for all instances,
+the application can use this message instead of calling each of the field
+editors individually.
+.P
+This might be useful when the application's window becomes inactive.
+The application might want all field editors in its window to become
+insensitive and when the window is reactivated, the instances will be
+redrawn as sensitive.
+.P
+When an application issues this request,
+.I
+windowId
+.R
+must specify the window to be affected and
+.I
+data
+.R
+must contain the new state flag values.
+.P
+An example describing how to use this feature is shown below:
+.CO
+switch (stateFlag)
+{
+   case ACTIVE:
+      XrEditor(windowId, MSG_SETSTATE, XrVISIBLE | XrSENSITIVE);
+   break;
+
+   case INACTIVE:
+      XrEditor(windowId, MSG_SETSTATE, XrVISIBLE);
+   break;
+}
+.CE
+.LE
+.H 2 "Editor Groups"
+Some applications and the higher-level functions within Xrlib (such as
+a the panel manager) need to handle editors in groups.  Specifically,
+the panel manager sets up groups of editors to define sub-panels.
+The XrEditorGroup() function provides this capability by separating
+the set of editors attached to a window into application-specified group
+and allowing each group to be manipulated as a unit.  The types of functions
+which can be applied to editor groups include getting and setting the
+groups' editors states and clearing the rectangular area which defines the
+group.  The syntax for the XrEditorGroup() function is as follows.
+.CO
+   xrEditorGroup *
+.IN "XrEditorGroup"
+   XrEditorGroup (groupInstance, message, data)
+   xrEditorGroup * groupInstance;
+   INT32           message;
+   INT8          * data;
+.CE
+The
+.I
+groupInstance
+.R
+parameter contains the pointer to the editor group.
+.I
+message
+.R
+is the function that is to be applied to the editor group.
+.I
+data
+.R
+is a pointer to a structure containing the information needed by
+.I
+message
+.R
+or will contain return information requested by the calling function.
+.P
+The following sections discuss the editor group structure and the messages
+that XrEditorGroup() defines.
+.H 3 "The Editor Group Structure"
+The editor list-handling routines maintain an array containing
+the set of windows which have been registered with XrInput().  Included
+in this array is a pointer to the first editor group.  When a 
+window is registered, an editor group is automatically created for the
+window, so for applications which are only doing simple editor management,
+the XrEditorGroup() function can be ignored.  The set of editor groups
+attached to a window is built and accessed as a linked list.  The editor
+group structure is defined as follows:
+.CO
+   typedef struct _xrEditorGroup
+   {
+      Window      groupWindowId;
+      RECTANGLE   groupRect;
+      INT8        groupState;
+      xrEditor  * editorList;
+      xrGraphic * graphicList;
+      struct _xrEditorGroup * nextGroup;
+   } xrEditorGroup;
+.CE
+.P
+.VL 15
+.LI groupWindowId
+contains the id of the window in which the group of
+editors reside.
+.LI groupRect
+contains the rectangle which encloses the entire set of
+editors attached to this group.  The rectangle is empty when a group is
+created and is then increased in size whenever an editor is added to the
+group.  Refer to XrUnionRect in the "Rectangle Routines" section below for
+further details.
+The application also has access to this rectangle and can set it to
+any size.  XrEditorGroup() will ensure that all of the
+editors reside within the bounds of the rectangle.
+.LI groupState
+contains the state of the set of editors attached to this
+group.  The states settings are the same as those used
+for individual editors.  This field is accessible to the application
+through messages to this function and is used to set the state of
+an entire set of editors for the group just as an individual editor
+state would be set.
+.LI editorList
+points to the set of editors attached to the group.
+.LI graphicList
+points to the graphics list attached to the group.
+.B
+This function is not implemented.
+.R
+.LI nextGroup
+points to the next group attached to the window.
+.LE
+.sp
+.H 3 "Editor Group Messages"
+.BL
+.LI
+MSG_NEW
+.P
+creates a new editor group, initializing the group's elements,
+adding the group into the group list attached to the window, and making it
+the active group.  The concept of "active group" means that any
+editors created for the window will be attached through this group.
+For this call, 
+.I
+groupInstance
+.R
+is unused and should be set to
+.B
+NULL.
+.R
+.I
+data
+.R
+should contain the window id of the window which is to contain the group.
+The group instance of the new group will be returned by this message.
+.LI
+MSG_FREE
+.P
+destroys the editor group and frees the editors attached
+to the group.  For this call, 
+.I
+data
+.R
+is unused and should be set to
+.B
+NULL.
+.R
+.LI
+MSG_GETDEFAULTGROUP
+.P
+returns the pointer to the default editor group that is added
+to a window when the window is registered with XrInput().  For this message,
+.I
+data
+.R
+should contain the id of the registered window.
+.LI
+MSG_GETSTATE
+.P
+returns the state of the editor group.
+.I
+data
+.R
+is a pointer to an INT8 variable and will be set to the
+state of the group.
+.LI
+MSG_SETSTATE
+.P
+sets the state of the editor group.
+.I
+data
+.R
+contains the new group state which can be any combination of
+the editor state defines
+.B
+XrVISIBLE
+.R
+and
+.B
+XrSENSITIVE.
+.R
+The effect of setting the group state will be to activate or deactivate
+the editor processing for the 
+.B
+XrSENSITIVE
+.R
+flag, and to clear or draw the editors for the
+.B
+XrVISIBLE
+.R
+flag.  The states of the individual editors in the group are not changed
+when the group state is set.
+.LI
+MSG_ADDTOGROUP
+.P
+tells the editor list handling function to which group
+new editors are to be added.  If the window has only the
+default group defined, editors will be added to this group automatically.
+When a new group is created through MSG_NEW, it becomes the "active group"
+(that is, the group in which editors will be added) so that if the
+application wants to add editors to an existing group, it needs to issue
+the ADDTOGROUP message.  For this message,
+.I
+groupInstance
+.R
+should contain the instance pointer of the group which is to be made active.
+.I
+data
+.R
+is unused and can be set to
+.B
+NULL.
+.R
+As stated, each window gets a default group set up for it
+when it is registered.  This creates a problem in that the function which
+created the window will not know the group id number for the window and
+therefore cannot access editor group functions for the default
+group.  This problem is handled through MSG_GETDEFAULTGROUP which returns 
+the group instance of the default group.
+.LI
+MSG_GETGROUPRECT
+.P
+returns the group rectangle through
+.I
+data
+.R
+which contains a pointer to a rectangle structure.
+.I
+groupInstance
+.R
+should be set to the instance pointer of the group in which the group 
+rectangle is to be extracted.
+.LI
+MSG_SETGROUPRECT
+.P
+sets the group rectangle to the rectangle pointed to by
+.I
+data.  groupInstance
+.R
+should be set to the instance pointer of the group in which the group 
+rectangle is to be set.  The rectangle supplied must be large enough to 
+contain the set of editors attached to the window or the message will fail.
+.LI
+MSG_ADJUSTGROUPRECT
+.P
+recalculates the group rectangle for the group pointed at by
+.I
+groupInstance
+.R
+to the minimal rectangle needed to enclose the editors within
+the group.  It is mainly used by editors when a MSG_RESIZE or MSG_MOVE
+is issued to them.  For these cases, the editors need to make sure the
+editor rectangle does not extend beyond the bounds of the group rectangle
+or the editor cannot be activated.
+.LI
+MSG_CLEARRECT
+.P
+is used to clear the area defined by the group rectangle to the windows
+background tile.
+.I
+groupInstance
+.R
+should be set to the instance pointer of the group which is to be cleared.
+.I
+data
+.R
+is unused and can be set to
+.B
+NULL.
+.R
+.LE
+.H 2 "Window/Editor Relationship"
+We have discussed how an editor attaches an instance to a window
+and how groups of editors are handled by the editor-grouping routine.
+This section deals with this topic in more detail.
+This discussion covers the following topics:
+.BL
+.LI
+Organization of the field-editor list.
+.LI
+Organization of the elements within this list.
+.LI
+Steps for updating the list.
+.LI
+What the list is used for.
+.LE
+.P
+Every Xrlib window has a pointer to a linked list of
+editor groups, and each editor group has a linked list of editors.
+When a field editor instance is created, it is added to 
+the linked list attached to the currently active editor group.
+The particular field editor adds the instance to the list when it receives a
+MSG_NEW message.  Similarly, when an editor instance is destroyed, the field
+editor must make sure that the instance is removed from the window's editor
+list.  Catastrophic problems will occur if this is not done!
+Removing an editor instance from the window's list involves issuing an 
+XrEditor() request, with the MSG_REMOVE message.
+.P
+Figure 3-1 shows how a windows-editor list might appear:
+.sp 1
+.DS
+\f(CW
+   windowTable     xrEditorGroup 
+   -----------     ---------------
+   |windowId |     |groupWindowId|
+   |groupList|---->|groupRect    |
+   -----------     |groupState   |   xrEditorGroup
+   |windowId |  ---|editorList   |   ---------------
+   |groupList|  |  |graphicList  |   |groupWindowId|
+   -----------  |  |nextGroup    |-->|groupRect    |
+   |windowId |  |  ---------------   |groupState   |
+   |groupList|  |                    |editorList   |
+   -----------  |                    |graphicList  |
+                |                    |nextGroup    |-->NULL
+                |                    ---------------
+----------------- 
+|
+|     xrEditor         --> XrTitleBar()     xrTitleBarData
+|  -----------------  /                    ----------------
+-->| editorFunct   |--                  -->| titleType    |
+   | editorWindowId|                   /   | titleName    |
+   | editorRect    |                  /    | gadgetRect1  |
+   | editorState   |                 /     | gadgetRect2  |
+   | editorData    |----------------/      | titleRect    |
+---| nextEditor    |                       |       .      |
+|  -----------------                       |       .      |
+|                                          | titleTileId  |
+|                                          ----------------
+|      xrEditor        --> XrStaticRaster()
+|  -----------------  /
+-->| editorFunct   |--                       xrSRasterData
+   | editorWindowId|                        ---------------
+   | editorRect    |              --------->| srRasterId  |
+   | editorState   |             /          ---------------
+   | editorData    |-------------         
+   | nextEditor    |---->NULL
+   -----------------
+\fR
+.DE
+.P
+.FG "Editor Organization"
+.P
+The xrEditor structure address is returned to the application after an editor
+instance has been created.  This address is used to identify the instance
+for all future editor calls.  Each time an application invokes the editor-
+handling routine, for example, XrScrollBar() for the scrollbar editor, it
+must pass in the pointer to the xrEditor structure associated with the
+instance to be modified.  The field editor uses this pointer to access all
+of the information describing a particular instance.
+.SP
+.P
+Updating the editor list is the responsibility of the field editors.
+Whenever a field editor instance is created, the xrEditor structure
+for that instance must be attached to the window, using the XrEditor()
+routine.  When an editor instance is destroyed, that instance
+must be removed from the window's editor list.
+.SP
+.P
+The primary purpose for maintaining the editor list is to facilitate
+distribution of input events.
+When input is received by XrInput(), it traverses the editor list to see if
+the event occurred in one of the window's editor instances.
+If it did, the event is passed to the field editor for processing.
+If an editor instance has been created, but not attached to a window's editor
+list, it will be unable to receive any input from the Xrlib input dispatcher.
+There are situations where this is actually desirable, but this topic
+will be covered in appendix B, "Building a Field Editor."
+.H 2 "Geometric Functions"
+The following sections contain a set of geometric functions used for
+manipulating point and rectangle structures.
+.H 3 "Point Routines"
+The following list contains the set of functions which can be used
+for manipulating point structures.
+.CO
+XrSetPt (pt, x, y)
+POINT * pt;
+INT16   x;
+INT16   y;
+.CE
+XrSetPt assigns the two coordinates, 
+.I
+x
+.R
+and
+.I
+y,
+.R
+to the point structure 
+.I
+pt.
+.R
+.sp 2
+.CO
+XrOffsetPt (pt, x, y)
+POINT * pt;
+INT16   x;
+INT16   y;
+.CE
+XrOffsetPt changes the values of the point structure 
+.I
+pt
+.R
+by adding the 
+.I
+x
+.R
+and
+.I
+y
+.R
+offsets to the members of 
+.I
+pt.
+.R
+.sp 2
+.CO
+XrCopyPt (srcPt, dstPt)
+POINT * srcPt;
+POINT * dstPt;
+.CE
+XrCopyPt copies the point structure
+.I
+srcPt
+.R
+into
+.I
+dstPt.
+.R
+.sp 2
+.CO
+XrAddPt (srcPt, dstPt)
+POINT * srcPt;
+POINT * dstPt;
+.CE
+XrAddPt adds the point structures
+.I 
+srcPt
+.R
+and
+.I
+dstPt
+.R
+together placing the results in
+.I
+dstPt.
+.R
+.sp 2
+.CO
+XrSubPt (srcPt, dstPt)
+POINT * srcPt;
+POINT * dstPt;
+.CE
+XrSubPt subtracts the point structure
+.I
+srcPt
+.R
+from
+.I
+dstPt
+.R
+and places the results in
+.I
+dstPt.
+.R
+.sp 2
+.CO
+XrEqualPt (ptA, ptB)
+POINT * ptA;
+POINT * ptB;
+.CE
+XrEqualPt() compares the point structures 
+.I
+ptA
+.R
+and
+.I
+ptB
+.R
+and returns
+.B
+TRUE
+.R
+if they are equal.  It returns
+.B
+FALSE
+.R
+otherwise.
+.H 3 "Rectangle Routines"
+The following list contains the set of functions which can be used
+for manipulating rectangle structures.
+.CO
+XrSetRect (rect, x, y, width, height)
+RECTANGLE * rect;
+INT16       x;
+INT16       y;
+INT16       width;
+INT16       height;
+.CE
+XrSetRect() assigns the values of the rectangle
+.I
+rect
+.R
+with the appropriate values in
+.I
+x, y, width,
+.R
+and
+.I
+height.
+.R
+.sp 2
+.CO
+XrSetPtRect (rect, topLeft, botRight)
+RECTANGLE * rect;
+POINT     * topLeft;
+POINT     * botRight;
+.CE
+XrSetPtRect() calculates and assigns the values of the rectangle
+.I
+rect
+.R
+using the two points
+.I
+topLeft
+.R
+and
+.I
+botRight.
+.R
+.sp 2
+.CO
+XrCopyRect (srcRect, dstRect)
+RECTANGLE * srcRect;
+RECTANGLE * dstRect;
+.CE
+XrCopyRect() copies the rectangle
+.I
+srcRect
+.R
+into the rectangle
+.I
+dstRect.
+.R
+.sp 2
+.CO
+XrOffsetRect (rect, dx, dy)
+RECTANGLE * rect;
+INT16       dx;
+INT16       dy;
+.CE
+XrOffsetRect() moves the rectangle
+.I
+rect
+.R
+by adding the value
+.I
+dx
+.R
+to the x coordinate of the rectangle and adding the value
+.I
+dy
+.R
+to the y coordinate of the rectangle.
+.sp 2
+.CO
+XrInsetRect (rect, dx, dy)
+RECTANGLE * rect;
+INT16       dx;
+INT16       dy;
+.CE
+XrInsetRect() shrinks or expands the rectangle
+.I
+rect.
+.R
+When
+.I
+dx
+.R
+and
+.I
+dy
+.R
+are positive, the left and right sides are moved in by the value 
+.I
+dx
+.R
+and the top and bottom sides are moved together by the value 
+.I
+dy.
+.R
+If the  values are negative, the rectangle expands.
+.sp 2
+.CO
+XrSectRect (srcRectA, srcRectB, dstRect)
+RECTANGLE * srcRectA;
+RECTANGLE * srcRectB;
+RECTANGLE * dstRect;
+.CE
+The rectangles 
+.I
+srcRectA
+.R
+and
+.I
+srcRectB
+.R
+are intersected to form a new rectangle which is placed in 
+.I
+dstRect.
+.R
+.sp 2
+.CO
+XrUnionRect (srcRectA, srcRectB, dstRect)
+RECTANGLE * srcRectA;
+RECTANGLE * srcRectB;
+RECTANGLE * dstRect;
+.CE
+The union of the rectangles
+.I
+srcRectA
+.R
+and
+.I
+srcRectB
+.R
+is calculated and placed in
+.I
+dstRect.
+.R
+.sp 2
+.CO
+XrPtInRect (pt, rect)
+POINT     * pt;
+RECTANGLE * rect;
+.CE
+XrPtInRect() determines if the point
+.I
+pt
+.R
+is in the rectangle 
+.I
+rect.
+.R
+.B
+TRUE
+.R
+is returned if this is the case,
+.B
+FALSE
+.R
+otherwise.
+.CO
+XrPt2Rect (ptA, ptB, dstRect)
+POINT * ptA;
+POINT * ptB;
+RECTANGLE * dstRect;
+.CE
+XrPt2Rect() generates the smallest rectangle which will enclose the two
+points
+.I
+ptA
+.R
+and
+.I
+ptB.
+.R
+The calculated rectangle is placed in
+.I
+dstRect.
+.R
+.sp 2
+.CO
+XrEqualRect (rectA, rectB)
+RECTANGLE * rectA;
+RECTANGLE * rectB;
+.CE
+XrEqualRect() compares the two rectangles, 
+.I
+rectA
+.R
+and 
+.I
+rectB
+.R
+and returns
+.B
+TRUE
+.R
+if they are equal or
+.B
+FALSE
+.R
+if they are not equal.
+.sp 2
+.CO
+XrEmptyRect (rect)
+RECTANGLE * rect;
+.CE
+XrEmptyRect() returns
+.B
+TRUE
+.R
+if the rectangle 
+.I
+rect
+.R
+is empty or
+.B
+FALSE
+.R
+if it is not. A rectangle is empty if the bottom 
+coordinate is greater than the top, or the left coordinate is greater 
+than the right.
+.H 2 "Utility Routines"
+This set of functions provide an application programmer with some
+frequently used utilities.
+.H 3 "StringWidth"
+The string width function is used to calculate the length, in pixels
+of a character string.  It has the following syntax.
+.CO
+   XrStringWidth (fontInfo, str, charWidth, charPad, spacePad)
+   FontInfo * fontInfo;
+   STRING   *  str;
+   INT32      charWidth;
+   INT32      charPad;
+   INT32      spacePad;
+.CE
+.P
+XrStringWidth() calculates the width in pixels of a character string
+using the font information contained in the structure pointed at by
+.I
+fontInfo.
+.R
+The pixel width will be calculated and returned as the value
+of the function.  The
+.I
+charWidth
+.R
+parameter contains the length of the string in characters or is set to
+the define
+.B
+XrNULLTERMINATED
+.R
+if the string is null-terminated.
+.I
+charPad
+.R
+and
+.I
+spacePad
+.R
+contain the additional space to be placed between characters and spaces
+respectively.
+.H 3 "MapButton"
+Xrlib automatically sets up the XrSELECT, XrSELECTUP, XrMENUPOST, and
+XrMENUITEMSELECT conditions for the application when the application calls
+XrInit().  When a button event occurs, several functions within Xrlib
+and the application may need to determine whether the button
+event matches one of the above conditions.  The following function
+provides this capability.
+.CO
+   XrMapButton (eventCode, event)
+   INT8     eventCode;
+   XEvent * event;
+.CE
+XrMapButton() takes as a parameter an eventCode which contains one of the
+above defines and an XEvent.  The event parameter will be compared
+against the conditions necessary for the above defines and if a match
+is found,
+.B
+TRUE
+.R
+will be returned.  If no match is found,
+.B
+FALSE
+.R
+will be returned.
+.B
+.H 3 "GetWindowEvent"
+Functions within Xrlib and the application may need to fill out an
+xrWindowFunct structure to add a processing function to a window.
+Filling out this structure for handling XEvents is straightforward,
+but filling out this structure to handle the
+XrSELECT, XrSELECTUP, XrMENUPOST, and XrMENUITEMSELECT conditions
+is more difficult.  The following function provides an easy way
+to initialize this structure.
+.CO
+   XrGetWindowEvent (eventCode, windowEvent)
+   INT8 eventCode;
+   xrWindowEvent * windowEvent;
+.CE
+This function takes one of the above defines and a pointer
+to an xrWindowEvent structure as parameters.  It fills out the xrWindowEvent
+structure with the information which will match the conditions for the define.
+.H 3 "XrVersion"
+An application can find out which version of Xrlib it is using
+by calling the XrVersion() function which has the following syntax.
+.CO
+   INT8 *
+   XrVersion ()
+.CE
+XrVersion() returns a pointer to a string which contains the version of Xrlib
+being used.  The string will have for the format of
+.B
+Xrlib Version ##  -  ##.##  
+.R
+The ## contains the version of the X library Xrlib was built with.  The 
+##.##  can be ignored.  The string returned is static and thus cannot
+be modified.

@@ -1,0 +1,58 @@
+.TH Sx_SelectionGet sx
+.B1
+.NA
+Sx_SelectionGet \- retrieve part or all of the current selection
+.SY
+#include <X/Xlib.h>
+#include <sx.h>
+.sp
+int
+Sx_SelectionGet(\fIdesiredFormat, firstByte, numBytes, valuePtr, formatPtr\fP)
+.AS Window desiredFormat
+.AR
+.AP char *desiredFormat in
+Which type of selection the caller would prefer to have, or NULL if
+caller is willing to accept any type of selection.
+.AP int firstByte in
+First byte of selection's value that's to be returned.
+.AP int numBytes in
+Number of bytes of selection to return.
+.AP char *valuePtr out
+Up to \fInumBytes\fP of the selection, starting with the \fIfirstByte\fP'th
+byte, are placed here.  The return value indicates excatly how many bytes
+were stored.
+.AP char *formatPtr out
+The type of the information stored at \fI*valuePtr\fP is stored here.
+If possible, it will be the same as \fIdesiredFormat\fP.  There must be
+at least SX_TYPE_SIZE bytes of storage available here.
+.B2
+
+.SH DESCRIPTION
+.PP
+Sx_SelectionGet returns part or all of the current selection.
+\fIFirstByte\fP and \fInumBytes\fP indicate which portion of the
+selection the caller desires.  They permit very large selections
+to be accessed in small pieces.  The requested portion of the
+selection will be stored at \fI*valuePtr\fP, and the number
+of bytes actually stored will be returned as a result.  If the
+caller has requested more bytes than there are in the selection,
+then the return value will be the number of bytes between
+\fIfirstByte\fP and the end of the selection (or 0, if \fIfirstByte\fP
+is past the end of the selection);  only that many bytes
+will be stored at \fI*valuePtr\fP.
+.PP
+In some cases, the current selection owner may be able to present
+the selection in any of several forms.  The \fIdesiredFormat\fP parameter
+permits the caller to request a particular format.  Selection
+information will be
+returned in the closest possible format to \fIdesiredFormat\fP, and
+the format in which the selection was actually returned will be stored at
+\fI*formatPtr\fP.  The most common format is ``text'',
+in which case the selection value is an arbitray collection of
+ASCII characters.
+.PP
+Sx_SelectionGet does nothing itself;  it merely passes the request
+on to the current owner of the selection.
+
+.SH KEYWORDS
+owner, selection, type

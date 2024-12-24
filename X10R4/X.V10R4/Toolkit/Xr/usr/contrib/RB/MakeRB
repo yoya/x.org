@@ -1,0 +1,1 @@
+cc -o RB main.c image.c buildPanel.c filePanel.c file.c selectRaster.c -lXr -lX

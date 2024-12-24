@@ -1,0 +1,31 @@
+.TH Sx_GetDefaultFont sx
+.BS
+.NA
+Sx_GetDefaultFont, Sx_SetDefaultFont \- default font used by Sx
+.SY
+#include <X/Xlib.h>
+#include <sx.h>
+.sp
+FontInfo *
+Sx_GetDefaultFont()
+.sp
+Sx_SetDefaultFont(\fIfontPtr\fP)
+.AR
+.AS FontInfo *fontPtr
+.AP FontInfo *fontPtr in
+Font to use in Sx routines when no explicit font is given.
+.BE
+
+.SH DESCRIPTION
+.PP
+Many of the Sx library routines take a \fIfontPtr\fP parameter,
+which indicates how to display text in a particular window.  When
+a NULL \fIfontPtr\fP is provided to one of these procedures it
+uses a default font, which is normally ``serif.r.11'', if it exists,
+or ``8x13'' otherwise.  Sx_GetDefaultFont returns information about
+the current default font, and
+Sx_SetDefaultFont can be invoked to change
+the default font to an arbitrary font, which is given by \fIfontPtr\fP.
+
+.SH KEYWORDS
+default, font

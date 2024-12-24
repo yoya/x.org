@@ -1,0 +1,38 @@
+***************
+*** 181,195
+  
+  	    if (strcmp (argv [ind], "-L") == 0) {
+  		char tt[32];
+! 		int mode = O_RDWR|O_NDELAY;
+! 		loginflag = 1;
+  		getty = argv[argc-1];
+  		argc -= 1;
+  		strcpy(tt,"/dev/");
+  		strcat(tt, getty);
+  		chown(tt, 0, 0);
+  		chmod(tt, 0622);
+! 		if (open(tt, mode, 0) < 0) {
+  			consolepr("open failed\n");
+  		}
+  		signal(SIGHUP, SIG_IGN);
+--- 181,200 -----
+  
+  	    if (strcmp (argv [ind], "-L") == 0) {
+  		char tt[32];
+! 
+  		getty = argv[argc-1];
+  		argc -= 1;
+  		strcpy(tt,"/dev/");
+  		strcat(tt, getty);
++ 		tt [5] = 'p';
++ 		loginpty = open (tt, O_RDWR, 0);
++ 		dup2(loginpty, 4);
++ 		close(loginpty);
++ 		loginpty = 4;
++ 		tt [5] = 't';
+  		chown(tt, 0, 0);
+  		chmod(tt, 0622);
+! 		if (open(tt, O_RDWR, 0) < 0) {
+  			consolepr("open failed\n");
+  		}
+  		signal(SIGHUP, SIG_IGN);

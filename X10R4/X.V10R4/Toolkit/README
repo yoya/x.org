@@ -1,0 +1,37 @@
+					17 December, 1986
+
+The enclosed document, 'proposal.out', and it's PostScript version,
+'proposal.PS', is a working draft of a specification for a user interface
+toolkit that is proposed to be built on top of X version 11.
+
+This document has resulted from an intensive effort on the part of Digital
+Equipment Corporation and Hewlett-Packard Company to merge the better
+features of the toolkits in the distribution directories ../Xr,
+../DECToolkit and ../Sx and extract a common foundation upon which a
+variety of application environments may be built.  Their stated goal is to
+provide the next higher level of common (portable) interfaces above Xlib.
+
+M.I.T. has a goal to have available at least a preliminary version of
+a user interface toolkit and one or more application environments (UIMS)
+to be distributed with the first general distribution of X version 11.
+
+The document "X Toolkit, A Proposed Architecture" is distributed for your
+comment and to let you know one of the directions in which we are headed.
+If we are to achieve the availability date as stated, the period during
+which comments can be expected to have major impact on the implementation
+is unfortunately very short.  We do, however, invite those comments.
+
+The list of individual contributors to this draft is already very long;
+a future revision of a specification will give them the recognition
+they deserve.
+
+I hope that applications developers who need to use one of the
+applications environments distributed with X version 10 release 4 will be
+able to use this draft proposal to prioritize and partition their
+development effort.
+
+
+
+					Ralph R. Swick
+					M.I.T. Project Athena
+					Swick@Athena.MIT.EDU

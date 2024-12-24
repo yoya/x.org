@@ -1,0 +1,82 @@
+.TH Sx_TitleCreate sx
+.B1
+.NA
+Sx_TitleCreate, Sx_TitleMake \- create a title subwindow
+.SY
+#include <X/Xlib.h>
+#include <sx.h>
+.sp
+Window
+Sx_TitleCreate(\fIparent, side, size, border, fontPtr, foreground, background,
+    leftText, centerText, rightText\fP)
+.sp
+Sx_TitleMake(\fIwindow, fontPtr, foreground, background, leftText,
+    centerText, rightText\fP)
+.AS Window *centerText
+.AR
+.AP Window parent in
+Window in which to create a new title subwindow.
+.AP Sx_Side side in
+Side of \fIparent\fP against which to create new subwindow.  One of
+SX_TOP, SX_BOTTOM, SX_LEFT, or SX_RIGHT.
+.AP int border in
+Width of border for new title subwindow.
+.AP FontInfo *fontPtr in
+Describes font to be used for all text in the title.
+If NULL, then the Sx default font is used.
+.AP int foreground in
+Color to use for the text in the title and for the border (if any).
+.AP int background in
+Color to use for the title's background.
+.AP char *leftText in
+Text to be displayed at left side of the title subwindow.  If NULL,
+no text will displayed at left side.
+.AP char *centerText  in
+Text to be displayed in center of title subwindow, or NULL.
+.AP char *rightText in
+Text to be displayed at right side of title subwindow, or NULL.
+.AP Window window in
+Existing window to turn into a title subwindow.
+.B2
+
+.SH DESCRIPTION
+.PP
+Sx_TitleCreate creates a new subwindow and arranges for it to
+behave as a title subwindow.  It uses the Sx packer to create
+the title subwindow: it will be created with a height (or width) of
+\fIsize\fP along the
+top or bottom (or left or right) side of the unused cavity inside
+\fIparent\fP.  When \fIparent\fP changes size, the title subwindow
+will also change size to maintain its position relative to other
+subwindows packed inside \fIparent\fP.
+The three strings \fIleftText\fP, \fIcenterText\fP,
+and \fIrightText\fP will be displayed inside the window.  Buttons
+and keystrokes have no effect on title subwindows.
+.PP
+Sx_TitleMake is similar to Sx_TitleCreate except that it doesn't
+create a new window:  the caller provides a window to use to hold
+the three strings.  Sx_TitleMake does not invoke any of the packer
+facilities;  if \fIwindow\fP is to be managed by the packer, then
+it is the caller's responsibility to call the packer.  If \fIwindow\fP
+is already a title window, Sx_TitleMake will change its internal
+parameters (strings, font, etc.) to those passed to it.
+.PP
+If \fIfontPtr\fP is non-NULL, the caller must ensure that the FontInfo
+it points to does not change as long as the title exists.  The
+title strings are copied, though, so you can modify them
+as soon as Sx_CaptionCreate returns.  If you wish to change the
+titles that are displayed, call Sx_TitleMake with the new titles.
+.PP
+A title subwindow may be deleted at any time by calling XDestroyWindow.
+When this happens, the title manager will automatically clean up
+its internal structures.
+.PP
+The implementation of titles depends on the use of the Sx
+dispatcher (Sx_HandlerCreate, Sx_HandleEvent, etc.), and will
+not work if those routines are not used correctly.
+
+.SH "SEE ALSO"
+Sx_Pack
+
+.SH KEYWORDS
+packer, title, window

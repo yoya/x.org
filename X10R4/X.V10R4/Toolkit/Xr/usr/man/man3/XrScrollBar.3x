@@ -1,0 +1,947 @@
+.TH XRSCROLLBAR 3X "Xrlib Version 10"
+.fi
+.ad 1
+.SH NAME
+XrScrollBar - an editor that creates and controls a scroll bar.
+.SH SYNOPSIS
+#include <X/Xlib.h>
+.br
+#include <Xr/Xrlib.h>
+.br
+.sp 1
+xrEditor *
+.br
+.B XrScrollBar (instance, message, data)
+.in 7
+.br
+xrEditor * instance;
+.br
+INT32      message;
+.br
+INT8     * data;
+.in
+.sp 1
+.SH DESCRIPTION
+.sp
+.P
+The scrollbar editor is used to create and process an
+instance of a scrollbar within a given window.
+Both vertical and horizontal scrollbars are supported
+by the editor.
+Scrollbars can be manipulated by selecting one of the direction
+arrows, interactively moving the slide box, or by selecting a
+location within the scroll region.
+.P
+The components making up a scrollbar instance are configurable, and
+can be modified at any time after the instance has been created.
+These components include the following:
+.sp
+.in 5
+.nf
+- Scroll arrows
+- A variable sized slide box
+- The upper and lower limits of the scroll region (or slide area)
+.fi
+.in
+.P
+The scrollbar editor provides an application with two modes of
+interactive slide operations:
+.sp
+.in 5
+Normal and Transparent
+.in
+.sp
+In
+.I Transparent
+mode, when the user wants to interactively move the slide box,
+only an outline of the slide box is moved; the real slide box is not
+moved.
+.sp
+In
+.I Normal
+mode, when the user wants to interactively move the slide box,
+the slide box itself is moved.
+.P
+The editor also allows the application program to specify a handler routine,
+which will be automatically invoked during an interactive slide
+operation, each time the slide box position is changed by the specified
+number of scroll region units.
+This allows an application to update its window contents as 
+the slide box is moved.
+.P
+The scroll region units are defined by the application;
+this allows an application to supply the minimum and maximum value for
+the scroll region.
+For a horizontal scrollbar, the minimum value is the left edge of the
+region, and the maximum value is the right edge of the region; for a
+vertical scrollbar, the minimum value is the upper edge of the region,
+and the maximum value is the lower edge of the region.
+Anytime the slide box position is referenced, it will be specified in
+terms of these maximum and minimum values.
+All integer values in this range are referred to as scroll region units.
+.P
+Both the height and the width of a scrollbar are definable by
+an application program.
+There are no real upper limits imposed upon a scrollbar
+instance, but there are lower limits.
+The limits relate to the ratio between the height and
+width of a scrollbar.
+For a vertical scrollbar, the minimum height of a scrollbar
+is calculated using the width of the scrollbar rectangle;
+for a horizontal scrollbar, the minimum width of a scrollbar
+is calculated using the height of the scrollbar rectangle.
+If the specified
+.I editorRect
+is not large enough to contain the
+requested scrollbar instance, then the create request will fail.
+If MSG_SIZE is used to obtain the minimum rectangle, then
+a create request should never fail for the above mentioned reasons.
+
+.SH EDITOR MESSAGES
+.IP MSG_NEW
+This message will be the means by which an application program
+can create a scrollbar instance in a window.  It will
+expect the 
+.I instance
+parameter to be set to
+.B NULL,
+and the
+.I data 
+parameter to point to a filled out instance of the following structure:
+.sp
+.nf
+     typedef struct {
+          Window         editorWindowId;
+          RECTANGLE      editorRect;
+          INT8           editorState;
+          INT32          editorFGColor;
+          INT32          editorBGColor;
+          INT8           orientation;
+          xrSBParameters configuration;
+      } xrScrollBarInfo;
+.fi
+.sp
+.in 7
+.ul 1
+editorWindowId
+.br
+.in
+.in 9
+This field indicates the window to which the editor instance
+is to be attached.
+Anytime the instance is redrawn, it will be redrawn in this window.
+.in
+.sp
+.in 7
+.ul 1
+editorRect
+.br
+.in
+.in 9
+This describes the location and size of the scrollbar instance.
+The rectangle must be at least large enough to hold a minimally
+sized scrollbar; if it is not, then the create request will fail.
+To prevent this from happening, an application should use the
+.B MSG_SIZE
+message to obtain the minimal rectangle, and it can then stretch
+and offset the rectangle, to obtain the desired size scrollbar.
+.in
+.sp
+.in 7
+.ul 1
+editorState
+.br
+.in
+.in 9
+This field contains the initial value of the state flags
+for this editor instance.
+It can be composed of any combination of the
+.B XrSENSITIVE, XrVISIBLE
+and
+.B XrTRANSPARENT
+flags.
+.in
+.sp
+.in 7
+.ul 1
+editorFGColor
+.br
+.in
+.in 9
+This field specifies the foreground color
+to be used when drawing the editor instance.
+This is used for all borders, and for filling
+the slide box.
+If this is set to -1, the default foreground color (see
+.B XrInit(3X)
+) will be used.
+.in
+.sp
+.in 7
+.ul 1
+editorBGColor
+.br
+.in
+.in 9
+This field specifies the background color
+to be used when drawing the editor instance.
+This is used for the interior of the scrollbar
+region.
+If this is set to -1, the default background color (see
+.B XrInit(3X)
+) will be used.
+.in
+.sp
+.in 7
+.ul 1
+orientation
+.br
+.in
+.in 9
+This describes the orientation of the scrollbar instance, and
+can assume one of the following values: 
+.B XrHORIZONTAL 
+or 
+.B XrVERTICAL.
+.in
+.sp
+.in 7
+.ul 1
+configuration
+.br
+.in
+.in 9
+This field specifies all of the configuration parameters needed to
+initially display the scrollbar instance.
+This field is an instance of the following structure:
+.sp
+.in
+.in 14
+.nf
+typedef struct {
+        INT8   components;
+        INT16  min;
+        INT16  max;
+        INT16  slidePosition;
+        INT16  slideSize;
+        INT32  (*handler)();
+        INT16  granularity;
+} xrSBParameters;
+.fi
+.in
+.in 9
+.sp
+The
+.I components
+field specifies the component parts which are to be initially displayed
+as part of the scrollbar instance.
+It is constructed by OR'ing together a combination of the
+.B XrSLIDEBOX
+and
+.B XrSCROLLARROWS
+flags.
+.sp
+The 
+.I min
+and
+.I max
+values describe the units which are to be assigned to the top (left)
+and bottom (right) of the scroll region.
+.sp
+The
+.I slidePosition
+value specifies the initial position of the slide box within the
+scroll region.
+The position is expressed in scroll region units, and must be in the range
+.I min - max;
+if an invalid position is specified, then the create request will fail.
+If the 
+.B XrSLIDEBOX
+flag is not set in the 
+.I components
+field, then this field is ignored.
+.sp
+The
+.I slideSize
+value specifies the initial size of the slide box.
+It is expressed in scroll region units, and must be in the range
+.I 0 to (min - max);
+if an invalid size is specified, then the create request will fail.
+If the 
+.B XrSLIDEBOX
+flag is not set in the 
+.I components
+field, then this field is ignored.
+.sp
+The
+.I handler
+field allows an application to specify its own handler
+routine, which will be automatically invoked by the scrollbar
+editor during interactive slide operations.
+If the 
+.I handler
+field is set to 
+.B NULL,
+then the scrollbar editor will disable this feature.
+.sp
+When the 
+.I handler
+routine is invoked, it will be called in the following fashion:
+.sp
+.nf
+     INT32
+     handler (windowId, editorInstance, slidePosition)
+
+         Window     windowId;
+         xrEditor * editorInstance;
+         INT16      slidePosition;
+.fi
+.sp
+The
+.I granularity
+value represents a value in the range
+.I 0 to (min - max),
+where
+.I min
+and
+.I max
+are the limits of the scroll region.
+.in
+.sp
+.IP
+The editor will then draw the scrollbar instance in the 
+specified window.
+.IP
+Upon successful completion, a pointer to the newly created
+editor structure will be returned to the application.
+This value must be used there after, whenever the application
+wishes to refer to this particular editor instance.
+
+.IP MSG_FREE
+This message is the mechanism by which an editor instance can be destroyed.
+The only parameter of importance is the 
+.I instance
+parameter, which is a pointer to the
+editor structure, which was returned by the 
+.B MSG_NEW 
+message; this parameter specifies which instance is to be destroyed.
+.IP
+When a scrollbar instance is destroyed, it will be internally
+disconnected from the window to which it was attached, it
+will no longer handle mouse selects, and it will be removed
+from the window, if the instance is visible.
+.IP
+After an editor instance has been destroyed, no further
+messages should be issued in regard to that instance.
+
+.IP MSG_GETSTATE
+This message returns the current state of the 
+.B XrVISIBLE, XrSENSITIVE
+and
+.B XrTRANSPARENT
+flags for the specified scrollbar instance.  The
+.I instance
+parameter specifies which instance to inquire about. 
+The 
+.I data 
+parameter should be a pointer to an 8 bit integer value,
+into which the current state flags will be placed.
+
+.IP MSG_SETSTATE
+This message allows an application program to modify the setting of
+the 
+.B XrSENSITIVE, XrVISIBLE 
+and
+.B XrTRANSPARENT
+flags, for a given scrollbar instance.
+The 
+.I data 
+parameter is interpreted as an 8 bit integer value, containing the
+new state flag values.
+After saving the new state flags, the editor instance will be redrawn,
+if either the
+.B XrSENSITIVE
+or
+.B XrVISIBLE
+flags changed.
+If an instance is not visible, then the
+rectangle which it occupies will be drawn using the background tile
+for the window, thus making it invisible.  If an instance is 
+visible, but not sensitive, 
+then only the outline of the scrollbar,the slide box, and the
+scroll arrows will be drawn.
+The
+.B XrTRANSPARENT
+flag controls the behavior of the slide box during interactive slide
+box move operations.
+
+.IP MSG_REDRAW
+This editor provides an application with the means
+for requesting that a particular scrollbar instance be redrawn.
+.IP
+When this message is issued, the 
+.I instance
+parameter must point
+to the editor structure associated with the instance to be redrawn.
+The 
+.I data
+parameter must be a 32 bit integer
+which specifies the type of redraw to perform.
+.IP
+The scrollbar editor supports the following redraw mode:
+.sp
+.in 8
+.nf
+.B - XrREDRAW_ALL
+.in
+.fi
+.IP
+When the 
+.B XrREDRAW_ALL 
+option is specified, the complete scrollbar
+instance will be redrawn; similar to when the instance was first
+displayed.
+.IP
+If any other redraw mode is specified, then the request will fail.
+
+.IP MSG_SIZE
+This message allows an application to obtain the rectangle needed to
+contain a minimally sized scrollbar of a specified width (if vertical)
+or height (if horizontal).  
+Once an application program has obtained this information, it can
+stretch and offset the rectangle, thus customizing it to it's own needs.
+It expects the 
+.I instance
+parameter to be set to
+.B NULL,
+and the
+.I data 
+parameter to point to an instance of the following structure:
+.sp
+.nf
+     typedef struct {
+          Window         editorWindowId;
+          RECTANGLE      editorRect;
+          INT8           editorState;
+          INT32          editorFGColor;
+          INT32          editorBGColor;
+          INT8           orientation;
+          xrSBParameters configuration;
+      } xrScrollBarInfo;
+.fi
+.sp
+.IP
+One field which must be filled out by the application program BEFORE
+issuing this call, is the 
+.I orientation 
+field; it must be set to either
+.B XrVERTICAL 
+or 
+.B XrHORIZONTAL.
+.IP
+If a vertical scrollbar was specified, then the width of the desired
+scrollbar must be specified.
+This is done by setting the following value in the structure:
+.sp
+.nf
+.in 11
+.I       editorRect.width
+.in
+.fi
+.IP
+If a horizontal scrollbar was specified, then the height of the
+desired scrollbar must be specified.
+This is done by setting the following value in the structure:
+.sp
+.nf
+.in 11
+.I       editorRect.height
+.in
+.fi
+.IP
+If this value is less than 11, then the request will fail;
+a scrollbar cannot be smaller than 11 pixels.
+.IP
+In return, the 
+.I editorRect 
+field will be filled in with the coordinates
+for the 0 based rectangle needed to contain an instance of the smallest
+sized scrollbar with the specified orientation and height or width.
+
+.IP MSG_MOVE
+This message provides an application with a means for quickly relocating 
+a particular editor instance within a window.
+The size of the 
+.I editorRect 
+associated with the instance is not changed.
+To relocate an editor instance, a new origin point for the instance's
+.I editorRect 
+must be specified; the top left corner of the editor rectangle 
+will then be translated such that it now coincides with the new origin.
+The origin point is interpreted as an absolute position within the window.
+.IP
+When this message is issued, the
+.I instance
+parameter must point to the editor structure associated with the
+instance which is to be moved, while the
+.I data
+parameter must point to a 
+.I POINT 
+structure, containing the new
+.I editorRect 
+origin.
+.IP
+When an editor instance is relocated, the field editor will automatically
+remove the visual image of the instance from the window, and will then redraw
+the instance at its new location; this occurs only if the instance is visible.
+
+.IP MSG_RESIZE
+This message provides an application with a means for both changing the
+size of the 
+.I editorRect
+associated with a particular editor instance, and also the location of
+the new
+.I editorRect.
+All restrictions regarding the
+.I editorRect
+size which applied when the instance was first created using
+.B MSG_NEW,
+still apply.
+If an invalid 
+.I editorRect
+is specified, then the resize request will fail.
+.IP
+When this message is issued, the
+.I instance
+parameter must point to the editor structure associated with the instance
+which is to be resized, while the
+.I data
+parameter must point to a 
+.I RECTANGLE 
+structure containing the
+new size and origin for the 
+.I editorRect.
+.IP
+When an editor instance is resized, the field editor will automatically
+remove the visual image of the instance from the window, and will then
+redraw the instance using the new size and location information; this
+occurs only if the instance is visible.
+
+.IP MSG_GETPARAMETERS
+This message provides an application with the means for obtaining
+the current configuration parameters associated with a particular
+scrollbar instance, or the means for initializing a parameter
+structure with the default configuration values.
+If an application wishes to obtain the current configuration
+parameters for an existing scrollbar instance, then it should set the
+.I instance
+parameter such that it specifies the instance to be queried; if an
+application wishes to only initialize a parameter structure with the
+default values, then it should set the
+.I instance
+parameter to
+.B NULL.
+The
+.I data
+parameter must to point to an instance of the following structure:
+.sp
+.nf
+.in 10
+typedef struct {
+        INT8   components;
+        INT16  min;
+        INT16  max;
+        INT16  slidePosition;
+        INT16  slideSize;
+        INT32  (*handler)();
+        INT16  granularity;
+} xrSBParameters;
+.in
+.fi
+.sp
+Each field in this structure will be filled in
+with the current configuration information for
+the specified instance, or the default value.
+.sp
+The default value associated with each field is shown below:
+.sp
+.in 10
+.I components =
+XrSCROLLARROWS | XrSLIDEBOX
+.br
+.I min =
+0
+.br
+.I max =
+100
+.br
+.I slidePosition =
+0
+.br
+.I slideSize =
+10
+.br
+.I handler =
+.B NULL
+.br
+.I granularity =
+10
+.in
+
+.IP MSG_SETPARAMETERS
+This message provides an application with the means for modifying
+the configuration parameters associated with a particular
+scrollbar instance.
+It will expect the
+.I instance
+parameter to specify the instance to be queried, and the
+.I data
+parameter to point to an instance of the following structure:
+.sp
+.nf
+.in 10
+typedef struct {
+        INT8   components;
+        INT16  min;
+        INT16  max;
+        INT16  slidePosition;
+        INT16  slideSize;
+        INT32  (*handler)();
+        INT16  granularity;
+} xrSBParameters;
+.in
+.fi
+.sp
+If the
+.B XrSLIDEBOX
+flag in the
+.I components
+field is not set, then the values in the
+.I slidePosition, slideSize, handler
+and
+.I granularity
+fields will be ignored.
+.sp
+After the values have been saved, the affected components within
+the instance will be redrawn; the whole instance is not redrawn.
+.fi
+
+.IP MSG_EDIT
+Normally, an application will not issue this message;
+it is usually issued by the Xrlib input routines,
+when an input event occurs within a scrollbar instance.
+.IP
+When such an event occurs, a
+.B MSG_EDIT 
+message will be issued to the editor, with
+the
+.I instance
+parameter indicating which scrollbar to process, and the
+.I data,
+parameter pointing to an 
+.I XEvent
+structure.
+.IP
+The scrollbar editor only handles a keystroke if 
+it maps to an
+.B XrSELECT
+event, as described by
+.B XrMapButton(3X)
+and
+.B XrInit(3X);
+all others are ignored.  When a select event
+occurs within the scrollbar, the first thing done is to determine
+which of the following regions was selected:
+.sp
+.in 8
+.nf
+- A scroll arrow.
+.br
+- The slide box.
+.br
+- The scroll region.
+.in
+.fi
+.IP
+Depending upon the region selected, a different action is taken:
+.sp
+.in 7
+.ul 1
+A scroll arrow box
+.br
+.in
+.in 9
+If the scroll arrows are displayed as part of the instance, then
+an input event will be added to the front of the application's
+input queue, informing it that the particular scroll arrow was selected.
+The slide box position is not modified.
+The returned
+.I xrEvent
+structure is set to the following values:
+.nf
+
+	type      = XrXRAY
+	source    = the window Id
+ 	inputType = XrEDITOR
+        inputCode = XrSCROLLBAR
+        value1    = (see values listed below)
+        value2    = current slide box position
+        valuePtr  = pointer to instance's editor structure
+.fi
+.sp
+The
+.I value1
+field will return an indication of which scrollbar arrow
+was selected.
+It will be set to one of the following values:
+.sp
+.nf
+        XrSCROLL_LEFT
+        XrSCROLL_RIGHT
+        XrSCROLL_UP
+        XrSCROLL_DOWN
+.fi
+.sp
+If an application then wants the slide box position modified, it 
+should calculate the new slide box position, and then use the
+.B MSG_SETPARAMETERS
+message to reposition the slide box.
+.sp
+If the scroll arrows are not visible, then a
+.B NULL
+event will be returned to the application.
+The returned
+.I xrEvent
+structure will be set to the following values:
+.nf
+
+	type      = XrXRAY
+	source    = the window Id
+ 	inputType = XrEDITOR
+        inputCode = XrSCROLLBAR
+        value1    = NULL
+        value2    = current slide box position
+        valuePt   = cursor position
+        valuePtr  = pointer to instance's editor structure
+.fi
+.in
+.sp
+.in 9
+An application could easily implement smooth, continuous scrolling,
+by polling for a select up event after it has received one of the
+above scroll arrow events.
+When the select up event is received, the application would know
+to stop the continuous scrolling.
+.in
+.sp
+.in 7
+.ul 1
+Slide box
+.br
+.in
+.in 9
+When the slide box is selected, the scrollbar editor will keep
+control, until any X event is received; normally, it is a select up
+event which terminates the slide operation.
+.sp
+If the scrollbar is currently configured to operate in
+.I Normal
+mode, then
+as the user moves the cursor, the slide box will follow.
+If the slide operation terminates because a select up event is
+received, then the
+.I xrEvent
+event described below will be pushed onto the
+front of the application's input queue.
+If the slide operation terminates because any
+other X event is received, then the X event will
+be re-pushed onto the front of the input
+queue, and then the
+.I xrEvent
+event described below will be pushed.
+The
+.I xrEvent
+event, will be set to contain the following information:
+.nf
+
+	type      = XrXRAY
+	source    = the window Id
+	inputType = XrEDITOR
+        inputCode = XrSCROLLBAR
+        value1    = XrSCROLL_SLIDE
+        value2    = new slide box position
+        valuePtr  = pointer to instance's editor structure
+.fi
+.sp
+If the scrollbar is currently configured to operate in
+.I Transparent
+mode, then as the user moves the cursor, an outline of the
+slidebox will follow.
+If the slide operation terminates because a select up event is
+received, then the
+.I xrEvent
+event described below will be pushed onto the
+front of the application's input queue.
+If the slide operation terminates because any
+other X event is received, then the X event will
+be re-pushed onto the front of the input
+queue, and then the
+.I xrEvent
+event described below will be pushed.
+The position of the slide box will not be changed.
+The position of the slide box outline will be returned; it
+is up to the application to then instruct the scrollbar
+editor to move the slide box to that position, if desired.
+The
+.I xrEvent
+structure will contain the following information:
+.nf
+
+	type      = XrXRAY
+	source    = the window Id
+	inputType = XrEDITOR
+        inputCode = XrSCROLLBAR
+        value1    = XrTSCROLL_SLIDE
+        value2    = current slide box position
+        value3    = slide box outline position
+        valuePtr  = pointer to instance's editor structure
+.fi
+.sp
+For both of the above modes, as the slide box is moved, each time its
+position changes by the specified granularity, the specified 
+interactive slide handler routine will be invoked.
+.in
+.sp
+.in 7
+.ul 1
+Scroll region
+.br
+.in
+.in 9
+When a select occurs within the scroll region portion of a scrollbar,
+the editor will return an input event to the application, informing
+it that a select occurred within the instance's scroll region.  The
+editor will not automatically reposition the slide box. 
+It is up to the application, once it has received notification,
+to update the slide box position.
+Returned as part of the input event, is the location of the cursor
+at the time of the select, expressed as in scroll region units.
+.sp
+The 
+.I xrEvent
+structure will contain the following information:
+.nf
+
+	type      = XrXRAY
+	source    = the window Id
+	inputType = XrEDITOR
+        inputCode = XrSCROLLBAR
+        value1    = XrSCROLL_LESS or XrSCROLL_MORE
+        value2    = current slide box position
+        value3    = cursor location (in slide region units)
+        valuePtr  = pointer to instance's editor structure
+.fi
+.sp
+NOTE: if the slide box component is not currently being displayed, then the
+.I value1
+field will always be set to
+.B XrSCROLL_MORE.
+.in
+
+.SH RETURN VALUE
+Upon successful completion of any of the messages, a non-NULL
+value will be returned.
+In the case of
+.B MSG_NEW,
+this non-NULL value will be the pointer to the
+newly created editor instance structure.
+.P
+If a message request fails, then a NULL value is returned.
+
+.SH ERROR CONDITIONS
+Messages to the scrollbar will fail, set the
+.I xrErrno
+global and return a NULL
+value, under the following conditions:
+.sp
+.IP MSG_NEW
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I editorWindowId
+is an invalid Id [XrINVALIDID].
+.IP
+.I editorRect 
+is not large enough to contain the scrollbar [XrINVALIDRECT].
+.IP
+The width for a vertical scrollbar is less than 11 [XrINVALIDPARM].
+.IP
+The height for a horizontal scrollbar is less than 11 [XrINVALIDPARM].
+.IP
+.I orientation
+is set to an unknown value [XrINVALIDOPTION].
+.IP
+.I granularity
+is outside the scrollbar unit range [XrPARMOUTOFRANGE].
+.IP
+.I max <= min [XrINVALIDPARM].
+.IP
+.I slidePosition
+is outside the scrollbar unit range [XrPARMOUTOFRANGE].
+.IP
+.I slideSize
+is outside the scrollbar unit range [XrPARMOUTOFRANGE].
+.IP
+A call to 'X' failed { XMakePixmap() } [XrXCALLFAILED].
+.IP
+Memory cannot be allocated [XrOUTOFMEM].
+.sp
+.IP MSG_RESIZE
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I editorRect
+is not large enough to contain the scrollbar [XrINVALIDRECT].
+.sp
+.IP MSG_REDRAW
+A redraw mode other than
+.B XrREDRAW_ALL
+is specified [XrINVALIDOPTION].
+.sp
+.IP MSG_SIZE
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+The width for a vertical scrollbar is less than 11 [XrINVALIDPARM].
+.IP
+The height for a horizontal scrollbar is less than 11 [XrINVALIDPARM].
+.IP
+.I orientation
+is set set to an unknown value [XrINVALIDOPTION].
+.sp
+.IP MSG_SETPARAMETERS
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I max <= min [XrINVALIDPARM].
+.IP
+.I slidePosition
+is outside the scrollbar unit range [XrPARMOUTOFRANGE].
+.IP
+.I slideSize
+is outside the scrollbar unit range [XrPARMOUTOFRANGE].
+.IP
+.I granularity
+is outside the scrollbar unit range [XrPARMOUTOFRANGE].
+.sp
+.IP "MSG_GETSTATE, MSG_MOVE and MSG_GETPARAMETERS"
+.I data
+is set to NULL [XrINVALIDPTR].
+.sp
+.IP "All messages, except MSG_NEW, MSG_GETPARMETERS and MSG_SIZE"
+The
+.I instance
+parameter is set to NULL [XrINVALIDID].
+
+.SH "SEE ALSO"
+XrInput(3X), XrInit(3X)

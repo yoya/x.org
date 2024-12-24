@@ -1,0 +1,89 @@
+
+Introduction:
+------------
+
+This tape contains the final release of the Xray user interface toolbox.
+If you have comments or questions regarding Xray, please contact Frank Hall 
+at (503) 757-2000 or hp-pcd!frank.
+
+
+Installation:
+------------
+
+The tape contains both source and object Xray.  The installation procedure 
+consists of two steps:
+
+	1) copying everything on this tape to your disc, and
+
+	2) installing the object into your system.
+
+If you have anything other than a HP 9000 series 300 with a topcat monitor,
+please ignore step 2, as the object on this tape will not work on your system.
+
+
+Step 1: Copying this tape onto your system.
+------
+
+Login as root and go to the directory you with to load the system.  Then type:
+
+    "tcio -o /dev/rct | tar -xvf -"
+
+This will load your system into that directory.  The release contains
+two directories; src and usr.
+
+Step 2: Installing the system.
+------
+
+While in this same directory, type:
+
+    "tar -cf - usr | (cd /; tar -xf -)"
+
+This will copy all the runtime files into the proper place on your root file
+system.
+
+
+NOTE: Building your own library
+-----
+
+If, as mentioned earlier, you are not running on an HP 9000, series 300
+with a TOPCAT display, then you will need to compile the library for
+your system.  This involves changing your working directory to the
+following location (assuming you are still located in the directory
+in which you unloaded the tape):
+
+   cd src/Xray
+
+The library can be compiled using the supplied make script.  There
+are two ways of invoking the make script; the method you use will
+depend upon whether you are running a system V or BSD kernel.  If using
+a system V kernel, use the following command:
+
+   make NOBSD<Return Key>
+
+ If using a BSD kernel, use the following command:
+
+    make <Return Key>
+
+ Upon successful completion of the make script, a libXr.a file
+ will reside in your current directory.  To use this library, you
+ will need to copy the library to /usr/lib, using the following
+ command:
+
+    cp libXr.a /usr/lib
+
+ Lastly, you may need to ranlib the library.  To do this, issue the
+ following command:
+
+     ranlib /usr/lib/libXr.a
+
+ At this point, you are ready to use your new Xray library.
+
+
+Sample .Xdefaults File:
+-----------------------
+       
+A sample .Xdefaults file is included, which contains some default settings
+for the Xray toolbox.  This resides in the 'src/Xray' directory, and has
+the name: Xdefaults .  To use this, copy the Xdefaults file to your home
+directory, and give it the following name: .Xdefaults .  Feel free to
+customize this file to match your personal likes.

@@ -1,0 +1,270 @@
+.TH XRPANEL 3X "Xrlib Version 10"
+.SH NAME
+XrPanel - The Xrlib Panel Manager.
+.SH SYNOPSIS
+#include <X/Xlib.h>
+.br
+#include <Xr/Xrlib.h>
+.P
+xrPanel *
+.br
+.B XrPanel (panelInstance, message, data)
+.br
+xrPanel  * panelInstance;
+.br
+INT32    message;
+.br
+INT8   * data;
+.SH DESCRIPTION
+XrPanel is the Xrlib panel manager.
+This man page gives a brief summary of the panel manager
+structures, and messages.
+For a more complete description of the panel manager, refer
+to the ``Dialogs'' chapter in the programmer's manual.
+.SH STRUCTURES
+The following structures are used to communicate with the
+panel manager.
+.TP
+The xrPanelInfo Structure
+This structure is used to create a panel in conjunction
+with MSG_NEW.
+.nf
+
+typedef struct {
+        POINT             panelOrigin;
+        SIZE              panelSize;
+        Window            relativeTo;
+        Window            childOf;
+        xrPanelContext  * panelContext;
+
+        xrPanelField    * fieldList;
+        INT32             numFields;
+        INT32             panelId;
+} xrPanelInfo;
+
+typedef struct {
+        xrEditor     * (* editorFunct) ();
+        INT8         * editorData;
+        xrEditor     * editorInstance;
+}xrPanelField;
+
+.fi
+
+.TP
+The panel context tructure
+This structure contains the information used by the panel 
+manager to deal with a particular panel.
+.nf
+
+typedef struct {
+        Pixmap          winBackground;
+        Pixmap          winForeground;
+        INT16           borderWidth;
+        INT32           foregroundColor;
+        INT32           backgroundColor;
+        FontInfo      * fontInfo;
+        Cursor          cursor;
+
+        INT32           showFlag;
+        xrEditor     *  currentEditor;
+        INT32           timer;
+        INT32           (* initFunct)();
+}xrPanelContext;
+
+.fi
+A description of each member of these structures is given
+in the ``Dialogs'' chapter of the programmer's manual.
+.SH MESSAGES
+The following messages allow the programmer to give the
+panel manager directives. 
+.IP MSG_NEW
+MSG_NEW creates the panel structure discussed earlier.
+The 
+.I panelInstance
+parameter may be set to NULL,
+as it is not used.
+The 
+.I data
+parameter should be set to a structure of type
+.I xrPanelInfo.
+MSG_NEW returns a pointer to a panel, failure is indicated
+by a return value of NULL.
+.IP MSG_FREE
+MSG_FREE destroys a panel and frees the associated memory.
+.I data
+may be set to NULL for this command.
+.IP MSG_SIZE
+MSG_SIZE returns the size of a panel given a 
+.I panelInfo
+structure.
+.I data
+should point to a panelInfo structure.
+The size is returned in the
+.I panelSize
+member of the panelInfo structure.
+.IP MSG_EDIT
+MSG_EDIT causes the panel manager to begin looking
+for input to a particular panel.
+MSG_EDIT should be sent to the panel manager when an application
+expects input from a panel. 
+.I data
+should point to an xrEvent structure.
+.IP MSG_CURRENTEDITOR
+MSG_CURRENTEDITOR instructs the panel manager to invoke a specific editor
+when MSG_EDIT is received.  This allows a panel to 
+have an active field (such as a TextEdit field) without a input
+from the user.
+.I data
+points to an
+.I xrEditor
+instance.
+.IP MSG_MOVE
+MSG_MOVE allows a panel to be moved about the display.
+.I data
+is a pointer to a point structure.
+.IP MSG_RESIZE
+MSG_RESIZE allows a panel to be resized by the application.
+.I data
+is a pointer to a rectangle structure.
+The panel will be moved to an absolute point on the display
+and its window will change to the given size.
+.IP MSG_HIDE
+MSG_HIDE hides a panel.
+.I data
+is not used and may be set to NULL.
+.IP MSG_SHOW
+MSG_SHOW shows a panel.
+.I data
+is not used and may be set to NULL.
+A panel will be shown automatically upon creation if the
+.I showFlag
+field of the panelInfo structure is set to TRUE.
+.IP MSG_REDRAW
+MSG_REDRAW causes the editors 
+of a panel to be redrawn.
+.I data
+is not used and may be set to NULL.
+.IP MSG_GETPANELCONTEXT
+MSG_GETPANELCONTEXT fills out an xrPanelContext structure with
+the panel defaults.
+.I data
+should point to an xrPanelContext structure.
+.IP MSG_NEWSUBPANEL
+MSG_NEWSUBPANEL creates a sub-panel.
+.I panelInstance
+should be the pointer to the parent panel, and
+.I data
+is a
+.I xrPanelInfo
+structure.
+.IP MSG_FREESUBPANEL
+MSG_FREESUBPANEL destroys a sub-panel and its
+associated memory.
+.IP MSG_SHOWSUBPANEL
+MSG_SHOWSUBPANEL causes the editors of a 
+sub-panel to be added to its main panel.
+.I data
+should point to an xrEditorGroup structure indicating which sub-panel is to
+be activated.
+.IP MSG_HIDESUBPANEL
+MSG_HIDESUBPANEL removes the editors 
+from its associated main panel.
+.I data
+should point to an xrEditorGroup structure indicating which sub-panel is
+to be deactivated.
+.SH "RETURN VALUE"
+Unless otherwise specified, XrPanel() returns
+.I panelInstance
+if it is successful and
+.B NULL
+on failure.
+.SH "ERROR CONDITIONS"
+Messages to the panel manager will fail, set the
+.I xrErrno
+global and return a NULL value, under the following conditions:
+.IP MSG_NEW
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP
+Memory cannot be allocated [XrOUTOFMEM].
+.IP MSG_SIZE
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP MSG_FREE
+.IP
+.I panelInstance
+is set to NULL [XrINVALIDPTR].
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP MSG_EDIT
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+Panel is not showing [XrINVALIDEVENT]
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP MSG_CURRENTEDITOR
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP MSG_MOVE
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP MSG_RESIZE
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP MSG_HIDE
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP MSG_SHOW
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP MSG_REDRAW
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP MSG_GETPANELCONTEXT
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP MSG_NEWSUBPANEL
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP
+Memory cannot be allocated [XrOUTOFMEM]
+.IP MSG_FREESUBPANEL
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP MSG_SHOWSUBPANEL
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+.IP MSG_HIDESUBPANEL
+.IP
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+A call to 'X' failed [XrXCALLFAILED].
+

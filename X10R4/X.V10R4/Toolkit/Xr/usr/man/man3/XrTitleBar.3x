@@ -1,0 +1,725 @@
+.TH XRTITLEBAR 3X "Xrlib Version 10"
+.fi
+.ad 1
+.SH NAME
+XrTitleBar - an editor that creates and controls a title bar.
+.SH SYNOPSIS
+#include <X/Xlib.h>
+.br
+#include <Xr/Xrlib.h>
+.br
+.sp 1
+xrEditor *
+.br
+.B XrTitleBar (instance, message, data)
+.in 7
+.br
+xrEditor * instance;
+.br
+INT32      message;
+.br
+INT8     * data;
+.in
+.sp 1
+.SH DESCRIPTION
+.sp
+.P
+The titlebar editor is used to create and process an instance
+of a titlebar within a given window.  
+It will allow an application program to specify a titlebar
+of arbitrary width, composed of any combination
+of title strings and two custom gadget boxes.
+The default system base font will be used when displaying
+the title string, unless a different font is specified when
+the instance is created.
+.P
+A titlebar can be composed of anywhere from 1 to 4 regions.
+These regions are:
+.sp
+.in 8
+.nf
+- The background
+.br
+- The title string
+.br
+- Gadget box 1
+.br
+- Gadget box 2
+.fi
+.in
+.P
+Each of these regions is selectable by a user, and
+will result in an application being notified of the event
+and the region selected.
+.P
+The custom gadget boxes are displayed at either end of
+the titlebar, with box 1 being on the left, and box 2 on the right.
+When an application requests that a gadget box be displayed, it must
+also specify an alphanumeric character, which will be displayed
+within the gadget box; to specify the character, an ASCII code
+must be supplied.
+This allows an application to use these gadget boxes as
+icons for frequently used actions.
+.P
+Whenever possible, the complete title string will be displayed
+within the titlebar.
+However, the situation can occur where the titlebar 
+is not long enough to hold the complete title string.
+Rather than refusing to draw the titlebar at all,
+the editor will display as much of the title string
+as possible.
+.P
+There is, however, a lower size limit which will be imposed
+upon a titlebar instance.
+A titlebar must be large enough to hold the gadget
+boxes (if defined), the title string border, and at least 
+the first character of the title string.
+An attempt to create a titlebar in a rectangle smaller than
+this lower limit, will fail.
+An application can easily obtain the rectangle describing
+this lower size limit, by using the
+.B MSG_MINSIZE
+message.
+.P
+When an application wants to create a titlebar instance,
+it should use the 
+.B MSG_SIZE 
+message to create the rectangle to contain the instance.
+This rectangle will be the smallest 0 based rectangle needed
+to contain the complete instance, using the specified font;
+the rectangle can then be stretched, to make the titlebar the
+desired length.
+The height of the titlebar will be proportional to the font specified,
+and must not be modified by the application.
+If the height is not what the editor would expect, when using
+the specified font, then the editor will refuse to create the
+titlebar instance.
+
+.SH EDITOR MESSAGES
+.IP MSG_NEW
+This message will be the means by which an application program
+can create a titlebar editor instance in a window.  It will
+expect the 
+.I instance
+parameter to be set to
+.B NULL,
+and the
+.I data 
+parameter to point to a filled out instance of the following structure:
+.sp
+.nf 
+     typedef struct {
+          Window       editorWindowId;
+          RECTANGLE    editorRect;
+          INT8         editorState;
+          INT32        editorFGColor;
+          INT32        editorBGColor;
+          FontInfo   * editorFont;
+          INT8       * titleName;
+          INT8       * gadgetIcon1;
+          INT8       * gadgetIcon2;
+      } xrTitleBarInfo;
+.fi
+.sp
+.in 7
+.ul 1
+editorWindowId
+.br
+.in
+.in 9
+This field indicates the window to which the editor instance
+is to be attached.
+Anytime the instance is redrawn, it will be redrawn in this window.
+.in
+.sp
+.in 7
+.ul 1
+editorRect
+.br
+.in
+.in 9
+This describes the location and size of the region into which
+the titlebar instance is to be drawn.
+It must be at least large enough to hold the minimal
+components of the titlebar, as outlined earlier.
+If it is too small, then the create request will fail.
+It will be possible for an application to request that a
+titlebar be created along the entire top of the window,
+by setting 
+.I editorRect 
+to (0,0,0,0); the editor will automatically
+calculate the rectangle needed.
+If an application attempts to create a titlebar with a
+height less than 11, then the create request will fail.
+.in
+.sp
+.in 7
+.ul 1
+editorState
+.br
+.in
+.in 9
+This field contains the initial value of the state flags
+for this editor instance.
+It can be composed on any combination of the
+.B XrSENSITIVE
+and
+.B XrVISIBLE
+flags.
+.in
+.sp
+.in 7
+.ul 1
+editorFGColor
+.br
+.in
+.in 9
+This field specifies the foreground color
+to be used when drawing the editor instance.
+If this is set to -1, the default foreground color (see
+.B XrInit(3X)
+) will be used.
+.in
+.sp
+.in 7
+.ul 1
+editorBGColor
+.br
+.in
+.in 9
+This field specifies the background color
+to be used when drawing the editor instance.
+If this is set to -1, the default background color (see
+.B XrInit(3X)
+) will be used.
+.in
+.sp
+.in 7
+.ul 1
+editorFont
+.br
+.in
+.in 9
+This is a pointer to a structure which describes the font to be used when
+creating this editor instance.
+If the pointer has been set to 
+.B NULL, 
+then the editor
+will use the default system base font.
+The font is important not only because it determines how the
+title string will look, but it is also used to determine the
+height of the titlebar.
+.in
+.sp
+.in 7
+.ul 1
+titleName
+.br
+.in
+.in 9
+This points to the 
+.B NULL 
+terminated string which is to be displayed as the title.
+If 
+.I titleName 
+is either NULL, or points to an empty string, then a title string
+will not be displayed.
+.in
+.sp
+.in 7
+.ul 1
+gadgetIcon1
+.br
+.in
+.in 9
+This points to a single character which should
+be displayed within gadget box 1.
+If this pointer is set to
+.B NULL,
+then gadget box 1 will not be displayed.
+This character uses the same font as the title string.
+.in
+.sp
+.in 7
+.ul 1
+gadgetIcon2
+.br
+.in
+.in 9
+This points to a single character which should
+be displayed within gadget box 2.
+If this pointer is set to NULL, then gadget box 2 will not be
+displayed.
+This character uses the same font as the title string.
+.in
+.sp
+.IP
+The editor will then draw the titlebar editor instance in the 
+specified window.
+.IP
+Upon successful completion, a pointer to the newly created
+editor structure will be returned to the application.
+This value must be used there after, whenever the application
+wishes to refer to this particular editor instance.
+
+.IP MSG_FREE
+This message is the mechanism by which an editor instance can be destroyed.
+The only parameter of importance is the
+.I instance
+parameter, which is a pointer to the
+editor structure, returned by
+.B MSG_NEW;
+this parameter specifies which instance is to be destroyed.
+.IP
+When a titlebar instance is destroyed, it will be internally
+disconnected from the window to which it was attached,
+it will no longer handle mouse selects, and it will be removed
+from the window, if the instance is visible.
+.IP
+After an editor instance has been destroyed, no further
+messages should be issued in regard to that instance.
+
+.IP MSG_GETSTATE
+This message returns the current state of the 
+.B XrVISIBLE
+and
+.B XrSENSITIVE
+flags for the specified titlebar editor instance.  The 
+.I instance
+parameter specifies which instance to use. 
+The 
+.I data 
+parameter should be a pointer to an 8 bit integer value,
+into which the current state flags will be placed.
+
+.IP MSG_SETSTATE
+This message allows an application program to modify the setting of
+the 
+.B XrSENSITIVE
+and
+.B XrVISIBLE 
+flags, for a given titlebar editor instance.
+The 
+.I data 
+parameter is interpreted as an 8 bit integer value, containing
+the new state flag values.
+After saving the new state flags, the titlebar will be redrawn.
+If an instance is not visible, then the
+rectangle which it occupies will be drawn using the background tile
+for the window, thus making it invisible. 
+If an instance is visible, but not sensitive, 
+then the titlebar will be drawn as follows:
+.sp
+.in 8
+The border for the titlebar instance will be drawn.
+.sp
+The title string will be displayed.
+.sp
+The title borders will not be displayed.
+.sp
+The gadget boxes will not be displayed.
+.in
+.sp
+
+.IP MSG_REDRAW
+This editor provides an application with the means for
+requesting that a particular titlebar instance be redrawn.
+The originally specified parameters will again be used.
+.IP
+When this message is issued, the 
+.I instance
+parameter must be a pointer to the editor structure associated with the
+instance to be redrawn.
+The 
+.I data
+parameter must be a 32 bit integer
+which specifies the type of redraw to perform.
+.IP
+The titlebar editor supports the following redraw mode:
+.sp
+.in 8
+.B - XrREDRAW_ALL
+.in
+.IP
+If any other redraw mode is specified, then the request will fail.
+
+.IP MSG_MINSIZE
+As was mentioned earlier, it is possible for an application to
+create a titlebar
+which is too small to hold the complete title string.
+However, the titlebar must be long enough to display at
+least the gadget boxes (if defined), the title string border
+and the first character of the title string.
+This message will return the information describing the
+rectangle needed to contain these minimal components.
+.IP
+Some applications, such as a window controller, may like to
+know the minimum size a particular titlebar can shrink to,
+so that it can prevent a user from shrinking a window any smaller
+than that size.
+This message will supply this information.
+.IP
+This message will expect the 
+.I instance
+parameter to be set to
+.B NULL,
+and the
+.I data 
+parameter to point to an instance of the following structure:
+.sp
+.nf
+     typedef struct {
+          Window       editorWindowId;
+          RECTANGLE    editorRect;
+          INT8         editorState;
+          INT32        editorFGColor;
+          INT32        editorBGColor;
+          FontInfo   * editorFont;
+          INT8       * titleName;
+          INT8       * gadgetIcon1;
+          INT8       * gadgetIcon2;
+      } xrTitleBarInfo;
+.fi
+.IP
+The only fields which must be filled out by the application
+BEFORE issuing this call, are the 
+.I gadgetIcon1, gadgetIcon2, titleName 
+and 
+.I editorFont
+fields; if the 
+.I editorFont 
+field is 
+.B NULL, 
+then the default system base
+font will be used when calculating the rectangle.
+.IP
+Using the supplied information, the editor will set the 
+.I editorRect 
+field to the coordinates for the 0 based minimum sized rectangle.
+.IP
+If 
+.I titleName, gadgetIcon1
+and
+.I gadgetIcon2
+have all be set to 
+.B NULL,
+or point to empty strings, then this request will fail.
+An empty titlebar is not allowed.
+
+.IP MSG_SIZE
+This message allows an application to obtain the rectangle needed to
+contain a minimally sized titlebar instance.
+This differs from the
+.B MSG_MINSIZE
+message, in that the returned rectangle will be large enough
+to hold the gadget boxes (if defined), the title string border,
+and the complete title string.
+.IP
+The titlebar editor expects the 
+.I instance
+parameter to be set to
+.B NULL,
+and the
+.I data 
+parameter to point to an instance of the following structure:
+.sp
+.nf
+     typedef struct {
+          Window       editorWindowId;
+          RECTANGLE    editorRect;
+          INT8         editorState;
+          INT32        editorFGColor;
+          INT32        editorBGColor;
+          FontInfo   * editorFont;
+          INT8       * titleName;
+          INT8       * gadgetIcon1;
+          INT8       * gadgetIcon2;
+      } xrTitleBarInfo;
+.fi
+.sp
+.IP
+The only fields which must be filled out by the application program BEFORE
+issuing this call, are the 
+.I editorFont, gadgetIcon1, gadgetIcon2 
+and 
+.I titleName 
+fields; 
+all other fields are ignored.
+.IP
+If the application does not specify a specific font to be
+used (
+.I editorFont 
+== NULL), then the default system base
+font will be used when calculating the size of the rectangle.
+.IP
+In return, the 
+.I editorRect 
+field will be filled in with the coordinates
+for the smallest 0 based rectangle needed to contain the instance;
+an application program can then lengthen and offset this rectangle, to
+position it as it likes, within it's window.
+.IP
+If 
+.I titleName, gadgetIcon1
+and 
+.I gadIcon2
+have all been set to
+.B NULL,
+or point to empty strings, then this request will fail.
+An empty titlebar is not allowed.
+
+.IP MSG_MOVE
+This message provides an application with a means for quickly relocating 
+a particular editor instance within a window.
+The size of the 
+.I editorRect 
+associated with the instance is not changed.
+To relocate an editor instance, a new origin point for the instance's
+.I editorRect 
+must be specified; the top left corner of the editor rectangle 
+will then be translated such that it now coincides with the new origin.
+The origin point is interpreted as an absolute position within the window.
+.IP
+When this message is issued, the
+.I instance
+parameter must point to the editor structure associated with the
+instance which is to be moved, while the
+.I data
+parameter must point to a 
+.I POINT 
+structure, containing the new
+.I editorRect 
+origin.
+.IP
+When an editor instance is relocated, the field editor will automatically
+remove the visual image of the instance from the window, and will then redraw
+the instance at its new location; this occurs only if the instance is visible.
+
+.IP MSG_RESIZE
+This message provides an application with a means for both changing the
+size of the 
+.I editorRect
+associated with a particular editor instance, and also the location of
+the new
+.I editorRect.
+All restrictions regarding the
+.I editorRect
+size which applied when the instance was first created using
+.B MSG_NEW,
+still apply.
+If an invalid 
+.I editorRect
+is specified, then the resize request will fail.
+.IP
+When this message is issued, the
+.I instance
+parameter must point to the editor structure associated with the instance
+which is to be resized, while the
+.I data
+parameter must point to a 
+.I RECTANGLE 
+structure containing the
+new size and origin for the 
+.I editorRect.
+.IP
+When an editor instance is resized, the field editor will automatically
+remove the visual image of the instance from the window, and will then
+redraw the instance using the new size and location information; this
+occurs only if the instance is visible.
+
+.IP MSG_EDIT
+Normally, an application will not issue this message;
+it is usually issued by the Xrlib input routine,
+when an input event occurs within a titlebar instance.
+.IP
+When such an event occurs, a
+.B MSG_EDIT 
+message will be issued to the editor, with
+the
+.I instance
+parameter indicating which titlebar instance to process, and
+the
+.I data
+pointing to an 
+.I XEvent
+structure.
+.IP
+The titlebar editor only handles an event if 
+it maps to an
+.B XrSELECT
+event, as described by
+.B XrMapButton(3X)
+and
+.B XrInit(3X);
+all others are ignored.  When a select event
+occurs within a titlebar instance, the first thing done is to determine
+which region the select occurred in.
+.sp
+.IP
+All titlebar selects will fall within one of the following
+four regions:
+.sp
+.in 8
+.nf
+- Gadget box 1
+- Gadget box 2
+- The title box (title string & title border)
+- The background area
+.fi
+.in
+.sp
+.IP
+If gadget box 1 was selected, then an input event will
+be added to the front of the application's input queue,
+informing it of the event.
+The returned 
+.I xrEvent
+structure is set to the following value:
+.sp
+.nf
+   type      = XrXRAY
+   source    = the window Id
+   inputType = XrEDITOR
+   inputCode = XrTITLEBAR
+   value1    = XrGADGET_BOX1
+   valuePtr  = pointer to instance's editor structure
+.fi
+.sp
+.IP
+If gadget box 2 was selected, then an input event will
+be added to the front of the application's input queue,
+informing it of the event.
+The returned 
+.I xrEvent
+structure is set to the following value:
+.sp
+.nf
+   type      = XrXRAY
+   source    = the window Id
+   inputType = XrEDITOR
+   inputCode = XrTITLEBAR
+   value1    = XrGADGET_BOX2
+   valuePtr  = pointer to instance's editor structure
+.fi
+.sp
+.IP
+If the title string region was selected, 
+then the following input event
+will be added to the front of the application's input queue:
+.sp
+.nf
+   type      = XrXRAY
+   source    = the window Id
+   inputType = XrEDITOR
+   inputCode = XrTITLEBAR
+   value1    = XrTITLE_REGION
+   valuePtr  = pointer to instance's editor structure
+.fi
+.in
+.sp
+.IP
+If the select occurs outside any of the above mentioned regions,
+then the following input event will be added to the front of the
+application's input queue:
+.sp
+.nf
+   type      = XrXRAY
+   source    = the window Id
+   inputType = XrEDITOR
+   inputCode = XrTITLEBAR
+   value1    = NULL
+   valuePt   = cursor position
+   valuePtr  = pointer to instance's editor structure
+.fi
+
+.SH RETURN VALUE
+Upon successful completion of any of the messages, a non-NULL
+value will be returned.
+In the case of
+.B MSG_NEW,
+this non-NULL value will be the pointer to the
+newly created editor instance structure.
+.P
+If a message request fails, then a NULL value is returned.
+
+.SH ERROR CONDITIONS
+Messages to the titlebar editor will fail, set the
+.I xrErrno
+global  and return a NULL
+value, under the following conditions:
+.sp
+.IP MSG_NEW
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I editorWindowId
+is an invalid Id [XrINVALIDID].
+.IP
+.I editorRect
+is not large enough [XrINVALIDRECT].
+.IP
+.I titleName, gadgetIcon1 
+and 
+.I gadgetIcon2 
+are all set to NULL [XrINVALIDPARM].
+.IP
+.I titleName, gadgetIcon1 
+and 
+.I gadgetIcon2 
+all point to empty strings [XrINVALIDPARM].
+.IP
+A call to 'X' failed { XMakePixmap() } [XrXCALLFAILED].
+.IP
+Memory cannot be allocated [XrOUTOFMEM].
+.sp
+.IP MSG_REDRAW
+A redraw mode other than
+.B XrREDRAW_ALL
+is specified [XrINVALIDOPTION].
+.sp
+.IP MSG_MINSIZE
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I titleName, gadgetIcon1 
+and 
+.I gadgetIcon2 
+are all set to NULL [XrINVALIDPARM].
+.IP
+.I titleName, gadgetIcon1 
+and 
+.I gadgetIcon2 
+all point to empty strings [XrINVALIDPARM].
+.sp
+.IP MSG_SIZE
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I titleName, gadgetIcon1 
+and 
+.I gadgetIcon2 
+are all set to NULL [XrINVALIDPARM].
+.IP
+.I titleName, gadgetIcon1 
+and 
+.I gadgetIcon2 
+all point to empty strings [XrINVALIDPARM].
+.sp
+.IP MSG_RESIZE
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I editorRect
+is not large enough [XrINVALIDRECT].
+.sp
+.IP "MSG_GETSTATE and MSG_MOVE"
+.I data
+is set to NULL [XrINVALIDPTR].
+.sp
+.IP "All messages, except MSG_NEW and MSG_SIZE"
+The
+.I instance
+parameter is set to NULL [XrINVALIDID].
+
+.SH "SEE ALSO"
+XrInput(3X), XrInit(3X)

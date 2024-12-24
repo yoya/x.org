@@ -1,0 +1,32 @@
+/*
+ *			  COPYRIGHT 1986
+ *		   DIGITAL EQUIPMENT CORPORATION
+ *		       MAYNARD, MASSACHUSETTS
+ *			ALL RIGHTS RESERVED.
+ *
+ * THE INFORMATION IN THIS SOFTWARE IS SUBJECT TO CHANGE WITHOUT NOTICE AND
+ * SHOULD NOT BE CONSTRUED AS A COMMITMENT BY DIGITAL EQUIPMENT CORPORATION.
+ * DIGITAL MAKES NO REPRESENTATIONS ABOUT THE SUITABILITY OF THIS SOFTWARE FOR
+ * ANY PURPOSE.  IT IS SUPPLIED "AS IS" WITHOUT EXPRESS OR IMPLIED WARRANTY.
+ *
+ * IF THE SOFTWARE IS MODIFIED IN A MANNER CREATING DERIVATIVE COPYRIGHT RIGHTS,
+ * APPROPRIATE LEGENDS MAY BE PLACED ON THE DERIVATIVE WORK IN ADDITION TO THAT
+ * SET FORTH ABOVE.
+ *
+ *
+ * Permission to use, copy, modify, and distribute this software and its
+ * documentation for any purpose and without fee is hereby granted, provided
+ * that the above copyright notice appear in all copies and that both that
+ * copyright notice and this permission notice appear in supporting documentation,
+ * and that the name of Digital Equipment Corporation not be used in advertising
+ * or publicity pertaining to distribution of the software without specific, 
+ * written prior permission.
+ */
+
+#define left_ptr_mask_width 16
+#define left_ptr_mask_height 16
+static short left_ptr_mask_bits[] = {
+   0x000c, 0x001c, 0x003c, 0x007c,
+   0x00fc, 0x01fc, 0x03fc, 0x07fc,
+   0x0ffc, 0x0ffc, 0x01fc, 0x03dc,
+   0x03cc, 0x0780, 0x0780, 0x0300};

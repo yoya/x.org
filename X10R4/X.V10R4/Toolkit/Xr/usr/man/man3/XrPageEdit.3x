@@ -1,0 +1,1438 @@
+.TH XRPAGEEDIT 3X "Xrlib Version 10"
+.fi
+.ad 1
+.SH NAME
+XrPageEdit - an editor for entering and editing multiple lines of text.
+.SH SYNOPSIS
+#include <X/Xlib.h>
+.br
+#include <Xr/Xrlib.h>
+.br
+.sp 1
+xrEditor *
+.br
+.B XrPageEdit (instance, message, data)
+.in 7
+.br
+xrEditor * instance;
+.br
+INT32      message;
+.br
+INT8     * data;
+.in
+.sp 1
+.SH DESCRIPTION
+.P
+The page edit editor provides an application with the means
+for placing a multi-line text editing instance anywhere within 
+the bounds of a window.
+The editor always operates in insert mode, and currently
+only supports the use of fixed space fonts.
+It is capable of handling both printable and non-printable (control)
+characters.
+.P
+When creating a page editor instance,
+the application must pass in a definition for the rectangular
+region into which the editor instance will be drawn.
+If the rectangle is not the correct size to hold the instance,
+then the editor will refuse to create the instance.
+To prevent this from happening, an application should use the
+.B MSG_SIZE
+message to obtain this rectangle.
+.sp
+.P
+.ul 1
+ACTIVE FIELD
+.P
+The page edit editor supports the concept of an active field.
+When a given page editor instance has control of the input stream,
+it is considered to be active, and it will indicate this by
+visibly changing its format.
+The means by which it indicates this fact is twofold:
+.sp
+.in 8
+It will display a cursor at the current
+character position within the instance.
+.sp
+It will redraw the border for the editing region (which is
+usually 1 pixel wide) as a 3 pixel wide border.
+.in
+.P
+There are two means by which a page edit instance can be told to
+become active:
+.sp
+.in 8
+By issuing a MSG_ACTIVATE request to the editor.
+.sp
+By issuing a MSG_EDIT request to the editor, and passing
+it any input event understood by the page editor.
+.in
+.sp
+.P
+.ul 1
+COMPONENTS
+.P
+The two most important pieces of a page editor instance are the
+cursor and the editing buffer.
+The purpose of the cursor, is to indicate to the user
+where the next character typed will be placed, and also
+what portion of the editing buffer will be modified when one
+of the editing keys is pressed.
+As the user types keys, 
+those characters to
+the right of the cursor will be shifted one position
+further to the right,
+and the information will be added at the location of the cursor.
+After the new character has been placed, the cursor 
+will be moved to the right of the newly added character.
+Both printable ASCII characters and control character can be 
+displayed; control characters are displayed as "^char".
+The cursor is always displayed as a block cursor.
+.P
+When the instance is first created, the application program will
+pass in a pointer to a buffer, which will be used by the editor
+to store the current editing session.
+In addition, the application must supply values indicating the
+size of the buffer, the number of characters currently residing
+within the buffer, and the maximum size the buffer should be
+allowed to reach.
+.P
+While an editing session is in progress, the editor will check to
+see if the buffer is full after each character is added.
+When the buffer does become full, the editor will attempt to
+automatically expand the buffer, unless the buffer has reached
+the maximum size, as specified by the application; this upper
+limit check can be disabled, if the application wishes to allow
+the buffer to grow indefinately.
+In order for buffer expansion to be possible, the application
+must use one of the forms of the
+.B malloc(3C)
+call to initially obtain its editing buffer; statically defined
+buffers will not work correctly.
+.sp
+.P
+.ul 1
+EDITING MODES
+.P
+The page editor supports only a single mode of character 
+entering: insert mode.
+.P
+When a new character is entered, all characters to the
+right of the cursor are shifted one position to
+the right, and the character is then placed at the
+cursor position.  Afterwards, 
+the cursor is moved one position to the right; if the
+cursor is at the right edge of the editing region, then
+the cursor will be placed at the beginning of the next
+line, scrolling, if necessary.
+.sp
+.P
+.ul 1
+EDITING
+.P
+The page editor supports most of the standard editing
+commands which a user may generate from the keyboard.
+Refer to
+.B XrInputMap(3X)
+for a description on how these editing features may be accessed
+from a non-HP keyboard.
+Among the editing commands which will be supported are the following:
+.sp
+.in 7
+.ul 1
+Cursor Left
+.br
+.in
+.in 9
+This will cause the cursor to be moved one character
+position to the left; if the cursor is at the beginning
+of a line, then it will wrap to the end of the preceding line,
+scrolling, if necessary.
+.in
+.sp
+.in 7
+.ul 1
+Cursor Right
+.br
+.in
+.in 9
+This will cause the cursor to be moved one character
+position to the right; if the cursor is at the end of a
+line, then it will wrap to the beginning of the next line,
+scrolling, if necessary.
+.in
+.sp
+.in 7
+.ul 1
+Cursor Up
+.br
+.in
+.in 9
+This will cause the cursor to be moved one line up;
+if the cursor is already at the first display line,
+then it will scroll the display down one line, and
+then move the cursor.
+.in
+.sp
+.in 7
+.ul 1
+Cursor Down
+.br
+.in
+.in 9
+This will cause the cursor to be moved one line down;
+if the cursor is already at the last display line,
+then it will scroll the display up one line, and
+then move the cursor.
+.in
+.sp
+.in 7
+.ul 1
+Roll Up
+.br
+.in
+.in 9
+This will cause the screen contents to be rolled one line up,
+causing a new line to be displayed at the bottom of the editing region.
+.in
+.sp
+.in 7
+.ul 1
+Roll Down
+.br
+.in
+.in 9
+This will cause the screen contents to be rolled one line down,
+causing a new line to be displayed at the top of the editing region.
+.in
+.sp
+.in 7
+.ul 1
+Next Page
+.br
+.in
+.in 9
+This will cause the next page of the editing buffer to 
+be displayed; the last line of the current page will be the top
+line of the new page.
+.in
+.sp
+.in 7
+.ul 1
+Previous Page
+.br
+.in
+.in 9
+This will cause the previous page of the editing buffer to 
+be displayed; the top line of the current page will be the bottom
+line of the new page.
+.in
+.sp
+.in 7
+.ul 1
+Home Up
+.br
+.in
+.in 9
+This will cause the cursor to be moved to the beginning of the
+editing buffer; the display will be updated to match.
+.in
+.sp
+.in 7
+.ul 1
+Home Down
+.br
+.in
+.in 9
+This will cause the cursor to be moved to the end of the
+editing buffer; the display will be updated to match.
+.in
+.sp
+.in 7
+.ul 1
+Backspace
+.br
+.in
+.in 9
+This will cause the character to the left of the 
+cursor to be deleted, and all characters to its right to be
+shifted one position to the left; the cursor will
+also move one position to the left.
+If the cursor was at the start of a line, then this will cause
+the Newline character at the end of the preceding line to be
+deleted; this has the effect of joining the two lines together.
+.in
+.sp
+.in 7
+.ul 1
+Delete Char
+.br
+.in
+.in 9
+This will cause the character underneath the 
+cursor to be deleted, and all characters to its right will be 
+shifted one position to the left; the cursor will
+remain in its same position.
+If the cursor is currently located at the end of a line, then
+this will delete the Newline character terminating that line;
+this has the effect of joining that line with the line following
+it.
+.in
+.sp
+.in 7
+.ul 1
+Delete Line
+.br
+.in
+.in 9
+This will delete the entire line in which the cursor is
+currently located.
+.in
+.sp
+.in 7
+.ul 1
+Clear Line
+.br
+.in
+.in 9
+This will cause all characters under and to the right of the
+cursor to be deleted.
+The location of the cursor will be unchanged.
+.in
+.sp
+.in 7
+.ul 1
+Insert Line
+.br
+.in
+.in 9
+This will cause a new line to be started above the line
+in which the cursor is currently located.
+The cursor will then be moved to the start of the new line.
+.in
+.sp
+.P
+.ul 1
+MOUSE
+.P
+As was mentioned above, the cursor's position is automatically
+updated after each character placement operation or editing request.
+There is, however, another method for specifying a new
+cursor position.
+By using the mouse, you can move the cursor to anywhere
+within the current editing region, and then 'click' the mouse button.
+This will cause the cursor to be placed at, or as near as
+possible to, the selected character position.
+If a position past the end of the buffer contents is selected,
+then the cursor will automatically be placed after
+the last character in the buffer.
+.sp
+.P
+.ul 1
+DEACTIVATION
+.P
+Once a page edit instance has been made 'active', there are
+several ways for it to become 'inactive'.
+When a page edit instance is deactivated, it will turn off its
+cursor, and it will redraw the editing region border as a 1 pixel
+wide box.
+The instance will no longer accept input, until it has been
+reactivated.
+.P
+The first method for deactivating a page edit instance, is to use
+the mouse to select a region outside the editor's rectangular
+region.
+When the page editor determines that a select event occurred outside
+its domain, it will deactivate the instance, and then place two
+input events onto the front of the application's input queue:
+.sp
+.in 7
+.ul 1
+Input event 1
+.br
+.in
+.in 9
+This first input event placed on the input queue will be a copy
+of the select event which caused the instance to be deactivated.
+This event will notify the application that a select occurred
+somewhere else within the display.
+.in
+.sp
+.in 7
+.ul 1
+Input event 2
+.br
+.in
+.in 9
+This will be the event information generated by the page edit
+editor.
+It will inform the application that the instance has been exited,
+and that editing is now complete.
+.in
+.P
+A second method of deactivating a page edit instance can take place
+when the page editor has temporarily returned control to the 
+application, because one of the status events was generated; the
+status events are 
+composed of "unknown event", "buffer full", "buffer expanded"
+and "buffer expansion failed".
+When an application receives one of these events, it will normally
+process it, and then return control to the editor, by means of the
+.B MSG_ACTIVATE
+message.
+However, if the application does not want control to return to the
+editor, but instead, wishes to deactive the instance, then it can
+issue a
+.B MSG_DEACTIVATE
+request.
+.sp
+.P
+.ul 1
+RETURNED INFORMATION
+.P
+The page editor will not return an input event to the
+calling application each time the page edit instance is modified.
+Instead, it will only return to the application when a
+major event occurs; these are also referred to as break conditions.
+There are three categories of break conditions, one of which is
+termed a permanent break event, and the other two of which are 
+termed temporary status events:
+.sp
+.in 7
+-A select event occurred outside the page editor instance.
+.br
+.sp
+- The buffer is full, the buffer was expanded or the buffer expansion
+failed.
+.br
+.sp
+-An X event other than a KeyPressed, KeyReleased, XrSELECT
+or XrSELECTUP event is received.
+.in
+.P
+For the first type, the editor will return, and not expect
+to be called again, until the instance has again been activated.
+However, for the second type, the editor is merely returning
+some status information to the application.
+As soon as the application has processed the status information,
+it should immediately re-invoke the editor, by issuing
+a MSG_ACTIVATE.
+Failing to follow this rule may produce unpredicatable results.
+The third type is similar to the second type, in that
+it too is only returning some status information.
+It will return a status event telling the application that an
+unknown X event was received, along with the unknown X event.
+The application should then process the X event which is on the
+input queue AFTER the status event, and then re-invoke the editor in
+the fashion listed above.
+
+.SH EDITOR MESSAGES
+.IP MSG_NEW
+This message will be the means by which an application program
+can create an instance of the page editor within a window.  It will
+expect the 
+.I instance
+parameter to be set to
+.B NULL,
+and the
+.I data 
+parameter to point to a filled out instance of the following structure:
+.sp
+.nf
+     typedef struct {
+          Window       editorWindowId;
+          RECTANGLE    editorRect;
+          INT8         editorState;
+          INT32        editorFGColor;
+          INT32        editorBGColor;
+          FontInfo   * editorFont;
+          INT8       * buffer;
+          INT32        bufferCount;
+          INT32        bufferSize;
+          INT32        maxCharCount;
+          INT32        rowCount;
+          INT32        colCount;
+          INT32        tabWidth;
+      } xrPageEditInfo;
+.fi
+.sp
+.in 7
+.ul 1
+editorWindowId
+.br
+.in
+.in 9
+This field indicates the window to which the editor instance
+is to be attached.
+Anytime the instance is redrawn, it will be redrawn in this window.
+.in
+.sp
+.in 7
+.ul 1
+editorRect
+.br
+.in
+.in 9
+This describes the location and size of the region 
+into which the page edit instance is to be displayed.
+If a rectangle too small to hold the instance is
+specified, then the editor will refuse to
+handle the request, and it will fail.
+.in
+.sp
+.in 7
+.ul 1
+editorState
+.br
+.in
+.in 9
+This field contains the initial value of the state flags
+for this editor instance.
+It can be composed of any combination of the
+.B XrSENSITIVE
+and
+.B XrVISIBLE
+flags.
+.in
+.sp
+.in 7
+.ul 1
+editorFGColor
+.br
+.in
+.in 9
+This field specifies the foreground color
+to be used when drawing the editor instance.
+The borders and all text are drawn using the foreground color.
+If this is set to -1, the default foreground color
+(see
+.B XrInit(3X)
+) will be used.
+.in
+.sp
+.in 7
+.ul 1
+editorBGColor
+.br
+.in
+.in 9
+This field specifies the background color
+to be used when drawing the editor instance.
+The interior of the editing region is drawn using the background color.
+If this is set to -1, the default background color
+(see
+.B XrInit(3X)
+) will be used.
+.in
+.sp
+.in 7
+.ul 1
+editorFont
+.br
+.in
+.in 9
+This points to the structure which contains all of the information
+necessary to describe the font to be used when displaying
+the page editor instance.
+If this pointer is 
+.B NULL, 
+then the default system base
+font will be used.
+This must refer to a fixed spaced font, since the page editor
+does not currently support proportionally spaced fonts.
+.in
+.sp
+.in 7
+.ul 1
+buffer
+.br
+.in
+.in 9
+This is a pointer to the editing buffer.
+If this pointer is 
+.B NULL, 
+then the 
+.B MSG_NEW
+command will fail.
+.in
+.sp
+.in 7
+.ul 1
+bufferCount
+.br
+.in
+.in 9
+This value indicates the number of characters currently
+residing in the buffer; this may contain any value greater
+than or equal to zero, and less than or equal to the size 
+of the buffer.
+.in
+.sp
+.in 7
+.ul 1
+bufferSize
+.br
+.in
+.in 9
+This value indicates the current size of the editing buffer.
+When the character count reaches this limit, the buffer
+will be expanded, if possible.
+.in
+.sp
+.in 7
+.ul 1
+maxCharCount
+.br
+.in
+.in 9
+This value represents the maximum number of characters which will
+be allowed in the page editor instance.
+This information will be used by the editor to prevent the editing
+buffer from being expanded past this limit.
+If an application wishes to allow the buffer to be expanded whenever
+necessary, without imposing any upper limit, then this value should
+be set to -1.
+.in
+.sp
+.in 7
+.ul 1
+rowCount
+.br
+.in
+.in 9
+This value specifies the number of lines which are to be displayed
+within the page editor instance; an instance cannot be created
+with fewer than 1 line visible.
+.in
+.sp
+.in 7
+.ul 1
+colCount
+.br
+.in
+.in 9
+This value specifies the number of character columns which are to 
+be displayed within the page editor instance; an instance cannot be
+created with fewer than 1 column visible.
+The total editing region will be
+.I rowCount
+lines by
+.I colCount
+columns in size.
+.in
+.sp
+.in 7
+.ul 1
+tabWidth
+.br
+.in
+.in 9
+This value specifies how often a tab stop should be placed within the
+editing region.
+These come into play when the TAB key is entered by the user.
+When the TAB key is entered, the cursor will be moved to the next tab
+stop in the current line; if there are no more tab stops in the current
+line, then the cursor moves to the start of the next line.
+.in
+.IP
+The editor will then draw the page edit instance in the specified
+window.
+.IP
+Upon successful completion, a pointer to the newly created
+editor structure will be returned to the application.
+This value must be used there after, whenever the application
+wishes to refer to this particular editor instance.
+
+.IP MSG_FREE
+This message is the mechanism by which an editor instance can be destroyed.
+The only parameter of importance is the 
+.I instance
+parameter, which is a pointer to the
+editor structure, returned by
+.B MSG_NEW ;
+this parameter specifies which instance is to be destroyed.
+.IP
+When a page editor instance is destroyed, it will be internally
+disconnected from the window to which it was attached, it will
+no longer handle mouse selects or keyboard input, and it will
+be removed from the window, if the instance is visible.
+.IP
+After an editor instance has been destroyed, no further
+messages should be issued in regard to that instance.
+
+.IP MSG_GETSTATE
+This message returns the current state of the 
+.B XrVISIBLE 
+and 
+.B XrSENSITIVE
+flags for the specified page edit instance.
+The 
+.I instance
+parameter specifies which instance to use. 
+The 
+.I data 
+parameter should be a pointer to an 8 bit integer value,
+into which the current state flags will be placed.
+
+.IP MSG_SETSTATE
+This message allows an application program to modify the setting of
+the 
+.B XrSENSITIVE 
+and 
+.B XrVISIBLE 
+flags, for a given page edit instance.
+The 
+.I data 
+parameter is interpreted as an 8 bit integer value, containing
+the new state flag values.
+After saving the new state flags, the editor instance will be redrawn,
+to reflect the new state.
+If an instance is not visible, then the
+rectangle which it occupies will be drawn using the background tile
+for the window, thus making it invisible. 
+If an instance is visible, but not sensitive, then the editing region
+will be drawn and filled with a 50% pattern; the current contents 
+of the editing region will also be displayed.
+
+.IP MSG_ACTIVATE
+This message allows an application to force a page edit instance
+active, thus causing it to turn on the cursor, widen the
+editing region border, and start monitoring all incoming keyboard
+events.
+This message also serves as the only means for re-entering an active 
+page edit instance, after an application has received a status event 
+from the instance.
+When a
+.B MSG_ACTIVATE
+message is issued, the editor instance must be both visible and
+sensitive; if this is not the case, then the message will fail.
+.IP
+When this message is issued, the
+.I instance
+parameter must specify the page edit instance which is to be activated;
+the
+.I data
+parameter is unused, and should be set to
+.B NULL.
+
+.IP MSG_DEACTIVATE
+This message allows an application to force a page edit instance
+inactive.  
+Normally, when a page edit instance returns a status event to an
+application (such as the buffer is now full, or an unknown X event
+was received), the application processes the status event and then
+reinvokes the page editor.
+However, it is possible for an application to decide that it does
+not want to reinvoke the editor instance, but rather, it wants the
+instance to be deactivated.
+The instance will be drawn as inactive, with the cursor being turned
+off, and the border being redrawn as a single pixel wide line.
+.IP
+When this message is issued, the 
+.I instance
+parameter must specify the page edit instance which is to be
+deactivated; the
+.I data
+parameter is unused.
+If the page edit instance is already inactive, then this request
+will be ignored.
+
+.IP MSG_GETBUFINFO
+This message allows an application to obtain several pieces of
+information which describe the current state of the editing
+buffer.
+This includes the address of the buffer, the number of characters
+currently in the buffer, the current buffer size, and the maximum
+size the buffer is allowed to be.
+This information is particularly important to an application after
+the editing buffer has been expanded.
+When the application is notified that the buffer has been expanded,
+it MUST issue this request.
+Since the editor uses
+.I xrRealloc()
+(refer to
+.B XrInit(3X)
+) to increase the size of the buffer, it is possible that the location
+of the buffer may change, as it is resized; this message allows the
+application to get the new buffer information, and thus prevent
+a memory fault from occurring, because the application referenced
+the old buffer area.
+.IP
+When this message is issued, the
+.I instance
+parameter must be a pointer to the editor structure associated
+with the instance to be queried.
+The
+.I data
+parameter must point to an instance of the following structure, into
+which the buffer information will be placed:
+.sp
+.nf
+     typedef struct {
+         INT8  * buffer;
+         INT32   bufferCount;
+         INT32   bufferSize;
+         INT32   maxCharCount;
+     } xrPageEditBufInfo;
+.fi
+
+.IP MSG_SETBUFINFO
+This message allows an application to change the address of the
+editing buffer.
+When this message is issued, the page editor will display the
+new buffer and will
+place the cursor at the first character position within the buffer.
+.IP
+When this message is issued, the
+.I instance
+parameter must be a pointer to the editor structure associated
+with the instance to be modified.
+The
+.I data
+parameter must point to an instance of the following structure, which
+must contain the new buffer information:
+.sp
+.nf
+     typedef struct {
+         INT8  * buffer;
+         INT32   bufferCount;
+         INT32   bufferSize;
+         INT32   maxCharCount;
+     } xrPageEditBufInfo;
+.fi
+
+.IP MSG_REDRAW
+This editor provides an application with the means
+for requesting that a page edit instance be redrawn.
+.IP
+When this message is issued, the
+.I instance
+parameter must be a pointer to the editor structure associated
+with the instance to be redrawn.
+The
+.I data
+parameter must be a 32 bit integer
+which specifies the type of redraw to perform.
+.IP
+The page editor supports the following redraw modes:
+.sp
+.in 8
+.nf
+.B - XrREDRAW_ALL
+.sp
+.B - XrREDRAW_TEXT
+.in
+.fi
+.IP
+.B XrREDRAW_ALL 
+will cause the editor to redraw the complete editor
+instance, while 
+.B XrREDRAW_TEXT 
+will cause only the editing buffer contents to be redrawn.
+.IP
+If any other redraw mode is specified, then the request will fail.
+
+.IP MSG_SIZE
+This message allows an application to obtain the 
+rectangle needed to contain a given page edit instance.
+.IP
+The page editor expects the 
+.I instance
+parameter to be set to
+.B NULL,
+and the
+.I data 
+parameter to point to an instance of the following structure:
+.sp
+.nf
+     typedef struct {
+          Window       editorWindowId;
+          RECTANGLE    editorRect;
+          INT8         editorState;
+          INT32        editorFGColor;
+          INT32        editorBGColor;
+          FontInfo   * editorFont;
+          INT8       * buffer;
+          INT32        bufferCount;
+          INT32        bufferSize;
+          INT32        maxCharCount;
+          INT32        rowCount;
+          INT32        colCount;
+          INT32        tabWidth;
+      } xrPageEditInfo;
+.fi
+.sp
+.IP
+The fields which must be filled out by the application program BEFORE
+issuing this call, are the 
+.I rowCount, colCount
+and 
+.I editorFont 
+fields. 
+.IP
+If 
+.I editorFont 
+has been set to 
+.B NULL, 
+then the default
+system base font will be used when calculating
+the rectangle size; if a particular font is
+requested, then it will be used.
+This must refer to a fixed spaced font, since the page editor
+does not currently support proportionally spaced fonts.
+.IP
+The rectangle calculated will be the 0 based
+rectangle, into which the specified page edit instance 
+will fit, using the specified font and row/column sizes.
+.IP
+In return, 
+.I editorRect
+will be set to describe the rectangle
+into which the described instance will fit.
+
+.IP MSG_MOVE
+This message provides an application with a means for quickly relocating 
+a particular editor instance within a window.
+The size of the 
+.I editorRect 
+associated with the instance is not changed.
+To relocate an editor instance, a new origin point for the instance's
+.I editorRect 
+must be specified; the top left corner of the editor rectangle 
+will then be translated such that it now coincides with the new origin.
+The origin point is interpreted as an absolute position within the window.
+.IP
+When this message is issued, the
+.I instance
+parameter must point to the editor structure associated with the
+instance which is to be moved, while the
+.I data
+parameter must point to a 
+.I POINT 
+structure, containing the new
+.I editorRect 
+origin.
+.IP
+When an editor instance is relocated, the page editor will automatically
+remove the visual image of the instance from the window, and will then redraw
+the instance at its new location; this occurs only if the instance is visible.
+
+.IP MSG_EDIT
+Normally, an application will not issue this message;
+it is usually issued by the Xrlib input routine,
+when an input event occurs while a page edit
+instance is active.
+.IP
+When such an event occurs, a 
+.B MSG_EDIT 
+message will be issued to the editor, with
+the
+.I instance
+parameter indicating which page edit instance to process, and the
+.I data
+parameter pointing to an 
+.I XEvent
+structure.
+.IP
+The 
+.B MSG_EDIT 
+handler for the page edit editor is much more complex than most editors,
+since it understands a much broader range of input events.
+Making up the list of valid input types for this editor are:
+.sp
+.in 11
+.nf
+All X KeyPressed and KeyReleased events.
+
+All X button events which map into either an XrSELECT or 
+    XrSELECTUP event (see XrMapButton(3X) and XrInit(3X)).
+
+All other X events will be treated by the editor as an unknown
+    event, and will be returned to the application for local
+    processing.  This is discussed further in a later section
+    dealing with unknown events.
+.fi
+.in
+.IP
+The sections below will attempt to describe how the editor
+handles each of the above input types.
+.IP
+.ul 1
+X KeyPressed and KeyReleased events (Regular ASCII keys only)
+.sp
+.in 11
+If the page editing buffer is not already filled to its maximum
+allowable size, then the following will occur:
+.sp
+.in
+.in 14
+All characters in the buffer, which are at or to the right
+of the cursor, will be shifted one place to the right
+within the editing buffer.
+.sp
+The new keycode will be inserted into the buffer, at the cursor position.
+.sp
+The cursor will be moved one character position to the right; if the end
+of the line is surpassed, or if the character was a Newline character,
+then the cursor will be moved to the start of the next line.
+If the character was a TAB, then it will be expanded, and the cursor
+will move to the next TAB stop.
+.sp
+The instance will be forced active (if not already).
+.in
+.in 11
+.sp
+Afterwards, a check will be made to see if the editing buffer is
+now full.
+If the buffer is full, then one of three things will occur:
+.sp
+If the buffer has reached its maximum allowable size, as
+specified by the application, then
+the following status event will be appended
+to the front of the application's input queue, and the editor
+will return (the editor will expect
+the application to re-invoke the editor, using either
+.B MSG_ACTIVATE
+or 
+.B MSG_DEACTIVATE,
+once it has finished handling this buffer event):
+.sp
+.nf
+   type      = XrXRAY
+   source    = the window Id
+   inputType = XrEDITOR
+   inputCode = XrPAGEEDIT
+   value1    = XrBUFFER_FULL
+   valuePtr  = pointer to instance's editor structure
+.fi
+.sp
+If the buffer is not at its maximum allowable size, but the
+attempt to expand the buffer fails, then the following status
+event will be appended to the front of the application's
+input queue, and the editor will return (the editor will expect
+the application to re-invoke the editor, using either
+.B MSG_ACTIVATE
+or 
+.B MSG_DEACTIVATE,
+once it has finished handling this buffer event):
+.sp
+.nf
+   type      = XrXRAY
+   source    = the window Id
+   inputType = XrEDITOR
+   inputCode = XrPAGEEDIT
+   value1    = XrBUFEXPANDFAILED
+   valuePtr  = pointer to instance's editor structure
+.fi
+.sp
+If the buffer expansion succeeds, then the following status event
+will be appended to the front of the application's
+input queue, and the editor will return (the editor will expect
+the application to re-invoke the editor, using either
+.B MSG_ACTIVATE
+or 
+.B MSG_DEACTIVATE,
+once it has finished handling this buffer event).
+When an application receives this event, it MUST issue a
+.B MSG_GETBUFINFO
+request, to obtain the new editing buffer address, since expanding
+the buffer may cause its address to change.
+.sp
+.nf
+   type      = XrXRAY
+   source    = the window Id
+   inputType = XrEDITOR
+   inputCode = XrPAGEEDIT
+   value1    = XrBUFEXPANDED
+   valuePtr  = pointer to instance's editor structure
+.fi
+.sp
+If none of the above events occurred, then the
+editor will block, waiting for the user to generate the next
+input event.
+.sp
+When a new character is displayed, if it falls within the range of
+printable Ascii characters, then the character will be displayed in
+its normal fashion.
+If, however, the character is a control character, which are normally
+considered unprintable, then even though the character only takes up
+a single spot within the editing buffer, it will be displayed as a
+two character sequence.
+For example, if the character 'control X' were entered, then it
+would be displayed as '^X'.
+.in
+.sp
+.IP
+.ul 1
+X KeyPressed and KeyReleased events (Editing keys)
+.sp
+.in 11
+.ul 1
+Cursor Right
+.br
+.in
+.in 14
+If the cursor is not already at the end of the editing buffer,
+then it will be shifted one character position to the right; if the
+cursor is at the end of a line, then the cursor will wrap to the
+beginning of the next line, scrolling if necessary.
+.in
+.sp
+.in 11
+.ul 1
+Cursor Left
+.br
+.in
+.in 14
+If the cursor is not already at the beginning of the editing buffer,
+then it will be shifted one character position to the left; if the
+cursor is at the beginning of a line, then it will wrap to the last
+character in the preceding line, scrolling if necessary.
+.in
+.sp
+.in 11
+.ul 1
+Cursor Up
+.br
+.in
+.in 14
+If the cursor is not already at the first line of the editing buffer,
+then it will be moved up one line; if the
+cursor is in the first display line, then the display will be scrolled
+down one line.
+.in
+.sp
+.in 11
+.ul 1
+Cursor Down
+.br
+.in
+.in 14
+If the cursor is not already at the last line of the editing buffer,
+then it will be moved down one line; if the
+cursor is in the last display line, then the display will be scrolled
+up one line.
+.in
+.sp
+.in 11
+.ul 1
+Roll Up
+.br
+.in
+.in 14
+This will cause the screen contents to be rolled one line up,
+causing a new line to be displayed at the bottom of the editing region.
+.in
+.sp
+.in 11
+.ul 1
+Roll Down
+.br
+.in
+.in 14
+This will cause the screen contents to be rolled one line down,
+causing a new line to be displayed at the top of the editing region.
+.in
+.sp
+.in 11
+.ul 1
+Next Page
+.br
+.in
+.in 14
+This will cause the next page of the editing buffer to 
+be displayed; the last line of the current page will be the top
+line of the new page.
+.in
+.sp
+.in 11
+.ul 1
+Previous Page
+.br
+.in
+.in 14
+This will cause the previous page of the editing buffer to 
+be displayed; the top line of the current page will be the bottom
+line of the new page.
+.in
+.sp
+.in 11
+.ul 1
+Home Up
+.br
+.in
+.in 14
+This will cause the cursor to be moved to the beginning of the
+editing buffer; the display will be updated to match.
+.in
+.sp
+.in 11
+.ul 1
+Home Down
+.br
+.in
+.in 14
+This will cause the cursor to be moved to the end of the
+editing buffer; the display will be updated to match.
+.in
+.sp
+.in 11
+.ul 1
+Backspace
+.br
+.in
+.in 14
+If the cursor is not already at the beginning of the buffer,
+then the character to the left of the cursor will be deleted,
+and all character to its right will be shifted one position to the
+left.
+The cursor will also move one position to the left.
+If the cursor is located at the beginning of a line, then the
+backspace will cause the Newline character at the end of the preceding
+line to be deleted; this will cause the two lines to be joined together.
+.in
+.sp
+.in 11
+.ul 1
+Delete Char
+.br
+.in
+.in 14
+If the cursor is not at the end of the buffer, then
+the character underneath the cursor will be deleted,
+and all character to its right will be shifted one position
+to the left.
+If the character being deleted is the Newline at the end of
+a line, then that line will be joined with the line which
+follows it.
+.in
+.sp
+.in 11
+.ul 1
+Delete Line
+.br
+.in
+.in 14
+This causes the line in which the cursor is currently located
+to be deleted; the line being deleted is considered to start 
+after the preceding Newline character preceding the cursor, 
+and going upto and including the next Newline character after
+the cursor.
+Afterwards, the cursor is moved to the start of the line which
+followed the line deleted.
+.in
+.sp
+.in 11
+.ul 1
+Clear Line
+.br
+.in
+.in 14
+This action will cause only those characters within a line which
+are under and to the right of the cursor to be deleted; the end 
+of the line is considered to be where the next Newline is encountered.
+.in
+.sp
+.in 11
+.ul 1
+Insert Line
+.br
+.in
+.in 14
+This will cause a new line to be opened within the editing buffer
+immediately before the line in which the cursor is located; the
+cursor will then be positioned at the start of the new line.
+.in
+.sp
+.IP
+.ul 1
+X ButtonPressed or ButtonReleased events
+.sp
+.in 11
+The only type of X button event understood by this editor is the 
+one which maps into either a
+.B XrSELECT
+or
+.B XrSELECTUP
+event; all other button events are treated as an unknown event.
+When a select occurs, the editor will first check to see if
+it occurred within the instance's rectangle.
+.sp
+If it did not occur within the rectangle, then the instance will be
+redrawn as 'not active', and two input events will be added
+to the front of the application's input queue:
+.sp
+.nf
+   1) A copy of the select input event which we just received.
+
+   2) type      = XrXRAY
+      source    = the window Id
+      inputType = XrEDITOR
+      inputCode = XrPAGEEDIT
+      value1    = XrPEDIT_BREAK
+      value2    = XrSELECT
+      valuePtr  = pointer to instance's editor structure.
+.fi
+.sp
+NOTE: the second input event will end up at the front of the queue.
+.sp
+The editor will then return, and not expect to be called again,
+until the next time it should be made active.
+.sp
+If the select occurred within the editing region, and the instance
+was active, then the cursor will be moved to the character position
+nearest to where the select occurred.
+The editor will then block, waiting for the user to generate the
+next event.
+If the instance was not active, then the event will nearly cause
+the instance to be activated.
+.in
+.sp
+.IP
+.ul 1
+Unknown Events
+.sp
+.in 11
+Any event which is received by the page editor, which does
+not fall under any of the groupings discussed above, will
+be treated as an unknown event, and will be passed back to
+the application for processing.
+When the application receives notification of an unknown
+event from the page editor, it should request the next
+event from its input queue (the unknown event) and then
+process it.
+Since this is only a temporary break condition, the editor
+will expect the application to re-invoke the editor, once
+it has finished processing the unknown event.
+.br
+.sp
+The following two events will be pushed onto the front
+of the application's input queue:
+.sp
+.nf
+   1) A copy of the unknown X event which we just received.
+
+   2) type      = XrXRAY
+      source    = the window Id
+      inputType = XrEDITOR
+      inputCode = XrPAGEEDIT
+      value1    = XrUNKNOWN_EVENT
+      valuePtr  = pointer to instance's editor structure.
+.fi
+.in
+
+.SH RETURN VALUE
+Upon successful completion of any of the messages, a non-NULL
+value will be returned.
+In the case of
+.B MSG_NEW,
+this non-NULL value will be the pointer to the
+newly created editor instance structure.
+.P
+If a message request fails, then a NULL value is returned.
+
+.SH ERROR CONDITIONS
+Messages to the page editor will fail, set the
+.I xrErrno
+global and return a NULL
+value, under the following conditions:
+.sp
+.IP MSG_NEW
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I editorWindowId
+is an invalid Id [XrINVALIDID].
+.IP
+.I editorRect
+is too small to hold the specified instance [XrINVALIDRECT].
+.IP
+The specified font is not a fixed width font [XrINVALIDPARM].
+.IP
+.I buffer
+is set to NULL [XrINVALIDPTR].
+.IP
+.I maxCharCount
+is set to zero [XrINVALIDPARM].
+.IP
+.I bufferSize
+is less than or equal to zero [XrINVALIDPARM].
+.IP
+.I bufferCount
+is greater than
+.I maxCharCount [XrPARMOUTOFRANGE].
+.IP
+.I bufferCount
+is greater than
+.I bufferSize [XrPARMOUTOFRANGE].
+.IP
+.I bufferCount
+is less than zero [XrINVALIDPARM].
+.IP
+.I rowCount
+is less than or equal to zero [XrPARMOUTOFRANGE].
+.IP
+.I colCount
+is less than or equal to zero [XrPARMOUTOFRANGE].
+.IP
+A call to 'X' failed { XMakePixmap() } [XrXCALLFAILED].
+.IP
+Memory cannot be allocated [XrOUTOFMEM].
+.sp
+.IP MSG_REDRAW
+A redraw mode other than
+.B XrREDRAW_ALL
+or
+.B XrREDRAW_TEXT
+is specified [XrINVALIDOPTION].
+.sp
+.IP MSG_SIZE
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+The specified font is not fixed width [XrINVALIDPARM].
+.IP
+.I rowCount
+is less than or equal to zero [XrPARMOUTOFRANGE].
+.IP
+.I colCount
+is less than or equal to zero [XrPARMOUTOFRANGE].
+.sp
+.IP MSG_ACTIVATE
+The instance is not sensitive and visible [XrINVALIDPARM].
+.sp
+.IP MSG_SETBUFINFO
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I buffer
+is set to NULL [XrINVALIDPTR].
+.IP
+.I maxCharCount
+is set to zero [XrINVALIDPARM].
+.IP
+.I bufferSize
+is less than or equal to zero [XrINVALIDPARM].
+.IP
+.I bufferCount
+is greater than
+.I maxCharCount [XrPARMOUTOFRANGE].
+.IP
+.I bufferCount
+is greater than
+.I bufferSize [XrPARMOUTOFRANGE].
+.IP
+.I bufferCount
+is less than zero [XrINVALIDPARM].
+.sp
+.IP "MSG_GETSTATE, MSG_MOVE and MSG_GETBUFINFO"
+.I data
+is set to NULL [XrINVALIDPTR].
+.sp
+.IP "All messages, except MSG_NEW and MSG_SIZE"
+The
+.I instance
+parameter is set to NULL [XrINVALIDID].
+
+.SH "SEE ALSO"
+XrInput(3X), XrInit(3X), XrMapButton(3X)

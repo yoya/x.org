@@ -1,0 +1,1422 @@
+.TH XRTEXTEDIT 3X "Xrlib Version 10"
+.fi
+.ad 1
+.SH NAME
+XrTextEdit - an editor for entering and editing a line of text.
+.SH SYNOPSIS
+#include <X/Xlib.h>
+.br
+#include <Xr/Xrlib.h>
+.br
+.sp 1
+xrEditor *
+.br
+.B XrTextEdit (instance, message, data)
+.in 7
+.br
+xrEditor * instance;
+.br
+INT32      message;
+.br
+INT8     * data;
+.in
+.sp 1
+.SH DESCRIPTION
+.P
+The text edit editor provides an application with the means
+for placing a single line of editable text anywhere within 
+the bounds of a window.
+In addition to allowing the text string to be specified, an optional
+field label and font may also be specified.
+The application must pass in a definition for the rectangular
+region into which the editor instance will be drawn.
+If the rectangle is not the correct size to hold the instance,
+then the editor will refuse to create the instance.
+To prevent this from happening, an application should use the
+.B MSG_SIZE
+message to obtain this rectangle.
+.sp
+.P
+.ul 1
+ACTIVE FIELD
+.P
+The text edit editor supports the concept of an active field.
+When a given text editor instance has control of the input stream,
+it is considered to be active, and it will indicate this by
+visibly changing its format.
+The means by which it indicates this fact is twofold:
+.sp
+.in 8
+It will display a text cursor at the current
+character position within the instance.
+.sp
+It will redraw the border for the text string (which is
+usually 1 pixel wide) as a 3 pixel wide border.
+.in
+.P
+There are two means by which a text edit field is told to
+become active:
+.sp
+.in 8
+By issuing a MSG_ACTIVATE request to the editor.
+.sp
+By issuing a MSG_EDIT request to the editor, and passing
+it any input event understood by the text editor.
+.in
+.sp
+.P
+.ul 1
+COMPONENTS
+.P
+The two most important pieces of a text editor instance are the
+text cursor and the text string being edited.
+The purpose of the text cursor, is to indicate to the user
+where the next character typed will be placed, and also
+what portion of the text string will be modified when one
+of the editing keys is pressed.
+As the user types keys, the information will be added at
+the location of the text cursor; 
+if insert mode is enabled, then those characters to
+the right of the text cursor will be shifted one position
+further to the right - otherwise they are left unchanged.
+After the new character has been placed, the text cursor 
+will be moved to the right of the newly added character.
+Only printable ASCII characters will be displayed as part of
+a text string.
+Once the number of characters in the string has reached the maximum
+allowable number (as specified when the instance was created),
+no more characters will be added to the string.
+.P
+When the instance is first created, the application program will
+pass in a pointer to a buffer, which will be used by the editor
+to store the current value of the string typed by the user;
+the buffer must be large enough to hold the whole string, plus
+a terminating 
+.B NULL.
+When the buffer is passed in, it must contain the initial value
+for the field; it must also be 
+.B NULL 
+terminated.
+If the field is to be initially empty, then the first byte of
+the buffer must be the 
+.B NULL 
+character.
+If the specified string is too long to fit within the field,
+then it will be truncated, until it does fit.
+.sp
+.P
+.ul 1
+TEXT INSERTION AREA
+.P
+The text insertion area is the portion of a text edit instance
+in which the editable string is displayed.
+The width of this area is dependent upon two factors: the maximum
+number of characters which may be entered, and the character cell
+width; both of these are specified by the application when an 
+instance is created.
+.P
+Working with proportional fonts can be tricky, since the character
+cell width differs from character to character.
+What this means is that if a text edit instance needs to hold 20
+characters, it's impossible to determine the width of the editing
+region, without leaving alot of blank space.
+.P
+This editor tackles this problem by allowing the application to
+specify the character cell width to use.
+If an application wants to guarantee that all characters typed
+will be visible, then it should set the cell width to XrMAXWIDTH,
+when the instance is created.
+If an application wants all characters to be visible most of the
+time, then it can set the cell width to XrAVGWIDTH.
+A third option is that the application can specify a particular
+cell width to use (specified in pixels).
+.P
+If a user types into a text edit field, and his information will
+not fit within the text insertion area, the cursor will turn off;
+the editor will continue to collect the input, it just will not
+be displayed.
+The cursor will remain invisible, until it is repositioned back
+in the visible portion of the editing region.
+.sp
+.P
+.ul 1
+EDITING MODES
+.P
+The text editor supports two modes of character 
+entering: normal and insert mode.
+.P
+When the instance is operating in 'normal' mode, the text
+cursor is displayed as an inverse video rectangle, and
+will appear on top of the character at the current cursor
+position.
+When a new character is entered, it is placed at the cursor
+position, and will overwrite any previous character at that
+position; those characters to the right of the text cursor
+are left unchanged.  Afterwards, if the text cursor is not
+already at the end of the text edit field, then the text 
+cursor will be moved one position to the right.
+.P
+When the instance is operating in 'insert character' mode,
+the text cursor is displayed as a vertical bar, and will
+appear between two character positions.
+When a new character is entered, all characters to the
+right of the insertion bar are shifted one position to
+the right, and the character is then placed at the
+insertion bar position.  Afterwards, if the text edit field
+is not already full, then
+the insertion bar is moved one position to the right.
+.P
+Insert mode is entered and exited by pressing the 'insert mode'
+key on your keyboard; this mode acts as a toggle.
+.sp
+.P
+.ul 1
+EDITING
+.P
+The text editor supports most of the standard line editing
+commands which a user may generate from the keyboard.
+Among the editing commands which will be supported are the following:
+.sp
+.in 7
+.ul 1
+Cursor Left
+.br
+.in
+.in 9
+This will cause the text cursor to be moved one character
+position to the left, within the text area.
+.in
+.sp
+.in 7
+.ul 1
+Cursor Right
+.br
+.in
+.in 9
+This will cause the text cursor to be moved one character
+position to the right, within the text string displayed in
+the text area.
+.in
+.sp
+.in 7
+.ul 1
+Backspace
+.br
+.in
+.in 9
+This will cause the character to the left of the 
+text cursor to be deleted, and all characters to its right to be
+shifted one position to the left; the text cursor will
+also move one position to the left.
+.in
+.sp
+.in 7
+.ul 1
+Delete Char
+.br
+.in
+.in 9
+This will cause the character underneath the 
+text cursor to be deleted, and all characters to its right will be 
+shifted one position to the left; the text cursor will
+remain in its same position.
+.in
+.sp
+.in 7
+.ul 1
+Delete Line
+.br
+.in
+.in 9
+This will clear all characters from the text region, and
+will move the text cursor back to the beginning of the
+text area.
+.in
+.sp
+.in 7
+.ul 1
+Clear Line
+.br
+.in
+.in 9
+This will cause all characters under and to the right of the text 
+cursor to be deleted.
+The location of the text cursor will be unchanged.
+.in
+.sp
+.P
+.ul 1
+MOUSE
+.P
+As was mentioned above, the text cursor's position is automatically
+updated after each character placement operation or editing request.
+There is, however, another method for specifying a new
+text cursor position.
+By using the mouse, you can move the cursor to anywhere
+within the current text string, and then 'click' the mouse button.
+This will cause the text cursor to be placed at the selected
+character position.
+If a position past the end of the text string is selected,
+then the text cursor will automatically be placed after
+the last character in the string.
+.sp
+.P
+.ul 1
+DEACTIVATION
+.P
+Once a text edit field has been made 'active', there will be
+several ways for it to become 'inactive'.
+When a text edit field is deactivated, it will turn off its
+text cursor, and it will redraw the text border as a 1 pixel
+wide box.
+The instance will no longer accept input, until it has been
+reactivated.
+.P
+The first method for deactivating a text field, is to use
+the mouse to select a region outside the editor's rectangular
+region; this region includes the text region and the optional
+label.
+When the text editor code determines that a select event occurred outside
+its domain, it will deactivate the field, and then place two
+input events onto the front of the application's input queue:
+.sp
+.in 7
+.ul 1
+Input event 1
+.br
+.in
+.in 9
+This first input event placed on the input queue will be a copy
+of the select event which caused the field to be deactivated.
+This event will notify the application that a select occurred
+somewhere else within the display.
+.in
+.sp
+.in 7
+.ul 1
+Input event 2
+.br
+.in
+.in 9
+This will be the event information generated by the text edit
+editor.
+It will inform the application that the field has been exited,
+and that editing is now complete.
+.in
+.P
+A second method of deactivating a text field, is by pressing
+one of the special keys, which are collectively known as 'traversal' keys.
+Traversal keys are frequently used by a forms controller, to provide
+a means for a user to exit a field in a form, and then advance to the
+next field.
+The following traversal keys are defined:
+.sp
+.in 7
+.ul 1
+Return
+.br
+.in
+.in 9
+When the 'return' key is pressed, the text editor will deactivate
+the active field, and return an input event.  
+The input event will be used to notify the application
+program that a text field was exited.
+If the application is a 
+forms controller, then it can use this information to force the
+next field in the form to become active.
+.in
+.sp
+.in 7
+.ul 1
+Tab
+.br
+.in
+.in 9
+When the 'tab' key is pressed, the text editor will deactivate
+the active field, and return an input event.  
+The input event will be used to notify the application
+program that a text field was exited.
+If the application was a
+forms controller, then it can use this information to force the
+next field in the form to become active.
+.in
+.sp
+.in 7
+.ul 1
+Backtab
+.br
+.in
+.in 9
+When the 'backtab' key is pressed, the text editor will deactivate
+the active field, and return an input event.  
+The input event will be used to notify the application
+program (and the forms controller) that a text field was exited.
+If the application is a
+forms controller, then it can use this information to force the
+previous field in the form to become active.
+.in
+.P
+When a traversal key causes a field to be exited, only a single
+input event is added to the application's input queue.
+.sp
+.P
+.ul 1
+RETURNED INFORMATION
+.P
+The text editor will not return an input event to the
+calling application each time the text field is modified.
+Instead, it will only return to the application when a
+major event occurs; these are also referred to as break conditions.
+There are four categories of break conditions:
+.sp
+.in 7
+- The field has been exited [by a traversal key].
+.br
+.sp
+- The field has now become empty, or the first
+character was typed.
+.br
+.sp
+- An X event other than a KeyPressed, KeyReleased, XrSELECT
+or XrSELECTUP event is received.
+.br
+.sp
+- A control character is received.
+.in
+.P
+For the first type, the editor will return, and not expect
+to be called again, until the field has again been activated.
+However, for the second type, the editor is merely returning
+some status information to the application.
+As soon as the application has processed the status information,
+it should immediately re-invoke the editor, either directly (by issuing
+a MSG_ACTIVATE),
+or by means of the forms controller.
+Failing to follow this rule may produce unpredicatable results.
+The third and fourth types are similar to the second type, in that
+they too are only returning some status information.
+They will return a status event telling the application that an
+unknown X event was received, along with the unknown X event.
+The application should then process the X event, which is on the
+input queue AFTER the status event, and then re-invoke the editor in
+one of the two fashions listed above.
+.sp
+.P
+.ul 1
+INSTANCE LAYOUT
+.P
+The layout for a text editor instance depends upon how it was defined.
+When an instance is drawn, it will be drawn within the bounds of
+the supplied 'editorRect'.
+If the 'editorRect' is not large enough to hold the specified
+instance, then the create request will fail.
+
+.SH EDITOR MESSAGES
+.IP MSG_NEW
+This message will be the means by which an application program
+can create an editable text field within a window.  It will
+expect the 
+.I instance
+parameter to be set to
+.B NULL,
+and the
+.I data 
+parameter to point to a filled out instance of the following structure:
+.sp
+.nf
+     typedef struct {
+          Window       editorWindowId;
+          RECTANGLE    editorRect;
+          INT8         editorState;
+          INT32        editorFGColor;
+          INT32        editorBGColor;
+          FontInfo   * editorFont;
+          INT8       * label;
+          INT8       * string;
+          INT32        maxChars;
+          INT32        insertPos;
+          INT8         insertMode;
+          INT8         labelPosition;
+          INT8         cellWidth;
+      } xrTextEditInfo;
+.fi
+.sp
+.in 7
+.ul 1
+editorWindowId
+.br
+.in
+.in 9
+This field indicates the window to which the editor instance
+is to be attached.
+Anytime the instance is redrawn, it will be redrawn in this window.
+.in
+.sp
+.in 7
+.ul 1
+editorRect
+.br
+.in
+.in 9
+This describes the location and size of the region 
+into which the text edit field is to be displayed.
+If a rectangle too small to hold the instance is
+specified, then the editor will refuse to
+handle the request, and it will fail.
+.in
+.sp
+.in 7
+.ul 1
+editorState
+.br
+.in
+.in 9
+This field contains the initial value of the state flags
+for this editor instance.
+It can be composed of any combination of the
+.B XrSENSITIVE
+and
+.B XrVISIBLE
+flags.
+.in
+.sp
+.in 7
+.ul 1
+editorFGColor
+.br
+.in
+.in 9
+This field specifies the foreground color
+to be used when drawing the editor instance.
+The borders and all text are drawn using the foreground color.
+If this is set to -1, the default foreground color (see
+.B XrInit(3X)
+) will be used.
+.in
+.sp
+.in 7
+.ul 1
+editorBGColor
+.br
+.in
+.in 9
+This field specifies the background color
+to be used when drawing the editor instance.
+The interior of the text region is drawn using the background color.
+If this is set to -1, the default background color (see
+.B XrInit(3X)
+) will be used.
+.in
+.sp
+.in 7
+.ul 1
+editorFont
+.br
+.in
+.in 9
+This points to the structure which contains all of the information
+necessary to describe the font to be used when displaying
+the text edit field.
+If this pointer is 
+.B NULL, 
+then the default system base
+font will be used.
+.in
+.sp
+.in 7
+.ul 1
+label
+.br
+.in
+.in 9
+This is a pointer to the optional 
+.B NULL 
+terminated label, which
+will be displayed to the left of the text edit region.
+It will be displayed using the same font used within the
+text edit region.
+If this pointer is 
+.B NULL, 
+or if the string has a length of 0,
+then no label will be displayed.
+.in
+.sp
+.in 7
+.ul 1
+string
+.br
+.in
+.in 9
+This is a pointer to the buffer which will be used by the
+editor to store the working copy of the data in the text region.
+The editor will expect the buffer to be large enough to hold the
+maximum size string for this field, along with a terminating 
+.B NULL.
+The buffer must contain the 
+.B NULL 
+terminated string representing
+the initial value for the text region.
+It will be by means of this buffer that an application program 
+will have access to the current value of the text editor instance.
+.in
+.sp
+.in 7
+.ul 1
+maxChars
+.br
+.in
+.in 9
+This value represents the maximum number of characters which will
+be allowed in the text editor instance.
+This information will be used by the editor to prevent a user from 
+entering too much data into a field.
+It is also used by the editor, when calculating the size of
+the text region and the frame rectangle.
+This value should not include space taken up by the 
+.B NULL 
+character used to terminate the string.
+.in
+.sp
+.in 7
+.ul 1
+insertPos
+.br
+.in
+.in 9
+This value allows an application program to specify the
+initial position of the text cursor.
+The specified value indicates the character position within
+the buffer, for where the next character typed should be placed;
+e.g. 0 means place the cursor at the first character position, and the
+next character typed with be saved in buffer[0].
+If a value is specified which is greater than the current
+length of the text string, then the text cursor will be
+placed at the last character position in the string.
+.in
+.sp
+.in 7
+.ul 1
+insertMode
+.br
+.in
+.in 9
+This value allows an application to specify the type of
+insertion mode the field editor should operate under.
+If the field is set to
+.B XrALWAYS_ON
+then insert mode will be forced on for the duration of
+the editing session; the insert character key will be
+ignored.
+If the field is set to
+.B XrALWAYS_OFF
+then insert mode will be forced off for the duration of
+the editing session, and the editor will operate
+in 'normal' mode; the insert character key will be ignored.
+If the field is set to 
+.B XrINTERACTIVE
+then the editing mode will be controlled by the user pressing
+the insert character key; the editor will toggle in and out
+of insert mode each time the insert character key is pressed.
+.in
+.sp
+.in 7
+.ul 1
+labelPosition
+.br
+.in
+.in 9
+This value allows an application to specify whether the optional
+label should be displayed to the left or right of the text editing
+region.
+If a label is not specified for an instance, then this field will
+be ignored.
+The two valid settings for this field are
+.B XrLEFT_ALIGNED
+and
+.B XrRIGHT_ALIGNED.
+.in
+.sp
+.in 7
+.ul 1
+cellWidth
+.br
+.in
+.in 9
+This parameter specifies the character cell width which should be
+used when calculating the size of the text editing region.
+For the maximum cell width for a given font, use the define
+.B XrMAXWIDTH.
+For a cell width which is the average size for a given font, use
+the define
+.B XrAVGWIDTH.
+If any other value is desired, then the cell width (in pixels)
+may be specified directly; this information can be obtained by
+using the 
+.B XrStringWidth()
+utility routine.
+.in
+.IP
+The editor will then draw the text edit field in the specified
+window.
+.IP
+Upon successful completion, a pointer to the newly created
+editor structure will be returned to the application.
+This value must be used there after, whenever the application
+wishes to refer to this particular editor instance.
+
+.IP MSG_FREE
+This message is the mechanism by which an editor instance can be destroyed.
+The only parameter of importance is the 
+.I instance
+parameter, which is a pointer to the
+editor structure, returned by
+.B MSG_NEW ;
+this parameter specifies which instance is to be destroyed.
+.IP
+When a text editor instance is destroyed, it will be internally
+disconnected from the window to which it was attached, it will
+no longer handle mouse selects or keyboard input, and it will
+be removed from the window, if the instance is visible.
+.IP
+After an editor instance has been destroyed, no further
+messages should be issued in regard to that instance.
+
+.IP MSG_GETSTATE
+This message returns the current state of the 
+.B XrVISIBLE 
+and 
+.B XrSENSITIVE
+flags for the specified text edit instance.
+The 
+.I instance
+parameter specifies which instance to use. 
+The 
+.I data 
+parameter should be a pointer to an 8 bit integer value,
+into which the current state flags will be placed.
+
+.IP MSG_SETSTATE
+This message allows an application program to modify the setting of
+the 
+.B XrSENSITIVE 
+and 
+.B XrVISIBLE 
+flags, for a given text edit instance.
+The 
+.I data 
+parameter is interpreted as an 8 bit integer value, containing
+the new state flag values.
+After saving the new state flags, the editor instance will be redrawn,
+to reflect the new state.
+If an instance is not visible, then the
+rectangle which it occupies will be drawn using the background tile
+for the window, thus making it invisible. 
+If a field is visible, but not sensitive, then the insertion area
+will be drawn and filled with a 50% pattern; the current field value
+will also be displayed.
+
+.IP MSG_GETITEMCOUNT
+This message allows an application to obtain a count, which
+indicates the number of insertion areas in the specified instance.
+The editor will assume that the 
+.I instance
+parameter specifies the editor instance to query, and the
+.I data 
+parameter points
+to a 32 bit integer value; the item count value will be
+returned by means of this integer.
+.IP
+This message is useful when used in conjunction with the
+.B MSG_GETITEMRECTS 
+message.
+It allows an application to obtain the number of items in the
+instance, so that the application can then allocate enough
+memory to hold the rectangle information returned by
+.B MSG_GETITEMRECTS.
+.IP
+For this editor, a value of 1 will always be returned, since a text edit
+instance can presently only have one insertion area.
+
+.IP MSG_GETITEMRECTS
+This message returns the coordinates for the rectangle which
+describes the insertion area; this rectangle describes only the
+insertion area - it does not include the label.
+The message will expect the
+.I instance
+parameter to specify the editor instance to query, and the
+.I data 
+parameter to point to a structure of the following format:
+.sp
+.nf
+	rectangle   itemRects;
+.fi
+.sp
+This structure will then be filled with the rectangle information, and
+returned to the application.
+.IP
+Before an application can make this call, it needs to know
+the number of insertion areas in the specified instance, so that it can
+allocate a structure large enough to hold all of the rectangle
+information.
+The application should use the 
+.B MSG_GETITEMCOUNT 
+message to
+obtain this information; the application can then allocate
+an array large enough to hold all of the rectangle entries.
+.IP
+This message is useful to those applications which have a need
+of knowing where the insertion area in a text edit instance is located.
+The most common use would be by a forms controller, which would
+use the information to place an 'active field' indicator by a
+given item.
+
+.IP MSG_ACTIVATE
+This message allows an application to force a text edit instance
+active, thus causing it to turn on the text cursor, widen the
+editing region border, and start monitoring all incoming keyboard
+events.
+This message also serves as the only means for re-entering an active 
+text edit field, after an application has received a status event 
+from the instance.
+When a
+.B MSG_ACTIVATE
+message is issued, the editor instance must be both visible and
+sensitive; if this is not the case, then the message will fail.
+.IP
+When this message is issued, the
+.I instance
+parameter must specify the text edit instance which is to be activated;
+the
+.I data
+parameter is unused, and should be set to
+.B NULL.
+
+.IP MSG_DEACTIVATE
+This message allows an application to force a text edit instance
+inactive.  
+Normally, when a text edit instance returns a status event to an
+application (such as the field is now empty, or an unknown X event
+was received), the application processes the status event and then
+reinvokes the text editor.
+However, it is possible for an application to decide that it does
+not want to reinvoke the editor instance, but rather, it wants the
+instance to be deactivated.
+The instance will be drawn as inactive in the same fashion as when
+a traversal key is received.
+.IP
+When this message is issued, the 
+.I instance
+parameter must specify the text edit instance which is to be
+deactivated; the
+.I data
+parameter is unused.
+If the text edit field is already inactive, then this request
+will be ignored.
+
+.IP MSG_INSERTMODE
+This message allows an application to modify the insert mode
+under which the field editor will operate.
+.IP
+When this message is issued, the
+.I instance
+parameter must be a pointer to the editor structure associated
+with the instance to be modified.
+The
+.I data
+parameter must be a 8 bit integer value, set to either
+.B XrALWAYS_ON, XrALWAYS_OFF
+or
+.B XrINTERACTIVE.
+If
+.B XrALWAYS_ON
+is selected, then the editor will always operate with insert
+mode enabled; the insert character key will be ignored.
+If
+.B XrALWAYS_OFF
+is selected, then the editor will always operate with
+insert mode disabled (in normal mode); the insert character
+key will be ignored.
+If
+.B XrINTERACTIVE
+is selected, then the editor will allow the user to toggle
+into and out of insert mode, by pressing the insert character
+key on the keyboard.
+.IP
+If any other mode is selected, then the request will fail.
+
+.IP MSG_REDRAW
+This editor provides an application with the means
+for requesting that a text edit instance be redrawn.
+.IP
+When this message is issued, the
+.I instance
+parameter must be a pointer to the editor structure associated
+with the instance to be redrawn.
+The
+.I data
+parameter must be a 32 bit integer
+which specifies the type of redraw to perform.
+.IP
+The text editor supports the following redraw modes:
+.sp
+.in 8
+.nf
+.B - XrREDRAW_ALL
+.sp
+.B - XrREDRAW_ACTIVE
+.in
+.fi
+.IP
+.B XrREDRAW_ALL 
+will cause the editor to redraw the complete editor
+instance, while 
+.B XrREDRAW_ACTIVE 
+will cause only the text string portion of the instance to be redrawn.
+.IP
+If any other redraw mode is specified, then the request will fail.
+
+.IP MSG_SIZE
+This message allows an application to obtain the 
+rectangle needed to contain a given text edit instance.
+.IP
+The text editor expects the 
+.I instance
+parameter to be set to
+.B NULL,
+and the
+.I data 
+parameter to point to an instance of the following structure:
+.sp
+.nf
+     typedef struct {
+          Window       editorWindowId;
+          RECTANGLE    editorRect;
+          INT8         editorState;
+          INT32        editorFGColor;
+          INT32        editorBGColor;
+          FontInfo   * editorFont;
+          INT8       * label;
+          INT8       * string;
+          INT32        maxChars;
+          INT32        insertPos;
+          INT8         insertMode;
+          INT8         labelPosition;
+          INT8         cellWidth;
+      } xrTextEditInfo;
+.fi
+.sp
+.IP
+The fields which must be filled out by the application program BEFORE
+issuing this call, are the 
+.I label, maxChars, cellWidth 
+and 
+.I editorFont 
+fields. 
+.IP
+If 
+.I editorFont 
+has been set to 
+.B NULL, 
+then the default
+system base font will be used when calculating
+the rectangle size; if a particular font is
+requested, then it will be used.
+.IP
+The rectangle calculated will be the smallest 0 based
+rectangle, into which the specified text edit instance 
+will fit, using the specified font and character cell width.
+.IP
+In return, 
+.I editorRect
+will be set to describe the optimal rectangle
+into which the described instance will fit.
+An application should feel free to lengthen this 
+rectangle, but it should refrain from modifying the height.
+.IP
+It should be noted that if a cell size smaller than the maximum
+cell size for a given font is specified, there is no guarantee
+that the complete string typed by a user will be visible at one time.
+
+.IP MSG_MOVE
+This message provides an application with a means for quickly relocating 
+a particular editor instance within a window.
+The size of the 
+.I editorRect 
+associated with the instance is not changed.
+To relocate an editor instance, a new origin point for the instance's
+.I editorRect 
+must be specified; the top left corner of the editor rectangle 
+will then be translated such that it now coincides with the new origin.
+The origin point is interpreted as an absolute position within the window.
+.IP
+When this message is issued, the
+.I instance
+parameter must point to the editor structure associated with the
+instance which is to be moved, while the
+.I data
+parameter must point to a 
+.I POINT 
+structure, containing the new
+.I editorRect 
+origin.
+.IP
+When an editor instance is relocated, the field editor will automatically
+remove the visual image of the instance from the window, and will then redraw
+the instance at its new location; this occurs only if the instance is visible.
+
+.IP MSG_RESIZE
+This message provides an application with a means for both changing the
+size of the 
+.I editorRect
+associated with a particular editor instance, and also the location of
+the new
+.I editorRect.
+All restrictions regarding the
+.I editorRect
+size which applied when the instance was first created using
+.B MSG_NEW,
+still apply.
+If an invalid 
+.I editorRect
+is specified, then the resize request will fail.
+.IP
+When this message is issued, the
+.I instance
+parameter must point to the editor structure associated with the instance
+which is to be resized, while the
+.I data
+parameter must point to a 
+.I RECTANGLE 
+structure containing the
+new size and origin for the 
+.I editorRect.
+.IP
+When an editor instance is resized, the field editor will automatically
+remove the visual image of the instance from the window, and will then
+redraw the instance using the new size and location information; this
+occurs only if the instance is visible.
+
+.IP MSG_EDIT
+Normally, an application will not issue this message;
+it is usually issued by the Xrlib input routine,
+when an input event occurs while a text edit
+field is active.
+.IP
+When such an event occurs, a 
+.B MSG_EDIT 
+message will be issued to the editor, with
+the
+.I instance
+parameter indicating which text edit instance to process, and the
+.I data
+parameter pointing to an 
+.I XEvent
+structure.
+.IP
+The 
+.B MSG_EDIT 
+handler for the text edit editor is much more complex than most editors,
+since it understands a much broader range of input events.
+Making up the list of valid input types for this editor are:
+.sp
+.in 11
+.nf
+Most X KeyPressed and KeyReleased events.
+
+All X button events which map into either an XrSELECT or 
+    XrSELECTUP event (see XrMapButton(3X) and XrInit(3X)).
+
+All other X events will be treated by the editor as an unknown
+    event, and will be returned to the application for local
+    processing.  This is discussed further in a later section
+    dealing with unknown events.
+.fi
+.in
+.IP
+The sections below will attempt to describe how the editor
+handles each of the above input types.
+.IP
+.ul 1
+X KeyPressed and KeyReleased events (Printable ASCII keys only)
+.sp
+.in 11
+If the text field is already full, or if this is a KeyReleased
+event, then the editor will ignore the event.
+Otherwise, the following will occur:
+.sp
+.in
+.in 14
+If the editor is currently operating with insert mode enabled,
+then all characters in the buffer, which are at or to the right
+of the text cursor, will be shifted one place to the right
+within the work buffer.
+.sp
+The new keycode will be inserted at buffer[insertion point].
+.sp
+The insertion point (text cursor) will be moved one character position to the right.
+.sp
+The text cursor will be forced on (if not already).
+.sp
+The instance will be redrawn.
+.in
+.in 11
+.sp
+Afterwards, a check will be made to see if the string was
+previously empty and this was the first character in the string.
+If it was, then the following status event will be appended
+to the front of the application's input queue, and the editor
+will return:
+.sp
+.nf
+   type      = XrXRAY
+   source    = the window Id
+   inputType = XrEDITOR
+   inputCode = XrTEXTEDIT
+   value1    = XrTEDIT_FIRST
+   valuePtr  = pointer to instance's editor structure
+.fi
+.sp
+If the above event did not occur, then the
+editor will block, waiting for the user to generate the next
+input event.
+.in
+.sp
+.IP
+.ul 1
+X KeyPressed and KeyReleased events (Editing keys)
+.sp
+.in 11
+.ul 1
+Cursor Right
+.br
+.in
+.in 14
+If the text cursor is not already at the end of the string,
+then it will be shifted one character position to the right.
+The field will then be redrawn as active, if it was not already.
+.in
+.sp
+.in 11
+.ul 1
+Cursor Left
+.br
+.in
+.in 14
+If the text cursor is not already at the beginning of the string,
+then it will be shifted one character position to the left.
+The field will then be redrawn as active, if it was not already.
+.in
+.sp
+.in 11
+.ul 1
+Backspace
+.br
+.in
+.in 14
+If the text cursor is not already at the beginning of the string,
+then the character to the left of the text cursor will be deleted,
+and all character to its right will be shifted one position to the
+left.
+The text cursor will also move one position to the left.
+The field will then be redrawn, and forced active (if it was not already).
+If the text field is now empty, then the following status
+event will be added to the front of the application's input
+queue, and the editor will return:
+.sp
+.nf
+   type      = XrXRAY
+   source    = the window Id
+   inputType = XrEDITOR
+   inputCode = XrTEXTEDIT
+   value1    = XrTEDIT_EMPTY
+   valuePtr  = pointer to instance's editor structure
+.fi
+.in
+.sp
+.in 11
+.ul 1
+Delete Char
+.br
+.in
+.in 14
+If the text cursor is not at the end of the string, then
+the character underneath the text cursor will be deleted,
+and all character to its right will be shifted one position
+to the left.
+The field will then be redrawn, and forced active (if it was not
+already).
+If the field is now empty, then the following status event
+will be appended to the front of the application's input queue,
+and the editor will return:
+.sp
+.nf
+   type      = XrXRAY
+   source    = the window Id
+   inputType = XrEDITOR
+   inputCode = XrTEXTEDIT
+   value1    = XrTEDIT_EMPTY
+   valuePtr  = pointer to instance's editor structure
+.fi
+.in
+.sp
+.in 11
+.ul 1
+Delete Line
+.br
+.in
+.in 14
+This will move the text cursor to character position 0,
+and then delete all character to its right.
+The field will be redrawn, and forced active (if it was
+not already).
+The following status event will be appended to the front
+of the application's input queue, and the editor will return:
+.sp
+.nf
+   type      = XrXRAY
+   source    = the window Id
+   inputType = XrEDITOR
+   inputCode = XrTEXTEDIT
+   value1    = XrTEDIT_EMPTY
+   valuePtr  = pointer to instance's editor structure
+.fi
+.in
+.sp
+.in 11
+.ul 1
+Clear Line
+.br
+.in
+.in 14
+This will operate the same as 'delete line', except that
+the text cursor is not moved; only those characters under and to
+the right of the text cursor are deleted.
+If the field is now empty, then the following status event
+will be appended to the front of the application's input queue:
+.sp
+.nf
+   type      = XrXRAY
+   source    = the window Id
+   inputType = XrEDITOR
+   inputCode = XrTEXTEDIT
+   value1    = XrTEDIT_EMPTY
+   valuePtr  = pointer to instance's editor structure
+.fi
+.in
+.sp
+.IP
+.ul 1
+X KeyPressed and KeyReleased events (Traversal keys)
+.sp
+.in 11
+There are a special set of keys, which are referred to as
+traversal keys.
+These serve as the mechanism for exiting from a field, and
+deactivating it.
+The keys making up this list are:
+.sp
+.nf
+.in
+.in 14
+- Return
+- Tab
+- Backtab
+.in
+.in 11
+.fi
+When a traversal key is pressed by the user, the editor will redraw
+the field as inactive, and then place the following input event
+onto the front of the application's input queue:
+.sp
+.nf
+   type      = XrXRAY
+   source    = the window Id
+   inputType = XrEDITOR
+   inputCode = XrTEXTEDIT
+   value1    = XrTEDIT_BREAK
+   value2    = traversal direction indicator
+   value3    = traversal key keycode
+   valuePtr  = pointer to instance's editor structure
+.fi
+.in
+.in 11
+.sp
+The traversal direction indicator will assume a value of either
+.B XrNEXT
+or
+.B XrPREVIOUS.
+.sp
+The traversal key keycode will be either (RETURN_KEY | K_s),
+(TAB_KEY | K_s) or (BACKTAB_KEY | K_s), as defined in <Xr/keycode.h>.
+The 
+.I value3
+field within the event structure is defined as an INT16 quantity.
+However, the traversal keycode is a UINT16 value; therefore, an
+application should coerce the signed
+.I value3
+value into an unsigned value, before comparing it to any of the
+defined keycode values listed above.
+.in
+.sp
+.IP
+.ul 1
+X ButtonPressed or ButtonReleased events
+.sp
+.in 11
+The only type of X button event understood by this editor is the 
+one which maps into either a
+.B XrSELECT
+or
+.B XrSELECTUP
+event; all other button events are treated as an unknown event.
+When a select occurs, the editor will first check to see if
+it occurred within the instance's rectangle.
+.sp
+If it did not occur within the rectangle, then the field will be
+redrawn as 'not active', and two input events will be added
+to the front of the application's input queue:
+.sp
+.nf
+   1) A copy of the select input event which we just received.
+
+   2) type      = XrXRAY
+      source    = the window Id
+      inputType = XrEDITOR
+      inputCode = XrTEXTEDIT
+      value1    = XrTEDIT_BREAK
+      value2    = XrSELECT
+      valuePtr  = pointer to instance's editor structure.
+.fi
+.sp
+NOTE: the second input event will end up at the front of the queue.
+.sp
+The editor will then return, and not expect to be called again,
+until the next time it should be made active.
+.sp
+If the select occurred within the text region, then the field
+will be redrawn as active (if it already was not), and the
+text cursor will be moved to the character position
+nearest to where the select occurred.
+The editor will then block, waiting for the user to generate the
+next event.
+.in
+.sp
+.IP
+.ul 1
+Unknown Events and ASCII Control Characters
+.sp
+.in 11
+Any event which is received by the text editor, which does
+not fall under any of the groupings discussed above, will
+be treated as an unknown event, and will be passed back to
+the application for processing.
+When the application receives notification of an unknown
+event from the text editor, it should request the next
+event from its input queue (the unknown event) and then
+process it.
+Since this is only a temporary break condition, the editor
+will expect the application to re-invoke the editor, once
+it has finished processing the unknown event.
+.br
+.sp
+The following two events will be pushed onto the front
+of the application's input queue:
+.sp
+.nf
+   1) A copy of the unknown X event which we just received.
+
+   2) type      = XrXRAY
+      source    = the window Id
+      inputType = XrEDITOR
+      inputCode = XrTEXTEDIT
+      value1    = XrUNKNOWN_EVENT
+      valuePtr  = pointer to instance's editor structure.
+.fi
+.in
+
+.SH RETURN VALUE
+Upon successful completion of any of the messages, a non-NULL
+value will be returned.
+In the case of
+.B MSG_NEW,
+this non-NULL value will be the pointer to the
+newly created editor instance structure.
+.P
+If a message request fails, then a NULL value is returned.
+
+.SH ERROR CONDITIONS
+Messages to the text editor will fail, set the
+.I xrErrno
+global and return a NULL
+value, under the following conditions:
+.sp
+.IP MSG_NEW
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I editorWindowId
+is an invalid Id [XrINVALIDID].
+.IP
+.I editorRect
+is too small to hold the specified instance [XrINVALIDRECT].
+.IP
+.I string
+is set to NULL [XrINVALIDPTR].
+.IP
+.I maxChars
+is set to zero [XrINVALIDPARM].
+.IP
+.I insertMode
+is set to an unknown value [XrINVALIDOPTION].
+.IP
+.I labelPosition
+is set to an unknown value [XrINVALIDOPTION].
+.IP
+.I cellWidth
+is set to an invalid value [XrPARMOUTOFRANGE].
+.IP
+A call to 'X' failed { XMakePixmap() } [XrXCALLFAILED].
+.IP
+Memory cannot be allocated [XrOUTOFMEM].
+.sp
+.IP MSG_REDRAW
+A redraw mode other than
+.B XrREDRAW_ALL
+or
+.B XrREDRAW_ACTIVE
+is specified [XrINVALIDOPTION].
+.sp
+.IP MSG_SIZE
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I maxChars
+is set to zero [XrINVALIDPARM].
+.IP
+.I cellWidth
+is set to an invalid value [XrPARMOUTOFRANGE].
+.sp
+.IP MSG_RESIZE
+.I data
+is set to NULL [XrINVALIDPTR].
+.IP
+.I editorRect
+is too small to hold the specified instance [XrINVALIDRECT].
+.sp
+.IP MSG_ACTIVATE
+The instance is not sensitive and visible [XrINVALIDPARM].
+.sp
+.IP MSG_INSERTMODE
+An unknown insertion mode value is specified [XrINVALIDOPTION].
+.sp
+.IP "MSG_GETSTATE, MSG_MOVE, MSG_GETITEMCOUNT and MSG_GETITEMRECTS"
+.I data
+is set to NULL [XrINVALIDPTR].
+.sp
+.IP "All messages, except MSG_NEW and MSG_SIZE"
+The
+.I instance
+parameter is set to NULL [XrINVALIDID].
+
+.SH "SEE ALSO"
+XrInput(3X), XrInit(3X), XrMapButton(3X)

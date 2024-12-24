@@ -1,0 +1,592 @@
+
+.sh 1 "Introduction"
+.pp
+Welcome to xtrek.
+Xtrek is the latest in a line of games based on Empire on the PLATO
+system.
+Most of the ideas are stolen from the unix game
+.i Trek83
+by David Davis and Chris Guthrie and the VMS game
+.i Conquest
+by Jef Poskanzer and Craig Leres.
+Xtrek is a multi-player, real-time game which runs under Ultrix 1.2
+on X supporting workstations.
+Since the game requires shared memory, the daemon and
+player processes must be run on on an Ultrix machine.
+However, the player program
+.i xtrek
+throws an X window up on any workstation running X.
+Please send any ideas/comments to chris@ic.berkeley.edu.
+
+.sh 1 "The Basic Idea"
+.pp
+When you play Xtrek, you enter a galaxy as one of four competing
+races.
+You have a warship at your command.
+The galaxy contains forty planets, which start divided evenly between
+the four teams.
+The eventual goal of the game is to conquer the other teams' planets
+and protect your own.
+Usually this will involve frequently having to destroy other player's
+ships while avoiding their efforts to destroy yours.
+
+.sh 1 "Starting the Game"
+.pp
+To enter the game type
+.b "xtrek monitor:0"
+much like any X tool.
+The program will use the $DISPLAY variable in your environment if
+it is set.
+If there is room in the game, you will see an entry window which may
+contain some random status information and a choice of teams.
+Click a mouse button in the box of the team you wish to join.
+In terms of ship and planet abilities, all teams are identical.
+Assuming everything is working properly (including xhosts) you
+will be placed in the game.
+
+.sh 1 "The Display"
+.pp
+When you start the game, you are given five or six windows.
+The big left window is the local view from your ship.
+You will see a number of objects in it.
+First, your ship will always appear the center of the window.
+Other ships will look like yours except that each
+team has a different ship design.
+On color workstations, each team also has a different color.
+The small character (in hex) represents the player number.
+Round objects with names on them are planets.
+They also are the color of their owning team.
+Small dots on the screen are torpedos.
+You will come to recognize these after they kill you a few
+times.
+Enemy torps are a different shape than your team's torps.
+Small circles are exploding torps.
+Lines between ships are phaser shots.
+They are never friendly.
+
+.pp
+The large window on the right is a map of the whole galaxy.
+Only ships and planets appear on it.
+Ships are just a player number (in hex) and team letter.
+
+.pp
+Directly below the galaxy window is a small window which
+will occasionally contain warning messages like "Not enough
+fuel to fire torp."
+You will probably be killed shortly after this particular message.
+
+.pp
+Below the warning window is a message window.  This window
+will be described later.
+
+.pp
+The small window on the left side is your status window.  It's
+contents will be described later.
+
+.sh 1 "User Interface"
+.pp
+The mouse is the most important interface.
+When ever the game needs a direction, to turn your ship for instance,
+it will use the mouse's position relative to your ship, in either large
+window.
+Torpedos and phasers will be fired toward the mouse's cursor, and
+your ship will turn in the direction of the cursor when
+appropriate keys are hit.
+Commands are issued through the keyboard and mouse
+buttons.
+
+.sh 1 "Quick Instructions for Beginning Players"
+.pp
+Since no normal computer user will want to read the rest
+of this document, the following is a quick explanation of
+combat.  Try it for awhile, then come back and search the
+document for more features.
+
+.sh 2 "Combat"
+.pp
+To survive in combat, keep moving.  This is done by typing the
+number keys, 0-9.  Ships can fly at warp five indefinitely.
+Engines will eventually overheat at higher speeds.  Turning
+is easier at low speeds.  Particularly good is warp three or
+four.  You turn by pointing your mouse in the direction you
+wish to go, and typing the rightmost mouse key.  You will
+move relative to whatever window you happen to have the mouse
+in.  When there is an opponent on the screen with you, you
+probably want to start firing torps at him.  Again, point the
+mouse where you want the torps to go and push the leftmost
+mouse button.  If you get close enough, you might want to
+try phasers.  Point the mouse directly at your opponent and
+push the middle button.  A line will shoot out and you will
+get a report on your damage, if you hit.
+
+.pp
+Torpedos that hit each do thirty points of damage to the
+target.  Damage first comes off of shields, and when those
+reach zero, damage comes directly off the damage stat.  When
+your damage hits 100, your ship explodes and your opponent
+gets credit for killing you.  You can repair damage by going
+into repair mode (type 'R') but it will also leave you a
+sitting duck for other players.  When you finish repairing,
+use 'u' to put your shields back up.
+
+.pp
+Finally, if you get tired of playing, you can quit by typing 
+.b Q
+and waiting to self-destruct.
+
+.sh 1 "Status Line"
+.pp
+Now for some of the more technical details.
+The status line appears below the local window
+and contains the following useful information:
+
+.sh 2 "Flags -- ship status flags"
+.pp
+Various flags tell the player that about his ship.
+.(l
+S     -- Shields up
+[GYR] -- Alert status
+L     -- Locked onto a target
+R     -- In Repair mode
+B     -- Bombing a planet
+O     -- Orbiting a planet
+C     -- Cloaked
+W     -- Weapons overheated 
+E     -- Engines overheated
+u     -- Beaming up armies
+d     -- Beaming down armies
+P     -- Copilot permitted
+.)l
+
+.sh 2 "speed - ship's speed"
+.pp
+This is the speed your ship is currently travelling.
+Ships move between warps 0 and 9.
+
+.sh 2 "dam - current damage"
+.pp
+This is how much damage your ship has taken.
+If it gets over 100, you die.
+Damage repairs slowly if shields are down, faster if
+ship is in repair mode.
+
+.sh 2 "shd - current shields"
+.pp
+Shields start out at 100 and take damage when they are up.
+When they hit 0, damage will come off your damage rating.
+They repair faster than real damage.
+
+.sh 2 "torps -- number of torps launched"
+.pp
+Each player is limited to twelve torps flying at any given
+time.
+This is a count of the torps you currently have in the air.
+
+.sh 2 "armies -- armies on board"
+.pp
+This is a count of the number of armies you have on your ship.
+Your ship can carry two times the current number of kills.
+The maximum number of armies it can carry is ten.
+
+.sh 2 "fuel -- how much fuel you have left"
+.pp
+Weapons and engines take fuel to run.
+This is a count of the amount of fuel left on the ship.
+Fuel regenerates slowly in space, but faster when orbiting a planet.
+
+.sh 2 "wtemp -- weapons temperature"
+.pp
+Using weapons drives up this stat.
+If it goes over 100, there is a good chance your weapons will
+freeze up for a random amount of time.
+The temperature drops over time.
+
+.sh 2 "etemp -- engine temperature"
+.pp
+Running your engines at speeds over five cause engine temperature
+to climb.
+Running at less than five causes them to cool.
+Over 100, engines can freeze up for a random amount of time.
+
+.sh 1 "The commands"
+.pp
+These are the various key and button commands in the game.
+They are not currently remappable.
+
+.sh 2 "0-9 Ship's speed"
+.pp
+The numbers zero through nine set your ship's speed.
+It takes time for your ship to accelerate or decelerate to the desired
+speed.
+Damaged ships can't use higher speeds.
+When engines freeze, you can't set speed.
+Setting speed breaks you out of a planet's orbit.
+
+.sh 2 "k - set course"
+.pp
+The letter
+.b k
+or the right mouse button set your course towards the current
+mouse position.
+Turning towards the desired course can take time, depending on 
+your current speed and damage.
+
+.sh 2 "t - launch torpedo"
+.pp
+The letter
+.b t
+or the left mouse button launch a torpedo towards the current
+mouse position if you have fuel and less than twelve torps
+currently out.
+Torpedos travel at warp twelve and do thirty points of
+damage when they hit someone.
+You cannot be hurt by your own torps.
+The letter
+.b T
+launches a burst of three torps.
+Torpedos tend to wobble a bit in flight so they won't always
+go straight in the direction you want them to.
+
+.sh 2 "p - fire phaser"
+.pp
+The letter
+.b p
+and the middle mouse button fire your phasers towards the current
+mouse position if you have fuel.
+You may only fire phasers once per second.
+They cost a good deal of fuel.
+If they hit someone, they will do 0-100 points depending on the
+range.
+
+.sh 2 "d - detonate other torps"
+.pp
+This command will detonate other torps near you, doing less
+than maximum damage to you.
+
+.sh 2 "D - detonate your own torps"
+.pp
+This will turn your own torps off (if you've missed)
+so that you can fire new ones.
+
+.sh 2 "+ - put shields up"
+.pp
+This key will put your shields up.
+Raised shields will take damage.
+
+.sh 2 "- - put shields down"
+.pp
+This key will put your shields down.
+All damage will go directly to your damage stat.
+
+.sh 2 "u - toggle shields"
+.pp
+This key will toggle your shields up and down.
+
+.sh 2 "R - repair damage"
+.pp
+Your ship must be going warp zero to repair.  Hitting this key will
+stop your ship and start repairing.  Your shields are down when you
+are repairing and you cannot fire weapons.  In a nutshell, you are
+a sitting duck.  Putting your shields up or moving is the best
+way to get out of repair mode.
+If your ship is orbiting a friendly repair planet, damage will repair
+at a faster rate.
+
+.sh 2 "o - orbit a planet"
+.pp
+If you are near a planet and going warp two or less this will
+put in orbit around it.
+You must be in orbit around a planet to bomb it, beam armies up
+or down, or get fuel from it.
+Enemy planets will damage you if you get near them.
+Setting speed will break out of orbit.
+
+.sh 2 "b - bomb a planet"
+.pp
+If an enemy planet has more than four armies, you can bomb
+them.
+With four or less armies, you must beam down armies
+to defeat them.
+Your shields will go down to bomb, and you will
+take damage from the planet.
+You get kills for the armies killed.
+
+.sh 2 "z - beam up armies"
+.pp
+If your planet has more than four armies, you can beam
+them to your ship to carry to other planets.
+You must be orbiting to beam up armies.
+
+.sh 2 "x - beam down armies"
+.pp
+This command will beam armies on your ship down to any 
+planet you are orbiting.
+If it is an enemy planet, you will kill his armies.
+If all are killed and you land an army, you take the planet
+for your team.
+
+.sh 2 "L - get player list"
+.pp
+This gives you a quick list of other players.
+
+.sh 2 "P - get planet list"
+.pp
+This gives you a list of planets.
+You get information only on planets which your team
+owns or has previously orbited.
+
+.sh 2 "i - info on object"
+.pp
+This will pop up a window near the mouse cursor which contains
+information about the nearest object (planet or ship).
+
+.sh 2 "l - lock onto an object"
+.pp
+This will lock your ship onto the object nearest the mouse cursor.
+If it is a planet, you will automatically go into orbit around it.
+If it is another player, your course will constantly be adjusted if
+he is moving.
+To break the lock, just set course normally.
+
+.sh 2 "C - throw a coup"
+.pp
+Sometimes players will discover that all their planets have been
+taken.  In order to allow some form of return you can hold a coup
+on your home planet assuming that the following criterion are met:
+.(l
+You must control no other planets.
+You must have more than one kill.
+There must be less than five armies on your home planet.
+You must be orbiting your home planet.
+.)l
+After the coup, the armies on the planet will belong to you.
+As they come back you can take over more of your occupied worlds.
+
+.sh 2 "? - repeat all of the previous messages"
+.pp
+Message sending is detailed below.  This command allows you to
+review the current set of them.
+
+.sh 2 "c - cloak your ship"
+.pp
+This nifty command allows you to remain invisible on the main
+window of every player.  This would be nice except that you cannot
+fire weapons while cloaked, and your fuel usage goes way up.
+Finally good players can shoot at you on the galaxy map window
+where you will appear as
+.b "??."
+Typing 
+.b 'c'
+again will turn cloaking off.
+
+.sh 2 "@ - allow/disallow copilots"
+.pp
+This feature allows more than one player to fly a ship.  It will
+be discuss near the end of this document.
+
+.sh 2 "S - Toggle visual status window"
+.pp
+This will turn a visually oriented status window on and off.
+
+.sh 1 "Nitty Gritty Details"
+.pp
+This section contains the details on certain features.
+
+.sh 2 "Planets and Armies"
+.pp
+Planets are updated every few minutes.  There is a random chance
+that the number of armies will increase.  There is also a random
+chance, that there will be a major die-off of armies.  This later
+event is more likely on planets with many armies.
+Planets with no armies will not spawn new ones.
+
+.pp
+Enemy planets do damage based on the number of armies they have.
+This means planets with no armies do no damage.  Those with armies
+will do (armies / 10) + 2 twice each second.
+
+.pp
+At least the team's home planets and randomly, others, will provide
+fuel and repair services.  Obviously, this makes these planets
+particularly valuable.  These planets are set up when the galaxy
+is reset.
+
+.sh 2 "Messages"
+.pp
+Messages are sent both from the daemon and from other players.
+They appear in the message window at the bottom, right side of the display.
+To send messages, just put the mouse into the message window.
+You must type a character in that represents the recipient of your
+message.  This can be 'A' for everyone.  [FRKO] to send to all members
+of a given team.  [0-9abcdef] will send a message to an individual
+player.  When you've typed this in, it will map to a proper address
+and wait for you to type in some text.  When you type in a return,
+your message is sent.
+
+.pp
+Now obviously, the next question is, "What if someone starts shooting
+at me while I'm typing in my message?  Am I hosed?"
+Simply move the mouse out of the window to defend yourself.  Messages
+are only dealt with if the mouse is in the window.  You can stop
+in the middle.
+
+.sh 2 "Robots"
+.pp
+Robots are an attempt to allow/prevent certain things.  First, we want
+beginning players to have some lousy competition so they can get some
+practice without simply being targets for better players.  Secondly,
+we want to make sure that taking over the galaxy is not a midnight
+waltz.
+
+.pp
+In order to invite a robot into the game, go into another teams space
+and bomb one of
+.i their
+planets.  A robot will promptly show up and kill you.  Or at least
+try to kill you.  The more kills you have, the harder the robot will
+try.
+
+.pp
+Robots are very much like other players.  The only advantage they
+have over other players is that they don't use fuel.  Otherwise,
+their torps do the same damage.  They can be somewhat better shots
+when they are angry, and they never miss with their phasers.
+
+
+.sh 2 "Weapons"
+.pp
+Torpedos move at warp twelve and have a random life of three to nine
+seconds.  They tend to wobble a bit, so their accuracy goes down
+a bit at longer ranges.  Torps will detonate if they get close to a
+ship and do full damage.  They will do less damage to objects at a
+slightly longer distance.  Torpedos will not be detonated by another
+player on the same team, but they will do damage if something causes
+them to explode.
+
+.pp
+Phasers must be within about 10 degrees of their target to hit.
+Phasers that hit will maintain a line between the two ships.
+Ones that miss will stick out to nowhere and look stupid.
+All phasers cost a good deal of fuel.  It takes one second
+to recharge your phasers for another shot.
+Your phasers will affect your own team.
+
+.pp
+Ships that explode cause 100 points of damage with about the same
+range as a torpedo.  Don't get too near one.
+
+.sh 2 "The Galaxy"
+.pp
+You will bounce off the edge of the galaxy if you run into it.
+Torpedos explode if they hit it.
+
+.sh 2 "Ship's Status"
+.pp
+Your ship's alert status will tell you how close you are to enemy
+ships.  Yellow alert represents about two screens distance.  Red
+alert means that the enemy is on your local screen (even if cloaked).
+
+.sh 2 "Xdefaults and options"
+.pp
+You can put the following options into your .Xdefaults
+.(l
+xtrek.boldfont:		6x10b
+xtrek.font:		6x10
+xtrek.name:		DragonSlayer
+xtrek.reverseVideo:	off
+xtrek.showShields:	on
+xtrek.showStats:	on
+xtrek.stats.geometry:	+0+655
+xtrek.GAlertPattern:	0xf
+xtrek.YAlertPattern:	0xa 0x5
+xtrek.RAlertPattern:	0x0f 0x0f 0x0f 0x0f 0xf0 0xf0 0xf0 0xf0
+xtrek.ralert:		red
+xtrek.yalert:		yellow
+xtrek.galert:		green
+xtrek.border:		blue
+xtrek.background:	black
+xtrek.text:		yellow
+xtrek.fed:		yellow
+xtrek.rom:		red
+xtrek.kli:		green
+xtrek.ori:		slate blue
+xtrek.warning:		red
+xtrek.unknown:		light grey
+xtrek.me:		white
+.)l
+
+.sh 3 "Fonts"
+.pp
+These options allow you to change fonts used in the game.
+Our advice: "Don't."
+
+.sh 3 "name"
+.pp
+This is your playername.
+
+.sh 3 "reversevideo"
+.pp
+On black and white monitors this can ease eye strain.
+
+.sh 3 "showShields"
+.pp
+This causes the shields of you and other players to appear
+as a circle around your ship when they are up.  This can
+be useful, but keep in mind that your shields are really only
+half that size.
+
+.sh 3 "showStats"
+.pp
+This option will put up a visual status window above your display.
+Some players find this easier than numbers.  It also seems to
+increase the number of X errors somewhat.  The stats.geometry
+uses standard X syntax for a screen position.
+
+.sh 3 "Alert Patterns"
+.pp
+These patterns are useful for showing your current alert status
+based on the border pattern.  It is used for black and white
+monitors only.
+The alert colors are used for color monitors.  I think changing
+them would be silly.
+
+.sh 3 "The remaining color definitions"
+.pp
+These options allow you to set colors on various objects
+so you can get much more information from your display.
+Obviously, these only matter for color monitors.
+
+.sh 2 "Other programs related to xtrek"
+.pp
+There are few other programs that come with xtrek that
+have some use in the game.  They are described below.
+
+.sh 3 "Copilot"
+.pp
+This program, started with the command:
+
+.ti 1i
+.b "copilot monitor:0 pno"
+
+will allow you to fly a ship with player number pno
+if he so permits.  This command is pretty robust.
+
+.sh 3 "scores"
+.pp
+Xtrek does, in fact keep some statistics around in the
+file .scores.  Scores can be used to print this information out.
+It obviously should have been built into xtrek itself.
+
+.sh 3 "robot"
+.pp
+This is the program xtrek uses to send robots into the game.
+Robots work but the code needs a rewrite badly, and the current
+robots are much to tough for beginning (or even expert) players.
+Robots come with gobs of command line options, but you'll have
+to look at the code to see what they do.
+
+.sh 3 "watch"
+.pp
+This was a quick and dirty monitor program that allowed
+you to watch a game, switching between players.  It was
+never brought up to the current specs and doesn't work.

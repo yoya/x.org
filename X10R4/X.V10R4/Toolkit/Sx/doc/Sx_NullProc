@@ -1,0 +1,21 @@
+.TH Sx_NullProc sx
+.BS
+.NA
+Sx_NullProc \- null procedure
+.SY
+#include <sx.h>
+.sp
+Sx_NullProc()
+.BE
+
+.SH DESCRIPTION
+.PP
+This procedure does nothing except return immediately.  Its main
+purpose is in arranging for events to be ignored.  For
+example, Sx_HandlerCreate(window, KeyPressed, Sx_NullProc, (ClientData) NULL)
+will cause KeyPressed events to be ignored when the pointer is over
+\fIwindow\fP.  If the dummy handler had not been created, the keystrokes
+would have been passed through to window's parent.
+
+.SH KEYWORDS
+handler, null procedure

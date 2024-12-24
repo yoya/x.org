@@ -1,0 +1,40 @@
+.TH Sx_MenuGetNames sx
+.B1
+.NA
+Sx_MenuGetNames \- identify menus stored in common parent
+.SY
+#include <X/Xlib.h>
+#include <sx.h>
+.sp
+int
+Sx_MenuGetNames(\fIparent, names, windows\fP)
+.sp
+.AR
+.AS Window windows[]
+.AP Window parent in
+X identifier for the window containing menus as children
+(\fIparent\fP argument to previous Sx_MenuCreate call).
+.AP char *(names[]) out
+Array to be filled in with pointers to names of all menus that
+are children of \fIparent\fP.  If NULL, then no name information
+is returned;  otherwise, \fInames\fP must contain room for at
+least SX_MAX_MENUS pointers.
+.AP Window windows[] out
+Array to be filled in with X identifiers for all menu windows that
+are children of \fIparent\fP.  Entries in \fInames\fP and \fIwindows\fP
+correspond.  If \fIwindows\fP is NULL then no window information is
+returned;  otherwise, it must have enough space for at least SX_MAX_MENUS
+window ids.
+.B2
+
+.SH DESCRIPTION
+.PP
+Sx_MenuGetNames returns information about a group of related menus.
+For each menu that is a child of \fIparent\fP, the name and X window
+id for the window are returned in \fInames\fP and \fIwindows\fP
+respectively.  The lowest entries in \fInames\fP and \fIwindows\fP
+correspond to the leftmost menus in \fIparent\fP.  The return value
+is a count of the total number of menus in \fIparent\fP.
+
+.SH KEYWORDS
+name, pull-down menu, window

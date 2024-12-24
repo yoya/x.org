@@ -1,0 +1,176 @@
+.TH XREDITORGROUP 3X "Xrlib Version 10"
+.SH NAME
+Editor Groups - Facilities for handling field editor groups.
+.SH SYNOPSIS
+#include <X/Xlib.h>
+.br
+#include <Xr/Xrlib.h>
+.PP
+xrEditorGroup *
+.br
+.B XrEditorGroup (groupInstance, message, data)
+.br
+xrEditorGroup * groupInstance;
+.br
+INT32 message;
+.br
+INT8 * data;
+.PP
+.sp 1
+.SH DESCRIPTION
+XrEditorGroup() provides the messages necessary to setup and access
+groupings of editors.  This provides for the capability of separating
+the set of editors attached to a window into specified groups and
+manipulate the editors as a unit.  The types of functions which
+can be applied to editor groups include getting and setting the groups
+editor state, clearing the rectangular area which defines the group, etc...
+XrEditorGroup() is provided for advanced editor usage and
+can be ignored for normal accessing and handling of editors.  
+.PP
+The structure used for each editor group is defined below.
+.nf
+
+typedef struct _xrEditorGroup
+{
+   RECTANGLE groupRect;
+   INT8 groupState;
+   xrEditor * editorList;
+   xrGraphic * graphicList;
+   struct _xrEditorGroup * nextGroup;
+} xrEditorGroup;
+
+.fi
+.sp
+The following set of messages are used to create, access, and destroy
+editor groups.
+.IP MSG_NEW
+This messages creates a new editor group, initializing the elements,
+adding it into the group list attached to the window, and making it
+the active group.  The concept of "active group" means that any
+editors created for the window will be attached through this group.
+For this call, 
+.I groupInstance
+and
+.I data
+are both unused and should be set to
+.B NULL.
+The group instance of the new group will be returned by this message.
+.IP MSG_FREE
+This message destroys the editor group and frees the editors attached
+to the group.  For this call, 
+.I data
+is unused and should be set to
+.B NULL.
+.IP MSG_GETDEFAULTGROUP
+This message retruns the point to the default editor group that is added
+to a window when the window is registered with XrInput().  For this 
+message,
+.I data
+should contain the id of the registered window.
+.IP MSG_GETSTATE
+This message returns the state of the editor group.
+.I data
+is a pointer to an INT8 variable and will be set to the
+state of the group.
+.IP MSG_SETSTATE
+This message sets the state of the editor group.
+.I data
+contains the new group state which can be any combination of
+the editor state defines
+.B XrVISIBLE
+and
+.B XrSENSITIVE.
+.IP MSG_ADDTOGROUP
+This message tells the editor list handling function which group
+new editors are to be added.  If the window has only the
+default group defined, editors will be added to this group automatically.
+When a new group is created through MSG_NEW,
+it becomes the "active group" (i.e. the group in
+which editors will be added) so that if the application wants to add
+editors to an existing group it needs to issue the MSG_ADDTOGROUP
+message.  For this message,
+.I groupInstance
+should contain the instance pointer of the group which is to be made active.
+.I data
+is unused and should be set to
+.B NULL
+As stated, each window gets a default group set up for it
+when it is registered.  Application which need to make this group
+the "active group" must get the group instance pointer through message
+MSG_GETDEFAULTGROUP.
+.IP MSG_GETGROUPRECT
+This message returns the group rectangle through
+.I data
+which contains a pointer to a rectangle structure.
+.I groupInstance
+should be set to the instance pointer of the group in which the group 
+rectangle is to be extracted.
+.IP MSG_SETGROUPRECT
+This message sets the group rectangle to the rectangle pointed at by
+.I data.  groupInstance
+should be set to the instance pointer of the group in which the group 
+rectangle is to be set.  The rectangle supplied must be large enough
+to contain the set of editors attached to the window or the message will fail.
+.IP MSG_ADJUSTGROUPRECT
+This message causes the group rectangle to be recalculated and set to the
+minimum rectangle needed to enclose the set of editors attached to the
+window.  For this message, 
+.I data
+is unused and can be set to 
+.B NULL.
+.IP MSG_CLEARRECT
+This message is used to clear, to the windows background tile, the 
+area defined by the group rectangle.
+.I groupInstance
+should be set to the instance pointer of the group which is to be cleared.
+.I data
+is unused and can be set to
+.B NULL.
+.LE
+.sp 1
+.SH RETURN VALUE
+.I groupInstance
+is returned if the call to XrEditorGroup() succeeds.
+.B NULL
+is returned otherwise.
+.SH ERROR CONDITIONS
+If XrEditorGroup() returns 
+.B NULL,
+the 
+.I xrErrno
+global will be set to one of the following values.
+.PP
+.I xrErrno
+will be set to
+.B XrINVALIDID
+for all of the messages if the group identified by the
+.I groupInstance
+parameter is invalid.
+.PP
+.I xrErrno
+will be set to
+.B XrINVALIDMSG
+for any messages besides the messages listed above.
+.PP
+.I xrErrno
+will be set to
+.B XrINVALIDPARM
+whenever the 
+.I data
+parameter contains invalid information.
+.PP
+.I xrErrno
+will be set to
+.B XrOUTOFMEM
+if MSG_NEW fails because it cannot allocate memory for the new group.
+.PP
+.I xrErrno
+will be set to
+.B XrINVALIDRECT
+if the rectangle specified in the
+.I data
+parameter for the MSG_SETGROUPRECT
+is either to small to contain the set of editors in the group or extends
+beyond the bounds of the window in which the group resides.
+.SH SEE ALSO
+XrInput(3X), XrEditor(3X), xrErrno(3X)

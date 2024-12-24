@@ -1,0 +1,81 @@
+.TH XRINIT 3X "Xrlib Version 10"
+.SH NAME
+XrInit - the Xrlib initialization function.
+.SH SYNOPSIS
+#include <X/Xlib.h>
+.br
+#include <Xr/Xrlib.h>
+.br
+.PP
+.B XrInit(allocFuncts)
+.br
+xrAllocFuncts * allocFuncts;
+.PP
+.sp 2
+.SH DESCRIPTION
+The XrInit() routine sets up Xrlib for use by an application by initializing
+internal data and adding a set of resources that the Xrlib routines
+need.  It must
+be called before any Xrlib functionality is used and can only be called once.
+.PP
+The
+.I xrAllocFuncts
+parameter is a pointer to the following structure.
+.nf
+
+typedef struct
+{
+   char * (*newMalloc)();
+   int    (*newFree)();
+   char * (*newRealloc)();
+   char * (*newCalloc)();
+} xrAllocFuncts;
+
+.fi
+.PP
+This structure contains the set of allocation functions that Xrlib
+routines should use for storage allocation.  This set of function
+pointers only needs to be specified by application which want to
+provide their own storage management.  All of the pointers must
+be supplied if any of the allocation functions are to be changed.
+The parameter should be set to
+.B NULL
+for applications which only want to use the default system allocation 
+functions.
+.PP
+The set of function pointer contained within this structure are copied
+into a set of Xrlib globals variables.  They are called
+.I xrMalloc, xrFree, xrRealloc,
+and
+.I xrCalloc.
+These variables are used by Xrlib functions which need storage 
+allocation and can also be used by the application.
+.PP
+XrInit() also initializes the resource list with a set of resources.
+This includes resource types of
+.B XrTYPE_BITMAP,
+and
+.B XrTYPE_BITMAPID,
+Refer to the programmer's manual for specifics about the set of resources
+set up by XrInit().
+.SH RETURN VALUE
+XrInit() returns 
+.B TRUE
+when it is successful,
+.B FALSE
+otherwise.
+.SH ERROR CONDITIONS
+If XrInit() returns
+.B FALSE
+the
+.I xrErrno
+global will be set to one of the following values.
+.PP
+.I xrErrno
+to be set to
+.B XrINVALIDPARM
+under the following conditions.
+.IP
+XrInit() is called more than once.
+.SH SEE ALSO
+XrGlobals(3X), XrResource(3X)

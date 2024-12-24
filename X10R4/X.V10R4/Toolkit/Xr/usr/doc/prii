@@ -1,0 +1,683 @@
+.PH ""
+.PF ""
+.OF "'''\\\\fBIndex\0\0\\\\nP\\\\fP'"
+.EF "'\\\\fB\\\\nP\0\0Index\\\\fP'''"
+.SA 0
+.ce 1
+\fB\s20Index\fR\s10
+.SP 2
+.2C
+.VL 5 0 1
+
+.SP
+.LI
+\s14\fBB\s0\fP
+.LI
+Background Colors,
+1\-17
+.LI
+Break condition,
+4\-20,
+4\-30
+.SP
+.LI
+\s14\fBC\s0\fP
+.LI
+Check Box,
+1\-4
+.LI
+Checkbox Editor,
+4\-15
+.LI
+Coding conventions,
+B\-3
+.LI
+Colors,
+1\-17
+.LI
+Common message handlers, field editor,
+B\-19
+.LI
+Creating from existing editors,
+B\-33
+.LI
+Creating Windows,
+1\-8
+.SP
+.LI
+\s14\fBD\s0\fP
+.LI
+Dialogs,
+1\-2
+.LI
+DISPLAY variable,
+1\-8
+.SP
+.LI
+\s14\fBE\s0\fP
+.LI
+Editor,
+Pushbutton,
+1\-5
+.LI
+Editor,
+Radiobutton,
+1\-5
+.LI
+Editor,
+Raster,
+1\-6
+.LI
+Editor,
+Rasterselect,
+1\-6
+.LI
+Editor,
+Scrollbar,
+1\-5
+.LI
+Editor,
+Staticraster,
+1\-6
+.LI
+Editor,
+Statictext,
+1\-6
+.LI
+Editor,
+Text,
+1\-6
+.LI
+Editor,
+Titlebar,
+1\-5,
+1\-17
+.LI
+Editor entry-point naming,
+B\-1
+.LI
+Editor functions, common,
+B\-26
+.LI
+Editor Messages,
+4\-2
+.LI
+Environment,
+1\-8
+.SP
+.LI
+\s14\fBF\s0\fP
+.LI
+FALSE,
+defined,
+3\-2
+.LI
+Field Editors,
+1\-2,
+1\-4,
+1\-5
+.LI
+Files,
+Include,
+1\-8
+.LI
+Font,
+Default,
+1\-10
+.LI
+Font,
+ID,
+1\-10
+.LI
+Font,
+Loading,
+1\-9
+.LI
+Foreground Colors,
+1\-17
+.LI
+Function Call,
+Blocked,
+1\-9
+.SP
+.LI
+\s14\fBG\s0\fP
+.LI
+Gadget boxes,
+4\-9
+.LI
+Global variables,
+initialized by Xrlib,
+3\-4,
+3\-5
+.LI
+Graphics context functions,
+B\-23
+.LI
+Graphics context structure,
+B\-22
+.SP
+.LI
+\s14\fBH\s0\fP
+.LI
+Hello World,
+1\-8
+.SP
+.LI
+\s14\fBI\s0\fP
+.LI
+Include Files,
+1\-8
+.LI
+Input,
+blocked and non-blocked,
+3\-10
+.LI
+Input,
+from file descriptor,
+3\-7
+.LI
+Instrinsics,
+1\-2
+.LI
+INT16,
+3\-1
+.LI
+INT32,
+3\-1
+.LI
+INT8,
+3\-1
+.LI
+Intrinsics,
+1\-7,
+1\-15
+.SP
+.LI
+\s14\fBK\s0\fP
+.LI
+Keyboard editing facilities,
+standard,
+4\-30
+.LI
+Keyboard editing functions,
+standard,
+4\-19
+.SP
+.LI
+\s14\fBL\s0\fP
+.LI
+Layout and template, field editor,
+B\-11
+.LI
+Linking modules,
+1\-8
+.SP
+.LI
+\s14\fBM\s0\fP
+.LI
+Main editor,
+B\-33
+.LI
+Mapping Windows,
+1\-8,
+1\-16
+.LI
+Memory management,
+B\-4
+.LI
+Menu,
+1\-2,
+5\-1
+.LI
+Menu,
+Messages,
+5\-2
+.LI
+Menu,
+Post,
+5\-2
+.LI
+Menu Manager,
+5\-2
+.LI
+Menu Messages,
+5\-2
+.LI
+Menus,
+Submenus,
+5\-1
+.LI
+MenuSelect,
+5\-2
+.LI
+Message Box,
+1\-2
+.LI
+Message Box Manager,
+5\-12
+.LI
+Message Boxes,
+1\-3
+.LI
+Messages, field editor,
+B\-5
+.LI
+Modifier,
+3\-3
+.LI
+MSG_BLKHOTREAD,
+1\-16
+.LI
+MSG_EDIT,
+5\-13
+.LI
+MSG_NEW,
+1\-17,
+1\-21
+.LI
+MSG_REDRAW,
+1\-13,
+1\-17,
+1\-22
+.LI
+MSG_SIZE,
+5\-13
+.LI
+Multiple-entity field editors,
+B\-31
+.LI
+Multiple-entity instances,
+4\-7
+.SP
+.LI
+\s14\fBN\s0\fP
+.LI
+Naming conventions,
+1\-2,
+B\-1
+.LI
+NULL,
+defined,
+3\-2
+.SP
+.LI
+\s14\fBP\s0\fP
+.LI
+Page Editor,
+4\-30
+.LI
+Panel,
+1\-2
+.LI
+Panel Manager,
+1\-4
+.LI
+Pixel size,
+4\-26
+.LI
+POINT,
+3\-1
+.LI
+Pushbutton Editor,
+1\-5,
+4\-17
+.SP
+.LI
+\s14\fBR\s0\fP
+.LI
+Radiobutton Editor,
+1\-5,
+4\-13
+.LI
+Raster Editor,
+1\-6,
+4\-26
+.LI
+Raster Images,
+1\-16
+.LI
+Rasterselect Editor,
+1\-6
+.LI
+Raster-select Editor,
+4\-24
+.LI
+Reads,
+regular and hot,
+3\-10
+.LI
+RECTANGLE,
+3\-1
+.LI
+Registering a window,
+3\-7,
+3\-8
+.LI
+Resource id,
+3\-13
+.LI
+Resource type id,
+3\-12
+.LI
+Resource types,
+3\-12
+.LI
+Resources,
+added by Xrlib,
+3\-4
+.LI
+RootWindow,
+1\-16
+.LI
+Route input events, sub editors,
+B\-34
+.SP
+.LI
+\s14\fBS\s0\fP
+.LI
+Scrollbar Editor,
+1\-5,
+4\-11
+.LI
+Selectable Items,
+1\-3
+.LI
+Select-up event,
+B\-34,
+B\-35
+.LI
+Shape-drawing functions,
+B\-24
+.LI
+Simple field editor,
+B\-31
+.LI
+Single-entity instances,
+4\-7
+.LI
+SIZE,
+3\-1
+.LI
+Sleep,
+1\-12
+.LI
+Staticraster Editor,
+1\-6,
+4\-29
+.LI
+Statictext Editor,
+1\-6,
+4\-22
+.LI
+Status events,
+4\-30
+.LI
+STRING8,
+3\-1
+.LI
+Sub editor,
+B\-33
+.LI
+Submenus,
+5\-1
+.LI
+Subwindows,
+1\-8
+.SP
+.LI
+\s14\fBT\s0\fP
+.LI
+Template, field editor,
+B\-28
+.LI
+Text Editor,
+1\-6
+.LI
+Text facilities, additional,
+B\-26
+.LI
+Textedit Editor,
+4\-19
+.LI
+Timeval,
+3\-12
+.LI
+Title Bar,
+1\-12
+.LI
+Title bars,
+1\-10
+.LI
+Title string,
+4\-9
+.LI
+Titlebar Editor,
+1\-5,
+1\-17,
+4\-9
+.LI
+TRUE,
+defined,
+3\-2
+.SP
+.LI
+\s14\fBU\s0\fP
+.LI
+UINT16,
+3\-1
+.LI
+UINT32,
+3\-1
+.LI
+UINT8,
+3\-1
+.LI
+Uneditable raster image,
+4\-29
+.LI
+Unknown X event,
+4\-20,
+4\-30
+.LI
+Utility functions, field editor,
+B\-19
+.SP
+.LI
+\s14\fBV\s0\fP
+.LI
+View region,
+4\-26
+.SP
+.LI
+\s14\fBW\s0\fP
+.LI
+Window,
+Mapping,
+1\-16
+.LI
+Window,
+Redrawing,
+1\-17
+.LI
+Window,
+Registering with Xrlib,
+1\-12
+.LI
+Window,
+Root,
+1\-16
+.LI
+Window Exposure,
+1\-16
+.LI
+Window ID,
+1\-9
+.LI
+windowId,
+1\-9
+.LI
+Windows,
+Creating,
+1\-8
+.LI
+Windows,
+Mapping,
+1\-8
+.SP
+.LI
+\s14\fBX\s0\fP
+.LI
+X Defaults,
+used by Xrlib,
+3\-3
+.LI
+X Server,
+1\-8
+.LI
+XEvent,
+3\-5
+.LI
+XFlush,
+1\-10,
+1\-12
+.LI
+XGetFont,
+1\-9
+.LI
+Xlib,
+1\-1
+.LI
+XMapWindow,
+1\-9
+.LI
+XOpenDisplay,
+1\-9
+.LI
+xrAllocFuncts,
+3\-2
+.LI
+xrBitmapId,
+3\-14
+.LI
+xrCursor,
+3\-15
+.LI
+xrEditor,
+1\-23
+.LI
+XrEditor,
+3\-19
+.LI
+XrEditorGroup,
+3\-22
+.LI
+xrEvent,
+3\-7
+.LI
+xrEvent Structure,
+1\-12
+.LI
+xrFDInput,
+3\-11
+.LI
+XrInit,
+1\-10,
+1\-11,
+1\-15
+.LI
+XrINIT,
+3\-2
+.LI
+XrInput,
+1\-3,
+3\-5
+.LI
+XrInput(),
+5\-1
+.LI
+Xrlib,
+Initializing,
+1\-11
+.LI
+Xrlib,
+Intrinsics,
+1\-15
+.LI
+xrMenu,
+1\-23
+.LI
+xrMenuInfo,
+1\-23,
+5\-2
+.LI
+XrMENUITEMSELECT,
+3\-3
+.LI
+XrMENUPOST,
+3\-3
+.LI
+XrMESSABEBOX Event,
+5\-14
+.LI
+XrMessageBox,
+1\-12,
+1\-14
+.LI
+xrMsgBoxInfo,
+1\-24,
+5\-13
+.LI
+xrPixmap,
+3\-14
+.LI
+xrPixmapId,
+3\-14
+.LI
+XrResource,
+3\-12
+.LI
+xrResourceInfo,
+3\-16
+.LI
+xrResourceTypeInfo,
+3\-17
+.LI
+XrSELECT,
+3\-3
+.LI
+XrSELECTUP,
+3\-3
+.LI
+XrTitleBar,
+1\-11,
+1\-13,
+1\-15
+.LI
+xrTitleBarInfo,
+1\-11,
+1\-23
+.LI
+xrWindowData,
+3\-8
+.LI
+xrWindowEvent,
+3\-9
+.LI
+xrWindowFunctInfo,
+3\-9
+.LI
+XrXRAY,
+data extract structure,
+3\-7
+.LI
+XSelectInput,
+1\-12,
+1\-14,
+1\-16
+.LI
+XText,
+1\-9,
+1\-10,
+1\-12
+.LE

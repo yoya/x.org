@@ -1,0 +1,25 @@
+.TH Sx_Unpack sx
+.BS
+.NA
+Sx_Unpack \- cancel automatic size/location management
+.SY
+#include <X/Xlib.h>
+#include <sx.h>
+.sp
+Sx_Unpack(\fIchild\fP)
+.AR
+.AP Window child in
+Window whose location and size are no longer to be managed automatically.
+.BE
+
+.SH DESCRIPTION
+.PP
+Sx_Unpack cancels the effect of a previous call to Sx_Pack or
+Sx_CreatePacked.  From now on, \fIchild\fP's location and size
+will not be managed automatically by the Sx packer.  \fIChild\fP
+will be unmapped and the arrangement of its parent's other children
+will be modified to reflect \fIchild\fP's removal from the packing
+order.  \fIChild\fP is not deleted.
+
+.SH KEYWORDS
+packer, unmap, unpack, window

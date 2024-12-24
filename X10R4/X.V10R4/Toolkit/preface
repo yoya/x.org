@@ -1,0 +1,66 @@
+
+
+
+
+
+
+                          Preface
+
+          The X window system is a network-transparent, portable  win-
+          dow  system  developed  by Project Athena and the Laboratory
+          for Computer Science at the Massachusetts Institute of Tech-
+          nology,  with funding and participation by Digital Equipment
+          Corporation and International Business Machines, Inc.  X  is
+          now  appearing  on computers made by an increasing number of
+          companies.  This enables network-transparent X  applications
+          to  operate  seamlessly across diverse machine architectures
+          and networks.
+
+
+          The low-level programming interface to the X  window  system
+          is contained in the Xlib library, also called the X library.
+          Three additional sets of  routines  are  included  with  the
+          standard  Xlib  as minimal program development tools: XMenu,
+          Xtext, and Xtty.
+
+
+          However, Xlib by itself is not sufficient for  a  programmer
+          to  easily  develop applications that have advanced user in-
+          terface features such as pop-up menus or panels  filled  ei-
+          ther  with  standard interactive gadgetry (such as push but-
+          tons or scroll bars) or with custom gadgetry (such as  ther-
+          mometers  or  gauges)  that  the  programmer  might  care to
+          develop.
+
+
+          Although it is generally acknowledged that  the  standard  X
+          distribution  needs  a  user interface library that is well-
+          matched to X, the definition of a standard X user  interface
+          library has only just begun.  The relation between the even-
+          tual  standard  and  the toolkits provided in this directory
+          (or  any  other  publicly  available user interface library)
+          hasn't been determined.  _T_h_e_r_e_f_o_r_e, _i_t _c_a_n'_t  _b_e  _g_u_a_r_a_n_t_e_e_d
+          _t_h_a_t _a_n_y _e_a_s_y _p_o_r_t_i_n_g _p_a_t_h _w_i_l_l _e_x_i_s_t _b_e_t_w_e_e_n _t_h_e_s_e _t_o_o_l_k_i_t_s
+          _a_n_d _t_h_e _e_v_e_n_t_u_a_l _s_t_a_n_d_a_r_d.  These toolkits are not  provided
+          to dictate a _d_e _f_a_c_t_o standard, but rather to prompt discus-
+          sion in the X community about what is needed in  a  standard
+          and  to  assist  those whose current needs require immediate
+          availability of a user interface library, even if it isn't a
+          standard.
+
+
+                      Steven R. Lerman
+                      Director, Project Athena
+                      Massachusetts Institute of Technology
+                      Cambridge, Massachusetts
+
+
+
+
+
+
+
+
+                     December 23, 1986
+
+

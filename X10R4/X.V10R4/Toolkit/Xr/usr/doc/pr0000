@@ -1,0 +1,64 @@
+.TE
+.fi
+.ie e .SK 0
+.el .SK 1
+.OF "'''\\\\fBPreface\0\0\\\\nP\\\\fP'"
+.EF "'\\\\fB\\\\nP\0\0Preface\\\\fP'''"
+.SA 0
+.ce 1
+\fB\s20Preface\fR\s10
+.SP 2
+The X window system is a network-transparent, portable window system
+developed by Project Athena and the Laboratory for Computer Science at
+the Massachusetts Institute of Technology, with funding and
+participation by Digital Equipment Corporation and International
+Business Machines, Inc.  X is now appearing on computers made by an
+increasing number of companies.  This enables network-transparent X
+applications to operate seamlessly across diverse machine
+architectures and networks.
+.P
+The low-level programming interface to the X window system is
+contained in the Xlib library, also called the X library.  Three
+additional sets of routines are included with the standard Xlib as
+minimal program development tools: XMenu, Xtext, and Xtty, documented
+as part of appendix A in this manual.
+.P
+However, Xlib by itself is not sufficient for a programmer to easily
+develop applications that have advanced user interface features such
+as pop-up menus or panels filled either with standard interactive
+gadgetry (such as push buttons or scroll bars) or with custom
+gadgetry (such as thermometers or gauges) that the programmer might
+care to develop.
+.P
+To fill this need, Hewlett-Packard's X-ray User Interface Project
+developed the Xrlib user interface library, which is documented in the
+remainder of this manual.  Xrlib provides a message-based programming
+interface to user-interface components.  Hewlett-Packard has
+contributed Xrlib to Project Athena's release of X to increase the
+usability of X and thereby build a large community of X users.
+.P
+Although it is generally acknowledged that the standard X distribution
+needs a user interface library that is well-matched to X, the
+definition of a standard X user interface library has only just begun.
+The relation between the eventual standard and Xrlib (or any other
+publicly available user interface library) hasn't been determined.
+.B
+Therefore, it can't be guaranteed that any easy porting path will
+exist between Xrlib and the eventual standard.
+.R
+Xrlib is not provided to dictate a
+.I
+de facto
+.R
+standard, but rather to prompt discussion in
+the X community about what is needed in a standard and to assist those
+whose current needs require immediate availability of a user interface
+library, even if it isn't a standard.
+.SP 2
+.in +25
+.nf
+Steven R. Lerman
+Director, Project Athena
+Massachusetts Institute of Technology
+Cambridge, Massachusetts
+.in -25

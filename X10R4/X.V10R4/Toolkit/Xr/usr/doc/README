@@ -1,0 +1,54 @@
+"Programming With the X Window System"
+
+Documentation files included:
+ pr00 - front matter
+ pr01 - chapter 1
+ pr02 - chapter 2
+ pr03 - chapter 3
+ pr04 - chapter 4
+ pr05 - chapter 5
+ pr0a - appendix A (intro)
+ pr0b - appendix B
+ prii - index
+(pr000) - start for pr00
+(pr0000)- preface for pr00
+(priii) - start for prii
+ 
+ plus MAN files
+
+Other files:
+ makefile   - Make file used print revised parts of manual
+              and to create "index" program.
+ idx.lex    - LEX file used to define "index" program.
+ MakeAll    - Script that prints entire manual except MAN pages.
+ MakeChap   - Script that prints one chapter or appendix.
+ MakeMan    - Script that prints all MAN pages.
+ MakeConIdx - Script that prints contents and index.
+
+Executing program files:
+ make index               - Creates "index" program using the
+                            "makefile" and "idx.lex" files. This
+                            must be done BEFORE trying to print the index
+                            (unless you print the manual using "make").
+ make {all new pr00 prii} - Makes all manual parts, revised manual parts,
+                            contents, or index.
+ MakeAll                  - Composes and prints entire manual (including
+                            contents and index), but not the MAN pages.
+ MakeChap {1 2 3 4 5 a b} - Composes and prints one chapter, compiles contents
+                            and index information in .con and .idx files.
+ MakeMan                  - Composes and prints all MAN pages.
+ MakeConIdx               - Concatenates current contents and index
+                            information, composes and prints them.
+
+Note:
+ The "makefile" file for the make utility hasn't been fully tested. The
+ script files were used to generate the actual manual.
+
+Assumptions:
+ The MakeAll, MakeChap, and MakeConIdx scripts use "eroff" and the
+ LaserJet Plus printer. "eroff" is a product of ELAN that uses
+ "soft fonts" compatible with the LaserJet Plus.
+
+ If your system isn't compatible with these scripts, you should change
+ them to use "troff" or "nroff" and to route the output to the appropriate
+ device.

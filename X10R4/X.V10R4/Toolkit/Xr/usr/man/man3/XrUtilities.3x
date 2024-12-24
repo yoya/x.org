@@ -1,0 +1,87 @@
+.TH XRUTILITIES 3X "Xrlib Version 10"
+.SH NAME
+Utilities - Utilities for performing some general functions
+.SH SYNOPSIS
+#include <X/Xib.h>
+.br
+#include <Xr/Xrlib.h>
+.br
+.PP
+.B XrStringWidth (fontInfo, str, charWidth, charPad, spacePad)
+.br
+FontInfo * fontInfo;
+.br
+STRING8 str;
+.br
+INT32 charWidth;
+.br
+INT32 charPad;
+.br
+INT32 spacePad;
+.PP
+.br
+.B XrMapButton (eventCode, event)
+.br
+INT8 eventCode;
+.br
+XEvent * event;
+.PP
+.br
+.B XrGetWindowEvent (eventCode, windowEvent)
+.br
+INT8 eventCode;
+.br
+xrWindowEvent * windowEvent;
+.br
+.PP
+.br
+INT8 *
+.br
+.B XrVersion ()
+.br
+.PP
+.sp 1
+.SH DESCRIPTION
+.IP XrStringWidth
+XrStringWidth() calculates the width in pixels of a character string
+using the font information contained in the structure pointed at by
+.I fontInfo.
+The string is represented by the rest of the parameters.
+.I str
+points to the string to be used in the calculation.
+.I charWidth
+contains the length of the string in characters or is set to the define
+.B XrNULLTERMINATED
+if the string is null-terminated.
+.I charPad
+and
+.I spacePad
+contain the additional space to be placed between characters and spaces
+respectively.
+.IP
+The pixel width of the string is returned as the value of the function.
+.IP XrMapButton
+XrMapButton takes as a parameter an eventCode which contains one of the
+following defines:
+.B XrSELECT, XrSELECTUP, XrMENUPOST, XrMENUITEMSELECT.
+The event parameter will be compared against the conditions necessary
+for the above defines and if a match is found 
+.B TRUE
+will be returned.  If no match is found,
+.B FALSE
+will be returned.
+.IP XrGetWindowEvent
+XrGetWindowEvent() takes as input one of the defines
+.B XrSELECT, XrSELECTUP, XrMENUPOST, XrMENUITEMSELECT
+and fills out the xrWindowEvent structure with the values
+necessary for the define.  The structure can then be used
+to add a function into a window that will be invoked under
+one of the defines conditions.
+.IP XrVersion
+XrVersion() returns a pointer to a string 
+which contains the version of Xrlib being
+used.  The string will have the format of 
+.B X-ray Version ##  -  ##.##  
+The ## contains the X library version that the Xr library was built with.
+The ##.## can be ignored.  The string returned is static and thus
+cannot be modified.

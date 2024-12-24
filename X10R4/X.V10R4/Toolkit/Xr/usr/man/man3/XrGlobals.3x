@@ -1,0 +1,36 @@
+.TH XRGLOBALS 3X "Xrlib Version 10"
+.SH NAME
+XrGlobals - the globally accessible data structure descriptions.
+.SH SYNOPSIS
+#include <X/Xlib.h>
+.br
+#include <Xr/Xrlib.h>
+.br
+.sp 2
+.SH DESCRIPTION
+Xrlib initializes the following set of globals variables which are
+used by Xrlib functions and can also be used by the application.  None
+of these variables should be reset by the application or grave errors
+could result.
+.nf
+
+xrZeroPt - a POINT structure set to {0, 0}.
+xrZeroRect - a RECTANGLE structure set to {0, 0, 0, 0}.
+xrMalloc - the pointer to the malloc() function.
+xrFree - the pointer to the free() function.
+xrRealloc - the pointer to the realloc() function.
+xrCalloc - the pointer to the calloc() function.
+xrBaseFontInfo - Xrlib base font.
+xrWindowForeground - Xrlib default window foreground tile.
+xrWindowBackground - Xrlib default window background tile.
+xrBorderWidth - Xrlib default window border width.
+xrForegroundColor - Xrlib default window foreground color
+xrBackgroundColor - Xrlib default window background color
+xrDefaultCursor - Xrlib default cursor.
+
+.fi
+Xrlib also defines an error variable,
+.I xrErrno
+which is set to an error code by Xrlib functions when the functions fail.
+.SH SEE ALSO
+XrInit(3X), xrErrno(3X)

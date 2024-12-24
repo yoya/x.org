@@ -1,0 +1,27 @@
+cp pr000 pr00
+cat pr01.con >>pr00
+cat pr02.con >>pr00
+cat pr03.con >>pr00
+cat pr04.con >>pr00
+cat pr05.con >>pr00
+cat pr0a.con >>pr00
+cat pr0b.con >>pr00
+cat pr0000 >>pr00
+
+tbl pr00 | eroff -mm -Tlj+
+echo "Printing contents - compiling index."
+
+rm prii 2>/dev/null
+cat pr01.idx >>prii 2>/dev/null
+cat pr02.idx >>prii 2>/dev/null
+cat pr03.idx >>prii 2>/dev/null
+cat pr04.idx >>prii 2>/dev/null
+cat pr05.idx >>prii 2>/dev/null
+cat pr0a.idx >>prii 2>/dev/null
+cat pr0b.idx >>prii 2>/dev/null
+
+makeindex prii
+
+cp priii prii
+cat prii.out >>prii
+eroff -mm -Tlj+ prii

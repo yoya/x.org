@@ -1,0 +1,90 @@
+.TH Sx_EntryCreate sx
+.BS
+.NA
+Sx_EntryCreate, Sx_EntryMake \- create an entry subwindow
+.SY
+#include <X/Xlib.h>
+#include <sx.h>
+.sp
+Window
+Sx_EntryCreate(\fIparent, x, y, width, height, border, label, fontPtr, foreground,
+    background, text, size\fP)
+.sp
+Sx_EntryMake(\fIwindow, label, fontPtr, foreground, background, text, size)
+.AR
+.AS ClientData clientData
+.AP Window parent in
+Window in which to create new entry subwindow.
+.AP int "x, y" in
+Location (in \fIparent\fP) of upper left outside corner of new entry
+subwindow.
+.AP int "width, height" in
+Inside dimensions of new entry subwindow (not including border).
+.AP int border in
+Border width for new entry subwindow.
+.AP char *label in
+Text to display at left side of entry.  Typically identifies what
+user should type in entry.  If NULL, then no identifying label is
+displayed.
+.AP FontInfo *fontPtr in
+Font to use for displaying text in entry subwindow.  If NULL, then
+the Sx default font is used.
+.AP int foreground in
+Color in which to display text (also used for borders in Sx_EntryCreate).
+Typically BlackPixel.
+.AP int background in
+Background color for entry subwindow (typically WhitePixel).
+.AP char *text in/out
+Text that can be edited by user.  Contains initial value to be displayed
+in entry subwindow just to right of \fIlabel\fP;  as user edits, the contents
+will change.
+.AP int size in
+Maximum number of characters (including terminating null character) that
+may be stored at \fI*text\fP.
+.AP Window window in
+Existing window to turn into entry subwindow.
+.BE
+
+.SH DESCRIPTION
+.PP
+Sx_EntryCreate creates a new window inside \fIparent\fP and arranges
+for it to behave as a text entry subwindow.  \fIX\fP, \fIy\fP,
+\fIwidth\fP, \fIheight\fP, and \fIborder\fP control the location and
+size of the new window.  Sx_EntryCreate returns the X id
+for the new window.  The string given by \fIlabel\fP will be displayed at
+the left edge of the entry subwindow, and \fItext\fP
+will be displayed just to the right of \fIlabel\fP.  The user will
+be able to edit \fItext\fP by typing in the window.
+The entry subwindow will respond to the
+control characters ^C (insert selection), ^D (delete selection),
+^H or rubout (backspace), ^U (line kill), and ^W (backspace over
+word).  As the user edits, the contents of \fItext\fP will change,
+subject to the limitation of \fIsize\fP total characters.  The text
+can also be selected for use in other windows.
+.PP
+Sx_EntryMake is similar to Sx_EntryCreate except that it doesn't
+create a new window;  the caller provides the window to use for
+the entry.  If the window is already an entry window, then
+Sx_EntryMake just changes its internal parameters and redisplays
+the entry (this is useful, for example, if the caller wishes to
+change the label or text for the entry).  If the window isn't already
+an entry window, then Sx_EntryMake doesn't redisplay it;  it assumes
+that the caller will map the window later, at which point it
+will be redisplayed.
+.PP
+If \fIfontPtr\fP is non-NULL, the caller must make sure that the
+information it refers to does not change as long as the entry
+exists.  On the other hand, \fIlabel\fP may be modified as soon
+as Sx_EntryCreate or Sx_EntryMake returns, since a copy of it is saved
+internally for the entry.
+.PP
+Entry subwindows may be deleted at any time by calling XDestroyWindow.
+The Sx package will automatically clean up internal data associated
+with the entry.
+.PP
+The implementation of entries depends on the use of the Sx
+dispatcher (Sx_HandlerCreate, Sx_HandleEvent, etc.), and will
+not work if those routines are not used correctly.
+
+.SH KEYWORDS
+edit, entry, text, window

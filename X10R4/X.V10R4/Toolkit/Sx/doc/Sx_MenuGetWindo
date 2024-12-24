@@ -1,0 +1,29 @@
+.TH Sx_MenuGetWindow sx
+.B1
+.NA
+Sx_MenuGetWindow \- find window for menu of a given name
+.SY
+#include <X/Xlib.h>
+#include <sx.h>
+.sp
+Window
+Sx_MenuGetWindow(\fIparent, name\fP)
+.sp
+.AR
+.AS Window windows[]
+.AP Window parent in
+X identifier for window containing menu(s) as children
+(\fIparent\fP argument to previous Sx_MenuCreate call).
+.AP char *name in
+Name of desired menu.
+.B2
+
+.SH DESCRIPTION
+.PP
+If \fIparent\fP has a menu subwindow whose name is \fIname\fP
+then the X window id for the menu is returned (this is the same
+as the value returned by Sx_MenuCreate when the menu was created).
+Otherwise, NULL is returned.
+
+.SH KEYWORDS
+name, pull-down menu, window
